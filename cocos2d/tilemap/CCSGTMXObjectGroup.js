@@ -82,7 +82,8 @@ _ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
             objects = groupInfo._objects;
         }
 
-        // add objects
+        // create objects
+        this._objects = [];
         for (var i = 0, n = objects.length; i < n; i++) {
             var objInfo = objects[i];
             var object = new _ccsg.TMXObject();
