@@ -132,7 +132,7 @@ var Slider = cc.Class({
         this.node.off(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this);
         this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
         this.node.off(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this);
-        if (this.handle) {
+        if (this.handle && this.handle.isValid) {
             this.handle.node.off(cc.Node.EventType.TOUCH_START, this._onHandleDragStart, this);
             this.handle.node.off(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this);
             this.handle.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
@@ -145,7 +145,7 @@ var Slider = cc.Class({
         this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this);
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
         this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this);
-        if (this.handle) {
+        if (this.handle && this.handle.isValid) {
             this.handle.node.on(cc.Node.EventType.TOUCH_START, this._onHandleDragStart, this);
             this.handle.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this);
             this.handle.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
