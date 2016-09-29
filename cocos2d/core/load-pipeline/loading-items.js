@@ -83,6 +83,33 @@ function createItem (id, queueId) {
     return result;
 }
 
+var checkedIds = [];
+function checkCircleReference(owner, item, recursiveCall) {
+    var result = false;
+    checkedIds.push(item.id);
+    if (item.deps) {
+        var i, deps = item.deps, subDep;
+        for (var i = 0; i < deps.length; i++) {
+            subDep = deps[i];
+            if (subDep.id === owner.id) {
+                result = true;
+                break;
+            }
+            else if (checkedIds.indexOf(subDep.id) >= 0) {
+                continue;
+            }
+            else if (subDep.deps && checkCircleReference(owner, subDep, true)) {
+                result = true;
+                break;
+            }
+        }
+    }
+    if (!recursiveCall) {
+        checkedIds.length = 0;
+    }
+    return result;
+}
+
 /**
  * !#en
  * LoadingItems is the queue of items which can flow them into the loading pipeline.</br>
@@ -305,7 +332,7 @@ LoadingItems.getQueue = function (item) {
 LoadingItems.itemComplete = function (item) {
     var queue = _queues[item.queueId];
     if (queue) {
-        // console.log('----- Completed by pipeline ' + item.id + ', rest: ' + (queue.totalCount - queue.completedCount-1));
+        console.log('----- Completed by pipeline ' + item.id + ', rest: ' + (queue.totalCount - queue.completedCount-1));
         queue.itemComplete(item.id);
     }
 };
@@ -331,10 +358,27 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
             // Already queued in another items queue, url is actually the item
             if (url.queueId && !this.map[url.id]) {
                 this.map[url.id] = url;
-                this.totalCount++;
-                // console.log('----- Completed already or circle referenced ' + url.id + ', rest: ' + (this.totalCount - this.completedCount-1));
-                this.itemComplete(url.id);
-                continue;
+                // Queued and completed or Owner circle referenced by dependency
+                if (url.complete || checkCircleReference(owner, url)) {
+                    this.totalCount++;
+                    console.log('----- Completed already or circle referenced ' + url.id + ', rest: ' + (this.totalCount - this.completedCount-1));
+                    this.itemComplete(url.id);
+                    continue;
+                }
+                // Not completed yet, should wait it
+                else {
+                    var self = this;
+                    var queue = _queues[url.queueId];
+                    if (queue) {
+                        this.totalCount++;
+                        console.log('+++++ Waited ' + url.id);
+                        queue.addListener(url.id, function (item) {
+                            console.log('----- Completed by waiting ' + item.id + ', rest: ' + (self.totalCount - self.completedCount-1));
+                            self.itemComplete(item.id);
+                        });
+                    }
+                    continue;
+                }
             }
             // Queue new items
             if (isIdValid(url)) {
@@ -345,7 +389,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
                     this.map[item.id] = item;
                     this.totalCount++;
                     accepted.push(item);
-                    // console.log('+++++ Appended ' + item.id);
+                    console.log('+++++ Appended ' + item.id);
                 }
             }
         }
@@ -353,6 +397,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
 
         // Manually complete
         if (this.completedCount === this.totalCount) {
+            console.log('===== All Completed ');
             this.allComplete();
         }
         else {
@@ -547,13 +592,13 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
 
         this.onProgress && this.onProgress(this.completedCount, this.totalCount, item);
 
+        this.invokeAndRemove(id, item);
+
         // All completed
         if (!this._appending && this.completedCount >= this.totalCount) {
-            // console.log('===== All Completed ');
+            console.log('===== All Completed ');
             this.allComplete();
         }
-
-        this.invokeAndRemove(id, item);
     },
 
     /**
