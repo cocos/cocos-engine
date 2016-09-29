@@ -133,11 +133,11 @@ var RendererInSG = cc.Class({
                 cc.renderer.childrenOrderDirty = parentNode._reorderChildDirty = true;
             } else {
                 // update the arrival order of replaced sgNode
-                var parentEntity = this.node.getParent();
+                var parentEntity = this.node._parent;
                 if (parentEntity) {
-                    var entityChildren = parentEntity.getChildren();
+                    var entityChildren = parentEntity._children;
                     var startIdx = this.node.getSiblingIndex();
-                    for (i = startIdx; i < entityChildren.length; i++) {
+                    for (i = startIdx + 1; i < entityChildren.length; i++) {
                         entityChildren[i]._sgNode.updateOrderOfArrival();
                     }
                 }
