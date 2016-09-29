@@ -158,16 +158,15 @@ var audioEngine = {
      */
     setVolume: function (audioID, volume) {
         var audio = getAudioFromId(audioID);
+        if (!audio) return;
         if (!audio._loaded) {
             audio.once('load', function () {
-                if (!audio || !audio.setVolume)
-                    return;
-                audio.setVolume(volume);
+                if (audio.setVolume)
+                    audio.setVolume(volume);
             });
         }
-        if (!audio || !audio.setVolume)
-            return;
-        audio.setVolume(volume);
+        if (audio.setVolume)
+            audio.setVolume(volume);
     },
 
     /**
@@ -200,17 +199,16 @@ var audioEngine = {
      */
     setCurrentTime: function (audioID, sec) {
         var audio = getAudioFromId(audioID);
+        if (!audio) return false;
         if (!audio._loaded) {
             audio.once('load', function () {
-                if (!audio || !audio.setCurrentTime)
-                    return false;
-                audio.setCurrentTime(sec);
+                if (audio.setCurrentTime)
+                    audio.setCurrentTime(sec);
             });
-            return false;
+            return true;
         }
-        if (!audio || !audio.setCurrentTime)
-            return false;
-        audio.setCurrentTime(sec);
+        if (audio.setCurrentTime)
+            audio.setCurrentTime(sec);
         return true;
     },
 
