@@ -44,9 +44,19 @@ var getAudioFromPath = function (path) {
         var oldId = list.shift();
         audio = id2audio[id] = id2audio[oldId];
         delete id2audio[oldId];
+        var index = list.indexOf(oldId);
+        index !== -1 && list.splice(index, 1);
     }
     audio.instanceId = id;
     list.push(id);
+
+    //
+    audio.on('ended', function () {
+        var id = this.instanceId;
+        delete id2audio[id];
+        var index = list.indexOf(id);
+        index !== -1 && list.splice(index, 1);
+    });
 
     return audio;
 };
@@ -236,7 +246,7 @@ var audioEngine = {
     getState: function (audioID) {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.getState)
-            return 0;
+            return this.AudioState.ERROR;
         return audio.getState();
     },
 
@@ -275,8 +285,8 @@ var audioEngine = {
         audio.pause();
         return true;
     },
-    _pauseIDCache: [],
 
+    _pauseIDCache: [],
     /**
      * !#en Pause all playing audio
      * !#zh 暂停现在正在播放的所有音频。
@@ -346,6 +356,7 @@ var audioEngine = {
         if (!audio || !audio.stop)
             return false;
         audio.stop();
+        audio.emit('ended');
         return true;
     },
 
@@ -362,6 +373,7 @@ var audioEngine = {
             var audio = id2audio[id];
             if (audio && audio.stop) {
                 audio.stop();
+                audio.emit('ended');
             }
         }
     },
@@ -466,6 +478,31 @@ var audioEngine = {
     // Because webAudio takes up too much memory，So allow users to manually choose
     setMaxWebAudioSize: function (kb) {
         this._maxWebAudioSize = kb * 1024;
+    },
+
+    _breakCache: null,
+    _break: function () {
+        this._breakCache = [];
+        for (var id in id2audio) {
+            var audio = id2audio[id];
+            var state = audio.getState();
+            if (state === Audio.State.PLAYING) {
+                this._breakCache.push(id);
+                audio.pause();
+            }
+        }
+    },
+
+    _restore: function () {
+        if (!this._breakCache) return;
+
+        while (this._breakCache.length > 0) {
+            var id = this._breakCache.pop();
+            var audio = getAudioFromId(id);
+            if (audio && audio.resume)
+                audio.resume();
+        }
+        this._breakCache = null;
     }
 };
 

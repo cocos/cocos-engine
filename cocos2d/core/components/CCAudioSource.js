@@ -41,7 +41,7 @@ var AudioSource = cc.Class({
     },
 
     ctor: function () {
-        this.audio = new cc.Audio();
+        this.audio = new cc.Audio(this._clip);
     },
 
     properties: {
@@ -87,6 +87,7 @@ var AudioSource = cc.Class({
             },
             set: function (value) {
                 this._clip = value;
+                this.audio.stop();
                 this.audio.src = this._clip;
                 if (this.audio.preload) {
                     this.audio.preload();
@@ -110,8 +111,14 @@ var AudioSource = cc.Class({
             },
             set: function (value) {
                 this._volume = value;
-                if (this.audio && !this._mute) {
-                    this.audio.setVolume(value);
+                var audio = this.audio;
+                if (audio && !this._mute) {
+                    audio.setVolume(value);
+                    if (!audio._loaded) {
+                        audio.on('load', function () {
+                            audio.setVolume(value);
+                        });
+                    }
                 }
                 return value;
             },
@@ -173,12 +180,21 @@ var AudioSource = cc.Class({
             default: false,
             tooltip: 'i18n:COMPONENT.audio.play_on_load',
             animatable: false
+        },
+
+        preload: {
+            default: false,
+            animatable: false
         }
     },
 
     onEnable: function () {
         if ( this.playOnLoad ) {
             this.play();
+        }
+        if ( this.preload ) {
+            this.audio.src = this._clip;
+            this.audio.preload();
         }
     },
 
@@ -201,10 +217,19 @@ var AudioSource = cc.Class({
 
         var volume = this._mute ? 0 : this._volume;
         var audio = this.audio;
+        var loop = this._loop;
+
+        if (audio._loaded) {
+            audio.stop();
+            audio.setCurrentTime(0);
+            audio.play();
+            return;
+        }
+
         audio.src = this._clip;
-        audio.setLoop(this._loop);
-        audio.setVolume(volume);
         audio.once('load', function () {
+            audio.setLoop(loop);
+            audio.setVolume(volume);
             audio.play();
         });
         audio.preload();
@@ -252,6 +277,51 @@ var AudioSource = cc.Class({
         if (this.audio) {
             this.audio.setCurrentTime(0);
         }
+    },
+
+    /**
+     * !#en Get current time
+     * !#zh 获取当前的播放时间
+     * @method rewind
+     */
+    getCurrentTime: function () {
+        var time = 0;
+        if (this.audio) {
+            time = this.audio.getCurrentTime();
+        }
+        return time;
+    },
+    
+    /**
+     * !#en Set current time
+     * !#zh 设置当前的播放时间
+     * @method rewind
+     */
+    setCurrentTime: function (time) {
+        var audio = this.audio;
+        if (!audio) return time;
+
+        if (!audio._loaded) {
+            audio.once('load', function () {
+                audio.setCurrentTime(time);
+            });
+            return time;
+        }
+        audio.setCurrentTime(time);
+        return time;
+    },
+    
+    /**
+     * !#en Get audio duration
+     * !#zh 获取当前音频的长度
+     * @method rewind
+     */
+    getDuration: function () {
+        var time = 0;
+        if (this.audio) {
+            time = this.audio.getDuration();
+        }
+        return time;
     }
 
 });

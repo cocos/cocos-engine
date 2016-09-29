@@ -34,13 +34,17 @@ var touchPlayList = [
 var Audio = function (src) {
     EventTarget.call(this);
 
-    this.src = src;
+    this._src = src;
     this._audioType = Audio.Type.UNKNOWN;
     this._element = null;
 
     this._eventList = {};
-    this._state = Audio.State.ERROR;
+    this._state = Audio.State.INITIALZING;
     this._loaded = false;
+
+    this._onended = function () {
+        this.emit('ended');
+    }.bind(this);
 };
 
 cc.js.extend(Audio, EventTarget);
@@ -62,7 +66,7 @@ Audio.State = {
 (function (proto) {
 
     proto.preload = function () {
-        var src = this.src,
+        var src = this._src,
             audio = this;
         var item = cc.loader.getItem(src);
 
@@ -75,10 +79,28 @@ Audio.State = {
                     audio.emit('load');
                 }
             });
-        }
-        else if (item.complete) {
+        } else if (item.complete) {
             audio.mount(item.element || item.buffer);
             audio.emit('load');
+        }
+
+        // current and  volume
+    };
+
+    proto._bindEnded = function (callback) {
+        callback = callback || this._onended;
+        if (this._audioType === Audio.Type.DOM) {
+            this._element.addEventListener('ended', callback);
+        } else {
+            this._element.onended = callback;
+        }
+    };
+
+    proto._unbindEnded = function () {
+        if (this._audioType === Audio.Type.DOM) {
+            this._element.removeEventListener('ended', this._onended);
+        } else {
+            this._element.onended = null;
         }
     };
 
@@ -87,16 +109,11 @@ Audio.State = {
             this._element = document.createElement('audio');
             this._element.src = elem.src;
             this._audioType = Audio.Type.DOM;
-            elem.addEventListener('ended', function () {
-                this.emit('ended', this);
-            }, this);
         } else {
             this._element = new WebAudioElement(elem);
             this._audioType = Audio.Type.WEBAUDIO;
-            elem.onended = function () {
-                this.emit('ended', this);
-            };
         }
+        this._bindEnded();
         this._state = Audio.State.INITIALZING;
         this._loaded = true;
     };
@@ -126,6 +143,7 @@ Audio.State = {
 
     proto.pause = function () {
         if (!this._element) return;
+        this._unbindEnded();
         this._element.pause();
         this.emit('pause');
         this._state = Audio.State.PAUSED;
@@ -133,18 +151,20 @@ Audio.State = {
 
     proto.resume = function () {
         if (!this._element || this._element.currentTime === 0) return;
+        this._bindEnded();
         this._element.play();
-        this.emit('play');
+        this.emit('resume');
         this._state = Audio.State.PLAYING;
     };
 
     proto.stop = function () {
         if (!this._element) return;
-        this._element.pause();
         try {
             this._element.currentTime = 0;
         } catch (error) {}
-        this.emit('pause');
+        this._element.pause();
+        this.emit('ended');
+        this.emit('stop');
         this._state = Audio.State.PAUSED;
     };
 
@@ -166,6 +186,10 @@ Audio.State = {
 
     proto.setCurrentTime = function (num) {
         if (!this._element) return;
+        this._unbindEnded();
+        this._bindEnded(function () {
+            this._bindEnded();
+        }.bind(this));
         this._element.currentTime = num;
     };
     proto.getCurrentTime = function () {
@@ -183,6 +207,13 @@ Audio.State = {
         }
         return this._state;
     };
+
+    proto.__defineGetter__('src', function () {
+        return this._src;
+    });
+    proto.__defineSetter__('src', function (string) {
+        return this._src = string;
+    });
 
     // setFinishCallback
 
@@ -270,6 +301,7 @@ var WebAudioElement = function (buffer) {
     };
 
     proto.pause = function () {
+        if (this.paused) return;
         // Record the time the current has been played
         this.playedLength = this._context.currentTime - this._startTime;
         // If more than the duration of the audio, Need to take the remainder
@@ -324,6 +356,10 @@ var WebAudioElement = function (buffer) {
             this.playedLength = num;
         }
         return num;
+    });
+
+    proto.__defineGetter__('duration', function () {
+        return this._buffer.duration;
     });
 
 })(WebAudioElement.prototype);

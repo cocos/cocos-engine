@@ -46,10 +46,12 @@ cc.Audio.Type = {
     // Using the new audioEngine
     cc.audioEngine = audioEngine;
     audioEngine.play = audioEngine.play2d;
+    audioEngine.setMaxWebAudioSize = function () {};
 
     proto.State = audioEngine.AudioState;
 
     proto.play = function () {
+        audioEngine.stop(this.id);
         this.id = audioEngine.play2d(this.src, this.loop, this.volume);
     };
 
