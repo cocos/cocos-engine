@@ -254,7 +254,7 @@ var game = {
         this._paused = true;
         // Pause audio engine
         if (audioEngine) {
-            audioEngine.pauseAll();
+            audioEngine._break();
         }
         // Pause main loop
         if (this._intervalId)
@@ -273,7 +273,7 @@ var game = {
         this._paused = false;
         // Resume audio engine
         if (audioEngine) {
-            audioEngine.resumeAll();
+            audioEngine._restore();
         }
         // Resume main loop
         this._runMainLoop();
