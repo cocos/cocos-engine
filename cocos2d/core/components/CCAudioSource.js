@@ -282,7 +282,7 @@ var AudioSource = cc.Class({
     /**
      * !#en Get current time
      * !#zh 获取当前的播放时间
-     * @method rewind
+     * @method getCurrentTime
      */
     getCurrentTime: function () {
         var time = 0;
@@ -295,7 +295,8 @@ var AudioSource = cc.Class({
     /**
      * !#en Set current time
      * !#zh 设置当前的播放时间
-     * @method rewind
+     * @method setCurrentTime
+     * @param {Number} time
      */
     setCurrentTime: function (time) {
         var audio = this.audio;
@@ -314,7 +315,7 @@ var AudioSource = cc.Class({
     /**
      * !#en Get audio duration
      * !#zh 获取当前音频的长度
-     * @method rewind
+     * @method getDuration
      */
     getDuration: function () {
         var time = 0;
