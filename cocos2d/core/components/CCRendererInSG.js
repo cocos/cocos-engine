@@ -52,7 +52,7 @@ var RendererInSG = cc.Class({
             sgNode.retain();
         }
 
-        // The replacement node used when this component disabled 
+        // The replacement node used when this component disabled
         this._plainNode = new _ccsg.Node();
         if (CC_JSB) {
             this._plainNode.retain();
@@ -107,9 +107,9 @@ var RendererInSG = cc.Class({
             cc.warn('The same sgNode');
             return;
         }
-        
+
         // rebuild scene graph
-        
+
         // replace children
         var children = replaced.getChildren().slice();
         replaced.removeAllChildren(false);
@@ -122,7 +122,7 @@ var RendererInSG = cc.Class({
         for (var i = 0, len = children.length; i < len; ++i) {
             sgNode.addChild(children[i]);
         }
-        
+
         // replace parent
         var parentNode = replaced.getParent();
         if (parentNode) {
@@ -131,6 +131,16 @@ var RendererInSG = cc.Class({
             if ( !CC_JSB ) {
                 sgNode._arrivalOrder = replaced._arrivalOrder;
                 cc.renderer.childrenOrderDirty = parentNode._reorderChildDirty = true;
+            } else {
+                // update the arrival order of replaced sgNode
+                var parentEntity = this.node.getParent();
+                if (parentEntity) {
+                    var entityChildren = parentEntity.getChildren();
+                    var startIdx = this.node.getSiblingIndex();
+                    for (i = startIdx; i < entityChildren.length; i++) {
+                        entityChildren[i]._sgNode.updateOrderOfArrival();
+                    }
+                }
             }
         }
         // replaced.release();
