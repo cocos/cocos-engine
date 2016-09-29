@@ -158,6 +158,13 @@ var audioEngine = {
      */
     setVolume: function (audioID, volume) {
         var audio = getAudioFromId(audioID);
+        if (!audio._loaded) {
+            audio.once('load', function () {
+                if (!audio || !audio.setVolume)
+                    return;
+                audio.setVolume(volume);
+            });
+        }
         if (!audio || !audio.setVolume)
             return;
         audio.setVolume(volume);
@@ -193,6 +200,14 @@ var audioEngine = {
      */
     setCurrentTime: function (audioID, sec) {
         var audio = getAudioFromId(audioID);
+        if (!audio._loaded) {
+            audio.once('load', function () {
+                if (!audio || !audio.setCurrentTime)
+                    return false;
+                audio.setCurrentTime(sec);
+            });
+            return false;
+        }
         if (!audio || !audio.setCurrentTime)
             return false;
         audio.setCurrentTime(sec);
@@ -507,3 +522,8 @@ var audioEngine = {
 };
 
 module.exports = cc.audioEngine = audioEngine;
+
+// deprecated
+var Module = require('./deprecated');
+Module.removed(audioEngine);
+Module.deprecated(audioEngine);
