@@ -85,7 +85,7 @@ var AssetLibrary = {
         }
         Loader.load(item, function (error, asset) {
             if (error || !asset) {
-                error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + error.message);
+                error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + (error ? error.message : 'Unknown error'));
             }
             else {
                 if (asset.constructor === cc.SceneAsset) {
