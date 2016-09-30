@@ -485,6 +485,16 @@ void TMXObjectGroup::_initGroup(TMXObjectGroupInfo* groupInfo, TMXMapInfo* mapIn
     setPosition(Vec2(_positionOffset.x, -_positionOffset.y));
     setVisible(groupInfo->_visible);
     
+    // remove the old objects
+    auto existedObjCount = this->_objects.size();
+    for (auto i = existedObjCount; i >= 0; i--) {
+        auto obj = this->_objects.at(i);
+        if (obj) {
+            this->_objects.erase(i);
+            CC_SAFE_RELEASE(obj);
+        }
+    }
+
     // create objects children
     auto objects = groupInfo->_objects;
     int idx = 0;
