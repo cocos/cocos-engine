@@ -1296,7 +1296,7 @@ var ScrollView = cc.Class({
             this._outOfBoundaryAmountDirty = false;
         }
 
-        //outOfBoundaryAmount = this._clampDelta(outOfBoundaryAmount);
+        outOfBoundaryAmount = this._clampDelta(outOfBoundaryAmount);
 
         return outOfBoundaryAmount;
     },
