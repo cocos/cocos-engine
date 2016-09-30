@@ -332,7 +332,7 @@ LoadingItems.getQueue = function (item) {
 LoadingItems.itemComplete = function (item) {
     var queue = _queues[item.queueId];
     if (queue) {
-        console.log('----- Completed by pipeline ' + item.id + ', rest: ' + (queue.totalCount - queue.completedCount-1));
+        // console.log('----- Completed by pipeline ' + item.id + ', rest: ' + (queue.totalCount - queue.completedCount-1));
         queue.itemComplete(item.id);
     }
 };
@@ -361,7 +361,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
                 // Queued and completed or Owner circle referenced by dependency
                 if (url.complete || checkCircleReference(owner, url)) {
                     this.totalCount++;
-                    console.log('----- Completed already or circle referenced ' + url.id + ', rest: ' + (this.totalCount - this.completedCount-1));
+                    // console.log('----- Completed already or circle referenced ' + url.id + ', rest: ' + (this.totalCount - this.completedCount-1));
                     this.itemComplete(url.id);
                     continue;
                 }
@@ -371,9 +371,9 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
                     var queue = _queues[url.queueId];
                     if (queue) {
                         this.totalCount++;
-                        console.log('+++++ Waited ' + url.id);
+                        // console.log('+++++ Waited ' + url.id);
                         queue.addListener(url.id, function (item) {
-                            console.log('----- Completed by waiting ' + item.id + ', rest: ' + (self.totalCount - self.completedCount-1));
+                            // console.log('----- Completed by waiting ' + item.id + ', rest: ' + (self.totalCount - self.completedCount-1));
                             self.itemComplete(item.id);
                         });
                     }
@@ -389,7 +389,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
                     this.map[item.id] = item;
                     this.totalCount++;
                     accepted.push(item);
-                    console.log('+++++ Appended ' + item.id);
+                    // console.log('+++++ Appended ' + item.id);
                 }
             }
         }
@@ -397,7 +397,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
 
         // Manually complete
         if (this.completedCount === this.totalCount) {
-            console.log('===== All Completed ');
+            // console.log('===== All Completed ');
             this.allComplete();
         }
         else {
@@ -596,7 +596,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
 
         // All completed
         if (!this._appending && this.completedCount >= this.totalCount) {
-            console.log('===== All Completed ');
+            // console.log('===== All Completed ');
             this.allComplete();
         }
     },
