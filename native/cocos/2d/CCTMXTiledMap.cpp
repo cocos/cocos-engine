@@ -180,6 +180,20 @@ void TMXTiledMap::buildWithMapInfo(TMXMapInfo* mapInfo)
     int idx = 0;
     int layerCount = 0;
 
+    // remove the layers & object groups added before
+    auto oldChildren = getChildren();
+    auto childCount = oldChildren.size();
+    for(auto i = childCount - 1; i >= 0; i--){
+        auto childNode = oldChildren.at(i);
+        if (childNode) {
+            auto layer = dynamic_cast<TMXLayer*>(childNode);
+            auto objGroup = dynamic_cast<TMXObjectGroup*>(childNode);
+            if (layer || objGroup) {
+                removeChild(childNode);
+            }
+        }
+    }
+
     auto& children = mapInfo->getAllChildren();
     for (const auto &childInfo : children) {
         TMXLayerInfo* layerInfo = dynamic_cast<TMXLayerInfo*>(childInfo);
