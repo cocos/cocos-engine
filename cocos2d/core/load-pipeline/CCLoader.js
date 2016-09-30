@@ -203,7 +203,7 @@ JS.mixin(CCLoader.prototype, {
     },
 
     flowInDeps: function (owner, urlList, callback) {
-        if (!owner.deps) {
+        if (owner && !owner.deps) {
             owner.deps = [];
         }
 
@@ -216,7 +216,7 @@ JS.mixin(CCLoader.prototype, {
             if (item) {
                 _sharedList.push(item);
                 // Collect deps to avoid circle reference
-                owner.deps.push(item);
+                owner && owner.deps.push(item);
             }
             else {
                 _sharedList.push(urlList[i]);
@@ -227,7 +227,7 @@ JS.mixin(CCLoader.prototype, {
             callback(errors, items);
             // Clear deps because it's already done
             // Each item will only flowInDeps once, so it's still safe here
-            owner.deps.length = 0;
+            owner && (owner.deps.length = 0);
             items.destroy();
         });
         var accepted = queue.append(_sharedList, owner);
