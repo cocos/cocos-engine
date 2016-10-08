@@ -1002,10 +1002,10 @@ var ScrollView = cc.Class({
     _clampDelta: function(delta) {
         var contentSize = this.content.getContentSize();
         var scrollViewSize = this.node.getContentSize();
-        if (contentSize.width <= scrollViewSize.width) {
+        if (contentSize.width < scrollViewSize.width) {
             delta.x = 0;
         }
-        if (contentSize.height <= scrollViewSize.height) {
+        if (contentSize.height < scrollViewSize.height) {
             delta.y = 0;
         }
 
