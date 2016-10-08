@@ -281,6 +281,8 @@ _ccsg.EditBox = _ccsg.Node.extend({
     },
 
     stayOnTop: function (flag) {
+        if(this._alwaysOnTop === flag) return;
+
         this._alwaysOnTop = flag;
         this._renderCmd.stayOnTop(this._alwaysOnTop);
     },
@@ -570,6 +572,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             this._edTxt.style.display = '';
         } else {
             this._createLabels();
+            this._edTxt.style.display = 'none';
+            this._updateLabelString();
         }
     };
 
@@ -637,6 +641,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             var editBox = thisPointer._editBox;
             this.style.fontSize = thisPointer._edFontSize + 'px';
             this.style.color = cc.colorToHex(editBox._textColor);
+            thisPointer._hiddenLabels();
+
             if(cc.view.isAutoFullScreenEnabled()) {
                 thisPointer.__fullscreen = true;
                 cc.view.enableAutoFullScreen(false);
@@ -712,6 +718,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
         tmpEdTxt.addEventListener('focus', function () {
             var editBox = thisPointer._editBox;
+            thisPointer._hiddenLabels();
 
             this.style.fontSize = thisPointer._edFontSize + 'px';
             this.style.color = cc.colorToHex(editBox._textColor);
@@ -766,31 +773,30 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto._createLabels = function () {
-        if(this._textLabel || this._placeholderLabel) return;
-
         var editBoxSize = this._editBox.getContentSize();
-        this._textLabel = new _ccsg.Label();
-        this._textLabel.setVisible(false);
-        this._textLabel.setAnchorPoint(cc.p(0, 1));
-        this._textLabel.setOverflow(_ccsg.Label.Overflow.CLAMP);
-        this._editBox.addChild(this._textLabel, 100);
+        if(!this._textLabel) {
+            this._textLabel = new _ccsg.Label();
+            this._textLabel.setVisible(false);
+            this._textLabel.setAnchorPoint(cc.p(0, 1));
+            this._textLabel.setOverflow(_ccsg.Label.Overflow.CLAMP);
+            this._editBox.addChild(this._textLabel, 100);
+        }
 
-        this._placeholderLabel = new _ccsg.Label();
-        this._placeholderLabel.setAnchorPoint(cc.p(0, 1));
-        this._placeholderLabel.setColor(cc.Color.GRAY);
-        this._editBox.addChild(this._placeholderLabel, 100);
+        if(!this._placeholderLabel) {
+            this._placeholderLabel = new _ccsg.Label();
+            this._placeholderLabel.setAnchorPoint(cc.p(0, 1));
+            this._placeholderLabel.setColor(cc.Color.GRAY);
+            this._editBox.addChild(this._placeholderLabel, 100);
+        }
 
         this._updateLabelPosition(editBoxSize);
     };
 
     proto._removeLabels = function () {
-        if(!this._textLabel || !this._placeholderLabel) return;
+        if(!this._textLabel) return;
 
         this._editBox.removeChild(this._textLabel);
         this._textLabel = null;
-
-        this._editBox.removeChild(this._placeholderLabel);
-        this._placeholderLabel = null;
     };
 
     proto._updateLabelPosition = function (editBoxSize) {
@@ -889,11 +895,10 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         if(!this._editBox._alwaysOnTop) {
             if (this._edTxt.style.display === 'none') {
                 this._edTxt.style.display = '';
-                cc._canvas.focus();
                 this._edTxt.focus();
-                this._hiddenLabels();
             }
         }
+        this._hiddenLabels();
     };
 
     proto.hidden = function() {

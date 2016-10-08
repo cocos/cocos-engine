@@ -364,6 +364,8 @@ var EditBox = cc.Class({
             notify: function () {
                 if(!CC_JSB) {
                     this._sgNode.stayOnTop(this.stayOnTop);
+                    this._sgNode.fontSize = this.fontSize;
+                    this._sgNode.fontColor = this.fontColor;
                 }
             }
         },
