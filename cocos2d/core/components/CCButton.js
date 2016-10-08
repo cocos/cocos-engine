@@ -538,7 +538,7 @@ var Button = cc.Class({
     },
 
     _onMouseMoveIn: function () {
-        if (!this.hoverSprite || this._pressed || !this.interactable || !this.enabledInHierarchy) return;
+        if (this._pressed || !this.interactable || !this.enabledInHierarchy) return;
 
         if (!this._hovered) {
             this._hovered = true;
