@@ -505,7 +505,8 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             throw new Error("_ccsg.TMXLayer.setTileGID(): pos should be non-null");
         }
         var pos;
-        if (flags !== undefined) {
+        if (flags !== undefined || !(posOrX instanceof cc.Vec2)) {
+            // four parameters or posOrX is not a Vec2 object
             pos = cc.p(posOrX, flagsOrY);
         } else {
             pos = posOrX;
