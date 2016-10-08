@@ -280,6 +280,34 @@ _ccsg.EditBox = _ccsg.Node.extend({
         }
     },
 
+    setTabIndex: function(index) {
+        if(this._renderCmd._edTxt) {
+            this._renderCmd._edTxt.tabIndex = index;
+        }
+    },
+
+    getTabIndex: function() {
+        if(this._renderCmd._edTxt) {
+            return this._renderCmd._edTxt.tabIndex;
+        }
+        cc.warn('The dom control is not created!');
+        return -1;
+    },
+
+    setFocus: function() {
+        if(this._renderCmd._edTxt) {
+            this._renderCmd._edTxt.focus();
+        }
+    },
+
+    isFocused: function() {
+        if(this._renderCmd._edTxt) {
+            return document.activeElement === this._renderCmd._edTxt;
+        }
+        cc.warn('The dom control is not created!');
+        return false;
+    },
+
     stayOnTop: function (flag) {
         if(this._alwaysOnTop === flag) return;
 

@@ -370,6 +370,19 @@ var EditBox = cc.Class({
             }
         },
 
+        _tabIndex: 0,
+
+        tabIndex: {
+            tooltip: 'i18n:COMPONENT.editbox.stay_on_top',
+            get: function () {
+                return this._tabIndex;
+            },
+            set: function (value) {
+                this._tabIndex = value;
+                this._sgNode.setTabIndex(value);
+            }
+        },
+
         /**
          * !#en The event handler to be called when EditBox began to edit text.
          * !#zh 开始编辑文本输入框触发的事件回调。
@@ -471,6 +484,7 @@ var EditBox = cc.Class({
         sgNode.returnType = this.returnType;
         sgNode.setLineHeight(this.lineHeight);
         sgNode.stayOnTop(this.stayOnTop);
+        sgNode.setTabIndex(this.tabIndex);
 
         sgNode.setDelegate(this);
     },
@@ -518,6 +532,20 @@ var EditBox = cc.Class({
             this._sgNode._onTouchEnded();
         }
         event.stopPropagation();
+    },
+
+    setFocus: function() {
+        if(this._sgNode) {
+            this._sgNode.setFocus();
+        }
+    },
+
+    isFocused: function () {
+        var isFocused = false;
+        if (this._sgNode) {
+            isFocused = this._sgNode.isFocused();
+        }
+        return isFocused;
     }
 
 });
