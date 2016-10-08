@@ -353,6 +353,22 @@ var EditBox = cc.Class({
         },
 
         /**
+         * !#en The input is always visible and be on top of the game view.
+         * !zh 输入框总是可见，并且永远在游戏视图的上面
+         * Note: only available on Web at the moment.
+         * @property {Boolean} stayOnTop
+         */
+        stayOnTop: {
+            tooltip: 'i18n:COMPONENT.editbox.stay_on_top',
+            default: false,
+            notify: function () {
+                if(!CC_JSB) {
+                    this._sgNode.stayOnTop(this.stayOnTop);
+                }
+            }
+        },
+
+        /**
          * !#en The event handler to be called when EditBox began to edit text.
          * !#zh 开始编辑文本输入框触发的事件回调。
          * @property {Component.EventHandler} editingDidBegin
@@ -452,6 +468,7 @@ var EditBox = cc.Class({
         sgNode.inputFlag = this.inputFlag;
         sgNode.returnType = this.returnType;
         sgNode.setLineHeight(this.lineHeight);
+        sgNode.stayOnTop(this.stayOnTop);
 
         sgNode.setDelegate(this);
     },
