@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const BaseObject = dragonBones.BaseObject;
+var BaseObject = dragonBones.BaseObject;
 
 dragonBones.CCFactory = cc.Class({
     name: 'dragonBones.CCFactory',
