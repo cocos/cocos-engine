@@ -149,6 +149,8 @@ var Label = cc.Class({
     ctor: function() {
         if(CC_EDITOR) {
             this._userDefinedFontSize = 40;
+            this._debouncedUpdateSgNodeString = debounce(this._updateSgNodeString, 200);
+            this._debouncedUpdateFontSize = debounce(this._updateSgNodeFontSize, 200);
         }
     },
 
@@ -427,10 +429,6 @@ var Label = cc.Class({
 
     __preload: function () {
         this._super();
-        if (CC_EDITOR) {
-            this._debouncedUpdateSgNodeString = debounce(this._updateSgNodeString, 200);
-            this._debouncedUpdateFontSize = debounce(this._updateSgNodeFontSize, 200);
-        }
 
         var sgSizeInitialized = this._sgNode._isUseSystemFont;
         if (sgSizeInitialized) {
