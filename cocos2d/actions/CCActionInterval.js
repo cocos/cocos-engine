@@ -554,8 +554,11 @@ cc.Repeat = cc.ActionInterval.extend({
             }
 
             // fix for issue #1288, incorrect end value of repeat
-            if (dt >= 1.0 && this._total < locTimes)
+            if (dt >= 1.0 && this._total < locTimes) {
+                // fix for cocos-creator/fireball/issues/4310
+                locInnerAction.update(1);
                 this._total++;
+            }
 
             // don't set a instant action back or update it, it has no use because it has no duration
             if (!this._actionInstant) {
