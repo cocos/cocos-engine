@@ -205,6 +205,8 @@ SocketIO.prototype.emit = function (uri, delegate) {
     this._jsbEmit(uri, delegate);
 };
 
+cc.Node.prototype.setIgnoreAnchorPointForPosition = cc.Node.prototype.ignoreAnchorPointForPosition;
+
 // ccsg
 window._ccsg = {
     Node: cc.Node,
