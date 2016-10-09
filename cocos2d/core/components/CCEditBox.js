@@ -353,6 +353,42 @@ var EditBox = cc.Class({
         },
 
         /**
+         * !#en The input is always visible and be on top of the game view.
+         * !zh 输入框总是可见，并且永远在游戏视图的上面
+         * Note: only available on Web at the moment.
+         * @property {Boolean} stayOnTop
+         */
+        stayOnTop: {
+            tooltip: 'i18n:COMPONENT.editbox.stay_on_top',
+            default: false,
+            notify: function () {
+                if(!CC_JSB) {
+                    this._sgNode.stayOnTop(this.stayOnTop);
+                    this._sgNode.fontSize = this.fontSize;
+                    this._sgNode.fontColor = this.fontColor;
+                }
+            }
+        },
+
+        _tabIndex: 0,
+
+        /**
+         * !#en Set the tabIndex of the DOM input element, only useful on Web.
+         * !#zh 修改 DOM 输入元素的 tabIndex，这个属性只有在 Web 上面修改有意义。
+         * @property {Number} tabIndex
+         */
+        tabIndex: {
+            tooltip: 'i18n:COMPONENT.editbox.tab_index',
+            get: function () {
+                return this._tabIndex;
+            },
+            set: function (value) {
+                this._tabIndex = value;
+                this._sgNode.setTabIndex(value);
+            }
+        },
+
+        /**
          * !#en The event handler to be called when EditBox began to edit text.
          * !#zh 开始编辑文本输入框触发的事件回调。
          * @property {Component.EventHandler} editingDidBegin
@@ -452,6 +488,8 @@ var EditBox = cc.Class({
         sgNode.inputFlag = this.inputFlag;
         sgNode.returnType = this.returnType;
         sgNode.setLineHeight(this.lineHeight);
+        sgNode.stayOnTop(this.stayOnTop);
+        sgNode.setTabIndex(this.tabIndex);
 
         sgNode.setDelegate(this);
     },
@@ -499,6 +537,32 @@ var EditBox = cc.Class({
             this._sgNode._onTouchEnded();
         }
         event.stopPropagation();
+    },
+
+    /**
+     * !#en Let the EditBox get focus, only valid when stayOnTop is true.
+     * !#zh 让当前 EditBox 获得焦点，只有在 stayOnTop 为 true 的时候设置有效
+     * Note: only available on Web at the moment.
+     * @method setFocus
+     */
+    setFocus: function() {
+        if(this._sgNode) {
+            this._sgNode.setFocus();
+        }
+    },
+
+    /**
+     * !#en Determine whether EditBox is getting focus or not.
+     * !#zh 判断 EditBox 是否获得了焦点
+     * Note: only available on Web at the moment.
+     * @method isFocused
+     */
+    isFocused: function () {
+        var isFocused = false;
+        if (this._sgNode) {
+            isFocused = this._sgNode.isFocused();
+        }
+        return isFocused;
     }
 
 });
