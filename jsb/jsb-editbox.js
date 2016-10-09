@@ -57,3 +57,4 @@ _p.setTabIndex = function () {};
 _p.getTabIndex = function () { return -1; };
 _p.setFocus = function () {};
 _p.isFocused = function () { return false; };
+_p.stayOnTop = function () {};

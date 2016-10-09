@@ -372,8 +372,13 @@ var EditBox = cc.Class({
 
         _tabIndex: 0,
 
+        /**
+         * !#en Set the tabIndex of the DOM input element, only useful on Web.
+         * !#zh 修改 DOM 输入元素的 tabIndex，这个属性只有在 Web 上面修改有意义。
+         * @property {Number} tabIndex
+         */
         tabIndex: {
-            tooltip: 'i18n:COMPONENT.editbox.stay_on_top',
+            tooltip: 'i18n:COMPONENT.editbox.tab_index',
             get: function () {
                 return this._tabIndex;
             },
@@ -534,12 +539,24 @@ var EditBox = cc.Class({
         event.stopPropagation();
     },
 
+    /**
+     * !#en Let the EditBox get focus, only valid when stayOnTop is true.
+     * !#zh 让当前 EditBox 获得焦点，只有在 stayOnTop 为 true 的时候设置有效
+     * Note: only available on Web at the moment.
+     * @method setFocus
+     */
     setFocus: function() {
         if(this._sgNode) {
             this._sgNode.setFocus();
         }
     },
 
+    /**
+     * !#en Determine whether EditBox is getting focus or not.
+     * !#zh 判断 EditBox 是否获得了焦点
+     * Note: only available on Web at the moment.
+     * @method isFocused
+     */
     isFocused: function () {
         var isFocused = false;
         if (this._sgNode) {
