@@ -305,6 +305,7 @@ var PageView = cc.Class({
      * !#en Change the AutoScroll stop epsilon value of PageView, change this value could adjust the PageView's
      * event triggerring time.
      * !#zh 设置 PageView 页面自动滚动动画结束的阈值，修改此值可以调整 PageView 事件的发送时机。
+     * @method setAutoScrollStopEpsilon
      * 默认值是 0.001，增大此值，可以让 PageView 的事件更快发送出来，比如设置 0.1。
      * @param {Number} value  AutoScroll Stop epsilon value, should be a value in 0-1
      */
@@ -315,6 +316,7 @@ var PageView = cc.Class({
     /**
      * !#en Query the current AutoScroll stop epsilon value of PageView.
      * !#zh 查询 PageView 页面自动滚动动画结束的阈值
+     * @method getAutoScrollStopEpsilon
      */
     getAutoScrollStopEpsilon: function () {
         return this._autoScrollStopEpsilon;
