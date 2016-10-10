@@ -882,6 +882,51 @@ test('EventAnimCurve', function () {
     ], 'should triggered frame 5 event once if speed is -1');
 
 
+    state.speed = 1;
+    state.wrapMode = cc.WrapMode.Normal;
+    animation.stop('test');
+    animation.play('test', 1.1);
+    calls = [];
+    manager.update(0);
+    manager.update(1);
+    deepEqual(calls, [
+        {
+            func: 'func1',
+            args: ['Frame 3 Event triggered']
+        },
+        {
+            func: 'func1',
+            args: ['Frame 4 Event triggered']
+        },
+        {
+            func: 'func1',
+            args: ['Frame 5 Event triggered']
+        }
+    ], 'should triggered from frame 3 to frame 5');
+
+
+    state.wrapMode = cc.WrapMode.Reverse;
+    animation.stop('test');
+    animation.play('test', 1.1);
+    calls = [];
+    manager.update(0);
+    manager.update(1);
+    deepEqual(calls, [
+        {
+            func: 'func2',
+            args: [1,2]
+        },
+        {
+            func: 'func3',
+            args: ['Second event on frame 0.4']
+        },
+        {
+            func: 'func1',
+            args: ['Frame 0 Event triggered']
+        }
+    ], 'should triggered from frame 2 to frame 0');
+
+
     // new clip
     clip = new cc.AnimationClip();
     clip._duration = 2;

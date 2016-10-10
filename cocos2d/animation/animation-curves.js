@@ -297,7 +297,15 @@ var EventAnimCurve = cc.Class({
          * @type {Object}
          * @default null
          */
-        _lastWrappedInfo: null
+        _lastWrappedInfo: null,
+
+        /**
+         * Ignore event index
+         * @property _ignoreIndex
+         * @type {number}
+         * @default NaN
+         */
+        _ignoreIndex: NaN
     },
 
     _wrapIterations: function (iterations) {
@@ -316,6 +324,10 @@ var EventAnimCurve = cc.Class({
 
             // if direction is inverse, then increase index
             if (direction < 0) currentIndex += 1;
+        }
+
+        if (this._ignoreIndex !== currentIndex) {
+            this._ignoreIndex = NaN;
         }
 
         var lastWrappedInfo = this._lastWrappedInfo;
@@ -377,7 +389,7 @@ var EventAnimCurve = cc.Class({
     },
 
     _fireEvent: function (index) {
-        if (index < 0 || index >= this.events.length) return;
+        if (index < 0 || index >= this.events.length || this._ignoreIndex === index) return;
 
         var eventInfo = this.events[index];
         var events = eventInfo.events;
@@ -396,8 +408,23 @@ var EventAnimCurve = cc.Class({
         }
     },
 
-    onTimeChangedManually: function () {
+    onTimeChangedManually: function (time, animationNode) {
         this._lastWrappedInfo = null;
+        this._ignoreIndex = NaN;
+
+        var info = animationNode.getWrappedInfo(time);
+        var direction = info.direction;
+        var frameIndex = binarySearch(this.ratios, info.ratio);
+
+        // only ignore when time not on a frame index
+        if (frameIndex < 0) {
+            frameIndex = ~frameIndex - 1;
+
+            // if direction is inverse, then increase index
+            if (direction < 0) frameIndex += 1;
+
+            this._ignoreIndex = frameIndex;
+        }
     }
 });
 

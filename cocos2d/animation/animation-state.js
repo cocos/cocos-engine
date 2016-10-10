@@ -88,8 +88,9 @@ state.onStop = function () {
 state.setTime = function (time) {
     this.time = time || 0;
 
+    var self = this;
     this.curves.forEach(function (curve) {
-        curve.onTimeChangedManually();
+        curve.onTimeChangedManually(time, self);
     });
 };
 
