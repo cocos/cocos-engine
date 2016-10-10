@@ -185,7 +185,7 @@ var Button = cc.Class({
          * @property {Boolean} enableAutoGrayEffect
          */
         enableAutoGrayEffect: {
-            default: true,
+            default: false,
             tooltip: 'i18n:COMPONENT.button.auto_gray_effect',
             notify: function () {
                 this._updateDisabledState();
