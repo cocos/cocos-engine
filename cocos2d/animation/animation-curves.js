@@ -297,7 +297,15 @@ var EventAnimCurve = cc.Class({
          * @type {Object}
          * @default null
          */
-        _lastWrappedInfo: null
+        _lastWrappedInfo: null,
+
+        /**
+         * Ignore event index
+         * @property _ignoreIndex
+         * @type {number}
+         * @default NaN
+         */
+        _ignoreIndex: NaN
     },
 
     _wrapIterations: function (iterations) {
@@ -319,7 +327,7 @@ var EventAnimCurve = cc.Class({
         }
 
         if (this._ignoreIndex !== currentIndex) {
-            this._ignoreIndex = null;
+            this._ignoreIndex = NaN;
         }
 
         var lastWrappedInfo = this._lastWrappedInfo;
@@ -402,7 +410,7 @@ var EventAnimCurve = cc.Class({
 
     onTimeChangedManually: function (time, animationNode) {
         this._lastWrappedInfo = null;
-        this._ignoreIndex = null;
+        this._ignoreIndex = NaN;
 
         var info = animationNode.getWrappedInfo(time);
         var direction = info.direction;
