@@ -1088,6 +1088,10 @@ var ScrollView = cc.Class({
         return false;
     },
 
+    getAutoScrollStopEpsilon: function () {
+        return EPSILON;
+    },
+
 
     _processAutoScrolling: function(dt) {
         var isAutoScrollBrake = this._isNecessaryAutoScrollBrake();
@@ -1100,7 +1104,11 @@ var ScrollView = cc.Class({
         }
 
         var newPosition = cc.pAdd(this._autoScrollStartPosition, cc.pMult(this._autoScrollTargetDelta, percentage));
-        var reachedEnd = (percentage === 1);
+        var reachedEnd = Math.abs(percentage - 1) <= this.getAutoScrollStopEpsilon();
+
+        if(reachedEnd) {
+            newPosition = cc.pAdd(this._autoScrollStartPosition, this._autoScrollTargetDelta);
+        }
 
         if (this.elastic) {
             var brakeOffsetPosition = cc.pSub(newPosition, this._autoScrollBrakingStartPosition);

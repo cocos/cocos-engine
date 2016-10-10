@@ -111,8 +111,21 @@ var PageView = cc.Class({
             default: 0.5,
             type: cc.Float,
             slide: true,
-            range: [0, 1, 0.1],
+            range: [0, 1, 0.01],
             tooltip: 'i18n:COMPONENT.pageview.scrollThreshold'
+        },
+
+        /**
+         * !#en Change the AutoScroll stop epsilon value of PageView, change this value could adjust the PageView's
+         *      event triggerring timing.
+         * !#zh 设置 PageView 页面自动滚动动画结束的阈值，修改此值可以调整 PageView 事件的发送时机。
+         * @property {Number} autoScrollStopEpsilon
+         */
+        autoScrollStopEpsilon: {
+            default: 0.1,
+            type: cc.Float,
+            range: [0, 1, 0.01],
+            tooltip: 'i18n:COMPONENT.pageview.autoScrollStopEpsilon'
         },
 
         /**
@@ -298,6 +311,11 @@ var PageView = cc.Class({
         if (this.indicator) {
             this.indicator._changedState();
         }
+    },
+
+    //override the method of ScrollView
+    getAutoScrollStopEpsilon: function () {
+        return this.autoScrollStopEpsilon;
     },
 
     // 刷新页面视图
