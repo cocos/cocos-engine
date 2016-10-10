@@ -493,8 +493,16 @@ var Label = cc.Class({
     _updateNodeSize: function () {
         var initialized = this._sgNode && this._sgNode.parent;
         if (initialized) {
-            if (this.overflow === Overflow.NONE || this.overflow === Overflow.RESIZE_HEIGHT) {
+            if (this.overflow === Overflow.NONE) {
                 this.node.setContentSize(this._sgNode.getContentSize());
+            }
+
+            if(this.overflow === Overflow.RESIZE_HEIGHT) {
+                //call this.node.getContentSize actually sync the node size with sgNode
+                //such that it won't trigger setDimensions method in jsb
+                var originalSize = this.node.getContentSize();
+                var newSize = this._sgNode.getContentSize();
+                this.node.setContentSize(cc.size(originalSize.width, newSize.height));
             }
         }
     }
