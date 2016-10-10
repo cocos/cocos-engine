@@ -347,7 +347,7 @@ var widgetManager = cc._widgetManager = module.exports = {
     },
     remove: function (widget) {
         widget.node._widget = null;
-        var index = activeWidgets.indexOf(widget.node);
+        var index = activeWidgets.indexOf(widget);
         if (index > -1) {
             this._activeWidgetsIterator.removeAt(index);
         }
