@@ -111,7 +111,7 @@ var PageView = cc.Class({
             default: 0.5,
             type: cc.Float,
             slide: true,
-            range: [0, 1, 0.1],
+            range: [0, 1, 0.01],
             tooltip: 'i18n:COMPONENT.pageview.scrollThreshold'
         },
 
@@ -124,7 +124,7 @@ var PageView = cc.Class({
         autoScrollStopEpsilon: {
             default: 0.1,
             type: cc.Float,
-            range: [0, 1, 0.1],
+            range: [0, 1, 0.01],
             tooltip: 'i18n:COMPONENT.pageview.autoScrollStopEpsilon'
         },
 
