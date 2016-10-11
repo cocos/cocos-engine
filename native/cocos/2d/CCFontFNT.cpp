@@ -276,11 +276,14 @@ void BMFontConfiguration::purgeFontDefDictionary()
 std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& controlFile)
 {
     std::string data;
-    if (FileUtils::getInstance()->getContents(controlFile, &data) != FileUtils::Status::OK || data.empty())
+    auto parseRet = FileUtils::getInstance()->getContents(controlFile, &data);
+    if (parseRet != FileUtils::Status::OK || data.empty())
     {
         return nullptr;
     }
-    if (data.size() >= (sizeof("BMP") - 1) && memcmp("BMF", data.c_str(), sizeof("BMP") - 1) == 0) {
+
+    if (data.size() >= (sizeof("BMP") - 1)
+        && memcmp("BMF", data.c_str(), sizeof("BMP") - 1) == 0) {
         // Handle fnt file of binary format
         std::set<unsigned int>* ret = parseBinaryConfigFile((unsigned char*)&data.front(), data.size(), controlFile);
         return ret;
@@ -291,12 +294,15 @@ std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& 
         return nullptr;
     }
     auto contents = data.c_str();
-    
+    if(contents[0] == '\xEF' && contents[1] == '\xBB' && contents[2] == '\xBF') {
+        CCLOG("Detect your fnt file contains BOM header! ");
+        contents = contents + 3;
+    }
     std::set<unsigned int> *validCharsString = new (std::nothrow) std::set<unsigned int>();
-    
+
     auto contentsLen = strlen(contents);
     char line[512] = {0};
-    
+
     auto next = strchr(contents, '\n');
     auto base = contents;
     size_t lineLength = 0;
@@ -354,7 +360,7 @@ std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& 
             this->parseKerningEntry(line);
         }
     }
-    
+
     return validCharsString;
 }
 
@@ -491,7 +497,7 @@ std::set<unsigned int>* BMFontConfiguration::parseBinaryConfigFile(unsigned char
         }
         else if (blockId == 5) {
             /*
-             first  4   uint    0+c*10 	These fields are repeated until all kerning pairs have been described
+             first  4   uint    0+c*10  These fields are repeated until all kerning pairs have been described
              second 4   uint    4+c*10
              amount 2   int     8+c*10
              */
@@ -687,11 +693,11 @@ int * FontFNT::getHorizontalKerningForTextUTF16(const std::u16string& text, int 
 
     if (!outNumLetters)
         return nullptr;
-    
+
     int *sizes = new (std::nothrow) int[outNumLetters];
     if (!sizes)
         return nullptr;
-    
+
     for (int c = 0; c < outNumLetters; ++c)
     {
         if (c < (outNumLetters-1))
@@ -764,14 +770,14 @@ FontAtlas * FontFNT::createFontAtlas()
     // Purge uniform hash
     HASH_ITER(hh, _configuration->_fontDefDictionary, currentElement, tmp)
     {
-        
+
         FontLetterDefinition tempDefinition;
-        
+
         fontDef = currentElement->fontDef;
         Rect tempRect;
         tempRect = fontDef.rect;
         tempRect = CC_RECT_PIXELS_TO_POINTS(tempRect);
-        
+
         tempDefinition.offsetX  = fontDef.xOffset;
         tempDefinition.offsetY  = fontDef.yOffset;
 
@@ -793,9 +799,9 @@ FontAtlas * FontFNT::createFontAtlas()
             tempAtlas->addLetterDefinition(fontDef.charID,tempDefinition);
         }
     }
-    
+
     // add the texture (only one texture for now)
-    
+
     Texture2D *tempTexture = Director::getInstance()->getTextureCache()->addImage(_configuration->getAtlasName());
     if (!tempTexture) {
         CC_SAFE_RELEASE(tempAtlas);
@@ -831,4 +837,3 @@ void FontFNT::reloadBMFontResource(const std::string& fntFilePath)
 }
 
 NS_CC_END
-
