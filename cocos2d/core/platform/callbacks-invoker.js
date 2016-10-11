@@ -58,7 +58,7 @@ CallbacksHandler.prototype._clearToRemove = function (key) {
                 i--;
             }
         }
-        delete this._toRemove[key];
+        this._toRemove[key] = false;
     }
     if (this._toRemoveAll) {
         this.removeAll(this._toRemoveAll);
@@ -76,10 +76,12 @@ CallbacksHandler.prototype._clearToRemove = function (key) {
 CallbacksHandler.prototype.add = function (key, callback, target) {
     var list = this._callbackTable[key];
     if (typeof list !== 'undefined') {
-        list.push(callback);
-        // Just append the target after callback
         if (typeof target === 'object') {
-            list.push(target);
+            // append the target after callback
+            list.push(callback, target);
+        }
+        else {
+            list.push(callback);
         }
         return false;
     }
@@ -108,28 +110,16 @@ CallbacksHandler.prototype.add = function (key, callback, target) {
  */
 CallbacksHandler.prototype.has = function (key, callback, target) {
     var list = this._callbackTable[key], callbackTarget, index;
-
     if (!list) {
         return false;
     }
-
-    var empty = true;
-    for (var i = 0; i < list.length; ++i) {
-        if (list[i] && list[i] !== REMOVE_PLACEHOLDER) {
-            empty = false;
-            break;
-        }
-    }
-    if (empty) {
-        return false;
-    }
-
     // callback not given, but key found
     if (!callback) 
         return true;
     // wrong callback type, can't found anything
     else if (typeof callback !== 'function')
         return false;
+
     // Search callback, target pair in the list
     index = list.indexOf(callback);
     while (index !== -1) {
@@ -173,8 +163,10 @@ CallbacksHandler.prototype.removeAll = function (key) {
             }
         }
     }
-    else 
+    else {
         delete this._callbackTable[key];
+        delete this._toRemove[key];
+    }
 };
 
 /**
@@ -307,7 +299,7 @@ CallbacksInvoker.prototype.invokeAndRemove = function (key, p1, p2, p3, p4, p5) 
         }
     }
     this._invoking[key] = false;
-    delete this._toRemove[key];
+    this._toRemove[key] = false;
     this.removeAll(key);
 };
 

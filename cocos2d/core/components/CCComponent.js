@@ -115,10 +115,10 @@ function _registerEvent (self, on) {
 
     if (self.start && !(self._objFlags & IsStartCalled)) {
         if (on) {
-            cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
+            cc.director.__fastOn(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self, self.__eventTargets);
         }
         else {
-            cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
+            cc.director.__fastOff(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self, self.__eventTargets);
         }
     }
 
@@ -127,33 +127,33 @@ function _registerEvent (self, on) {
     }
 
     if (on) {
-        cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self);
+        cc.director.__fastOn(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self, self.__eventTargets);
     }
     else {
-        cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self);
-        cc.director.off(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
-        cc.director.off(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
+        cc.director.__fastOff(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self, self.__eventTargets);
+        cc.director.__fastOff(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self, self.__eventTargets);
+        cc.director.__fastOff(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self, self.__eventTargets);
     }
 }
 
 var _registerUpdateEvent = function () {
-    cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, this);
+    cc.director.__fastOff(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, this, this.__eventTargets);
 
     if (this.update) {
-        cc.director.on(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, this);
+        cc.director.__fastOn(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, this, this.__eventTargets);
     }
 
     if (this.lateUpdate) {
-        cc.director.on(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, this);
+        cc.director.__fastOn(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, this, this.__eventTargets);
     }
 };
 
 var _callStart = CC_EDITOR ? function () {
-    cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _callStart, this);
+    cc.director.__fastOff(cc.Director.EVENT_BEFORE_UPDATE, _callStart, this, this.__eventTargets);
     callStartInTryCatch(this);
     this._objFlags |= IsStartCalled;
 } : function () {
-    cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _callStart, this);
+    cc.director.__fastOff(cc.Director.EVENT_BEFORE_UPDATE, _callStart, this, this.__eventTargets);
     this.start();
     this._objFlags |= IsStartCalled;
 };
@@ -242,9 +242,18 @@ var Component = cc.Class({
         }
         // Support for Scheduler
         this.__instanceId = cc.ClassManager.getNewInstanceId();
+
+        /**
+         * Register all related EventTargets,
+         * all event callbacks will be removed in _onPreDestroy
+         * @property {Array} __eventTargets
+         * @private
+         */
+        this.__eventTargets = [];
     } : function () {
         // Support for Scheduler
         this.__instanceId = cc.ClassManager.getNewInstanceId();
+        this.__eventTargets = [];
     },
 
     properties: {
@@ -394,18 +403,6 @@ var Component = cc.Class({
                 return this._objFlags & IsOnLoadCalled;
             }
         },
-
-        /**
-         * Register all related EventTargets,
-         * all event callbacks will be removed in _onPreDestroy
-         * @property __eventTargets
-         * @type {Array}
-         * @private
-         */
-        __eventTargets: {
-            default: [],
-            serializable: false
-        }
     },
 
     // LIFECYCLE METHODS
