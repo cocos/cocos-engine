@@ -26,6 +26,15 @@
 'use strict';
 
 var _p = cc.EditBox.prototype;
+
+_p._setMaxLength = _p.setMaxLength;
+_p.setMaxLength = function(maxLength) {
+    if (maxLength < 0) {
+        maxLength = 65535;
+    }
+    this._setMaxLength(maxLength);
+};
+
 cc.defineGetterSetter(_p, 'font', null, _p.setFont);
 cc.defineGetterSetter(_p, 'fontName', null, _p.setFontName);
 cc.defineGetterSetter(_p, 'fontSize', null, _p.setFontSize);
@@ -42,16 +51,8 @@ cc.defineGetterSetter(_p, 'delegate', null, _p.setDelegate);
 cc.defineGetterSetter(_p, 'inputMode', null, _p.setInputMode);
 cc.defineGetterSetter(_p, 'returnType', null, _p.setReturnType);
 
-_p._setMaxLength = _p.setMaxLength;
-_p.setMaxLength = function(maxLength) {
-    if (maxLength == -1) {
-        maxLength = Number.MAX_VALUE;
-    }
-    this._setMaxLength(maxLength);
-};
 
 _p.setLineHeight = function () {};
-
 
 _p.setTabIndex = function () {};
 _p.getTabIndex = function () { return -1; };
