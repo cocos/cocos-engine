@@ -129,7 +129,12 @@ cc.EditBox.InputFlag = cc.Enum({
     /**
      * Capitalize all characters automatically.
      */
-    INITIAL_CAPS_ALL_CHARACTERS: 4
+    INITIAL_CAPS_ALL_CHARACTERS: 4,
+
+    /**
+     * Don't do anything with the input text.
+     */
+    DEFAULT: 5
 });
 
 /**
