@@ -200,6 +200,15 @@ JS.mixin(EventTarget.prototype, {
         return callback;
     },
 
+    __fastOn: function (type, callback, target, eventTargets) {
+        var listeners = this._bubblingListeners;
+        if (!listeners) {
+            listeners = this._bubblingListeners = new EventListeners();
+        }
+        listeners.add(type, callback, target);
+        eventTargets.push(this);
+    },
+
     /**
      * !#en
      * Removes the callback previously registered with the same type, callback, target and or useCapture.
@@ -241,6 +250,14 @@ JS.mixin(EventTarget.prototype, {
                 var index = target.__eventTargets.indexOf(this);
                 target.__eventTargets.splice(index, 1);
             }
+        }
+    },
+
+    __fastOff: function (type, callback, target, eventTargets) {
+        var listeners = this._bubblingListeners;
+        if (listeners) {
+            listeners.remove(type, callback, target);
+            eventTargets.splice(eventTargets.indexOf(this), 1);
         }
     },
 
