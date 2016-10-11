@@ -25,17 +25,14 @@
  ****************************************************************************/
 
 function _getPropertyDescriptor (obj, name) {
-    var pd = Object.getOwnPropertyDescriptor(obj, name);
-    if (pd) {
-        return pd;
+    while (obj) {
+        var pd = Object.getOwnPropertyDescriptor(obj, name);
+        if (pd) {
+            return pd;
+        }
+        obj = Object.getPrototypeOf(obj);
     }
-    var p = Object.getPrototypeOf(obj);
-    if (p) {
-        return _getPropertyDescriptor(p, name);
-    }
-    else {
-        return null;
-    }
+    return null;
 }
 
 function _copyprop(name, source, target) {
