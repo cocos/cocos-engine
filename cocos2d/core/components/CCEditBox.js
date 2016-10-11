@@ -340,8 +340,9 @@ var EditBox = cc.Class({
         },
 
         /**
-         * !#en The maximize input length of EditBox.
-         * !#zh 输入框最大允许输入的字符个数。
+         * !#en The maximize input length of EditBox. If pass avalue less than 0,
+         * it won't limit the input number of characters.
+         * !#zh 输入框最大允许输入的字符个数。如果输入的值为小于 0 的值，则不会限制输入字符个数。
          * @property {Number} maxLength
          */
         maxLength: {

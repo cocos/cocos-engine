@@ -390,7 +390,12 @@ _ccsg.EditBox = _ccsg.Node.extend({
     },
 
     setMaxLength: function (maxLength) {
-        if (!isNaN(maxLength) && maxLength > 0) {
+        if (!isNaN(maxLength)) {
+            if(maxLength < 0) {
+                //we can't set Number.MAX_VALUE to input's maxLength property
+                //so we use a magic number here, it should works at most use cases.
+                maxLength = 65535;
+            }
             this._maxLength = maxLength;
             this._renderCmd.setMaxLength(maxLength);
         }
