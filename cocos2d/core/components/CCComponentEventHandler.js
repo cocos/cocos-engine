@@ -38,7 +38,8 @@
  * var eventHandler = new cc.Component.EventHandler();
  * eventHandler.target = newTarget;
  * eventHandler.component = "MainMenu";
- * eventHandler.handler = "OnClick"
+ * eventHandler.handler = "OnClick";
+ * eventHandler.customEventData = "my data";
  */
 cc.Component.EventHandler = cc.Class({
     name: 'cc.ClickEvent',
@@ -73,6 +74,17 @@ cc.Component.EventHandler = cc.Class({
          */
         handler: {
             default: '',
+        },
+
+        /**
+         * !#en Custom Event Data
+         * !#zh 自定义事件数据
+         * @property customEventData
+         * @default ''
+         * @type {String}
+         */
+        customEventData: {
+            default: ''
         }
     },
 
@@ -116,6 +128,10 @@ cc.Component.EventHandler = cc.Class({
 
         var handler = comp[this.handler];
         if (typeof(handler) !== 'function') return;
+
+        if(this.customEventData) {
+            params.push(this.customEventData);
+        }
 
         handler.apply(comp, params);
     }
