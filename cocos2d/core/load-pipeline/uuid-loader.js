@@ -155,9 +155,9 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
                     // item was removed from cache, but ready in pipeline actually
                     var queue = LoadingItems.getQueue(item);
                     // Hack to get a better behavior
-                    var list = queue._callbackTable[dependSrc];
-                    if (list) {
-                        list.unshift(loadCallback, thisOfLoadCallback);
+                    var iterator = queue._callbackTable[dependSrc];
+                    if (iterator) {
+                        iterator.array.unshift(loadCallback, thisOfLoadCallback);
                     }
                     else {
                         queue.addListener(dependSrc, loadCallback, thisOfLoadCallback);

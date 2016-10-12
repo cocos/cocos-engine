@@ -19,11 +19,6 @@ test('test', function () {
     cb1.once('1 should be called');
     cb2.once('2 should be called');
 
-    var invokeA = ci.bindKey('a');
-    invokeA();
-    cb1.once('1 should be called again').disable();
-    cb2.once('2 should be called again').disable();
-
     cb3.enable();
     ci.invoke('b');
     cb3.once('3 should be called');
@@ -170,20 +165,17 @@ test('remove all callbacks during invoking', function () {
     var cb2 = new Callback(function () {
         ci.removeAll('eve');
     }).enable();
-    var cb3 = new Callback(function () {
-        ci.remove('eve', cb2, target);
-    }).enable();
+    var cb3 = new Callback(function () {}).disable('Should not invoke callback3');
     var target = {};
     ci.add('eve', cb1);
     ci.add('eve', cb1, target);
     ci.add('eve', cb2, target);
     ci.add('eve', cb3);
-    ci.add('eve', cb3, target);
     ci.invoke('eve');
 
-    cb1.expect(2, 'first callback should be invoked twice');
-    cb2.expect(1, 'second callback should be invoked once');
-    cb3.expect(2, 'third callback should be invoked twice');
+    cb1.expect(2, 'Callback1 should be invoked twice');
+    cb2.expect(1, 'Callback2 should be invoked once');
+
     strictEqual(ci.has('eve'), false, 'All callbacks should be removed');
 });
 
@@ -191,10 +183,10 @@ test('remove and add again during invoking', function () {
     var target = new Object();
     var ci = new cc._Test.EventListeners();
 
-    var cb1 = function () {
+    function cb1 () {
         ci.remove('eve', cb1, target);
         ci.add('eve', cb1, target);
-    };
+    }
 
     ci.add('eve', cb1, target);
     ci.invoke(new cc.Event.EventCustom('eve'));

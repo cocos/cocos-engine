@@ -410,7 +410,7 @@ var Node = cc.Class({
                             this._capturingListeners._callbackTable[POSITION_CHANGED];
                         var bubListeners = this._bubblingListeners &&
                             this._bubblingListeners._callbackTable[POSITION_CHANGED];
-                        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
+                        if ((capListeners && capListeners.array.length > 0) || (bubListeners && bubListeners.array.length > 0)) {
                             // send event
                             if (CC_EDITOR) {
                                 this.emit(POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
@@ -456,7 +456,7 @@ var Node = cc.Class({
                             this._capturingListeners._callbackTable[POSITION_CHANGED];
                         var bubListeners = this._bubblingListeners &&
                             this._bubblingListeners._callbackTable[POSITION_CHANGED];
-                        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
+                        if ((capListeners && capListeners.array.length > 0) || (bubListeners && bubListeners.array.length > 0)) {
                             // send event
                             if (CC_EDITOR) {
                                 this.emit(POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
@@ -1601,7 +1601,7 @@ var Node = cc.Class({
             this._capturingListeners._callbackTable[POSITION_CHANGED];
         var bubListeners = this._bubblingListeners &&
             this._bubblingListeners._callbackTable[POSITION_CHANGED];
-        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
+        if ((capListeners && capListeners.array.length > 0) || (bubListeners && bubListeners.array.length > 0)) {
             // send event
             if (CC_EDITOR) {
                 this.emit(POSITION_CHANGED, oldPosition);

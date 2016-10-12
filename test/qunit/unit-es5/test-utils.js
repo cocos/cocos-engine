@@ -90,4 +90,54 @@ test('enum for TypeScript', function () {
         // can not directly change loop index outside loop scope
         iterator.fastRemoveAt(index);
     });
+
+    test('foreach mutable array - remove multiply', function () {
+        var array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        //var array = [2, 3, 4, 5, 6, 7, 8, 9];
+        var iterator = new cc.js.array.MutableForwardIterator(array);
+
+        function removeMultiOperation (index, count) {
+            iterator.removeAt(index, count);
+        }
+
+        iterator.i = 0;
+        removeMultiOperation(0, 0);
+        strictEqual(iterator.i, 0, 'nothing removed, i unchanged');
+
+        iterator.i = 0;
+        removeMultiOperation(0, 1);
+        strictEqual(iterator.i, -1, '...');
+
+        iterator.i = 0;
+        removeMultiOperation(0, 2);
+        strictEqual(iterator.i, Math.max(0 - 2, -1), '...');
+
+        iterator.i = 0;
+        removeMultiOperation(2, 2);
+        strictEqual(iterator.i, 0, '...');
+
+        iterator.i = 1;
+        removeMultiOperation(0, 2);
+        strictEqual(iterator.i, Math.max(1 - 2, -1), '...');
+
+        iterator.i = 1;
+        removeMultiOperation(1, 2);
+        strictEqual(iterator.i, 0, '...');
+
+        iterator.i = 1;
+        removeMultiOperation(1, 3);
+        strictEqual(iterator.i, 0, '...');
+
+        iterator.i = 1;
+        removeMultiOperation(0, 3);
+        strictEqual(iterator.i, Math.max(1 - 3, -1), '...');
+
+        iterator.i = 1;
+        removeMultiOperation(3, 2);
+        strictEqual(iterator.i, 1, '...');
+
+        iterator.i = 2;
+        removeMultiOperation(0, 2);
+        strictEqual(iterator.i, 2 - 2, '...');
+    });
 })();

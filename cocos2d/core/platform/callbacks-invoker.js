@@ -26,6 +26,51 @@
 var JS = require('./js');
 
 /**
+ * @example
+ * var array = [0, 1, 2, 3, 4];
+ * var iterator = new ForwardIterator(array);
+ * iterator.length = list.length;
+ * for (iterator.i = 0; iterator.i < iterator.length;) {
+ *     var item = array[iterator.i];
+ *     ++iterator.i;    // or iterator.i += x
+ *     process(item);   // This may change i
+ * }
+ */
+function ForwardIterator (array) {
+    // the next index to iterate, not current iterating index
+    this.i = 0;
+    this.array = array;
+    // original length of the array before iteration, should manually sync with array.length before each iteration.
+    this.length = 0;
+}
+var proto = ForwardIterator.prototype;
+proto.removeAt = function (i, count) {
+    var next = this.i;
+    if (typeof count === 'undefined') {
+        this.array.splice(i, 1);
+        --this.length;
+        if (i < next) {
+            this.i = next - 1;
+        }
+    }
+    else {
+        this.array.splice(i, count);
+        // assume that both i and count are valid value
+        this.length -= count;
+
+        if (i >= next) {
+            return;
+        }
+        if (i + count > next) {
+            this.i = i;
+        }
+        else {
+            this.i = next - count;
+        }
+    }
+};
+
+/**
  * The CallbacksHandler is an abstract class that can register and unregister callbacks by key.
  * Subclasses should implement their own methods about how to invoke the callbacks.
  * @class _CallbacksHandler
@@ -39,32 +84,6 @@ var CallbacksHandler = (function () {
     this._toRemoveAll = null;
 });
 
-// Avoid to equal to user set target (null for example)
-var REMOVE_PLACEHOLDER = {};
-CallbacksHandler.REMOVE_PLACEHOLDER = REMOVE_PLACEHOLDER;
-
-CallbacksHandler.prototype._clearToRemove = function (key) {
-    var list = this._callbackTable[key];
-    if (this._toRemove[key] && list) {
-        // filter all REMOVE_PLACEHOLDER and compact array
-        var firstRemovedIndex = list.indexOf(REMOVE_PLACEHOLDER);
-        var nextIndex = firstRemovedIndex;
-        for (var i = firstRemovedIndex + 1; i < list.length; ++i) {
-            var item = list[i];
-            if (item !== REMOVE_PLACEHOLDER) {
-                list[nextIndex] = item;
-                ++nextIndex;
-            }
-        }
-        list.length = nextIndex;
-        this._toRemove[key] = false;
-    }
-    if (this._toRemoveAll) {
-        this.removeAll(this._toRemoveAll);
-        this._toRemoveAll = null;
-    }
-};
-
 /**
  * @method add
  * @param {String} key
@@ -73,14 +92,14 @@ CallbacksHandler.prototype._clearToRemove = function (key) {
  * @return {Boolean} whether the key is new
  */
 CallbacksHandler.prototype.add = function (key, callback, target) {
-    var list = this._callbackTable[key];
-    if (typeof list !== 'undefined') {
+    var iterator = this._callbackTable[key];
+    if (typeof iterator !== 'undefined') {
         if (typeof target === 'object') {
             // append the target after callback
-            list.push(callback, target);
+            iterator.array.push(callback, target);
         }
         else {
-            list.push(callback);
+            iterator.array.push(callback);
         }
         return false;
     }
@@ -88,12 +107,12 @@ CallbacksHandler.prototype.add = function (key, callback, target) {
         // new key
         if (typeof target === 'object') {
             // Just append the target after callback
-            list = [callback, target];
+            iterator = new ForwardIterator([callback, target]);
         }
         else {
-            list = [callback];
+            iterator = new ForwardIterator([callback]);
         }
-        this._callbackTable[key] = list;
+        this._callbackTable[key] = iterator;
         return true;
     }
 };
@@ -111,8 +130,8 @@ CallbacksHandler.prototype.has = function (key, callback, target) {
     if (this._toRemoveAll === key) {
         return false;
     }
-    var list = this._callbackTable[key], callbackTarget, index;
-    if (!list) {
+    var iterator = this._callbackTable[key], callbackTarget, index, list;
+    if (!iterator) {
         return false;
     }
     // callback not given, but key found
@@ -134,6 +153,7 @@ CallbacksHandler.prototype.has = function (key, callback, target) {
         return false;
 
     // Search callback, target pair in the list
+    list = iterator.array;
     index = list.indexOf(callback);
     while (index !== -1) {
         callbackTarget = list[index+1];
@@ -155,30 +175,32 @@ CallbacksHandler.prototype.has = function (key, callback, target) {
  * @param {String|Object} key - The event key to be removed or the target to be removed
  */
 CallbacksHandler.prototype.removeAll = function (key) {
-    // Delay removing
-    if (this._invoking[key]) {
-        this._toRemoveAll = key;
-        return;
-    }
+    var iterator;
     if (typeof key === 'object') {
+        // remove by target
         var target = key, list, index, callback;
         // loop for all event types
         for (key in this._callbackTable) {
-            list = this._callbackTable[key];
+            iterator = this._callbackTable[key];
+            list = iterator.array;
             index = list.lastIndexOf(target);
             while (index !== -1) {
                 callback = list[index-1];
                 if (typeof callback === 'function')
-                    list.splice(index-1, 2);
+                    iterator.removeAt(index - 1, 2);
                 else
-                    list.splice(index, 1);
+                    iterator.removeAt(index);
                 index = list.lastIndexOf(target);
             }
         }
     }
     else {
-        delete this._callbackTable[key];
-        delete this._toRemove[key];
+        // remove by key
+        iterator = this._callbackTable[key];
+        if (iterator) {
+            iterator.removeAt(0, iterator.length);
+            delete this._callbackTable[key];
+        }
     }
 };
 
@@ -190,8 +212,9 @@ CallbacksHandler.prototype.removeAll = function (key) {
  * @return {Boolean} removed
  */
 CallbacksHandler.prototype.remove = function (key, callback, target) {
-    var list = this._callbackTable[key], index, callbackTarget;
-    if (list) {
+    var iterator = this._callbackTable[key], index, callbackTarget;
+    if (iterator) {
+        var list = iterator.array;
         index = list.indexOf(callback);
         while (index !== -1) {
             callbackTarget = list[index+1];
@@ -199,15 +222,7 @@ CallbacksHandler.prototype.remove = function (key, callback, target) {
                 callbackTarget = undefined;
             }
             if (callbackTarget === target) {
-                // Delay removing
-                if (CC_JSB || this._invoking[key]) {
-                    list[index] = REMOVE_PLACEHOLDER;
-                    callbackTarget && (list[index+1] = REMOVE_PLACEHOLDER);
-                    this._toRemove[key] = true;
-                }
-                else {
-                    list.splice(index, callbackTarget ? 2 : 1);
-                }
+                iterator.removeAt(index, callbackTarget ? 2 : 1);
                 break;
             }
 
@@ -246,33 +261,24 @@ if (CC_TEST) {
  * @param {any} [p5]
  */
 CallbacksInvoker.prototype.invoke = function (key, p1, p2, p3, p4, p5) {
-    this._invoking[key] = true;
-    var list = this._callbackTable[key];
-    if (list) {
-        var i, endIndex = list.length - 1;
-        for (i = 0; i <= endIndex;) {
+    var iterator = this._callbackTable[key];
+    if (iterator) {
+        var list = iterator.array;
+        iterator.length = list.length;
+        for (var i = iterator.i = 0; i < iterator.length; i = iterator.i) {
             var callingFunc = list[i];
-            var increment = 1;
-            // cheap detection for function
-            if (callingFunc !== REMOVE_PLACEHOLDER) {
-                var target = list[i + 1];
-                var hasTarget = target && typeof target === 'object';
-                if (hasTarget) {
-                    callingFunc.call(target, p1, p2, p3, p4, p5);
-                    increment = 2;
-                }
-                else {
-                    callingFunc(p1, p2, p3, p4, p5);
-                }
+            var target = list[i + 1];
+            var hasTarget = target && typeof target === 'object';
+            if (hasTarget) {
+                iterator.i = i + 2;
+                callingFunc.call(target, p1, p2, p3, p4, p5);
             }
-
-            i += increment;
+            else {
+                iterator.i = i + 1;
+                callingFunc(p1, p2, p3, p4, p5);
+            }
         }
     }
-    this._invoking[key] = false;
-
-    // Delay removing
-    this._clearToRemove(key);
 };
 
 /**
@@ -285,63 +291,27 @@ CallbacksInvoker.prototype.invoke = function (key, p1, p2, p3, p4, p5) {
  * @param {any} [p5]
  */
 CallbacksInvoker.prototype.invokeAndRemove = function (key, p1, p2, p3, p4, p5) {
-    this._invoking[key] = true;
     // this.invoke(key, p1, p2, p3, p4, p5);
     // 这里不直接调用invoke仅仅是为了减少调用堆栈的深度，方便调试
-    var list = this._callbackTable[key], i, l, increment, callingFunc, target;
-    if (list) {
-        for (i = 0, l = list.length; i < l;) {
+    var iterator = this._callbackTable[key], i, callingFunc, target;
+    if (iterator) {
+        var list = iterator.array;
+        iterator.length = list.length;
+        for (i = iterator.i = 0; i < iterator.length; i = iterator.i) {
             callingFunc = list[i];
-            increment = 1;
             // cheap detection for function
-            if (callingFunc !== REMOVE_PLACEHOLDER) {
-                target = list[i+1];
-                if (target && typeof target === 'object') {
-                    callingFunc.call(target, p1, p2, p3, p4, p5);
-                    increment = 2;
-                }
-                else {
-                    callingFunc(p1, p2, p3, p4, p5);
-                }
+            target = list[i + 1];
+            if (target && typeof target === 'object') {
+                iterator.i = i + 2;
+                callingFunc.call(target, p1, p2, p3, p4, p5);
             }
-
-            i += increment;
+            else {
+                iterator.i = i + 1;
+                callingFunc(p1, p2, p3, p4, p5);
+            }
         }
     }
-    this._invoking[key] = false;
-    this._toRemove[key] = false;
     this.removeAll(key);
-};
-
-/**
- * @method bindKey
- * @param {String} key
- * @param {Boolean} [remove=false] - remove callbacks after invoked
- * @return {Function} the new callback which will invoke all the callbacks binded with the same supplied key
- */
-CallbacksInvoker.prototype.bindKey = function (key, remove) {
-    var self = this;
-    return function bindedInvocation (p1, p2, p3, p4, p5) {
-        // this.invoke(key, p1, p2, p3, p4, p5);
-        // 这里不直接调用invoke仅仅是为了减少调用堆栈的深度，方便调试
-        var list = self._callbackTable[key], i, l, target;
-        if (list) {
-            for (i = 0, l = list.length; i < l;) {
-                target = list[i+1];
-                if (target && typeof target === 'object') {
-                    list[i].call(target, p1, p2, p3, p4, p5);
-                    i += 2;
-                }
-                else {
-                    list[i](p1, p2, p3, p4, p5);
-                    ++i;
-                }
-            }
-        }
-        if (remove) {
-            self.removeAll(key);
-        }
-    };
 };
 
 CallbacksInvoker.CallbacksHandler = CallbacksHandler;

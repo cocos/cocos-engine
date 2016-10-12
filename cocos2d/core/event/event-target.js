@@ -338,7 +338,7 @@ proto.emit = function (message, detail) {
     //don't emit event when listeners are not exists.
     var caplisteners = this._capturingListeners && this._capturingListeners._callbackTable[message];
     var bublisteners = this._bubblingListeners && this._bubblingListeners._callbackTable[message];
-    if ((!caplisteners || caplisteners.length === 0) && (!bublisteners || bublisteners.length === 0)) {
+    if ((!caplisteners || caplisteners.array.length === 0) && (!bublisteners || bublisteners.array.length === 0)) {
         return;
     }
 

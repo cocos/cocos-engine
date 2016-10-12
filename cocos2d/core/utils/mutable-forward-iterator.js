@@ -45,11 +45,25 @@ proto.remove = function (value) {
         this.removeAt(index);
     }
 };
-proto.removeAt = function (i) {
-    this.array.splice(i, 1);
-
-    if (i <= this.i) {
-        --this.i;
+proto.removeAt = function (i, count) {
+    var current = this.i;
+    if (typeof count === 'undefined') {
+        this.array.splice(i, 1);
+        if (i <= current) {
+            this.i = current - 1;
+        }
+    }
+    else {
+        this.array.splice(i, count);
+        if (i > current) {
+            return;
+        }
+        if (i + count - 1 > current) {
+            this.i = i - 1;
+        }
+        else {
+            this.i = current - count;
+        }
     }
 };
 proto.fastRemove = function (value) {
