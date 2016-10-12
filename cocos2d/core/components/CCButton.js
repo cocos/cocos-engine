@@ -103,6 +103,12 @@ var Transition = cc.Enum({
  * button.node.on(cc.Node.EventType.TOUCH_START, function (event) {
  *      cc.log("This is a callback after the trigger event");
  * });
+
+ * // You could also add a click event
+ * //Note: In this way, you can't get the touch event info, so use it wisely.
+ * button.node.on('click', function (event) {
+ *    //The event is a custom event, you could get the Button component via event.detail
+ * })
  *
  */
 var Button = cc.Class({
@@ -505,6 +511,7 @@ var Button = cc.Class({
 
         if (this._pressed) {
             cc.Component.EventHandler.emitEvents(this.clickEvents, event);
+            this.node.emit('click', this);
         }
         this._pressed = false;
         if(this.transition === Transition.SCALE) {
