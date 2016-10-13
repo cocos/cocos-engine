@@ -311,12 +311,6 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
     if (this.isAlignRight) {
         this.right -= (this.isAbsoluteRight ? delta.x : deltaInPercent.x) * (1 - anchor.x);
     }
-    if (this.isAlignHorizontalCenter) {
-        this.horizontalCenter -= (this.isAbsoluteHorizontalCenter ? delta.x : deltaInPercent.x);
-    }
-    if (this.isAlignVerticalCenter) {
-        this.verticalCenter -= (this.isAbsoluteVerticalCenter ? delta.y : deltaInPercent.y);
-    }
 };
 
 var activeWidgets = [];
