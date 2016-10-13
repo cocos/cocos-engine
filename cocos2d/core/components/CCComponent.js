@@ -72,7 +72,7 @@ function callOnEnable (self, enable) {
                 }
 
                 cc.director.getScheduler().resumeTarget(self);
-                _registerEvent(self, true);
+                _registerEvent(self);
 
                 self._objFlags |= IsOnEnableCalled;
             }
@@ -88,7 +88,7 @@ function callOnEnable (self, enable) {
             }
 
             cc.director.getScheduler().pauseTarget(self);
-            _registerEvent(self, false);
+            _unregisterEvent(self);
 
             self._objFlags &= ~IsOnEnableCalled;
         }
@@ -110,50 +110,58 @@ function callOnEnable (self, enable) {
     }
 }
 
-function _registerEvent (self, on) {
-    if (CC_EDITOR && !(self.constructor._executeInEditMode || cc.engine._isPlaying)) return;
+var Director = cc.Director;
 
-    if (self.start && !(self._objFlags & IsStartCalled)) {
-        if (on) {
-            cc.director.__fastOn(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self, self.__eventTargets);
-        }
-        else {
-            cc.director.__fastOff(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self, self.__eventTargets);
-        }
-    }
-
-    if (!self.update && !self.lateUpdate) {
+function _registerEvent (self) {
+    if (CC_EDITOR && !(self.constructor._executeInEditMode || cc.engine._isPlaying)) {
         return;
     }
-
-    if (on) {
-        cc.director.__fastOn(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self, self.__eventTargets);
+    if (self.start && !(self._objFlags & IsStartCalled)) {
+        cc.director.__fastOn(Director.EVENT_BEFORE_UPDATE, _callStart, self, self.__eventTargets);
     }
-    else {
-        cc.director.__fastOff(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self, self.__eventTargets);
-        cc.director.__fastOff(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self, self.__eventTargets);
-        cc.director.__fastOff(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self, self.__eventTargets);
+    if (self.update || self.lateUpdate) {
+        cc.director.__fastOn(Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self, self.__eventTargets);
     }
 }
 
-var _registerUpdateEvent = function () {
-    cc.director.__fastOff(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, this, this.__eventTargets);
+function _unregisterEvent (self) {
+    if (CC_EDITOR && !(self.constructor._executeInEditMode || cc.engine._isPlaying)) {
+        return;
+    }
+    if (self.start && !(self._objFlags & IsStartCalled)) {
+        cc.director.__fastOff(Director.EVENT_BEFORE_UPDATE, _callStart, self, self.__eventTargets);
+    }
+    var hasUpdate = self.update;
+    var hasLateUpdate = self.lateUpdate;
+    if (hasUpdate || hasLateUpdate) {
+        cc.director.__fastOff(Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self, self.__eventTargets);
+        if (hasUpdate) {
+            cc.director.__fastOff(Director.EVENT_COMPONENT_UPDATE, _callUpdate, self, self.__eventTargets);
+        }
+        if (hasLateUpdate) {
+            cc.director.__fastOff(Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self, self.__eventTargets);
+        }
+    }
+}
 
+function _registerUpdateEvent () {
+    var eventTargets = this.__eventTargets;
+    var director = cc.director;
+    director.__fastOff(Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, this, eventTargets);
     if (this.update) {
-        cc.director.__fastOn(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, this, this.__eventTargets);
+        director.__fastOn(Director.EVENT_COMPONENT_UPDATE, _callUpdate, this, eventTargets);
     }
-
     if (this.lateUpdate) {
-        cc.director.__fastOn(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, this, this.__eventTargets);
+        director.__fastOn(Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, this, eventTargets);
     }
-};
+}
 
 var _callStart = CC_EDITOR ? function () {
-    cc.director.__fastOff(cc.Director.EVENT_BEFORE_UPDATE, _callStart, this, this.__eventTargets);
+    cc.director.__fastOff(Director.EVENT_BEFORE_UPDATE, _callStart, this, this.__eventTargets);
     callStartInTryCatch(this);
     this._objFlags |= IsStartCalled;
 } : function () {
-    cc.director.__fastOff(cc.Director.EVENT_BEFORE_UPDATE, _callStart, this, this.__eventTargets);
+    cc.director.__fastOff(Director.EVENT_BEFORE_UPDATE, _callStart, this, this.__eventTargets);
     this.start();
     this._objFlags |= IsStartCalled;
 };

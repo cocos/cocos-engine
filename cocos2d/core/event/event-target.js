@@ -25,6 +25,7 @@
 var EventListeners = require('./event-listeners');
 require('./event');
 var JS = cc.js;
+var fastRemove = JS.array.fastRemove;
 
 var cachedArray = new Array(16);
 cachedArray.length = 0;
@@ -247,8 +248,7 @@ JS.mixin(EventTarget.prototype, {
             listeners.remove(type, callback, target);
 
             if (target && target.__eventTargets) {
-                var index = target.__eventTargets.indexOf(this);
-                target.__eventTargets.splice(index, 1);
+                fastRemove(target.__eventTargets, this);
             }
         }
     },
@@ -257,7 +257,7 @@ JS.mixin(EventTarget.prototype, {
         var listeners = this._bubblingListeners;
         if (listeners) {
             listeners.remove(type, callback, target);
-            eventTargets.splice(eventTargets.indexOf(this), 1);
+            fastRemove(eventTargets, this);
         }
     },
 
