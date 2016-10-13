@@ -34,31 +34,30 @@ var JS = require('./js');
  */
 var CallbacksHandler = (function () {
     this._callbackTable = {};
+    this._invoking = {};
+    this._toRemove = {};
+    this._toRemoveAll = null;
 });
 
 // Avoid to equal to user set target (null for example)
-var REMOVE_PLACEHOLDER = Number.POSITIVE_INFINITY;
+var REMOVE_PLACEHOLDER = {};
 CallbacksHandler.REMOVE_PLACEHOLDER = REMOVE_PLACEHOLDER;
 
 CallbacksHandler.prototype._clearToRemove = function (key) {
     var list = this._callbackTable[key];
-
     if (this._toRemove[key] && list) {
-        var count, i;
-        for (i = list.length-1; i >= 0;) {
-            count = 0;
-            while (list[i] === REMOVE_PLACEHOLDER) {
-                i--;
-                count++;
-            }
-            if (count > 0) {
-                list.splice(i+1, count);
-            }
-            else {
-                i--;
+        // filter all REMOVE_PLACEHOLDER and compact array
+        var firstRemovedIndex = list.indexOf(REMOVE_PLACEHOLDER);
+        var nextIndex = firstRemovedIndex;
+        for (var i = firstRemovedIndex + 1; i < list.length; ++i) {
+            var item = list[i];
+            if (item !== REMOVE_PLACEHOLDER) {
+                list[nextIndex] = item;
+                ++nextIndex;
             }
         }
-        delete this._toRemove[key];
+        list.length = nextIndex;
+        this._toRemove[key] = false;
     }
     if (this._toRemoveAll) {
         this.removeAll(this._toRemoveAll);
@@ -76,10 +75,12 @@ CallbacksHandler.prototype._clearToRemove = function (key) {
 CallbacksHandler.prototype.add = function (key, callback, target) {
     var list = this._callbackTable[key];
     if (typeof list !== 'undefined') {
-        list.push(callback);
-        // Just append the target after callback
         if (typeof target === 'object') {
-            list.push(target);
+            // append the target after callback
+            list.push(callback, target);
+        }
+        else {
+            list.push(callback);
         }
         return false;
     }
@@ -108,28 +109,16 @@ CallbacksHandler.prototype.add = function (key, callback, target) {
  */
 CallbacksHandler.prototype.has = function (key, callback, target) {
     var list = this._callbackTable[key], callbackTarget, index;
-
     if (!list) {
         return false;
     }
-
-    var empty = true;
-    for (var i = 0; i < list.length; ++i) {
-        if (list[i] && list[i] !== REMOVE_PLACEHOLDER) {
-            empty = false;
-            break;
-        }
-    }
-    if (empty) {
-        return false;
-    }
-
     // callback not given, but key found
     if (!callback) 
         return true;
     // wrong callback type, can't found anything
     else if (typeof callback !== 'function')
         return false;
+
     // Search callback, target pair in the list
     index = list.indexOf(callback);
     while (index !== -1) {
@@ -173,8 +162,10 @@ CallbacksHandler.prototype.removeAll = function (key) {
             }
         }
     }
-    else 
+    else {
         delete this._callbackTable[key];
+        delete this._toRemove[key];
+    }
 };
 
 /**
@@ -195,7 +186,7 @@ CallbacksHandler.prototype.remove = function (key, callback, target) {
             }
             if (callbackTarget === target) {
                 // Delay removing
-                if (this._invoking[key]) {
+                if (CC_JSB || this._invoking[key]) {
                     list[index] = REMOVE_PLACEHOLDER;
                     callbackTarget && (list[index+1] = REMOVE_PLACEHOLDER);
                     this._toRemove[key] = true;
@@ -224,9 +215,6 @@ CallbacksHandler.prototype.remove = function (key, callback, target) {
  */
 var CallbacksInvoker = function () {
     CallbacksHandler.call(this);
-    this._invoking = {};
-    this._toRemove = {};
-    this._toRemoveAll = null;
 };
 JS.extend(CallbacksInvoker, CallbacksHandler);
 
@@ -307,7 +295,7 @@ CallbacksInvoker.prototype.invokeAndRemove = function (key, p1, p2, p3, p4, p5) 
         }
     }
     this._invoking[key] = false;
-    delete this._toRemove[key];
+    this._toRemove[key] = false;
     this.removeAll(key);
 };
 

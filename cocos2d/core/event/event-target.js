@@ -25,6 +25,7 @@
 var EventListeners = require('./event-listeners');
 require('./event');
 var JS = cc.js;
+var fastRemove = JS.array.fastRemove;
 
 var cachedArray = new Array(16);
 cachedArray.length = 0;
@@ -200,6 +201,15 @@ JS.mixin(EventTarget.prototype, {
         return callback;
     },
 
+    __fastOn: function (type, callback, target, eventTargets) {
+        var listeners = this._bubblingListeners;
+        if (!listeners) {
+            listeners = this._bubblingListeners = new EventListeners();
+        }
+        listeners.add(type, callback, target);
+        eventTargets.push(this);
+    },
+
     /**
      * !#en
      * Removes the callback previously registered with the same type, callback, target and or useCapture.
@@ -238,9 +248,16 @@ JS.mixin(EventTarget.prototype, {
             listeners.remove(type, callback, target);
 
             if (target && target.__eventTargets) {
-                var index = target.__eventTargets.indexOf(this);
-                target.__eventTargets.splice(index, 1);
+                fastRemove(target.__eventTargets, this);
             }
+        }
+    },
+
+    __fastOff: function (type, callback, target, eventTargets) {
+        var listeners = this._bubblingListeners;
+        if (listeners) {
+            listeners.remove(type, callback, target);
+            fastRemove(eventTargets, this);
         }
     },
 
