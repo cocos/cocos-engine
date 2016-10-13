@@ -82,7 +82,7 @@ var audioEngine = {
 
     AudioState: Audio.State,
 
-    _maxWebAudioSize: 307200, // 300kb * 1024
+    _maxWebAudioSize: 2097152, // 2048kb * 1024
     _maxAudioInstance: 24,
 
     _id2audio: id2audio,
@@ -106,6 +106,7 @@ var audioEngine = {
             audio.setVolume(volume || 1);
             audio.play();
         };
+        audio.__callback = callback;
         audio.on('load', callback);
         audio.preload();
 
@@ -368,6 +369,7 @@ var audioEngine = {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.stop)
             return false;
+        audio.off('load', audio.__callback);
         audio.stop();
         audio.emit('ended');
         return true;
@@ -386,6 +388,7 @@ var audioEngine = {
             var audio = id2audio[id];
             if (audio && audio.stop) {
                 audio.stop();
+                audio.off('load', audio.__callback);
                 audio.emit('ended');
             }
         }
