@@ -41,48 +41,49 @@ exports.deprecated = function (audioEngine) {
 	var effectsVolume = 1;
 	var pauseIDCache = [];
 	js.get(audioEngine, 'playMusic', function () {
-		cc.warn(INFO, 'audioEngine.playMusic', 'audioEngine.play');
+		// cc.warn(INFO, 'audioEngine.playMusic', 'audioEngine.play');
 		return function (url, loop) {
+			audioEngine.stop(musicId);
 			musicId = audioEngine.play(url, loop, musicVolume);
 			return musicId;
 		}
 	});
 	js.get(audioEngine, 'stopMusic', function () {
-		cc.warn(INFO, 'audioEngine.stopMusic', 'audioEngine.stop');
+		// cc.warn(INFO, 'audioEngine.stopMusic', 'audioEngine.stop');
 		return function () {
 			audioEngine.stop(musicId);
 			return musicId;
 		}
 	});
 	js.get(audioEngine, 'pauseMusic', function () {
-		cc.warn(INFO, 'audioEngine.pauseMusic', 'audioEngine.pause');
+		// cc.warn(INFO, 'audioEngine.pauseMusic', 'audioEngine.pause');
 		return function () {
 			audioEngine.pause(musicId);
 			return musicId;
 		}
 	});
 	js.get(audioEngine, 'resumeMusic', function () {
-		cc.warn(INFO, 'audioEngine.resumeMusic', 'audioEngine.resume');
+		// cc.warn(INFO, 'audioEngine.resumeMusic', 'audioEngine.resume');
 		return function () {
 			audioEngine.resume(musicId);
 			return musicId;
 		}
 	});
 	js.get(audioEngine, 'rewindMusic', function () {
-		cc.warn(INFO, 'audioEngine.rewindMusic', 'audioEngine.setCurrentTime');
+		// cc.warn(INFO, 'audioEngine.rewindMusic', 'audioEngine.setCurrentTime');
 		return function () {
 			audioEngine.setCurrentTime(musicId, 0);
 			return musicId;
 		}
 	});
 	js.get(audioEngine, 'getMusicVolume', function () {
-		cc.warn(INFO, 'audioEngine.getMusicVolume', 'audioEngine.getVolume');
+		// cc.warn(INFO, 'audioEngine.getMusicVolume', 'audioEngine.getVolume');
 		return function () {
 			return musicVolume;
 		}
 	});
 	js.get(audioEngine, 'setMusicVolume', function () {
-		cc.warn(INFO, 'audioEngine.setMusicVolume', 'audioEngine.setVolume');
+		// cc.warn(INFO, 'audioEngine.setMusicVolume', 'audioEngine.setVolume');
 		return function (volume) {
 			musicVolume = volume;
 			audioEngine.setVolume(musicId, musicVolume);
@@ -90,20 +91,20 @@ exports.deprecated = function (audioEngine) {
 		}
 	});
 	js.get(audioEngine, 'isMusicPlaying', function () {
-		cc.warn(INFO, 'audioEngine.isMusicPlaying', 'audioEngine.getState');
+		// cc.warn(INFO, 'audioEngine.isMusicPlaying', 'audioEngine.getState');
 		return function () {
 			return audioEngine.getState(musicId) === audioEngine.AudioState.PLAYING;
 		}
 	});
 	js.get(audioEngine, 'playEffect', function () {
-		cc.warn(INFO, 'audioEngine.playEffect', 'audioEngine.play');
+		// cc.warn(INFO, 'audioEngine.playEffect', 'audioEngine.play');
 
 		return function (url, loop, volume) {
 			return audioEngine.play(url, loop, volume === undefined ? effectsVolume : volume);
 		}
 	});
 	js.get(audioEngine, 'setEffectsVolume', function (volume) {
-		cc.warn(INFO, 'audioEngine.setEffectsVolume', 'audioEngine.setVolume');
+		// cc.warn(INFO, 'audioEngine.setEffectsVolume', 'audioEngine.setVolume');
 		return function (volume) {
 			effectsVolume = volume;
 			var id2audio = audioEngine._id2audio;
@@ -114,20 +115,20 @@ exports.deprecated = function (audioEngine) {
 		}
 	});
 	js.get(audioEngine, 'getEffectsVolume', function () {
-		cc.warn(INFO, 'audioEngine.getEffectsVolume', 'audioEngine.getVolume');
+		// cc.warn(INFO, 'audioEngine.getEffectsVolume', 'audioEngine.getVolume');
 		return function () {
 			return effectsVolume;
 		}
 	});
 	js.get(audioEngine, 'pauseEffect', function () {
-		cc.warn(INFO, 'audioEngine.pauseEffect', 'audioEngine.pause');
+		// cc.warn(INFO, 'audioEngine.pauseEffect', 'audioEngine.pause');
 
 		return function (id) {
 			return audioEngine.pause(id);
 		}
 	});
 	js.get(audioEngine, 'pauseAllEffects', function () {
-		cc.warn(INFO, 'audioEngine.pauseAllEffects', 'audioEngine.pauseAll');
+		// cc.warn(INFO, 'audioEngine.pauseAllEffects', 'audioEngine.pauseAll');
 
 		return function () {
 			var id2audio = audioEngine._id2audio;
@@ -143,13 +144,13 @@ exports.deprecated = function (audioEngine) {
 		}
 	});
 	js.get(audioEngine, 'resumeEffect', function () {
-		cc.warn(INFO, 'audioEngine.resumeEffect', 'audioEngine.resume');
+		// cc.warn(INFO, 'audioEngine.resumeEffect', 'audioEngine.resume');
 		return function (id) {
 			audioEngine.resume(id);
 		}
 	});
 	js.get(audioEngine, 'resumeAllEffects', function () {
-		cc.warn(INFO, 'audioEngine.resumeEffect', 'audioEngine.resume');
+		// cc.warn(INFO, 'audioEngine.resumeEffect', 'audioEngine.resume');
 		return function () {
 			var id2audio = audioEngine._id2audio;
 			while (pauseIDCache.length > 0) {
@@ -161,13 +162,13 @@ exports.deprecated = function (audioEngine) {
 		}
 	});
 	js.get(audioEngine, 'stopEffect', function () {
-		cc.warn(INFO, 'audioEngine.stopEffect', 'audioEngine.stop');
+		// cc.warn(INFO, 'audioEngine.stopEffect', 'audioEngine.stop');
 		return function (id) {
 			return audioEngine.stop(id);
 		}
 	});
 	js.get(audioEngine, 'stopAllEffects', function () {
-		cc.warn(INFO, 'audioEngine.stopAllEffects', 'audioEngine.stopAll');
+		// cc.warn(INFO, 'audioEngine.stopAllEffects', 'audioEngine.stopAll');
 		return function () {
 			var id2audio = audioEngine._id2audio;
 			for (var id in id2audio) {
@@ -181,7 +182,7 @@ exports.deprecated = function (audioEngine) {
 		}
 	});
 	js.get(audioEngine, 'unloadEffect', function () {
-		cc.warn(INFO, 'audioEngine.unloadEffect', 'audioEngine.stop');
+		// cc.warn(INFO, 'audioEngine.unloadEffect', 'audioEngine.stop');
 		return function (id) {
 			return audioEngine.stop(id);
 		}
@@ -189,7 +190,7 @@ exports.deprecated = function (audioEngine) {
 
 	if (!CC_JSB) {
 		js.get(audioEngine, 'end', function () {
-			cc.warn(INFO, 'audioEngine.end', 'audioEngine.stopAll');
+			// cc.warn(INFO, 'audioEngine.end', 'audioEngine.stopAll');
 			return function () {
 				return audioEngine.stopAll();
 			}
