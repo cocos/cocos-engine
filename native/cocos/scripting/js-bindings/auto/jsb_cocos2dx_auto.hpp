@@ -206,6 +206,7 @@ bool js_cocos2dx_Node_getLocalZOrder(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_getScheduler(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_setActionManager(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_getPosition(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_Node_insertChildBefore(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_isRunning(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_getParent(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_getWorldToNodeTransform(JSContext *cx, uint32_t argc, jsval *vp);

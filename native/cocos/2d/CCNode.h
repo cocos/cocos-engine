@@ -1734,6 +1734,15 @@ CC_CONSTRUCTOR_ACCESS:
     virtual ~Node();
 
     virtual bool init();
+    
+    /**
+     * Insert a child before the relative node.
+     * This method is added for Creator issue :
+     * https://github.com/cocos-creator/fireball/issues/4335
+     * @param child The child will be inserted
+     * @param relativeChild The relative child where will be inserted
+     */
+    void insertChildBefore(Node* child, Node* relativeChild);
 
 protected:
     /// lazy allocs
@@ -1770,6 +1779,7 @@ protected:
 
 private:
     void addChildHelper(Node* child, int localZOrder, int tag, const std::string &name, bool setTag);
+    void postInsertChild(Node* child);
 
 protected:
 
