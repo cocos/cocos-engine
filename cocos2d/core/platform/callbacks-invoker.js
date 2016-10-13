@@ -34,30 +34,29 @@ var JS = require('./js');
  */
 var CallbacksHandler = (function () {
     this._callbackTable = {};
+    this._invoking = {};
+    this._toRemove = {};
+    this._toRemoveAll = null;
 });
 
 // Avoid to equal to user set target (null for example)
-var REMOVE_PLACEHOLDER = Number.POSITIVE_INFINITY;
+var REMOVE_PLACEHOLDER = {};
 CallbacksHandler.REMOVE_PLACEHOLDER = REMOVE_PLACEHOLDER;
 
 CallbacksHandler.prototype._clearToRemove = function (key) {
     var list = this._callbackTable[key];
-
     if (this._toRemove[key] && list) {
-        var count, i;
-        for (i = list.length-1; i >= 0;) {
-            count = 0;
-            while (list[i] === REMOVE_PLACEHOLDER) {
-                i--;
-                count++;
-            }
-            if (count > 0) {
-                list.splice(i+1, count);
-            }
-            else {
-                i--;
+        // filter all REMOVE_PLACEHOLDER and compact array
+        var firstRemovedIndex = list.indexOf(REMOVE_PLACEHOLDER);
+        var nextIndex = firstRemovedIndex;
+        for (var i = firstRemovedIndex + 1; i < list.length; ++i) {
+            var item = list[i];
+            if (item !== REMOVE_PLACEHOLDER) {
+                list[nextIndex] = item;
+                ++nextIndex;
             }
         }
+        list.length = nextIndex;
         this._toRemove[key] = false;
     }
     if (this._toRemoveAll) {
@@ -187,7 +186,7 @@ CallbacksHandler.prototype.remove = function (key, callback, target) {
             }
             if (callbackTarget === target) {
                 // Delay removing
-                if (this._invoking[key]) {
+                if (CC_JSB || this._invoking[key]) {
                     list[index] = REMOVE_PLACEHOLDER;
                     callbackTarget && (list[index+1] = REMOVE_PLACEHOLDER);
                     this._toRemove[key] = true;
@@ -216,9 +215,6 @@ CallbacksHandler.prototype.remove = function (key, callback, target) {
  */
 var CallbacksInvoker = function () {
     CallbacksHandler.call(this);
-    this._invoking = {};
-    this._toRemove = {};
-    this._toRemoveAll = null;
 };
 JS.extend(CallbacksInvoker, CallbacksHandler);
 
