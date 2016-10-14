@@ -971,12 +971,12 @@ void Node::postInsertChild(Node* child)
             child->onEnterTransitionDidFinish();
         }
     }
-    
+
     if (_cascadeColorEnabled)
     {
         updateCascadeColor();
     }
-    
+
     if (_cascadeOpacityEnabled)
     {
         updateCascadeOpacity();
