@@ -223,6 +223,7 @@ function _callPreloadOnComponent (component) {
     else {
         component.__preload();
     }
+    component._objFlags |= IsPreloadCalled;
 }
 
 /**
