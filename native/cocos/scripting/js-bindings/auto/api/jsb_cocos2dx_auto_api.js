@@ -1565,6 +1565,18 @@ float
 },
 
 /**
+ * @method insertChildBefore
+ * @param {cc.Node} arg0
+ * @param {cc.Node} arg1
+ */
+insertChildBefore : function (
+node, 
+node 
+)
+{
+},
+
+/**
  * @method isRunning
  * @return {bool}
  */
