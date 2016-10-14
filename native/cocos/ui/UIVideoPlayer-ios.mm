@@ -227,12 +227,6 @@ using namespace cocos2d::experimental::ui;
 {
     MPMoviePlaybackState state = [self.moviePlayer playbackState];
     switch (state) {
-        case MPMoviePlaybackStatePaused:
-            _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::PAUSED);
-            break;
-        case MPMoviePlaybackStateStopped:
-            _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::STOPPED);
-            break;
         case MPMoviePlaybackStatePlaying:
             _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::PLAYING);
             break;
@@ -283,6 +277,9 @@ using namespace cocos2d::experimental::ui;
 {
     if (self.moviePlayer != NULL) {
         [self.moviePlayer.view setHidden:!visible];
+        if (!visible) {
+            [self pause];
+        }
     }
 }
 
@@ -309,6 +306,10 @@ using namespace cocos2d::experimental::ui;
 -(void) pause
 {
     if (self.moviePlayer != NULL) {
+        if([self.moviePlayer playbackState] == MPMoviePlaybackStatePlaying) {
+            _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::PAUSED);
+        }
+
         [self.moviePlayer pause];
     }
 }
@@ -326,7 +327,9 @@ using namespace cocos2d::experimental::ui;
 -(void) stop
 {
     if (self.moviePlayer != NULL) {
-        [self.moviePlayer stop];
+        [self.moviePlayer pause];
+        [self seekTo:0];
+        _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::STOPPED);
     }
 }
 
@@ -430,7 +433,7 @@ void VideoPlayer::setKeepAspectRatioEnabled(bool enable)
 
 void VideoPlayer::play()
 {
-    if (! _videoURL.empty())
+    if (! _videoURL.empty() && this->isVisible())
     {
         [((UIVideoViewWrapperIos*)_videoView) play];
     }
