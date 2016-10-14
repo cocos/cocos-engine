@@ -187,7 +187,7 @@ Js.mixin(_p, {
     },
 
     clear: function () {
-        this.cmds = [];
+        this.cmds.length = 0;
         this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     }
 });
