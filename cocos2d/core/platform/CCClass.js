@@ -1048,8 +1048,11 @@ function parseAttributes (attrs, className, propName) {
     if (CC_DEV) {
         var visible = attrs.visible;
         if (typeof visible !== 'undefined') {
-            if (!attrs.visible) {
+            if (!visible) {
                 result.push({visible: false});
+            }
+            else if (typeof visible === 'function') {
+                result.push({visible: visible});
             }
         }
         else {
