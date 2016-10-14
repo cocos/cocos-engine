@@ -233,11 +233,11 @@ var EditBox = cc.Class({
          * !#en Set the input flags that are to be applied to the EditBox.
          * !#zh 指定输入标志位，可以指定输入方式为密码或者单词首字母大写。
          * @property {EditBox.InputFlag} inputFlag
-         * @default InputFlag.INITIAL_CAPS_ALL_CHARACTERS
+         * @default InputFlag.DEFAULT
          */
         inputFlag: {
             tooltip: 'i18n:COMPONENT.editbox.input_flag',
-            default: InputFlag.INITIAL_CAPS_ALL_CHARACTERS,
+            default: InputFlag.DEFAULT,
             type: InputFlag,
             notify: function() {
                 this._sgNode.inputFlag = this.inputFlag;

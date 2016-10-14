@@ -1572,8 +1572,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
         var x = nodePoint.x - this._anchorPoint.x * this._contentSize.width;
         var y = nodePoint.y - this._anchorPoint.y * this._contentSize.height;
-        var worldPositionIgnoreAnchorPoint = this._sgNode.convertToWorldSpace(cc.v2(x, y));
-        return worldPositionIgnoreAnchorPoint;
+        return cc.v2(this._sgNode.convertToWorldSpace(cc.v2(x, y)));
     },
 
     /**

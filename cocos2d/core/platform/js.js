@@ -549,120 +549,164 @@ js.formatStr = function () {
  * @class array
  * @static
  */
-js.array = {
-    /**
-     * Removes the first occurrence of a specific object from the array.
-     * @method remove
-     * @param {any[]} array
-     * @param {any} value
-     * @return {Boolean}
-     */
-    remove: function (array, value) {
-        var index = array.indexOf(value);
-        if (index !== -1) {
-            array.splice(index, 1);
-            return true;
-        }
-        else {
-            return false;
-        }
-    },
 
-    /**
-     * Removes the array item at the specified index.
-     * @method removeAt
-     * @param {any[]} array
-     * @param {Number} index
-     */
-    removeAt: function (array, index) {
-        array.splice(index, 1);
-    },
+/**
+ * Removes the array item at the specified index.
+ * @method removeAt
+ * @param {any[]} array
+ * @param {Number} index
+ */
+function removeAt (array, index) {
+    array.splice(index, 1);
+}
 
-    /**
-     * Determines whether the array contains a specific value.
-     * @method contains
-     * @param {any[]} array
-     * @param {any} value
-     * @return {Boolean}
-     */
-    contains: function (array, value) {
-        return array.indexOf(value) !== -1;
-    },
+/**
+ * Removes the array item at the specified index.
+ * It's faster but the order of the array will be changed.
+ * @method fastRemoveAt
+ * @param {any[]} array
+ * @param {Number} index
+ */
+function fastRemoveAt (array, index) {
+    var length = array.length;
+    if (index < 0 || index >= length) {
+        return;
+    }
+    array[index] = array[length - 1];
+    array.length = length - 1;
+}
 
-    /**
-     * Verify array's Type
-     * @method verifyType
-     * @param {array} array
-     * @param {Function} type
-     * @return {Boolean}
-     */
-    verifyType: function (array, type) {
-        if (array && array.length > 0) {
-            for (var i = 0; i < array.length; i++) {
-                if (!(array[i] instanceof  type)) {
-                    cc.log(cc._LogInfos.Array.verifyType);
-                    return false;
-                }
+/**
+ * Removes the first occurrence of a specific object from the array.
+ * @method remove
+ * @param {any[]} array
+ * @param {any} value
+ * @return {Boolean}
+ */
+function remove (array, value) {
+    var index = array.indexOf(value);
+    if (index !== -1) {
+        removeAt(array, index);
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+/**
+ * Removes the first occurrence of a specific object from the array.
+ * It's faster but the order of the array will be changed.
+ * @method fastRemove
+ * @param {any[]} array
+ * @param {Number} value
+ */
+function fastRemove (array, value) {
+    var index = array.indexOf(value);
+    if (index !== -1) {
+        array[index] = array[array.length - 1];
+        --array.length;
+    }
+}
+
+/**
+ * Verify array's Type
+ * @method verifyType
+ * @param {array} array
+ * @param {Function} type
+ * @return {Boolean}
+ */
+function verifyType (array, type) {
+    if (array && array.length > 0) {
+        for (var i = 0; i < array.length; i++) {
+            if (!(array[i] instanceof  type)) {
+                cc.log(cc._LogInfos.Array.verifyType);
+                return false;
             }
         }
-        return true;
-    },
+    }
+    return true;
+}
 
-    /**
-     * Removes from array all values in minusArr. For each Value in minusArr, the first matching instance in array will be removed.
-     * @method removeArray
-     * @param {Array} array Source Array
-     * @param {Array} minusArr minus Array
-     */
-    removeArray: function (array, minusArr) {
-        for (var i = 0, l = minusArr.length; i < l; i++) {
-            remove(array, minusArr[i]);
-        }
-    },
+/**
+ * Removes from array all values in minusArr. For each Value in minusArr, the first matching instance in array will be removed.
+ * @method removeArray
+ * @param {Array} array Source Array
+ * @param {Array} minusArr minus Array
+ */
+function removeArray (array, minusArr) {
+    for (var i = 0, l = minusArr.length; i < l; i++) {
+        remove(array, minusArr[i]);
+    }
+}
 
-    /**
-     * Inserts some objects at index
-     * @method appendObjectsAt
-     * @param {Array} array
-     * @param {Array} addObjs
-     * @param {Number} index
-     * @return {Array}
-     */
-    appendObjectsAt: function(array, addObjs, index) {
-        array.splice.apply(array, [index, 0].concat(addObjs));
-        return array;
-    },
+/**
+ * Inserts some objects at index
+ * @method appendObjectsAt
+ * @param {Array} array
+ * @param {Array} addObjs
+ * @param {Number} index
+ * @return {Array}
+ */
+function appendObjectsAt (array, addObjs, index) {
+    array.splice.apply(array, [index, 0].concat(addObjs));
+    return array;
+}
 
-    /**
-     * Copy an array's item to a new array (its performance is better than Array.slice)
-     * @method copy
-     * @param {Array} array
-     * @return {Array}
-     */
-    copy: function(array) {
-        var i, len = array.length, arr_clone = new Array(len);
-        for (i = 0; i < len; i += 1)
-            arr_clone[i] = array[i];
-        return arr_clone;
-    },
+/**
+ * Exact same function as Array.prototype.indexOf.
+ * HACK: ugliy hack for Baidu mobile browser compatibility,
+ * stupid Baidu guys modify Array.prototype.indexOf for all pages loaded,
+ * their version changes strict comparison to non-strict comparison,
+ * it also ignores the second parameter of the original API,
+ * and this will cause event handler enter infinite loop.
+ * Baidu developers, if you ever see this documentation,
+ * here is the standard: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
+ * Seriously !
+ *
+ * @method indexOf
+ * @param {any} searchElement Element to locate in the array.
+ * @param {Number} [fromIndex=0] The index to start the search at
+ * @return {Number} returns the first index at which a given element can be found in the array, or -1 if it is not present.
+ */
+var indexOf = Array.prototype.indexOf;
 
-    /**
-     * Exact same function as Array.prototype.indexOf.
-     * HACK: ugliy hack for Baidu mobile browser compatibility,
-     * stupid Baidu guys modify Array.prototype.indexOf for all pages loaded,
-     * their version changes strict comparison to non-strict comparison, 
-     * it also ignores the second parameter of the original API, 
-     * and this will cause event handler enter infinite loop.
-     * Baidu developers, if you ever see this documentation, 
-     * here is the standard: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
-     * Seriously !
-     * 
-     * @method indexOf
-     * @param {any} searchElement Element to locate in the array.
-     * @param {Number} [fromIndex=0] The index to start the search at
-     * @return {Number} returns the first index at which a given element can be found in the array, or -1 if it is not present.
-     */
-    indexOf: Array.prototype.indexOf,
+/**
+ * Determines whether the array contains a specific value.
+ * @method contains
+ * @param {any[]} array
+ * @param {any} value
+ * @return {Boolean}
+ */
+function contains (array, value) {
+    return indexOf.call(array, value) !== -1;
+}
+
+/**
+ * Copy an array's item to a new array (its performance is better than Array.slice)
+ * @method copy
+ * @param {Array} array
+ * @return {Array}
+ */
+function copy (array) {
+    var i, len = array.length, arr_clone = new Array(len);
+    for (i = 0; i < len; i += 1)
+        arr_clone[i] = array[i];
+    return arr_clone;
+}
+
+js.array = {
+    remove: remove,
+    fastRemove: fastRemove,
+    removeAt: removeAt,
+    fastRemoveAt: fastRemoveAt,
+    contains: contains,
+    verifyType: verifyType,
+    removeArray: removeArray,
+    appendObjectsAt: appendObjectsAt,
+    copy: copy,
+    indexOf: indexOf,
+    MutableForwardIterator: require('../utils/mutable-forward-iterator')
 };
 
 cc.js = js;

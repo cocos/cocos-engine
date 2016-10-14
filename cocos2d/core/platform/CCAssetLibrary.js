@@ -89,7 +89,12 @@ var AssetLibrary = {
             }
             else {
                 if (asset.constructor === cc.SceneAsset) {
-                    asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(uuid);
+                    if (CC_EDITOR && !asset.scene) {
+                        Editor.error('Sorry, the scene data of "%s" is corrupted!', uuid);
+                    }
+                    else {
+                        asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(uuid);
+                    }
                 }
                 if (CC_EDITOR || isScene(asset)) {
                     Loader.removeItem(uuid);
