@@ -806,7 +806,8 @@ var Node = cc.Class({
         this._components.splice(index, 0, comp);
 
         if (this._activeInHierarchy) {
-            if (typeof comp.__preload === 'function') {
+            if (typeof comp.__preload === 'function' &&
+                !(comp._objFlags & cc.Object.Flags.IsPreloadCalled)) {
                 cc.Component._callPreloadOnComponent(comp);
             }
             // call onLoad/onEnable
