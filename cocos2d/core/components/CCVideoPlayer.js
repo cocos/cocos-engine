@@ -257,7 +257,17 @@ var VideoPlayer = cc.Class({
             sgNode.setEventListener(EventType.PAUSED, this.onPasued.bind(this));
             sgNode.setEventListener(EventType.STOPPED, this.onStopped.bind(this));
             sgNode.setEventListener(EventType.COMPLETED, this.onCompleted.bind(this));
+            sgNode.setEventListener(EventType.META_LOADED, this.onMetaLoaded.bind(this));
+            sgNode.setEventListener(EventType.CLICKED, this.onClicked.bind(this));
         }
+    },
+
+    onMetaLoaded: function () {
+        cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.META_LOADED);
+    },
+
+    onClicked: function () {
+        cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.CLICKED);
     },
 
     onPlaying: function(){
