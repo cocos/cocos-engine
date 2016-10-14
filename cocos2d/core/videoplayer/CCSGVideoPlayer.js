@@ -516,9 +516,15 @@ _ccsg.VideoPlayer.EventType = {
 
     proto.duration = function () {
         var video = this._video;
-        if(!video) return -1;
+        var duration = -1;
+        if(!video) return duration;
 
-        return video.duration;
+        duration = video.duration;
+        if(duration <= 0) {
+            cc.log("Video player's duration is not ready to get now!");
+        }
+
+        return duration;
     };
 
     proto.currentTime = function () {
