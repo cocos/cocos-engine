@@ -194,7 +194,9 @@ _ccsg.VideoPlayer.EventType = {
     PLAYING: 0,
     PAUSED: 1,
     STOPPED: 2,
-    COMPLETED: 3
+    COMPLETED: 3,
+    META_LOADED: 4,
+    CLICKED: 5
 };
 
 (function (video) {
@@ -363,6 +365,9 @@ _ccsg.VideoPlayer.EventType = {
     proto.bindEvent = function () {
         var node = this._node, video = this._video, self = this;
         //binding event
+        video.onloadedmetadata = function () {
+            node._dispatchEvent(_ccsg.VideoPlayer.EventType.META_LOADED);
+        };
         video.addEventListener("ended", function(){
             if (self._video !== video) return;
             this._playing = false;
@@ -377,11 +382,7 @@ _ccsg.VideoPlayer.EventType = {
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.PAUSED);
         });
         video.addEventListener("click", function () {
-            if (video.paused) {
-                self.play();
-            } else {
-                self.pause();
-            }
+            node._dispatchEvent(_ccsg.VideoPlayer.EventType.CLICKED);
         });
     };
 
