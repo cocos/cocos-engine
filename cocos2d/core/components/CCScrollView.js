@@ -157,6 +157,7 @@ var ScrollView = cc.Class({
         this._outOfBoundaryAmountDirty = true;
         this._stopMouseWheel = false;
         this._mouseWheelEventElapsedTime = 0.0;
+        this._isScrollEndedEventFired = false;
     },
 
     properties: {
@@ -1104,10 +1105,12 @@ var ScrollView = cc.Class({
         }
 
         var newPosition = cc.pAdd(this._autoScrollStartPosition, cc.pMult(this._autoScrollTargetDelta, percentage));
-        var reachedEnd = Math.abs(percentage - 1) <= this.getAutoScrollStopEpsilon();
+        var reachedEnd = (percentage === 1);
 
-        if(reachedEnd) {
-            newPosition = cc.pAdd(this._autoScrollStartPosition, this._autoScrollTargetDelta);
+        var fireEvent = Math.abs(percentage - 1) <= this.getAutoScrollStopEpsilon();
+        if(fireEvent && !this._isScrollEndedEventFired) {
+            this._dispatchEvent(EventType.AUTOSCROLL_ENDED);
+            this._isScrollEndedEventFired = true;
         }
 
         if (this.elastic) {
@@ -1127,7 +1130,9 @@ var ScrollView = cc.Class({
 
         if (reachedEnd) {
             this._autoScrolling = false;
-            this._dispatchEvent(EventType.AUTOSCROLL_ENDED);
+            if(!this._isScrollEndedEventFired) {
+                this._dispatchEvent(EventType.AUTOSCROLL_ENDED);
+            }
         }
 
         var contentPos = cc.pSub(newPosition, this.getContentPosition());
@@ -1201,6 +1206,7 @@ var ScrollView = cc.Class({
         this._autoScrollTotalTime = timeInSecond;
         this._autoScrollAccumulatedTime = 0;
         this._autoScrollBraking = false;
+        this._isScrollEndedEventFired = false;
         this._autoScrollBrakingStartPosition = cc.p(0, 0);
 
         var currentOutOfBoundary = this._getHowMuchOutOfBoundary();
