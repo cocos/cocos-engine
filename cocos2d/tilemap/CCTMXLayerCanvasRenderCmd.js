@@ -157,7 +157,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
     for (i in spTiles) {
         if (i < z && spTiles[i]) {
             cmd = spTiles[i]._renderCmd;
-            if (spTiles[i]._localZOrder === 0 && !!cmd.rendering) {
+            if (spTiles[i]._localZOrder === 0 && !!cmd.rendering && spTiles[i]._visible) {
                 cmd.rendering(ctx, scaleX, scaleY);
             }
         }
@@ -187,7 +187,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
             // Skip sprite tiles
             if (spTiles[z]) {
                 cmd = spTiles[z]._renderCmd;
-                if (spTiles[z]._localZOrder === 0 && !!cmd.rendering) {
+                if (spTiles[z]._localZOrder === 0 && !!cmd.rendering && spTiles[z]._visible) {
                     cmd.rendering(ctx, scaleX, scaleY);
                     wrapper.setTransform(wt, scaleX, scaleY);
                     wrapper.setGlobalAlpha(alpha);
@@ -277,7 +277,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
     for (i in spTiles) {
         if (i > z && spTiles[i]) {
             cmd = spTiles[i]._renderCmd;
-            if (spTiles[i]._localZOrder === 0 && !!cmd.rendering) {
+            if (spTiles[i]._localZOrder === 0 && !!cmd.rendering && spTiles[i]._visible) {
                 cmd.rendering(ctx, scaleX, scaleY);
             }
         }
