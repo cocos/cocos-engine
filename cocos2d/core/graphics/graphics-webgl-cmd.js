@@ -325,6 +325,10 @@ Js.mixin(_p, {
             this._indicesDirty = false;
         }
 
+        if (this._vertsOffset > 65536) {
+            cc.warn('Too many graphics vertices generated, only 65536 vertices support.');
+        }
+
         gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
         gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, VERTS_BYTE_LENGTH, 0);
 
