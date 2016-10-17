@@ -49,7 +49,8 @@ cc.VideoPlayer.EventType = {
     STOPPED: 2,
     COMPLETED: 3,
     META_LOADED: 4,
-    CLICKED: 5
+    CLICKED: 5,
+    READY_TO_PLAY: 6
 };
 
 cc.WebView.EventType = {

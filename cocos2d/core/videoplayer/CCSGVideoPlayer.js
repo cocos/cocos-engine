@@ -196,7 +196,8 @@ _ccsg.VideoPlayer.EventType = {
     STOPPED: 2,
     COMPLETED: 3,
     META_LOADED: 4,
-    CLICKED: 5
+    CLICKED: 5,
+    READY_TO_PLAY: 6
 };
 
 (function (video) {
@@ -327,6 +328,7 @@ _ccsg.VideoPlayer.EventType = {
             this._loaded = true;
             node.setContentSize(node._contentSize.width, node._contentSize.height);
             video.currentTime = 0;
+            node._dispatchEvent(_ccsg.VideoPlayer.EventType.READY_TO_PLAY);
             this.updateVisibility();
             this.updateMatrix();
         }.bind(this);
