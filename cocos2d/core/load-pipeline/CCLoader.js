@@ -381,10 +381,14 @@ JS.mixin(CCLoader.prototype, {
             }
             this.load(res, function (errors, items) {
                 var results = [];
-                for (var key in items.map) {
-                    var item = items.getContent(key);
-                    self.setAutoReleaseRecursively(item, false);
-                    results.push(item);
+                for (var i = 0; i < res.length; ++i) {
+                    var uuid = res[i].uuid;
+                    var item = items.getContent(uuid);
+                    if (item) {
+                        // should not release these assets, even if they are static referenced in the scene.
+                        self.setAutoReleaseRecursively(uuid, false);
+                        results.push(item);
+                    }
                 }
                 if (completeCallback) {
                     completeCallback(errors, results);
