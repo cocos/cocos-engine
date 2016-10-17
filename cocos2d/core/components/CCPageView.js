@@ -299,13 +299,12 @@ var PageView = cc.Class({
      * !#zh 滚动到指定页面
      * @method scrollToPage
      * @param {Number} idx index of page.
-     * @param {Boolean} immediately immediately jumps
+     * @param {Float} timeInSecond scrolling time
      */
-    scrollToPage: function (idx, immediately) {
+    scrollToPage: function (idx, timeInSecond) {
         if (idx < 0 || idx > this._pages.length)
             return;
-        immediately = immediately || false;
-        var timeInSecond = immediately ? 0 : 0.3;
+        timeInSecond = timeInSecond !== undefined ? timeInSecond : 0.3;
         this._curPageIdx = idx;
         this.scrollToOffset(this._moveOffsetValue(idx), timeInSecond, true);
         if (this.indicator) {
@@ -322,12 +321,12 @@ var PageView = cc.Class({
     _updatePageView: function () {
         var pageCount = this._pages.length;
 
+        // 当页面数组变化时修改 content 大小
+        var layout = this.content.getComponent(cc.Layout);
+        if(layout && layout.enabledInHierarchy) {
+            layout._updateLayout();
+        }
         if (this._curPageIdx >= pageCount) {
-            // 当页面数组变化时修改 content 大小
-            var layout = this.content.getComponent(cc.Layout);
-            if(layout && layout.enabledInHierarchy) {
-                layout._updateLayout();
-            }
             this._curPageIdx = pageCount === 0 ? 0 : pageCount - 1;
             this._lastPageIdx = this._curPageIdx;
         }
@@ -397,7 +396,8 @@ var PageView = cc.Class({
             idx += (moveOffset.x > 0 ? 1 : -1);
         }
         else if (this.direction === Direction.Vertical) {
-            idx += (moveOffset.y > 0 ? 1 : -1);
+            // 由于滚动 Y 轴的原点在在右上角所以应该是小于 0
+            idx += (moveOffset.y < 0 ? 1 : -1);
         }
         return this._curPageIdx + idx;
     },
