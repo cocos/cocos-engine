@@ -37,14 +37,14 @@ exports.uglifyOptions = function (minify, global_defs) {
             if_return: false,  // optimize if-s followed by return/continue
             join_vars: false,  // join var declarations
             cascade: false,  // try to cascade `right` into `left` in sequences
-            // collapse_vars: false,
-            // warnings: true,
-            // negate_iife: false,
-            // pure_getters: false,
-            // pure_funcs: null,
-            // drop_console: false,
-            // keep_fargs: true,
-            // keep_fnames: true,
+            collapse_vars: false,
+            //warnings: true,
+            negate_iife: false,
+            pure_getters: false,
+            pure_funcs: null,
+            drop_console: false,
+            keep_fargs: true,
+            keep_fnames: true,
             side_effects: false  // drop side-effect-free statements
         }
     };
