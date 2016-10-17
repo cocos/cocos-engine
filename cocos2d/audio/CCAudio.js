@@ -348,7 +348,7 @@ var WebAudioElement = function (buffer, audio) {
     proto.__defineGetter__('volume', function () { return this._volume['gain'].value; });
     proto.__defineSetter__('volume', function (num) {
         this._volume['gain'].value = num;
-        if (!this.paused) {
+        if (cc.sys.os === cc.sys.OS_IOS && !this.paused) {
             // IOS must be stop webAudio
             this.pause();
             this.play();
