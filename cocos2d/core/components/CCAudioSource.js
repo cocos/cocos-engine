@@ -52,7 +52,10 @@ var AudioSource = cc.Class({
         _volume: 1,
         _mute: false,
         _loop: false,
-        _breakFlag: false,
+        _breakFlag: {
+            default: false,
+            serializable: false
+        },
 
         /**
          * !#en
