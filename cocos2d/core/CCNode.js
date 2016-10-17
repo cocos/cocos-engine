@@ -905,7 +905,10 @@ var Node = cc.Class({
     _onBatchCreated: function () {
         var prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && !prefabInfo._synced) {
-            PrefabHelper.syncWithPrefab(this);
+            // checks to ensure no recursion, recursion will caused only on old data.
+            if (prefabInfo.root === this) {
+                PrefabHelper.syncWithPrefab(this);
+            }
         }
 
         this._updateDummySgNode();
