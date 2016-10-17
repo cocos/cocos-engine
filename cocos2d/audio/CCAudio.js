@@ -346,7 +346,15 @@ var WebAudioElement = function (buffer, audio) {
     });
 
     proto.__defineGetter__('volume', function () { return this._volume['gain'].value; });
-    proto.__defineSetter__('volume', function (num) { return this._volume['gain'].value = num; });
+    proto.__defineSetter__('volume', function (num) {
+        this._volume['gain'].value = num;
+        if (!this.paused) {
+            // IOS must be stop webAudio
+            this.pause();
+            this.play();
+        }
+        return num;
+    });
 
     proto.__defineGetter__('currentTime', function () {
         if (this.paused) {

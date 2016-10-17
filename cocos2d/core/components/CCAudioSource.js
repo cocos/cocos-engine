@@ -188,6 +188,20 @@ var AudioSource = cc.Class({
         }
     },
 
+    _breakCallback: function () {
+        if (!this.audio || this.audio.paused) return;
+        this.audio.pause();
+        this._breakFlag = true;
+    },
+
+    _restoreCallback: function () {
+        if (!this.audio) return;
+        if (this._breakFlag) {
+            this.audio.resume();
+        }
+        this._breakFlag = false;
+    },
+
     onEnable: function () {
         if ( this.playOnLoad ) {
             this.play();
@@ -196,10 +210,15 @@ var AudioSource = cc.Class({
             this.audio.src = this._clip;
             this.audio.preload();
         }
+        this._breakFlag = false;
+        cc.game.on(cc.game.EVENT_HIDE, this._breakCallback, this);
+        cc.game.on(cc.game.EVENT_SHOW, this._restoreCallback, this);
     },
 
     onDisable: function () {
         this.stop();
+        cc.game.off(cc.game.EVENT_HIDE, this._breakCallback, this);
+        cc.game.off(cc.game.EVENT_SHOW, this._restoreCallback, this);
     },
 
     onDestroy: function () {
