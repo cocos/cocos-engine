@@ -58,7 +58,7 @@ else {
     cc._initDebugSetting(1);    // DEBUG_MODE_INFO
 }
 
-// LOAD EXTENDS FOR FIREBALL
+// LOAD EXTENDS FOR CREATOR
 
 require('./extends');
 
@@ -70,6 +70,14 @@ if (CC_EDITOR) {
      * var isDomNode = cc._require('./cocos2d/core/platform/utils').isDomNode;
      */
     cc._require = require;
+    /*
+     * Checks if the extension is loaded.
+     * This method is used to make editor code more elegant, so only available in editor.
+     * @param {string} moduleName - such as 'sp', 'dragonBones', 'TiledMap'... etc.
+     */
+    cc.hasExtension = function (moduleName) {
+        return moduleName in global || moduleName in cc;
+    };
 }
 
 if (isMainProcess) {
