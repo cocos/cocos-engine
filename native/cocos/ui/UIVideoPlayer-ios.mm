@@ -45,6 +45,7 @@ using namespace cocos2d::experimental::ui;
 - (void) pause;
 - (void) resume;
 - (void) stop;
+- (BOOL) isPlaying;
 - (void) seekTo:(float) sec;
 - (float) currentTime;
 - (float) duration;
@@ -92,11 +93,15 @@ using namespace cocos2d::experimental::ui;
         [[NSNotificationCenter defaultCenter] removeObserver:self
                                                         name:MPMoviePlayerPlaybackStateDidChangeNotification
                                                       object:self.moviePlayer];
-        
+
         [[NSNotificationCenter defaultCenter] removeObserver:self
                                                         name:MPMovieDurationAvailableNotification
                                                       object:nil];
-        
+
+        [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                        name:MPMoviePlayerLoadStateDidChangeNotification
+                                                      object:nil];
+
         [self.moviePlayer stop];
         [self.moviePlayer.view removeFromSuperview];
         self.moviePlayer = nullptr;
@@ -137,6 +142,14 @@ using namespace cocos2d::experimental::ui;
     return false;
 }
 
+-(BOOL) isPlaying
+{
+    if(self.moviePlayer.playbackState == MPMoviePlaybackStatePlaying)
+        return YES;
+    else
+        return NO;
+}
+
 -(void) setURL:(int)videoSource :(std::string &)videoUrl
 {
     [self cleanup];
@@ -159,7 +172,7 @@ using namespace cocos2d::experimental::ui;
     for (UIView * subView in self.moviePlayer.view.subviews) {
         subView.backgroundColor = clearColor;
     }
-   
+
     if (_keepRatioEnabled) {
         self.moviePlayer.scalingMode = MPMovieScalingModeAspectFit;
     } else {
@@ -169,7 +182,7 @@ using namespace cocos2d::experimental::ui;
     auto view = cocos2d::Director::getInstance()->getOpenGLView();
     auto eaglview = (CCEAGLView *) view->getEAGLView();
     [eaglview addSubview:self.moviePlayer.view];
-    
+
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(videoFinished:)
@@ -179,17 +192,23 @@ using namespace cocos2d::experimental::ui;
                                              selector:@selector(playStateChange)
                                                  name:MPMoviePlayerPlaybackStateDidChangeNotification
                                                object:self.moviePlayer];
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(metadataUpdate:)
                                                  name:MPMovieDurationAvailableNotification
                                                object:nil];
-    
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(loadStateUpdate:)
+                                                 name:MPMoviePlayerLoadStateDidChangeNotification
+                                               object:nil];
+
+
     //The setup code (in viewDidLoad in your view controller)
     UITapGestureRecognizer *singleFingerTap =
     [[UITapGestureRecognizer alloc] initWithTarget:self
                                             action:@selector(handleSingleTap:)];
-    
+
     [self.moviePlayer.view addGestureRecognizer:singleFingerTap];
 
     singleFingerTap.delegate = self;
@@ -230,14 +249,17 @@ using namespace cocos2d::experimental::ui;
         case MPMoviePlaybackStatePlaying:
             _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::PLAYING);
             break;
-        case MPMoviePlaybackStateInterrupted:
-            break;
-        case MPMoviePlaybackStateSeekingBackward:
-            break;
-        case MPMoviePlaybackStateSeekingForward:
-            break;
         default:
             break;
+    }
+}
+
+-(void) loadStateUpdate:(NSNotification*)notification
+{
+    MPMovieLoadState state = [self.moviePlayer loadState];
+    if(state == MPMovieLoadStatePlayable ||
+       state == MPMovieLoadStatePlaythroughOK) {
+        _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::READY_TO_PLAY);
     }
 }
 
@@ -342,7 +364,6 @@ VideoPlayer::VideoPlayer()
 , _fullScreenEnabled(false)
 , _fullScreenDirty(false)
 , _keepAspectRatioEnabled(false)
-, _isPlaying(false)
 {
     _videoView = [[UIVideoViewWrapperIos alloc] init:this];
 
@@ -483,7 +504,7 @@ float VideoPlayer::duration()const
 
 bool VideoPlayer::isPlaying() const
 {
-    return _isPlaying;
+     return [((UIVideoViewWrapperIos*)_videoView) isPlaying];
 }
 
 void VideoPlayer::setVisible(bool visible)
@@ -522,12 +543,6 @@ void VideoPlayer::addEventListener(const VideoPlayer::ccVideoPlayerCallback& cal
 
 void VideoPlayer::onPlayEvent(int event)
 {
-    if (event == (int)VideoPlayer::EventType::PLAYING) {
-        _isPlaying = true;
-    } else {
-        _isPlaying = false;
-    }
-
     if (_eventCallback)
     {
         _eventCallback(this, (VideoPlayer::EventType)event);
@@ -544,7 +559,6 @@ void VideoPlayer::copySpecialProperties(Widget *widget)
     VideoPlayer* videoPlayer = dynamic_cast<VideoPlayer*>(widget);
     if (videoPlayer)
     {
-        _isPlaying = videoPlayer->_isPlaying;
         _fullScreenEnabled = videoPlayer->_fullScreenEnabled;
         _fullScreenDirty = videoPlayer->_fullScreenDirty;
         _videoURL = videoPlayer->_videoURL;
