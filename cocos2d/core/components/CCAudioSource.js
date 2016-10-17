@@ -52,6 +52,7 @@ var AudioSource = cc.Class({
         _volume: 1,
         _mute: false,
         _loop: false,
+        _breakFlag: false,
 
         /**
          * !#en
@@ -210,7 +211,6 @@ var AudioSource = cc.Class({
             this.audio.src = this._clip;
             this.audio.preload();
         }
-        this._breakFlag = false;
         cc.game.on(cc.game.EVENT_HIDE, this._breakCallback, this);
         cc.game.on(cc.game.EVENT_SHOW, this._restoreCallback, this);
     },
