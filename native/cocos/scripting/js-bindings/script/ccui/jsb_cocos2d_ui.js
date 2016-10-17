@@ -457,7 +457,8 @@ if (ccui.VideoPlayer)
         STOPPED: 2,
         COMPLETED: 3,
         META_LOADED: 4,
-        CLICKED: 5
+        CLICKED: 5,
+        READY_TO_PLAY: 6
     };
 
     ccui.VideoPlayer.prototype._setURL = ccui.VideoPlayer.prototype.setURL;
@@ -478,26 +479,29 @@ if (ccui.VideoPlayer)
             this.videoPlayerCallback = function(sender, eventType){
                 cc.log("videoEventCallback eventType:" + eventType);
                 switch (eventType) {
-                    case 0:
-                        this["VideoPlayer_"+ccui.VideoPlayer.EventType.PLAYING] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.PLAYING](sender);
-                        break;
-                    case 1:
-                        this["VideoPlayer_"+ccui.VideoPlayer.EventType.PAUSED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.PAUSED](sender);
-                        break;
-                    case 2:
-                        this["VideoPlayer_"+ccui.VideoPlayer.EventType.STOPPED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.STOPPED](sender);
-                        break;
-                    case 3:
-                        this["VideoPlayer_"+ccui.VideoPlayer.EventType.COMPLETED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.COMPLETED](sender);
-                        break;
-                    case 4:
-                          this["VideoPlayer_"+ccui.VideoPlayer.EventType.META_LOADED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.META_LOADED](sender);
-                        break;
-                    case 5:
-                         this["VideoPlayer_"+ccui.VideoPlayer.EventType.CLICKED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.CLICKED](sender);
-                        break;
-                    default:
-                        break;
+                  case 0:
+                      this["VideoPlayer_"+ccui.VideoPlayer.EventType.PLAYING] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.PLAYING](sender);
+                      break;
+                  case 1:
+                      this["VideoPlayer_"+ccui.VideoPlayer.EventType.PAUSED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.PAUSED](sender);
+                      break;
+                  case 2:
+                      this["VideoPlayer_"+ccui.VideoPlayer.EventType.STOPPED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.STOPPED](sender);
+                      break;
+                  case 3:
+                      this["VideoPlayer_"+ccui.VideoPlayer.EventType.COMPLETED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.COMPLETED](sender);
+                      break;
+                  case 4:
+                      this["VideoPlayer_"+ccui.VideoPlayer.EventType.META_LOADED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.META_LOADED](sender);
+                      break;
+                  case 5:
+                      this["VideoPlayer_"+ccui.VideoPlayer.EventType.CLICKED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.CLICKED](sender);
+                      break;
+                  case 6:
+                      this["VideoPlayer_"+ccui.VideoPlayer.EventType.READY_TO_PLAY] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.READY_TO_PLAY](sender);
+                      break;
+                  default:
+                      break;
                 }
             };
             this.addEventListener(this.videoPlayerCallback);

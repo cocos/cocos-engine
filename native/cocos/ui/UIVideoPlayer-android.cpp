@@ -269,11 +269,6 @@ void VideoPlayer::onPlayEvent(int event)
     else
     {
         VideoPlayer::EventType videoEvent = (VideoPlayer::EventType)event;
-        if (videoEvent == VideoPlayer::EventType::PLAYING) {
-            _isPlaying = true;
-        } else {
-            _isPlaying = false;
-        }
 
         if (_eventCallback)
         {
@@ -292,7 +287,6 @@ void VideoPlayer::copySpecialProperties(Widget *widget)
     VideoPlayer* videoPlayer = dynamic_cast<VideoPlayer*>(widget);
     if (videoPlayer)
     {
-        _isPlaying = videoPlayer->_isPlaying;
         _fullScreenEnabled = videoPlayer->_fullScreenEnabled;
         _fullScreenDirty = videoPlayer->_fullScreenDirty;
         _videoURL = videoPlayer->_videoURL;
