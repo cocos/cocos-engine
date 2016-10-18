@@ -490,7 +490,7 @@ else {
          * Indicate whether system is mobile system
          * @property {Boolean} isMobile
          */
-        sys.isMobile = /mobile|android|mqqbrowser|micromessenger|miuibrowser/.test(ua);
+        sys.isMobile = /mobile|android|iphone|ipad/.test(ua);
 
         /**
          * Indicate the running platform
