@@ -118,7 +118,7 @@ var PageView = cc.Class({
         /**
          * !#en Change the PageTurning event timing of PageView.
          * !#zh 设置 PageView PageTurning 事件的发送时机。
-         * @property {Number} pageTurningEvent
+         * @property {Number} pageTurningEventTiming
          */
         pageTurningEventTiming: {
             default: 0.1,
