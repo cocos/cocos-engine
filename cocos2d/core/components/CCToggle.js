@@ -101,11 +101,13 @@ var Toggle = cc.Class({
 
     __preload: function () {
         this._super();
-        this._registerToggleEvent();
     },
 
     onEnable: function () {
         this._super();
+        if(!CC_EDITOR) {
+            this._registerToggleEvent();
+        }
         if(this.toggleGroup) {
             this.toggleGroup.addToggle(this);
         }
@@ -113,6 +115,9 @@ var Toggle = cc.Class({
 
     onDisable: function () {
         this._super();
+        if(!CC_EDITOR) {
+            this._unregisterToggleEvent();
+        }
         if(this.toggleGroup) {
             this.toggleGroup.removeToggle(this);
         }
@@ -138,12 +143,11 @@ var Toggle = cc.Class({
     },
 
     _registerToggleEvent: function () {
-        var event = new cc.Component.EventHandler();
-        event.target = this.node;
-        event.component = 'cc.Toggle';
-        event.handler = 'toggle';
-        this.clickEvents = [event];
+        this.node.on('click', this.toggle, this);
+    },
 
+    _unregisterToggleEvent: function () {
+        this.node.off('click', this.toggle, this);
     },
 
     toggle: function (event) {
