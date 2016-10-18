@@ -130,7 +130,18 @@ exports.deprecated = function (audioEngine) {
 	js.get(audioEngine, 'pauseAllEffects', function () {
 		// cc.warn(INFO, 'audioEngine.pauseAllEffects', 'audioEngine.pauseAll');
 
+		if (CC_JSB) {
+			return function () {
+				var musicPlayState = audioEngine.getState(musicId) === audioEngine.AudioState.PLAYING;
+				audioEngine.pauseAll();
+				if (musicPlayState) {
+					audioEngine.resume(musicId);
+				}
+			}
+		}
+
 		return function () {
+			pauseIDCache.length = 0;
 			var id2audio = audioEngine._id2audio;
 			for (var id in id2audio) {
 				if (id === musicId) continue;
@@ -151,6 +162,17 @@ exports.deprecated = function (audioEngine) {
 	});
 	js.get(audioEngine, 'resumeAllEffects', function () {
 		// cc.warn(INFO, 'audioEngine.resumeEffect', 'audioEngine.resume');
+
+		if (CC_JSB) {
+			return function () {
+				var musicPlayState = audioEngine.getState(musicId) === audioEngine.AudioState.PAUSED;
+				audioEngine.resumeAll();
+				if (musicPlayState && audioEngine.getState(musicId) === audioEngine.AudioState.PLAYING) {
+					audioEngine.pause(musicId);
+				}
+			};
+		}
+
 		return function () {
 			var id2audio = audioEngine._id2audio;
 			while (pauseIDCache.length > 0) {
