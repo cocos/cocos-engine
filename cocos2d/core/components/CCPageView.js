@@ -116,16 +116,15 @@ var PageView = cc.Class({
         },
 
         /**
-         * !#en Change the AutoScroll stop epsilon value of PageView, change this value could adjust the PageView's
-         *      event triggerring timing.
-         * !#zh 设置 PageView 页面自动滚动动画结束的阈值，修改此值可以调整 PageView 事件的发送时机。
-         * @property {Number} autoScrollStopEpsilon
+         * !#en Change the PageTurning event timing of PageView.
+         * !#zh 设置 PageView PageTurning 事件的发送时机。
+         * @property {Number} pageTurningEvent
          */
-        autoScrollStopEpsilon: {
+        pageTurningEventTiming: {
             default: 0.1,
             type: cc.Float,
             range: [0, 1, 0.01],
-            tooltip: 'i18n:COMPONENT.pageview.autoScrollStopEpsilon'
+            tooltip: 'i18n:COMPONENT.pageview.pageTurningEventTiming'
         },
 
         /**
@@ -164,12 +163,20 @@ var PageView = cc.Class({
     __preload: function () {
         this._super();
         this.node.on('size-changed', this._updateAllPagesSize, this);
-        // add _dispatchPageTurningEvent for scrollEvents
-        var pageTurningEvent = new cc.Component.EventHandler();
-        pageTurningEvent.target = this.node;
-        pageTurningEvent.component = "cc.PageView";
-        pageTurningEvent.handler = "_dispatchPageTurningEvent";
-        this.scrollEvents.push(pageTurningEvent);
+    },
+
+    onEnable: function () {
+        this._super();
+        if(!CC_EDITOR) {
+            this.node.on('scroll-ended', this._dispatchPageTurningEvent, this);
+        }
+    },
+
+    onDisable: function () {
+        this._super();
+        if(!CC_EDITOR) {
+            this.node.off('scroll-ended', this._dispatchPageTurningEvent, this);
+        }
     },
 
     onLoad: function () {
@@ -313,8 +320,8 @@ var PageView = cc.Class({
     },
 
     //override the method of ScrollView
-    getAutoScrollStopEpsilon: function () {
-        return this.autoScrollStopEpsilon;
+    getScrollEndedEventTiming: function () {
+        return this.pageTurningEventTiming;
     },
 
     // 刷新页面视图

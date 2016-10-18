@@ -1089,7 +1089,7 @@ var ScrollView = cc.Class({
         return false;
     },
 
-    getAutoScrollStopEpsilon: function () {
+    getScrollEndedEventTiming: function () {
         return EPSILON;
     },
 
@@ -1107,7 +1107,7 @@ var ScrollView = cc.Class({
         var newPosition = cc.pAdd(this._autoScrollStartPosition, cc.pMult(this._autoScrollTargetDelta, percentage));
         var reachedEnd = (percentage === 1);
 
-        var fireEvent = Math.abs(percentage - 1) <= this.getAutoScrollStopEpsilon();
+        var fireEvent = Math.abs(percentage - 1) <= this.getScrollEndedEventTiming();
         if(fireEvent && !this._isScrollEndedEventFired) {
             this._dispatchEvent(EventType.AUTOSCROLL_ENDED);
             this._isScrollEndedEventFired = true;
@@ -1347,6 +1347,31 @@ var ScrollView = cc.Class({
 
     _dispatchEvent: function(event) {
         cc.Component.EventHandler.emitEvents(this.scrollEvents, this, event);
+        if(event === EventType.SCROLL_TO_TOP) {
+            this.node.emit('scroll-to-top', this);
+        } else if(event === EventType.SCROLL_TO_BOTTOM) {
+            this.node.emit('scroll-to-bottom', this);
+        } else if(event === EventType.SCROLL_TO_LEFT) {
+            this.node.emit('scroll-to-left', this);
+        } else if(event === EventType.SCROLL_TO_RIGHT) {
+            this.node.emit('scroll-to-right', this);
+        } else if(event === EventType.SCROLLING) {
+            this.node.emit('scrolling', this);
+        } else if(event === EventType.BOUNCE_BOTTOM) {
+            this.node.emit('bounce-bottom', this);
+        } else if(event === EventType.BOUNCE_LEFT) {
+            this.node.emit('bounce-left', this);
+        } else if(event === EventType.BOUNCE_RIGHT) {
+            this.node.emit('bounce-right', this);
+        } else if(event === EventType.BOUNCE_BOTTOM) {
+            this.node.emit('bounce-bottom', this);
+        } else if(event === EventType.BOUNCE_TOP) {
+            this.node.emit('bounce-top', this);
+        } else if(event === EventType.AUTOSCROLL_ENDED) {
+            this.node.emit('scroll-ended', this);
+        } else if(event === EventType.TOUCH_UP) {
+            this.node.emit('touch-up', this);
+        }
     },
 
     //component life cycle methods
