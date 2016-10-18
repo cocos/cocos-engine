@@ -416,7 +416,7 @@ JS.mixin(CCLoader.prototype, {
      */
     getRes: function (url) {
         var item = this._cache[url];
-        if (item.alias) {
+        if (item && item.alias) {
             item = this._cache[item.alias];
         }
         if (!item) {
