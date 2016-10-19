@@ -210,7 +210,7 @@ function loadUuid (item, callback) {
         return Object;
     };
 
-    var tdInfo = CC_JSB ? new cc.deserialize.Details() : (item.deserializeInfo || _tdInfo);
+    var tdInfo = CC_JSB ? new cc.deserialize.Details() : _tdInfo;
 
     var asset;
     try {
@@ -221,6 +221,7 @@ function loadUuid (item, callback) {
         });
     }
     catch (e) {
+        tdInfo.reset();
         var err = CC_JSB ? (e + '\n' + e.stack) : e.stack;
         callback( new Error('Uuid Loader: Deserialize asset [' + item.id + '] failed : ' + err) );
         return;
