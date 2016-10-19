@@ -191,13 +191,13 @@ JS.mixin(CCLoader.prototype, {
                     completeCallback.call(self, errors, items);
                 }
                 completeCallback = null;
-                items.destroy();
 
                 if (CC_EDITOR) {
-                    for (var i = 0; i < resources.length; i++) {
-                        self.removeItem(resources[i].id || resources[i]);
+                    for (var id in self._cache) {
+                        self.removeItem(id);
                     }
                 }
+                items.destroy();
             });
         });
     },
@@ -435,13 +435,13 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
-     * Release the cache of resource by url.
+     * Release the cache of resource by id which is usually the url.
      *
      * @method release
-     * @param {String} url
+     * @param {String} id
      */
-    release: function (url) {
-        this.removeItem(url);
+    release: function (id) {
+        this.removeItem(id);
     },
 
     /**
