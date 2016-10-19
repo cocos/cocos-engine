@@ -82,7 +82,7 @@ var audioEngine = {
     AudioState: Audio.State,
 
     _maxWebAudioSize: 2097152, // 2048kb * 1024
-    _maxAudioInstance: 1,
+    _maxAudioInstance: 24,
 
     _id2audio: id2audio,
 
