@@ -182,11 +182,12 @@ var Slider = cc.Class({
 
     _handleSliderLogic: function (touch) {
         this._updateProgress(touch);
-        this._emitSldeEvent();
+        this._emitSlideEvent();
     },
 
-    _emitSldeEvent: function () {
+    _emitSlideEvent: function () {
         cc.Component.EventHandler.emitEvents(this.slideEvents, this);
+        this.node.emit('slide', this);
     },
 
     _updateProgress: function (touch) {
