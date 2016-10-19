@@ -167,10 +167,10 @@ var Toggle = cc.Class({
         }
     },
 
-    _emitToggleEvents: function (event) {
+    _emitToggleEvents: function () {
         this.node.emit('toggle', this);
         if(this.checkEvents) {
-            cc.Component.EventHandler.emitEvents(this.checkEvents, event, this);
+            cc.Component.EventHandler.emitEvents(this.checkEvents, this);
         }
     },
 
