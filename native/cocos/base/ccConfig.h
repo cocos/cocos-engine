@@ -283,6 +283,14 @@ THE SOFTWARE.
 
 /** Support webp or not. If your application don't use webp format picture, you can undefine this macro to save package size.
  */
+#ifndef CC_USE_WEBP
+#if (CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
+#define CC_USE_WEBP  1
+#endif
+#endif // CC_USE_WEBP
+
+/** Support webp or not. If your application don't use webp format picture, you can undefine this macro to save package size.
+ */
 //#ifndef CC_USE_WEBP
 //#if (CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
 //#define CC_USE_WEBP  1
