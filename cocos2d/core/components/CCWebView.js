@@ -139,15 +139,18 @@ var WebView = cc.Class({
 
     _onWebViewLoaded: function () {
         cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.LOADED);
+        this.node.emit('loaded', this);
     },
 
     _onWebViewLoading: function () {
         cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.LOADING);
+        this.node.emit('loading', this);
         return true;
     },
 
     _onWebViewLoadError: function () {
         cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.ERROR);
+        this.node.emit('error', this);
     }
 
 });

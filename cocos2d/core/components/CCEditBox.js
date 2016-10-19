@@ -500,18 +500,22 @@ var EditBox = cc.Class({
 
     editBoxEditingDidBegan: function() {
         cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
+        this.node.emit('editing-did-began', this);
     },
 
     editBoxEditingDidEnded: function() {
         cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
+        this.node.emit('editing-did-ended', this);
     },
 
     editBoxTextChanged: function(editBox, text) {
         cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
+        this.node.emit('text-changed', this);
     },
 
     editBoxEditingReturn: function() {
         cc.Component.EventHandler.emitEvents(this.editingReturn, this);
+        this.node.emit('editing-return', this);
     },
 
     __preload: function() {
