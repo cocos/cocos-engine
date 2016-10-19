@@ -367,12 +367,10 @@ var PageView = cc.Class({
         }
     },
 
-    _dispatchPageTurningEvent: function (sender, event) {
-        if (event === cc.ScrollView.EventType.AUTOSCROLL_ENDED) {
-            if (this._lastPageIdx === this._curPageIdx) return;
-            this._lastPageIdx = this._curPageIdx;
-            cc.Component.EventHandler.emitEvents(this.pageEvents, this, EventType.PAGE_TURNING);
-        }
+    _dispatchPageTurningEvent: function () {
+        if (this._lastPageIdx === this._curPageIdx) return;
+        this._lastPageIdx = this._curPageIdx;
+        cc.Component.EventHandler.emitEvents(this.pageEvents, this, EventType.PAGE_TURNING);
     },
 
     // 是否超过自动滚动临界值
