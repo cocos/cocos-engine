@@ -37,6 +37,8 @@ exports.removed = function (audioEngine) {
 exports.deprecated = function (audioEngine) {
 	
 	var musicId = -1;
+	var musicPath = 1;
+	var musicLoop = 1;
 	var musicVolume = 1;
 	var effectsVolume = 1;
 	var pauseIDCache = [];
@@ -45,6 +47,8 @@ exports.deprecated = function (audioEngine) {
 		return function (url, loop) {
 			audioEngine.stop(musicId);
 			musicId = audioEngine.play(url, loop, musicVolume);
+			musicPath = url;
+			musicLoop = loop;
 			return musicId;
 		}
 	});
@@ -130,7 +134,18 @@ exports.deprecated = function (audioEngine) {
 	js.get(audioEngine, 'pauseAllEffects', function () {
 		// cc.warn(INFO, 'audioEngine.pauseAllEffects', 'audioEngine.pauseAll');
 
+		if (CC_JSB) {
+			return function () {
+				var musicPlay = audioEngine.getState(musicId) === audioEngine.AudioState.PLAYING;
+				audioEngine.pauseAll();
+				if (musicPlay) {
+					audioEngine.resume(musicId);
+				}
+			}
+		}
+
 		return function () {
+			pauseIDCache.length = 0;
 			var id2audio = audioEngine._id2audio;
 			for (var id in id2audio) {
 				if (id === musicId) continue;
@@ -151,6 +166,17 @@ exports.deprecated = function (audioEngine) {
 	});
 	js.get(audioEngine, 'resumeAllEffects', function () {
 		// cc.warn(INFO, 'audioEngine.resumeEffect', 'audioEngine.resume');
+
+		if (CC_JSB) {
+			return function () {
+				var musicPaused = audioEngine.getState(musicId) === audioEngine.AudioState.PAUSED;
+				audioEngine.resumeAll();
+				if (musicPaused && audioEngine.getState(musicId) === audioEngine.AudioState.PLAYING) {
+					audioEngine.pause(musicId);
+				}
+			};
+		}
+
 		return function () {
 			var id2audio = audioEngine._id2audio;
 			while (pauseIDCache.length > 0) {
@@ -169,6 +195,19 @@ exports.deprecated = function (audioEngine) {
 	});
 	js.get(audioEngine, 'stopAllEffects', function () {
 		// cc.warn(INFO, 'audioEngine.stopAllEffects', 'audioEngine.stopAll');
+
+		if (CC_JSB) {
+			return function () {
+				var musicPlay = audioEngine.getState(musicId) === audioEngine.AudioState.PLAYING;
+				var currentTime = audioEngine.getCurrentTime(musicId);
+				audioEngine.stopAll();
+				if (musicPlay) {
+					musicId = audioEngine.play(musicPath, musicLoop);
+					audioEngine.setCurrentTime(currentTime);
+				}
+			}
+		}
+
 		return function () {
 			var id2audio = audioEngine._id2audio;
 			for (var id in id2audio) {
