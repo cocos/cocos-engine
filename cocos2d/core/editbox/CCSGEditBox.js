@@ -689,6 +689,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             } else {
                 thisPointer.__fullscreen = false;
             }
+            this.__autoResize = cc.view.__resizeWithBrowserSize;
+            cc.view.resizeWithBrowserSize(false);
 
             scrollWindowUp(editBox);
 
@@ -702,6 +704,9 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             thisPointer._updateEditBoxContentStyle();
             if(thisPointer.__fullscreen) {
                 cc.view.enableAutoFullScreen(true);
+            }
+            if (this.__autoResize) {
+                cc.view.resizeWithBrowserSize(true);
             }
             window.scrollY = 0;
             if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded) {
