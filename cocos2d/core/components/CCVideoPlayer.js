@@ -265,30 +265,37 @@ var VideoPlayer = cc.Class({
 
     onReadyToPlay: function () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.READY_TO_PLAY);
+        this.node.emit('ready-to-play', this);
     },
 
     onMetaLoaded: function () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.META_LOADED);
+        this.node.emit('meta-loaded', this);
     },
 
     onClicked: function () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.CLICKED);
+        this.node.emit('clicked', this);
     },
 
     onPlaying: function(){
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PLAYING);
+        this.node.emit('playing', this);
     },
 
     onPasued: function() {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PAUSED);
+        this.node.emit('paused', this);
     },
 
     onStopped: function() {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.STOPPED);
+        this.node.emit('stopped', this);
     },
 
     onCompleted: function() {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.COMPLETED);
+        this.node.emit('completed', this);
     },
 
     /**
@@ -360,3 +367,74 @@ var VideoPlayer = cc.Class({
 });
 
 cc.VideoPlayer = module.exports = VideoPlayer;
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event ready-to-play
+ * @param {Event} event
+ * @param {VideoPlayer} event.detail - The VideoPlayer component.
+ */
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event meta-loaded
+ * @param {Event} event
+ * @param {VideoPlayer} event.detail - The VideoPlayer component.
+ */
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event clicked
+ * @param {Event} event
+ * @param {VideoPlayer} event.detail - The VideoPlayer component.
+ */
+
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event playing
+ * @param {Event} event
+ * @param {VideoPlayer} event.detail - The VideoPlayer component.
+ */
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event paused
+ * @param {Event} event
+ * @param {VideoPlayer} event.detail - The VideoPlayer component.
+ */
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event stopped
+ * @param {Event} event
+ * @param {VideoPlayer} event.detail - The VideoPlayer component.
+ */
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event completed
+ * @param {Event} event
+ * @param {VideoPlayer} event.detail - The VideoPlayer component.
+ */

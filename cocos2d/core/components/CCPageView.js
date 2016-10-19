@@ -371,6 +371,7 @@ var PageView = cc.Class({
         if (this._lastPageIdx === this._curPageIdx) return;
         this._lastPageIdx = this._curPageIdx;
         cc.Component.EventHandler.emitEvents(this.pageEvents, this, EventType.PAGE_TURNING);
+        this.node.emit('page-turning', this);
     },
 
     // 是否超过自动滚动临界值
@@ -451,3 +452,13 @@ var PageView = cc.Class({
 });
 
 cc.PageView = module.exports = PageView;
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event page-turning
+ * @param {Event} event
+ * @param {PageView} event.detail - The PageView component.
+ */

@@ -500,18 +500,22 @@ var EditBox = cc.Class({
 
     editBoxEditingDidBegan: function() {
         cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
+        this.node.emit('editing-did-began', this);
     },
 
     editBoxEditingDidEnded: function() {
         cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
+        this.node.emit('editing-did-ended', this);
     },
 
     editBoxTextChanged: function(editBox, text) {
         cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
+        this.node.emit('text-changed', this);
     },
 
     editBoxEditingReturn: function() {
         cc.Component.EventHandler.emitEvents(this.editingReturn, this);
+        this.node.emit('editing-return', this);
     },
 
     __preload: function() {
@@ -582,3 +586,43 @@ if(CC_JSB) {
 }
 
 cc.EditBox = module.exports = EditBox;
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event editing-did-began
+ * @param {Event} event
+ * @param {EditBox} event.detail - The EditBox component.
+ */
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event editing-did-ended
+ * @param {Event} event
+ * @param {EditBox} event.detail - The EditBox component.
+ */
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event text-changed
+ * @param {Event} event
+ * @param {EditBox} event.detail - The EditBox component.
+ */
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event editing-return
+ * @param {Event} event
+ * @param {EditBox} event.detail - The EditBox component.
+ */
