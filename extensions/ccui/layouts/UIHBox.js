@@ -32,7 +32,7 @@ ccui.HBox = ccui.Layout.extend(/** @lends ccui.HBox# */{
     /**
      * The constructor of ccui.HBox
      * @function
-     * @param {cc.Size} [size]
+     * @param {Size} [size]
      */
     ctor: function(size){
         ccui.Layout.prototype.ctor.call(this, size);
@@ -72,7 +72,7 @@ ccui.HBox = ccui.Layout.extend(/** @lends ccui.HBox# */{
 /**
  * Creates a HBox object
  * @deprecated since v3.0, please use new ccui.HBox(size) instead.
- * @param {cc.Size} size
+ * @param {Size} size
  * @returns {ccui.HBox}
  */
 ccui.HBox.create = function(size){

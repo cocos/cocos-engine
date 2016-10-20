@@ -209,7 +209,7 @@ ccui.Text = ccui.Widget.extend(/** @lends ccui.Text# */{
 
     /**
      * Sets text Area Size
-     * @param {cc.Size} size
+     * @param {Size} size
      */
     setTextAreaSize: function (size) {
         this._labelRenderer.setDimensions(size);
@@ -222,7 +222,7 @@ ccui.Text = ccui.Widget.extend(/** @lends ccui.Text# */{
 
     /**
      * Returns renderer's dimension.
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getTextAreaSize: function(){
         return this._labelRenderer.getDimensions();
@@ -312,7 +312,7 @@ ccui.Text = ccui.Widget.extend(/** @lends ccui.Text# */{
     /**
      * Returns the renderer's content size.
      * @override
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getVirtualRendererSize: function(){
         return this._labelRenderer.getContentSize();
@@ -371,7 +371,7 @@ ccui.Text = ccui.Widget.extend(/** @lends ccui.Text# */{
     /**
      * Enables shadow style and sets color, offset and blur radius styles.
      * @param {cc.Color} shadowColor
-     * @param {cc.Size} offset
+     * @param {Size} offset
      * @param {Number} blurRadius
      */
     enableShadow: function(shadowColor, offset, blurRadius){
@@ -381,7 +381,7 @@ ccui.Text = ccui.Widget.extend(/** @lends ccui.Text# */{
     /**
      * Enables outline style and sets outline's color and size.
      * @param {cc.Color} outlineColor
-     * @param {cc.Size} outlineSize
+     * @param {Size} outlineSize
      */
     enableOutline: function(outlineColor, outlineSize){
         this._labelRenderer.enableStroke(outlineColor, outlineSize);

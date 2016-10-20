@@ -59,7 +59,7 @@ var Toggle = cc.Class({
          * Otherwise, the toggle is a RadioButton.
          * !#zh Toggle 所属的 ToggleGroup，这个属性是可选的。如果这个属性为 null，则 Toggle 是一个 CheckBox，
          * 否则，Toggle 是一个 RadioButton。
-         * @property {cc.ToggleGroup} toggleGroup
+         * @property {ToggleGroup} toggleGroup
          */
         toggleGroup: {
             default: null,
@@ -70,7 +70,7 @@ var Toggle = cc.Class({
         /**
          * !#en The image used for the checkmark.
          * !#zh Toggle 处于选中状态时显示的图片
-         * @property {cc.Sprite} checkMark
+         * @property {Sprite} checkMark
          */
         checkMark: {
             default: null,

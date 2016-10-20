@@ -2,7 +2,7 @@ var JS = cc.js;
 
 /**
  * @class Playable
- * @constructor
+ *
  */
 function Playable () {
     this._isPlaying = false;
@@ -122,7 +122,7 @@ prototype.pause = function () {
 prototype.resume = function () {
     if (this._isPlaying) {
         this._isPaused = false;
-        this.onResume();    
+        this.onResume();
     }
 };
 

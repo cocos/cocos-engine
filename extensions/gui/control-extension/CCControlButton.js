@@ -38,7 +38,7 @@ cc.CONTROL_ZOOM_ACTION_TAG = 0xCCCB0001;
  *
  * @property {Boolean}  adjustBackgroundImage   - Indicate whether the background image will be adjusted
  * @property {Boolean}  zoomOnTouchDown         - Indicate whether the button will be zoomed while touch down
- * @property {cc.Size}  preferredSize           - The preferred size of the control button
+ * @property {Size}  preferredSize           - The preferred size of the control button
  * @property {Boolean}  labelAnchor             - The anchor point for the label of the control button
  */
 cc.ControlButton = cc.Control.extend(/** @lends cc.ControlButton# */{

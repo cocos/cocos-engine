@@ -80,7 +80,7 @@ cc.TransitionPageTurn = cc.TransitionScene.extend(/** @lends cc.TransitionPageTu
     },
 
     /**
-     * @param {cc.Size} vector
+     * @param {Size} vector
      * @return {cc.ReverseTime|cc.TransitionScene}
      */
     actionWithSize:function (vector) {

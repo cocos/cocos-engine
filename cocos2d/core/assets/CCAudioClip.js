@@ -28,7 +28,7 @@
  * !#zh 音频资源类。
  * @class AudioClip
  * @extends RawAsset
- * @constructor
+ *
  */
 var AudioClip = cc.Class({
     name: 'cc.AudioClip',

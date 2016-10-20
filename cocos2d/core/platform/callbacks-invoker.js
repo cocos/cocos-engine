@@ -29,7 +29,7 @@ var JS = require('./js');
  * The CallbacksHandler is an abstract class that can register and unregister callbacks by key.
  * Subclasses should implement their own methods about how to invoke the callbacks.
  * @class _CallbacksHandler
- * @constructor
+ *
  * @private
  */
 var CallbacksHandler = (function () {
@@ -224,7 +224,7 @@ CallbacksHandler.prototype.remove = function (key, callback, target) {
  * !#en The callbacks invoker to handle and invoke callbacks by key.
  * !#zh CallbacksInvoker 用来根据 Key 管理并调用回调方法。
  * @class CallbacksInvoker
- * @constructor
+ *
  * @extends _CallbacksHandler
  */
 var CallbacksInvoker = function () {

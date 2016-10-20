@@ -31,7 +31,7 @@
  * !#zh 字体资源类。
  * @class Font
  * @extends RawAsset
- * @constructor
+ *
  */
 var Font = cc.Class({
     name: 'cc.Font',

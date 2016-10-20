@@ -306,7 +306,7 @@ var PageView = cc.Class({
      * !#zh 滚动到指定页面
      * @method scrollToPage
      * @param {Number} idx index of page.
-     * @param {Float} timeInSecond scrolling time
+     * @param {Number} timeInSecond scrolling time
      */
     scrollToPage: function (idx, timeInSecond) {
         if (idx < 0 || idx > this._pages.length)

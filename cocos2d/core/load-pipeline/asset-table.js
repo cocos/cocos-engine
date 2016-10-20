@@ -32,7 +32,7 @@ function Entry (uuid, type) {
  * !#en AssetTable is used to find asset's uuid by url.
  * !#zh AssetTable 用于查找资源的 uuid 和 url。
  * @class AssetTable
- * @constructor
+ *
  */
 
 function AssetTable () {
@@ -48,7 +48,7 @@ function isMatchByWord (path, test) {
 }
 
 cc.js.mixin(AssetTable.prototype, {
-    
+
     getUuid: function (path, type) {
         path = cc.url.normalize(path);
         var item = this._pathToUuid[path];
@@ -129,7 +129,7 @@ cc.js.mixin(AssetTable.prototype, {
     getAllPaths: function () {
         return Object.keys(this._pathToUuid);
     },
-    
+
     /**
      * !#en TODO
      * !#zh 以路径为 key，uuid 为值添加到表中。

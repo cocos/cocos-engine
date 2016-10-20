@@ -28,7 +28,7 @@
  * !#zh Script 资源类。
  * @class _Script
  * @extends Asset
- * @constructor
+ *
  * @private
  */
 var Script = cc.Class({
@@ -44,7 +44,7 @@ cc._Script = Script;
  * @class _JavaScript
  * @extends Asset
  * @private
- * @constructor
+ *
  */
 var JavaScript = cc.Class({
     name: 'cc.JavaScript',
@@ -58,7 +58,7 @@ cc._JavaScript = JavaScript;
  * !#zh CoffeeScript 资源类。
  * @class CoffeeScript
  * @extends Asset
- * @constructor
+ *
  */
 var CoffeeScript = cc.Class({
     name: 'cc.CoffeeScript',

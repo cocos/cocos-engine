@@ -249,7 +249,7 @@ var audioEngine = {
      * !#zh 获取音频状态。
      * @method getState
      * @param {Number} audioID audio id.
-     * @return {cc.audioEngine.AudioState} audio duration.
+     * @return {audioEngine.AudioState} audio duration.
      * @example
      * //example
      * var state = cc.audioEngine.getState(id);

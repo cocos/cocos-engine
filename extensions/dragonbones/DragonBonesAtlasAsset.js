@@ -43,7 +43,7 @@ var DragonBonesAtlasAsset = cc.Class({
         },
 
         /**
-         * @property {cc.Texture2D} texture
+         * @property {Texture2D} texture
          */
         texture: {
             default: '',

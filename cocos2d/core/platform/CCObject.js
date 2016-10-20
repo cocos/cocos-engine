@@ -40,7 +40,7 @@ var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Activating
 /**
  * The base class of most of all the objects in Fireball.
  * @class Object
- * @constructor
+ *
  * @main
  * @private
  */

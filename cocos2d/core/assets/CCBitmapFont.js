@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
- 
+
 /**
  * @module cc
  */
@@ -31,7 +31,7 @@
  * !#zh 位图字体资源类。
  * @class BitmapFont
  * @extends RawAsset
- * @constructor
+ *
  */
 var BitmapFont = cc.Class({
     name: 'cc.BitmapFont',

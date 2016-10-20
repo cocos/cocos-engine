@@ -28,7 +28,7 @@
  * !#zh 文本资源类。
  * @class TextAsset
  * @extends Asset
- * @constructor
+ *
  */
 var TextAsset = cc.Class({
     name: 'cc.TextAsset',

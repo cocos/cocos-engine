@@ -62,7 +62,7 @@ cc.Event.ACCELERATION = 'acceleration';
  * !#en The mouse event
  * !#zh 鼠标事件类型
  * @class Event.EventMouse
- * @constructor
+ *
  * @extends Event
  * @param {Number} eventType - The mouse event type, UP, DOWN, MOVE, CANCELED
  * @param {Boolean} [bubbles=false] - A boolean indicating whether the event bubbles up through the tree or not
@@ -336,7 +336,7 @@ EventMouse.BUTTON_8 = 7;
  * !#en The touch event
  * !#zh 触摸事件
  * @class Event.EventTouch
- * @constructor
+ *
  * @extends Event
  * @param {Array} touchArr - The array of the touches
  * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
@@ -532,7 +532,7 @@ EventTouch.CANCELED = 3;
  * !#zh 加速度事件
  * @class Event.EventAcceleration
  * @extends Event
- * @constructor
+ *
  * @param {Object} acc - The acceleration
  * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
  */
@@ -547,7 +547,7 @@ JS.extend(EventAcceleration, cc.Event);
  * !#zh 键盘事件
  * @class Event.EventKeyboard
  * @extends Event
- * @constructor
+ *
  * @param {Number} keyCode - The key code of which triggered this event
  * @param {Boolean} isPressed - A boolean indicating whether the key have been pressed
  * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not

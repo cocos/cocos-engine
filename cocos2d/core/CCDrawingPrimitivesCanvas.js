@@ -299,9 +299,9 @@ cc.DrawingPrimitiveCanvas = cc._Class.extend(/** @lends cc.DrawingPrimitiveCanva
      * @override
      * @param {HTMLImageElement|HTMLCanvasElement} image
      * @param {cc.Vec2} sourcePoint
-     * @param {cc.Size} sourceSize
+     * @param {Size} sourceSize
      * @param {cc.Vec2} destPoint
-     * @param {cc.Size} destSize
+     * @param {Size} destSize
      */
     drawImage:function (image, sourcePoint, sourceSize, destPoint, destSize) {
         var len = arguments.length;

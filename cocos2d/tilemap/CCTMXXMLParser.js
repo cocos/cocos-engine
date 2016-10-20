@@ -200,7 +200,7 @@ cc.TMXTilesetInfo = cc._Class.extend(/** @lends cc.TMXTilesetInfo# */{
     /**
      * Return rect
      * @param {Number} gid
-     * @return {cc.Rect}
+     * @return {Rect}
      */
     rectForGID:function (gid, result) {
         var rect = result || cc.rect(0, 0, 0, 0);
@@ -370,7 +370,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
 
     /**
      * Map width & height
-     * @return {cc.Size}
+     * @return {Size}
      */
     getMapSize:function () {
         return cc.size(this._mapSize.width,this._mapSize.height);
@@ -378,7 +378,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
 
     /**
      * Map width & height
-     * @param {cc.Size} value
+     * @param {Size} value
      */
     setMapSize:function (value) {
         this._mapSize.width = value.width;
@@ -400,7 +400,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
 
     /**
      * Tiles width & height
-     * @return {cc.Size}
+     * @return {Size}
      */
     getTileSize:function () {
         return cc.size(this._tileSize.width, this._tileSize.height);
@@ -408,7 +408,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
 
     /**
      * Tiles width & height
-     * @param {cc.Size} value
+     * @param {Size} value
      */
     setTileSize:function (value) {
         this._tileSize.width = value.width;

@@ -1349,7 +1349,7 @@ cc.TransitionFadeTR = cc.TransitionScene.extend(/** @lends cc.TransitionFadeTR# 
     },
 
     /**
-     * @param {cc.Size} size
+     * @param {Size} size
      * @return {*}
      */
     actionWithSize:function (size) {
@@ -1389,7 +1389,7 @@ cc.TransitionFadeBL = cc.TransitionFadeTR.extend(/** @lends cc.TransitionFadeBL#
     },
 
     /**
-     * @param {cc.Size} size
+     * @param {Size} size
      * @return {*}
      */
     actionWithSize:function (size) {
@@ -1431,7 +1431,7 @@ cc.TransitionFadeUp = cc.TransitionFadeTR.extend(/** @lends cc.TransitionFadeUp#
     },
 
     /**
-     * @param {cc.Size} size
+     * @param {Size} size
      * @return {cc.FadeOutUpTiles}
      */
     actionWithSize:function (size) {
@@ -1472,7 +1472,7 @@ cc.TransitionFadeDown = cc.TransitionFadeTR.extend(/** @lends cc.TransitionFadeD
     },
 
     /**
-     * @param {cc.Size} size
+     * @param {Size} size
      * @return {*}
      */
     actionWithSize:function (size) {

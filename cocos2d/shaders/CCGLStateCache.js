@@ -239,7 +239,7 @@ cc.gl.setProjectionMatrixDirty = function () {
  * If the texture is not already bound, it binds it.<br/>
  * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will call glBindTexture() directly.
  * @function
- * @param {cc.Texture2D} textureId
+ * @param {Texture2D} textureId
  */
 cc.gl.bindTexture2D = function (textureId) {
     cc.gl.bindTexture2DN(0, textureId);
@@ -250,7 +250,7 @@ cc.gl.bindTexture2D = function (textureId) {
  * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will call glBindTexture() directly.
  * @function
  * @param {Number} textureUnit
- * @param {cc.Texture2D} textureId
+ * @param {Texture2D} textureId
  */
 cc.gl.bindTexture2DN = ENABLE_GL_STATE_CACHE ? function (textureUnit, textureId) {
     if (_currentBoundTexture[textureUnit] === textureId)
@@ -276,7 +276,7 @@ cc.gl.bindTexture2DN = ENABLE_GL_STATE_CACHE ? function (textureUnit, textureId)
  * It will delete a given texture. If the texture was bound, it will invalidate the cached. <br/>
  * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will call glDeleteTextures() directly.
  * @function
- * @param {cc.Texture2D} textureId
+ * @param {Texture2D} textureId
  */
 cc.gl.deleteTexture2D = function (textureId) {
     cc.gl.deleteTexture2DN(0, textureId);
@@ -287,7 +287,7 @@ cc.gl.deleteTexture2D = function (textureId) {
  * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will call glDeleteTextures() directly.
  * @function
  * @param {Number} textureUnit
- * @param {cc.Texture2D} textureId
+ * @param {Texture2D} textureId
  */
 cc.gl.deleteTexture2DN = function (textureUnit, textureId) {
     if (ENABLE_GL_STATE_CACHE) {

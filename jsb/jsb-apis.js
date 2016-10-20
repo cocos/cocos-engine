@@ -384,7 +384,7 @@ jsb.EventAssetsManager = cc._Class.extend(/** @lends jsb.EventAssetsManager# */{
 
     /**
      * @function EventAssetsManager
-     * @constructor
+     *
      * @param {String} arg0
      * @param {cc.AssetsManager} arg1
      * @param {cc.EventAssetsManager::EventCode} arg2
@@ -446,7 +446,7 @@ jsb.EventListenerAssetsManager = cc._Class.extend(/** @lends jsb.EventListenerAs
 
     /**
      * @function EventListenerAssetsManager
-     * @constructor
+     *
      */
     EventListenerAssetsManager : function (
         )
@@ -533,7 +533,7 @@ jsb.AssetsManager = cc._Class.extend(/** @lends jsb.AssetsManager# */{
 
     /**
      * @function AssetsManager
-     * @constructor
+     *
      * @param {String} arg0
      * @param {String} arg1
      */

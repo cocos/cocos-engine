@@ -245,7 +245,6 @@ function _callPreloadOnNode (node) {
  *
  * @class Component
  * @extends Object
- * @constructor
  */
 var Component = cc.Class({
     name: 'cc.Component',

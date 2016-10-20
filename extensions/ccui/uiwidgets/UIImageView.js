@@ -133,7 +133,7 @@ ccui.ImageView = ccui.Widget.extend(/** @lends ccui.ImageView# */{
 
     /**
      * Sets texture rect
-     * @param {cc.Rect} rect
+     * @param {Rect} rect
      */
     setTextureRect: function (rect) {
         if (!this._scale9Enabled)
@@ -191,7 +191,7 @@ ccui.ImageView = ccui.Widget.extend(/** @lends ccui.ImageView# */{
 
     /**
      * Sets capinsets for button, if button is using scale9 renderer.
-     * @param {cc.Rect} capInsets
+     * @param {Rect} capInsets
      */
     setCapInsets: function (capInsets) {
         if(!capInsets)
@@ -209,7 +209,7 @@ ccui.ImageView = ccui.Widget.extend(/** @lends ccui.ImageView# */{
 
     /**
      * Returns cap insets of ccui.ImageView.
-     * @returns {cc.Rect}
+     * @returns {Rect}
      */
     getCapInsets:function(){
         return cc.rect(this._capInsets);
@@ -229,7 +229,7 @@ ccui.ImageView = ccui.Widget.extend(/** @lends ccui.ImageView# */{
 
     /**
      * Returns the image's texture size.
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getVirtualRendererSize: function(){
         return cc.size(this._imageTextureSize);

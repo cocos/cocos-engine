@@ -33,7 +33,7 @@ var CCClass = require('../platform/CCClass');
  *
  * @class Vec2
  * @extends ValueType
- * @constructor
+ *
  */
 
 /**

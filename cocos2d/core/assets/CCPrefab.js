@@ -37,7 +37,7 @@ function visitWrapper (wrapper, visitor) {
  * !#zh 预制资源类。
  * @class Prefab
  * @extends Asset
- * @constructor
+ *
  */
 var Prefab = cc.Class({
     name: 'cc.Prefab',

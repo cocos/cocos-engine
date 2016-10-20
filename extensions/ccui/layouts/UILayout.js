@@ -534,7 +534,7 @@ ccui.Layout = ccui.Widget.extend(/** @lends ccui.Layout# */{
 
     /**
      * Sets a background image CapInsets for layout, if the background image is a scale9 render.
-     * @param {cc.Rect} capInsets capinsets of background image.
+     * @param {Rect} capInsets capinsets of background image.
      */
     setBackGroundImageCapInsets: function (capInsets) {
         if(!capInsets)
@@ -550,7 +550,7 @@ ccui.Layout = ccui.Widget.extend(/** @lends ccui.Layout# */{
 
     /**
      * Gets background image capinsets of ccui.Layout.
-     * @returns {cc.Rect}
+     * @returns {Rect}
      */
     getBackGroundImageCapInsets: function () {
         return cc.rect(this._backGroundImageCapInsets);
@@ -816,7 +816,7 @@ ccui.Layout = ccui.Widget.extend(/** @lends ccui.Layout# */{
 
     /**
      * Gets background image texture size.
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getBackGroundImageTextureSize: function () {
         return this._backGroundImageTextureSize;
@@ -887,7 +887,7 @@ ccui.Layout = ccui.Widget.extend(/** @lends ccui.Layout# */{
 
     /**
      * Gets the content size of the layout, it will accumulate all its children's content size
-     * @returns {cc.Size}
+     * @returns {Size}
      * @private
      */
     _getLayoutAccumulatedSize: function(){

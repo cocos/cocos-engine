@@ -217,7 +217,7 @@ ccui.Button = ccui.Widget.extend(/** @lends ccui.Button# */{
 
     /**
      * Returns the renderer size.
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getVirtualRendererSize: function(){
         if (this._unifySize)
@@ -381,7 +381,7 @@ ccui.Button = ccui.Widget.extend(/** @lends ccui.Button# */{
 
     /**
      * Sets capinsets for button, if button is using scale9 renderer.
-     * @param {cc.Rect} capInsets
+     * @param {Rect} capInsets
      */
     setCapInsets: function (capInsets) {
         this.setCapInsetsNormalRenderer(capInsets);
@@ -391,7 +391,7 @@ ccui.Button = ccui.Widget.extend(/** @lends ccui.Button# */{
 
     /**
      * Sets capinsets for button, if button is using scale9 renderer.
-     * @param {cc.Rect} capInsets
+     * @param {Rect} capInsets
      */
     setCapInsetsNormalRenderer: function (capInsets) {
         if(!capInsets)
@@ -421,7 +421,7 @@ ccui.Button = ccui.Widget.extend(/** @lends ccui.Button# */{
 
     /**
      *  Returns normal renderer cap insets.
-     * @returns {cc.Rect}
+     * @returns {Rect}
      */
     getCapInsetsNormalRenderer:function(){
         return cc.rect(this._capInsetsNormal);
@@ -429,7 +429,7 @@ ccui.Button = ccui.Widget.extend(/** @lends ccui.Button# */{
 
     /**
      * Sets capinsets for button, if button is using scale9 renderer.
-     * @param {cc.Rect} capInsets
+     * @param {Rect} capInsets
      */
     setCapInsetsPressedRenderer: function (capInsets) {
         if(!capInsets || !this._scale9Enabled)
@@ -458,7 +458,7 @@ ccui.Button = ccui.Widget.extend(/** @lends ccui.Button# */{
 
     /**
      *  Returns pressed renderer cap insets.
-     * @returns {cc.Rect}
+     * @returns {Rect}
      */
     getCapInsetsPressedRenderer: function () {
         return cc.rect(this._capInsetsPressed);
@@ -466,7 +466,7 @@ ccui.Button = ccui.Widget.extend(/** @lends ccui.Button# */{
 
     /**
      * Sets capinsets for button, if button is using scale9 renderer.
-     * @param {cc.Rect} capInsets
+     * @param {Rect} capInsets
      */
     setCapInsetsDisabledRenderer: function (capInsets) {
         if(!capInsets || !this._scale9Enabled)
@@ -495,7 +495,7 @@ ccui.Button = ccui.Widget.extend(/** @lends ccui.Button# */{
 
     /**
      * Returns disable renderer cap insets.
-     * @returns {cc.Rect}
+     * @returns {Rect}
      */
     getCapInsetsDisabledRenderer: function () {
         return cc.rect(this._capInsetsDisabled);
@@ -778,7 +778,7 @@ ccui.Button = ccui.Widget.extend(/** @lends ccui.Button# */{
 
     /**
      * Sets title fontSize to ccui.Button
-     * @param {cc.Size} size
+     * @param {Size} size
      */
     setTitleFontSize: function (size) {
         this._titleRenderer.setFontSize(size);
@@ -815,7 +815,7 @@ ccui.Button = ccui.Widget.extend(/** @lends ccui.Button# */{
     /**
      * Returns the normalize of texture size
      * @since v3.3
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getNormalTextureSize: function(){
         return this._normalTextureSize;
