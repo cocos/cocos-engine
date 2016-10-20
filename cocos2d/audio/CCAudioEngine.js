@@ -37,26 +37,23 @@ var getAudioFromPath = function (path) {
         list = url2id[path] = [];
     }
     var audio;
-    if (audioEngine._maxAudioInstance > list.length) {
-        audio = new Audio(path);
-        id2audio[id] = audio;
-    } else {
+    if (audioEngine._maxAudioInstance <= list.length) {
         var oldId = list.shift();
-        audio = id2audio[id] = id2audio[oldId];
-        delete id2audio[oldId];
-        var index = list.indexOf(oldId);
-        index !== -1 && list.splice(index, 1);
+        var oldAudio = id2audio[oldId];
+        oldAudio.stop();
     }
-    audio.instanceId = id;
-    list.push(id);
 
-    //
+    audio = new Audio(path);
     audio.on('ended', function () {
         var id = this.instanceId;
         delete id2audio[id];
         var index = list.indexOf(id);
-        index !== -1 && list.splice(index, 1);
+        cc.js.array.fastRemoveAt(list, index);
     });
+    id2audio[id] = audio;
+
+    audio.instanceId = id;
+    list.push(id);
 
     return audio;
 };
