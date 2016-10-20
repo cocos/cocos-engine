@@ -194,7 +194,9 @@ JS.mixin(CCLoader.prototype, {
 
                 if (CC_EDITOR) {
                     for (var id in self._cache) {
-                        self.removeItem(id);
+                        if (self._cache[id].complete) {
+                            self.removeItem(id);
+                        }
                     }
                 }
                 items.destroy();
