@@ -48,9 +48,7 @@ var getAudioFromPath = function (path) {
         var id = this.instanceId;
         delete id2audio[id];
         var index = list.indexOf(id);
-        if (index !== -1) {
-            list.splice(index, 1);
-        }
+        cc.js.array.fastRemoveAt(list, index);
     });
     id2audio[id] = audio;
 
