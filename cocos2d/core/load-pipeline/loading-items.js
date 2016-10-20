@@ -246,9 +246,26 @@ var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
  * !#en The item states of the LoadingItems, its value could be LoadingItems.ItemState.WORKING | LoadingItems.ItemState.COMPLETET | LoadingItems.ItemState.ERROR
  * !#zh LoadingItems 队列中的加载项状态，状态的值可能是 LoadingItems.ItemState.WORKING | LoadingItems.ItemState.COMPLETET | LoadingItems.ItemState.ERROR
  * @enum LoadingItems.ItemState
- * @static
  */
+
+/**
+ * @property {Number} WORKING
+ */
+
+/**
+ * @property {Number} COMPLETET
+ */
+
+/**
+ * @property {Number} ERROR
+ */
+
 LoadingItems.ItemState = new cc.Enum(ItemState);
+
+/**
+ * @class LoadingItems
+ * @extends CallbacksInvoker
+*/
 
 /**
  * !#en The constructor function of LoadingItems, this will use recycled LoadingItems in the internal pool if possible.
@@ -570,7 +587,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
      * !#en Complete an item in the LoadingItems queue, please do not call this method unless you know what's happening.
      * !#zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
      * @method itemComplete
-     * @param {id} item The item id
+     * @param {String} item The item id
      */
     itemComplete: function (id) {
         var item = this.map[id];

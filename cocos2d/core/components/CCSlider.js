@@ -66,7 +66,7 @@ var Slider = cc.Class({
         /**
          * !#en The "handle" part of the slider
          * !#zh 滑动器滑块按钮部件
-         * @property {cc.Button} handle
+         * @property {Button} handle
          */
         handle: {
             default: null,

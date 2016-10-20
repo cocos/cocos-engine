@@ -32,7 +32,7 @@ ccui.VBox = ccui.Layout.extend(/** @lends ccui.VBox# */{
     /**
      * The constructor of ccui.VBox
      * @function
-     * @param {cc.Size} size
+     * @param {Size} size
      */
     ctor: function(size){
         ccui.Layout.prototype.ctor.call(this, size);
@@ -57,7 +57,7 @@ ccui.VBox = ccui.Layout.extend(/** @lends ccui.VBox# */{
 
     /**
      * Initializes a VBox with size.
-     * @param {cc.Size} size
+     * @param {Size} size
      * @returns {boolean}
      */
     initWithSize: function(size){
@@ -71,7 +71,7 @@ ccui.VBox = ccui.Layout.extend(/** @lends ccui.VBox# */{
 
 /**
  * Creates a VBox
- * @param {cc.Size} size
+ * @param {Size} size
  * @returns {ccui.VBox}
  */
 ccui.VBox.create = function(size){

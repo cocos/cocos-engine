@@ -56,10 +56,29 @@ Audio.Type = {
     UNKNOWN: 'UNKNOWN'
 };
 
+/**
+ * !#en Audio state.
+ * !#zh 声音播放状态
+ * @enum audioEngine.AudioState
+ * @memberof cc
+ */
+
 Audio.State = {
+    /**
+     * @property {Number} ERROR
+     */
     ERROR : -1,
+    /**
+     * @property {Number} INITIALZING
+     */
     INITIALZING: 0,
+    /**
+     * @property {Number} PLAYING
+     */
     PLAYING: 1,
+    /**
+     * @property {Number} PAUSED
+     */
     PAUSED: 2
 };
 

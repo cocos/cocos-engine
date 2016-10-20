@@ -52,7 +52,7 @@ var EventTarget = require("../cocos2d/core/event/event-target");
  * @extends _ccsg.Node
  *
  * @param {String|cc.SpriteFrame|HTMLImageElement|cc.Texture2D} fileName  The string which indicates a path to image file, e.g., "scene1/monster.png".
- * @param {cc.Rect} rect  Only the contents inside rect of pszFileName's texture will be applied for this sprite.
+ * @param {Rect} rect  Only the contents inside rect of pszFileName's texture will be applied for this sprite.
  * @param {Boolean} [rotated] Whether or not the texture rectangle is rotated.
  * @example
  *
@@ -79,7 +79,7 @@ var EventTarget = require("../cocos2d/core/event/event-target");
  * @property {Number}               offsetX             - <@readonly> The offset position on x axis of the sprite in texture. Calculated automatically by editors like Zwoptex.
  * @property {Number}               offsetY             - <@readonly> The offset position on x axis of the sprite in texture. Calculated automatically by editors like Zwoptex.
  * @property {Number}               atlasIndex          - The index used on the TextureAtlas.
- * @property {cc.Texture2D}         texture             - Texture used to render the sprite.
+ * @property {Texture2D}         texture             - Texture used to render the sprite.
  * @property {Boolean}              textureRectRotated  - <@readonly> Indicate whether the texture rectangle is rotated.
  * @property {cc.TextureAtlas}      textureAtlas        - The weak reference of the cc.TextureAtlas when the sprite is rendered using via cc.SpriteBatchNode.
  * @property {cc.SpriteBatchNode}   batchNode           - The batch node object if this sprite is rendered by cc.SpriteBatchNode.
@@ -197,7 +197,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
 
     /**
      * Returns the rect of the _ccsg.Sprite in points
-     * @return {cc.Rect}
+     * @return {Rect}
      */
     getTextureRect:function () {
         return cc.rect(this._rect);
@@ -300,7 +300,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
      *    Do not call it manually. Use setTextureRect instead.  <br/>
      *    (override this method to generate "double scale" sprites)
      * </p>
-     * @param {cc.Rect} rect
+     * @param {Rect} rect
      */
     setVertexRect:function (rect) {
         var locRect = this._rect;
@@ -530,7 +530,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
     // CCTextureProtocol
     /**
      * Returns the texture of the sprite node
-     * @returns {cc.Texture2D}
+     * @returns {Texture2D}
      */
     getTexture:function () {
         return this._texture;
@@ -640,7 +640,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
      *     Please pass parameters to the constructor to initialize the sprite, do not call this function yourself.
      * </p>
      * @param {String} filename The path to an image file in local file system
-     * @param {cc.Rect} rect The rectangle assigned the content area from texture.
+     * @param {Rect} rect The rectangle assigned the content area from texture.
      * @return {Boolean} true if the sprite is initialized properly, false otherwise.
      */
     initWithFile:function (filename, rect) {
@@ -665,7 +665,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
      * Please pass parameters to the constructor to initialize the sprite, do not call this function yourself.
      * @function
      * @param {cc.Texture2D|HTMLImageElement|HTMLCanvasElement} texture A pointer to an existing CCTexture2D object. You can use a CCTexture2D object for many sprites.
-     * @param {cc.Rect} [rect] Only the contents inside rect of this texture will be applied for this sprite.
+     * @param {Rect} [rect] Only the contents inside rect of this texture will be applied for this sprite.
      * @param {Boolean} [rotated] Whether or not the texture rectangle is rotated.
      * @param {Boolean} [counterclockwise=true] Whether or not the texture rectangle rotation is counterclockwise (texture package is counterclockwise, spine is clockwise).
      * @return {Boolean} true if the sprite is initialized properly, false otherwise.
@@ -734,9 +734,9 @@ _ccsg.Sprite = _ccsg.Node.extend({
     /**
      * Updates the texture rect of the CCSprite in points.
      * @function
-     * @param {cc.Rect} rect a rect of texture
+     * @param {Rect} rect a rect of texture
      * @param {Boolean} [rotated] Whether or not the texture is rotated
-     * @param {cc.Size} [untrimmedSize] The original pixels size of the texture
+     * @param {Size} [untrimmedSize] The original pixels size of the texture
      * @param {Boolean} [needConvert] contentScaleFactor switch
      */
     setTextureRect: function (rect, rotated, untrimmedSize, needConvert) {

@@ -91,7 +91,7 @@ cc.TextFieldDelegate = cc._Class.extend(/** @lends cc.TextFieldDelegate# */{
  * @property {cc.Color}     colorSpaceHolder
  *
  * @param {String} placeholder
- * @param {cc.Size} dimensions
+ * @param {Size} dimensions
  * @param {Number} alignment
  * @param {String} fontName
  * @param {Number} fontSize
@@ -118,7 +118,7 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
      * creates a cc.TextFieldTTF from a fontName, alignment, dimension and font size.
      * @param {String} placeholder
-     * @param {cc.Size} dimensions
+     * @param {Size} dimensions
      * @param {Number} alignment
      * @param {String} fontName
      * @param {Number} fontSize
@@ -210,7 +210,7 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
     /**
      * Initializes the cc.TextFieldTTF with a font name, alignment, dimension and font size
      * @param {String} placeholder
-     * @param {cc.Size} dimensions
+     * @param {Size} dimensions
      * @param {Number} alignment
      * @param {String} fontName
      * @param {Number} fontSize
@@ -488,7 +488,7 @@ cc.defineGetterSetter(_p, "placeHolder", _p.getPlaceHolder, _p.setPlaceHolder);
  * Creates a cc.TextFieldTTF from a fontName, alignment, dimension and font size.
  * @deprecated since v3.0 Please use new TextFieldTTF instead.
  * @param {String} placeholder
- * @param {cc.Size} dimensions
+ * @param {Size} dimensions
  * @param {Number} alignment
  * @param {String} fontName
  * @param {Number} fontSize

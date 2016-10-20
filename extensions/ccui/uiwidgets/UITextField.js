@@ -289,7 +289,7 @@ ccui.TextField = ccui.Widget.extend(/** @lends ccui.TextField# */{
 
     /**
      * Sets touch size of ccui.TextField.
-     * @param {cc.Size} size
+     * @param {Size} size
      */
     setTouchSize: function (size) {
         this._touchWidth = size.width;
@@ -326,7 +326,7 @@ ccui.TextField = ccui.Widget.extend(/** @lends ccui.TextField# */{
 
     /**
      * Returns touch size of ccui.TextField.
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getTouchSize: function () {
         return cc.size(this._touchWidth, this._touchHeight);
@@ -749,7 +749,7 @@ ccui.TextField = ccui.Widget.extend(/** @lends ccui.TextField# */{
 
     /**
      * Returns the ccui.TextField's content size.
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getVirtualRendererSize: function(){
         return this._textFieldRenderer.getContentSize();
@@ -803,7 +803,7 @@ ccui.TextField = ccui.Widget.extend(/** @lends ccui.TextField# */{
 
     /**
      * Sets the text area size to ccui.TextField.
-     * @param {cc.Size} size
+     * @param {Size} size
      */
     setTextAreaSize: function(size){
         this.setContentSize(size);

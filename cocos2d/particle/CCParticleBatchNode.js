@@ -328,7 +328,7 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
 
     /**
      * returns the used texture
-     * @return {cc.Texture2D}
+     * @return {Texture2D}
      */
     getTexture:function () {
         return this.textureAtlas.texture;
@@ -336,7 +336,7 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
 
     /**
      * sets a new texture. it will be retained
-     * @param {cc.Texture2D} texture
+     * @param {Texture2D} texture
      */
     setTexture:function (texture) {
         this.textureAtlas.texture = texture;

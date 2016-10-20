@@ -50,7 +50,7 @@ cc.Grabber = cc._Class.extend({
 
     /**
      * grab
-     * @param {cc.Texture2D} texture
+     * @param {Texture2D} texture
      */
     grab:function (texture) {
         var locGL = this._gl;
@@ -69,7 +69,7 @@ cc.Grabber = cc._Class.extend({
 
     /**
      * should be invoked before drawing
-     * @param {cc.Texture2D} texture
+     * @param {Texture2D} texture
      */
     beforeRender:function (texture) {
         var locGL = this._gl;
@@ -93,7 +93,7 @@ cc.Grabber = cc._Class.extend({
 
     /**
      * should be invoked after drawing
-     * @param {cc.Texture2D} texture
+     * @param {Texture2D} texture
      */
     afterRender:function (texture) {
         var locGL = this._gl;

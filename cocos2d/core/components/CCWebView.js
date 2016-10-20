@@ -88,7 +88,7 @@ var WebView = cc.Class({
         /**
          * !#en The webview's event callback , it will be triggered when certain webview event occurs.
          * !#zh WebView 的回调事件，当网页加载过程中，加载完成后或者加载出错时都会回调此函数
-         * @property {cc.Component.EventHandler[]} webviewLoadedEvents
+         * @property {Component.EventHandler[]} webviewLoadedEvents
          */
         webviewEvents: {
             default: [],

@@ -37,7 +37,7 @@ var game = require('../CCGame');
  * Quads can be re-ordered in runtime <br />
  * The TextureAtlas capacity can be increased or decreased in runtime.</p>
  * @class TextureAtlas
- * @constructor
+ *
  */
 
 var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only

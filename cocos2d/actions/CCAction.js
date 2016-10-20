@@ -255,7 +255,7 @@ cc.FiniteTimeAction = cc.Action.extend({
  * @warning This action can't be Sequenceable because it is not an cc.IntervalAction
  * @class Speed
  * @extends Action
- * @constructor
+ *
  * @param {ActionInterval} action
  * @param {Number} speed
  */

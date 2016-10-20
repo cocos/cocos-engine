@@ -65,7 +65,7 @@ cc.ScrollViewDelegate = cc._Class.extend({
  * @property {cc.Vec2}                 minOffset   - <@readonly> The current container's minimum offset
  * @property {cc.Vec2}                 maxOffset   - <@readonly> The current container's maximum offset
  * @property {Boolean}                  bounceable  - Indicate whether the scroll view is bounceable
- * @property {cc.Size}                  viewSize    - The size of the scroll view
+ * @property {Size}                  viewSize    - The size of the scroll view
  * @property {cc.Layer}                 container   - The inside container of the scroll view
  * @property {Number}                   direction   - The direction allowed to scroll: cc.SCROLLVIEW_DIRECTION_BOTH by default, or cc.SCROLLVIEW_DIRECTION_NONE | cc.SCROLLVIEW_DIRECTION_HORIZONTAL | cc.SCROLLVIEW_DIRECTION_VERTICAL
  * @property {cc.ScrollViewDelegate}    delegate    - The inside container of the scroll view
@@ -133,7 +133,7 @@ cc.ScrollView = cc.Layer.extend(/** @lends cc.ScrollView# */{
 
     /**
      * initialized whether success or fail
-     * @param {cc.Size} size
+     * @param {Size} size
      * @param {_ccsg.Node} container
      * @return {Boolean}
      */
@@ -698,7 +698,7 @@ cc.ScrollView = cc.Layer.extend(/** @lends cc.ScrollView# */{
         //check to see if offset lies within the inset bounds
         var newX = this._container.getPositionX();
         var newY = this._container.getPositionY();
-        
+
         locScrollDistance.x = locScrollDistance.x * SCROLL_DEACCEL_RATE;
         locScrollDistance.y = locScrollDistance.y * SCROLL_DEACCEL_RATE;
 
@@ -817,7 +817,7 @@ _p = null;
 /**
  * Returns an autoreleased scroll view object.
  * @deprecated
- * @param {cc.Size} size view size
+ * @param {Size} size view size
  * @param {_ccsg.Node} container parent object
  * @return {cc.ScrollView} scroll view object
  */

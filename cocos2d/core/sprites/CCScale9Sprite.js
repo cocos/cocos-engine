@@ -56,8 +56,8 @@ var dataPool = {
 };
 
 var FIX_ARTIFACTS_BY_STRECHING_TEXEL = cc.macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL,
-    webgl, 
-    vl, vb, vt, vr, 
+    webgl,
+    vl, vb, vt, vr,
     cornerId = [];
 
 /*
@@ -74,8 +74,8 @@ var FIX_ARTIFACTS_BY_STRECHING_TEXEL = cc.macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL
  * @class
  * @extends _ccsg.Node
  *
- * @property {cc.Size}  preferredSize   - The preferred size of the 9-slice sprite
- * @property {cc.Rect}  capInsets       - The cap insets of the 9-slice sprite
+ * @property {Size}  preferredSize   - The preferred size of the 9-slice sprite
+ * @property {Rect}  capInsets       - The cap insets of the 9-slice sprite
  * @property {Number}   insetLeft       - The left inset of the 9-slice sprite
  * @property {Number}   insetTop        - The top inset of the 9-slice sprite
  * @property {Number}   insetRight      - The right inset of the 9-slice sprite
@@ -302,7 +302,7 @@ var scale9QuadGenerator = {
             v[2] = (leftWidth + textureRect.y) / atlasHeight;
             v[1] = (leftWidth + centerWidth + textureRect.y) / atlasHeight;
             v[0] = (textureRect.y + textureRect.width - texelCorrect) / atlasHeight;
-            
+
             for (row = 0; row < 4; row++) {
                 for (col = 0; col < 4; col++) {
                     uvs[offset] = u[row];
@@ -358,7 +358,7 @@ var tiledQuadGenerator = {
             v0 = (textureRect.y + textureRect.height - texelCorrect) / atlasHeight;
             v1 = (textureRect.y + texelCorrect) / atlasHeight;
         }
-        
+
         //build quads
         var rectWidth = textureRect.width;
         var rectHeight = textureRect.height;
@@ -451,7 +451,7 @@ var fillQuadGeneratorBar = {
             uvs = sprite._uvs;
         var fillEnd;
         //build vertices
-        var l = 0, b = 0, 
+        var l = 0, b = 0,
             r = contentSize.width, t = contentSize.height;
         //build uvs
         var atlasWidth = spriteFrame._texture._pixelWidth;
@@ -637,7 +637,7 @@ var fillQuadGeneratorRadial = {
         if(center.y > _vertices[1].y) {
             center.y = _vertices[1].y;
         }
-        
+
         rawVerts[0] = rawVerts[4] = this._vertices[0].x;
         rawVerts[2] = rawVerts[6] = this._vertices[1].x;
         rawVerts[1] = rawVerts[3] = this._vertices[0].y;

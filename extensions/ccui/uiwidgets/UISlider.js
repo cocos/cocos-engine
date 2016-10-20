@@ -261,7 +261,7 @@ ccui.Slider = ccui.Widget.extend(/** @lends ccui.Slider# */{
 
     /**
      * Sets capinsets for slider, if slider is using scale9 renderer.
-     * @param {cc.Rect} capInsets
+     * @param {Rect} capInsets
      */
     setCapInsets: function (capInsets) {
         this.setCapInsetsBarRenderer(capInsets);
@@ -270,7 +270,7 @@ ccui.Slider = ccui.Widget.extend(/** @lends ccui.Slider# */{
 
     /**
      * Sets capinsets for slider's renderer, if slider is using scale9 renderer.
-     * @param {cc.Rect} capInsets
+     * @param {Rect} capInsets
      */
     setCapInsetsBarRenderer: function (capInsets) {
         if(!capInsets)
@@ -287,7 +287,7 @@ ccui.Slider = ccui.Widget.extend(/** @lends ccui.Slider# */{
 
     /**
      * Returns cap insets for slider.
-     * @returns {cc.Rect}
+     * @returns {Rect}
      */
     getCapInsetsBarRenderer: function () {
         return cc.rect(this._capInsetsBarRenderer);
@@ -295,7 +295,7 @@ ccui.Slider = ccui.Widget.extend(/** @lends ccui.Slider# */{
 
     /**
      * Sets capinsets of ProgressBar for slider, if slider is using scale9 renderer.
-     * @param {cc.Rect} capInsets
+     * @param {Rect} capInsets
      */
     setCapInsetProgressBarRenderer: function (capInsets) {
         if(!capInsets)
@@ -312,7 +312,7 @@ ccui.Slider = ccui.Widget.extend(/** @lends ccui.Slider# */{
 
     /**
      * Returns cap insets of ProgressBar for slider.
-     * @returns {cc.Rect}
+     * @returns {Rect}
      */
     getCapInsetsProgressBarRenderer: function () {
         return cc.rect(this._capInsetsProgressBarRenderer);
@@ -575,7 +575,7 @@ ccui.Slider = ccui.Widget.extend(/** @lends ccui.Slider# */{
 
     /**
      * Returns the content size of bar renderer.
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getVirtualRendererSize: function(){
         return this._barRenderer.getContentSize();

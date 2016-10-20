@@ -32,7 +32,7 @@ ccui.RelativeBox = ccui.Layout.extend(/** @lends ccui.RelativeBox# */{
     /**
      * The constructor of ccui.RelativeBox
      * @function
-     * @param {cc.Size} [size]
+     * @param {Size} [size]
      */
     ctor: function(size){
         if(size)
@@ -56,7 +56,7 @@ ccui.RelativeBox = ccui.Layout.extend(/** @lends ccui.RelativeBox# */{
 
     /**
      * Initializes a relative box with size
-     * @param {cc.Size} [size]
+     * @param {Size} [size]
      * @returns {boolean}
      */
     initWithSize: function(size){
@@ -71,7 +71,7 @@ ccui.RelativeBox = ccui.Layout.extend(/** @lends ccui.RelativeBox# */{
 /**
  * Creates a relative box
  * @deprecated  since v3.0, please use new ccui.RelativeBox(size) instead.
- * @param {cc.Size} size
+ * @param {Size} size
  * @returns {ccui.RelativeBox}
  */
 ccui.RelativeBox.create = function(size){

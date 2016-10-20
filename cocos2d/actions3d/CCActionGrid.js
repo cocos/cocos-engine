@@ -29,7 +29,7 @@
  * @class
  * @extends cc.ActionInterval
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  */
 cc.GridAction = cc.ActionInterval.extend(/** @lends cc.GridAction# */{
     _gridSize:null,
@@ -38,7 +38,7 @@ cc.GridAction = cc.ActionInterval.extend(/** @lends cc.GridAction# */{
 	/**
 	 * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
 	 * @param {Number} duration
-	 * @param {cc.Size} gridSize
+	 * @param {Size} gridSize
 	 */
     ctor:function(duration, gridSize){
         cc.sys._checkWebGLRenderMode();
@@ -101,7 +101,7 @@ cc.GridAction = cc.ActionInterval.extend(/** @lends cc.GridAction# */{
     /**
      * Initializes the action with size and duration.
      * @param {Number} duration
-     * @param {cc.Size} gridSize
+     * @param {Size} gridSize
      * @return {Boolean}
      */
     initWithDuration:function (duration, gridSize) {
@@ -127,7 +127,7 @@ cc.GridAction = cc.ActionInterval.extend(/** @lends cc.GridAction# */{
  * creates the action with size and duration
  * @function
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @return {cc.GridAction}
  */
 cc.gridAction = function (duration, gridSize) {
@@ -138,7 +138,7 @@ cc.gridAction = function (duration, gridSize) {
  * Please use cc.gridAction instead. <br />
  * Creates the action with size and duration.
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @return {cc.GridAction}
  * @static
  * @deprecated since v3.0 <br /> Please use cc.gridAction instead.
@@ -163,7 +163,7 @@ cc.Grid3DAction = cc.GridAction.extend(/** @lends cc.Grid3DAction# */{
 
     /**
      * get rect of the grid
-     * @return {cc.Rect} rect
+     * @return {Rect} rect
      */
     getGridRect:function () {
         return this._gridNodeTarget.getGridRect();
@@ -221,7 +221,7 @@ cc.Grid3DAction = cc.GridAction.extend(/** @lends cc.Grid3DAction# */{
  * creates the action with size and duration
  * @function
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @return {cc.Grid3DAction}
  */
 cc.grid3DAction = function (duration, gridSize) {
@@ -231,7 +231,7 @@ cc.grid3DAction = function (duration, gridSize) {
  * Please use cc.grid3DAction instead. <br />
  * creates the action with size and duration. <br />
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @return {cc.Grid3DAction}
  * @static
  * @deprecated since v3.0 <br /> Please use cc.grid3DAction instead.
@@ -305,7 +305,7 @@ cc.TiledGrid3DAction = cc.GridAction.extend(/** @lends cc.TiledGrid3DAction# */{
  * Creates the action with duration and grid size
  * @function
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @return {cc.TiledGrid3DAction}
  */
 cc.tiledGrid3DAction = function (duration, gridSize) {
@@ -316,7 +316,7 @@ cc.tiledGrid3DAction = function (duration, gridSize) {
  * Please use cc.tiledGrid3DAction instead
  * Creates the action with duration and grid size
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @return {cc.TiledGrid3DAction}
  * @static
  * @deprecated since v3.0 <br /> Please use cc.tiledGrid3DAction instead.

@@ -650,7 +650,7 @@ ccs.MovementBoneData = ccs.Class.extend(/** @lends ccs.MovementBoneData# */{
 /**
  * The movement data information of Cocos Armature.
  * @class ccs.MovementData
- * @constructor
+ *
  */
 ccs.MovementData = function(){
     this.name = "";
@@ -742,7 +742,7 @@ ccs.AnimationData.prototype.getMovementCount = function(){
  * @class ccs.ContourVertex2
  * @param {Number} x
  * @param {Number} y
- * @constructor
+ *
  */
 ccs.ContourVertex2 = function (x, y) {
     this.x = x || 0;
@@ -752,7 +752,7 @@ ccs.ContourVertex2 = function (x, y) {
 /**
  * The Contour data information of Cocos Armature.
  * @class ccs.ContourData
- * @constructor
+ *
  */
 ccs.ContourData = function(){
     this.vertexList = [];

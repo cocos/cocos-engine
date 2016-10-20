@@ -129,7 +129,7 @@ cc.MenuItem = _ccsg.Node.extend(/** @lends cc.MenuItem# */{
 
     /**
      * return rect value of cc.MenuItem
-     * @return {cc.Rect}
+     * @return {Rect}
      */
     rect: function () {
         var locPosition = this._position, locContentSize = this._contentSize, locAnchorPoint = this._anchorPoint;
@@ -739,7 +739,7 @@ cc.MenuItemSprite = cc.MenuItem.extend(/** @lends cc.MenuItemSprite# */{
         if (this._normalImage) {
             this.removeChild(this._normalImage, true);
         }
-        
+
         this._normalImage = normalImage;
         if(!this._normalImage)
             return;

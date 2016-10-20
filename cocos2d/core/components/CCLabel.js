@@ -344,7 +344,7 @@ var Label = cc.Class({
         /**
          * !#en The font of label.
          * !#zh 文本字体。
-         * @property {cc.Font} font
+         * @property {Font} font
          */
         font: {
             get: function () {

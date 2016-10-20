@@ -33,7 +33,7 @@
 
 /**
  * @class WebGLColor
- * @constructor
+ *
  */
 /**
  * @method WebGLColor
@@ -114,7 +114,7 @@ cc.js.getset(_p, "a", _p._getA, _p._setA);
  * @contructor
  */
 /**
- * @method Vertex2F 
+ * @method Vertex2F
  * @param {Number} x
  * @param {Number}y
  * @param {Array} arrayBuffer
@@ -155,9 +155,9 @@ cc.js.getset(_p, "y", _p._getY, _p._setY);
 // redefine cc.Vertex3F
 /**
  * @class Vertex3F
- * @constructor
+ *
  */
-/** 
+/**
  * @method Vertex3F
  * @param {Number} x
  * @param {Number} y
@@ -209,9 +209,9 @@ cc.js.getset(_p, "z", _p._getZ, _p._setZ);
 // redefine cc.Tex2F
 /**
  * @class Tex2F
- * @constructor
+ *
  */
-/** 
+/**
  * @method Tex2F
  * @param {Number} u
  * @param {Number} v
@@ -228,7 +228,7 @@ cc.Tex2F = function (u, v, arrayBuffer, offset) {
     this._view[1] = v || 0;
 };
 /**
- * @property BYTES_PER_ELEMENT 
+ * @property BYTES_PER_ELEMENT
  * @final
  * @type {Number}
  */
@@ -253,10 +253,10 @@ cc.js.getset(_p, "v", _p._getV, _p._setV);
 //redefine cc.Quad2
 /**
  * @class Quad2
- * @constructor
+ *
  */
 
-/** 
+/**
  * @method Quad2
  * @param {Vertex2F} tl
  * @param {Vertex2F} tr
@@ -327,7 +327,7 @@ cc.js.getset(_p, "br", _p._getBR, _p._setBR);
  * @Construct
  */
 /**
- * @method Quad3 
+ * @method Quad3
  * @param {Vertex3F} bl1
  * @param {Vertex3F} br1
  * @param {Vertex3F} tl1
@@ -339,7 +339,7 @@ cc.js.getset(_p, "br", _p._getBR, _p._setBR);
 cc.Quad3 = function (bl1, br1, tl1, tr1, arrayBuffer, offset) {
     this._arrayBuffer = arrayBuffer || new ArrayBuffer(cc.Quad3.BYTES_PER_ELEMENT);
     this._offset = offset || 0;
-    
+
     var locArrayBuffer = this._arrayBuffer, locOffset = this._offset, locElementLen = cc.Vertex3F.BYTES_PER_ELEMENT;
     this.bl = bl ? new cc.Vertex3F(bl.x, bl.y, bl.z, locArrayBuffer, locOffset) : new cc.Vertex3F(0, 0, 0, locArrayBuffer, locOffset);
     locOffset += locElementLen;
@@ -358,9 +358,9 @@ cc.Quad3.BYTES_PER_ELEMENT = 48;
 //redefine cc.V3F_C4B_T2F
 /**
  * @class V3F_C4B_T2F
- * @constructor
+ *
  */
-/** 
+/**
  * @method V3F_C4B_T2F
  * @param {Vertex3F} vertices
  * @param {Color} colors
@@ -426,10 +426,10 @@ cc.js.getset(_p, "texCoords", _p._getTexCoords, _p._setTexCoords);
 //redefine cc.V3F_C4B_T2F_Quad
 /**
  * @class V3F_C4B_T2F_Quad
- * @constructor
+ *
  */
 /**
- * @method V3F_C4B_T2F_Quad 
+ * @method V3F_C4B_T2F_Quad
  * @param {V3F_C4B_T2F} tl
  * @param {V3F_C4B_T2F} bl
  * @param {V3F_C4B_T2F} tr
@@ -568,9 +568,9 @@ cc.V3F_C4B_T2F_QuadsCopy = function (sourceQuads) {
 //redefine cc.V2F_C4B_T2F
 /**
  * @class V2F_C4B_T2F
- * @constructor
+ *
  */
-/** 
+/**
  * @method V2F_C4B_T2F
  * @param {Vertex2F} vertices
  * @param {Color} colors
@@ -633,7 +633,7 @@ cc.js.getset(_p, "texCoords", _p._getTexCoords, _p._setTexCoords);
 //redefine cc.V2F_C4B_T2F_Triangle
 /**
  * @class V2F_C4B_T2F_Triangle
- * @constructor
+ *
  */
  /**
  * @method V2F_C4B_T2F_Triangle

@@ -49,7 +49,7 @@ var EventTarget = require("../event/event-target");
  *
  * @class SpriteFrame
  * @extends Asset
- * @constructor
+ *
  * @example
  * // load a cc.SpriteFrame with image path (Recommend)
  * var self = this;

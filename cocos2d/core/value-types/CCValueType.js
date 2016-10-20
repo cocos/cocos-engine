@@ -29,7 +29,7 @@ var JS = require('../platform/js');
  * !#en The base class of all value types.
  * !#zh 所有值类型的基类。
  * @class ValueType
- * @constructor
+ *
  */
 function ValueType () {}
 JS.setClassName('cc.ValueType', ValueType);

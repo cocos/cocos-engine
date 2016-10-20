@@ -202,7 +202,7 @@ ccui.LoadingBar = ccui.Widget.extend(/** @lends ccui.LoadingBar# */{
 
     /**
      * Sets capinsets for LoadingBar, if LoadingBar is using scale9 renderer.
-     * @param {cc.Rect} capInsets
+     * @param {Rect} capInsets
      */
     setCapInsets: function (capInsets) {
         if(!capInsets)
@@ -219,7 +219,7 @@ ccui.LoadingBar = ccui.Widget.extend(/** @lends ccui.LoadingBar# */{
 
     /**
      * Returns cap insets for loadingBar.
-     * @returns {cc.Rect}
+     * @returns {Rect}
      */
     getCapInsets: function () {
         return cc.rect(this._capInsets);

@@ -126,8 +126,8 @@ cc.RenderTexture = _ccsg.Node.extend(/** @lends cc.RenderTexture# */{
     /**
      * Used for grab part of screen to a texture.
      * @param {cc.Vec2} rtBegin
-     * @param {cc.Rect} fullRect
-     * @param {cc.Rect} fullViewport
+     * @param {Rect} fullRect
+     * @param {Rect} fullViewport
      */
     setVirtualViewport: function(rtBegin, fullRect, fullViewport){
          this._renderCmd.setVirtualViewport(rtBegin, fullRect, fullViewport);

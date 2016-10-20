@@ -28,10 +28,10 @@
  * !#en the device accelerometer reports values for each axis in units of g-force.
  * !#zh 设备重力传感器传递的各个轴的数据。
  * @class Acceleration
- * @constructor
+ *
  */
 /**
- * @method Acceleration 
+ * @method Acceleration
  * @param {Number} x
  * @param {Number} y
  * @param {Number} z
@@ -52,7 +52,7 @@ cc.Acceleration = function (x, y, z, timestamp) {
  * @Constructor
  */
 /**
- * @method BlendFunc 
+ * @method BlendFunc
  * @param {Number} src1 source blend function
  * @param {Number} dst1 destination blend function
  * @return {BlendFunc}
@@ -201,7 +201,7 @@ cc.blendFuncDisable = cc.BlendFunc._disable;
  * });
  *
  * @class FontDefinition
- * @constructor
+ *
  */
 /*
  * !#en TODO
@@ -248,9 +248,22 @@ cc.FontDefinition.prototype._getCanvasFontStr = function(){
     return this.fontStyle + " " + this.fontWeight + " " + this.fontSize + "px/"+lineHeight+" '" + this.fontName + "'";
 };
 
+/**
+ * @enum TextAlignment
+ */
+
 cc.TextAlignment = cc.Enum({
+    /**
+     * @property {Number} LEFT
+     */
     LEFT: 0,
+    /**
+     * @property {Number} CENTER
+     */
     CENTER: 1,
+    /**
+     * @property {Number} RIGHT
+     */
     RIGHT: 2
 });
 

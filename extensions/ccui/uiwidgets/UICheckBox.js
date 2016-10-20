@@ -493,7 +493,7 @@ ccui.CheckBox = ccui.Widget.extend(/** @lends ccui.CheckBox# */{
 
     /**
      * Returns the content size of Renderer.
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getVirtualRendererSize: function(){
         return this._backGroundBoxRenderer.getContentSize();

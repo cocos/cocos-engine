@@ -74,7 +74,7 @@ var Canvas = cc.Class({
         /**
          * !#en The desigin resolution for current scene.
          * !#zh 当前场景设计分辨率。
-         * @property {cc.Size} designResolution
+         * @property {Size} designResolution
          * @default new cc.Size(960, 640)
          */
         _designResolution: cc.size(960, 640),

@@ -225,7 +225,7 @@ var TiledMap = cc.Class({
     },
 
     properties: {
-        // the detached array of TiledLayer 
+        // the detached array of TiledLayer
         _detachedChildren: {
             default: [],
             serializable: false,
@@ -238,7 +238,7 @@ var TiledMap = cc.Class({
         /**
          * !#en The TiledMap Asset.
          * !#zh TiledMap 资源。
-         * @property {cc.TiledMapAsset} tmxAsset
+         * @property {TiledMapAsset} tmxAsset
          * @default ""
          */
         tmxAsset : {
@@ -334,7 +334,7 @@ var TiledMap = cc.Class({
      * !#en object groups.
      * !#zh 获取所有的对象层。
      * @method getObjectGroups
-     * @return {cc.TiledObjectGroup[]}
+     * @return {TiledObjectGroup[]}
      * @example
      * var objGroups = titledMap.getObjectGroups();
      * for (var i = 0; i < objGroups.length; ++i) {
@@ -394,7 +394,7 @@ var TiledMap = cc.Class({
      * !#en Return All layers array.
      * !#zh 返回包含所有 layer 的数组。
      * @method allLayers
-     * @returns {cc.TiledLayer[]}
+     * @returns {TiledLayer[]}
      * @example
      * var layers = titledMap.allLayers();
      * for (var i = 0; i < layers.length; ++i) {
@@ -443,7 +443,7 @@ var TiledMap = cc.Class({
      * !#zh 获取指定的 TMXObjectGroup。
      * @method getObjectGroup
      * @param {String} groupName
-     * @return {cc.TiledObjectGroup}
+     * @return {TiledObjectGroup}
      * @example
      * var group = titledMap.getObjectGroup("Players");
      * cc.log("ObjectGroup: " + group);
@@ -609,14 +609,14 @@ var TiledMap = cc.Class({
         var existedGroups = [];
         var otherChildrenInfo = [];
         var i, n;
-        
+
         // restore detached layers & groups
         for (i = 0; i < this._detachedChildren.length; i++) {
             var info = this._detachedChildren[i];
             this._sgNode.addChild(info.sgNode, info.zorder, info.zorder);
         }
         this._detachedChildren.length = 0;
-        
+
         // get the layer names in scene graph.
         var layerNames = this._sgNode.allLayers().map(function (layer) {
             return layer.getLayerName();
@@ -753,7 +753,7 @@ var TiledMap = cc.Class({
     },
 
     _anchorChanged: function() {
-        // align children with current node 
+        // align children with current node
         var children = this.node.children;
         var anchor = this.node.getAnchorPoint();
         for (var i = 0, n = children.length; i < n; i++) {
@@ -764,7 +764,7 @@ var TiledMap = cc.Class({
             }
         }
     },
-    
+
     _childAdded: function(event) {
         var node = event.detail;
         if (node) {

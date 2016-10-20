@@ -199,7 +199,7 @@ var VideoPlayer = cc.Class({
         /**
          * !#en the video player's callback, it will be triggered when certain event occurs, like: playing, paused, stopped and completed.
          * !#zh 视频播放回调函数，该回调函数会在特定情况被触发，比如播放中，暂时，停止和完成播放。
-         * @property {cc.Component.EventHandler[]} videoPlayerEvent
+         * @property {Component.EventHandler[]} videoPlayerEvent
          */
         videoPlayerEvent: {
             default: [],

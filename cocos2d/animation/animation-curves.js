@@ -32,7 +32,7 @@ function computeRatioByType (ratio, type) {
 // 虽然叫做 AnimCurve，但除了曲线，可以保存任何类型的值。
 //
 // @class AnimCurve
-// @constructor
+//
 //
 var AnimCurve = cc.Class({
     name: 'cc.AnimCurve',
@@ -53,7 +53,7 @@ var AnimCurve = cc.Class({
 // 区别于 SampledAnimCurve。
 //
 // @class DynamicAnimCurve
-// @constructor
+//
 // @extends AnimCurve
 //
 var DynamicAnimCurve = cc.Class({
@@ -205,7 +205,7 @@ DynamicAnimCurve.Bezier = function (controlPoints) {
  *
  * @class SampledAnimCurve
  * @private
- * @constructor
+ *
  * @extends DynamicAnimCurve
  */
 var SampledAnimCurve = cc.Class({
@@ -243,7 +243,7 @@ var SampledAnimCurve = cc.Class({
 /**
  * Event information,
  * @class EventInfo
- * @constructor
+ *
  */
 var EventInfo = function () {
     this.events = [];
@@ -264,7 +264,7 @@ EventInfo.prototype.add = function (func, params) {
 /**
  *
  * @class EventAnimCurve
- * @constructor
+ *
  * @extends AnimCurve
  */
 var EventAnimCurve = cc.Class({

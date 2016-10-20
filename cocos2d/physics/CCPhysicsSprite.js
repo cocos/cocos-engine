@@ -45,7 +45,7 @@
          * Create a PhysicsSprite with filename and rect
          * Constructor of cc.PhysicsSprite for Box2d
          * @param {String|cc.Texture2D|cc.SpriteFrame} fileName
-         * @param {cc.Rect} rect
+         * @param {Rect} rect
          * @example
          *
          * 1.Create a sprite with image path and rect
@@ -209,7 +209,7 @@
          * Create a PhysicsSprite with filename and rect
          * Constructor of cc.PhysicsSprite for chipmunk
          * @param {String|cc.Texture2D|cc.SpriteFrame} fileName
-         * @param {cc.Rect} rect
+         * @param {Rect} rect
          * @example
          *
          * 1.Create a sprite with image path and rect
@@ -416,7 +416,7 @@
      * Create a PhysicsSprite with filename and rect
      * @deprecated since v3.0, please use new cc.PhysicsSprite(fileName, rect) instead
      * @param {String|cc.Texture2D|cc.SpriteFrame} fileName
-     * @param {cc.Rect} rect
+     * @param {Rect} rect
      * @return {cc.PhysicsSprite}
      */
     cc.PhysicsSprite.create = function (fileName, rect) {

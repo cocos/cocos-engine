@@ -36,7 +36,7 @@
  * @param {String} text
  * @param {String|cc.FontDefinition} [fontName="Arial"]
  * @param {Number} [fontSize=16]
- * @param {cc.Size} [dimensions=cc.size(0,0)]
+ * @param {Size} [dimensions=cc.size(0,0)]
  * @param {cc.TextAlignment} [hAlignment=cc.TextAlignment.LEFT]
  * @param {cc.VerticalTextAlignment} [vAlignment=cc.VerticalTextAlignment.TOP]
  * @example
@@ -106,7 +106,7 @@ cc.LabelTTF = _ccsg.Sprite.extend(/** @lends cc.LabelTTF# */{
      * @param {String} label string
      * @param {String} fontName
      * @param {Number} fontSize
-     * @param {cc.Size} [dimensions=]
+     * @param {Size} [dimensions=]
      * @param {Number} [hAlignment=]
      * @param {Number} [vAlignment=]
      * @return {Boolean} return false on error
@@ -228,7 +228,7 @@ cc.LabelTTF = _ccsg.Sprite.extend(/** @lends cc.LabelTTF# */{
     /**
      * Returns the dimensions of cc.LabelTTF, the dimension is the maximum size of the label, set it so that label will automatically change lines when necessary.
      * @see cc.LabelTTF#setDimensions, cc.LabelTTF#boundingWidth and cc.LabelTTF#boundingHeight
-     * @return {cc.Size}
+     * @return {Size}
      */
     getDimensions: function () {
         return cc.size(this._dimensions);
@@ -796,7 +796,7 @@ cc.LabelTTF = _ccsg.Sprite.extend(/** @lends cc.LabelTTF# */{
 
     /**
      * Returns the actual content size of the label, the content size is the real size that the label occupied while dimension is the outer bounding box of the label.
-     * @returns {cc.Size} The content size
+     * @returns {Size} The content size
      */
     getContentSize: function () {
         if (this._needUpdateTexture)
@@ -877,7 +877,7 @@ cc.LabelTTF._fontStyleRE = /^(\d+)px\s+['"]?([\w\s\d]+)['"]?$/;
  * @param {String} text
  * @param {String|cc.FontDefinition} [fontName="Arial"]
  * @param {Number} [fontSize=16]
- * @param {cc.Size} [dimensions=cc.size(0,0)]
+ * @param {Size} [dimensions=cc.size(0,0)]
  * @param {cc.TextAlignment} [hAlignment=cc.TextAlignment.LEFT]
  * @param {cc.VerticalTextAlignment} [vAlignment=cc.VerticalTextAlignment.TOP]
  * @return {cc.LabelTTF|Null}

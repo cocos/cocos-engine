@@ -112,7 +112,7 @@ cc.PageTurn3D = cc.Grid3DAction.extend(/** @lends cc.PageTurn3D# */{
  * create PageTurn3D action
  * @function
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @return {cc.PageTurn3D}
  */
 cc.pageTurn3D = function (duration, gridSize) {
@@ -122,7 +122,7 @@ cc.pageTurn3D = function (duration, gridSize) {
  * Please use cc.pageTurn3D instead
  * create PageTurn3D action
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @return {cc.PageTurn3D}
  * @static
  * @deprecated since v3.0 please use cc.pageTurn3D instead.

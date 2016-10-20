@@ -29,7 +29,7 @@ var JS = require("../platform/js");
  * !#en Base class of all kinds of events.
  * !#zh 包含事件相关信息的对象。
  * @class Event
- * @constructor
+ *
  */
 
 /**
@@ -241,7 +241,7 @@ cc.Event.BUBBLING_PHASE = 3;
  * !#en The Custom event
  * !#zh 自定义事件
  * @class Event.EventCustom
- * @constructor
+ *
  * @extends Event
  */
 

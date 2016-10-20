@@ -180,7 +180,7 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
     /**
      * Changes inner container size of ScrollView.     <br/>
      * Inner container size must be larger than or equal the size of ScrollView.
-     * @param {cc.Size} size inner container size.
+     * @param {Size} size inner container size.
      */
     setInnerContainerSize: function (size) {
         var innerContainer = this._innerContainer;
@@ -293,7 +293,7 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
      * Returns inner container size of ScrollView.     <br/>
      * Inner container size must be larger than or equal ScrollView's size.
      *
-     * @return {cc.Size} inner container size.
+     * @return {Size} inner container size.
      */
     getInnerContainerSize: function () {
         return this._innerContainer.getContentSize();
