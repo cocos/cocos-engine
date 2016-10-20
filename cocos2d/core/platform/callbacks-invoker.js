@@ -108,13 +108,27 @@ CallbacksHandler.prototype.add = function (key, callback, target) {
  * @return {Boolean}
  */
 CallbacksHandler.prototype.has = function (key, callback, target) {
+    if (this._toRemoveAll === key) {
+        return false;
+    }
     var list = this._callbackTable[key], callbackTarget, index;
     if (!list) {
         return false;
     }
     // callback not given, but key found
-    if (!callback) 
-        return true;
+    if (!callback) {
+        if (this._toRemove[key]) {
+            for (index = 0; index < list.length; index++) {
+                if (list[index] !== REMOVE_PLACEHOLDER) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else {
+            return list.length > 0;
+        }
+    }
     // wrong callback type, can't found anything
     else if (typeof callback !== 'function')
         return false;
