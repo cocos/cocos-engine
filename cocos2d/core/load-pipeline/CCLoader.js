@@ -73,6 +73,8 @@ function CCLoader () {
      */
     this.loader = loader;
 
+    this.onProgress = null;
+
     // assets to release automatically
     this._autoReleaseSetting = {};
 }
@@ -158,7 +160,7 @@ JS.mixin(CCLoader.prototype, {
         
         if (completeCallback === undefined) {
             completeCallback = progressCallback;
-            progressCallback = null;
+            progressCallback = this.onProgress || null;
         }
 
         var self = this;
@@ -178,7 +180,7 @@ JS.mixin(CCLoader.prototype, {
             }
         }
 
-        LoadingItems.create(this, resources, progressCallback, function (errors, items) {
+        var queue = LoadingItems.create(this, progressCallback, function (errors, items) {
             callInNextTick(function () {
                 if (!completeCallback)
                     return;
@@ -202,6 +204,8 @@ JS.mixin(CCLoader.prototype, {
                 items.destroy();
             });
         });
+        LoadingItems.initQueueDeps(queue);
+        queue.append(resources);
     },
 
     flowInDeps: function (owner, urlList, callback) {
