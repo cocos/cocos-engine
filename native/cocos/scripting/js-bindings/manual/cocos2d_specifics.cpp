@@ -1228,8 +1228,8 @@ void JSScheduleWrapper::dump()
     schedTarget_proxy_t *current, *tmp;
     int nativeTargetsCount = 0;
     HASH_ITER(hh, _schedObj_target_ht, current, tmp) {
-        Ref* pObj = nullptr;
-        CCARRAY_FOREACH(current->targets, pObj)
+        auto targets = current->targets;
+        for (const auto& pObj : *targets)
         {
             CCLOG("js target ( %p ), native target[%d]=( %p )", current->jsTargetObj, nativeTargetsCount, pObj);
             nativeTargetsCount++;
@@ -1241,8 +1241,8 @@ void JSScheduleWrapper::dump()
     schedFunc_proxy_t *current_func, *tmp_func;
     int jsfuncTargetCount = 0;
     HASH_ITER(hh, _schedFunc_target_ht, current_func, tmp_func) {
-        Ref* pObj = nullptr;
-        CCARRAY_FOREACH(current_func->targets, pObj)
+        auto targets = current->targets;
+        for (const auto& pObj : *targets)
         {
             CCLOG("js func ( %p ), native target[%d]=( %p )", current_func->jsfuncObj, jsfuncTargetCount, pObj);
             jsfuncTargetCount++;
@@ -1340,7 +1340,7 @@ bool js_CCNode_unschedule(JSContext *cx, uint32_t argc, jsval *vp)
 
         auto targetArray = JSScheduleWrapper::getTargetForSchedule(args.get(0));
         if (targetArray) {
-            CCLOGINFO("unschedule target number: %d", targetArray->count());
+            CCLOGINFO("unschedule target number: %d", targetArray->size());
 
             for (const auto& tmp : *targetArray)
             {
