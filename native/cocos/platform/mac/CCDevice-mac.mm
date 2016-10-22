@@ -244,7 +244,16 @@ static CGFloat _calculateTextDrawStartHeight(cocos2d::Device::TextAlign align, C
     return startH;
 }
 
-static bool _initWithString(const char * text, Device::TextAlign align, const char * fontName, int size, tImageInfo* info, const Color3B* fontColor, int fontAlpha, bool enableWrap, int overflow, bool enableBold)
+static bool _initWithString(const char * text,
+                            Device::TextAlign align,
+                            const char * fontName,
+                            int size,
+                            tImageInfo* info,
+                            const Color3B* fontColor,
+                            int fontAlpha,
+                            bool enableWrap,
+                            int overflow,
+                            bool enableBold)
 {
     bool ret = false;
     
@@ -288,9 +297,16 @@ static bool _initWithString(const char * text, Device::TextAlign align, const ch
         NSSize realDimensions;
         
         if (overflow == 2) {
-            realDimensions = _calculateRealSizeForString(&stringWithAttributes, font, dimensions, enableWrap);
+            realDimensions = _calculateRealSizeForString(&stringWithAttributes,
+                                                         font,
+                                                         dimensions,
+                                                         enableWrap);
         } else {
-            realDimensions = _calculateStringSize(stringWithAttributes, font, &dimensions, enableWrap, overflow);
+            realDimensions = _calculateStringSize(stringWithAttributes,
+                                                  font,
+                                                  &dimensions,
+                                                  enableWrap,
+                                                  overflow);
         }
         
 
@@ -347,7 +363,12 @@ static bool _initWithString(const char * text, Device::TextAlign align, const ch
     return ret;
 }
 
-Data Device::getTextureDataForText(const char * text, const FontDefinition& textDefinition, TextAlign align, int &width, int &height, bool& hasPremultipliedAlpha)
+Data Device::getTextureDataForText(const char * text,
+                                   const FontDefinition& textDefinition,
+                                   TextAlign align,
+                                   int &width,
+                                   int &height,
+                                   bool& hasPremultipliedAlpha)
 {
     Data ret;
     do {
@@ -356,8 +377,11 @@ Data Device::getTextureDataForText(const char * text, const FontDefinition& text
         info.height = textDefinition._dimensions.height;
 
         if (! _initWithString(text, align, textDefinition._fontName.c_str(),
-                              textDefinition._fontSize, &info, &textDefinition._fontFillColor,
-                              textDefinition._fontAlpha, textDefinition._enableWrap, textDefinition._overflow,
+                              textDefinition._fontSize, &info,
+                              &textDefinition._fontFillColor,
+                              textDefinition._fontAlpha,
+                              textDefinition._enableWrap,
+                              textDefinition._overflow,
                               textDefinition._enableBold))
         {
             break;

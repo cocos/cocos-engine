@@ -1047,7 +1047,8 @@ void Label::enableGlow(const Color4B& glowColor)
 
 void Label::enableOutline(const Color4B& outlineColor,int outlineSize /* = -1 */)
 {
-    CCASSERT(_currentLabelType == LabelType::STRING_TEXTURE || _currentLabelType == LabelType::TTF, "Only supported system font and TTF!");
+    CCASSERT(_currentLabelType == LabelType::STRING_TEXTURE
+             || _currentLabelType == LabelType::TTF, "Only supported system font and TTF!");
 
     if (outlineSize > 0 || _currLabelEffect == LabelEffect::OUTLINE)
     {
@@ -1254,7 +1255,7 @@ void Label::createSpriteForSystemFont(const FontDefinition& fontDef)
     }
 
     _textSprite->retain();
-    _textSprite->updateDisplayedColor(_displayedColor);
+    //_textSprite->updateDisplayedColor(_displayedColor);
     _textSprite->updateDisplayedOpacity(_displayedOpacity);
 }
 
@@ -1363,6 +1364,7 @@ void Label::updateContent()
     }
     else
     {
+        this->setTextColor(Color4B(_displayedColor));
         auto fontDef = _getFontDefinition();
         createSpriteForSystemFont(fontDef);
         if (_shadowEnabled)
@@ -1861,12 +1863,10 @@ void Label::updateDisplayedColor(const Color3B& parentColor)
 {
     Node::updateDisplayedColor(parentColor);
 
-    if (_currentLabelType == LabelType::TTF || _currentLabelType == LabelType::STRING_TEXTURE)
-        setTextColor(Color4B(_displayedColor));
-
     if (_textSprite)
     {
-        _textSprite->updateDisplayedColor(_displayedColor);
+        //_textSprite->updateDisplayedColor(_displayedColor);
+        this->setTextColor(Color4B(_displayedColor));
     }
 
     if (_shadowNode)
