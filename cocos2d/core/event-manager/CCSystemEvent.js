@@ -105,7 +105,6 @@ var SystemEvent = cc.Class({
         }
 
         // Acceleration
-        var tempAcc = cc.p();
         if (!accelerationListener && type === EventType.DEVICEMOTION) {
             accelerationListener = cc.EventListener.create({
                 event: cc.EventListener.ACCELERATION,
@@ -114,9 +113,7 @@ var SystemEvent = cc.Class({
                     // fix android acc values are opposite
                     if (cc.sys.os === cc.sys.OS_ANDROID &&
                         cc.sys.browserType !== cc.sys.BROWSER_TYPE_MOBILE_QQ) {
-                        tempAcc.x = accelEvent.x * -1;
-                        tempAcc.y = accelEvent.y * -1;
-                        event.acc = tempAcc;
+                        event.acc = cc.p(-accelEvent.x, -accelEvent.y);
                     }
                     else {
                         event.acc = accelEvent;
