@@ -441,7 +441,22 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
-     * Release the cache of resource by id which is usually the url.
+     * !#en
+     * Release the asset by id which is usually the url.
+     * Start from v1.3, this method will not only release the cache of the asset in loader,
+     * but also clean up the dependencies of the asset. For example, if you release a prefab by its url,
+     * and if there is no instance of this prefab in the scene, the prefab and its dependencies like textures, sprite frames, etc, will be freed up.
+     * This method can help you free up some memory in critical circumstances.
+     * Notice, this method may cause the texture to be unusable, if there are still instances of this prefab or other asset share textures with this prefab, 
+     * they may turn to black and report gl errors.
+     * If you only want to remove the cache of an asset, please use {{#crossLink "pipeline/removeItem:method"}}{{/crossLink}}
+     * !#zh
+     * 通过 id（通常是资源 url）来释放一个资源。
+     * 从 v1.3 开始，这个方法不仅会从 loader 中删除资源的缓存引用，还会清理它所引用的依赖资源。
+     * 比如说，当你释放一个 prefab 资源，并且场景中不再有这个 prefab 的任何实例的时候，这个 prefab 和它所依赖的所有贴图，精灵帧对象，等都会被释放。
+     * 在设备内存告急的情况下，这个函数可以帮助你更快得释放不再需要的资源的内存。
+     * 注意，这个函数可能会导致资源贴图或资源所依赖的贴图不可用，如果场景中依然存在 prefab 的实例或者其他节点仍然依赖同样的贴图，它们可能会变黑并报 GL 错误。
+     * 如果你只想删除一个资源的缓存引用，请使用 {{#crossLink "pipeline/removeItem:method"}}{{/crossLink}}
      *
      * @method release
      * @param {String} id
@@ -455,7 +470,8 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
-     * Release the loaded cache of asset.
+     * !#en Release the asset by its object. Refer to {{#crossLink "loader/release:method"}}{{/crossLink}} for detailed informations.
+     * !#zh 通过资源对象自身来释放资源。详细信息请参考 {{#crossLink "loader/release:method"}}{{/crossLink}}
      *
      * @method releaseAsset
      * @param {Asset} asset
@@ -468,7 +484,8 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
-     * Release the cache of resource which loaded by {{#crossLink "loader/loadRes:method"}}{{/crossLink}}.
+     * !#en Release the asset loaded by {{#crossLink "loader/loadRes:method"}}{{/crossLink}}. Refer to {{#crossLink "loader/release:method"}}{{/crossLink}} for detailed informations.
+     * !#zh 释放通过 {{#crossLink "loader/loadRes:method"}}{{/crossLink}} 加载的资源。详细信息请参考 {{#crossLink "loader/release:method"}}{{/crossLink}}
      *
      * @method releaseRes
      * @param {String} url
@@ -484,7 +501,8 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
-     * Resource cache of all resources.
+     * !#en Resource all assets. Refer to {{#crossLink "loader/release:method"}}{{/crossLink}} for detailed informations.
+     * !#zh 释放所有资源。详细信息请参考 {{#crossLink "loader/release:method"}}{{/crossLink}}
      *
      * @method releaseAll
      */
