@@ -199,17 +199,11 @@ proto._updateChild = function(){};
 proto._updateRegionAttachmentQuad = function(attachment, slot, quad, premultipliedAlpha) {
     var vertices = new Array(8);
     attachment.computeVertices(slot.bone.skeleton.x, slot.bone.skeleton.y, slot.bone, vertices);
-    var r = slot.bone.skeleton.r * slot.r * 255;
-    var g = slot.bone.skeleton.g * slot.g * 255;
-    var b = slot.bone.skeleton.b * slot.b * 255;
-    var normalizedAlpha = slot.bone.skeleton.a * slot.a;
-
-    if (premultipliedAlpha) {
-        r *= normalizedAlpha;
-        g *= normalizedAlpha;
-        b *= normalizedAlpha;
-    }
-    var a = normalizedAlpha * 255;
+    var a = slot.bone.skeleton.a * slot.a * attachment.a * 255;
+    var multiplier = premultipliedAlpha ? a : 255;
+    var r = slot.bone.skeleton.r * slot.r * attachment.r * multiplier;
+    var g = slot.bone.skeleton.g * slot.g * attachment.g * multiplier;
+    var b = slot.bone.skeleton.b * slot.b * attachment.b * multiplier;
 
     quad.bl.colors.r = quad.tl.colors.r = quad.tr.colors.r = quad.br.colors.r = r;
     quad.bl.colors.g = quad.tl.colors.g = quad.tr.colors.g = quad.br.colors.g = g;
