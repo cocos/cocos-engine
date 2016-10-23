@@ -933,8 +933,22 @@ sys.dump = function () {
  * @method openURL
  * @param {String} url
  */
-sys.openURL = function(url){
+sys.openURL = function (url) {
     window.open(url);
+};
+
+/**
+ * Get the number of milliseconds elapsed since 1 January 1970 00:00:00 UTC.
+ * @method now
+ * @return {Number}
+ */
+sys.now = function () {
+    if (Date.now) {
+        return Date.now();
+    }
+    else {
+        return +(new Date);
+    }
 };
 
 module.exports = sys;
