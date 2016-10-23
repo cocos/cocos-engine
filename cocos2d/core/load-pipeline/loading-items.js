@@ -671,7 +671,6 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         LoadingItems.finishDep(id);
         if (this.onProgress) {
             var dep = _queueDeps[this._id];
-            console.log((dep ? dep.completed.length : this.completedCount) + ' / ' + (dep ? dep.deps.length : this.totalCount));
             this.onProgress(dep ? dep.completed.length : this.completedCount, dep ? dep.deps.length : this.totalCount, item);
         }
 
