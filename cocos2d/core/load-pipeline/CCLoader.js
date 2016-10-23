@@ -447,7 +447,11 @@ JS.mixin(CCLoader.prototype, {
      * @param {String} id
      */
     release: function (id) {
-        this.removeItem(id);
+        // this.removeItem(id);
+
+        var assets = AutoReleaseUtils.getDependsRecursively(id);
+        assets.push(id);
+        AutoReleaseUtils.autoRelease(this, assets);
     },
 
     /**
@@ -459,7 +463,7 @@ JS.mixin(CCLoader.prototype, {
     releaseAsset: function (asset) {
         var uuid = asset._uuid;
         if (uuid) {
-            this.removeItem(uuid);
+            this.release(uuid);
         }
     },
 
@@ -472,7 +476,7 @@ JS.mixin(CCLoader.prototype, {
     releaseRes: function (url) {
         var uuid = this._getResUuid(url);
         if (uuid) {
-            this.removeItem(uuid);
+            this.release(uuid);
         }
         else {
             cc.error('Resources url "%s" does not exist.', url);
@@ -485,7 +489,9 @@ JS.mixin(CCLoader.prototype, {
      * @method releaseAll
      */
     releaseAll: function () {
-        this.clear();
+        for (var id in this._cache) {
+            this.release(id);
+        }
     },
 
     // AUTO RELEASE
