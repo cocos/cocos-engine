@@ -321,6 +321,18 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
 
 var activeWidgets = [];
 
+// updateAlignment from scene to node recursively
+function updateAlignment (node) {
+    var parent = node._parent;
+    if (parent) {
+        updateAlignment(parent);
+    }
+    var widget = node._widget;
+    if (widget) {
+        alignToParent(node, widget);
+    }
+}
+
 var widgetManager = cc._widgetManager = module.exports = {
     _AlignFlags: {
         TOP: TOP,
@@ -356,5 +368,6 @@ var widgetManager = cc._widgetManager = module.exports = {
             widget.node.off('size-changed', adjustWidgetToAllowResizingInEditor, widget);
         }
     },
-    _getParentSize: getParentSize
+    _getParentSize: getParentSize,
+    updateAlignment: updateAlignment
 };
