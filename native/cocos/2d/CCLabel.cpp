@@ -1255,7 +1255,7 @@ void Label::createSpriteForSystemFont(const FontDefinition& fontDef)
     }
 
     _textSprite->retain();
-    //_textSprite->updateDisplayedColor(_displayedColor);
+    _textSprite->updateDisplayedColor(_displayedColor);
     _textSprite->updateDisplayedOpacity(_displayedOpacity);
 }
 
@@ -1364,7 +1364,6 @@ void Label::updateContent()
     }
     else
     {
-        this->setTextColor(Color4B(_displayedColor));
         auto fontDef = _getFontDefinition();
         createSpriteForSystemFont(fontDef);
         if (_shadowEnabled)
@@ -1865,8 +1864,7 @@ void Label::updateDisplayedColor(const Color3B& parentColor)
 
     if (_textSprite)
     {
-        //_textSprite->updateDisplayedColor(_displayedColor);
-        this->setTextColor(Color4B(_displayedColor));
+        _textSprite->updateDisplayedColor(_displayedColor);
     }
 
     if (_shadowNode)
