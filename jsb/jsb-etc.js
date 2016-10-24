@@ -25,6 +25,10 @@
 
 'use strict';
 
+cc.sys.now = function () {
+    return Date.now();
+};
+
 var NORMALIZE_RE = /[^\.\/]+\/\.\.\//;
 
 // cc.path

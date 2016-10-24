@@ -1959,7 +1959,29 @@ cc.macro = {
      * @readonly
      */
     // Editors do not need to cache fix bug for https://github.com/cocos-creator/fireball/issues/3079
-    ENABLE_GL_STATE_CACHE: CC_EDITOR ? 0 : 1
+    ENABLE_GL_STATE_CACHE: CC_EDITOR ? 0 : 1,
+
+    /**
+     * !#en 
+     * The timeout to determine whether a touch is no longer active and should be removed.
+     * The reason to add this timeout is due to an issue in X5 browser core, 
+     * when X5 is presented in wechat on Android, if a touch is glissed from the bottom up, and leave the page area,
+     * no touch cancel event is triggered, and the touch will be considered active forever. 
+     * After multiple times of this action, our maximum touches number will be reached and all new touches will be ignored.
+     * So this new mechanism can remove the touch that should be inactive if it's not updated during the last 5000 milliseconds.
+     * Though it might remove a real touch if it's just not moving for the last 5 seconds which is not easy with the sensibility of mobile touch screen.
+     * You can modify this value to have a better behavior if you find it's not enough.
+     * !#zh
+     * 用于甄别一个触点对象是否已经失效，并且可以被移除的延时时长
+     * 添加这个时长的原因是 X5 内核在微信浏览器中出现的一个 bug。
+     * 在这个环境下，如果用户将一个触点从底向上移出页面区域，将不会触发任何 touch cancel 或 touch end 事件，而这个触点会被永远当作停留在页面上的有效触点。
+     * 重复这样操作几次之后，屏幕上的触点数量将达到我们的事件系统所支持的最高触点数量，之后所有的触摸事件都将被忽略。
+     * 所以这个新的机制可以在触点在一定时间内没有任何更新的情况下视为失效触点并从事件系统中移除。
+     * 当然，这也可能移除一个真实的触点，如果用户的触点真的在一定时间段内完全没有移动（这在当前手机屏幕的灵敏度下会很难）。
+     * 你可以修改这个值来获得你需要的效果，默认值是 5000 毫秒。
+     * @property {Number} TOUCH_TIMEOUT
+     */
+    TOUCH_TIMEOUT: 5000
 };
 
 /**
