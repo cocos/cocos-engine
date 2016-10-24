@@ -6,7 +6,7 @@ script:
 - tools/travis-scripts/run-script.sh
 before_install:
 - tools/travis-scripts/before-install.sh
-- pip install pyyaml
+- sudo pip install pyyaml
 branches:
   only:
   - v1.3
