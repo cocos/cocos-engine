@@ -32,4 +32,6 @@ install_android_ndk()
 #we only use osx for generate bindings
 if [ $TRAVIS_OS_NAME == 'osx' ]; then
     install_android_ndk
+    brew install libyaml
+    sudo python -m easy_install pyyaml
 fi
