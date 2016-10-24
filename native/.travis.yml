@@ -6,7 +6,8 @@ script:
 - tools/travis-scripts/run-script.sh
 before_install:
 - tools/travis-scripts/before-install.sh
-- sudo pip install pyyaml
+- sudo pip install PyYAML
+sudo pip install Cheetah
 branches:
   only:
   - v1.3
