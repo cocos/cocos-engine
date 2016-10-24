@@ -63,8 +63,6 @@ var AssetLibrary = {
      * @param {Boolean} options.readMainCache - Default is true. If false, the asset and all its depends assets will reload and create new instances from library.
      * @param {Boolean} options.writeMainCache - Default is true. If true, the result will cache to AssetLibrary, and MUST be unload by user manually.
      * @param {Asset} options.existingAsset - load to existing asset, this argument is only available in editor
-     * @param {deserialize.Details} options.deserializeInfo - specified a DeserializeInfo object if you want,
-     *                                                        this parameter is only available in editor.
      * @private
      */
     loadAsset: function (uuid, callback, options) {
@@ -77,9 +75,6 @@ var AssetLibrary = {
             id: uuid,
             type: 'uuid'
         };
-        if (options && options.deserializeInfo) {
-            item.deserializeInfo = options.deserializeInfo;
-        }
         if (options && options.existingAsset) {
             item.existingAsset = options.existingAsset;
         }

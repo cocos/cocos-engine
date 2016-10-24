@@ -33,26 +33,48 @@ const Gulp = require('gulp');
 const Fb = require('gulp-fb');
 const Buffer = require('vinyl-buffer');
 const HandleErrors = require('../util/handleErrors');
-const EventStream = require('event-stream');
+const Es = require('event-stream');
 
 const Utils = require('./utils');
 
-exports.build = function (sourceFile, outputFile, callback) {
-    var jsEntryEditorExtends = '../editor/test-utils/engine-extends-entry.js';
-
-    if (Fs.existsSync(jsEntryEditorExtends)) {
-        sourceFile = [sourceFile, jsEntryEditorExtends]
-    }
-
-    Utils.createBundler(sourceFile)
+exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFileForExtends, callback) {
+    var engine = Utils.createBundler(sourceFile)
         .ignore('./bin/modular-cocos2d-cut.js')
         .bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
         .pipe(Source(Path.basename(outputFile)))
         .pipe(Buffer())
-        .pipe(Gulp.dest(Path.dirname(outputFile)))
-        .on('end', callback);
+        .pipe(Gulp.dest(Path.dirname(outputFile)));
+
+    if (Fs.existsSync(sourceFileForExtends)) {
+        var Babelify;
+        try {
+            Babelify = require('babelify');
+        } catch (e) {
+            console.error('Please run "npm install babelify".');
+            throw e;
+        }
+        var engineExtends = Utils.createBundler(sourceFileForExtends)
+            .ignore('./bin/modular-cocos2d-cut.js')
+            .transform(Babelify, {
+                presets: ["es2015"],
+                ast: false,
+                highlightCode: false,
+                sourceMaps: true,
+                compact: false
+            })
+            .bundle()
+            .on('error', HandleErrors.handler)
+            .pipe(HandleErrors())
+            .pipe(Source(Path.basename(outputFileForExtends)))
+            .pipe(Buffer())
+            .pipe(Gulp.dest(Path.dirname(outputFileForExtends)));
+        Es.merge(engine, engineExtends).on('end', callback);
+    }
+    else {
+        engine.on('end', callback);
+    }
 };
 
 exports.clean = function (list, callback) {
@@ -63,7 +85,7 @@ exports.unit = function (outDir, libs, callback) {
     var title = 'Cocos2d-JS Test Suite';
     if (Fs.existsSync('./bin/cocos2d-js-extends-for-test.js')) {
         libs.push('./bin/cocos2d-js-extends-for-test.js');
-        title += ' (Editor Extends Included)'
+        title += ' (Editor Extends Included)';
     }
     return Gulp.src('test/qunit/unit/**/*.js', { read: false, base: './' })
         .pipe(Fb.toFileList())
