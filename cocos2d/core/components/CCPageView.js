@@ -95,8 +95,7 @@ var PageView = cc.Class({
             type: Direction,
             tooltip: 'i18n:COMPONENT.pageview.direction',
             notify: function() {
-                this.horizontal = this.direction === Direction.Horizontal;
-                this.vertical = this.direction === Direction.Vertical;
+                this._syncScrollDirection();
             }
         },
 
@@ -163,6 +162,12 @@ var PageView = cc.Class({
     __preload: function () {
         this._super();
         this.node.on('size-changed', this._updateAllPagesSize, this);
+        this._syncScrollDirection();
+    },
+
+    _syncScrollDirection: function () {
+        this.horizontal = this.direction === Direction.Horizontal;
+        this.vertical = this.direction === Direction.Vertical;
     },
 
     onEnable: function () {
