@@ -124,7 +124,7 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
                     else {
                         var value = item.isRawAsset ? item.url : item.content;
                         dependObj[dependProp] = value;
-                        dependKeys.push(item.isRawAsset ? item.url : dependSrc);
+                        dependKeys.push(dependSrc || item.url);
                     }
                 }
                 else {
@@ -132,7 +132,7 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
                     var loadCallback = function (item) {
                         var value = item.isRawAsset ? item.url : item.content;
                         this.obj[this.prop] = value;
-                        dependKeys.push(item.isRawAsset ? item.url : item.uuid);
+                        dependKeys.push(item.uuid || item.url);
                     };
                     var target = {
                         obj: dependObj,

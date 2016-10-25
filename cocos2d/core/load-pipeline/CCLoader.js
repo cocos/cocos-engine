@@ -474,17 +474,17 @@ JS.mixin(CCLoader.prototype, {
      *
      * @example
      * // Release a texture which is no longer need
-     * cc.loader.release(texture.uuid);
+     * cc.loader.release(texture._uuid);
      * // Release all dependencies of a loaded prefab
      * var deps = cc.loader.getDependsRecursively('prefabs/sample');
      * cc.loader.release(deps);
      * // If there is no instance of this prefab in the scene, the prefab and its dependencies like textures, sprite frames, etc, will be freed up.
      * // If you have some other nodes share a texture in this prefab, you can skip it in two ways:
-     * // 1. Forbid auto release a texture
+     * // 1. Forbid auto release a texture before release
      * cc.loader.setAutoRelease(texture2d, false);
      * // 2. Remove it from the dependencies array
      * var deps = cc.loader.getDependsRecursively('prefabs/sample');
-     * var index = deps.indexOf(texture2d.uuid);
+     * var index = deps.indexOf(texture2d._uuid);
      * if (index !== -1)
      *     deps.splice(index, 1);
      * cc.loader.release(deps);

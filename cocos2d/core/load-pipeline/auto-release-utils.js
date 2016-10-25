@@ -31,14 +31,8 @@ module.exports = {
                 var item = cc.loader.getItem(assetOrUrlOrUuid);
                 return (item && item.url) || assetOrUrlOrUuid;
             }
-            else if (assetOrUrlOrUuid instanceof cc.Asset) {
+            else if (assetOrUrlOrUuid._uuid) {
                 return assetOrUrlOrUuid._uuid;
-            }
-            else if (assetOrUrlOrUuid instanceof cc.Texture2D) {
-                return assetOrUrlOrUuid.url;
-            }
-            else if (!CC_JSB && cc.Audio && assetOrUrlOrUuid instanceof cc.Audio) {
-                return assetOrUrlOrUuid.src;
             }
             else if (CC_DEV) {
                 cc.warn('unknown asset type');
