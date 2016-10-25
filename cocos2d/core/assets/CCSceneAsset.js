@@ -28,7 +28,7 @@
  * !#zh 场景资源类。
  * @class SceneAsset
  * @extends Asset
- * @constructor
+ *
  */
 var Scene = cc.Class({
     name: 'cc.SceneAsset',
@@ -37,7 +37,7 @@ var Scene = cc.Class({
     properties: {
 
         /**
-         * @property {cc.Scene} scene
+         * @property {Scene} scene
          * @default null
          */
         scene: null,

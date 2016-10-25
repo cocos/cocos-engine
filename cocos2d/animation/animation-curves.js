@@ -32,7 +32,7 @@ function computeRatioByType (ratio, type) {
 // 虽然叫做 AnimCurve，但除了曲线，可以保存任何类型的值。
 //
 // @class AnimCurve
-// @constructor
+//
 //
 var AnimCurve = cc.Class({
     name: 'cc.AnimCurve',
@@ -53,7 +53,7 @@ var AnimCurve = cc.Class({
 // 区别于 SampledAnimCurve。
 //
 // @class DynamicAnimCurve
-// @constructor
+//
 // @extends AnimCurve
 //
 var DynamicAnimCurve = cc.Class({
@@ -205,7 +205,7 @@ DynamicAnimCurve.Bezier = function (controlPoints) {
  *
  * @class SampledAnimCurve
  * @private
- * @constructor
+ *
  * @extends DynamicAnimCurve
  */
 var SampledAnimCurve = cc.Class({
@@ -243,7 +243,7 @@ var SampledAnimCurve = cc.Class({
 /**
  * Event information,
  * @class EventInfo
- * @constructor
+ *
  */
 var EventInfo = function () {
     this.events = [];
@@ -264,7 +264,7 @@ EventInfo.prototype.add = function (func, params) {
 /**
  *
  * @class EventAnimCurve
- * @constructor
+ *
  * @extends AnimCurve
  */
 var EventAnimCurve = cc.Class({
@@ -297,7 +297,15 @@ var EventAnimCurve = cc.Class({
          * @type {Object}
          * @default null
          */
-        _lastWrappedInfo: null
+        _lastWrappedInfo: null,
+
+        /**
+         * Ignore event index
+         * @property _ignoreIndex
+         * @type {number}
+         * @default NaN
+         */
+        _ignoreIndex: NaN
     },
 
     _wrapIterations: function (iterations) {
@@ -316,6 +324,10 @@ var EventAnimCurve = cc.Class({
 
             // if direction is inverse, then increase index
             if (direction < 0) currentIndex += 1;
+        }
+
+        if (this._ignoreIndex !== currentIndex) {
+            this._ignoreIndex = NaN;
         }
 
         var lastWrappedInfo = this._lastWrappedInfo;
@@ -377,7 +389,7 @@ var EventAnimCurve = cc.Class({
     },
 
     _fireEvent: function (index) {
-        if (index < 0 || index >= this.events.length) return;
+        if (index < 0 || index >= this.events.length || this._ignoreIndex === index) return;
 
         var eventInfo = this.events[index];
         var events = eventInfo.events;
@@ -396,8 +408,23 @@ var EventAnimCurve = cc.Class({
         }
     },
 
-    onTimeChangedManually: function () {
+    onTimeChangedManually: function (time, animationNode) {
         this._lastWrappedInfo = null;
+        this._ignoreIndex = NaN;
+
+        var info = animationNode.getWrappedInfo(time);
+        var direction = info.direction;
+        var frameIndex = binarySearch(this.ratios, info.ratio);
+
+        // only ignore when time not on a frame index
+        if (frameIndex < 0) {
+            frameIndex = ~frameIndex - 1;
+
+            // if direction is inverse, then increase index
+            if (direction < 0) frameIndex += 1;
+
+            this._ignoreIndex = frameIndex;
+        }
     }
 });
 

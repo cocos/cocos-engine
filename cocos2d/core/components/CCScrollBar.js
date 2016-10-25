@@ -68,7 +68,7 @@ var Scrollbar = cc.Class({
         /**
          * !#en The "handle" part of the scrollbar.
          * !#zh 作为当前滚动区域位置显示的滑块 Sprite。
-         * @property {cc.Sprite} handle
+         * @property {Sprite} handle
          */
         handle: {
             default: null,

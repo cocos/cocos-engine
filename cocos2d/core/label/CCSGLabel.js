@@ -142,7 +142,10 @@ _ccsg.Label = _ccsg.Node.extend({
 
         fontHandle = fontHandle || "";
         this._fontHandle = fontHandle;
-        string = string || "";
+        if (typeof string !== 'string') {
+            string = '' + string;
+        }
+
         this._string = string;
 
         _ccsg.Node.prototype.ctor.call(this);

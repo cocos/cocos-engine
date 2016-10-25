@@ -106,7 +106,7 @@
         /**
          * stores the designSize of UI file.
          * @param {String} fileName
-         * @param {cc.Size} size
+         * @param {Size} size
          */
         storeFileDesignSize: function (fileName, size) {
             this._fileDesignSizes[fileName] = size;
@@ -116,7 +116,7 @@
         /**
          * Gets the design size by filename.
          * @param {String} fileName
-         * @returns {cc.Size}
+         * @returns {Size}
          */
         getFileDesignSize: function (fileName) {
             return this._fileDesignSizes[fileName];

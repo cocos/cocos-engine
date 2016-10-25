@@ -30,7 +30,7 @@
  * @class
  * @extends cc.TiledGrid3DAction
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} range
  * @param {Boolean} shakeZ
  */
@@ -42,7 +42,7 @@ cc.ShakyTiles3D = cc.TiledGrid3DAction.extend(/** @lends cc.ShakyTiles3D# */{
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
 	 * Creates the action with a range, whether or not to shake Z vertices, a grid size, and duration.
 	 * @param {Number} duration
-	 * @param {cc.Size} gridSize
+	 * @param {Size} gridSize
 	 * @param {Number} range
 	 * @param {Boolean} shakeZ
 	 */
@@ -54,7 +54,7 @@ cc.ShakyTiles3D = cc.TiledGrid3DAction.extend(/** @lends cc.ShakyTiles3D# */{
     /**
      * Initializes the action with a range, whether or not to shake Z vertices, a grid size, and duration.
      * @param {Number} duration
-     * @param {cc.Size} gridSize
+     * @param {Size} gridSize
      * @param {Number} range
      * @param {Boolean} shakeZ
      * @return {Boolean}
@@ -111,7 +111,7 @@ cc.ShakyTiles3D = cc.TiledGrid3DAction.extend(/** @lends cc.ShakyTiles3D# */{
  * Reference the test cases (Effects Test)
  * @function
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} range
  * @param {Boolean} shakeZ
  * @return {cc.ShakyTiles3D}
@@ -125,7 +125,7 @@ cc.shakyTiles3D = function (duration, gridSize, range, shakeZ) {
  * creates the action with a range, whether or not to shake Z vertices, a grid size, and duration. <br />
  * Reference the test cases (Effects Test)
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} range
  * @param {Boolean} shakeZ
  * @return {cc.ShakyTiles3D}
@@ -140,7 +140,7 @@ cc.ShakyTiles3D.create = cc.shakyTiles3D;
  * @class
  * @extends cc.TiledGrid3DAction
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} range
  * @param {Boolean} shatterZ
  */
@@ -153,7 +153,7 @@ cc.ShatteredTiles3D = cc.TiledGrid3DAction.extend(/** @lends cc.ShatteredTiles3D
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
 	 * Creates the action with a range, whether of not to shatter Z vertices, a grid size and duration.
 	 * @param {Number} duration
-	 * @param {cc.Size} gridSize
+	 * @param {Size} gridSize
 	 * @param {Number} range
 	 * @param {Boolean} shatterZ
 	 */
@@ -165,7 +165,7 @@ cc.ShatteredTiles3D = cc.TiledGrid3DAction.extend(/** @lends cc.ShatteredTiles3D
     /**
      * Initializes the action with a range, whether or not to shatter Z vertices, a grid size and duration. <br />
      * @param {Number} duration
-     * @param {cc.Size} gridSize
+     * @param {Size} gridSize
      * @param {Number} range
      * @param {Boolean} shatterZ
      * @return {Boolean}
@@ -225,7 +225,7 @@ cc.ShatteredTiles3D = cc.TiledGrid3DAction.extend(/** @lends cc.ShatteredTiles3D
  * Reference the test cases (Effects Test)
  * @function
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} range
  * @param {Boolean} shatterZ
  * @return {cc.ShatteredTiles3D}
@@ -239,7 +239,7 @@ cc.shatteredTiles3D = function (duration, gridSize, range, shatterZ) {
  * Creates the action with a range, whether of not to shatter Z vertices, a grid size and duration. <br />
  * Reference the test cases (Effects Test)
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} range
  * @param {Boolean} shatterZ
  * @return {cc.ShatteredTiles3D}
@@ -251,10 +251,10 @@ cc.ShatteredTiles3D.create = cc.shatteredTiles3D;
 /**
  * A Tile composed of position, startPosition and delta.
  * @Class
- * @constructor
+ *
  * @param {cc.Vec2} [position=cc.p(0,0)]
  * @param {cc.Vec2} [startPosition=cc.p(0,0)]
- * @param {cc.Size} [delta=cc.p(0,0)]
+ * @param {Size} [delta=cc.p(0,0)]
  */
 cc.Tile = function (position, startPosition, delta) {
     this.position = position || cc.p(0,0);
@@ -268,7 +268,7 @@ cc.Tile = function (position, startPosition, delta) {
  * @class
  * @extends cc.TiledGrid3DAction
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} seed
  */
 cc.ShuffleTiles = cc.TiledGrid3DAction.extend(/** @lends cc.ShuffleTiles# */{
@@ -281,7 +281,7 @@ cc.ShuffleTiles = cc.TiledGrid3DAction.extend(/** @lends cc.ShuffleTiles# */{
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
 	 * Creates the action with a random seed, the grid size and the duration.
 	 * @param {Number} duration
-	 * @param {cc.Size} gridSize
+	 * @param {Size} gridSize
 	 * @param {Number} seed
 	 */
     ctor:function (duration, gridSize, seed) {
@@ -295,7 +295,7 @@ cc.ShuffleTiles = cc.TiledGrid3DAction.extend(/** @lends cc.ShuffleTiles# */{
     /**
      * Initializes the action with a random seed, the grid size and the duration.
      * @param {Number} duration
-     * @param {cc.Size} gridSize
+     * @param {Size} gridSize
      * @param {Number} seed
      * @return {Boolean}
      */
@@ -325,7 +325,7 @@ cc.ShuffleTiles = cc.TiledGrid3DAction.extend(/** @lends cc.ShuffleTiles# */{
 
     /**
      * Get Delta
-     * @param {cc.Size} pos
+     * @param {Size} pos
      */
     getDelta:function (pos) {
         var locGridSize = this._gridSize;
@@ -421,7 +421,7 @@ cc.ShuffleTiles = cc.TiledGrid3DAction.extend(/** @lends cc.ShuffleTiles# */{
  * Reference the test cases (Effects Test)
  * @function
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} seed
  * @return {cc.ShuffleTiles}
  */
@@ -434,7 +434,7 @@ cc.shuffleTiles = function (duration, gridSize, seed) {
  * Creates the action with a random seed, the grid size and the duration. <br />
  * Reference the test cases (Effects Test)
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} seed
  * @return {cc.ShuffleTiles}
  * @static
@@ -635,7 +635,7 @@ cc.FadeOutUpTiles = cc.FadeOutTRTiles.extend(/** @lends cc.FadeOutUpTiles# */{
  * Reference the test cases (Effects Test)
  * @function
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @return {cc.FadeOutUpTiles}
  */
 cc.fadeOutUpTiles = function (duration, gridSize) {
@@ -647,7 +647,7 @@ cc.fadeOutUpTiles = function (duration, gridSize) {
  * Creates the action with the grid size and the duration. <br />
  * Reference the test cases (Effects Test)
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @return {cc.FadeOutUpTiles}
  * @static
  * @deprecated since v3.0 <br /> Please use cc.fadeOutUpTiles instead.
@@ -679,7 +679,7 @@ cc.FadeOutDownTiles = cc.FadeOutUpTiles.extend(/** @lends cc.FadeOutDownTiles# *
  * Reference the test cases (Effects Test)
  * @function
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @return {cc.FadeOutDownTiles}
  */
 cc.fadeOutDownTiles = function (duration, gridSize) {
@@ -690,7 +690,7 @@ cc.fadeOutDownTiles = function (duration, gridSize) {
  * Creates the action with the grid size and the duration. <br />
  * Reference the test cases (Effects Test)
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @return {cc.FadeOutDownTiles}
  * @static
  * @deprecated since v3.0 <br /> Please use cc.fadeOutDownTiles instead.
@@ -704,7 +704,7 @@ cc.FadeOutDownTiles.create = cc.fadeOutDownTiles;
  * @class
  * @extends cc.TiledGrid3DAction
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number|Null} [seed=0]
  * @example
  * // turnOffTiles without seed
@@ -722,7 +722,7 @@ cc.TurnOffTiles = cc.TiledGrid3DAction.extend(/** @lends cc.TurnOffTiles# */{
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
 	 * Creates the action with a random seed, the grid size and the duration.
 	 * @param {Number} duration
-	 * @param {cc.Size} gridSize
+	 * @param {Size} gridSize
 	 * @param {Number|Null} [seed=0]
 	 */
     ctor:function (duration, gridSize, seed) {
@@ -735,7 +735,7 @@ cc.TurnOffTiles = cc.TiledGrid3DAction.extend(/** @lends cc.TurnOffTiles# */{
     /**
      * Initializes the action with a random seed, the grid size and the duration.
      * @param {Number} duration
-     * @param {cc.Size} gridSize
+     * @param {Size} gridSize
      * @param {Number|Null} [seed=0]
      * @return {Boolean}
      */
@@ -817,7 +817,7 @@ cc.TurnOffTiles = cc.TiledGrid3DAction.extend(/** @lends cc.TurnOffTiles# */{
  * Reference the test cases (Effects Test)
  * @function
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number|Null} [seed=0]
  * @return {cc.TurnOffTiles}
  * @example
@@ -836,7 +836,7 @@ cc.turnOffTiles = function (duration, gridSize, seed) {
  * Creates the action with a random seed, the grid size and the duration. <br />
  * Reference the test cases (Effects Test)
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number|Null} [seed=0]
  * @return {cc.TurnOffTiles}
  * @static
@@ -850,7 +850,7 @@ cc.TurnOffTiles.create = cc.turnOffTiles;
  * @class
  * @extends cc.TiledGrid3DAction
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} waves
  * @param {Number} amplitude
  */
@@ -863,7 +863,7 @@ cc.WavesTiles3D = cc.TiledGrid3DAction.extend(/** @lends cc.WavesTiles3D# */{
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
 	 * creates the action with a number of waves, the waves amplitude, the grid size and the duration.
 	 * @param {Number} duration
-	 * @param {cc.Size} gridSize
+	 * @param {Size} gridSize
 	 * @param {Number} waves
 	 * @param {Number} amplitude
 	 */
@@ -907,7 +907,7 @@ cc.WavesTiles3D = cc.TiledGrid3DAction.extend(/** @lends cc.WavesTiles3D# */{
     /**
      * initializes the action with a number of waves, the waves amplitude, the grid size and the duration
      * @param {Number} duration
-     * @param {cc.Size} gridSize
+     * @param {Size} gridSize
      * @param {Number} waves
      * @param {Number} amplitude
      * @return {Boolean}
@@ -950,7 +950,7 @@ cc.WavesTiles3D = cc.TiledGrid3DAction.extend(/** @lends cc.WavesTiles3D# */{
  * Reference the test cases (Effects Test)
  * @function
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} waves
  * @param {Number} amplitude
  * @return {cc.WavesTiles3D}
@@ -963,7 +963,7 @@ cc.wavesTiles3D = function (duration, gridSize, waves, amplitude) {
  * creates the action with a number of waves, the waves amplitude, the grid size and the duration. <br />
  * Reference the test cases (Effects Test)
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} waves
  * @param {Number} amplitude
  * @return {cc.WavesTiles3D}
@@ -978,7 +978,7 @@ cc.WavesTiles3D.create = cc.wavesTiles3D;
  * @class
  * @extends cc.TiledGrid3DAction
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} numberOfJumps
  * @param {Number} amplitude
  */
@@ -991,7 +991,7 @@ cc.JumpTiles3D = cc.TiledGrid3DAction.extend(/** @lends cc.JumpTiles3D# */{
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
 	 * creates the action with the number of jumps, the sin amplitude, the grid size and the duration.
 	 * @param {Number} duration
-	 * @param {cc.Size} gridSize
+	 * @param {Size} gridSize
 	 * @param {Number} numberOfJumps
 	 * @param {Number} amplitude
 	 */
@@ -1035,7 +1035,7 @@ cc.JumpTiles3D = cc.TiledGrid3DAction.extend(/** @lends cc.JumpTiles3D# */{
     /**
      * initializes the action with the number of jumps, the sin amplitude, the grid size and the duration
      * @param {Number} duration
-     * @param {cc.Size} gridSize
+     * @param {Size} gridSize
      * @param {Number} numberOfJumps
      * @param {Number} amplitude
      */
@@ -1092,7 +1092,7 @@ cc.JumpTiles3D = cc.TiledGrid3DAction.extend(/** @lends cc.JumpTiles3D# */{
  * Reference the test cases (Effects Test)
  * @function
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} numberOfJumps
  * @param {Number} amplitude
  * @return {cc.JumpTiles3D}
@@ -1106,7 +1106,7 @@ cc.jumpTiles3D = function (duration, gridSize, numberOfJumps, amplitude) {
  * creates the action with the number of jumps, the sin amplitude, the grid size and the duration. <br />
  * Reference the test cases (Effects Test)
  * @param {Number} duration
- * @param {cc.Size} gridSize
+ * @param {Size} gridSize
  * @param {Number} numberOfJumps
  * @param {Number} amplitude
  * @return {cc.JumpTiles3D}

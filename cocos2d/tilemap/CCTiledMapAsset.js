@@ -27,7 +27,7 @@
  * Class for tiled map asset handling.
  * @class TiledMapAsset
  * @extends Asset
- * @constructor
+ *
  */
 var TiledMapAsset = cc.Class({
     name: 'cc.TiledMapAsset',

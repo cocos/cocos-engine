@@ -140,7 +140,7 @@ ccui.LabelBMFont = ccui.TextBMFont = ccui.Widget.extend(/** @lends ccui.TextBMFo
     /**
      * Returns TextBMFont's content size
      * @override
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getVirtualRendererSize: function(){
         return this._labelBMFontRenderer.getContentSize();

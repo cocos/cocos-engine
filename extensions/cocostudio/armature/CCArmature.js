@@ -343,7 +343,7 @@ ccs.Armature = ccs.Node.extend(/** @lends ccs.Armature# */{
 
     /**
      * This boundingBox will calculate all bones' boundingBox every time
-     * @returns {cc.Rect}
+     * @returns {Rect}
      */
     getBoundingBox: function(){
         var minX, minY, maxX, maxY = 0;

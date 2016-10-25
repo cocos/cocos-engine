@@ -608,7 +608,7 @@ ccui.RichText = ccui.Widget.extend(/** @lends ccui.RichText# */{
     /**
      * Returns the renderer container's content size.
      * @override
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getVirtualRendererSize: function(){
         return this._elementRenderersContainer.getContentSize();
@@ -629,7 +629,7 @@ ccui.RichText = ccui.Widget.extend(/** @lends ccui.RichText# */{
     /**
      * Gets the content size of ccui.RichText
      * @override
-     * @return {cc.Size}
+     * @return {Size}
      */
     getContentSize: function(){
         this.formatText();

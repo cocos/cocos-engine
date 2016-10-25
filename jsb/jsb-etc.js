@@ -25,6 +25,10 @@
 
 'use strict';
 
+cc.sys.now = function () {
+    return Date.now();
+};
+
 var NORMALIZE_RE = /[^\.\/]+\/\.\.\//;
 
 // cc.path
@@ -204,6 +208,8 @@ SocketIO.prototype.emit = function (uri, delegate) {
     }
     this._jsbEmit(uri, delegate);
 };
+
+cc.Node.prototype.setIgnoreAnchorPointForPosition = cc.Node.prototype.ignoreAnchorPointForPosition;
 
 // ccsg
 window._ccsg = {

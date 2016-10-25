@@ -47,10 +47,32 @@ require('./predefine');
 
 var isMainProcess = CC_EDITOR && Editor.isMainProcess;
 if (!isMainProcess) {
-    // LOAD ORIGIN COCOS2D COMPILED BY CLOSURE
-    require('./bin/modular-cocos2d');
-    if (!CC_EDITOR && !CC_TEST) {
-        require('./bin/modular-cocos2d-cut');
+    // LOAD ORIGIN COCOS2D
+    if (CC_EDITOR) {
+        try {
+            require('./bin/modular-cocos2d');
+        }
+        catch (e) {
+            if (e.code === 'MODULE_NOT_FOUND') {
+                Editor.Dialog.messageBox({
+                    type: 'error',
+                    buttons: [Editor.T('MESSAGE.ok')],
+                    message: Editor.T('EDITOR_MAIN.engine_not_build'),
+                    detail: e.stack,
+                    noLink: true,
+                });
+                return;
+            }
+            else {
+                throw e;
+            }
+        }
+    }
+    else {
+        require('./bin/modular-cocos2d');
+        if (!CC_TEST) {
+            require('./bin/modular-cocos2d-cut');
+        }
     }
 }
 else {
@@ -58,7 +80,7 @@ else {
     cc._initDebugSetting(1);    // DEBUG_MODE_INFO
 }
 
-// LOAD EXTENDS FOR FIREBALL
+// LOAD EXTENDS FOR CREATOR
 
 require('./extends');
 
@@ -70,6 +92,14 @@ if (CC_EDITOR) {
      * var isDomNode = cc._require('./cocos2d/core/platform/utils').isDomNode;
      */
     cc._require = require;
+    /*
+     * Checks if the extension is loaded.
+     * This method is used to make editor code more elegant, so only available in editor.
+     * @param {string} moduleName - such as 'sp', 'dragonBones', 'TiledMap'... etc.
+     */
+    cc.hasExtension = function (moduleName) {
+        return moduleName in global || moduleName in cc;
+    };
 }
 
 if (isMainProcess) {

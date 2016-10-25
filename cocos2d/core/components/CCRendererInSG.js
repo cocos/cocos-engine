@@ -126,20 +126,19 @@ var RendererInSG = cc.Class({
         // replace parent
         var parentNode = replaced.getParent();
         if (parentNode) {
-            parentNode.removeChild(replaced);
-            parentNode.addChild(sgNode);
             if ( !CC_JSB ) {
+                parentNode.removeChild(replaced);
+                parentNode.addChild(sgNode);
                 sgNode._arrivalOrder = replaced._arrivalOrder;
                 cc.renderer.childrenOrderDirty = parentNode._reorderChildDirty = true;
             } else {
-                // update the arrival order of replaced sgNode
-                var parentEntity = this.node._parent;
-                if (parentEntity) {
-                    var entityChildren = parentEntity._children;
-                    var startIdx = this.node.getSiblingIndex();
-                    for (i = startIdx + 1; i < entityChildren.length; i++) {
-                        entityChildren[i]._sgNode.updateOrderOfArrival();
-                    }
+                if (cc.runtime) {
+                    parentNode.removeChild(replaced);
+                    parentNode.addChild(sgNode);
+                    sgNode.arrivalOrder = replaced.arrivalOrder;
+                } else {
+                    parentNode.insertChildBefore(sgNode, replaced);
+                    parentNode.removeChild(replaced);
                 }
             }
         }

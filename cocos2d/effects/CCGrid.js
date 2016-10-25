@@ -62,10 +62,10 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
     /**
      * create one cc.GridBase Object
      * Constructor of cc.GridBase
-     * @param {cc.Size} gridSize
-     * @param {cc.Texture2D} [texture=]
+     * @param {Size} gridSize
+     * @param {Texture2D} [texture=]
      * @param {Boolean} [flipped=]
-     * @param {cc.Rect} rect
+     * @param {Rect} rect
      */
     ctor:function (gridSize, texture, flipped, rect) {
         cc.sys._checkWebGLRenderMode();
@@ -123,7 +123,7 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
 
     /**
      * get size of the grid
-     * @return {cc.Size}
+     * @return {Size}
      */
     getGridSize:function () {
         return cc.size(this._gridSize.width, this._gridSize.height);
@@ -131,7 +131,7 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
 
     /**
      * set size of the grid
-     * @param {cc.Size} gridSize
+     * @param {Size} gridSize
      */
     setGridSize:function (gridSize) {
         this._gridSize.width = parseInt(gridSize.width);
@@ -140,7 +140,7 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
 
     /**
      * set rect of the grid
-     * @param {cc.Rect} rect
+     * @param {Rect} rect
      */
     setGridRect:function (rect) {
         this._gridRect = rect;
@@ -148,7 +148,7 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
 
     /**
      * get rect of the grid
-     * @return {cc.Rect} rect
+     * @return {Rect} rect
      */
     getGridRect:function () {
         return this._gridRect;
@@ -192,10 +192,10 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
 
     /**
      *
-     * @param {cc.Size} gridSize
-     * @param {cc.Texture2D} [texture=]
+     * @param {Size} gridSize
+     * @param {Texture2D} [texture=]
      * @param {Boolean} [flipped=false]
-     * @param {cc.Rect} [rect=]
+     * @param {Rect} [rect=]
      * @returns {boolean}
      */
     initWithSize:function (gridSize, texture, flipped, rect) {
@@ -345,10 +345,10 @@ cc.Grid3D = cc.GridBase.extend(/** @lends cc.Grid3D# */{
     /**
      * create one Grid3D object
      * Constructor of cc.Grid3D
-     * @param {cc.Size} gridSize
-     * @param {cc.Texture2D} [texture=]
+     * @param {Size} gridSize
+     * @param {Texture2D} [texture=]
      * @param {Boolean} [flipped=]
-     * @param {cc.Rect} [rect=]
+     * @param {Rect} [rect=]
      */
     ctor:function (gridSize, texture, flipped, rect) {
         cc.GridBase.prototype.ctor.call(this);
@@ -595,8 +595,8 @@ cc.TiledGrid3D = cc.GridBase.extend(/** @lends cc.TiledGrid3D# */{
     /**
      * create one TiledGrid3D object
      * Constructor of cc.TiledGrid3D
-     * @param {cc.Size} gridSize
-     * @param {cc.Texture2D} [texture=]
+     * @param {Size} gridSize
+     * @param {Texture2D} [texture=]
      * @param {Boolean} [flipped=]
      */
     ctor:function (gridSize, texture, flipped, rect) {

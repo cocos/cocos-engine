@@ -91,7 +91,8 @@ function updateBuffer (numQuads) {
         gl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, _vertexDataF32, gl.DYNAMIC_DRAW);
     }
-    _maxVertexSize = numQuads * 4;
+    // Downsize by 100 to avoid vertex data overflow
+    _maxVertexSize = (numQuads - 100) * 4;
 }
 
 // Inspired from @Heishe's gotta-batch-them-all branch

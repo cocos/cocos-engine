@@ -73,6 +73,8 @@ function CCLoader () {
      */
     this.loader = loader;
 
+    this.onProgress = null;
+
     // assets to release automatically
     this._autoReleaseSetting = {};
 }
@@ -158,7 +160,7 @@ JS.mixin(CCLoader.prototype, {
         
         if (completeCallback === undefined) {
             completeCallback = progressCallback;
-            progressCallback = null;
+            progressCallback = this.onProgress || null;
         }
 
         var self = this;
@@ -178,7 +180,7 @@ JS.mixin(CCLoader.prototype, {
             }
         }
 
-        LoadingItems.create(this, resources, progressCallback, function (errors, items) {
+        var queue = LoadingItems.create(this, progressCallback, function (errors, items) {
             callInNextTick(function () {
                 if (!completeCallback)
                     return;
@@ -191,15 +193,19 @@ JS.mixin(CCLoader.prototype, {
                     completeCallback.call(self, errors, items);
                 }
                 completeCallback = null;
-                items.destroy();
 
                 if (CC_EDITOR) {
-                    for (var i = 0; i < resources.length; i++) {
-                        self.removeItem(resources[i].id || resources[i]);
+                    for (var id in self._cache) {
+                        if (self._cache[id].complete) {
+                            self.removeItem(id);
+                        }
                     }
                 }
+                items.destroy();
             });
         });
+        LoadingItems.initQueueDeps(queue);
+        queue.append(resources);
     },
 
     flowInDeps: function (owner, urlList, callback) {
@@ -381,10 +387,14 @@ JS.mixin(CCLoader.prototype, {
             }
             this.load(res, function (errors, items) {
                 var results = [];
-                for (var key in items.map) {
-                    var item = items.getContent(key);
-                    self.setAutoReleaseRecursively(item, false);
-                    results.push(item);
+                for (var i = 0; i < res.length; ++i) {
+                    var uuid = res[i].uuid;
+                    var item = items.getContent(uuid);
+                    if (item) {
+                        // should not release these assets, even if they are static referenced in the scene.
+                        self.setAutoReleaseRecursively(uuid, false);
+                        results.push(item);
+                    }
                 }
                 if (completeCallback) {
                     completeCallback(errors, results);
@@ -412,7 +422,7 @@ JS.mixin(CCLoader.prototype, {
      */
     getRes: function (url) {
         var item = this._cache[url];
-        if (item.alias) {
+        if (item && item.alias) {
             item = this._cache[item.alias];
         }
         if (!item) {
@@ -431,13 +441,13 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
-     * Release the cache of resource by url.
+     * Release the cache of resource by id which is usually the url.
      *
      * @method release
-     * @param {String} url
+     * @param {String} id
      */
-    release: function (url) {
-        this.removeItem(url);
+    release: function (id) {
+        this.removeItem(id);
     },
 
     /**

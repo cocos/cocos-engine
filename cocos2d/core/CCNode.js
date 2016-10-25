@@ -806,7 +806,8 @@ var Node = cc.Class({
         this._components.splice(index, 0, comp);
 
         if (this._activeInHierarchy) {
-            if (typeof comp.__preload === 'function') {
+            if (typeof comp.__preload === 'function' &&
+                !(comp._objFlags & cc.Object.Flags.IsPreloadCalled)) {
                 cc.Component._callPreloadOnComponent(comp);
             }
             // call onLoad/onEnable
@@ -904,7 +905,10 @@ var Node = cc.Class({
     _onBatchCreated: function () {
         var prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && !prefabInfo._synced) {
-            PrefabHelper.syncWithPrefab(this);
+            // checks to ensure no recursion, recursion will caused only on old data.
+            if (prefabInfo.root === this) {
+                PrefabHelper.syncWithPrefab(this);
+            }
         }
 
         this._updateDummySgNode();

@@ -88,7 +88,7 @@ var WebView = cc.Class({
         /**
          * !#en The webview's event callback , it will be triggered when certain webview event occurs.
          * !#zh WebView 的回调事件，当网页加载过程中，加载完成后或者加载出错时都会回调此函数
-         * @property {cc.Component.EventHandler[]} webviewLoadedEvents
+         * @property {Component.EventHandler[]} webviewLoadedEvents
          */
         webviewEvents: {
             default: [],
@@ -139,17 +139,49 @@ var WebView = cc.Class({
 
     _onWebViewLoaded: function () {
         cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.LOADED);
+        this.node.emit('loaded', this);
     },
 
     _onWebViewLoading: function () {
         cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.LOADING);
+        this.node.emit('loading', this);
         return true;
     },
 
     _onWebViewLoadError: function () {
         cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.ERROR);
+        this.node.emit('error', this);
     }
 
 });
 
 cc.WebView = module.exports = WebView;
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event loaded
+ * @param {Event} event
+ * @param {WebView} event.detail - The WebView component.
+ */
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event loading
+ * @param {Event} event
+ * @param {WebView} event.detail - The WebView component.
+ */
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event error
+ * @param {Event} event
+ * @param {WebView} event.detail - The WebView component.
+ */

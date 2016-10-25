@@ -40,7 +40,7 @@ var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Activating
 /**
  * The base class of most of all the objects in Fireball.
  * @class Object
- * @constructor
+ *
  * @main
  * @private
  */
@@ -401,10 +401,7 @@ if (CC_EDITOR || CC_TEST) {
     Object.defineProperty(CCObject, '_cancelDestroy', {
         value: function (obj) {
             obj._objFlags &= ~ToDestroy;
-            var index = objectsToDestroy.indexOf(obj);
-            if (index !== -1) {
-                objectsToDestroy.splice(index, 1);
-            }
+            JS.array.fastRemove(objectsToDestroy, obj);
         }
     });
 }

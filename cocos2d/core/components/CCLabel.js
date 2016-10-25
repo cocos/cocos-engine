@@ -149,6 +149,8 @@ var Label = cc.Class({
     ctor: function() {
         if(CC_EDITOR) {
             this._userDefinedFontSize = 40;
+            this._debouncedUpdateSgNodeString = debounce(this._updateSgNodeString, 200);
+            this._debouncedUpdateFontSize = debounce(this._updateSgNodeFontSize, 200);
         }
     },
 
@@ -342,7 +344,7 @@ var Label = cc.Class({
         /**
          * !#en The font of label.
          * !#zh 文本字体。
-         * @property {cc.Font} font
+         * @property {Font} font
          */
         font: {
             get: function () {
@@ -427,10 +429,6 @@ var Label = cc.Class({
 
     __preload: function () {
         this._super();
-        if (CC_EDITOR) {
-            this._debouncedUpdateSgNodeString = debounce(this._updateSgNodeString, 200);
-            this._debouncedUpdateFontSize = debounce(this._updateSgNodeFontSize, 200);
-        }
 
         var sgSizeInitialized = this._sgNode._isUseSystemFont;
         if (sgSizeInitialized) {
@@ -495,8 +493,16 @@ var Label = cc.Class({
     _updateNodeSize: function () {
         var initialized = this._sgNode && this._sgNode.parent;
         if (initialized) {
-            if (this.overflow === Overflow.NONE || this.overflow === Overflow.RESIZE_HEIGHT) {
+            if (this.overflow === Overflow.NONE) {
                 this.node.setContentSize(this._sgNode.getContentSize());
+            }
+
+            if(this.overflow === Overflow.RESIZE_HEIGHT) {
+                //call this.node.getContentSize actually sync the node size with sgNode
+                //such that it won't trigger setDimensions method in jsb
+                var originalSize = this.node.getContentSize();
+                var newSize = this._sgNode.getContentSize();
+                this.node.setContentSize(cc.size(originalSize.width, newSize.height));
             }
         }
     }

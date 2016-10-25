@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const BaseObject = dragonBones.BaseObject;
+var BaseObject = dragonBones.BaseObject;
 
 dragonBones.CCFactory = cc.Class({
     name: 'dragonBones.CCFactory',
@@ -71,7 +71,6 @@ dragonBones.CCFactory = cc.Class({
 
         slot.name = slotData.name;
         slot._rawDisplay = new _ccsg.Sprite();
-        slot._meshDisplay = slot._rawDisplay;
 
         for (var i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
             var displayData = slotDisplayDataSet.displays[i];
@@ -85,16 +84,19 @@ dragonBones.CCFactory = cc.Class({
                     break;
 
                 case dragonBones.DisplayType.Mesh:
-                    if (!displayData.texture) {
-                        displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
-                    }
-
-                    if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-                        // TODO mesh support
-                        displayList.push(slot._meshDisplay);
-                    } else {
-                        displayList.push(slot._rawDisplay);
-                    }
+                    // TODO support mesh display
+                    //if (!displayData.texture) {
+                    //    displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
+                    //}
+                    //
+                    //if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+                    //    displayList.push(slot._rawDisplay);
+                    //} else {
+                    //    cc.log('Canvas is not support mesh slot!');
+                    //    displayList.push(slot._rawDisplay);
+                    //}
+                    cc.warn('WARN: Now mesh display is not supported in web!');
+                    displayList.push(slot._rawDisplay);
                     break;
 
                 case dragonBones.DisplayType.Armature:

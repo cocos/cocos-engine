@@ -38,18 +38,34 @@ var IsStartCalled = Flags.IsStartCalled;
 
 // only use eval in editor
 
-var ExecInTryCatchTmpl = CC_EDITOR && '(function call_FUNC_InTryCatch(c){try{c._FUNC_()}catch(e){cc._throw(e)}})';
-if (CC_TEST) {
-    ExecInTryCatchTmpl = '(function call_FUNC_InTryCatch (c) { c._FUNC_() })';
+var callPreloadInTryCatch;
+var callOnLoadInTryCatch;
+var callOnEnableInTryCatch;
+var callStartInTryCatch;
+var callOnDisableInTryCatch;
+var callOnDestroyInTryCatch;
+var callOnFocusInTryCatch;
+var callOnLostFocusInTryCatch;
+var callResetInTryCatch;
+
+var callerFunctor;
+if (CC_EDITOR) {
+    callerFunctor = function (funcName) {
+        var TMPL = CC_TEST ?
+            '(function call_FUNC_InTryCatch(c){try{c._FUNC_()}catch(e){cc._throw(e)}})':
+            '(function call_FUNC_InTryCatch (c) { c._FUNC_() })';
+        return eval(TMPL.replace(/_FUNC_/g, funcName));
+    };
+    callPreloadInTryCatch = callerFunctor('__preload');
+    callOnLoadInTryCatch = callerFunctor('onLoad');
+    callOnEnableInTryCatch = callerFunctor('onEnable');
+    callStartInTryCatch = callerFunctor('start');
+    callOnDisableInTryCatch = callerFunctor('onDisable');
+    callOnDestroyInTryCatch = callerFunctor('onDestroy');
+    callOnFocusInTryCatch = callerFunctor('onFocusInEditor');
+    callOnLostFocusInTryCatch = callerFunctor('onLostFocusInEditor');
+    callResetInTryCatch = callerFunctor('resetInEditor');
 }
-var callPreloadInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, '__preload'));
-var callOnLoadInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onLoad'));
-var callOnEnableInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onEnable'));
-var callStartInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'start'));
-var callOnDisableInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onDisable'));
-var callOnDestroyInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onDestroy'));
-var callOnFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onFocusInEditor'));
-var callOnLostFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onLostFocusInEditor'));
 
 function callOnEnable (self, enable) {
     
@@ -72,7 +88,7 @@ function callOnEnable (self, enable) {
                 }
 
                 cc.director.getScheduler().resumeTarget(self);
-                _registerEvent(self, true);
+                _registerEvent(self);
 
                 self._objFlags |= IsOnEnableCalled;
             }
@@ -88,7 +104,7 @@ function callOnEnable (self, enable) {
             }
 
             cc.director.getScheduler().pauseTarget(self);
-            _registerEvent(self, false);
+            _unregisterEvent(self);
 
             self._objFlags &= ~IsOnEnableCalled;
         }
@@ -110,50 +126,58 @@ function callOnEnable (self, enable) {
     }
 }
 
-function _registerEvent (self, on) {
-    if (CC_EDITOR && !(self.constructor._executeInEditMode || cc.engine._isPlaying)) return;
+var Director = cc.Director;
 
-    if (self.start && !(self._objFlags & IsStartCalled)) {
-        if (on) {
-            cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
-        }
-        else {
-            cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
-        }
-    }
-
-    if (!self.update && !self.lateUpdate) {
+function _registerEvent (self) {
+    if (CC_EDITOR && !(self.constructor._executeInEditMode || cc.engine._isPlaying)) {
         return;
     }
-
-    if (on) {
-        cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self);
+    if (self.start && !(self._objFlags & IsStartCalled)) {
+        cc.director.__fastOn(Director.EVENT_BEFORE_UPDATE, _callStart, self, self.__eventTargets);
     }
-    else {
-        cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self);
-        cc.director.off(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
-        cc.director.off(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
+    if (self.update || self.lateUpdate) {
+        cc.director.__fastOn(Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self, self.__eventTargets);
     }
 }
 
-var _registerUpdateEvent = function () {
-    cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, this);
+function _unregisterEvent (self) {
+    if (CC_EDITOR && !(self.constructor._executeInEditMode || cc.engine._isPlaying)) {
+        return;
+    }
+    if (self.start && !(self._objFlags & IsStartCalled)) {
+        cc.director.__fastOff(Director.EVENT_BEFORE_UPDATE, _callStart, self, self.__eventTargets);
+    }
+    var hasUpdate = self.update;
+    var hasLateUpdate = self.lateUpdate;
+    if (hasUpdate || hasLateUpdate) {
+        cc.director.__fastOff(Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self, self.__eventTargets);
+        if (hasUpdate) {
+            cc.director.__fastOff(Director.EVENT_COMPONENT_UPDATE, _callUpdate, self, self.__eventTargets);
+        }
+        if (hasLateUpdate) {
+            cc.director.__fastOff(Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self, self.__eventTargets);
+        }
+    }
+}
 
+function _registerUpdateEvent () {
+    var eventTargets = this.__eventTargets;
+    var director = cc.director;
+    director.__fastOff(Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, this, eventTargets);
     if (this.update) {
-        cc.director.on(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, this);
+        director.__fastOn(Director.EVENT_COMPONENT_UPDATE, _callUpdate, this, eventTargets);
     }
-
     if (this.lateUpdate) {
-        cc.director.on(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, this);
+        director.__fastOn(Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, this, eventTargets);
     }
-};
+}
 
 var _callStart = CC_EDITOR ? function () {
-    cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _callStart, this);
+    cc.director.__fastOff(Director.EVENT_BEFORE_UPDATE, _callStart, this, this.__eventTargets);
     callStartInTryCatch(this);
     this._objFlags |= IsStartCalled;
 } : function () {
-    cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _callStart, this);
+    cc.director.__fastOff(Director.EVENT_BEFORE_UPDATE, _callStart, this, this.__eventTargets);
     this.start();
     this._objFlags |= IsStartCalled;
 };
@@ -208,15 +232,6 @@ function _callPreloadOnNode (node) {
     }
 }
 
-function _callPreloadOnComponent (component) {
-    if (CC_EDITOR) {
-        callPreloadInTryCatch(component);
-    }
-    else {
-        component.__preload();
-    }
-}
-
 /**
  * !#en
  * Base class for everything attached to Node(Entity).<br/>
@@ -230,7 +245,6 @@ function _callPreloadOnComponent (component) {
  *
  * @class Component
  * @extends Object
- * @constructor
  */
 var Component = cc.Class({
     name: 'cc.Component',
@@ -242,9 +256,18 @@ var Component = cc.Class({
         }
         // Support for Scheduler
         this.__instanceId = cc.ClassManager.getNewInstanceId();
+
+        /**
+         * Register all related EventTargets,
+         * all event callbacks will be removed in _onPreDestroy
+         * @property {Array} __eventTargets
+         * @private
+         */
+        this.__eventTargets = [];
     } : function () {
         // Support for Scheduler
         this.__instanceId = cc.ClassManager.getNewInstanceId();
+        this.__eventTargets = [];
     },
 
     properties: {
@@ -394,18 +417,6 @@ var Component = cc.Class({
                 return this._objFlags & IsOnLoadCalled;
             }
         },
-
-        /**
-         * Register all related EventTargets,
-         * all event callbacks will be removed in _onPreDestroy
-         * @property __eventTargets
-         * @type {Array}
-         * @private
-         */
-        __eventTargets: {
-            default: [],
-            serializable: false
-        }
     },
 
     // LIFECYCLE METHODS
@@ -481,6 +492,12 @@ var Component = cc.Class({
      * @method onLostFocusInEditor
      */
     onLostFocusInEditor: null,
+    /**
+     * !#en Called to initialize the component or node’s properties when adding the component the first time or when the Reset command is used. This function is only called in editor.
+     * !#zh 用来初始化组件或节点的一些属性，当该组件被第一次添加到节点上或用户点击了它的 Reset 菜单时调用。这个回调只会在编辑器下调用。
+     * @method resetInEditor
+     */
+    resetInEditor: null,
 
     // PUBLIC
 
@@ -921,7 +938,22 @@ Object.defineProperties(Component, {
         value: _callPreloadOnNode
     },
     _callPreloadOnComponent: {
-        value: _callPreloadOnComponent
+        value: function (component) {
+            if (CC_EDITOR) {
+                callPreloadInTryCatch(component);
+            }
+            else {
+                component.__preload();
+            }
+            component._objFlags |= IsPreloadCalled;
+        }
+    },
+    _callResetOnComponent: {
+        value: CC_EDITOR && function (comp) {
+            if (typeof comp.resetInEditor === 'function') {
+                callResetInTryCatch(comp);
+            }
+        }
     }
 });
 

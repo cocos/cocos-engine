@@ -103,7 +103,7 @@ function cloneControlPoints (controlPoints) {
  *
  * @class CardinalSplineTo
  * @extends ActionInterval
- * @constructor
+ *
  * @param {Number} duration
  * @param {Array} points array of control points
  * @param {Number} tension
@@ -251,7 +251,7 @@ cc.cardinalSplineTo = function (duration, points, tension) {
  *
  * @class CardinalSplineBy
  * @extends CardinalSplineTo
- * @constructor
+ *
  * @param {Number} duration
  * @param {Array} points
  * @param {Number} tension
@@ -355,7 +355,7 @@ cc.cardinalSplineBy = function (duration, points, tension) {
  *
  * @class CatmullRomTo
  * @extends CardinalSplineTo
- * @constructor
+ *
  * @param {Number} dt
  * @param {Array} points
  *
@@ -402,7 +402,7 @@ cc.catmullRomTo = function (dt, points) {
  *
  * @class CatmullRomBy
  * @extends CardinalSplineBy
- * @constructor
+ *
  * @param {Number} dt
  * @param {Array} points
  *

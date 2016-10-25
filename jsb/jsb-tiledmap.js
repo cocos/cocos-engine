@@ -24,14 +24,15 @@
  ****************************************************************************/
 
 'use strict';
-
-var _p = cc.TMXObject.prototype;
-cc.defineGetterSetter(_p, 'type', _p.getType, null);
-cc.defineGetterSetter(_p, 'name', _p.getObjectName, _p.setObjectName);
-cc.defineGetterSetter(_p, 'id', _p.getId, null);
-cc.defineGetterSetter(_p, 'gid', _p.getGid, null);
-cc.defineGetterSetter(_p, 'offset', _p.getOffset, null);
-cc.defineGetterSetter(_p, 'objectSize', _p.getObjectSize, null);
-cc.defineGetterSetter(_p, 'objectVisible', _p.getObjectVisible, null);
-cc.defineGetterSetter(_p, 'objectRotation', _p.getObjectRotation, null);
-cc.defineGetterSetter(_p, 'sgNode', _p.getNode, null);
+if (!cc.runtime) {
+    var _p = cc.TMXObject.prototype;
+    cc.defineGetterSetter(_p, 'type', _p.getType, null);
+    cc.defineGetterSetter(_p, 'name', _p.getObjectName, _p.setObjectName);
+    cc.defineGetterSetter(_p, 'id', _p.getId, null);
+    cc.defineGetterSetter(_p, 'gid', _p.getGid, null);
+    cc.defineGetterSetter(_p, 'offset', _p.getOffset, null);
+    cc.defineGetterSetter(_p, 'objectSize', _p.getObjectSize, null);
+    cc.defineGetterSetter(_p, 'objectVisible', _p.getObjectVisible, null);
+    cc.defineGetterSetter(_p, 'objectRotation', _p.getObjectRotation, null);
+    cc.defineGetterSetter(_p, 'sgNode', _p.getNode, null);
+}

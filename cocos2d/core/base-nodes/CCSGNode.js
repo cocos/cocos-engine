@@ -1030,7 +1030,7 @@ _ccsg.Node = cc.Class({
     /**
      * Returns a "local" axis aligned bounding box of the node. <br/>
      * @deprecated since v3.0, please use getBoundingBox instead
-     * @return {cc.Rect}
+     * @return {Rect}
      */
     boundingBox: function(){
         cc.log(cc._LogInfos.Node.boundingBox);
@@ -1041,7 +1041,7 @@ _ccsg.Node = cc.Class({
      * Returns a "local" axis aligned bounding box of the node. <br/>
      * The returned box is relative only to its parent.
      * @function
-     * @return {cc.Rect} The calculated bounding box of the node
+     * @return {Rect} The calculated bounding box of the node
      */
     getBoundingBox: function () {
         var rect = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
@@ -1868,7 +1868,7 @@ _ccsg.Node = cc.Class({
         var point = cc.director.convertToGL(touch.getLocation());
         return this.convertToNodeSpaceAR(point);
     },
-    
+
     /**
      * <p>
      * Calls children's updateTransform() method recursively.                                        <br/>
@@ -2015,7 +2015,7 @@ _ccsg.Node = cc.Class({
     /**
      * Returns a "world" axis aligned bounding box of the node.
      * @function
-     * @return {cc.Rect}
+     * @return {Rect}
      */
     getBoundingBoxToWorld: function () {
         var rect = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);

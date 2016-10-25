@@ -143,7 +143,7 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
     /**
      * Returns the bounding box of sp._SGSkeleton.
-     * @returns {cc.Rect}
+     * @returns {Rect}
      */
     getBoundingBox: function () {
         var minX = cc.macro.FLT_MAX, minY = cc.macro.FLT_MAX, maxX = cc.macro.FLT_MIN, maxY = cc.macro.FLT_MIN;

@@ -33,7 +33,7 @@ var Attr = require('./attribute');
  * !#en Contains information collected during deserialization
  * !#zh 包含反序列化时的一些信息
  * @class Details
- * @constructor
+ *
  */
 var Details = function () {
 

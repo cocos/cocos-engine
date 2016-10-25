@@ -58,13 +58,7 @@ _p.rendering = function (ctx, scaleX, scaleY) {
         var cmd = cmds[i];
         var ctxCmd = cmd[0], args = cmd[1];
 
-        if (ctxCmd === 'clear') {
-            cmds.splice(0, i+1);
-            i = 0;
-            l = cmds.length;
-            continue;
-        }
-        else if (ctxCmd === 'moveTo' && endPath) {
+        if (ctxCmd === 'moveTo' && endPath) {
             context.beginPath();
             endPath = false;
         }
@@ -193,7 +187,7 @@ Js.mixin(_p, {
     },
 
     clear: function () {
-        this.cmds.push(['clear']);
+        this.cmds.length = 0;
         this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     }
 });

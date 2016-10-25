@@ -138,7 +138,7 @@ cc.TableViewDataSource = cc._Class.extend(/** @lends cc.TableViewDataSource# */{
      * cell size for a given index
      * @param {cc.TableView} table table to hold the instances of Class
      * @param {Number} idx the index of a cell to get a size
-     * @return {cc.Size} size of a cell at given index
+     * @return {Size} size of a cell at given index
      */
     tableCellSizeForIndex:function(table, idx){
         return this.cellSizeForTable(table);
@@ -147,7 +147,7 @@ cc.TableViewDataSource = cc._Class.extend(/** @lends cc.TableViewDataSource# */{
      * cell height for a given table.
      *
      * @param {cc.TableView} table table to hold the instances of Class
-     * @return {cc.Size} cell size
+     * @return {Size} cell size
      */
     cellSizeForTable:function (table) {
         return cc.size(0,0);
@@ -711,7 +711,7 @@ _p = null;
  * An initialized table view object
  * @deprecated
  * @param {cc.TableViewDataSource} dataSource data source;
- * @param {cc.Size} size view size
+ * @param {Size} size view size
  * @param {_ccsg.Node} [container] parent object for cells
  * @return {cc.TableView} table view
  */

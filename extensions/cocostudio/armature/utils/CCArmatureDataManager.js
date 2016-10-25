@@ -25,7 +25,7 @@
 
 /**
  * RelativeData uses to save plist files, armature files, animations and textures for armature data manager.
- * @constructor
+ *
  */
 ccs.RelativeData = function(){
     this.plistFiles=[];

@@ -76,7 +76,7 @@ var TextureLoader = cc.Class({
  * !#en The skeleton data of spine.
  * !#zh Spine 的 骨骼数据。
  * @class SkeletonData
- * @extends cc.Asset
+ * @extends Asset
  */
 var SkeletonData = cc.Class({
     name: 'sp.SkeletonData',
@@ -128,7 +128,7 @@ var SkeletonData = cc.Class({
         // -------------------------------------------------
 
         /**
-         * @property {cc.Texture2D} textures
+         * @property {Texture2D} textures
          */
         textures: {
             default: [],

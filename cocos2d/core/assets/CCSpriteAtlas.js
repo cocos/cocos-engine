@@ -28,7 +28,7 @@
  * !#zh 精灵图集资源类。
  * @class SpriteAtlas
  * @extends RawAsset
- * @constructor
+ *
  */
 var SpriteAtlas = cc.Class({
     name: 'cc.SpriteAtlas',
@@ -42,7 +42,7 @@ var SpriteAtlas = cc.Class({
     /**
      * Returns the texture of the sprite atlas
      * @method getTexture
-     * @returns {cc.Texture2D}
+     * @returns {Texture2D}
      */
     getTexture: function () {
         var keys = Object.keys(this._spriteFrames);
@@ -73,7 +73,7 @@ var SpriteAtlas = cc.Class({
     getSpriteFrames: function () {
         var frames = [];
         var spriteFrames = this._spriteFrames;
-        
+
         for (var key in spriteFrames) {
             frames.push(spriteFrames[key]);
         }

@@ -31,9 +31,6 @@ var REMOVE_PLACEHOLDER = CallbacksHandler.REMOVE_PLACEHOLDER;
 // Extends CallbacksHandler to handle and invoke event callbacks.
 function EventListeners () {
     CallbacksHandler.call(this);
-    this._invoking = {};
-    this._toRemove = {};
-    this._toRemoveAll = null;
 }
 JS.extend(EventListeners, CallbacksHandler);
 

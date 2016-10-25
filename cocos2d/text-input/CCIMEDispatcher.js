@@ -26,8 +26,8 @@
 
 /**
  * IME Keyboard Notification Info structure
- * @param {cc.Rect} begin the soft keyboard rectangle when animatin begin
- * @param {cc.Rect} end the soft keyboard rectangle when animatin end
+ * @param {Rect} begin the soft keyboard rectangle when animatin begin
+ * @param {Rect} end the soft keyboard rectangle when animatin end
  * @param {Number} duration the soft keyboard animation duration
  */
 cc.IMEKeyboardNotificationInfo = function (begin, end, duration) {

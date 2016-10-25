@@ -28,7 +28,7 @@ var EventTarget = require('../core/event/event-target');
 
 var touchBinded = false;
 var touchPlayList = [
-    //{ offset: 0, audio: audio }
+    //{ instance: Audio, offset: 0, audio: audio }
 ];
 
 var Audio = function (src) {
@@ -56,10 +56,29 @@ Audio.Type = {
     UNKNOWN: 'UNKNOWN'
 };
 
+/**
+ * !#en Audio state.
+ * !#zh 声音播放状态
+ * @enum audioEngine.AudioState
+ * @memberof cc
+ */
+
 Audio.State = {
+    /**
+     * @property {Number} ERROR
+     */
     ERROR : -1,
+    /**
+     * @property {Number} INITIALZING
+     */
     INITIALZING: 0,
+    /**
+     * @property {Number} PLAYING
+     */
     PLAYING: 1,
+    /**
+     * @property {Number} PAUSED
+     */
     PAUSED: 2
 };
 
@@ -110,7 +129,7 @@ Audio.State = {
             this._element.src = elem.src;
             this._audioType = Audio.Type.DOM;
         } else {
-            this._element = new WebAudioElement(elem);
+            this._element = new WebAudioElement(elem, this);
             this._audioType = Audio.Type.WEBAUDIO;
         }
         this._bindEnded();
@@ -124,9 +143,9 @@ Audio.State = {
         this.emit('play');
         this._state = Audio.State.PLAYING;
 
-        if (this._audioType = Audio.Type.DOM && this._element.paused) {
+        if (this._audioType === Audio.Type.DOM && this._element.paused) {
             this.stop();
-            touchPlayList.push({ offset: 0, audio: this._element });
+            touchPlayList.push({ instance: this, offset: 0, audio: this._element });
         }
 
         if (touchBinded) return;
@@ -163,6 +182,13 @@ Audio.State = {
             this._element.currentTime = 0;
         } catch (error) {}
         this._element.pause();
+        // remove touchPlayList
+        for (var i=0; i<touchPlayList; i++) {
+            if (touchPlayList[i].instance === this) {
+                touchPlayList.splice(i, 1);
+                break;
+            }
+        }
         this.emit('ended');
         this.emit('stop');
         this._state = Audio.State.PAUSED;
@@ -220,7 +246,8 @@ Audio.State = {
 })(Audio.prototype);
 
 // Encapsulated WebAudio interface
-var WebAudioElement = function (buffer) {
+var WebAudioElement = function (buffer, audio) {
+    this._audio = audio;
     this._context = cc.sys.__audioSupport.context;
     this._buffer = buffer;
     this._volume = this._context['createGain']();
@@ -241,6 +268,7 @@ var WebAudioElement = function (buffer) {
     proto.play = function (offset) {
         // If repeat play, you need to stop before an audio
         if (this._currentSource && !this.paused) {
+            this._currentSource.onended = null;
             this._currentSource.stop(0);
             this.playedLength = 0;
         }
@@ -292,6 +320,7 @@ var WebAudioElement = function (buffer) {
             this._currextTimer = setTimeout(function () {
                 if (self._context.currentTime === 0) {
                     touchPlayList.push({
+                        instance: self._audio,
                         offset: offset,
                         audio: self
                     });
@@ -301,6 +330,7 @@ var WebAudioElement = function (buffer) {
     };
 
     proto.pause = function () {
+        clearTimeout(this._currextTimer);
         if (this.paused) return;
         // Record the time the current has been played
         this.playedLength = this._context.currentTime - this._startTime;
@@ -335,7 +365,15 @@ var WebAudioElement = function (buffer) {
     });
 
     proto.__defineGetter__('volume', function () { return this._volume['gain'].value; });
-    proto.__defineSetter__('volume', function (num) { return this._volume['gain'].value = num; });
+    proto.__defineSetter__('volume', function (num) {
+        this._volume['gain'].value = num;
+        if (cc.sys.os === cc.sys.OS_IOS && !this.paused) {
+            // IOS must be stop webAudio
+            this.pause();
+            this.play();
+        }
+        return num;
+    });
 
     proto.__defineGetter__('currentTime', function () {
         if (this.paused) {

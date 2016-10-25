@@ -125,7 +125,7 @@ ccs.CONST_CONTENT_SCALE = "content_scale";
 
 /**
  * @ignore
- * @constructor
+ *
  */
 ccs.DataInfo = function () {
     this.asyncStruct = null;

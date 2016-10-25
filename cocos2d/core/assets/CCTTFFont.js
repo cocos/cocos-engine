@@ -31,7 +31,7 @@
  * !#zh TTF 字体资源类。
  * @class TTFFont
  * @extends Asset
- * @constructor
+ *
  */
 var TTFFont = cc.Class({
     name: 'cc.TTFFont',

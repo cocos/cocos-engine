@@ -144,8 +144,8 @@ ccui.helper = {
     /**
      * restrict capInsetSize, when the capInsets' width is larger than the textureSize, it will restrict to 0,   <br/>
      * the height goes the same way as width.
-     * @param {cc.Rect} capInsets
-     * @param {cc.Size} textureSize
+     * @param {Rect} capInsets
+     * @param {Size} textureSize
      */
     restrictCapInsetRect: function (capInsets, textureSize) {
         var x = capInsets.x, y = capInsets.y;
