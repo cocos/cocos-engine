@@ -26,12 +26,10 @@
 var SgHelper = require('./scene-graph-helper');
 var Destroying = require('../platform/CCObject').Flags.Destroying;
 var Misc = require('./misc');
-var DirtyFlags = Misc.DirtyFlags;
 var IdGenerater = require('../platform/id-generater');
 
 function updateOrder (node) {
     var parent = node._parent;
-    parent._reorderChildDirty = true;
     parent._delaySort();
     if (!CC_JSB) {
         cc.eventManager._setDirtyForNode(node);
@@ -802,7 +800,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             var target = this.__eventTargets[i];
             target && target.targetOff(this);
         }
-        cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
     },
 
     _destruct: Misc.destructIgnoreId,
@@ -1892,7 +1889,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             if (!CC_JSB) {
                 cc.renderer.childrenOrderDirty = true;
                 parent._sgNode._reorderChildDirty = true;
-                parent._reorderChildDirty = true;
                 parent._delaySort();
             }
         }
@@ -1953,12 +1949,15 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 }
                 this.emit(CHILD_REORDER);
             }
+            cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this, this.__eventTargets);
         }
-        cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
     },
 
     _delaySort: function () {
-        cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
+        if (!this._reorderChildDirty) {
+            this._reorderChildDirty = true;
+            cc.director.__fastOn(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this, this.__eventTargets);
+        }
     },
 
     _updateDummySgNode: function () {
