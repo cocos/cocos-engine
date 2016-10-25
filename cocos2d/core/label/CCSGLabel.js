@@ -1207,6 +1207,7 @@ cc.BMFontHelper = {
                     } else {
                         if (!self._spriteBatchNode) {
                             self._createSpriteBatchNode(texture);
+                            self.emit("load");
                         }
                     }
                 });
