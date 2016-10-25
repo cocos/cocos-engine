@@ -2135,3 +2135,5 @@ cc.checkGLErrorDebug = function () {
         }
     }
 };
+
+module.exports = cc.macro;
