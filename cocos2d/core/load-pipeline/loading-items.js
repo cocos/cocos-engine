@@ -176,7 +176,7 @@ var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
      *  }
      */
     this.onProgress = onProgress;
-    
+
     /**
      * !#en This is a callback which will be invoked while all items is completed,
      * You can pass the callback function in LoadingItems.create or set it later.
@@ -671,7 +671,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         LoadingItems.finishDep(id);
         if (this.onProgress) {
             var dep = _queueDeps[item.queueId];
-            console.log((dep ? dep.completed.length : this.completedCount) + ' / ' + (dep ? dep.deps.length : this.totalCount));
+            // console.log((dep ? dep.completed.length : this.completedCount) + ' / ' + (dep ? dep.deps.length : this.totalCount));
             this.onProgress(dep ? dep.completed.length : this.completedCount, dep ? dep.deps.length : this.totalCount, item);
         }
 
