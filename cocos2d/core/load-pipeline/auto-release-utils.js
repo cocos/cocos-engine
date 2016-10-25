@@ -17,20 +17,7 @@ function parseDepends (key, parsed) {
 
 function release (loader, key, nextSceneAssets) {
     if (!nextSceneAssets || nextSceneAssets.indexOf(key) === -1) {
-        var item = loader.getItem(key);
-        if (item) {
-            var removed = loader.removeItem(key);
-            //console.log('auto release: ' + key);
-            // TODO: Audio
-            var asset = item.content;
-            if (asset instanceof cc.Texture2D) {
-                cc.textureCache.removeTextureForKey(item.url);
-            }
-            else if (CC_JSB && asset instanceof cc.SpriteFrame && removed) {
-                // for the "Temporary solution" in deserialize.js
-                asset.release();
-            }
-        }
+        loader.release(key);
     }
 }
 

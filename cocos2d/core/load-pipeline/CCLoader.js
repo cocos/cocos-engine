@@ -320,7 +320,7 @@ JS.mixin(CCLoader.prototype, {
             callInNextTick(function () {
                 var info;
                 if (type) {
-                    info = cc.js.getClassName(type) + ' in "' + url + '" does not exist.';
+                    info = JS.getClassName(type) + ' in "' + url + '" does not exist.';
                 }
                 else {
                     info = 'Resources url "' + url + '" does not exist.';
@@ -441,32 +441,76 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
-     * !#en
-     * Release the asset by id which is usually the url.
-     * Start from v1.3, this method will not only release the cache of the asset in loader,
-     * but also clean up the dependencies of the asset. For example, if you release a prefab by its url,
-     * and if there is no instance of this prefab in the scene, the prefab and its dependencies like textures, sprite frames, etc, will be freed up.
-     * This method can help you free up some memory in critical circumstances.
-     * Notice, this method may cause the texture to be unusable, if there are still instances of this prefab or other asset share textures with this prefab, 
-     * they may turn to black and report gl errors.
-     * If you only want to remove the cache of an asset, please use {{#crossLink "pipeline/removeItem:method"}}{{/crossLink}}
-     * !#zh
-     * 通过 id（通常是资源 url）来释放一个资源。
-     * 从 v1.3 开始，这个方法不仅会从 loader 中删除资源的缓存引用，还会清理它所引用的依赖资源。
-     * 比如说，当你释放一个 prefab 资源，并且场景中不再有这个 prefab 的任何实例的时候，这个 prefab 和它所依赖的所有贴图，精灵帧对象，等都会被释放。
-     * 在设备内存告急的情况下，这个函数可以帮助你更快得释放不再需要的资源的内存。
-     * 注意，这个函数可能会导致资源贴图或资源所依赖的贴图不可用，如果场景中依然存在 prefab 的实例或者其他节点仍然依赖同样的贴图，它们可能会变黑并报 GL 错误。
-     * 如果你只想删除一个资源的缓存引用，请使用 {{#crossLink "pipeline/removeItem:method"}}{{/crossLink}}
-     *
-     * @method release
+     * Get all resource dependencies of the requested asset in an array, including itself.
      * @param {String} id
+     * @returns {Array}
      */
-    release: function (id) {
-        // this.removeItem(id);
-
+    getDependsRecursively: function (id) {
+        if (!this._cache[id]) {
+            // Not found in cache then try to search res,
+            // If res not found, keep the original value
+            id = this._getResUuid(id) || id;
+        }
         var assets = AutoReleaseUtils.getDependsRecursively(id);
         assets.push(id);
-        AutoReleaseUtils.autoRelease(this, assets);
+        return assets;
+    },
+
+    /**
+     * !#en
+     * Release the content of an asset or an array of assets by id.
+     * Start from v1.3, this method will not only remove the cache of the asset in loader, but also clean up its content.
+     * For example, if you release a texture, the texture asset and its gl texture data will be freed up.
+     * In complexe project, you can use this function with {{#crossLink "loader/getDependsRecursively:method"}}{{/crossLink}} to free up memory in critical circumstances.
+     * Notice, this method may cause the texture to be unusable, if there are still other nodes use the same texture, they may turn to black and report gl errors.
+     * If you only want to remove the cache of an asset, please use {{#crossLink "pipeline/removeItem:method"}}{{/crossLink}}
+     * !#zh
+     * 通过 id（通常是资源 url）来释放一个资源或者一个资源数组。
+     * 从 v1.3 开始，这个方法不仅会从 loader 中删除资源的缓存引用，还会清理它的资源内容。
+     * 比如说，当你释放一个 texture 资源，这个 texture 和它的 gl 贴图数据都会被释放。
+     * 在复杂项目中，我们建议你结合 {{#crossLink "loader/getDependsRecursively:method"}}{{/crossLink}} 来使用，便于在设备内存告急的情况下更快得释放不再需要的资源的内存。
+     * 注意，这个函数可能会导致资源贴图或资源所依赖的贴图不可用，如果场景中存在节点仍然依赖同样的贴图，它们可能会变黑并报 GL 错误。
+     * 如果你只想删除一个资源的缓存引用，请使用 {{#crossLink "pipeline/removeItem:method"}}{{/crossLink}}
+     *
+     * @example
+     * // Release a texture which is no longer need
+     * cc.loader.release(texture.uuid);
+     * // Release all dependencies of a loaded prefab
+     * var deps = cc.loader.getDependsRecursively('prefabs/sample');
+     * cc.loader.release(deps);
+     * // If there is no instance of this prefab in the scene, the prefab and its dependencies like textures, sprite frames, etc, will be freed up.
+     * // If you have some other nodes share a texture in this prefab, you can skip it in two ways:
+     * // 1. Forbid auto release a texture
+     * cc.loader.setAutoRelease(texture2d, false);
+     * // 2. Remove it from the dependencies array
+     * var deps = cc.loader.getDependsRecursively('prefabs/sample');
+     * var index = deps.indexOf(texture2d.uuid);
+     * if (index !== -1)
+     *     deps.splice(index, 1);
+     * cc.loader.release(deps);
+     *
+     * @method release
+     * @param {String|Array} id
+     */
+    release: function (id) {
+        if (JS.array.isArray(id)) {
+            AutoReleaseUtils.autoRelease(this, id);
+        }
+        else {
+            var item = this.getItem(id);
+            if (item) {
+                var removed = this.removeItem(id);
+                // TODO: Audio
+                var asset = item.content;
+                if (asset instanceof cc.Texture2D) {
+                    cc.textureCache.removeTextureForKey(item.url);
+                }
+                else if (CC_JSB && asset instanceof cc.SpriteFrame && removed) {
+                    // for the "Temporary solution" in deserialize.js
+                    asset.release();
+                }
+            }
+        }
     },
 
     /**
