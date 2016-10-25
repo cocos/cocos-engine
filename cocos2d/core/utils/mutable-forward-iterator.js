@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = require('../platform/js');
-
 /**
  * @example
  * var array = [0, 1, 2, 3, 4];
@@ -64,4 +62,4 @@ proto.push = function (item) {
 //    }
 //);
 
-js.array.MutableForwardIterator = module.exports = MutableForwardIterator;
+module.exports = MutableForwardIterator;

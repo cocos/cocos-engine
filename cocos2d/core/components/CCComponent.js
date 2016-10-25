@@ -72,7 +72,7 @@ function callOnEnable (self, enable) {
                 }
 
                 cc.director.getScheduler().resumeTarget(self);
-                _registerEvent(self, true);
+                _registerEvent(self);
 
                 self._objFlags |= IsOnEnableCalled;
             }
@@ -88,7 +88,7 @@ function callOnEnable (self, enable) {
             }
 
             cc.director.getScheduler().pauseTarget(self);
-            _registerEvent(self, false);
+            _unregisterEvent(self);
 
             self._objFlags &= ~IsOnEnableCalled;
         }
@@ -110,50 +110,58 @@ function callOnEnable (self, enable) {
     }
 }
 
-function _registerEvent (self, on) {
-    if (CC_EDITOR && !(self.constructor._executeInEditMode || cc.engine._isPlaying)) return;
+var Director = cc.Director;
 
-    if (self.start && !(self._objFlags & IsStartCalled)) {
-        if (on) {
-            cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
-        }
-        else {
-            cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
-        }
-    }
-
-    if (!self.update && !self.lateUpdate) {
+function _registerEvent (self) {
+    if (CC_EDITOR && !(self.constructor._executeInEditMode || cc.engine._isPlaying)) {
         return;
     }
-
-    if (on) {
-        cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self);
+    if (self.start && !(self._objFlags & IsStartCalled)) {
+        cc.director.__fastOn(Director.EVENT_BEFORE_UPDATE, _callStart, self, self.__eventTargets);
     }
-    else {
-        cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self);
-        cc.director.off(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
-        cc.director.off(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
+    if (self.update || self.lateUpdate) {
+        cc.director.__fastOn(Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self, self.__eventTargets);
     }
 }
 
-var _registerUpdateEvent = function () {
-    cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, this);
+function _unregisterEvent (self) {
+    if (CC_EDITOR && !(self.constructor._executeInEditMode || cc.engine._isPlaying)) {
+        return;
+    }
+    if (self.start && !(self._objFlags & IsStartCalled)) {
+        cc.director.__fastOff(Director.EVENT_BEFORE_UPDATE, _callStart, self, self.__eventTargets);
+    }
+    var hasUpdate = self.update;
+    var hasLateUpdate = self.lateUpdate;
+    if (hasUpdate || hasLateUpdate) {
+        cc.director.__fastOff(Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self, self.__eventTargets);
+        if (hasUpdate) {
+            cc.director.__fastOff(Director.EVENT_COMPONENT_UPDATE, _callUpdate, self, self.__eventTargets);
+        }
+        if (hasLateUpdate) {
+            cc.director.__fastOff(Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self, self.__eventTargets);
+        }
+    }
+}
 
+function _registerUpdateEvent () {
+    var eventTargets = this.__eventTargets;
+    var director = cc.director;
+    director.__fastOff(Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, this, eventTargets);
     if (this.update) {
-        cc.director.on(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, this);
+        director.__fastOn(Director.EVENT_COMPONENT_UPDATE, _callUpdate, this, eventTargets);
     }
-
     if (this.lateUpdate) {
-        cc.director.on(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, this);
+        director.__fastOn(Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, this, eventTargets);
     }
-};
+}
 
 var _callStart = CC_EDITOR ? function () {
-    cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _callStart, this);
+    cc.director.__fastOff(Director.EVENT_BEFORE_UPDATE, _callStart, this, this.__eventTargets);
     callStartInTryCatch(this);
     this._objFlags |= IsStartCalled;
 } : function () {
-    cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _callStart, this);
+    cc.director.__fastOff(Director.EVENT_BEFORE_UPDATE, _callStart, this, this.__eventTargets);
     this.start();
     this._objFlags |= IsStartCalled;
 };
@@ -242,9 +250,18 @@ var Component = cc.Class({
         }
         // Support for Scheduler
         this.__instanceId = cc.ClassManager.getNewInstanceId();
+
+        /**
+         * Register all related EventTargets,
+         * all event callbacks will be removed in _onPreDestroy
+         * @property {Array} __eventTargets
+         * @private
+         */
+        this.__eventTargets = [];
     } : function () {
         // Support for Scheduler
         this.__instanceId = cc.ClassManager.getNewInstanceId();
+        this.__eventTargets = [];
     },
 
     properties: {
@@ -394,18 +411,6 @@ var Component = cc.Class({
                 return this._objFlags & IsOnLoadCalled;
             }
         },
-
-        /**
-         * Register all related EventTargets,
-         * all event callbacks will be removed in _onPreDestroy
-         * @property __eventTargets
-         * @type {Array}
-         * @private
-         */
-        __eventTargets: {
-            default: [],
-            serializable: false
-        }
     },
 
     // LIFECYCLE METHODS
