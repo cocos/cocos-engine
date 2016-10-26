@@ -441,24 +441,62 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
-     * Get all resource dependencies of the requested asset in an array, including itself.
-     * @param {String} id
+     * !#en Get all resource dependencies of the requested asset in an array, including itself.
+     * The owner parameter accept the following types: 1. The asset itself; 2. The resource url; 3. The asset's uuid.
+     * The returned array stores the dependencies with their uuids, after retrieve dependencies, 
+     * you can release them, access dependent assets by passing the uuid to {{#crossLink "loader/getRes:method"}}{{/crossLink}}, or other stuffs you want.
+     * For release all dependencies of an asset, please refer to {{#crossLink "loader/release:method"}}{{/crossLink}}
+     * Here is some examples:
+     * !#zh 获取一个指定资源的所有依赖资源，包含它自身，并保存在数组中返回。owner 参数接收以下几种类型：
+     * 1. 资源 asset 对象；2. 资源目录下的 url；3. 资源的 uuid
+     * 返回的数组将仅保存依赖资源的 uuid，获取这些 uuid 后，你可以从 loader 释放这些资源；通过 {{#crossLink "loader/getRes:method"}}{{/crossLink}} 获取某个资源或者其他你需要的处理。
+     * 想要释放一个资源及其依赖资源，可以参考 {{#crossLink "loader/release:method"}}{{/crossLink}}。
+     * 下面是一些示例代码：
+     * 
+     * @example
+     * // Release all dependencies of a loaded prefab
+     * var deps = cc.loader.getDependsRecursively(prefab);
+     * cc.loader.release(deps);
+     * // Retrieve all dependent textures
+     * var deps = cc.loader.getDependsRecursively('prefabs/sample');
+     * var textures = [];
+     * for (var i = 0; i < deps.length; ++i) {
+     *     var item = cc.loader.getRes(deps[i]);
+     *     if (item instanceof cc.Texture2D) {
+     *         textures.push(item);
+     *     }
+     * }
+     * 
+     * @param {Asset|RawAsset|String} owner The owner asset or the resource url or the asset's uuid
      * @returns {Array}
      */
-    getDependsRecursively: function (id) {
-        if (!this._cache[id]) {
-            // Not found in cache then try to search res,
-            // If res not found, keep the original value
-            id = this._getResUuid(id) || id;
+    getDependsRecursively: function (owner) {
+        var uuid;
+        if (typeof owner === 'string') {
+            uuid = owner;
+            if (!this._cache[uuid]) {
+                // Not found in cache then try to search res,
+                // If res not found, keep the original value
+                uuid = this._getResUuid(uuid) || uuid;
+            }
         }
-        var assets = AutoReleaseUtils.getDependsRecursively(id);
-        assets.push(id);
-        return assets;
+        else if (typeof owner === 'object') {
+            uuid = owner._uuid || null;
+        }
+        
+        if (uuid) {
+            var assets = AutoReleaseUtils.getDependsRecursively(uuid);
+            assets.push(uuid);
+            return assets;
+        }
+        else {
+            return [];
+        }
     },
 
     /**
      * !#en
-     * Release the content of an asset or an array of assets by id.
+     * Release the content of an asset or an array of assets by uuid.
      * Start from v1.3, this method will not only remove the cache of the asset in loader, but also clean up its content.
      * For example, if you release a texture, the texture asset and its gl texture data will be freed up.
      * In complexe project, you can use this function with {{#crossLink "loader/getDependsRecursively:method"}}{{/crossLink}} to free up memory in critical circumstances.
@@ -474,7 +512,7 @@ JS.mixin(CCLoader.prototype, {
      *
      * @example
      * // Release a texture which is no longer need
-     * cc.loader.release(texture._uuid);
+     * cc.loader.release(texture);
      * // Release all dependencies of a loaded prefab
      * var deps = cc.loader.getDependsRecursively('prefabs/sample');
      * cc.loader.release(deps);
@@ -490,18 +528,19 @@ JS.mixin(CCLoader.prototype, {
      * cc.loader.release(deps);
      *
      * @method release
-     * @param {String|Array} id
+     * @param {Asset|RawAsset|String|Array} asset
      */
-    release: function (id) {
-        if (Array.isArray(id)) {
-            AutoReleaseUtils.autoRelease(this, id);
+    release: function (asset) {
+        if (Array.isArray(asset)) {
+            AutoReleaseUtils.autoRelease(this, asset);
         }
-        else {
+        else if (asset) {
+            var id = asset._uuid || asset;
             var item = this.getItem(id);
             if (item) {
                 var removed = this.removeItem(id);
                 // TODO: Audio
-                var asset = item.content;
+                asset = item.content;
                 if (asset instanceof cc.Texture2D) {
                     cc.textureCache.removeTextureForKey(item.url);
                 }
