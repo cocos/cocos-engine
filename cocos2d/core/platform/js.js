@@ -551,17 +551,6 @@ js.formatStr = function () {
  */
 
 /**
- * Determines whether the passed value is an Array.
- * @method isArray
- * @param {any[]} array
- */
-if (!Array.isArray) {
-    Array.isArray = function(arg) {
-        return Object.prototype.toString.call(arg) === '[object Array]';
-    };
-}
-
-/**
  * Removes the array item at the specified index.
  * @method removeAt
  * @param {any[]} array
@@ -707,7 +696,6 @@ function copy (array) {
 }
 
 js.array = {
-    isArray: Array.isArray,
     remove: remove,
     fastRemove: fastRemove,
     removeAt: removeAt,

@@ -52,6 +52,7 @@ cc._initDebugSetting(cc.DebugMode.INFO);
 /* require('./polyfill/bind'); */
 require('./polyfill/string');
 require('./polyfill/math');
+require('./polyfill/array');
 
 // predefine some modules for cocos
 require('./cocos2d/core/platform/js');

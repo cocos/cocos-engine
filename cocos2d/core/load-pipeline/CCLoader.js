@@ -493,7 +493,7 @@ JS.mixin(CCLoader.prototype, {
      * @param {String|Array} id
      */
     release: function (id) {
-        if (JS.array.isArray(id)) {
+        if (Array.isArray(id)) {
             AutoReleaseUtils.autoRelease(this, id);
         }
         else {
