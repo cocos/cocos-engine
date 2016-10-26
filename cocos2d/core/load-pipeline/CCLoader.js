@@ -320,7 +320,7 @@ JS.mixin(CCLoader.prototype, {
             callInNextTick(function () {
                 var info;
                 if (type) {
-                    info = cc.js.getClassName(type) + ' in "' + url + '" does not exist.';
+                    info = JS.getClassName(type) + ' in "' + url + '" does not exist.';
                 }
                 else {
                     info = 'Resources url "' + url + '" does not exist.';
@@ -441,17 +441,120 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
-     * Release the cache of resource by id which is usually the url.
-     *
-     * @method release
-     * @param {String} id
+     * !#en Get all resource dependencies of the requested asset in an array, including itself.
+     * The owner parameter accept the following types: 1. The asset itself; 2. The resource url; 3. The asset's uuid.
+     * The returned array stores the dependencies with their uuids, after retrieve dependencies, 
+     * you can release them, access dependent assets by passing the uuid to {{#crossLink "loader/getRes:method"}}{{/crossLink}}, or other stuffs you want.
+     * For release all dependencies of an asset, please refer to {{#crossLink "loader/release:method"}}{{/crossLink}}
+     * Here is some examples:
+     * !#zh 获取一个指定资源的所有依赖资源，包含它自身，并保存在数组中返回。owner 参数接收以下几种类型：
+     * 1. 资源 asset 对象；2. 资源目录下的 url；3. 资源的 uuid
+     * 返回的数组将仅保存依赖资源的 uuid，获取这些 uuid 后，你可以从 loader 释放这些资源；通过 {{#crossLink "loader/getRes:method"}}{{/crossLink}} 获取某个资源或者其他你需要的处理。
+     * 想要释放一个资源及其依赖资源，可以参考 {{#crossLink "loader/release:method"}}{{/crossLink}}。
+     * 下面是一些示例代码：
+     * 
+     * @example
+     * // Release all dependencies of a loaded prefab
+     * var deps = cc.loader.getDependsRecursively(prefab);
+     * cc.loader.release(deps);
+     * // Retrieve all dependent textures
+     * var deps = cc.loader.getDependsRecursively('prefabs/sample');
+     * var textures = [];
+     * for (var i = 0; i < deps.length; ++i) {
+     *     var item = cc.loader.getRes(deps[i]);
+     *     if (item instanceof cc.Texture2D) {
+     *         textures.push(item);
+     *     }
+     * }
+     * 
+     * @param {Asset|RawAsset|String} owner The owner asset or the resource url or the asset's uuid
+     * @returns {Array}
      */
-    release: function (id) {
-        this.removeItem(id);
+    getDependsRecursively: function (owner) {
+        var uuid;
+        if (typeof owner === 'string') {
+            uuid = owner;
+            if (!this._cache[uuid]) {
+                // Not found in cache then try to search res,
+                // If res not found, keep the original value
+                uuid = this._getResUuid(uuid) || uuid;
+            }
+        }
+        else if (typeof owner === 'object') {
+            uuid = owner._uuid || null;
+        }
+        
+        if (uuid) {
+            var assets = AutoReleaseUtils.getDependsRecursively(uuid);
+            assets.push(uuid);
+            return assets;
+        }
+        else {
+            return [];
+        }
     },
 
     /**
-     * Release the loaded cache of asset.
+     * !#en
+     * Release the content of an asset or an array of assets by uuid.
+     * Start from v1.3, this method will not only remove the cache of the asset in loader, but also clean up its content.
+     * For example, if you release a texture, the texture asset and its gl texture data will be freed up.
+     * In complexe project, you can use this function with {{#crossLink "loader/getDependsRecursively:method"}}{{/crossLink}} to free up memory in critical circumstances.
+     * Notice, this method may cause the texture to be unusable, if there are still other nodes use the same texture, they may turn to black and report gl errors.
+     * If you only want to remove the cache of an asset, please use {{#crossLink "pipeline/removeItem:method"}}{{/crossLink}}
+     * !#zh
+     * 通过 id（通常是资源 url）来释放一个资源或者一个资源数组。
+     * 从 v1.3 开始，这个方法不仅会从 loader 中删除资源的缓存引用，还会清理它的资源内容。
+     * 比如说，当你释放一个 texture 资源，这个 texture 和它的 gl 贴图数据都会被释放。
+     * 在复杂项目中，我们建议你结合 {{#crossLink "loader/getDependsRecursively:method"}}{{/crossLink}} 来使用，便于在设备内存告急的情况下更快得释放不再需要的资源的内存。
+     * 注意，这个函数可能会导致资源贴图或资源所依赖的贴图不可用，如果场景中存在节点仍然依赖同样的贴图，它们可能会变黑并报 GL 错误。
+     * 如果你只想删除一个资源的缓存引用，请使用 {{#crossLink "pipeline/removeItem:method"}}{{/crossLink}}
+     *
+     * @example
+     * // Release a texture which is no longer need
+     * cc.loader.release(texture);
+     * // Release all dependencies of a loaded prefab
+     * var deps = cc.loader.getDependsRecursively('prefabs/sample');
+     * cc.loader.release(deps);
+     * // If there is no instance of this prefab in the scene, the prefab and its dependencies like textures, sprite frames, etc, will be freed up.
+     * // If you have some other nodes share a texture in this prefab, you can skip it in two ways:
+     * // 1. Forbid auto release a texture before release
+     * cc.loader.setAutoRelease(texture2d, false);
+     * // 2. Remove it from the dependencies array
+     * var deps = cc.loader.getDependsRecursively('prefabs/sample');
+     * var index = deps.indexOf(texture2d._uuid);
+     * if (index !== -1)
+     *     deps.splice(index, 1);
+     * cc.loader.release(deps);
+     *
+     * @method release
+     * @param {Asset|RawAsset|String|Array} asset
+     */
+    release: function (asset) {
+        if (Array.isArray(asset)) {
+            AutoReleaseUtils.autoRelease(this, asset);
+        }
+        else if (asset) {
+            var id = asset._uuid || asset;
+            var item = this.getItem(id);
+            if (item) {
+                var removed = this.removeItem(id);
+                // TODO: Audio
+                asset = item.content;
+                if (asset instanceof cc.Texture2D) {
+                    cc.textureCache.removeTextureForKey(item.url);
+                }
+                else if (CC_JSB && asset instanceof cc.SpriteFrame && removed) {
+                    // for the "Temporary solution" in deserialize.js
+                    asset.release();
+                }
+            }
+        }
+    },
+
+    /**
+     * !#en Release the asset by its object. Refer to {{#crossLink "loader/release:method"}}{{/crossLink}} for detailed informations.
+     * !#zh 通过资源对象自身来释放资源。详细信息请参考 {{#crossLink "loader/release:method"}}{{/crossLink}}
      *
      * @method releaseAsset
      * @param {Asset} asset
@@ -459,12 +562,13 @@ JS.mixin(CCLoader.prototype, {
     releaseAsset: function (asset) {
         var uuid = asset._uuid;
         if (uuid) {
-            this.removeItem(uuid);
+            this.release(uuid);
         }
     },
 
     /**
-     * Release the cache of resource which loaded by {{#crossLink "loader/loadRes:method"}}{{/crossLink}}.
+     * !#en Release the asset loaded by {{#crossLink "loader/loadRes:method"}}{{/crossLink}}. Refer to {{#crossLink "loader/release:method"}}{{/crossLink}} for detailed informations.
+     * !#zh 释放通过 {{#crossLink "loader/loadRes:method"}}{{/crossLink}} 加载的资源。详细信息请参考 {{#crossLink "loader/release:method"}}{{/crossLink}}
      *
      * @method releaseRes
      * @param {String} url
@@ -472,7 +576,7 @@ JS.mixin(CCLoader.prototype, {
     releaseRes: function (url) {
         var uuid = this._getResUuid(url);
         if (uuid) {
-            this.removeItem(uuid);
+            this.release(uuid);
         }
         else {
             cc.error('Resources url "%s" does not exist.', url);
@@ -480,12 +584,15 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
-     * Resource cache of all resources.
+     * !#en Resource all assets. Refer to {{#crossLink "loader/release:method"}}{{/crossLink}} for detailed informations.
+     * !#zh 释放所有资源。详细信息请参考 {{#crossLink "loader/release:method"}}{{/crossLink}}
      *
      * @method releaseAll
      */
     releaseAll: function () {
-        this.clear();
+        for (var id in this._cache) {
+            this.release(id);
+        }
     },
 
     // AUTO RELEASE

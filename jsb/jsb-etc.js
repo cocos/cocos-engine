@@ -95,36 +95,6 @@ cc.Scheduler.prototype.unschedule = function (callback, target) {
 var nodeProto = cc.Node.prototype;
 cc.defineGetterSetter(nodeProto, "_parent", nodeProto.getParent, nodeProto.setParent);
 
-// TextureCache addImage
-if (!cc.TextureCache.prototype._addImageAsync) {
-    cc.TextureCache.prototype._addImageAsync = cc.TextureCache.prototype.addImageAsync;
-}
-cc.TextureCache.prototype.addImageAsync = function(url, cb, target) {
-    var localTex = null;
-    cc.loader.load(url, function(err, tex) {
-        if (err) tex = null;
-        if (cb) {
-            cb.call(target, tex);
-        }
-        localTex = tex;
-    });
-    return localTex;
-};
-// Fix for compatibility with old APIs
-cc.TextureCache.prototype.addImage = function(url, cb, target) {
-    if (typeof cb === "function") {
-        return this.addImageAsync(url, cb, target);
-    }
-    else {
-        if (cb) {
-            return this._addImage(url, cb);
-        }
-        else {
-            return this._addImage(url);
-        }
-    }
-};
-
 // View
 cc.view.isViewReady = cc.view.isOpenGLReady;
 cc.view.setOrientation = function () {};

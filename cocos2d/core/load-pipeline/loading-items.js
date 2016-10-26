@@ -87,11 +87,14 @@ function createItem (id, queueId) {
 
 var checkedIds = [];
 function checkCircleReference(owner, item, recursiveCall) {
+    if (!owner || !item) {
+        return false;
+    }
     var result = false;
     checkedIds.push(item.id);
     if (item.deps) {
         var i, deps = item.deps, subDep;
-        for (var i = 0; i < deps.length; i++) {
+        for (i = 0; i < deps.length; i++) {
             subDep = deps[i];
             if (subDep.id === owner.id) {
                 result = true;
@@ -670,8 +673,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
 
         LoadingItems.finishDep(id);
         if (this.onProgress) {
-            var dep = _queueDeps[item.queueId];
-            // console.log((dep ? dep.completed.length : this.completedCount) + ' / ' + (dep ? dep.deps.length : this.totalCount));
+            var dep = _queueDeps[this._id];
             this.onProgress(dep ? dep.completed.length : this.completedCount, dep ? dep.deps.length : this.totalCount, item);
         }
 
