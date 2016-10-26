@@ -152,7 +152,7 @@ var audioEngine = {
      * @param {Number} volume Volume must be in 0.0~1.0 .
      * @example
      * //example
-     * cc.audioEngine.setVolume(0.5);
+     * cc.audioEngine.setVolume(id, 0.5);
      */
     setVolume: function (audioID, volume) {
         var audio = getAudioFromId(audioID);
