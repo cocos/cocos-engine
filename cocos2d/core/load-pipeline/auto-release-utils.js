@@ -17,20 +17,7 @@ function parseDepends (key, parsed) {
 
 function release (loader, key, nextSceneAssets) {
     if (!nextSceneAssets || nextSceneAssets.indexOf(key) === -1) {
-        var item = loader.getItem(key);
-        if (item) {
-            var removed = loader.removeItem(key);
-            //console.log('auto release: ' + key);
-            // TODO: Audio
-            var asset = item.content;
-            if (asset instanceof cc.Texture2D) {
-                cc.textureCache.removeTextureForKey(item.url);
-            }
-            else if (CC_JSB && asset instanceof cc.SpriteFrame && removed) {
-                // for the "Temporary solution" in deserialize.js
-                asset.release();
-            }
-        }
+        loader.release(key);
     }
 }
 
@@ -44,14 +31,8 @@ module.exports = {
                 var item = cc.loader.getItem(assetOrUrlOrUuid);
                 return (item && item.url) || assetOrUrlOrUuid;
             }
-            else if (assetOrUrlOrUuid instanceof cc.Asset) {
+            else if (assetOrUrlOrUuid._uuid) {
                 return assetOrUrlOrUuid._uuid;
-            }
-            else if (assetOrUrlOrUuid instanceof cc.Texture2D) {
-                return assetOrUrlOrUuid.url;
-            }
-            else if (!CC_JSB && cc.Audio && assetOrUrlOrUuid instanceof cc.Audio) {
-                return assetOrUrlOrUuid.src;
             }
             else if (CC_DEV) {
                 cc.warn('unknown asset type');
