@@ -87,11 +87,14 @@ function createItem (id, queueId) {
 
 var checkedIds = [];
 function checkCircleReference(owner, item, recursiveCall) {
+    if (!owner || !item) {
+        return false;
+    }
     var result = false;
     checkedIds.push(item.id);
     if (item.deps) {
         var i, deps = item.deps, subDep;
-        for (var i = 0; i < deps.length; i++) {
+        for (i = 0; i < deps.length; i++) {
             subDep = deps[i];
             if (subDep.id === owner.id) {
                 result = true;
