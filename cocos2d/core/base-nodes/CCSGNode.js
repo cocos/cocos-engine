@@ -154,8 +154,6 @@ _ccsg.Node = cc.Class({
     },
 
     ctor: function() {
-        var name = arguments[0];
-
         this.__instanceId = cc.ClassManager.getNewInstanceId();
 
         this._running = false;

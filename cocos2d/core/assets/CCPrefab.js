@@ -23,28 +23,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-function visitWrapper (wrapper, visitor) {
-    visitor(wrapper);
-
-    var children = wrapper._children;
-    for (var i = 0; i < children.length; i++) {
-        visitor(children[i]);
-    }
-}
-
 /**
  * !#en Class for prefab handling.
  * !#zh 预制资源类。
  * @class Prefab
  * @extends Asset
- *
  */
 var Prefab = cc.Class({
     name: 'cc.Prefab',
     extends: cc.Asset,
 
     properties: {
-        data: null
+        /**
+         * @property {Node} data - the main cc.Node in the prefab
+         */
+        data: null,
     },
 
     createNode: function (cb) {
@@ -65,7 +58,7 @@ var Prefab = cc.Class({
         }
 
         // instantiate
-        var node = cc.instantiate(this.data);
+        var node = this.data._instantiate();
 
         if (CC_EDITOR || CC_TEST) {
             // This operation is not necessary, but some old prefab asset may not contain complete data.

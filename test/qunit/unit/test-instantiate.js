@@ -199,7 +199,7 @@
 
         var clone = cc.instantiate(node);
 
-        strictEqual(clone.getComponent(Script).compRef, null, 'deleted object should be nullify');
+        ok(clone.getComponent(Script).compRef === null, 'deleted object should be nullify');
     });
 
     test('redirect reference', function () {
@@ -248,7 +248,7 @@
         var cloneChildComp = cloneChild.getComponent(Script);
 
         notEqual(child, cloneChild, 'should clone child');
-        strictEqual(cloneChild.parent, cloneParent, 'should redirect parent reference');
+        ok(cloneChild.parent === cloneParent, 'should redirect parent reference');
 
         ok(cloneParentComp.nodeInComp === cloneChild, 'should redirect child reference');
         fastArrayEqual(cloneParentComp.nodeArrayInComp, [cloneChild, other], 'should redirect array of child reference');

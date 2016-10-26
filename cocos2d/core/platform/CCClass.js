@@ -468,7 +468,7 @@ function _checkCtor (ctor, className) {
             cc.error('ctor of "%s" must be function type', className);
             return;
         }
-        if (ctor.length > 0) {
+        if (ctor.length > 0 && !className.startsWith('cc.')) {
             // fireball-x/dev#138: To make a unified CCClass serialization process,
             // we don't allow parameters for constructor when creating instances of CCClass.
             // For advance user, construct arguments can still get from 'arguments'.
