@@ -589,7 +589,7 @@ jsval anonEvaluate(JSContext *cx, JS::HandleObject thisObj, const char* string)
 
 void js_add_object_reference(JS::HandleValue owner, JS::HandleValue target)
 {
-    if (target.isPrimitive())
+    if (owner.isNullOrUndefined() || target.isNullOrUndefined() || target.isPrimitive())
     {
         return;
     }
@@ -615,7 +615,7 @@ void js_add_object_reference(JS::HandleValue owner, JS::HandleValue target)
 }
 void js_remove_object_reference(JS::HandleValue owner, JS::HandleValue target)
 {
-    if (target.isPrimitive())
+    if (owner.isNullOrUndefined() || target.isNullOrUndefined() || target.isPrimitive())
     {
         return;
     }
@@ -623,12 +623,6 @@ void js_remove_object_reference(JS::HandleValue owner, JS::HandleValue target)
     JSContext *cx = engine->getGlobalContext();
     JS::RootedObject ownerObj(cx, owner.toObjectOrNull());
     JS::RootedObject targetObj(cx, target.toObjectOrNull());
-    js_proxy_t *pOwner = jsb_get_js_proxy(ownerObj);
-    js_proxy_t *pTarget = jsb_get_js_proxy(targetObj);
-    if (!pOwner || !pTarget)
-    {
-        return;
-    }
 
     JS::RootedObject global(cx, engine->getGlobalObject());
     JS::RootedObject jsbObj(cx);
