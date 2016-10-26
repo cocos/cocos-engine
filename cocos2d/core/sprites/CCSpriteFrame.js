@@ -255,7 +255,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         return this._texture;
     },
 
-    /**
+    /*
      * !#en Sets the texture of the frame, the texture is retained automatically.
      * !#zh 设置使用的纹理实例，会被 retain。
      * @method _refreshTexture
@@ -350,11 +350,11 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         return new cc.SpriteFrame(this._texture || this._textureFilename, this._rect, this._rotated, this._offset, this._originalSize);
     },
 
-    /*
-     * Initializes SpriteFrame with Texture, rect, rotated, offset and originalSize in pixels.<br/>
-     * Please pass parameters to the constructor to initialize the sprite, do not call this function yourself.
+    /**
+     * #en Set SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
+     * #zh 通过 Texture，rect，rotated，offset 和 originalSize 设置 SpriteFrame
      * @method setTexture
-     * @param {String|Texture2D} texture
+     * @param {String|Texture2D} textureOrTextureFile
      * @param {Rect} [rect=null]
      * @param {Boolean} [rotated=false]
      * @param {Vec2} [offset=cc.v2(0,0)]
