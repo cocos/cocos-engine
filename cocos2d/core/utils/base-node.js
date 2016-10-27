@@ -1875,20 +1875,35 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             // update rendering scene graph, sort them by arrivalOrder
             var parent = this._parent;
             var siblings = parent._children;
-            for (var i = 0, len = siblings.length; i < len; i++) {
-                var sibling = siblings[i]._sgNode;
-                if (CC_JSB) {
-                    // Reset zorder to update their arrival order
-                    var zOrder = sibling.getLocalZOrder();
-                    sibling.setLocalZOrder(zOrder+1);
-                    sibling.setLocalZOrder(zOrder);
+
+            var i = 0, len = siblings.length, sibling;
+            if (CC_JSB) {
+                if (cc.runtime) {
+                    for (; i < len; i++) {
+                        sibling = siblings[i]._sgNode;
+                        // Reset zorder to update their arrival order
+                        var zOrder = sibling.getLocalZOrder();
+                        sibling.setLocalZOrder(zOrder + 1);
+                        sibling.setLocalZOrder(zOrder);
+                    }
                 }
                 else {
-                    sibling._arrivalOrder = i;
-                    cc.eventManager._setDirtyForNode(siblings[i]);
+                    parent._sgNode.removeChild(this._sgNode, false);
+                    if (index + 1 < array.length) {
+                        var nextSibling = array[index + 1];
+                        parent._sgNode.insertChildBefore(this._sgNode, nextSibling._sgNode);
+                    }
+                    else {
+                        parent._sgNode.addChild(this._sgNode);
+                    }
                 }
             }
-            if (!CC_JSB) {
+            else {
+                for (; i < len; i++) {
+                    sibling = siblings[i]._sgNode;
+                    sibling._arrivalOrder = i;
+                    cc.eventManager._setDirtyForNode(sibling);
+                }
                 cc.renderer.childrenOrderDirty = true;
                 parent._sgNode._reorderChildDirty = true;
                 parent._reorderChildDirty = true;
