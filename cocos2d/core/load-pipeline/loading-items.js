@@ -164,6 +164,8 @@ var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
 
     this._appending = false;
 
+    this._ownerQueue = null;
+
     /**
      * !#en This is a callback which will be invoked while an item flow out the pipeline.
      * You can pass the callback function in LoadingItems.create or set it later.
@@ -487,6 +489,13 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         return accepted;
     },
 
+    _childOnProgress: function (item) {
+        if (this.onProgress) {
+            var dep = _queueDeps[this._id];
+            this.onProgress(dep ? dep.completed.length : this.completedCount, dep ? dep.deps.length : this.totalCount, item);
+        }
+    },
+
     /**
      * !#en Complete a LoadingItems queue, please do not call this method unless you know what's happening.
      * !#zh 完成一个 LoadingItems 队列，请不要调用这个函数，除非你知道自己在做什么。
@@ -695,6 +704,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         this.active = false;
         this._appending = false;
         this._pipeline = null;
+        this._ownerQueue = null;
         this._errorUrls.length = 0;
         this.onProgress = null;
         this.onComplete = null;

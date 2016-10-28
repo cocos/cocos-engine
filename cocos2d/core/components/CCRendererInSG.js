@@ -127,18 +127,18 @@ var RendererInSG = cc.Class({
         var parentNode = replaced.getParent();
         if (parentNode) {
             if ( !CC_JSB ) {
-                parentNode.removeChild(replaced);
+                parentNode.removeChild(replaced, false);
                 parentNode.addChild(sgNode);
                 sgNode._arrivalOrder = replaced._arrivalOrder;
                 cc.renderer.childrenOrderDirty = parentNode._reorderChildDirty = true;
             } else {
                 if (cc.runtime) {
-                    parentNode.removeChild(replaced);
+                    parentNode.removeChild(replaced, false);
                     parentNode.addChild(sgNode);
                     sgNode.arrivalOrder = replaced.arrivalOrder;
                 } else {
                     parentNode.insertChildBefore(sgNode, replaced);
-                    parentNode.removeChild(replaced);
+                    parentNode.removeChild(replaced, false);
                 }
             }
         }
