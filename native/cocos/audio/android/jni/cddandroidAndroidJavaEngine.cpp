@@ -1,6 +1,6 @@
 /****************************************************************************
 Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2015 Chukong Technologies Inc.
+Copyright (c) 2013-2016 Chukong Technologies Inc.
 
 http://www.cocos2d-x.org
 
@@ -48,7 +48,7 @@ AndroidJavaEngine::AndroidJavaEngine()
     : _implementBaseOnAudioEngine(false)
     , _effectVolume(1.f)
 {
-    int sdkVer = getSystemProperty("ro.build.version.sdk");
+    int sdkVer = getSDKVersion();
     if (sdkVer > 0)
     {
         __android_log_print(ANDROID_LOG_DEBUG, "cocos2d", "android SDK version:%d", sdkVer);

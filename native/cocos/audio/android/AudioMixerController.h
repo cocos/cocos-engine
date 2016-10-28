@@ -54,7 +54,6 @@ public:
     bool init();
 
     bool addTrack(Track* track);
-
     bool hasPlayingTacks();
 
     void pause();
