@@ -297,6 +297,9 @@ var View = cc._Class.extend({
         orientation = orientation & cc.macro.ORIENTATION_AUTO;
         if (orientation) {
             this._orientation = orientation;
+            var designWidth = this._originalDesignResolutionSize.width;
+            var designHeight = this._originalDesignResolutionSize.height;
+            this.setDesignResolutionSize(designWidth, designHeight, this._resolutionPolicy);
         }
     },
 
@@ -723,6 +726,8 @@ var View = cc._Class.extend({
         if(cc.sys.isMobile)
             this._adjustViewportMeta();
 
+        // Permit to re-detect the orientation of device.
+        this._orientationChanging = true;
         this._initFrameSize();
 
         this._originalDesignResolutionSize.width = this._designResolutionSize.width = width;
