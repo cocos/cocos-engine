@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 var JsonUnpacker = require('./json-unpacker');
+var LoadingItems = require('./loading-items');
 
 // {assetUuid: packUuid}
 var uuidToPack = {};
@@ -55,11 +56,12 @@ module.exports = {
 
     _loadNewPack: function (uuid, packUuid, callback) {
         var packUrl = cc.AssetLibrary.getImportedDir(packUuid) + '/' + packUuid + '.json';
-        cc.loader.load({id: packUrl, ignoreMaxConcurrency: true}, function (err, packJson) {
+        LoadingItems.create(cc.loader, [{id: packUrl, ignoreMaxConcurrency: true}], function (err, queue) {
             if (err) {
                 cc.error('Failed to download package for ' + uuid);
                 return callback(err);
             }
+            var packJson = queue.getContent(packUrl);
             // double check cache after load
             var unpacker = globalUnpackers[packUuid];
             if (!unpacker) {

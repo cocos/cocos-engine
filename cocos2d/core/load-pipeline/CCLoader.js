@@ -229,13 +229,22 @@ JS.mixin(CCLoader.prototype, {
             }
         }
 
-        var queue = LoadingItems.create(this, function (errors, items) {
+        var queue = LoadingItems.create(this, owner ? function () {
+            if (this._ownerQueue && this._ownerQueue.onProgress) {
+                this._ownerQueue._childOnProgress(item);
+            }
+        } : null, function (errors, items) {
             callback(errors, items);
             // Clear deps because it's already done
             // Each item will only flowInDeps once, so it's still safe here
             owner && (owner.deps.length = 0);
             items.destroy();
         });
+        if (owner) {
+            var ownerQueue = LoadingItems.getQueue(owner);
+            // Set the root ownerQueue, if no ownerQueue defined in ownerQueue, it's the root
+            queue._ownerQueue = ownerQueue._ownerQueue || ownerQueue;
+        }
         var accepted = queue.append(_sharedList, owner);
         _sharedList.length = 0;
         return accepted;
