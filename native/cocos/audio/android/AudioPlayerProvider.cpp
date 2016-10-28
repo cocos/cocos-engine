@@ -48,7 +48,7 @@ static int getSystemAPILevel()
         return __systemApiLevel;
     }
 
-    int apiLevel = getSystemProperty("ro.build.version.sdk");
+    int apiLevel = getSDKVersion();
     if (apiLevel > 0)
     {
         ALOGD("Android API level: %d", apiLevel);
@@ -210,16 +210,16 @@ void AudioPlayerProvider::preloadEffect(const std::string &audioFilePath, const 
         return;
     }
 
+    _pcmCacheMutex.lock();
+    auto&& iter = _pcmCache.find(audioFilePath);
+    if (iter != _pcmCache.end())
     {
-        std::lock_guard<std::mutex> lk(_pcmCacheMutex);
-        auto&& iter = _pcmCache.find(audioFilePath);
-        if (iter != _pcmCache.end())
-        {
-            ALOGV("preload return from cache: (%s)", audioFilePath.c_str());
-            cb(true, iter->second);
-            return;
-        }
+        ALOGV("preload return from cache: (%s)", audioFilePath.c_str());
+        _pcmCacheMutex.unlock();
+        cb(true, iter->second);
+        return;
     }
+    _pcmCacheMutex.unlock();
 
     auto info = getFileInfo(audioFilePath);
     preloadEffect(info, [this, cb, audioFilePath](bool succeed, PcmData data){
@@ -246,17 +246,17 @@ void AudioPlayerProvider::preloadEffect(const AudioFileInfo &info, const Preload
     {
         std::string audioFilePath = info.url;
 
+        // 1. First time check, if it wasn't in the cache, goto 2 step
+        _pcmCacheMutex.lock();
+        auto&& iter = _pcmCache.find(audioFilePath);
+        if (iter != _pcmCache.end())
         {
-            // 1. First time check, if it wasn't in the cache, goto 2 step
-            std::lock_guard<std::mutex> lk(_pcmCacheMutex);
-            auto&& iter = _pcmCache.find(audioFilePath);
-            if (iter != _pcmCache.end())
-            {
-                ALOGV("1. Return pcm data from cache, url: %s", info.url.c_str());
-                cb(true, iter->second);
-                return;
-            }
+            ALOGV("1. Return pcm data from cache, url: %s", info.url.c_str());
+            _pcmCacheMutex.unlock();
+            cb(true, iter->second);
+            return;
         }
+        _pcmCacheMutex.unlock();
 
         {
             // 2. Check whether the audio file is being preloaded, if it has been removed from map just now,
@@ -273,17 +273,19 @@ void AudioPlayerProvider::preloadEffect(const AudioFileInfo &info, const Preload
                 return;
             }
 
-            {   // 3. Check it in cache again. If it has been removed from map just now, the file is in
-                // the cache absolutely.
-                std::lock_guard<std::mutex> lk2(_pcmCacheMutex);
-                auto&& iter = _pcmCache.find(audioFilePath);
-                if (iter != _pcmCache.end())
-                {
-                    ALOGV("2. Return pcm data from cache, url: %s", info.url.c_str());
-                    cb(true, iter->second);
-                    return;
-                }
+           // 3. Check it in cache again. If it has been removed from map just now, the file is in
+            // the cache absolutely.
+            _pcmCacheMutex.lock();
+            auto&& iter = _pcmCache.find(audioFilePath);
+            if (iter != _pcmCache.end())
+            {
+                ALOGV("2. Return pcm data from cache, url: %s", info.url.c_str());
+                _pcmCacheMutex.unlock();
+                cb(true, iter->second);
+                return;
             }
+            _pcmCacheMutex.unlock();
+
 
             PreloadCallbackParam param;
             param.callback = cb;
@@ -342,7 +344,7 @@ AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
     AudioFileInfo info;
     long fileSize = 0;
     off_t start = 0, length = 0;
-    int assetFd = 0;
+    int assetFd = -1;
 
     if (audioFilePath[0] != '/')
     {
@@ -469,7 +471,7 @@ UrlAudioPlayer *AudioPlayerProvider::createUrlAudioPlayer(
         return nullptr;
     }
 
-    SLuint32 locatorType = info.assetFd > 0 ? SL_DATALOCATOR_ANDROIDFD : SL_DATALOCATOR_URI;
+    SLuint32 locatorType = info.assetFd->getFd() > 0 ? SL_DATALOCATOR_ANDROIDFD : SL_DATALOCATOR_URI;
     auto urlPlayer = new (std::nothrow) UrlAudioPlayer(_engineItf, _outputMixObject, _callerThreadUtils);
     bool ret = urlPlayer->prepare(info.url, locatorType, info.assetFd, info.start, info.length);
     if (!ret)

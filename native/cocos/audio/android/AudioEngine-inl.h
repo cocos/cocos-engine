@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2014-2015 Chukong Technologies Inc.
+ Copyright (c) 2014-2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -74,6 +74,9 @@ public:
 
 private:
 
+    void onEnterBackground(EventCustom* event);
+    void onEnterForeground(EventCustom* event);
+
     // engine interfaces
     SLObjectItf _engineObject;
     SLEngineItf _engineEngine;
@@ -84,6 +87,9 @@ private:
     //audioID,AudioInfo
     std::unordered_map<int, IAudioPlayer*>  _audioPlayers;
     std::unordered_map<int, std::function<void (int, const std::string &)>> _callbackMap;
+
+    // UrlAudioPlayers which need to resumed while entering foreground
+    std::vector<IAudioPlayer*> _urlAudioPlayersNeedResume;
 
     AudioPlayerProvider* _audioPlayerProvider;
     EventListener* _onPauseListener;
