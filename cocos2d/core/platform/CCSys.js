@@ -522,6 +522,8 @@ else {
         iOS = true;
         osVersion = uaResult[2] || '';
         osMainVersion = parseInt(osVersion) || 0;
+    } else if (/(iPhone|iPad|iPod)/.exec(nav.platform)) {
+        iOS = true;
     }
 
     var osName = sys.OS_UNKNOWN;
