@@ -2288,7 +2288,7 @@ cc.LabelBMFont = cc.Label.extend({
         this.setString(text);
     },
     setWidth: function(maxWidth) {
-        this.setMaxLineWidth(width);
+        this.setMaxLineWidth(maxWidth);
     },
     setFntFile: function (fntFile, imageOffset) {
         if (imageOffset) {
