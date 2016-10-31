@@ -29,7 +29,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
     View = require('./platform/CCView');
 }
 
-var _isMusicPlaying = false;
+require('../audio/CCAudioEngine');
 
 /**
  * !#en An object to boot the game.
@@ -254,9 +254,7 @@ var game = {
         this._paused = true;
         // Pause audio engine
         if (cc.audioEngine) {
-            _isMusicPlaying = cc.audioEngine.isMusicPlaying();
-            cc.audioEngine.stopAllEffects();
-            cc.audioEngine.pauseMusic();
+            cc.audioEngine.pauseAll();
         }
         // Pause main loop
         if (this._intervalId)
@@ -274,8 +272,8 @@ var game = {
         if (!this._paused) return;
         this._paused = false;
         // Resume audio engine
-        if (cc.audioEngine && _isMusicPlaying) {
-            cc.audioEngine.resumeMusic();
+        if (cc.audioEngine) {
+            cc.audioEngine.resumeAll();
         }
         // Resume main loop
         this._runMainLoop();
@@ -299,7 +297,9 @@ var game = {
     restart: function () {
         cc.director.popToSceneStackLevel(0);
         // Clean up audio
-        cc.audioEngine && cc.audioEngine.end();
+        if (cc.audioEngine) {
+            cc.audioEngine.uncacheAll();
+        }
 
         game.onStart();
     },

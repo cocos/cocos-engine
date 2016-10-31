@@ -227,3 +227,7 @@ cc.formatStr = cc.js.formatStr;
 if (cc.Image && cc.Image.setPNGPremultipliedAlphaEnabled) {
     cc.Image.setPNGPremultipliedAlphaEnabled(false);
 }
+
+if (cc.audioEngine) {
+    cc.audioEngine.setMaxWebAudioSize = function () {};
+}

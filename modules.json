@@ -144,7 +144,7 @@
   {
     "name": "Audio",
     "entries": [
-      "./cocos2d/audio/CCAudio.js"
+      "./cocos2d/audio/CCAudioEngine.js"
     ]
   },
   {
