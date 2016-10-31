@@ -103,6 +103,7 @@ require('./jsb-enums');
 require('./jsb-event');
 require('./jsb-action');
 require('./jsb-etc');
+require('./jsb-audio');
 
 if (cc.runtime) {
     require('./versions/jsb-polyfill-runtime');
