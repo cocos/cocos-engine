@@ -5458,6 +5458,10 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     JS_GetProperty(cx, ccObj, "EventListenerKeyboard", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
     JS_DefineFunction(cx, tmpObj, "create", js_EventListenerKeyboard_create, 0, JSPROP_READONLY | JSPROP_PERMANENT);
+    
+    JS_GetProperty(cx, ccObj, "EventListenerAcceleration", &tmpVal);
+    tmpObj = tmpVal.toObjectOrNull();
+    JS_DefineFunction(cx, tmpObj, "create", js_EventListenerAcceleration_create, 1, JSPROP_READONLY | JSPROP_PERMANENT);
 
     JS_GetProperty(cx, ccObj, "EventListenerFocus", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
