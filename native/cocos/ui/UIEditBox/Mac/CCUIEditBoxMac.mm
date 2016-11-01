@@ -63,6 +63,7 @@
 - (void)createMultiLineTextField
 {
     CCUIMultilineTextField *textView = [[[CCUIMultilineTextField alloc] initWithFrame:self.frameRect] autorelease];
+    [textView setVerticallyResizable:NO];
     self.textInput = textView;
 }
 
@@ -96,7 +97,7 @@
  
     if (![_textInput isKindOfClass:[NSTextView class]]) {
         [_textInput performSelector:@selector(setBordered:)
-                         withObject:[NSNumber numberWithBool:NO]];
+                         withObject:nil];
     }
     _textInput.hidden = NO;
     _textInput.wantsLayer = YES;
