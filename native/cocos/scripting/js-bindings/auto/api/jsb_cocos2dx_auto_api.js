@@ -4544,18 +4544,6 @@ func
 },
 
 /**
- * @method create
- * @param {function} arg0
- * @return {cc.EventListenerAcceleration}
- */
-create : function (
-func 
-)
-{
-    return cc.EventListenerAcceleration;
-},
-
-/**
  * @method EventListenerAcceleration
  * @constructor
  */

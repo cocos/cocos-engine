@@ -11094,52 +11094,6 @@ bool js_cocos2dx_EventListenerAcceleration_init(JSContext *cx, uint32_t argc, js
     JS_ReportError(cx, "js_cocos2dx_EventListenerAcceleration_init : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_cocos2dx_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
-    if (argc == 1) {
-        std::function<void (cocos2d::Acceleration *, cocos2d::Event *)> arg0;
-        do {
-		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
-		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
-		        auto lambda = [=](cocos2d::Acceleration* larg0, cocos2d::Event* larg1) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-		            jsval largv[2];
-		            largv[0] = ccacceleration_to_jsval(cx, *larg0);
-		            if (larg1) {
-		            largv[1] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::Event>(cx, (cocos2d::Event*)larg1));
-		        } else {
-		            largv[1] = JSVAL_NULL;
-		        };
-		            JS::RootedValue rval(cx);
-		            bool succeed = func->invoke(2, &largv[0], &rval);
-		            if (!succeed && JS_IsExceptionPending(cx)) {
-		                JS_ReportPendingException(cx);
-		            }
-		        };
-		        arg0 = lambda;
-		    }
-		    else
-		    {
-		        arg0 = nullptr;
-		    }
-		} while(0)
-		;
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerAcceleration_create : Error processing arguments");
-
-        auto ret = cocos2d::EventListenerAcceleration::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventListenerAcceleration>(ret);
-        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EventListenerAcceleration"));
-        args.rval().set(OBJECT_TO_JSVAL(jsret));
-        return true;
-    }
-    JS_ReportError(cx, "js_cocos2dx_EventListenerAcceleration_create : wrong number of arguments");
-    return false;
-}
-
 bool js_cocos2dx_EventListenerAcceleration_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -11180,10 +11134,7 @@ void js_register_cocos2dx_EventListenerAcceleration(JSContext *cx, JS::HandleObj
         JS_FS_END
     };
 
-    static JSFunctionSpec st_funcs[] = {
-        JS_FN("create", js_cocos2dx_EventListenerAcceleration_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FS_END
-    };
+    JSFunctionSpec *st_funcs = NULL;
 
     JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype);
     jsb_cocos2d_EventListenerAcceleration_prototype = JS_InitClass(
