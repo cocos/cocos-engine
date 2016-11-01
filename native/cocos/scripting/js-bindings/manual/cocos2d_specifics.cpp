@@ -1234,8 +1234,9 @@ void JSScheduleWrapper::dump()
 
     schedFunc_proxy_t *current_func, *tmp_func;
     int jsfuncTargetCount = 0;
-    HASH_ITER(hh, _schedFunc_target_ht, current_func, tmp_func) {
-        auto targets = current->targets;
+    HASH_ITER(hh, _schedFunc_target_ht, current_func, tmp_func)
+    {
+        auto targets = current_func->targets;
         for (const auto& pObj : *targets)
         {
             CCLOG("js func ( %p ), native target[%d]=( %p )", current_func->jsfuncObj, jsfuncTargetCount, pObj);
