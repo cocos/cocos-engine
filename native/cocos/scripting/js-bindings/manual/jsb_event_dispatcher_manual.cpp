@@ -25,6 +25,8 @@
 #include "base/CCEventListenerFocus.h"
 #include "base/CCEventListenerKeyboard.h"
 #include "base/CCEventListenerMouse.h"
+#include "base/CCEventListenerAcceleration.h"
+#include "base/CCEvent.h"
 #include "scripting/js-bindings/manual/ScriptingCore.h"
 #include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 
@@ -67,7 +69,7 @@ bool js_EventListenerTouchOneByOne_create(JSContext *cx, uint32_t argc, jsval *v
             ScriptingCore::getInstance()->handleTouchEvent(ret, EventTouch::EventCode::CANCELLED, touch, event);
         };
 
-        jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerTouchOneByOne>(cx, ret));
+        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerTouchOneByOne>(cx, ret)));
         args.rval().set(jsret);
         return true;
     }
@@ -98,7 +100,7 @@ bool js_EventListenerTouchAllAtOnce_create(JSContext *cx, uint32_t argc, jsval *
             ScriptingCore::getInstance()->handleTouchesEvent(ret, EventTouch::EventCode::CANCELLED, touches, event);
         };
 
-        jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerTouchAllAtOnce>(cx, ret));
+        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerTouchAllAtOnce>(cx, ret)));
         args.rval().set(jsret);
         return true;
     }
@@ -129,7 +131,7 @@ bool js_EventListenerMouse_create(JSContext *cx, uint32_t argc, jsval *vp)
             ScriptingCore::getInstance()->handleMouseEvent(ret, EventMouse::MouseEventType::MOUSE_SCROLL, event);
         };
 
-        jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerMouse>(cx, ret));
+        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerMouse>(cx, ret)));
         args.rval().set(jsret);
         return true;
     }
@@ -152,12 +154,58 @@ bool js_EventListenerKeyboard_create(JSContext *cx, uint32_t argc, jsval *vp)
             ScriptingCore::getInstance()->handleKeyboardEvent(ret, keyCode, false, event);
         };
 
-        jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerKeyboard>(cx, ret));
+        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerKeyboard>(cx, ret)));
         args.rval().set(jsret);
         return true;
     }
 
     JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+
+bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        std::function<void (Acceleration *, Event *)> arg0;
+        do {
+            if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
+            {
+                JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+                auto lambda = [=](Acceleration* acc, Event* event) -> void {
+                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
+                    jsval largv[2];
+                    largv[0] = ccacceleration_to_jsval(cx, *acc);
+                    if (event) {
+                        js_type_class_t *typeClassEvent = js_get_type_from_native<Event>(event);
+                        largv[1] = OBJECT_TO_JSVAL(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent, "cocos2d::EventAcceleration"));
+                    } else {
+                        largv[1] = JSVAL_NULL;
+                    };
+                    JS::RootedValue rval(cx);
+                    bool succeed = func->invoke(2, &largv[0], &rval);
+                    if (!succeed && JS_IsExceptionPending(cx)) {
+                        JS_ReportPendingException(cx);
+                    }
+                    removeJSObject(cx, event);
+                };
+                arg0 = lambda;
+            }
+            else
+            {
+                arg0 = nullptr;
+            }
+        } while(0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerAcceleration_create : Error processing arguments");
+        
+        auto ret = EventListenerAcceleration::create(arg0);
+        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerAcceleration>(cx, ret)));
+        args.rval().set(jsret);
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EventListenerAcceleration_create : wrong number of arguments");
     return false;
 }
 
@@ -170,7 +218,7 @@ bool js_EventListenerFocus_create(JSContext *cx, uint32_t argc, jsval *vp)
             ScriptingCore::getInstance()->handleFocusEvent(ret, widgetLoseFocus, widgetGetFocus);
         };
 
-        jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerFocus>(cx, ret));
+        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerFocus>(cx, ret)));
 
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
         args.rval().set(jsret);
