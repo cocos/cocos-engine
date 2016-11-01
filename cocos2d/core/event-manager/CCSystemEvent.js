@@ -111,12 +111,12 @@ var SystemEvent = cc.Class({
                 callback: function (accelEvent, event) {
                     event.type = EventType.DEVICEMOTION;
                     // fix android acc values are opposite
-                    if (cc.sys.os === cc.sys.OS_ANDROID &&
+                    if (!CC_JSB && cc.sys.os === cc.sys.OS_ANDROID &&
                         cc.sys.browserType !== cc.sys.BROWSER_TYPE_MOBILE_QQ) {
                         event.acc = cc.p(-accelEvent.x, -accelEvent.y);
                     }
                     else {
-                        event.acc = accelEvent;
+                        event.acc = cc.p(accelEvent.x, accelEvent.y);
                     }
                     cc.systemEvent.dispatchEvent(event);
                 }
