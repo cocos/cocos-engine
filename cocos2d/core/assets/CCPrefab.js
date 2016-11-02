@@ -38,6 +38,16 @@ var Prefab = cc.Class({
          * @property {Node} data - the main cc.Node in the prefab
          */
         data: null,
+
+        /**
+         * Cache function for fast instantiation
+         * @property {Function} _createFunction
+         * @private
+         */
+        _createFunction: {
+            default: null,
+            serializable: false
+        }
     },
 
     createNode: function (cb) {
@@ -47,7 +57,21 @@ var Prefab = cc.Class({
         }
     },
 
-    _instantiate: function () {
+    /**
+     * Dynamically translation prefab data into minimized code.<br/>
+     * This method will be called automatically before the first time the prefab being instantiated,
+     * but you can re-call to refresh the create function once you modified the original prefab data in script.
+     * @method compileCreateFunction
+     */
+    compileCreateFunction: function () {
+        var jit = require('../platform/instantiate-jit');
+        this._createFunction = jit.compile(this.data);
+    },
+
+    // just instantiate, will not initialize the Node, this will be called during Node's initialization.
+    // @param {Node} [rootToRedirect] - specify an instantiated prefabRoot that all references to prefabRoot in prefab
+    //                                  will redirect to
+    _doInstantiate: function (rootToRedirect) {
         if (this.data._prefab) {
             // prefab asset is always synced
             this.data._prefab._synced = true;
@@ -56,15 +80,22 @@ var Prefab = cc.Class({
             // temp guard code
             cc.warn('internal error: _prefab is undefined');
         }
+        if (!this._createFunction) {
+            this.compileCreateFunction();
+        }
+        return this._createFunction(rootToRedirect);  // this.data._instantiate();
+    },
 
-        // instantiate
-        var node = this.data._instantiate();
-
+    _instantiate: function () {
+        // instantiate node
+        var node = this._doInstantiate();
+        // initialize node
+        this.data._instantiate(node);
+        // link prefab in editor
         if (CC_EDITOR || CC_TEST) {
             // This operation is not necessary, but some old prefab asset may not contain complete data.
             _Scene.PrefabUtils.linkPrefab(this, node);
         }
-
         return node;
     }
 });

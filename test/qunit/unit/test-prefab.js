@@ -177,6 +177,10 @@
         testNode.removeComponent(TestScript);
         testNode.children[1].parent = null;
 
+        var originParent = testNode.parent = new cc.Node();
+        var outsideComp = originParent.addComponent(TestScript);
+        outsideComp.target = originParent;
+
         testChild.x += 1;
         testChild.scale = cc.Vec2.ZERO;
         testChild.addComponent(TestScript);
@@ -192,6 +196,8 @@
             ok(testNode.x != prefab.data.x, 'Should not revert root position');
             ok(testNode.getScaleX() === 123 && testNode.getScaleY() === 432, 'Revert property of the parent node');
             ok(testNode.getComponent(TestScript).constructor === TestScript, 'Restore removed component');
+            ok(testNode.parent === originParent, 'parent should not changed');
+            ok(testNode.parent.getComponent(TestScript).target === originParent, 'component property of parent should not changed');
 
             ok(testChild.x === prefab.data.children[0].x, 'Revert child position');
             ok(testChild.getScaleX() === 22 && testChild.getScaleY() === 11, 'Revert child node');
@@ -209,7 +215,7 @@
             comp.resetExpect(CallbackTester.OnLoad, 'call onLoad while attaching to node');
             comp.pushExpect(CallbackTester.OnEnable, 'then call onEnable if node active');
 
-            cc.director.getScene().addChild(testNode);
+            cc.director.getScene().addChild(testNode.parent);
 
             comp.stopTest();
 
