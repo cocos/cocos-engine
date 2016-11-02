@@ -560,7 +560,27 @@ var Widget = cc.Class({
 
             this._alignFlags &= ~flag;
         }
-    }
+    },
+
+    /**
+     * !#en
+     * Immediately perform the widget alignment. You need to manually call this method only if
+     * you need to get the latest results after the alignment before the end of current frame.
+     * !#zh
+     * 立刻执行 widget 对齐操作。这个接口一般不需要手工调用。
+     * 只有当你需要在当前帧结束前获得 widget 对齐后的最新结果时才需要手动调用这个方法。
+     *
+     * @method updateAlignment
+     *
+     * @example
+     * widget.top = 10;       // change top margin
+     * cc.log(widget.node.y); // not yet changed
+     * widget.updateAlignment();
+     * cc.log(widget.node.y); // changed
+     */
+    updateAlignment: function () {
+        WidgetManager.updateAlignment(this.node);
+    },
 });
 
 
