@@ -4560,20 +4560,6 @@ EventListenerAcceleration : function (
 cc.EventListenerCustom = {
 
 /**
- * @method create
- * @param {String} arg0
- * @param {function} arg1
- * @return {cc.EventListenerCustom}
- */
-create : function (
-str, 
-func 
-)
-{
-    return cc.EventListenerCustom;
-},
-
-/**
  * @method EventListenerCustom
  * @constructor
  */
