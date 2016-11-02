@@ -4382,20 +4382,6 @@ node
 },
 
 /**
- * @method addCustomEventListener
- * @param {String} arg0
- * @param {function} arg1
- * @return {cc.EventListenerCustom}
- */
-addCustomEventListener : function (
-str, 
-func 
-)
-{
-    return cc.EventListenerCustom;
-},
-
-/**
  * @method addEventListenerWithFixedPriority
  * @param {cc.EventListener} arg0
  * @param {int} arg1

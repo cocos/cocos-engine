@@ -10519,60 +10519,6 @@ bool js_cocos2dx_EventDispatcher_addEventListenerWithSceneGraphPriority(JSContex
     JS_ReportError(cx, "js_cocos2dx_EventDispatcher_addEventListenerWithSceneGraphPriority : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
-bool js_cocos2dx_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
-    cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_EventDispatcher_addCustomEventListener : Invalid Native Object");
-    if (argc == 2) {
-        std::string arg0;
-        std::function<void (cocos2d::EventCustom *)> arg1;
-        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        do {
-		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
-		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
-		        auto lambda = [=](cocos2d::EventCustom* larg0) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-		            jsval largv[1];
-		            if (larg0) {
-		            largv[0] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::EventCustom>(cx, (cocos2d::EventCustom*)larg0));
-		        } else {
-		            largv[0] = JSVAL_NULL;
-		        };
-		            JS::RootedValue rval(cx);
-		            bool succeed = func->invoke(1, &largv[0], &rval);
-		            if (!succeed && JS_IsExceptionPending(cx)) {
-		                JS_ReportPendingException(cx);
-		            }
-		        };
-		        arg1 = lambda;
-		    }
-		    else
-		    {
-		        arg1 = nullptr;
-		    }
-		} while(0)
-		;
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventDispatcher_addCustomEventListener : Error processing arguments");
-        cocos2d::EventListenerCustom* ret = cobj->addCustomEventListener(arg0, arg1);
-        JS::RootedValue jsret(cx);
-        if (ret) {
-            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::EventListenerCustom>(cx, (cocos2d::EventListenerCustom*)ret));
-        } else {
-            jsret = JSVAL_NULL;
-        };
-        args.rval().set(jsret);
-        return true;
-    }
-
-    JS_ReportError(cx, "js_cocos2dx_EventDispatcher_addCustomEventListener : wrong number of arguments: %d, was expecting %d", argc, 2);
-    return false;
-}
 bool js_cocos2dx_EventDispatcher_addEventListenerWithFixedPriority(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -10923,7 +10869,6 @@ void js_register_cocos2dx_EventDispatcher(JSContext *cx, JS::HandleObject global
         JS_FN("setEnabled", js_cocos2dx_EventDispatcher_setEnabled, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("removeAllListeners", js_cocos2dx_EventDispatcher_removeAllEventListeners, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("addEventListenerWithSceneGraphPriority", js_cocos2dx_EventDispatcher_addEventListenerWithSceneGraphPriority, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("addCustomListener", js_cocos2dx_EventDispatcher_addCustomEventListener, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("addEventListenerWithFixedPriority", js_cocos2dx_EventDispatcher_addEventListenerWithFixedPriority, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("removeListeners", js_cocos2dx_EventDispatcher_removeEventListenersForTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("resumeTarget", js_cocos2dx_EventDispatcher_resumeEventListenersForTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
