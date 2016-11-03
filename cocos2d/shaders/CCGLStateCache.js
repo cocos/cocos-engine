@@ -29,85 +29,95 @@ var _currentProjectionMatrix = -1;
 var macro = cc.macro;
 var ENABLE_GL_STATE_CACHE = macro.ENABLE_GL_STATE_CACHE;
 
-// GL State Cache functions
-
-var ccgl = cc.gl = {
-    _vertexAttribPosition: false,
-    _vertexAttribColor: false,
-    _vertexAttribTexCoords: false
-};
-
 var MAX_ACTIVETEXTURE = 0,
     _currentShaderProgram = 0,
     _currentBoundTexture = null,
     _blendingSource = 0,
     _blendingDest = 0,
     _GLServerState = 0,
-    _uVAO = 0,
-    _currBuffers = {};
-if (ENABLE_GL_STATE_CACHE) {
-    MAX_ACTIVETEXTURE = 16;
-    _currentShaderProgram = -1;
-    _currentBoundTexture = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
-    _blendingSource = -1;
-    _blendingDest = -1;
-    _GLServerState = 0;
-    if(macro.TEXTURE_ATLAS_USE_VAO)
-        _uVAO = 0;
+    _uVAO = 0;
 
-    ccgl.bindBuffer = function (target, buffer) {
-        if (_currBuffers[target] !== buffer) {
-            cc._renderContext.bindBuffer(target, buffer);
-            _currBuffers[target] = buffer;
-            return false;
-        }
-        else {
-            return true;
-        }
-    };
+// GL State Cache functions
 
-    ccgl.enableVertexAttribArray = function (index) {
-        if (index === macro.VERTEX_ATTRIB_FLAG_POSITION) {
-            if (!ccgl._vertexAttribPosition) {
-                cc._renderContext.enableVertexAttribArray(index);
-                ccgl._vertexAttribPosition = true;
-            }
-        }
-        else if (index === macro.VERTEX_ATTRIB_FLAG_COLOR) {
-            if (!ccgl._vertexAttribColor) {
-                cc._renderContext.enableVertexAttribArray(index);
-                ccgl._vertexAttribColor = true;
-            }
-        }
-        else if (index === macro.VERTEX_ATTRIB_FLAG_TEX_COORDS) {
-            if (!ccgl._vertexAttribTexCoords) {
-                cc._renderContext.enableVertexAttribArray(index);
-                ccgl._vertexAttribTexCoords = true;
-            }
-        }
-        else {
-            cc._renderContext.enableVertexAttribArray(index);
-        }
-    };
+var ccgl = cc.gl = {
+    _vertexAttribPosition: false,
+    _vertexAttribColor: false,
+    _vertexAttribTexCoords: false,
 
-    ccgl.disableVertexAttribArray = function (index) {
-        if (index === macro.VERTEX_ATTRIB_FLAG_COLOR) {
-            if (ccgl._vertexAttribColor) {
+    bindBuffer: null,
+    enableVertexAttribArray: null,
+    disableVertexAttribArray: null,
+
+    initStateCache: ENABLE_GL_STATE_CACHE ? function () {
+        MAX_ACTIVETEXTURE = 16;
+        _currentShaderProgram = -1;
+        _currentBoundTexture = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
+        _blendingSource = -1;
+        _blendingDest = -1;
+        _GLServerState = 0;
+        if(macro.TEXTURE_ATLAS_USE_VAO)
+            _uVAO = 0;
+
+        var _currBuffers = {};
+
+        this.bindBuffer = function (target, buffer) {
+            if (_currBuffers[target] !== buffer) {
+                cc._renderContext.bindBuffer(target, buffer);
+                _currBuffers[target] = buffer;
+                return false;
+            }
+            else {
+                return true;
+            }
+        };
+
+        this.enableVertexAttribArray = function (index) {
+            if (index === macro.VERTEX_ATTRIB_FLAG_POSITION) {
+                if (!this._vertexAttribPosition) {
+                    cc._renderContext.enableVertexAttribArray(index);
+                    this._vertexAttribPosition = true;
+                }
+            }
+            else if (index === macro.VERTEX_ATTRIB_FLAG_COLOR) {
+                if (!this._vertexAttribColor) {
+                    cc._renderContext.enableVertexAttribArray(index);
+                    this._vertexAttribColor = true;
+                }
+            }
+            else if (index === macro.VERTEX_ATTRIB_FLAG_TEX_COORDS) {
+                if (!this._vertexAttribTexCoords) {
+                    cc._renderContext.enableVertexAttribArray(index);
+                    this._vertexAttribTexCoords = true;
+                }
+            }
+            else {
+                cc._renderContext.enableVertexAttribArray(index);
+            }
+        };
+
+        this.disableVertexAttribArray = function (index) {
+            if (index === macro.VERTEX_ATTRIB_FLAG_COLOR) {
+                if (this._vertexAttribColor) {
+                    cc._renderContext.disableVertexAttribArray(index);
+                    this._vertexAttribColor = false;
+                }
+            }
+            else if (index === macro.VERTEX_ATTRIB_FLAG_TEX_COORDS) {
+                if (this._vertexAttribTexCoords) {
+                    cc._renderContext.disableVertexAttribArray(index);
+                    this._vertexAttribTexCoords = false;
+                }
+            }
+            else if (index !== 0) {
                 cc._renderContext.disableVertexAttribArray(index);
-                ccgl._vertexAttribColor = false;
             }
-        }
-        else if (index === macro.VERTEX_ATTRIB_FLAG_TEX_COORDS) {
-            if (ccgl._vertexAttribTexCoords) {
-                cc._renderContext.disableVertexAttribArray(index);
-                ccgl._vertexAttribTexCoords = false;
-            }
-        }
-        else if (index !== 0) {
-            cc._renderContext.disableVertexAttribArray(index);
-        }
-    };
-}
+        };
+    } : function (gl) {
+        this.bindBuffer = gl.bindBuffer.bind(gl);
+        this.enableVertexAttribArray = gl.enableVertexAttribArray.bind(gl);
+        this.disableVertexAttribArray = gl.disableVertexAttribArray.bind(gl);
+    }
+};
 
 /*
  * Invalidates the GL state cache.<br/>

@@ -64,10 +64,9 @@ var _batchedInfo = {
 // https://github.com/Talisca/cocos2d-html5/commit/de731f16414eb9bcaa20480006897ca6576d362c
 function updateBuffer (numQuads) {
     var gl = cc._renderContext;
-    var ccgl = cc.gl;
     // Update index buffer size
     if (_indexBuffer) {
-        ccgl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _indexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _indexBuffer);
         _indexData = new Uint16Array(numQuads * 6);
         var currentQuad = 0;
         for (var i = 0, len = numQuads * 6; i < len; i += 6) {
@@ -89,7 +88,7 @@ function updateBuffer (numQuads) {
         _vertexDataF32 = new Float32Array(_vertexData);
         _vertexDataUI32 = new Uint32Array(_vertexData);
         // Init buffer data
-        ccgl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
+        gl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, _vertexDataF32, gl.DYNAMIC_DRAW);
     }
     // Downsize by 100 to avoid vertex data overflow
@@ -135,6 +134,8 @@ cc.rendererWebGL = {
         var gl = cc._renderContext;
         gl.disable(gl.CULL_FACE);
         gl.disable(gl.DEPTH_TEST);
+
+        cc.gl.initStateCache(gl);
 
         this.mat4Identity = new cc.math.Matrix4();
         this.mat4Identity.identity();
@@ -386,7 +387,7 @@ cc.rendererWebGL = {
         ccgl.blendFunc(_batchedInfo.blendSrc, _batchedInfo.blendDst);
         ccgl.bindTexture2DN(0, texture);                   // = ccgl.bindTexture2D(texture);
 
-        var _bufferchanged = ccgl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
+        var _bufferchanged = !ccgl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
         // upload the vertex data to the gl buffer
         if (uploadAll) {
             gl.bufferData(gl.ARRAY_BUFFER, _vertexDataF32, gl.DYNAMIC_DRAW);
