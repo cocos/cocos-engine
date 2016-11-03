@@ -104,13 +104,18 @@ var ToggleGroup = cc.Class({
             }
         });
 
+        return isChecked;
+    },
+
+    start: function () {
+        var isChecked = this._allowOnlyOneToggleChecked();
+
         if(!isChecked && !this.allowSwitchOff) {
             if(this._toggleItems.length > 0) {
                 this._toggleItems[0].isChecked = true;
             }
         }
-
-    },
+    }
 
 });
 
