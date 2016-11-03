@@ -648,7 +648,7 @@ var game = {
         var el = this.config[game.CONFIG_KEY.id],
             win = window,
             element = cc.$(el) || cc.$('#' + el),
-            localCanvas, localContainer;
+            localCanvas, localContainer, localConStyle;
 
         if (element.tagName === "CANVAS") {
             width = width || element.width;

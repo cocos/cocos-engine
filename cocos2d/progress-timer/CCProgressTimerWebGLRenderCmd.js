@@ -60,7 +60,7 @@
 
     proto.rendering = function (ctx) {
         var node = this._node;
-        var context = ctx || cc._renderContext, ccgl = cc.gl;
+        var context = ctx || cc._renderContext;
         if (this._vertexDataCount === 0 || !node._sprite)
             return;
 
@@ -68,13 +68,13 @@
         this._shaderProgram._updateProjectionUniform();
 
         var blendFunc = node._sprite._blendFunc;
-        ccgl.blendFunc(blendFunc.src, blendFunc.dst);
-        ccgl.bindTexture2D(node._sprite.texture);
-        ccgl.bindBuffer(context.ARRAY_BUFFER, this._vertexWebGLBuffer);
+        cc.gl.blendFunc(blendFunc.src, blendFunc.dst);
+        cc.gl.bindTexture2D(node._sprite.texture);
+        context.bindBuffer(context.ARRAY_BUFFER, this._vertexWebGLBuffer);
 
-        ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
-        ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
-        ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_TEX_COORDS);
+        context.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
+        context.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
+        context.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_TEX_COORDS);
 
         if (this._vertexDataDirty) {
             context.bufferSubData(context.ARRAY_BUFFER, 0, this._float32View);
@@ -221,7 +221,7 @@
             }
 
             // Init buffer data
-            cc.gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexWebGLBuffer);
+            gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexWebGLBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, this._float32View, gl.DYNAMIC_DRAW);
 
             this._vertexDataCount = 0;

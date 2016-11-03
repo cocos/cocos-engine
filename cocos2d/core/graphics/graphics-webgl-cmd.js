@@ -310,10 +310,10 @@ Js.mixin(_p, {
         var vertsBuffer = this._vertsBuffer;
         if (!vertsBuffer || vertsBuffer.length === 0 || this._cmds.length === 0) return;
 
-        var gl = cc._renderContext, ccgl = cc.gl;
+        var gl = cc._renderContext;
 
-        ccgl.bindBuffer(gl.ARRAY_BUFFER, this._vertsVBO);
-        ccgl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indicesVBO);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertsVBO);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indicesVBO);
 
         if (this._vertsDirty) {
             gl.bufferData(gl.ARRAY_BUFFER, vertsBuffer, gl.STREAM_DRAW);
@@ -329,7 +329,7 @@ Js.mixin(_p, {
             cc.warn('Too many graphics vertices generated, only 65536 vertices support.');
         }
 
-        ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
+        gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
         gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, VERTS_BYTE_LENGTH, 0);
 
         var shader = this._shader;
