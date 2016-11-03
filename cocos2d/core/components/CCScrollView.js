@@ -566,7 +566,7 @@ var ScrollView = cc.Class({
      * @return {Vec2}  - A Vec2 value indicate the current scroll offset.
      */
     getScrollOffset: function() {
-        var topDelta =  this._topBoundary -  this._getContentTopBoundary();
+        var topDelta =  this._getContentTopBoundary() - this._topBoundary;
         var leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
 
         return cc.p(leftDeta, topDelta);
