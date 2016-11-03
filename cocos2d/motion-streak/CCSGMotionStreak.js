@@ -394,16 +394,17 @@ _ccsg.MotionStreak = _ccsg.Node.extend({
         this._texCoords = new Float32Array(locMaxPoints * 4);
         this._colorPointer = new Uint8Array(locMaxPoints * 8);
 
+        var gl = cc._renderContext, ccgl = cc.gl;
         this._verticesBuffer = gl.createBuffer();
         this._texCoordsBuffer = gl.createBuffer();
         this._colorPointerBuffer = gl.createBuffer();
 
         //bind buffer
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._verticesBuffer);
+        ccgl.bindBuffer(gl.ARRAY_BUFFER, this._verticesBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this._vertices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordsBuffer);
+        ccgl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordsBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this._texCoords, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._colorPointerBuffer);
+        ccgl.bindBuffer(gl.ARRAY_BUFFER, this._colorPointerBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this._colorPointer, gl.DYNAMIC_DRAW);
     },
 

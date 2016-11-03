@@ -64,9 +64,10 @@ var _batchedInfo = {
 // https://github.com/Talisca/cocos2d-html5/commit/de731f16414eb9bcaa20480006897ca6576d362c
 function updateBuffer (numQuads) {
     var gl = cc._renderContext;
+    var ccgl = cc.gl;
     // Update index buffer size
     if (_indexBuffer) {
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _indexBuffer);
+        ccgl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _indexBuffer);
         _indexData = new Uint16Array(numQuads * 6);
         var currentQuad = 0;
         for (var i = 0, len = numQuads * 6; i < len; i += 6) {
@@ -88,7 +89,7 @@ function updateBuffer (numQuads) {
         _vertexDataF32 = new Float32Array(_vertexData);
         _vertexDataUI32 = new Uint32Array(_vertexData);
         // Init buffer data
-        gl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
+        ccgl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, _vertexDataF32, gl.DYNAMIC_DRAW);
     }
     // Downsize by 100 to avoid vertex data overflow
@@ -372,6 +373,7 @@ cc.rendererWebGL = {
         }
 
         var gl = cc._renderContext;
+        var ccgl = cc.gl;
         var texture = _batchedInfo.texture;
         var shader = _batchedInfo.shader;
         var uploadAll = _batchingSize > _maxVertexSize * 0.5;
@@ -381,10 +383,10 @@ cc.rendererWebGL = {
             shader._updateProjectionUniform();
         }
 
-        cc.gl.blendFunc(_batchedInfo.blendSrc, _batchedInfo.blendDst);
-        cc.gl.bindTexture2DN(0, texture);                   // = cc.gl.bindTexture2D(texture);
+        ccgl.blendFunc(_batchedInfo.blendSrc, _batchedInfo.blendDst);
+        ccgl.bindTexture2DN(0, texture);                   // = ccgl.bindTexture2D(texture);
 
-        var _bufferchanged = !gl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
+        var _bufferchanged = ccgl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
         // upload the vertex data to the gl buffer
         if (uploadAll) {
             gl.bufferData(gl.ARRAY_BUFFER, _vertexDataF32, gl.DYNAMIC_DRAW);
@@ -395,15 +397,15 @@ cc.rendererWebGL = {
         }
 
         if (_bufferchanged) {
-            gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
-            gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
-            gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_TEX_COORDS);
+            ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
+            ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
+            ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_TEX_COORDS);
             gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 24, 0);
             gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, 24, 12);
             gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 24, 16);
         }
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _indexBuffer);
+        ccgl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _indexBuffer);
         if (!_prevIndexSize || !_pureQuad || _indexSize > _prevIndexSize) {
             if (uploadAll) {
                 gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, _indexData, gl.DYNAMIC_DRAW);
@@ -437,7 +439,7 @@ cc.rendererWebGL = {
             context = ctx || cc._renderContext;
 
         // Reset buffer for rendering
-        context.bindBuffer(context.ARRAY_BUFFER, null);
+        cc.gl.bindBuffer(context.ARRAY_BUFFER, null);
 
         for (i = 0, len = locCmds.length; i < len; ++i) {
             cmd = locCmds[i];

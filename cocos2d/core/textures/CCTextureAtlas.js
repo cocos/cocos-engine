@@ -639,12 +639,12 @@ if (cc._renderType === game.RENDER_TYPE_WEBGL) {
 
         _mapBuffers: function () {
             var _t = this;
-            var gl = cc._renderContext;
+            var gl = cc._renderContext, ccgl = cc.gl;
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, _t._quadsWebBuffer);
+            ccgl.bindBuffer(gl.ARRAY_BUFFER, _t._quadsWebBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, _t._quadsArrayBuffer, gl.DYNAMIC_DRAW);
 
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _t._buffersVBO[1]);
+            ccgl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _t._buffersVBO[1]);
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, _t._indices, gl.STATIC_DRAW);
 
             //cc.checkGLErrorDebug();
@@ -660,19 +660,19 @@ if (cc._renderType === game.RENDER_TYPE_WEBGL) {
             if (0 === n || !_t.texture || !_t.texture.isLoaded())
                 return;
 
-            var gl = cc._renderContext;
-            cc.gl.bindTexture2D(_t.texture);
+            var gl = cc._renderContext, ccgl = cc.gl;
+            ccgl.bindTexture2D(_t.texture);
 
             //
             // Using VBO without VAO
             //
             //vertices
-            //gl.bindBuffer(gl.ARRAY_BUFFER, _t._buffersVBO[0]);
+            ccgl.bindBuffer(gl.ARRAY_BUFFER, _t._buffersVBO[0]);
             // XXX: update is done in draw... perhaps it should be done in a timer
-            gl.bindBuffer(gl.ARRAY_BUFFER, _t._quadsWebBuffer);
-            gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
-            gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
-            gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_TEX_COORDS);
+            ccgl.bindBuffer(gl.ARRAY_BUFFER, _t._quadsWebBuffer);
+            ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
+            ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
+            ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_TEX_COORDS);
             if (_t.dirty){
                 gl.bufferData(gl.ARRAY_BUFFER, _t._quadsArrayBuffer, gl.DYNAMIC_DRAW);
                 _t.dirty = false;
@@ -682,7 +682,7 @@ if (cc._renderType === game.RENDER_TYPE_WEBGL) {
             gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, 24, 12);          // colors
             gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 24, 16);            // tex coords
 
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _t._buffersVBO[1]);
+            ccgl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _t._buffersVBO[1]);
 
             if (cc.macro.TEXTURE_ATLAS_USE_TRIANGLE_STRIP)
                 gl.drawElements(gl.TRIANGLE_STRIP, n * 6, gl.UNSIGNED_SHORT, start * 6 * _t._indices.BYTES_PER_ELEMENT);

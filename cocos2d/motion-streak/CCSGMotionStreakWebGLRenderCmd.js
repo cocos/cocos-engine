@@ -33,13 +33,14 @@ _ccsg.MotionStreak.WebGLRenderCmd = function(renderableObject){
 _ccsg.MotionStreak.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
 _ccsg.MotionStreak.WebGLRenderCmd.prototype.constructor = _ccsg.Sprite.WebGLRenderCmd;
 
-_ccsg.MotionStreak.WebGLRenderCmd.prototype.rendering = function(ctx){
+_ccsg.MotionStreak.WebGLRenderCmd.prototype.rendering = function (ctx) {
     var node = this._node;
     if (node._nuPoints <= 1)
         return;
 
     if (node.texture && node.texture.isLoaded()) {
         ctx = ctx || cc._renderContext;
+        var ccgl = cc.gl;
 
         // update the color
         this._updateDisplayColor();
@@ -54,26 +55,26 @@ _ccsg.MotionStreak.WebGLRenderCmd.prototype.rendering = function(ctx){
 
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._matrix);
-        cc.gl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
+        ccgl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
 
-        cc.gl.bindTexture2DN(0, node.texture);
+        ccgl.bindTexture2DN(0, node.texture);
 
-        ctx.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
-        ctx.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
-        ctx.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_TEX_COORDS);
+        ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
+        ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
+        ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_TEX_COORDS);
 
         //position
-        ctx.bindBuffer(ctx.ARRAY_BUFFER, node._verticesBuffer);
+        ccgl.bindBuffer(ctx.ARRAY_BUFFER, node._verticesBuffer);
         ctx.bufferData(ctx.ARRAY_BUFFER, node._vertices, ctx.DYNAMIC_DRAW);
         ctx.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, ctx.FLOAT, false, 0, 0);
 
         //texcoords
-        ctx.bindBuffer(ctx.ARRAY_BUFFER, node._texCoordsBuffer);
+        ccgl.bindBuffer(ctx.ARRAY_BUFFER, node._texCoordsBuffer);
         ctx.bufferData(ctx.ARRAY_BUFFER, node._texCoords, ctx.DYNAMIC_DRAW);
         ctx.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, ctx.FLOAT, false, 0, 0);
 
         //colors
-        ctx.bindBuffer(ctx.ARRAY_BUFFER, node._colorPointerBuffer);
+        ccgl.bindBuffer(ctx.ARRAY_BUFFER, node._colorPointerBuffer);
         ctx.bufferData(ctx.ARRAY_BUFFER, node._colorPointer, ctx.DYNAMIC_DRAW);
         ctx.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, ctx.UNSIGNED_BYTE, true, 0, 0);
 
