@@ -960,8 +960,9 @@ var ScrollView = cc.Class({
         this._dispatchEvent('touch-up');
         if (this._touchMoved) {
             event.stopPropagation();
+        } else {
+            this._stopPropagationIfTargetIsMe(event);
         }
-        this._stopPropagationIfTargetIsMe(event);
     },
     _onTouchCancelled: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
