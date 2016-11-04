@@ -724,8 +724,9 @@ var ScrollView = cc.Class({
         this.node.on(cc.Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
     },
 
-    _onMouseWheel: function(event) {
+    _onMouseWheel: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
+        if (this._isNestedScrollview(event, captureListeners)) return;
 
         var deltaMove = cc.p(0, 0);
         var wheelPrecision = -0.1;
@@ -747,7 +748,8 @@ var ScrollView = cc.Class({
             this.schedule(this._checkMouseWheel, 1.0 / 60);
             this._stopMouseWheel = true;
         }
-        event.stopPropagation();
+
+        this._stopPropagationAtTargetPhase(event);
     },
 
     _checkMouseWheel: function(dt) {
@@ -874,19 +876,56 @@ var ScrollView = cc.Class({
         return contentParent.convertToNodeSpaceAR(scrollViewPositionInWorldSpace);
     },
 
+    //this is for nested scrollview
+    _isNestedScrollview: function (event, captureListeners) {
+        if(event.eventPhase != 1) return;
+
+        var isNested = false;
+        if(captureListeners) {
+            for(var i = 0; i < captureListeners.length; ++i){
+                var item = captureListeners[i];
+
+                if(this.node === item) {
+                    if(event.target.getComponent(cc.ScrollView)) {
+                        return true;
+                    }
+                    return isNested;
+                }
+
+                if(item.getComponent(cc.ScrollView)) {
+                    if(!isNested) {
+                        isNested = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return isNested;
+    },
+
+    //This is for Scrollview as children of a Button
+    _stopPropagationAtTargetPhase: function (event) {
+        if(event.eventPhase === 2 && event.target === this.node) {
+            event.stopPropagation();
+        }
+    },
+
     // touch event handler
-    _onTouchBegan: function(event) {
+    _onTouchBegan: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
+        if (this._isNestedScrollview(event, captureListeners)) return;
 
         var touch = event.touch;
         if (this.content) {
             this._handlePressLogic(touch);
         }
         this._touchMoved = false;
+        this._stopPropagationAtTargetPhase(event);
     },
 
-    _onTouchMoved: function(event) {
+    _onTouchMoved: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
+        if (this._isNestedScrollview(event, captureListeners)) return;
 
         var touch = event.touch;
         if (this.content) {
@@ -911,10 +950,12 @@ var ScrollView = cc.Class({
             }
             event.stopPropagation();
         }
+        this._stopPropagationAtTargetPhase(event);
     },
 
-    _onTouchEnded: function(event) {
+    _onTouchEnded: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
+        if (this._isNestedScrollview(event, captureListeners)) return;
 
         var touch = event.touch;
         if (this.content) {
@@ -924,9 +965,11 @@ var ScrollView = cc.Class({
         if (this._touchMoved) {
             event.stopPropagation();
         }
+        this._stopPropagationAtTargetPhase(event);
     },
-    _onTouchCancelled: function(event) {
+    _onTouchCancelled: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
+        if (this._isNestedScrollview(event, captureListeners)) return;
 
         // Filte touch cancel event send from self
         if (!event.simulate) {
@@ -935,6 +978,7 @@ var ScrollView = cc.Class({
                 this._handleReleaseLogic(touch);
             }
         }
+        this._stopPropagationAtTargetPhase(event);
     },
 
     _processDeltaMove: function(deltaMove) {
