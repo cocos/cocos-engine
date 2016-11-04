@@ -945,7 +945,6 @@ var ScrollView = cc.Class({
                 event.target.dispatchEvent(cancelEvent);
                 this._touchMoved = true;
             }
-            event.stopPropagation();
         }
         this._stopPropagationIfTargetIsMe(event);
     },
