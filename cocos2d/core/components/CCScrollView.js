@@ -878,10 +878,10 @@ var ScrollView = cc.Class({
 
     //this is for nested scrollview
     _isNestedScrollview: function (event, captureListeners) {
-        if(event.eventPhase != 1) return;
+        if(event.eventPhase !== cc.Event.CAPTURING_PHASE) return;
 
-        var isNested = false;
         if(captureListeners) {
+            //captureListeners are arranged from child to parent
             for(var i = 0; i < captureListeners.length; ++i){
                 var item = captureListeners[i];
 
@@ -889,23 +889,20 @@ var ScrollView = cc.Class({
                     if(event.target.getComponent(cc.ScrollView)) {
                         return true;
                     }
-                    return isNested;
+                    return false;
                 }
 
                 if(item.getComponent(cc.ScrollView)) {
-                    if(!isNested) {
-                        isNested = true;
-                        break;
-                    }
+                    return true;
                 }
             }
         }
-        return isNested;
+        return false;
     },
 
     //This is for Scrollview as children of a Button
     _stopPropagationAtTargetPhase: function (event) {
-        if(event.eventPhase === 2 && event.target === this.node) {
+        if(event.eventPhase === cc.Event.AT_TARGET && event.target === this.node) {
             event.stopPropagation();
         }
     },
