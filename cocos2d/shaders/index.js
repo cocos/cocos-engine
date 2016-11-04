@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCGLStateCache');
 require('./CCShaders');
 require('./CCShaderCache');
 require('./CCGLProgram');
+require('./CCGLStateCache');

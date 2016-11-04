@@ -186,7 +186,7 @@ proto.rendering = function (ctx) {
     if (!node._texture)
         return;
 
-    var gl = ctx || cc._renderContext, ccgl = cc.gl;
+    var gl = ctx || cc._renderContext;
 
     var wt = this._worldTransform, mat = this._matrix.mat;
     mat[0] = wt.a;
@@ -199,22 +199,22 @@ proto.rendering = function (ctx) {
     this._shaderProgram.use();
     this._shaderProgram._setUniformForMVPMatrixWithMat4(this._matrix);     //;
 
-    ccgl.bindTexture2DN(0, node._texture);
-    ccgl.blendFuncForParticle(node._blendFunc.src, node._blendFunc.dst);
+    cc.gl.bindTexture2DN(0, node._texture);
+    cc.gl.blendFuncForParticle(node._blendFunc.src, node._blendFunc.dst);
 
     //
     // Using VBO without VAO
     //
-    ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
-    ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
-    ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_TEX_COORDS);
+    gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
+    gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
+    gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_TEX_COORDS);
 
-    ccgl.bindBuffer(gl.ARRAY_BUFFER, this._buffersVBO[0]);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._buffersVBO[0]);
     gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 24, 0);               // vertices
     gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, 24, 12);          // colors
     gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 24, 16);            // tex coords
 
-    ccgl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._buffersVBO[1]);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._buffersVBO[1]);
     gl.drawElements(gl.TRIANGLES, node._particleIdx * 6, gl.UNSIGNED_SHORT, 0);
 };
 
@@ -333,11 +333,11 @@ proto._setupVBO = function(){
 
     //gl.deleteBuffer(this._buffersVBO[0]);
     this._buffersVBO[0] = gl.createBuffer();
-    cc.gl.bindBuffer(gl.ARRAY_BUFFER, this._buffersVBO[0]);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._buffersVBO[0]);
     gl.bufferData(gl.ARRAY_BUFFER, this._quadsArrayBuffer, gl.DYNAMIC_DRAW);
 
     this._buffersVBO[1] = gl.createBuffer();
-    cc.gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._buffersVBO[1]);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._buffersVBO[1]);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this._indices, gl.STATIC_DRAW);
 
     //cc.checkGLErrorDebug();
@@ -370,7 +370,7 @@ proto._allocMemory = function(){
 
 proto.postStep = function(){
     var gl = cc._renderContext;
-    cc.gl.bindBuffer(gl.ARRAY_BUFFER, this._buffersVBO[0]);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._buffersVBO[0]);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._quadsArrayBuffer);
 };
 

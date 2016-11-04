@@ -98,17 +98,17 @@
         if (!node._textureLoaded)
             return;
 
-        var gl = ctx || cc._renderContext, ccgl = cc.gl, locTexture = node._texture;
+        var gl = ctx || cc._renderContext, locTexture = node._texture;
         if (locTexture && locTexture._textureLoaded) {
             this._shaderProgram.use();
             this._shaderProgram.setUniformForModelViewAndProjectionMatrixWithMat4();
 
-            ccgl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
+            cc.gl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
             //optimize performance for javascript
-            ccgl.bindTexture2DN(0, locTexture);                   // = ccgl.bindTexture2D(locTexture);
-            ccgl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+            cc.gl.bindTexture2DN(0, locTexture);                   // = cc.gl.bindTexture2D(locTexture);
+            cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
-            ccgl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
+            gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
             if (this._quadDirty) {
                 gl.bufferData(gl.ARRAY_BUFFER, this._quad.arrayBuffer, gl.DYNAMIC_DRAW);
                 this._quadDirty = false;

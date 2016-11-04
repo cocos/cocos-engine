@@ -82,7 +82,6 @@
 
     proto.rendering = function (ctx) {
         var context = ctx || cc._renderContext;
-        var ccgl = cc.gl;
         var node = this._node;
 
         var wt = this._worldTransform, mat = this._matrix.mat;
@@ -95,17 +94,17 @@
 
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._matrix);
-        ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
-        ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
-        ccgl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
+        context.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
+        context.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
+        cc.gl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
 
         //
         // Attributes
         //
-        ccgl.bindBuffer(context.ARRAY_BUFFER, this._verticesFloat32Buffer);
+        context.bindBuffer(context.ARRAY_BUFFER, this._verticesFloat32Buffer);
         context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 3, context.FLOAT, false, 0, 0);
 
-        ccgl.bindBuffer(context.ARRAY_BUFFER, this._colorsUint8Buffer);
+        context.bindBuffer(context.ARRAY_BUFFER, this._colorsUint8Buffer);
         context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, context.UNSIGNED_BYTE, true, 0, 0);
 
         context.drawArrays(context.TRIANGLE_STRIP, 0, this._squareVertices.length);
@@ -145,13 +144,13 @@
 
     proto._bindLayerVerticesBufferData = function(){
         var glContext = cc._renderContext;
-        cc.gl.bindBuffer(glContext.ARRAY_BUFFER, this._verticesFloat32Buffer);
+        glContext.bindBuffer(glContext.ARRAY_BUFFER, this._verticesFloat32Buffer);
         glContext.bufferData(glContext.ARRAY_BUFFER, this._squareVerticesAB, glContext.DYNAMIC_DRAW);
     };
 
     proto._bindLayerColorsBufferData = function(){
         var glContext = cc._renderContext;
-        cc.gl.bindBuffer(glContext.ARRAY_BUFFER, this._colorsUint8Buffer);
+        glContext.bindBuffer(glContext.ARRAY_BUFFER, this._colorsUint8Buffer);
         glContext.bufferData(glContext.ARRAY_BUFFER, this._squareColorsAB, glContext.STATIC_DRAW);
     };
 
@@ -289,7 +288,7 @@
     };
 
     proto.rendering = function (ctx) {
-        var context = ctx || cc._renderContext, ccgl = cc.gl, node = this._node;
+        var context = ctx || cc._renderContext, node = this._node;
 
         //it is too expensive to use stencil to clip, so it use Scissor,
         //but it has a bug when layer rotated and layer's content size less than canvas's size.
@@ -308,15 +307,15 @@
         //draw gradient layer
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._matrix);
-        ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
-        ccgl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
-        ccgl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
+        context.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
+        context.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
+        cc.gl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
         //
         // Attributes
         //
-        ccgl.bindBuffer(context.ARRAY_BUFFER, this._verticesFloat32Buffer);
+        context.bindBuffer(context.ARRAY_BUFFER, this._verticesFloat32Buffer);
         context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 3, context.FLOAT, false, 0, 0);
-        ccgl.bindBuffer(context.ARRAY_BUFFER, this._colorsUint8Buffer);
+        context.bindBuffer(context.ARRAY_BUFFER, this._colorsUint8Buffer);
         context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, context.UNSIGNED_BYTE, true, 0, 0);
         context.drawArrays(context.TRIANGLE_STRIP, 0, this._squareVertices.length);
 
