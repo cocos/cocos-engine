@@ -480,7 +480,7 @@ var Button = cc.Class({
     },
 
     _onTouchMove: function (event) {
-        if (!this.interactable || !this.enabledInHierarchy) return;
+        if (!this.interactable || !this.enabledInHierarchy || !this._pressed) return;
         // mobile phone will not emit _onMouseMoveOut,
         // so we have to do hit test when touch moving
         var touch = event.touch;
@@ -530,7 +530,7 @@ var Button = cc.Class({
     },
 
     _zoomBack: function () {
-        this._fromScale = this._originalScale * this.zoomScale;
+        this._fromScale = this.node.scale;
         this._toScale = this._originalScale;
         this.time = 0;
         this._transitionFinished = false;
@@ -540,8 +540,11 @@ var Button = cc.Class({
         if (!this.interactable || !this.enabledInHierarchy) return;
 
         this._pressed = false;
-
-        this._updateState();
+        if(this.transition === Transition.SCALE) {
+            this._zoomBack();
+        } else {
+            this._updateState();
+        }
     },
 
     _onMouseMoveIn: function () {
