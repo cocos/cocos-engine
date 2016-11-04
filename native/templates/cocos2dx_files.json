@@ -3233,7 +3233,8 @@
         "tools/simulator/libsimulator/proj.win32/libsimulator.vcxproj.filters", 
         "tools/simulator/libsimulator/proj.win32/stdafx.cpp", 
         "tools/simulator/libsimulator/proj.win32/stdafx.h", 
-        "tools/simulator/libsimulator/proj.win32/targetver.h"
+        "tools/simulator/libsimulator/proj.win32/targetver.h", 
+        "utils/update-version.js"
     ], 
     "js": [
         "cocos/scripting/js-bindings/auto/api/jsb_cocos2dx_audioengine_auto_api.js", 
