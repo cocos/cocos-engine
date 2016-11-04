@@ -280,9 +280,9 @@ function getDefault (defaultVal) {
     return defaultVal;
 }
 
-var DELIMETER = Attr.DELIMETER;
+var DEFAULT = Attr.DELIMETER + 'default';
 function instantiateProps (instance, itsClass) {
-    var attrs = Attr.getClassAttrs(itsClass);
+    var attrs = itsClass.__attrs__ || Attr.getClassAttrs(itsClass);
     var propList = itsClass.__props__;
     if (propList === null) {
         deferredInitializer.init();
@@ -290,7 +290,7 @@ function instantiateProps (instance, itsClass) {
     }
     for (var i = 0; i < propList.length; i++) {
         var prop = propList[i];
-        var attrKey = prop + DELIMETER + 'default';
+        var attrKey = prop + DEFAULT;
         if (attrKey in attrs) {  // getter does not have default
             var def = attrs[attrKey];
             // default maybe 0
@@ -529,7 +529,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
     }
     var superCallBounded = options && baseClass && boundSuperCalls(baseClass, options);
 
-    if (ctor && CC_DEV) {
+    if (CC_DEV && ctor) {
         _checkCtor(ctor, className);
     }
     // get base user constructors
@@ -1091,7 +1091,6 @@ function parseAttributes (attrs, className, propName) {
 cc.Class = CCClass;
 
 module.exports = {
-    instantiateProps: instantiateProps,
     isArray: function (defaultVal) {
         defaultVal = getDefault(defaultVal);
         return Array.isArray(defaultVal);

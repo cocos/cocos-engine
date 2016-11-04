@@ -398,11 +398,11 @@ JS.mixin(Parser.prototype, {
             var propVal = value[prop];
             if (typeof propVal === 'object') {
                 cc.error('Can not instantiate %s because it contains object property.', clsName);
-                return NEW + this.getFuncModule(value.constructor) + '();'
+                return NEW + this.getFuncModule(value.constructor) + '();';
             }
             res += propVal;
             if (i < type.__props__.length - 1) {
-                res += ','
+                res += ',';
             }
         }
         return res + ')';
