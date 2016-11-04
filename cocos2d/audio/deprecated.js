@@ -35,7 +35,7 @@ exports.removed = function (audioEngine) {
 };
 
 exports.deprecated = function (audioEngine) {
-	
+
 	var musicId = -1;
 	var musicPath = 1;
 	var musicLoop = 1;
@@ -203,7 +203,7 @@ exports.deprecated = function (audioEngine) {
 				audioEngine.stopAll();
 				if (musicPlay) {
 					musicId = audioEngine.play(musicPath, musicLoop);
-					audioEngine.setCurrentTime(currentTime);
+					audioEngine.setCurrentTime(musicId, currentTime);
 				}
 			}
 		}
