@@ -145,6 +145,10 @@ cc.eventManager = {
      * @param {Boolean} recursive
      */
     pauseTarget: function (node, recursive) {
+        if (!(node instanceof cc._BaseNode || node instanceof _ccsg.Node)) {
+            cc.warn(cc._LogInfos.EventManager.addListener_5);
+            return;
+        }
         var listeners = this._nodeListenersMap[node.__instanceId], i, len;
         if (listeners) {
             for ( i = 0, len = listeners.length; i < len; i++)
@@ -165,6 +169,10 @@ cc.eventManager = {
      * @param {Boolean} recursive
      */
     resumeTarget: function (node, recursive) {
+        if (!(node instanceof cc._BaseNode || node instanceof _ccsg.Node)) {
+            cc.warn(cc._LogInfos.EventManager.addListener_5);
+            return;
+        }
         var listeners = this._nodeListenersMap[node.__instanceId], i, len;
         if (listeners){
             for ( i = 0, len = listeners.length; i < len; i++)
@@ -712,11 +720,15 @@ cc.eventManager = {
      */
     addListener: function (listener, nodeOrPriority) {
         cc.assert(listener && nodeOrPriority, cc._LogInfos.EventManager.addListener_2);
-        if(!(listener instanceof cc.EventListener)){
+        if (!(cc.js.isNumber(nodeOrPriority) || nodeOrPriority instanceof cc._BaseNode || nodeOrPriority instanceof _ccsg.Node)) {
+            cc.warn(cc._LogInfos.EventManager.addListener_5);
+            return;
+        }
+        if (!(listener instanceof cc.EventListener)) {
             cc.assert(!cc.js.isNumber(nodeOrPriority), cc._LogInfos.EventManager.addListener_3);
             listener = cc.EventListener.create(listener);
         } else {
-            if(listener._isRegistered()){
+            if (listener._isRegistered()) {
                 cc.log(cc._LogInfos.EventManager.addListener_4);
                 return;
             }
@@ -872,6 +884,10 @@ cc.eventManager = {
      */
     removeListeners: function (listenerType, recursive) {
         var i, _t = this;
+        if (!(cc.js.isNumber(listenerType) || listenerType instanceof cc._BaseNode || listenerType instanceof _ccsg.Node)) {
+            cc.warn(cc._LogInfos.EventManager.addListener_5);
+            return;
+        }
         if (listenerType.__instanceId !== undefined) {
             // Ensure the node is removed from these immediately also.
             // Don't want any dangling pointers or the possibility of dealing with deleted objects..
