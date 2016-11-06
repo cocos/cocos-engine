@@ -152,16 +152,14 @@ cc.eventManager.addListener = function(listener, nodeOrPriority) {
 
     return listener;
 };
+cc.eventManager._removeListeners = cc.eventManager.removeListeners;
 cc.eventManager.removeListeners = function (target, recursive) {
     if (target instanceof cc._BaseNode) {
         target = target._sgNode;
     }
     
-    if (target instanceof _ccsg.Node) {
-        this.removeEventListenersForTarget(target, recursive || false);
-    }
-    else if (cc.js.isNumber(target)) {
-        this.removeEventListenersForType(target, recursive || false);
+    if (target instanceof _ccsg.Node || cc.js.isNumber(target)) {
+        this._removeListeners(target, recursive || false);
     }
     else {
         cc.warn(cc._LogInfos.EventManager.addListener_5);
