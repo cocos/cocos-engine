@@ -268,10 +268,16 @@ test('prop initial times', function () {
     });
     var fooTester = Callback().enable();
     var instanceMocker = {
-        ctor: Base,  // mock constructor of class instance
+        ctor: Base,  // mock constructor of class instance,
     };
     Object.defineProperty(instanceMocker, 'foo', {
         set: fooTester
+    });
+    Object.defineProperty(instanceMocker, '__initProps__', {
+        get: function () {
+            return Base.prototype.__initProps__;
+        },
+        configurable: true
     });
     Base.call(instanceMocker);
     fooTester.once('property should init once');
@@ -286,6 +292,12 @@ test('prop initial times', function () {
     instanceMocker.constructor = Sub;
     Object.defineProperty(instanceMocker, 'bar', {
         set: barTester
+    });
+    Object.defineProperty(instanceMocker, '__initProps__', {
+        get: function () {
+            return Sub.prototype.__initProps__;
+        },
+        configurable: true
     });
     Sub.call(instanceMocker);
     fooTester.once('foo prop should init once even if inherited');

@@ -280,41 +280,6 @@ function getDefault (defaultVal) {
     return defaultVal;
 }
 
-var DEFAULT = Attr.DELIMETER + 'default';
-function instantiateProps (instance, itsClass) {
-    var attrs = itsClass.__attrs__ || Attr.getClassAttrs(itsClass);
-    var propList = itsClass.__props__;
-    if (propList === null) {
-        deferredInitializer.init();
-        propList = itsClass.__props__;
-    }
-    for (var i = 0; i < propList.length; i++) {
-        var prop = propList[i];
-        var attrKey = prop + DEFAULT;
-        if (attrKey in attrs) {  // getter does not have default
-            var def = attrs[attrKey];
-            // default maybe 0
-            if (def) {
-                if (typeof def === 'object' && def) {
-                    if (typeof def.clone === 'function') {
-                        def = def.clone();
-                    }
-                    else if (Array.isArray(def)) {
-                        def = [];
-                    }
-                    else {
-                        def = {};
-                    }
-                }
-                else if (typeof def === 'function') {
-                    def = getDefault(def);
-                }
-            }
-            instance[prop] = def;
-        }
-    }
-}
-
 /**
  * Checks whether subclass is child of superclass or equals to superclass
  *
@@ -417,6 +382,8 @@ function doDefine (className, baseClass, mixins, constructor, options) {
         fireClass.prototype.constructor = fireClass;
     }
 
+    fireClass.prototype.__initProps__ = compileProps;
+
     JS.setClassName(className, fireClass);
     return fireClass;
 }
@@ -506,6 +473,106 @@ function normalizeClassName (className) {
     }
 }
 
+var NAME_IN_DOT_NOTATION_REG = /^[$A-Za-z_][0-9A-Za-z_$]*$/;
+var DEFAULT = Attr.DELIMETER + 'default';
+var NEW = 'new ';
+function getNewValueTypeCode (value) {
+    var clsName = JS.getClassName(value);
+    var type = value.constructor;
+    var res = NEW + clsName + '(';
+    for (var i = 0; i < type.__props__.length; i++) {
+        var prop = type.__props__[i];
+        var propVal = value[prop];
+        if (typeof propVal === 'object') {
+            cc.error('Can not construct %s because it contains object property.', clsName);
+            return NEW + clsName + '()';
+        }
+        res += propVal;
+        if (i < type.__props__.length - 1) {
+            res += ','
+        }
+    }
+    return res + ')';
+}
+
+function compileProps (actualClass) {
+    var attrs = Attr.getClassAttrs(actualClass);
+    var propList = actualClass.__props__;
+    if (propList === null) {
+        deferredInitializer.init();
+        propList = actualClass.__props__;
+    }
+
+    // functions for generated code
+    var F = [];
+
+    var func = '(function(){\n';
+
+    for (var i = 0; i < propList.length; i++) {
+        var prop = propList[i];
+        var attrKey = prop + DEFAULT;
+        if (attrKey in attrs) {  // getter does not have default
+            var statement;
+            if (NAME_IN_DOT_NOTATION_REG.test(prop)) {
+                statement = 'this.' + prop + '=';
+            }
+            else {
+                statement = 'this["' + prop + '"]=';
+            }
+            var expression;
+            var def = attrs[attrKey];
+            if (typeof def === 'object' && def) {
+                if (def instanceof cc.ValueType) {
+                    expression = getNewValueTypeCode(def);
+                }
+                else if (Array.isArray(def)) {
+                    expression = '[]';
+                }
+                else {
+                    expression = '{}';
+                }
+            }
+            else if (typeof def === 'function') {
+                var index = F.length;
+                F.push(def);
+                expression = 'F[' + index + ']()';
+                if (CC_EDITOR) {
+                    func += 'try {\n' + statement + expression + ';\n}\ncatch(e) {\ncc._throw(e);\n' + statement + 'undefined;\n}\n';
+                    continue;
+                }
+            }
+            else if (typeof def === 'string') {
+                expression = '"' + def + '"';
+            }
+            else {
+                // number, boolean, null, undefined
+                expression = def;
+            }
+            statement = statement + expression + ';\n';
+            func += statement;
+        }
+    }
+
+    func += '})';
+
+    if (CC_TEST && !isPhantomJS) {
+        console.log(func);
+    }
+
+    // jshint evil: true
+    var instantiateProps = (function (F) {
+        // wrap a new scope to enalbe minify
+        return eval(func);
+    })(F);
+    // jshint evil: false
+
+    // overwite __initProps__ to avoid compile again
+    actualClass.prototype.__initProps__ = instantiateProps;
+
+    // immediate call instantiateProps, no need actualClass anymore
+    this.__initProps__();
+}
+
 function _createCtor (ctor, baseClass, mixins, className, options) {
     var useTryCatch = ! (className && className.startsWith('cc.'));
     var shouldAddProtoCtor;
@@ -566,7 +633,9 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
     if (superCallBounded) {
         body += 'this._super=null;\n';
     }
-    body += 'instantiateProps(this,fireClass);\n';
+
+    // instantiate props
+    body += 'this.__initProps__(fireClass);\n';
 
     // call user constructors
     if (ctors.length > 0) {
@@ -778,11 +847,7 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
     };
  */
 function CCClass (options) {
-    if (arguments.length === 0) {
-        return define();
-    }
-    if ( !options ) {
-        cc.error('cc.Class: Option must be non-nil');
+    if (!options) {
         return define();
     }
 
