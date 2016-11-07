@@ -716,7 +716,7 @@ var ScrollView = cc.Class({
 
     //private methods
     _registerEvent: function() {
-        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this, true);
         this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this);
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
         this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this);
@@ -884,7 +884,9 @@ var ScrollView = cc.Class({
             this._handlePressLogic(touch);
         }
 
-        event.stopPropagation();
+        if(event.target === this.node) {
+            event.stopPropagation();
+        }
     },
 
     _onTouchMovePreventDefault: function (event) {
@@ -897,7 +899,7 @@ var ScrollView = cc.Class({
 
         var deltaMove = cc.pSub(touch.getLocation(), touch.getStartLocation());
         //FIXME: touch move delta should be calculated by DPI.
-        if (cc.pLength(deltaMove) > 7) {
+        if (cc.pLength(deltaMove) > 4) {
             if (event.target !== this.node) {
                 event.preventDefault();
             }

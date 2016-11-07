@@ -508,6 +508,11 @@ var Button = cc.Class({
             event.stopPropagation();
         } else {
             this._pressed = false;
+            if(this.transition === Transition.SCALE) {
+                this._zoomBack();
+            } else {
+                this._updateState();
+            }
         }
     },
 
