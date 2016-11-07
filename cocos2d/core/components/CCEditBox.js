@@ -233,11 +233,11 @@ var EditBox = cc.Class({
          * !#en Set the input flags that are to be applied to the EditBox.
          * !#zh 指定输入标志位，可以指定输入方式为密码或者单词首字母大写。
          * @property {EditBox.InputFlag} inputFlag
-         * @default InputFlag.INITIAL_CAPS_ALL_CHARACTERS
+         * @default InputFlag.DEFAULT
          */
         inputFlag: {
             tooltip: 'i18n:COMPONENT.editbox.input_flag',
-            default: InputFlag.INITIAL_CAPS_ALL_CHARACTERS,
+            default: InputFlag.DEFAULT,
             type: InputFlag,
             notify: function() {
                 this._sgNode.inputFlag = this.inputFlag;
@@ -341,7 +341,11 @@ var EditBox = cc.Class({
 
         /**
          * !#en The maximize input length of EditBox.
+         * - If pass a value less than 0, it won't limit the input number of characters.
+         * - If pass 0, it doesn't allow input any characters.
          * !#zh 输入框最大允许输入的字符个数。
+         * - 如果值为小于 0 的值，则不会限制输入字符个数。
+         * - 如果值为 0，则不允许用户进行任何输入。
          * @property {Number} maxLength
          */
         maxLength: {
@@ -496,18 +500,22 @@ var EditBox = cc.Class({
 
     editBoxEditingDidBegan: function() {
         cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
+        this.node.emit('editing-did-began', this);
     },
 
     editBoxEditingDidEnded: function() {
         cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
+        this.node.emit('editing-did-ended', this);
     },
 
     editBoxTextChanged: function(editBox, text) {
         cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
+        this.node.emit('text-changed', this);
     },
 
     editBoxEditingReturn: function() {
         cc.Component.EventHandler.emitEvents(this.editingReturn, this);
+        this.node.emit('editing-return', this);
     },
 
     __preload: function() {
@@ -578,3 +586,43 @@ if(CC_JSB) {
 }
 
 cc.EditBox = module.exports = EditBox;
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event editing-did-began
+ * @param {Event} event
+ * @param {EditBox} event.detail - The EditBox component.
+ */
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event editing-did-ended
+ * @param {Event} event
+ * @param {EditBox} event.detail - The EditBox component.
+ */
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event text-changed
+ * @param {Event} event
+ * @param {EditBox} event.detail - The EditBox component.
+ */
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event editing-return
+ * @param {Event} event
+ * @param {EditBox} event.detail - The EditBox component.
+ */

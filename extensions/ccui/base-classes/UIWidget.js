@@ -427,7 +427,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
             var component = this._getOrCreateLayoutComponent();
             component.setUsingPercentContentSize(true);
             component.setPercentContentSize(percent);
-            component.refreshLayout();            
+            component.refreshLayout();
             return;
         }
 
@@ -482,7 +482,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
 
     /**
      * updates its size by size type and its position by position type.
-     * @param {cc.Size} [parentSize] parent size
+     * @param {Size} [parentSize] parent size
      */
     updateSizeAndPosition: function (parentSize) {
         if(!parentSize){
@@ -587,7 +587,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
 
     /**
      * Get custom size of ccui.Widget
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getCustomSize: function () {
         return cc.size(this._customSize);
@@ -595,7 +595,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
 
     /**
      * Gets layout size of ccui.Widget.
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getLayoutSize: function(){
         return cc.size(this._contentSize);
@@ -899,7 +899,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
             return this._enabled && this._touchEnabled;
         else if (type === cc.Event.FOCUS)
             return this._enabled && this._focusEnabled;
-        else 
+        else
             return this._enabled;
     },
 
@@ -1614,7 +1614,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
     /**
      * Changes the size that is widget's size
      * @deprecated since v3.0, please use setContentSize instead.
-     * @param {cc.Size} size  that is widget's size
+     * @param {Size} size  that is widget's size
      */
     setSize: function (size) {
         this.setContentSize(size);
@@ -1623,7 +1623,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
     /**
      * Returns size of widget
      * @deprecated since v3.0, please use getContentSize instead.
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getSize: function () {
         return this.getContentSize();

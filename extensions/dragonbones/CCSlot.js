@@ -66,7 +66,7 @@ dragonBones.CCSlot = cc.Class({
         this._renderDisplay.removeFromParent();
     },
 
-    _disposeDisplay : function () {
+    _disposeDisplay : function (object) {
 
     },
 

@@ -1,9 +1,18 @@
------
-cc.eventManager.addListener({
-    event: cc.EventListener.KEYBOARD,
-    onKeyPressed:  function(keyCode, event){
-        if (cc.KEY["a"] == keyCode) {
-            cc.log("A is pressed");
+cc.Class({
+    extends: cc.Component,
+    onLoad: function () {
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+    },
+
+    destroy () {
+        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+    },
+
+    onKeyDown: function (event) {
+        switch(event.keyCode) {
+            case cc.KEY['0']:
+                console.log('Press a key');
+                break;
         }
     }
-}, this);
+});

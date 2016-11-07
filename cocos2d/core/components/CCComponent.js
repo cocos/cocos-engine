@@ -38,18 +38,34 @@ var IsStartCalled = Flags.IsStartCalled;
 
 // only use eval in editor
 
-var ExecInTryCatchTmpl = CC_EDITOR && '(function call_FUNC_InTryCatch(c){try{c._FUNC_()}catch(e){cc._throw(e)}})';
-if (CC_TEST) {
-    ExecInTryCatchTmpl = '(function call_FUNC_InTryCatch (c) { c._FUNC_() })';
+var callPreloadInTryCatch;
+var callOnLoadInTryCatch;
+var callOnEnableInTryCatch;
+var callStartInTryCatch;
+var callOnDisableInTryCatch;
+var callOnDestroyInTryCatch;
+var callOnFocusInTryCatch;
+var callOnLostFocusInTryCatch;
+var callResetInTryCatch;
+
+var callerFunctor;
+if (CC_EDITOR) {
+    callerFunctor = function (funcName) {
+        var TMPL = CC_TEST ?
+            '(function call_FUNC_InTryCatch(c){try{c._FUNC_()}catch(e){cc._throw(e)}})':
+            '(function call_FUNC_InTryCatch (c) { c._FUNC_() })';
+        return eval(TMPL.replace(/_FUNC_/g, funcName));
+    };
+    callPreloadInTryCatch = callerFunctor('__preload');
+    callOnLoadInTryCatch = callerFunctor('onLoad');
+    callOnEnableInTryCatch = callerFunctor('onEnable');
+    callStartInTryCatch = callerFunctor('start');
+    callOnDisableInTryCatch = callerFunctor('onDisable');
+    callOnDestroyInTryCatch = callerFunctor('onDestroy');
+    callOnFocusInTryCatch = callerFunctor('onFocusInEditor');
+    callOnLostFocusInTryCatch = callerFunctor('onLostFocusInEditor');
+    callResetInTryCatch = callerFunctor('resetInEditor');
 }
-var callPreloadInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, '__preload'));
-var callOnLoadInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onLoad'));
-var callOnEnableInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onEnable'));
-var callStartInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'start'));
-var callOnDisableInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onDisable'));
-var callOnDestroyInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onDestroy'));
-var callOnFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onFocusInEditor'));
-var callOnLostFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onLostFocusInEditor'));
 
 function callOnEnable (self, enable) {
     
@@ -216,15 +232,6 @@ function _callPreloadOnNode (node) {
     }
 }
 
-function _callPreloadOnComponent (component) {
-    if (CC_EDITOR) {
-        callPreloadInTryCatch(component);
-    }
-    else {
-        component.__preload();
-    }
-}
-
 /**
  * !#en
  * Base class for everything attached to Node(Entity).<br/>
@@ -238,7 +245,6 @@ function _callPreloadOnComponent (component) {
  *
  * @class Component
  * @extends Object
- * @constructor
  */
 var Component = cc.Class({
     name: 'cc.Component',
@@ -486,6 +492,12 @@ var Component = cc.Class({
      * @method onLostFocusInEditor
      */
     onLostFocusInEditor: null,
+    /**
+     * !#en Called to initialize the component or node’s properties when adding the component the first time or when the Reset command is used. This function is only called in editor.
+     * !#zh 用来初始化组件或节点的一些属性，当该组件被第一次添加到节点上或用户点击了它的 Reset 菜单时调用。这个回调只会在编辑器下调用。
+     * @method resetInEditor
+     */
+    resetInEditor: null,
 
     // PUBLIC
 
@@ -926,7 +938,22 @@ Object.defineProperties(Component, {
         value: _callPreloadOnNode
     },
     _callPreloadOnComponent: {
-        value: _callPreloadOnComponent
+        value: function (component) {
+            if (CC_EDITOR) {
+                callPreloadInTryCatch(component);
+            }
+            else {
+                component.__preload();
+            }
+            component._objFlags |= IsPreloadCalled;
+        }
+    },
+    _callResetOnComponent: {
+        value: CC_EDITOR && function (comp) {
+            if (typeof comp.resetInEditor === 'function') {
+                callResetInTryCatch(comp);
+            }
+        }
     }
 });
 

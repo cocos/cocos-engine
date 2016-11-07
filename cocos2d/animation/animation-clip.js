@@ -4,7 +4,7 @@
  * !#zh 动画剪辑，用于存储动画数据。
  * @class AnimationClip
  * @extends Asset
- * @constructor
+ *
  */
 var AnimationClip = cc.Class({
     name: 'cc.AnimationClip',
@@ -92,7 +92,7 @@ var AnimationClip = cc.Class({
          * @example
          *
          * var clip = cc.AnimationClip.createWithSpriteFrames(spriteFrames, 10);
-         * 
+         *
          */
         createWithSpriteFrames: function (spriteFrames, sample) {
             if (!Array.isArray(spriteFrames)) {

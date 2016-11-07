@@ -26,6 +26,8 @@
 module.exports = {
     isDomNode: typeof window === 'object' && (typeof Node === 'function' ?
         function (obj) {
+            // If "TypeError: Right-hand side of 'instanceof' is not callback" is thrown,
+            // it should because window.Node was overwritten.
             return obj instanceof Node;
         } :
         function (obj) {

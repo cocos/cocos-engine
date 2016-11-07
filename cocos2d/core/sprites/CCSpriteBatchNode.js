@@ -321,7 +321,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     /**
      * Set the texture property
      * @function
-     * @param {cc.Texture2D} tex
+     * @param {Texture2D} tex
      * @return {Boolean}
      */
     initWithTexture: function (tex) {
@@ -333,7 +333,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     /**
      * Returns texture of the sprite batch node
      * @function
-     * @return {cc.Texture2D}
+     * @return {Texture2D}
      */
     getTexture: function () {
         return this._texture;
@@ -342,7 +342,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     /**
      * Sets the texture of the sprite batch node.
      * @function
-     * @param {cc.Texture2D} texture
+     * @param {Texture2D} texture
      */
     setTexture: function(texture){
         this._texture = texture;
@@ -388,7 +388,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
         zOrder = (zOrder === undefined) ? child.zIndex : zOrder;
         tag = (tag === undefined) ? child.tag : tag;
         _ccsg.Node.prototype.addChild.call(this, child, zOrder, tag);
-        
+
         // Apply shader
         if (this._renderCmd._shaderProgram) {
             child.shaderProgram = this._renderCmd._shaderProgram;

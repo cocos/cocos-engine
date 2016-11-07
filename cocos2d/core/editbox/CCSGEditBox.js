@@ -182,7 +182,13 @@ var InputFlag = cc.Enum({
      *
      * @property {Number} INITIAL_CAPS_ALL_CHARACTERS
      */
-    INITIAL_CAPS_ALL_CHARACTERS: 4
+    INITIAL_CAPS_ALL_CHARACTERS: 4,
+
+    /**
+     * Don't do anything with the input text.
+     * @property {Number} DEFAULT
+     */
+    DEFAULT: 5
 });
 
 /**
@@ -230,7 +236,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
     _backgroundSprite: null,
     _delegate: null,
     _editBoxInputMode: InputMode.ANY,
-    _editBoxInputFlag: InputFlag.SENSITIVE,
+    _editBoxInputFlag: InputFlag.DEFAULT,
     _keyboardReturnType: KeyboardReturnType.DEFAULT,
     _maxLength: 50,
     _text: '',
@@ -390,7 +396,12 @@ _ccsg.EditBox = _ccsg.Node.extend({
     },
 
     setMaxLength: function (maxLength) {
-        if (!isNaN(maxLength) && maxLength > 0) {
+        if (!isNaN(maxLength)) {
+            if(maxLength < 0) {
+                //we can't set Number.MAX_VALUE to input's maxLength property
+                //so we use a magic number here, it should works at most use cases.
+                maxLength = 65535;
+            }
             this._maxLength = maxLength;
             this._renderCmd.setMaxLength(maxLength);
         }
@@ -678,6 +689,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             } else {
                 thisPointer.__fullscreen = false;
             }
+            this.__autoResize = cc.view.__resizeWithBrowserSize;
+            cc.view.resizeWithBrowserSize(false);
 
             scrollWindowUp(editBox);
 
@@ -691,6 +704,9 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             thisPointer._updateEditBoxContentStyle();
             if(thisPointer.__fullscreen) {
                 cc.view.enableAutoFullScreen(true);
+            }
+            if (this.__autoResize) {
+                cc.view.resizeWithBrowserSize(true);
             }
             window.scrollY = 0;
             if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded) {

@@ -282,8 +282,8 @@ cc.SpriteFrameAnimation = cc._Class.extend({
     /**
      * Adds a frame with a texture and a rect. Internally it will create a cc.SpriteFrame and it will add it. The frame will be added with one "delay unit".
      * @method addSpriteFrameWithTexture
-     * @param {cc.Texture2D} texture
-     * @param {cc.Rect} rect
+     * @param {Texture2D} texture
+     * @param {Rect} rect
      */
     addSpriteFrameWithTexture:function (texture, rect) {
         var pFrame = new cc.SpriteFrame(texture, rect);

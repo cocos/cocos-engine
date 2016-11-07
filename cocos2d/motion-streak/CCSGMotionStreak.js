@@ -180,7 +180,7 @@ function vertexListIsClockwise (verts) {
  * @class
  * @extends _ccsg.Node
  *
- * @property {cc.Texture2D} texture                         - Texture used for the motion streak.
+ * @property {Texture2D} texture                         - Texture used for the motion streak.
  * @property {Boolean}      fastMode                        - Indicate whether use fast mode.
  * @property {Boolean}      startingPositionInitialized     - Indicate whether starting position initialized.
  * @example
@@ -297,7 +297,7 @@ _ccsg.MotionStreak = _ccsg.Node.extend({
 
     /**
      * Gets the texture.
-     * @return {cc.Texture2D}
+     * @return {Texture2D}
      */
     getTexture:function () {
         return this.texture;
@@ -305,7 +305,7 @@ _ccsg.MotionStreak = _ccsg.Node.extend({
 
     /**
      * Set the texture.
-     * @param {cc.Texture2D} texture
+     * @param {Texture2D} texture
      */
     setTexture:function (texture) {
         if (this.texture !== texture)

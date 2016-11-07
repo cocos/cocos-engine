@@ -48,12 +48,12 @@ anysdk.agentManager = anysdk.AgentManager.getInstance();
  * !#zh
  * 插件管理类
  * @class AgentManager
- * @constructor
+ *
  */
 anysdk.AgentManager = {
     /**
      * !#en
-     * AppKey appSecret and privateKey are the only three parameters generated 
+     * AppKey appSecret and privateKey are the only three parameters generated
      * after the packing tool client finishes creating the game.
      * The oauthLoginServer parameter is the API address provided by the game service
      * to login verification
@@ -71,9 +71,9 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * load all plugins, the operation includes SDK`s initialization 
+     * load all plugins, the operation includes SDK`s initialization
      * !#zh
-     * 加载所有插件，该操作包含了 SDKs 初始化 
+     * 加载所有插件，该操作包含了 SDKs 初始化
      * @method loadAllPlugins
      * @param {Function} callback
      * @param {object} target The object to bind to.
@@ -83,19 +83,19 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * unload all plugins 
+     * unload all plugins
      * !#zh
-     * 卸载插件 
+     * 卸载插件
      * @method unloadAllPlugins
      */
     unloadAllPlugins: function(){
     },
 
-    /**    
+    /**
      * !#en
-     * get user system plugin 
+     * get user system plugin
      * !#zh
-     * 获取用户系统插件 
+     * 获取用户系统插件
      * @method getUserPlugin
      * @return {anysdk.ProtocolUser}
      */
@@ -103,9 +103,9 @@ anysdk.AgentManager = {
         return anysdk.ProtocolUser;
     },
 
-    /**    
+    /**
      * !#en
-     * get IAP system plugins 
+     * get IAP system plugins
      * !#zh
      * 获取支付系统插件
      * @method getIAPPlugins
@@ -115,9 +115,9 @@ anysdk.AgentManager = {
         return {anysdk.ProtocolIAP};
     },
 
-    /**    
+    /**
      * !#en
-     * get IAP system plugin 
+     * get IAP system plugin
      * !#zh
      * 获取支付系统插件
      * @method getIAPPlugin
@@ -129,7 +129,7 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * get social system plugin 
+     * get social system plugin
      * !#zh
      * 获取社交系统插件
      * @method getSocialPlugin
@@ -141,7 +141,7 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * get share system plugin 
+     * get share system plugin
      * !#zh
      * 获取分享系统插件
      * @method getSharePlugin
@@ -153,7 +153,7 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * get analytics system plugin 
+     * get analytics system plugin
      * !#zh
      * 获取统计系统插件
      * @method getAnalyticsPlugin
@@ -165,7 +165,7 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * get ads system plugin 
+     * get ads system plugin
      * !#zh
      * 获取广告系统插件
      * @method getAdsPlugin
@@ -177,7 +177,7 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * get push system plugin 
+     * get push system plugin
      * !#zh
      * 获取推送系统插件
      * @method getPushPlugin
@@ -189,7 +189,7 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * get REC system plugin 
+     * get REC system plugin
      * !#zh
      * 获取录屏系统插件
      * @method getRECPlugin
@@ -201,7 +201,7 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * get crash system plugin 
+     * get crash system plugin
      * !#zh
      * 获取崩溃分析系统插件
      * @method getCrashPlugin
@@ -213,7 +213,7 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * get ad track system plugin 
+     * get ad track system plugin
      * !#zh
      * 获取广告追踪系统插件
      * @method getAdTrackingPlugin
@@ -225,7 +225,7 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * get custom system plugin 
+     * get custom system plugin
      * !#zh
      * 获取自定义系统插件
      * @method getCustomPlugin
@@ -237,7 +237,7 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * get custom parameter 
+     * get custom parameter
      * !#zh
      * 获取自定义参数
      * @method getCustomParam
@@ -249,7 +249,7 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * get channel id 
+     * get channel id
      * !#zh
      * 获取渠道唯一表示符
      * @method getChannelId
@@ -261,11 +261,11 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * get status of analytics  
+     * get status of analytics
      * !#zh
      * 获取统计状态
      * @method isAnaylticsEnabled
-     * @return {boolean} 
+     * @return {boolean}
      */
     isAnaylticsEnabled: function(){
         return boolean;
@@ -273,20 +273,20 @@ anysdk.AgentManager = {
 
     /**
      * !#en
-     * set whether to analytics  
+     * set whether to analytics
      * !#zh
      * 设置是否统计
      * @method setIsAnaylticsEnabled
-     * @param {boolean} enabled 
+     * @param {boolean} enabled
      */
     setIsAnaylticsEnabled: function(enabled){
     },
 
     /**
-     * !#en 
-     * destory instance   
+     * !#en
+     * destory instance
      * !#zh
-     * 销毁单例 
+     * 销毁单例
      * @method end
      * @static
      */
@@ -294,8 +294,8 @@ anysdk.AgentManager = {
     },
 
     /**
-     * !#en 
-     * get instance 
+     * !#en
+     * get instance
      * !#zh
      * 获取单例
      * @method getInstance
@@ -310,7 +310,7 @@ anysdk.AgentManager = {
 
 
 /**
- * !#en 
+ * !#en
  * plugin protocol
  * !#zh
  * 插件协议
@@ -320,7 +320,7 @@ anysdk.AgentManager = {
 anysdk.PluginProtocol = {
 
     /**
-     * !#en 
+     * !#en
      * Check whether the function is supported
      * !#zh
      * 判断函数是否支持
@@ -334,7 +334,7 @@ anysdk.PluginProtocol = {
     },
 
     /**
-     * !#en 
+     * !#en
      * get plugin name
      * !#zh
      * 获取插件名称
@@ -346,7 +346,7 @@ anysdk.PluginProtocol = {
     },
 
     /**
-     * !#en 
+     * !#en
      * get plugin version
      * !#zh
      * 获取插件版本
@@ -358,7 +358,7 @@ anysdk.PluginProtocol = {
     },
 
     /**
-     * !#en 
+     * !#en
      * get SDK version
      * !#zh
      * 获取 SDK 版本
@@ -367,10 +367,10 @@ anysdk.PluginProtocol = {
      */
     getSDKVersion: function(){
         return String;
-    },        
+    },
 
     /**
-     * !#en 
+     * !#en
      * void methods for reflections with parameter
      * !#zh
      * 反射调用带参数的void方法
@@ -383,7 +383,7 @@ anysdk.PluginProtocol = {
     },
 
     /**
-     * !#en 
+     * !#en
      * String methods for reflections with parameter
      * !#zh
      * 反射调用带参数的 String 方法
@@ -398,7 +398,7 @@ anysdk.PluginProtocol = {
     },
 
     /**
-     * !#en 
+     * !#en
      * int methods for reflections with parameter
      * !#zh
      * 反射调用带参数的 Int 方法
@@ -413,7 +413,7 @@ anysdk.PluginProtocol = {
     },
 
     /**
-     * !#en 
+     * !#en
      * boolean methods for reflections with parameter
      * !#zh
      * 反射调用带参数的 boolean 方法
@@ -428,7 +428,7 @@ anysdk.PluginProtocol = {
     },
 
     /**
-     * !#en 
+     * !#en
      * float methods for reflections with parameter
      * !#zh
      * 反射调用带参数的 float 方法
@@ -440,7 +440,7 @@ anysdk.PluginProtocol = {
      */
     callFloatFuncWithParam: function(funName){
         return float;
-    }, 
+    },
 };
 
 /**
@@ -454,7 +454,7 @@ anysdk.PluginProtocol = {
 anysdk.ProtocolUser = PluginProtocol.extend({
 
     /**
-     * !#en 
+     * !#en
      * login interface
      * !#zh
      * 登录接口
@@ -465,8 +465,8 @@ anysdk.ProtocolUser = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
-     * get status of login 
+     * !#en
+     * get status of login
      * !#zh
      * 获取登录状态
      * @method isLogined
@@ -478,8 +478,8 @@ anysdk.ProtocolUser = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
-     * get user ID 
+     * !#en
+     * get user ID
      * !#zh
      * 获取用户唯一标示符
      * @method getUserID
@@ -491,8 +491,8 @@ anysdk.ProtocolUser = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
-     * get plugin ID 
+     * !#en
+     * get plugin ID
      * !#zh
      * 获取插件ID
      * @method getPluginId
@@ -503,31 +503,31 @@ anysdk.ProtocolUser = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * set listener
      * !#zh
      * 设置用户系统的监听
      * @method setListener
-     * @param {Function} listener        
+     * @param {Function} listener
      * @param {Object} target
      */
     setListener: function(listener, target) {
     },
 
     /**
-     * !#en 
+     * !#en
      * get listener
      * !#zh
      * 获取用户系统的监听
      * @method getListener
-     * @return {Function} listener        
+     * @return {Function} listener
      */
     getListener: function() {
         return Function;
     },
 
     /**
-     * !#en 
+     * !#en
      * logout
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -538,7 +538,7 @@ anysdk.ProtocolUser = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * show toolbar
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -550,7 +550,7 @@ anysdk.ProtocolUser = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * hide toolbar
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -561,8 +561,8 @@ anysdk.ProtocolUser = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
-     * enter platform 
+     * !#en
+     * enter platform
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
      * 显示平台中心，调用前需要判断属性是否存在
@@ -572,7 +572,7 @@ anysdk.ProtocolUser = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * show exit page
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -583,7 +583,7 @@ anysdk.ProtocolUser = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * show pause page
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -594,8 +594,8 @@ anysdk.ProtocolUser = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
-     * Real-name registration 
+     * !#en
+     * Real-name registration
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
      * 实名注册，调用前需要判断属性是否存在
@@ -605,7 +605,7 @@ anysdk.ProtocolUser = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * Anti-addiction query
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -616,56 +616,56 @@ anysdk.ProtocolUser = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * submit game role information
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
      * 提交角色信息，调用前需要判断属性是否存在
      * @method submitLoginGameRole
-     * @param {Object} data 
+     * @param {Object} data
      */
     submitLoginGameRole: function(data){
     },
     /**
-     * !#en 
+     * !#en
      * get user information
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
      * 获取用户信息，调用前需要判断属性是否存在
      * @method getUserInfo
-     * @param {Object} info 
+     * @param {Object} info
      */
     getUserInfo:function(info){
     },
 
     /**
-     * !#en 
+     * !#en
      * set login type
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
      * 设置登录类型，调用前需要判断属性是否存在
      * @method getAvailableLoginType
-     * @param {Object} info 
+     * @param {Object} info
      */
     getAvailableLoginType:function(info){
     },
 
     /**
-     * !#en 
+     * !#en
      * set login type
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
      * 设置登录类型，调用前需要判断属性是否存在
      * @method setLoginType
-     * @param {String} loginType 
+     * @param {String} loginType
      */
     setLoginType:function(loginType){
     },
 
-    
+
     /**
-     * !#en 
-     * send to desktop 
+     * !#en
+     * send to desktop
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
      * 发送到桌面，调用前需要判断属性是否存在
@@ -675,7 +675,7 @@ anysdk.ProtocolUser = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * open bbs
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -699,7 +699,7 @@ anysdk.ProtocolUser = PluginProtocol.extend({
 anysdk.ProtocolIAP = PluginProtocol.extend({
 
     /**
-     * !#en 
+     * !#en
      * pay interface
      * !#zh
      * 支付接口
@@ -710,8 +710,8 @@ anysdk.ProtocolIAP = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
-     * get order ID 
+     * !#en
+     * get order ID
      * !#zh
      * 获取订单ID
      * @method getOrderId
@@ -722,7 +722,7 @@ anysdk.ProtocolIAP = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * reset the pay status
      * !#zh
      * 重置支付状态
@@ -733,8 +733,8 @@ anysdk.ProtocolIAP = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
-     * get plugin ID 
+     * !#en
+     * get plugin ID
      * !#zh
      * 获取插件ID
      * @method getPluginId
@@ -745,24 +745,24 @@ anysdk.ProtocolIAP = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * set listener
      * !#zh
      * 设置支付系统的监听
      * @method setListener
-     * @param {Function} listener        
+     * @param {Function} listener
      * @param {Object} target
      */
     setListener: function(listener, target) {
     },
 
     /**
-     * !#en 
+     * !#en
      * get listener
      * !#zh
      * 获取支付系统的监听
      * @method getListener
-     * @return {Function} listener        
+     * @return {Function} listener
      */
     getListener: function() {
         return Function;
@@ -781,7 +781,7 @@ anysdk.ProtocolIAP = PluginProtocol.extend({
 anysdk.ProtocolAnalytics = PluginProtocol.extend({
 
     /**
-     * !#en 
+     * !#en
      * Start a new session.
      * !#zh
      * 启动会话
@@ -791,7 +791,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      *  Stop a session.
      * !#zh
      * 关闭会话
@@ -801,7 +801,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * Set the timeout for expiring a session.
      * !#zh
      * 设置会话超时时间
@@ -812,7 +812,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * log an error
      * !#zh
      * 捕捉异常
@@ -824,7 +824,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * log an event.
      * !#zh
      * 捕捉事件
@@ -836,7 +836,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * Track an event begin.
      * !#zh
      * 统计事件开始
@@ -847,7 +847,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * Track an event end.
      * !#zh
      * 统计事件结束
@@ -858,18 +858,18 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * set Whether to catch uncaught exceptions to server.
      * !#zh
      * 设置是否开启自动异常捕捉
      * @method setCaptureUncaughtException
-     * @param {boolean} enabled 
+     * @param {boolean} enabled
      */
     setCaptureUncaughtException: function(enabled){
     },
 
     /**
-     * !#en 
+     * !#en
      * analytics account information
      * !#zh
      * 统计玩家帐户信息
@@ -880,7 +880,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * track user to request payment
      * !#zh
      * 跟踪用户支付请求
@@ -891,7 +891,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * track Successful payment
      * !#zh
      * 追踪用户支付成功
@@ -902,7 +902,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * track failed payment
      * !#zh
      * 追踪用户支付失败
@@ -913,7 +913,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * track Successful payment
      * !#zh
      * 统计玩家支付成功
@@ -924,7 +924,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * track user purchase
      * !#zh
      * 统计玩家消费
@@ -935,7 +935,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * track user to use goods
      * !#zh
      * 统计玩家使用道具
@@ -946,7 +946,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * track user to reward goods
      * !#zh
      * 统计玩家获取奖励
@@ -957,7 +957,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      *  start level
      * !#zh
      * 开始关卡
@@ -968,7 +968,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * finish level
      * !#zh
      * 结束关卡
@@ -979,7 +979,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * failed level
      * !#zh
      * 关卡失败
@@ -990,7 +990,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * start task
      * !#zh
      * 开始任务
@@ -1001,7 +1001,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * finish task
      * !#zh
      * 完成任务
@@ -1012,7 +1012,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * failed task
      * !#zh
      * 任务失败
@@ -1037,7 +1037,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
 anysdk.ProtocolShare = PluginProtocol.extend({
 
     /**
-     * !#en 
+     * !#en
      * share interface
      * !#zh
      * 分享
@@ -1047,24 +1047,24 @@ anysdk.ProtocolShare = PluginProtocol.extend({
     share: function(info){
     },
     /**
-     * !#en 
+     * !#en
      * set listener
      * !#zh
      * 设置分享系统的监听
      * @method setListener
-     * @param {Function} listener        
+     * @param {Function} listener
      * @param {Object} target
      */
     setListener: function(listener, target) {
     },
 
     /**
-     * !#en 
+     * !#en
      * get listener
      * !#zh
      * 获取分享系统的监听
      * @method getListener
-     * @return {Function} listener        
+     * @return {Function} listener
      */
     getListener: function() {
         return Function;
@@ -1082,7 +1082,7 @@ anysdk.ProtocolShare = PluginProtocol.extend({
  */
 anysdk.ProtocolAds = PluginProtocol.extend({
     /*
-     * !#en 
+     * !#en
      * show ads view
      * !#zh
      * 显示广告
@@ -1093,7 +1093,7 @@ anysdk.ProtocolAds = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * hide ads view
      * !#zh
      * 隐藏广告
@@ -1105,7 +1105,7 @@ anysdk.ProtocolAds = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * preload ads view
      * !#zh
      * 预加载广告
@@ -1117,7 +1117,7 @@ anysdk.ProtocolAds = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * query points
      * !#zh
      * 查询分数
@@ -1129,8 +1129,8 @@ anysdk.ProtocolAds = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
-     * get whether the ads type is supported 
+     * !#en
+     * get whether the ads type is supported
      * !#zh
      * 获取广告类型是否支持
      * @method isAdTypeSupported
@@ -1142,8 +1142,8 @@ anysdk.ProtocolAds = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
-     * spend point 
+     * !#en
+     * spend point
      * !#zh
      * 消费分数
      * @method spendPoints
@@ -1153,24 +1153,24 @@ anysdk.ProtocolAds = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * set listener
      * !#zh
      * 设置广告系统的监听
      * @method setListener
-     * @param {Function} listener        
+     * @param {Function} listener
      * @param {Object} target
      */
     setListener: function(listener, target) {
     },
 
     /**
-     * !#en 
+     * !#en
      * get listener
      * !#zh
      * 获取广告系统的监听
      * @method getListener
-     * @return {Function} listener        
+     * @return {Function} listener
      */
     getListener: function() {
         return Function;
@@ -1189,7 +1189,7 @@ anysdk.ProtocolAds = PluginProtocol.extend({
 anysdk.ProtocolSocial = PluginProtocol.extend({
 
     /**
-     * !#en 
+     * !#en
      * sign in
      * !#zh
      * 登录
@@ -1199,7 +1199,7 @@ anysdk.ProtocolSocial = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      *  sign out
      * !#zh
      * 登出
@@ -1209,7 +1209,7 @@ anysdk.ProtocolSocial = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * submit score
      * !#zh
      * 提交分数
@@ -1221,7 +1221,7 @@ anysdk.ProtocolSocial = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * show the id of Leaderboard page
      * !#zh
      * 根据唯一标识符显示排行榜
@@ -1232,7 +1232,7 @@ anysdk.ProtocolSocial = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * show the page of achievements
      * !#zh
      * 显示成就榜
@@ -1242,7 +1242,7 @@ anysdk.ProtocolSocial = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * unlock achievement
      * !#zh
      * 解锁成就
@@ -1253,32 +1253,32 @@ anysdk.ProtocolSocial = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * set listener
      * !#zh
      * 设置社交系统的监听
      * @method setListener
-     * @param {Function} listener        
+     * @param {Function} listener
      * @param {Object} target
      */
     setListener: function(listener, target) {
     },
 
     /**
-     * !#en 
+     * !#en
      * get listener
      * !#zh
      * 获取社交系统的监听
      * @method getListener
-     * @return {Function} listener        
+     * @return {Function} listener
      */
     getListener: function() {
         return Function;
     },
 
-    
+
     /**
-     * !#en 
+     * !#en
      * get friends info
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -1289,7 +1289,7 @@ anysdk.ProtocolSocial = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * interact
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -1300,7 +1300,7 @@ anysdk.ProtocolSocial = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * subscribe
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -1322,7 +1322,7 @@ anysdk.ProtocolSocial = PluginProtocol.extend({
 anysdk.ProtocolPush = PluginProtocol.extend({
 
     /**
-     * !#en 
+     * !#en
      * start Push services
      * !#zh
      * 启动推送服务
@@ -1332,7 +1332,7 @@ anysdk.ProtocolPush = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * close Push services
      * !#zh
      * 暂停推送服务
@@ -1342,7 +1342,7 @@ anysdk.ProtocolPush = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * delete alias
      * !#zh
      * 删除别名
@@ -1353,7 +1353,7 @@ anysdk.ProtocolPush = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * set alias
      * !#zh
      * 设置别名
@@ -1364,7 +1364,7 @@ anysdk.ProtocolPush = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * delete tags
      * !#zh
      * 删除标签
@@ -1375,7 +1375,7 @@ anysdk.ProtocolPush = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * set tags
      * !#zh
      * 设置标签
@@ -1386,24 +1386,24 @@ anysdk.ProtocolPush = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * set listener
      * !#zh
      * 设置推送系统的监听
      * @method setListener
-     * @param {Function} listener        
+     * @param {Function} listener
      * @param {Object} target
      */
     setListener: function(listener, target) {
     },
 
     /**
-     * !#en 
+     * !#en
      * get listener
      * !#zh
      * 获取推送系统的监听
      * @method getListener
-     * @return {Function} listener        
+     * @return {Function} listener
      */
     getListener: function() {
         return Function;
@@ -1422,7 +1422,7 @@ anysdk.ProtocolPush = PluginProtocol.extend({
 anysdk.ProtocolCrash = PluginProtocol.extend({
 
     /**
-     * !#en 
+     * !#en
      * set user identifier
      * !#zh
      * 统计用户唯一标识符
@@ -1434,19 +1434,19 @@ anysdk.ProtocolCrash = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * The uploader captured in exception information
      * !#zh
      * 上报异常信息
      * @method reportException
      * @param {String} message
-     * @param {String} exception 
+     * @param {String} exception
      */
     reportException: function(message, exception){
     },
 
     /**
-     * !#en 
+     * !#en
      * customize logging
      * !#zh
      * 自定义日志记录
@@ -1470,7 +1470,7 @@ anysdk.ProtocolCrash = PluginProtocol.extend({
 anysdk.ProtocolREC = PluginProtocol.extend({
 
     /**
-     * !#en 
+     * !#en
      * share video
      * !#zh
      * 分享视频
@@ -1481,7 +1481,7 @@ anysdk.ProtocolREC = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * Start to record video
      * !#zh
      * 开始录制视频
@@ -1491,7 +1491,7 @@ anysdk.ProtocolREC = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * Start to record video
      * !#zh
      * 结束录制视频
@@ -1501,31 +1501,31 @@ anysdk.ProtocolREC = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * set listener
      * !#zh
      * 设置录屏系统的监听
      * @method setListener
-     * @param {Function} listener        
+     * @param {Function} listener
      * @param {Object} target
      */
     setListener: function(listener, target) {
     },
 
     /**
-     * !#en 
+     * !#en
      * get listener
      * !#zh
      * 获取录屏系统的监听
      * @method getListener
-     * @return {Function} listener        
+     * @return {Function} listener
      */
     getListener: function() {
         return Function;
     },
 
     /**
-     * !#en 
+     * !#en
      * pause to record video
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -1536,7 +1536,7 @@ anysdk.ProtocolREC = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * resume to record video
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -1548,12 +1548,12 @@ anysdk.ProtocolREC = PluginProtocol.extend({
 
     /**
      * !#en
-     * get whether the device is isAvailable 
+     * get whether the device is isAvailable
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
      * 获取设备是否可用，调用前需要判断属性是否存在
      * @method isAvailable
-     * @return {boolean} 
+     * @return {boolean}
      */
     isAvailable: function(){
         return boolean;
@@ -1561,19 +1561,19 @@ anysdk.ProtocolREC = PluginProtocol.extend({
 
     /**
      * !#en
-     * get status of recording 
-     * Before to invoke, you need to verdict whether this properties existed 
+     * get status of recording
+     * Before to invoke, you need to verdict whether this properties existed
      * !#zh
      * 获取录制状态，调用前需要判断属性是否存在
      * @method isRecording
-     * @return {boolean} 
+     * @return {boolean}
      */
     isRecording: function(){
         return boolean;
     },
 
     /**
-     * !#en 
+     * !#en
      * show toolbar
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -1584,7 +1584,7 @@ anysdk.ProtocolREC = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * hide toolbar
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -1595,7 +1595,7 @@ anysdk.ProtocolREC = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * show video center
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -1606,8 +1606,8 @@ anysdk.ProtocolREC = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
-     * enter platform 
+     * !#en
+     * enter platform
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
      * 显示平台中心，调用前需要判断属性是否存在
@@ -1617,7 +1617,7 @@ anysdk.ProtocolREC = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * Set the video data, it is recommended to check whether are recorded firstly
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -1643,7 +1643,7 @@ anysdk.ProtocolREC = PluginProtocol.extend({
 anysdk.ProtocolAdTracking = PluginProtocol.extend({
 
     /**
-     * !#en 
+     * !#en
      * Call this method if you want to track register events as happening during a section.
      * !#zh
      * 统计用户注册信息
@@ -1654,7 +1654,7 @@ anysdk.ProtocolAdTracking = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * Call this method if you want to track register events as happening during a section.
      * !#zh
      * 统计用户注册信息
@@ -1665,7 +1665,7 @@ anysdk.ProtocolAdTracking = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * Call this method if you want to track register events as happening during a section.
      * !#zh
      * 统计用户注册信息
@@ -1676,7 +1676,7 @@ anysdk.ProtocolAdTracking = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * Call this method if you want to track custom events with parameters as happening during a section.
      * !#zh
      * 统计自定义事件
@@ -1688,7 +1688,7 @@ anysdk.ProtocolAdTracking = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * Call this method with parameters if you want to create role as happening during a section.
      * !#zh
      * 统计创建角色事件，调用前需要判断属性是否存在
@@ -1699,7 +1699,7 @@ anysdk.ProtocolAdTracking = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * Call this method if you want to track levelup events with parameters as happening during a section.
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -1711,7 +1711,7 @@ anysdk.ProtocolAdTracking = PluginProtocol.extend({
     },
 
     /**
-     * !#en 
+     * !#en
      * Invoke this method with parameters if you want to start to pay as happening during a section.
      * Before to invoke, you need to verdict whether this properties existed
      * !#zh
@@ -1734,24 +1734,24 @@ anysdk.ProtocolAdTracking = PluginProtocol.extend({
  */
 anysdk.ProtocolCustom = PluginProtocol.extend({
     /**
-     * !#en 
+     * !#en
      * set listener
      * !#zh
      * 设置自定义系统的监听
      * @method setListener
-     * @param {Function} listener        
+     * @param {Function} listener
      * @param {Object} target
      */
     setListener: function(listener, target) {
     },
 
     /**
-     * !#en 
+     * !#en
      * get listener
      * !#zh
      * 获取自定义系统的监听
      * @method getListener
-     * @return {Function} listener        
+     * @return {Function} listener
      */
     getListener: function() {
         return Function;
@@ -1763,12 +1763,12 @@ anysdk.ProtocolCustom = PluginProtocol.extend({
  * Data structure class
  * !#zh
  * 数据结构类
- * @constructor
+ *
  * @class PluginParam
  */
 anysdk.PluginParam = {
     /**
-     * !#en 
+     * !#en
      * create plugin parameters
      * !#zh
      * 创建对象
@@ -1789,14 +1789,14 @@ anysdk.PluginParam = {
  */
 anysdk.UserActionResultCode = {
     /**
-     * !#en The callback of succeeding in initing sdk 
+     * !#en The callback of succeeding in initing sdk
      * !#zh 用户系统的初始化成功回调
      * @property {Number} kInitSuccess
      */
     kInitSuccess: 0,
 
     /**
-     * !#en The callback of failing to init sdk 
+     * !#en The callback of failing to init sdk
      * !#zh 用户系统的初始化失败回调
      * @property {Number} kInitFail
      */
@@ -1814,70 +1814,70 @@ anysdk.UserActionResultCode = {
      * !#zh 用户系统的初始化成功回调
      * @property {Number} kLoginNetworkError
      */
-    kLoginNetworkError: 3, 
+    kLoginNetworkError: 3,
 
     /**
-     * !#en The callback of no need login. 
+     * !#en The callback of no need login.
      * !#zh 用户系统的无需登录回调
      * @property {Number} kLoginNoNeed
      */
     kLoginNoNeed: 4,
 
     /**
-     * !#en The callback of failing to login 
+     * !#en The callback of failing to login
      * !#zh 用户系统的登录失败回调
      * @property {Number} kLoginFail
      */
-    kLoginFail: 5,  
+    kLoginFail: 5,
 
     /**
      * !#en The callback of  canceling to login.
      * !#zh 用户系统的登录取消回调
      * @property {Number} kLoginCancel
      */
-    kLoginCancel: 6, 
+    kLoginCancel: 6,
 
     /**
      * !#en The callback of succeeding in logout
      * !#zh 用户系统的登出成功回调
      * @property {Number} kLogoutSuccess
      */
-    kLogoutSuccess: 7, 
+    kLogoutSuccess: 7,
 
     /**
      * !#en The callback of failing to logout
      * !#zh 用户系统的登出失败回调
      * @property {Number} kLogoutFail
      */
-    kLogoutFail: 8, 
+    kLogoutFail: 8,
 
     /**
      * !#en The callback after enter platform..
      * !#zh 用户系统的进入平台回调
      * @property {Number} kPlatformEnter
      */
-    kPlatformEnter: 9, 
+    kPlatformEnter: 9,
 
     /**
      * !#en The callback after exit antiAddiction
      * !#zh 用户系统的退出平台回调
      * @property {Number} kPlatformBack
      */
-    kPlatformBack: 10, 
+    kPlatformBack: 10,
 
     /**
-     * !#en The callback after exit pause page 
+     * !#en The callback after exit pause page
      * !#zh 用户系统的暂停界面回调
      * @property {Number} kPausePage
      */
-    kPausePage: 11,   
+    kPausePage: 11,
 
     /**
-     * !#en The callback after exit page 
+     * !#en The callback after exit page
      * !#zh 用户系统的退出界面回调
      * @property {Number} kExitPage
      */
-    kExitPage: 12,      
+    kExitPage: 12,
 
     /**
      * !#en The callback after querying antiAddiction
@@ -1901,18 +1901,18 @@ anysdk.UserActionResultCode = {
     kAccountSwitchSuccess: 15,
 
     /**
-     * !#en The callback of failing to switch account 
+     * !#en The callback of failing to switch account
      * !#zh 用户系统的切换账号失败回调
      * @property {Number} kAccountSwitchFail
      */
-    kAccountSwitchFail: 16,  
+    kAccountSwitchFail: 16,
 
     /**
      * !#en The callback of opening the shop
      * !#zh 用户系统的打开商店回调
      * @property {Number} kOpenShop
      */
-    kOpenShop: 17, 
+    kOpenShop: 17,
 
     /**
      * !#en The callback of canceling to switch account.
@@ -1922,34 +1922,34 @@ anysdk.UserActionResultCode = {
     kAccountSwitchCancel: 18,
 
     /**
-     * !#en extension code of user type 
+     * !#en extension code of user type
      * !#zh 用户系统的扩展回调
      * @property {Number} kUserExtension
      */
-    kUserExtension: 50000, 
+    kUserExtension: 50000,
 
     /**
      * !#en The callback of succeeding in sending to desktop
      * !#zh  用户系统的发送到桌面成功回调
      * @property {Number} kSendToDesktopSuccess
      */
-    kSendToDesktopSuccess: 51001, 
+    kSendToDesktopSuccess: 51001,
     /**
      * !#en The callback of failing to sending to desktop
      * !#zh 用户系统的发送到桌面失败回调
      * @property {Number} kSendToDesktopFail
      */
-    kSendToDesktopFail: 51002, 
-    
+    kSendToDesktopFail: 51002,
+
     /**
-     * !#en The callback of succeeding in getting available login type 
+     * !#en The callback of succeeding in getting available login type
      * !#zh 用户系统的获取可登录类型成功回调
      * @property {Number} kGetAvailableLoginTypeSuccess
      */
     kGetAvailableLoginTypeSuccess: 51003,
 
     /**
-     * !#en The callback of failing to get available login type 
+     * !#en The callback of failing to get available login type
      * !#zh 用户系统的获取可登录类型失败回调
      * @property {Number} kGetAvailableLoginTypeFail
      */
@@ -1960,7 +1960,7 @@ anysdk.UserActionResultCode = {
      * !#zh 用户系统的获取用户信息成功回调
      * @property {Number} kGetUserInfoSuccess
      */
-    kGetUserInfoSuccess: 51005, 
+    kGetUserInfoSuccess: 51005,
 
     /**
      * !#en The callback  of failing in getting user`s info
@@ -1974,7 +1974,7 @@ anysdk.UserActionResultCode = {
      * !#zh 用户系统的进入论坛成功回调
      * @property {Number} kOpenBBSSuccess
      */
-    kOpenBBSSuccess: 51007, 
+    kOpenBBSSuccess: 51007,
 
     /**
      * !#en The callback  of failing in opening BBS
@@ -2006,7 +2006,7 @@ anysdk.ToolBarPlace = {
     kToolBarTopRight: 2,
 
     /**
-     * !#en at the left of the center 
+     * !#en at the left of the center
      * !#zh 中间偏左
      * @property {Number} kToolBarMidLeft
      */
@@ -2031,7 +2031,7 @@ anysdk.ToolBarPlace = {
      * !#zh 右下方
      * @property {Number} kToolBarBottomRight
      */
-    kToolBarBottomRight: 6 
+    kToolBarBottomRight: 6
 };
 
 /**
@@ -2041,11 +2041,11 @@ anysdk.ToolBarPlace = {
  */
 anysdk.PayResultCode = {
     /**
-     * !#en The callback of succeeding in paying 
+     * !#en The callback of succeeding in paying
      * !#zh 支付系统的支付成功回调
      * @property {Number} kPaySuccess
      */
-    kPaySuccess: 0, 
+    kPaySuccess: 0,
 
     /**
      * !#en The callback of failing to pay
@@ -2059,7 +2059,7 @@ anysdk.PayResultCode = {
      * !#zh 支付系统的支付取消回调
      * @property {Number} kPayCancel
      */
-    kPayCancel: 2,    
+    kPayCancel: 2,
 
     /**
      * !#en The callback of network error
@@ -2069,25 +2069,25 @@ anysdk.PayResultCode = {
     kPayNetworkError: 3,
 
     /**
-     * !#en The callback of incompleting info 
+     * !#en The callback of incompleting info
      * !#zh 支付系统的支付信息不完整回调
      * @property {Number} kPayProductionInforIncomplete
      */
-    kPayProductionInforIncomplete: 4, 
+    kPayProductionInforIncomplete: 4,
 
     /**
-     * !#en callback of succeeding in initing sdk . 
+     * !#en callback of succeeding in initing sdk .
      * !#zh 支付系统的初始化成功回调
      * @property {Number} kPayInitSuccess
      */
-    kPayInitSuccess: 5,  
+    kPayInitSuccess: 5,
 
     /**
-     * !#en The callback of failing to init sdk 
+     * !#en The callback of failing to init sdk
      * !#zh 支付系统的初始化失败回调
      * @property {Number} kPayInitFail
      */
-    kPayInitFail: 6,  
+    kPayInitFail: 6,
 
     /**
      * !#en The callback of paying now
@@ -2104,7 +2104,7 @@ anysdk.PayResultCode = {
     kPayReStringgeSuccess: 8,
 
     /**
-     * !#en extension code of user type 
+     * !#en extension code of user type
      * !#zh 支付系统的扩展回调
      * @property {Number} kPayExtension
      */
@@ -2115,7 +2115,7 @@ anysdk.PayResultCode = {
      * !#zh 支付系统的重登陆回调
      * @property {Number} kPayNeedLoginAgain
      */
-    kPayNeedLoginAgain: 31002 
+    kPayNeedLoginAgain: 31002
 };
 
 /**
@@ -2129,14 +2129,14 @@ anysdk.RequestResultCode = {
      * !#zh 支付系统的请求成功回调
      * @property {Number} kRequestSuccess
      */
-    kRequestSuccess: 31000, 
+    kRequestSuccess: 31000,
 
     /**
      * !#en The callback of failing to requesting .
      * !#zh 支付系统的请求失败回调
      * @property {Number} kRequestFail
      */
-    kRequestFail: 31001 
+    kRequestFail: 31001
 };
 
 /**
@@ -2302,36 +2302,36 @@ anysdk.ShareResultCode = {
      * !#en The callback of failing to sharing
      * !#zh 分享系统的分享成功回调
      * @property {Number} kShareSuccess
-     */   
-    kShareSuccess: 0, 
+     */
+    kShareSuccess: 0,
 
     /**
      * !#en The callback of failing to share
      * !#zh 分享系统的分享失败回调
      * @property {Number} kShareFail
      */
-    kShareFail: 1,  
+    kShareFail: 1,
 
     /**
      * !#en The callback of canceling to share
      * !#zh 分享系统的分享取消回调
      * @property {Number} kShareCancel
      */
-    kShareCancel: 2, 
+    kShareCancel: 2,
 
     /**
      * !#en The callback of network error
      * !#zh 分享系统的网络错误回调
      * @property {Number} kShareNetworkError
      */
-    kShareNetworkError: 3, 
+    kShareNetworkError: 3,
 
     /**
      * !#en The extension code of share system
      * !#zh 分享系统的扩展回调
      * @property {Number} kShareExtension
      */
-    kShareExtension: 10000 
+    kShareExtension: 10000
 };
 
 /**
@@ -2340,13 +2340,13 @@ anysdk.ShareResultCode = {
  * @enum SocialRetCode
  */
 anysdk.SocialRetCode = {
-    
+
     /**
      * !#en The callback of succeeding in submiting.
      * !#zh 社交系统的成功提交回调
      * @property {Number} kScoreSubmitSucceed
      */
-    kScoreSubmitSucceed: 1, 
+    kScoreSubmitSucceed: 1,
 
     /**
      * !#en The callback of failing to submit.
@@ -2395,38 +2395,38 @@ anysdk.SocialRetCode = {
      * !#zh 社交系统的登出失败回调
      * @property {Number} kSocialSignOutFail
      */
-    kSocialSignOutFail: 8, 
+    kSocialSignOutFail: 8,
 
     /**
      * !#en The callback of getting friends`s .
      * !#zh 社交系统的获取好友回调
      * @property {Number} kSocialGetGameFriends
      */
-    kSocialGetGameFriends: 9,  
+    kSocialGetGameFriends: 9,
 
     /**
      * !#en The extension code of social system
      * !#zh 社交系统的扩展回调
      * @property {Number} kSocialExtensionCode
      */
-    kSocialExtensionCode:20000, 
+    kSocialExtensionCode:20000,
 
     /**
      * !#en The callback  of succeeding in getting friends`s info
      * !#zh 社交系统的获取好友信息成功回调
      * @property {Number} kSocialGetFriendsInfoSuccess
      */
-    kSocialGetFriendsInfoSuccess: 21001, 
+    kSocialGetFriendsInfoSuccess: 21001,
 
     /**
      * !#en The callback  of failing in getting friends`s info.
      * !#zh 社交系统的获取好友信息失败回调
      * @property {Number} kSocialGetFriendsInfoFail
      */
-    kSocialGetFriendsInfoFail: 21002, 
+    kSocialGetFriendsInfoFail: 21002,
 
     /**
-     * !#en The callback  of subscription 
+     * !#en The callback  of subscription
      * !#zh 社交系统的订阅回调
      * @property {Number} kSocialAlreadySubscription
      */
@@ -2437,14 +2437,14 @@ anysdk.SocialRetCode = {
      * !#zh 社交系统的无需订阅回调
      * @property {Number} kSocialNoSubscription
      */
-    kSocialNoSubscription: 21004, 
+    kSocialNoSubscription: 21004,
 
     /**
      * !#en The callback  of failing in subscription
      * !#zh 社交系统的订阅失败回调
      * @property {Number} kSocialSubscriptionFail
      */
-    kSocialSubscriptionFail: 21005, 
+    kSocialSubscriptionFail: 21005,
 };
 
 /**
@@ -2459,28 +2459,28 @@ anysdk.AdsResultCode = {
      * !#zh 广告系统的接受广告回调
      * @property {Number} kAdsReceived
      */
-    kAdsReceived: 0, 
+    kAdsReceived: 0,
 
     /**
      * !#en The callback: the advertisement dismissed.
      * !#zh 广告系统的显示广告回调
      * @property {Number} kAdsShown
      */
-    kAdsShown: 1,  
+    kAdsShown: 1,
 
     /**
      * !#en The callback: the advertisement dismissed.
      * !#zh 广告系统的广告消失回调
      * @property {Number} kAdsDismissed
      */
-    kAdsDismissed: 2, 
+    kAdsDismissed: 2,
 
     /**
-     * !#en The callback: the points spend succeed. 
+     * !#en The callback: the points spend succeed.
      * !#zh 广告系统的花费积分成功回调
      * @property {Number} kPointsSpendSucceed
      */
-    kPointsSpendSucceed: 3, 
+    kPointsSpendSucceed: 3,
 
     /**
      * !#en The callback: the points spend failed.
@@ -2490,25 +2490,25 @@ anysdk.AdsResultCode = {
     kPointsSpendFailed: 4,
 
     /**
-     * !#en The callback of network error 
+     * !#en The callback of network error
      * !#zh 广告系统的网络错误回调
      * @property {Number} kNetworkError
      */
-    kNetworkError: 5,   
+    kNetworkError: 5,
 
     /**
      * !#en The callback of Unknown error.
      * !#zh 广告系统的未知错误回调
      * @property {Number} kUnknownError
      */
-    kUnknownError: 6, 
+    kUnknownError: 6,
 
     /**
      * !#en The callback of Changing the point of offerwall.
      * !#zh 广告系统的积金墙积金变化回调
      * @property {Number} kOfferWallOnPointsChanged
      */
-    kOfferWallOnPointsChanged: 7, 
+    kOfferWallOnPointsChanged: 7,
 
     /**
      * !#en The callback of receive the reward of rewardedvideo
@@ -2536,8 +2536,8 @@ anysdk.AdsResultCode = {
      * !#zh 广告系统的扩展回调
      * @property {Number} kAdsExtension
      */
-    kAdsExtension: 40000 
-}; 
+    kAdsExtension: 40000
+};
 
 /**
  * !#en The enum of ads position
@@ -2551,14 +2551,14 @@ anysdk.AdsPos = {
      * !#zh 中间
      * @property {Number} kPosCenter
      */
-    kPosCenter:0, 
+    kPosCenter:0,
 
     /**
      * !#en at the top of center
      * !#zh 上方
      * @property {Number} kPosTop
      */
-    kPosTop:1, 
+    kPosTop:1,
 
     /**
      * !#en the upper left corner
@@ -2572,21 +2572,21 @@ anysdk.AdsPos = {
      * !#zh 右上方
      * @property {Number} kPosTopRight
      */
-    kPosTopRight:3, 
+    kPosTopRight:3,
 
     /**
-     * !#en at the bottom of the center 
+     * !#en at the bottom of the center
      * !#zh 底部
      * @property {Number} kPosBottom
      */
-    kPosBottom: 4, 
+    kPosBottom: 4,
 
     /**
      * !#en the lower left corner
      * !#zh 左下方
      * @property {Number} kPosBottomLeft
      */
-    kPosBottomLeft: 5, 
+    kPosBottomLeft: 5,
 
     /**
      * !#en the lower right corner
@@ -2594,7 +2594,7 @@ anysdk.AdsPos = {
      * @property {Number} kPosBottomRight
      */
     kPosBottomRight: 6
-}; 
+};
 
 /**
  * !#en The enum of ads type
@@ -2608,14 +2608,14 @@ anysdk.AdsType = {
      * !#zh 横幅广告
      * @property {Number} AD_TYPE_BANNER
      */
-    AD_TYPE_BANNER: 0, 
+    AD_TYPE_BANNER: 0,
 
     /**
      * !#en Full Screen Ads
      * !#zh 插屏广告
      * @property {Number} AD_TYPE_FULLSCREEN
      */
-    AD_TYPE_FULLSCREEN: 1, 
+    AD_TYPE_FULLSCREEN: 1,
 
     /**
      * !#en Move APP Ads
@@ -2664,7 +2664,7 @@ anysdk.PushActionResultCode = {
      * !#zh 推送系统的接受消息回调
      * @property {Number} kPushReceiveMessage
      */
-    kPushReceiveMessage: 0, 
+    kPushReceiveMessage: 0,
 
     /**
      * !#en The extension code
@@ -2696,7 +2696,7 @@ anysdk.CustomResultCode = {
 anysdk.RECResultCode = {
 
     /**
-     * !#en The callback of succeeding in initing sdk 
+     * !#en The callback of succeeding in initing sdk
      * !#zh 录屏系统的初始化成功回调
      * @property {Number} kRECInitSuccess
      */
@@ -2710,7 +2710,7 @@ anysdk.RECResultCode = {
     kRECInitFail: 1,
 
     /**
-     * !#en The callback of starting to record. 
+     * !#en The callback of starting to record.
      * !#zh 录屏系统的开始录屏回调
      * @property {Number} kRECStartRecording
      */
@@ -2752,7 +2752,7 @@ anysdk.RECResultCode = {
     kRECQuitSDKPage: 7,
 
     /**
-     * !#en The callback of succeeding in initing sdk 
+     * !#en The callback of succeeding in initing sdk
      * !#zh 录屏系统的分享成功回调
      * @property {Number} kRECShareSuccess
      */

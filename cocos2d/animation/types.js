@@ -77,7 +77,7 @@ cc.WrapMode = WrapMode;
  * !#en The abstract interface for all playing animation.
  * !#zh 所有播放动画的抽象接口。
  * @class AnimationNodeBase
- * @constructor
+ *
  * @extends Playable
  */
 var AnimationNodeBase = function () {
@@ -98,7 +98,7 @@ AnimationNodeBase.prototype.update = function (deltaTime) {};
  * !#zh 动画曲线的集合，根据当前时间计算出每条曲线的状态。
  * @class AnimationNode
  * @extends AnimationNodeBase
- * @constructor
+ *
  * @param {Animator} animator
  * @param {AnimCurve[]} [curves]
  * @param {Object} [timingInput] - This dictionary is used as a convenience for specifying the timing properties of an Animation in bulk.
@@ -166,10 +166,10 @@ function AnimationNode (animator, curves, timingInput) {
     this.speed = 1;
 
     /**
-     * !#en 
+     * !#en
      * Wrapping mode of the playing animation.
      * Notice : dynamic change wrapMode will reset time and repeatCount property
-     * !#zh 
+     * !#zh
      * 动画循环方式。
      * 需要注意的是，动态修改 wrapMode 时，会重置 time 以及 repeatCount
      *
@@ -400,7 +400,7 @@ JS.mixin(AnimationNode.prototype, {
 cc.defineGetterSetter(AnimationNode.prototype, 'wrapMode',
     function () {
         return this._wrapMode;
-    }, 
+    },
     function (value) {
         this._wrapMode = value;
 

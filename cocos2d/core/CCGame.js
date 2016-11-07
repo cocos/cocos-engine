@@ -29,7 +29,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
     View = require('./platform/CCView');
 }
 
-var audioEngine = cc.audioEngine = require('../audio/CCAudioEngine');
+require('../audio/CCAudioEngine');
 
 /**
  * !#en An object to boot the game.
@@ -243,7 +243,7 @@ var game = {
     },
 
     /**
-     * !#en Pause the game main loop. This will pause: 
+     * !#en Pause the game main loop. This will pause:
      * game logic execution, rendering process, event manager, background music and all audio effects.
      * This is different with cc.director.pause which only pause the game logic execution.
      * !#zh 暂停游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。这点和只暂停游戏逻辑的 cc.director.pause 不同。
@@ -253,8 +253,8 @@ var game = {
         if (this._paused) return;
         this._paused = true;
         // Pause audio engine
-        if (audioEngine) {
-            audioEngine._break();
+        if (cc.audioEngine) {
+            cc.audioEngine._break();
         }
         // Pause main loop
         if (this._intervalId)
@@ -263,7 +263,7 @@ var game = {
     },
 
     /**
-     * !#en Resume the game from pause. This will resume: 
+     * !#en Resume the game from pause. This will resume:
      * game logic execution, rendering process, event manager, background music and all audio effects.
      * !#zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
      * @method resume
@@ -272,8 +272,8 @@ var game = {
         if (!this._paused) return;
         this._paused = false;
         // Resume audio engine
-        if (audioEngine) {
-            audioEngine._restore();
+        if (cc.audioEngine) {
+            cc.audioEngine._restore();
         }
         // Resume main loop
         this._runMainLoop();
@@ -297,7 +297,9 @@ var game = {
     restart: function () {
         cc.director.popToSceneStackLevel(0);
         // Clean up audio
-        audioEngine && audioEngine.end();
+        if (cc.audioEngine) {
+            cc.audioEngine.uncacheAll();
+        }
 
         game.onStart();
     },
@@ -629,7 +631,7 @@ var game = {
         // Collide Map and Group List
         this.collisionMatrix = config.collisionMatrix || [];
         this.groupList = config.groupList || [];
-        
+
         cc._initDebugSetting(config[CONFIG_KEY.debugMode]);
 
         this.config = config;

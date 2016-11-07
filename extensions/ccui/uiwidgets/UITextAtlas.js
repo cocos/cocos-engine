@@ -154,7 +154,7 @@ ccui.TextAtlas = ccui.Widget.extend(/** @lends ccui.TextAtlas# */{
     /**
      * Returns the renderer's content size
      * @overrider
-     * @returns {cc.Size}
+     * @returns {Size}
      */
     getVirtualRendererSize: function(){
         return this._labelAtlasRenderer.getContentSize();

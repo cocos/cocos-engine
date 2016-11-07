@@ -2,7 +2,7 @@ var JS = cc.js;
 
 /**
  * @class Playable
- * @constructor
+ *
  */
 function Playable () {
     this._isPlaying = false;
@@ -108,8 +108,10 @@ prototype.stop = function () {
  * @method pause
  */
 prototype.pause = function () {
-    this._isPaused = true;
-    this.onPause();
+    if (this._isPlaying) {
+        this._isPaused = true;
+        this.onPause();
+    }
 };
 
 /**
@@ -118,8 +120,10 @@ prototype.pause = function () {
  * @method resume
  */
 prototype.resume = function () {
-    this._isPaused = false;
-    this.onResume();
+    if (this._isPlaying) {
+        this._isPaused = false;
+        this.onResume();
+    }
 };
 
 /**

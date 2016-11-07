@@ -778,7 +778,8 @@ cc.Scheduler = cc._Class.extend({
         cc.assert(callback, "Argument callback must not be empty");
         cc.assert(target, "Argument target must be non-nullptr");
 
-        var element = this._hashForUpdates[getTargetId(target)];
+        var instanceId = getTargetId(target);
+        var element = this._hashForTimers[instanceId];
 
         if (!element){
             return false;
@@ -791,7 +792,7 @@ cc.Scheduler = cc._Class.extend({
             for (var i = 0; i < timers.length; ++i){
                 var timer =  timers[i];
 
-                if (callback === timer.getKey()){
+                if (callback === timer._selector){
                     return true;
                 }
             }

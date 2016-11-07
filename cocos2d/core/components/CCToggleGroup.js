@@ -89,7 +89,7 @@ var ToggleGroup = cc.Class({
                     + 'Something bad happened,' +
                     ' please report this issue to the Creator developer, thanks.');
         }
-        this._allowOnlyOneToggleChecked();
+        this._makeAtLeastOneToggleChecked();
     },
 
     _allowOnlyOneToggleChecked: function () {
@@ -104,13 +104,22 @@ var ToggleGroup = cc.Class({
             }
         });
 
+        return isChecked;
+    },
+
+    _makeAtLeastOneToggleChecked: function () {
+        var isChecked = this._allowOnlyOneToggleChecked();
+
         if(!isChecked && !this.allowSwitchOff) {
             if(this._toggleItems.length > 0) {
                 this._toggleItems[0].isChecked = true;
             }
         }
-
     },
+
+    start: function () {
+        this._makeAtLeastOneToggleChecked();
+    }
 
 });
 

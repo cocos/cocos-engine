@@ -67,7 +67,7 @@ ccs.AnimationEvent = ccs.Class.extend(/** @lends ccs.AnimationEvent# */{
 
 /**
  * The movement event class for Armature.
- * @constructor
+ *
  *
  * @property {ccs.Armature}             armature        - The armature reference of movement event.
  * @property {Number}                   movementType    - The type of movement.
@@ -81,7 +81,7 @@ ccs.MovementEvent = function () {
 
 /**
  * The frame event class for Armature.
- * @constructor
+ *
  *
  * @property {ccs.Bone}             bone                - The bone reference of frame event.
  * @property {String}               frameEventName      - The name of frame event.

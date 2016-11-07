@@ -369,6 +369,7 @@ cc.rendererCanvas = {
 
     proto.restore = function () {
         this._context.restore();
+        this._currentAlpha = this._context.globalAlpha;
         this._saveCount--;
     };
 

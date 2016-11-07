@@ -47,7 +47,10 @@ cc.VideoPlayer.EventType = {
     PLAYING: 0,
     PAUSED: 1,
     STOPPED: 2,
-    COMPLETED: 3
+    COMPLETED: 3,
+    META_LOADED: 4,
+    CLICKED: 5,
+    READY_TO_PLAY: 6
 };
 
 cc.WebView.EventType = {
@@ -129,7 +132,12 @@ cc.EditBox.InputFlag = cc.Enum({
     /**
      * Capitalize all characters automatically.
      */
-    INITIAL_CAPS_ALL_CHARACTERS: 4
+    INITIAL_CAPS_ALL_CHARACTERS: 4,
+
+    /**
+     * Don't do anything with the input text.
+     */
+    DEFAULT: 5
 });
 
 /**

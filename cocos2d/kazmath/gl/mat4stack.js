@@ -30,7 +30,7 @@
  * The stack of cc.math.Matrix4
  * @param {cc.math.Matrix4} [top]
  * @param {Array} [stack]
- * @constructor
+ *
  */
 cc.math.Matrix4Stack = function(top, stack) {
     this.top = top;

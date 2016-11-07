@@ -95,7 +95,7 @@ var RichText = cc.Class({
         /**
          * !#en Horizontal Alignment of each line in RichText.
          * !#zh 文本内容的水平对齐方式。
-         * @property {RichText.HorizontalAlign} horizontalAlign
+         * @property {TextAlignment} horizontalAlign
          */
         horizontalAlign: {
             default: HorizontalAlign.LEFT,
@@ -161,7 +161,7 @@ var RichText = cc.Class({
         /**
          * !#en The image atlas for the img tag. For each src value in the img tag, there should be a valid spriteFrame in the image atlas.
          * !#zh 对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效。
-         * @property {cc.SpriteAtlas} imageAtlas
+         * @property {SpriteAtlas} imageAtlas
          */
         imageAtlas: {
             default: null,

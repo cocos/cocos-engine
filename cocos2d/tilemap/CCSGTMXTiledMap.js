@@ -129,7 +129,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
 
     /**
      * Gets the map size.
-     * @return {cc.Size}
+     * @return {Size}
      */
     getMapSize:function () {
         return cc.size(this._mapSize.width, this._mapSize.height);
@@ -137,7 +137,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
 
     /**
      * Set the map size.
-     * @param {cc.Size} Var
+     * @param {Size} Var
      */
     setMapSize:function (Var) {
         this._mapSize.width = Var.width;
@@ -159,7 +159,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
 
     /**
      * Gets the tile size.
-     * @return {cc.Size}
+     * @return {Size}
      */
     getTileSize:function () {
         return cc.size(this._tileSize.width, this._tileSize.height);
@@ -167,7 +167,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
 
     /**
      * Set the tile size
-     * @param {cc.Size} Var
+     * @param {Size} Var
      */
     setTileSize:function (Var) {
         this._tileSize.width = Var.width;

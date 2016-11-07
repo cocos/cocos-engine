@@ -42,7 +42,6 @@ var RawAsset = require('./CCRawAsset');
  *
  * @class Asset
  * @extends RawAsset
- * @constructor
  */
 cc.Asset = cc.Class({
     name: 'cc.Asset', extends: RawAsset,

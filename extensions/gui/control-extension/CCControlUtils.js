@@ -36,7 +36,7 @@
  * @param {Number} g
  * @param {Number} b
  * @param {Number} a
- * @constructor
+ *
  */
 cc.RGBA = function(r,g,b,a){
     this.r = r ;    // percent

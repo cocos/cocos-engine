@@ -95,8 +95,7 @@ var PageView = cc.Class({
             type: Direction,
             tooltip: 'i18n:COMPONENT.pageview.direction',
             notify: function() {
-                this.horizontal = this.direction === Direction.Horizontal;
-                this.vertical = this.direction === Direction.Vertical;
+                this._syncScrollDirection();
             }
         },
 
@@ -111,8 +110,20 @@ var PageView = cc.Class({
             default: 0.5,
             type: cc.Float,
             slide: true,
-            range: [0, 1, 0.1],
+            range: [0, 1, 0.01],
             tooltip: 'i18n:COMPONENT.pageview.scrollThreshold'
+        },
+
+        /**
+         * !#en Change the PageTurning event timing of PageView.
+         * !#zh 设置 PageView PageTurning 事件的发送时机。
+         * @property {Number} pageTurningEventTiming
+         */
+        pageTurningEventTiming: {
+            default: 0.1,
+            type: cc.Float,
+            range: [0, 1, 0.01],
+            tooltip: 'i18n:COMPONENT.pageview.pageTurningEventTiming'
         },
 
         /**
@@ -151,12 +162,26 @@ var PageView = cc.Class({
     __preload: function () {
         this._super();
         this.node.on('size-changed', this._updateAllPagesSize, this);
-        // add _dispatchPageTurningEvent for scrollEvents
-        var pageTurningEvent = new cc.Component.EventHandler();
-        pageTurningEvent.target = this.node;
-        pageTurningEvent.component = "cc.PageView";
-        pageTurningEvent.handler = "_dispatchPageTurningEvent";
-        this.scrollEvents.push(pageTurningEvent);
+        this._syncScrollDirection();
+    },
+
+    _syncScrollDirection: function () {
+        this.horizontal = this.direction === Direction.Horizontal;
+        this.vertical = this.direction === Direction.Vertical;
+    },
+
+    onEnable: function () {
+        this._super();
+        if(!CC_EDITOR) {
+            this.node.on('scroll-ended', this._dispatchPageTurningEvent, this);
+        }
+    },
+
+    onDisable: function () {
+        this._super();
+        if(!CC_EDITOR) {
+            this.node.off('scroll-ended', this._dispatchPageTurningEvent, this);
+        }
     },
 
     onLoad: function () {
@@ -286,13 +311,12 @@ var PageView = cc.Class({
      * !#zh 滚动到指定页面
      * @method scrollToPage
      * @param {Number} idx index of page.
-     * @param {Boolean} immediately immediately jumps
+     * @param {Number} timeInSecond scrolling time
      */
-    scrollToPage: function (idx, immediately) {
+    scrollToPage: function (idx, timeInSecond) {
         if (idx < 0 || idx > this._pages.length)
             return;
-        immediately = immediately || false;
-        var timeInSecond = immediately ? 0 : 0.3;
+        timeInSecond = timeInSecond !== undefined ? timeInSecond : 0.3;
         this._curPageIdx = idx;
         this.scrollToOffset(this._moveOffsetValue(idx), timeInSecond, true);
         if (this.indicator) {
@@ -300,16 +324,21 @@ var PageView = cc.Class({
         }
     },
 
+    //override the method of ScrollView
+    getScrollEndedEventTiming: function () {
+        return this.pageTurningEventTiming;
+    },
+
     // 刷新页面视图
     _updatePageView: function () {
         var pageCount = this._pages.length;
 
+        // 当页面数组变化时修改 content 大小
+        var layout = this.content.getComponent(cc.Layout);
+        if(layout && layout.enabledInHierarchy) {
+            layout._updateLayout();
+        }
         if (this._curPageIdx >= pageCount) {
-            // 当页面数组变化时修改 content 大小
-            var layout = this.content.getComponent(cc.Layout);
-            if(layout && layout.enabledInHierarchy) {
-                layout._updateLayout();
-            }
             this._curPageIdx = pageCount === 0 ? 0 : pageCount - 1;
             this._lastPageIdx = this._curPageIdx;
         }
@@ -343,12 +372,11 @@ var PageView = cc.Class({
         }
     },
 
-    _dispatchPageTurningEvent: function (sender, event) {
-        if (event === cc.ScrollView.EventType.AUTOSCROLL_ENDED) {
-            if (this._lastPageIdx === this._curPageIdx) return;
-            this._lastPageIdx = this._curPageIdx;
-            cc.Component.EventHandler.emitEvents(this.pageEvents, this, EventType.PAGE_TURNING);
-        }
+    _dispatchPageTurningEvent: function () {
+        if (this._lastPageIdx === this._curPageIdx) return;
+        this._lastPageIdx = this._curPageIdx;
+        cc.Component.EventHandler.emitEvents(this.pageEvents, this, EventType.PAGE_TURNING);
+        this.node.emit('page-turning', this);
     },
 
     // 是否超过自动滚动临界值
@@ -379,7 +407,8 @@ var PageView = cc.Class({
             idx += (moveOffset.x > 0 ? 1 : -1);
         }
         else if (this.direction === Direction.Vertical) {
-            idx += (moveOffset.y > 0 ? 1 : -1);
+            // 由于滚动 Y 轴的原点在在右上角所以应该是小于 0
+            idx += (moveOffset.y < 0 ? 1 : -1);
         }
         return this._curPageIdx + idx;
     },
@@ -428,3 +457,13 @@ var PageView = cc.Class({
 });
 
 cc.PageView = module.exports = PageView;
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event page-turning
+ * @param {Event} event
+ * @param {PageView} event.detail - The PageView component.
+ */

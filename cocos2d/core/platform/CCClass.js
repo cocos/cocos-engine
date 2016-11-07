@@ -726,6 +726,7 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  * @param {Function} [options.onDestroy] - lifecycle method for Component, see {{#crossLink "Component/onDestroy:method"}}{{/crossLink}}
  * @param {Function} [options.onFocusInEditor] - lifecycle method for Component, see {{#crossLink "Component/onFocusInEditor:method"}}{{/crossLink}}
  * @param {Function} [options.onLostFocusInEditor] - lifecycle method for Component, see {{#crossLink "Component/onLostFocusInEditor:method"}}{{/crossLink}}
+ * @param {Function} [options.resetInEditor] - lifecycle method for Component, see {{#crossLink "Component/resetInEditor:method"}}{{/crossLink}}
  * @param {Function} [options.onRestore] - for Component only, see {{#crossLink "Component/onRestore:method"}}{{/crossLink}}
  * @param {Function} [options._getLocalBounds] - for Component only, see {{#crossLink "Component/_getLocalBounds:method"}}{{/crossLink}}
  *
@@ -1047,8 +1048,11 @@ function parseAttributes (attrs, className, propName) {
     if (CC_DEV) {
         var visible = attrs.visible;
         if (typeof visible !== 'undefined') {
-            if (!attrs.visible) {
+            if (!visible) {
                 result.push({visible: false});
+            }
+            else if (typeof visible === 'function') {
+                result.push({visible: visible});
             }
         }
         else {

@@ -29,7 +29,7 @@
  * @extends ccs.Sprite
  *
  * @param {String} [fileName]
- * @param {cc.Rect} [rect]
+ * @param {Rect} [rect]
  *
  * @property {Object}   skinData    - The data of the skin
  * @property {ccs.Bone} bone        - The bone of the skin
@@ -86,7 +86,7 @@ ccs.Skin = ccs.Sprite.extend(/** @lends ccs.Skin# */{
     /**
      * Initializes with texture file name.
      * @param {String} fileName
-     * @param {cc.Rect} rect
+     * @param {Rect} rect
      * @returns {Boolean}
      */
     initWithFile: function (fileName, rect) {
@@ -196,7 +196,7 @@ _p = null;
 /**
  * allocates and initializes a skin.
  * @param {String} [fileName] fileName or sprite frame name
- * @param {cc.Rect} [rect]
+ * @param {Rect} [rect]
  * @returns {ccs.Skin}
  * @deprecated since v3.1, please use new construction instead
  */

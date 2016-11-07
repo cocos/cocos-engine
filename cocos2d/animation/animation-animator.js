@@ -31,7 +31,7 @@ p.playState = function (state, startTime) {
     state.play();
 
     if (typeof startTime === 'number') {
-        state.time = startTime;
+        state.setTime(startTime);
     }
 
     this.play();

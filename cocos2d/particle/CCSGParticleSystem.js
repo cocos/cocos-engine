@@ -57,8 +57,8 @@ var tiffReader = require('../cocos2d/particle/CCTIFFReader');
  * @param {cc.Vec2} [startPos=cc.p(0,0)]
  * @param {cc.Color} [color= cc.color(0, 0, 0, 255)]
  * @param {cc.Color} [deltaColor=cc.color(0, 0, 0, 255)]
- * @param {cc.Size} [size=0]
- * @param {cc.Size} [deltaSize=0]
+ * @param {Size} [size=0]
+ * @param {Size} [deltaSize=0]
  * @param {Number} [rotation=0]
  * @param {Number} [deltaRotation=0]
  * @param {Number} [timeToLive=0]
@@ -160,7 +160,7 @@ cc.Particle.TemporaryPoints = [
  *     - radius direction (Radius mode) (Particle Designer supports outwards to inwards direction only) <br/>
  *     It is possible to customize any of the above mentioned properties in runtime. Example:   <br/>
  * </p>
- * @class
+ * @class _ccsg.ParticleSystem
  * @extends _ccsg.Node
  *
  * @property {Boolean}              opacityModifyRGB    - Indicate whether the alpha value modify color.
@@ -207,7 +207,7 @@ cc.Particle.TemporaryPoints = [
  * @property {ccsg.ParticleSystem.Type} positionType      - Particles movement type: ccsg.ParticleSystem.Type.FREE | ccsg.ParticleSystem.Type.GROUPED.
  * @property {Number}               totalParticles      - Maximum particles of the system.
  * @property {Boolean}              autoRemoveOnFinish  - Indicate whether the node will be auto-removed when it has no particles left.
- * @property {cc.Texture2D}         texture             - Texture of Particle System.
+ * @property {Texture2D}         texture             - Texture of Particle System.
  *
  * @example
  *  emitter.radialAccel = 15;
@@ -371,7 +371,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
      * <p> initializes the texture with a rectangle measured Points<br/>
      * pointRect should be in Texture coordinates, not pixel coordinates
      * </p>
-     * @param {cc.Rect} pointRect
+     * @param {Rect} pointRect
      */
     initTexCoordsWithRect:function (pointRect) {
         this._renderCmd.initTexCoordsWithRect(pointRect);
@@ -1052,7 +1052,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
 
     /**
      * get Texture of Particle System
-     * @return {cc.Texture2D}
+     * @return {Texture2D}
      */
     getTexture:function () {
         return this._texture;
@@ -1131,7 +1131,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
      *    dest blend function = GL_ONE;
      */
     isBlendAdditive:function () {
-        return (( this._blendFunc.src === cc.macro.SRC_ALPHA && this._blendFunc.dst === cc.macro.ONE) || 
+        return (( this._blendFunc.src === cc.macro.SRC_ALPHA && this._blendFunc.dst === cc.macro.ONE) ||
                 (this._blendFunc.src === cc.macro.ONE && this._blendFunc.dst === cc.macro.ONE));
     },
 
@@ -1236,7 +1236,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
 
     /**
      * return bounding box of particle system in world space
-     * @return {cc.Rect}
+     * @return {Rect}
      */
     getBoundingBoxToWorld:function () {
         return cc.rect(0, 0, cc._canvas.width, cc._canvas.height);
@@ -1971,8 +1971,8 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
 
     /**
      *  Sets a new texture with a rect. The rect is in Points.
-     * @param {cc.Texture2D} texture
-     * @param {cc.Rect} rect
+     * @param {Texture2D} texture
+     * @param {Rect} rect
      */
     setTextureWithRect: function (texture, rect) {
         var locTexture = this._texture;

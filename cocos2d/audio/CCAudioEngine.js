@@ -37,26 +37,23 @@ var getAudioFromPath = function (path) {
         list = url2id[path] = [];
     }
     var audio;
-    if (audioEngine._maxAudioInstance > list.length) {
-        audio = new Audio(path);
-        id2audio[id] = audio;
-    } else {
+    if (audioEngine._maxAudioInstance <= list.length) {
         var oldId = list.shift();
-        audio = id2audio[id] = id2audio[oldId];
-        delete id2audio[oldId];
-        var index = list.indexOf(oldId);
-        index !== -1 && list.splice(index, 1);
+        var oldAudio = id2audio[oldId];
+        oldAudio.stop();
     }
-    audio.instanceId = id;
-    list.push(id);
 
-    //
+    audio = new Audio(path);
     audio.on('ended', function () {
         var id = this.instanceId;
         delete id2audio[id];
         var index = list.indexOf(id);
-        index !== -1 && list.splice(index, 1);
+        cc.js.array.fastRemoveAt(list, index);
     });
+    id2audio[id] = audio;
+
+    audio.instanceId = id;
+    list.push(id);
 
     return audio;
 };
@@ -82,7 +79,7 @@ var audioEngine = {
 
     AudioState: Audio.State,
 
-    _maxWebAudioSize: 307200, // 300kb * 1024
+    _maxWebAudioSize: 2097152, // 2048kb * 1024
     _maxAudioInstance: 24,
 
     _id2audio: id2audio,
@@ -106,6 +103,7 @@ var audioEngine = {
             audio.setVolume(volume || 1);
             audio.play();
         };
+        audio.__callback = callback;
         audio.on('load', callback);
         audio.preload();
 
@@ -154,7 +152,7 @@ var audioEngine = {
      * @param {Number} volume Volume must be in 0.0~1.0 .
      * @example
      * //example
-     * cc.audioEngine.setVolume(0.5);
+     * cc.audioEngine.setVolume(id, 0.5);
      */
     setVolume: function (audioID, volume) {
         var audio = getAudioFromId(audioID);
@@ -251,7 +249,7 @@ var audioEngine = {
      * !#zh 获取音频状态。
      * @method getState
      * @param {Number} audioID audio id.
-     * @return {cc.audioEngine.AudioState} audio duration.
+     * @return {audioEngine.AudioState} audio duration.
      * @example
      * //example
      * var state = cc.audioEngine.getState(id);
@@ -368,6 +366,7 @@ var audioEngine = {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.stop)
             return false;
+        audio.off('load', audio.__callback);
         audio.stop();
         audio.emit('ended');
         return true;
@@ -386,6 +385,7 @@ var audioEngine = {
             var audio = id2audio[id];
             if (audio && audio.stop) {
                 audio.stop();
+                audio.off('load', audio.__callback);
                 audio.emit('ended');
             }
         }

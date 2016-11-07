@@ -556,9 +556,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
         var oldScene = this._scene;
 
-        // auto release assets
-        var autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
-        AutoReleaseUtils.autoRelease(cc.loader, autoReleaseAssets, scene.dependAssets);
+        if (!CC_EDITOR) {
+            // auto release assets
+            var autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
+            AutoReleaseUtils.autoRelease(cc.loader, autoReleaseAssets, scene.dependAssets);
+        }
 
         // unload scene
         if (cc.isValid(oldScene)) {

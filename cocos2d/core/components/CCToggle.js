@@ -59,7 +59,7 @@ var Toggle = cc.Class({
          * Otherwise, the toggle is a RadioButton.
          * !#zh Toggle 所属的 ToggleGroup，这个属性是可选的。如果这个属性为 null，则 Toggle 是一个 CheckBox，
          * 否则，Toggle 是一个 RadioButton。
-         * @property {cc.ToggleGroup} toggleGroup
+         * @property {ToggleGroup} toggleGroup
          */
         toggleGroup: {
             default: null,
@@ -70,7 +70,7 @@ var Toggle = cc.Class({
         /**
          * !#en The image used for the checkmark.
          * !#zh Toggle 处于选中状态时显示的图片
-         * @property {cc.Sprite} checkMark
+         * @property {Sprite} checkMark
          */
         checkMark: {
             default: null,
@@ -101,11 +101,13 @@ var Toggle = cc.Class({
 
     __preload: function () {
         this._super();
-        this._registerToggleEvent();
     },
 
     onEnable: function () {
         this._super();
+        if(!CC_EDITOR) {
+            this._registerToggleEvent();
+        }
         if(this.toggleGroup) {
             this.toggleGroup.addToggle(this);
         }
@@ -113,6 +115,9 @@ var Toggle = cc.Class({
 
     onDisable: function () {
         this._super();
+        if(!CC_EDITOR) {
+            this._unregisterToggleEvent();
+        }
         if(this.toggleGroup) {
             this.toggleGroup.removeToggle(this);
         }
@@ -138,12 +143,11 @@ var Toggle = cc.Class({
     },
 
     _registerToggleEvent: function () {
-        var event = new cc.Component.EventHandler();
-        event.target = this.node;
-        event.component = 'cc.Toggle';
-        event.handler = 'toggle';
-        this.clickEvents = [event];
+        this.node.on('click', this.toggle, this);
+    },
 
+    _unregisterToggleEvent: function () {
+        this.node.off('click', this.toggle, this);
     },
 
     toggle: function (event) {
@@ -163,10 +167,10 @@ var Toggle = cc.Class({
         }
     },
 
-    _emitToggleEvents: function (event) {
-        this.node.emit('toggle-event', this);
+    _emitToggleEvents: function () {
+        this.node.emit('toggle', this);
         if(this.checkEvents) {
-            cc.Component.EventHandler.emitEvents(this.checkEvents, event, this);
+            cc.Component.EventHandler.emitEvents(this.checkEvents, this);
         }
     },
 
@@ -183,7 +187,7 @@ var Toggle = cc.Class({
         }
 
         this.isChecked = true;
-        this.node.emit('toggle-event', this);
+        this.node.emit('toggle', this);
 
         if(this.toggleGroup) {
             this.toggleGroup.updateToggles(this);
@@ -204,10 +208,20 @@ var Toggle = cc.Class({
 
         this.isChecked = false;
 
-        this.node.emit('toggle-event', this);
+        this.node.emit('toggle', this);
     }
 
 
 });
 
 cc.Toggle = module.exports = Toggle;
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event toggle
+ * @param {Event} event
+ * @param {Toggle} event.detail - The Toggle component.
+ */

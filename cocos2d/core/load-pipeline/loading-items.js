@@ -38,6 +38,8 @@ var ItemState = {
     ERROR: 3
 };
 
+var _queueDeps = {};
+
 function isIdValid (id) {
     var realId = id.id || id;
     return (typeof realId === 'string');
@@ -85,11 +87,14 @@ function createItem (id, queueId) {
 
 var checkedIds = [];
 function checkCircleReference(owner, item, recursiveCall) {
+    if (!owner || !item) {
+        return false;
+    }
     var result = false;
     checkedIds.push(item.id);
     if (item.deps) {
         var i, deps = item.deps, subDep;
-        for (var i = 0; i < deps.length; i++) {
+        for (i = 0; i < deps.length; i++) {
             subDep = deps[i];
             if (subDep.id === owner.id) {
                 result = true;
@@ -159,6 +164,8 @@ var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
 
     this._appending = false;
 
+    this._ownerQueue = null;
+
     /**
      * !#en This is a callback which will be invoked while an item flow out the pipeline.
      * You can pass the callback function in LoadingItems.create or set it later.
@@ -174,7 +181,7 @@ var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
      *  }
      */
     this.onProgress = onProgress;
-    
+
     /**
      * !#en This is a callback which will be invoked while all items is completed,
      * You can pass the callback function in LoadingItems.create or set it later.
@@ -246,9 +253,26 @@ var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
  * !#en The item states of the LoadingItems, its value could be LoadingItems.ItemState.WORKING | LoadingItems.ItemState.COMPLETET | LoadingItems.ItemState.ERROR
  * !#zh LoadingItems 队列中的加载项状态，状态的值可能是 LoadingItems.ItemState.WORKING | LoadingItems.ItemState.COMPLETET | LoadingItems.ItemState.ERROR
  * @enum LoadingItems.ItemState
- * @static
  */
+
+/**
+ * @property {Number} WORKING
+ */
+
+/**
+ * @property {Number} COMPLETET
+ */
+
+/**
+ * @property {Number} ERROR
+ */
+
 LoadingItems.ItemState = new cc.Enum(ItemState);
+
+/**
+ * @class LoadingItems
+ * @extends CallbacksInvoker
+*/
 
 /**
  * !#en The constructor function of LoadingItems, this will use recycled LoadingItems in the internal pool if possible.
@@ -286,8 +310,15 @@ LoadingItems.create = function (pipeline, urlList, onProgress, onComplete) {
         }
     }
     else if (onComplete === undefined) {
-        onComplete = onProgress;
-        onProgress = null;
+        if (typeof urlList === 'function') {
+            onComplete = onProgress;
+            onProgress = urlList;
+            urlList = null;
+        }
+        else {
+            onComplete = onProgress;
+            onProgress = null;
+        }
     }
 
     var queue = _pool.pop();
@@ -337,6 +368,56 @@ LoadingItems.itemComplete = function (item) {
     }
 };
 
+LoadingItems.initQueueDeps = function (queue) {
+    var dep = _queueDeps[queue._id];
+    if (!dep) {
+        dep = _queueDeps[queue._id] = {
+            completed: [],
+            deps: []
+        };
+    }
+    else {
+        dep.completed.length = 0;
+        dep.deps.length = 0;
+    }
+};
+
+LoadingItems.registerDep = function (owner, depId) {
+    var queueId = owner.queueId || owner;
+    if (!queueId) {
+        return false;
+    }
+    var queueDepList = _queueDeps[queueId];
+    // Owner is root queue
+    if (queueDepList) {
+        if (queueDepList.deps.indexOf(depId) === -1) {
+            queueDepList.deps.push(depId);
+        }
+    }
+    // Owner is an item in the intermediate queue
+    else if (owner.id) {
+        for (var id in _queueDeps) {
+            var queue = _queueDeps[id];
+            // Found root queue
+            if (queue.deps.indexOf(owner.id) !== -1) {
+                if (queue.deps.indexOf(depId) === -1) {
+                    queue.deps.push(depId);
+                }
+            }
+        }
+    }
+};
+
+LoadingItems.finishDep = function (depId) {
+    for (var id in _queueDeps) {
+        var queue = _queueDeps[id];
+        // Found root queue
+        if (queue.deps.indexOf(depId) !== -1 && queue.completed.indexOf(depId) === -1) {
+            queue.completed.push(depId);
+        }
+    }
+};
+
 JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     /**
      * !#en Add urls to the LoadingItems queue.
@@ -371,6 +452,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
                     var queue = _queues[url.queueId];
                     if (queue) {
                         this.totalCount++;
+                        LoadingItems.registerDep(owner || this._id, url.id);
                         // console.log('+++++ Waited ' + url.id);
                         queue.addListener(url.id, function (item) {
                             // console.log('----- Completed by waiting ' + item.id + ', rest: ' + (self.totalCount - self.completedCount-1));
@@ -388,6 +470,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
                 if (!this.map[id]) {
                     this.map[item.id] = item;
                     this.totalCount++;
+                    LoadingItems.registerDep(owner || this._id, id);
                     accepted.push(item);
                     // console.log('+++++ Appended ' + item.id);
                 }
@@ -404,6 +487,13 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
             this._pipeline.flowIn(accepted);
         }
         return accepted;
+    },
+
+    _childOnProgress: function (item) {
+        if (this.onProgress) {
+            var dep = _queueDeps[this._id];
+            this.onProgress(dep ? dep.completed.length : this.completedCount, dep ? dep.deps.length : this.totalCount, item);
+        }
     },
 
     /**
@@ -570,7 +660,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
      * !#en Complete an item in the LoadingItems queue, please do not call this method unless you know what's happening.
      * !#zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
      * @method itemComplete
-     * @param {id} item The item id
+     * @param {String} item The item id
      */
     itemComplete: function (id) {
         var item = this.map[id];
@@ -590,7 +680,11 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         this.completed[id] = item;
         this.completedCount++;
 
-        this.onProgress && this.onProgress(this.completedCount, this.totalCount, item);
+        LoadingItems.finishDep(id);
+        if (this.onProgress) {
+            var dep = _queueDeps[this._id];
+            this.onProgress(dep ? dep.completed.length : this.completedCount, dep ? dep.deps.length : this.totalCount, item);
+        }
 
         this.invokeAndRemove(id, item);
 
@@ -610,6 +704,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         this.active = false;
         this._appending = false;
         this._pipeline = null;
+        this._ownerQueue = null;
         this._errorUrls.length = 0;
         this.onProgress = null;
         this.onComplete = null;
@@ -624,6 +719,10 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         CallbacksInvoker.call(this);
 
         _queues[this._id] = null;
+        if (_queueDeps[this._id]) {
+            _queueDeps[this._id].completed.length = 0;
+            _queueDeps[this._id].deps.length = 0;
+        }
         if (_pool.indexOf(this) === -1 && _pool.length < _POOL_MAX_LENGTH) {
             _pool.push(this);
         }

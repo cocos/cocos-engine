@@ -31,6 +31,37 @@ require('../cocos2d/core/assets/CCAsset');
 // cc.spriteFrameAnimationCache = cc.animationCache;
 // cc.SpriteFrameAnimation = cc.Animation;
 
+// TextureCache addImage
+
+if (!cc.TextureCache.prototype._addImageAsync) {
+    cc.TextureCache.prototype._addImageAsync = cc.TextureCache.prototype.addImageAsync;
+}
+cc.TextureCache.prototype.addImageAsync = function (url, cb, target) {
+    var localTex = null;
+    cc.loader.load(url, function(err, tex) {
+        if (err) tex = null;
+        if (cb) {
+            cb.call(target, tex);
+        }
+        localTex = tex;
+    });
+    return localTex;
+};
+// Fix for compatibility with old APIs
+cc.TextureCache.prototype.addImage = function (url, cb, target) {
+    if (typeof cb === "function") {
+        return this.addImageAsync(url, cb, target);
+    }
+    else {
+        if (cb) {
+            return this._addImage(url, cb);
+        }
+        else {
+            return this._addImage(url);
+        }
+    }
+};
+
 // cc.textureCache.cacheImage
 
 cc.textureCache._textures = {};
@@ -46,6 +77,12 @@ cc.textureCache.getTextureForKey = function (key) {
         tex = this._textures[key];
     return tex || null;
 };
+cc.textureCache._removeTextureForKey = cc.textureCache.removeTextureForKey;
+cc.textureCache.removeTextureForKey = function (key) {
+    if (this._textures[key])
+        delete this._textures[key];
+    this._removeTextureForKey(key);
+};
 
 // cc.Texture2D
 
@@ -57,7 +94,6 @@ var prototype = cc.Texture2D.prototype;
 prototype.isLoaded = function () {
     return true;
 };
-prototype.releaseTexture = prototype.releaseGLTexture;
 prototype.getPixelWidth = prototype.getPixelsWide;
 prototype.getPixelHeight = prototype.getPixelsHigh;
 prototype.description = prototype.getDescription;

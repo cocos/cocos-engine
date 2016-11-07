@@ -662,7 +662,7 @@ properties.emitterMode.type = EmitterMode;
  * emitter.startSpin = 0;
  *
  * @class ParticleSystem
- * @extends cc._RendererUnderSG
+ * @extends _RendererUnderSG
  */
 var ParticleSystem = cc.Class({
     name: 'cc.ParticleSystem',

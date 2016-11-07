@@ -142,7 +142,10 @@ _ccsg.Label = _ccsg.Node.extend({
 
         fontHandle = fontHandle || "";
         this._fontHandle = fontHandle;
-        string = string || "";
+        if (typeof string !== 'string') {
+            string = '' + string;
+        }
+
         this._string = string;
 
         _ccsg.Node.prototype.ctor.call(this);
@@ -184,6 +187,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
     setHorizontalAlign: function(align) {
         if (this._hAlign === align) return;
+
         this._hAlign = align;
         this._notifyLabelSkinDirty();
     },
@@ -194,6 +198,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
     setVerticalAlign: function(align) {
         if (this._vAlign === align) return;
+
         this._vAlign = align;
         this._notifyLabelSkinDirty();
     },
@@ -209,11 +214,14 @@ _ccsg.Label = _ccsg.Node.extend({
         }
 
         if (this._string === string) return;
+
         this._string = string;
         this._notifyLabelSkinDirty();
     },
 
     setMargin: function(value) {
+        if(this._margin === value) return;
+
         this._margin = value;
         this._notifyLabelSkinDirty();
     },
@@ -227,6 +235,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
     enableWrapText: function(enabled) {
         if (this._isWrapText === enabled) return;
+
         //when label is in resize mode, wrap is disabled.
         if (this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT ||
            this._overFlow === _ccsg.Label.Overflow.NONE) {
@@ -248,11 +257,15 @@ _ccsg.Label = _ccsg.Node.extend({
     },
 
     enableBold: function (enabled) {
+        if(this._isBold === enabled) return;
+
         this._isBold = enabled;
         this._notifyLabelSkinDirty();
     },
 
     enableUnderline: function (enabled) {
+        if(this._isUnderline === enabled) return;
+
         this._isUnderline = enabled;
         this._notifyLabelSkinDirty();
     },
@@ -264,6 +277,8 @@ _ccsg.Label = _ccsg.Node.extend({
         return this._fontHandle;
     },
     setFontSize: function(fntSize) {
+        if(this._fontSize === fntSize) return;
+
         this._fontSize = fntSize;
         this._drawFontsize = fntSize;
         this._notifyLabelSkinDirty();
@@ -278,6 +293,8 @@ _ccsg.Label = _ccsg.Node.extend({
     },
 
     setOutlined: function(value) {
+        if(this._outlined === value) return;
+
         this._outlined = !!value;
         this._notifyLabelSkinDirty();
     },
@@ -287,11 +304,15 @@ _ccsg.Label = _ccsg.Node.extend({
     },
 
     setOutlineColor: function(value) {
+        if(this._outlineColor === value) return;
+
         this._outlineColor = cc.color(value);
         this._notifyLabelSkinDirty();
     },
 
     setOutlineWidth: function(value) {
+        if(this._outlineWidth === value) return;
+
         this._outlineWidth = value;
         this._notifyLabelSkinDirty();
     },
@@ -349,6 +370,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
     setLineHeight: function(lineHeight) {
         if (this._lineHeight === lineHeight) return;
+
         this._lineHeight = lineHeight;
         this._notifyLabelSkinDirty();
     },
@@ -1204,6 +1226,7 @@ cc.BMFontHelper = {
                     } else {
                         if (!self._spriteBatchNode) {
                             self._createSpriteBatchNode(texture);
+                            self.emit("load");
                         }
                     }
                 });

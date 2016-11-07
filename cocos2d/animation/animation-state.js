@@ -11,7 +11,7 @@ var AnimationNode = require('./types').AnimationNode;
  * 大多数情况下 动画组件 是足够和易于使用的。如果您需要更多的动画控制接口，请使用 AnimationState。
  * @class AnimationState
  * @extends AnimationNode
- * @constructor
+ *
  */
 
 /**
@@ -79,7 +79,7 @@ state.onPlay = function () {
 
 state.onStop = function () {
     AnimationNode.prototype.onStop.call(this);
-    
+
     if (this.animator) {
         this.animator.removeAnimation(this);
     }
@@ -88,8 +88,9 @@ state.onStop = function () {
 state.setTime = function (time) {
     this.time = time || 0;
 
+    var self = this;
     this.curves.forEach(function (curve) {
-        curve.onTimeChangedManually();
+        curve.onTimeChangedManually(time, self);
     });
 };
 

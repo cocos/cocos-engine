@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('../platform/js');
 var game = require('../CCGame');
 var Texture2D = require('./CCTexture2D');
 

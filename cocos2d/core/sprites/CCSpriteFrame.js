@@ -30,26 +30,16 @@ var EventTarget = require("../event/event-target");
  * !#en
  * A cc.SpriteFrame has:<br/>
  *  - texture: A cc.Texture2D that will be used by the _ccsg.Sprite<br/>
- *  - rectangle: A rectangle of the texture<br/>
- * <br/>
- * You can modify the frame of a _ccsg.Sprite by doing:<br/>
- *
- * Note: It's not recommended to use SpriteFrame constructor (new SpriteFrame)
- * because its memory usage can't be tracked in native environment, <br/>
- * if you know what you are doing, you may need to manually retain it after creation then
- * release it when you no longer need it.
+ *  - rectangle: A rectangle of the texture
  *
  * !#zh
  * 一个 SpriteFrame 包含：<br/>
  *  - 纹理：会被 Sprite 使用的 Texture2D 对象。<br/>
- *  - 矩形：在纹理中的矩形区域。<br/>
- * 注意：<br/>
- *   不建议用户使用构造函数进行创建，因为其内存使用情况，不能在本地环境中进行跟踪，需要用户手动管理内存，不然会导致严重错误。<br/>
- *   如果你知道你在做什么，你可能需要手动将其保留在创建之后，然后释放它。
+ *  - 矩形：在纹理中的矩形区域。
  *
  * @class SpriteFrame
  * @extends Asset
- * @constructor
+ *
  * @example
  * // load a cc.SpriteFrame with image path (Recommend)
  * var self = this;
@@ -89,17 +79,9 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     /**
      * !#en
-     * Constructor of SpriteFrame class. <br/>
-     * Note: It's not recommended to use SpriteFrame constructor (new SpriteFrame)
-     * because its memory usage can't be tracked in native environment, <br/>
-     * if you know what you are doing, you may need to manually retain it after creation then
-     * release it when you no longer need it.
+     * Constructor of SpriteFrame class.
      * !#zh
-     * SpriteFrame 类的构造函数。<br/>
-     * 注意：<br/>
-     *    不建议用户使用构造函数进行创建，因为其内存使用情况，不能在本地环境中进行跟踪，
-     *    需要用户手动管理内存，不然会导致严重错误。<br/>
-     *    如果你知道你在做什么，你可能需要手动将其保留在创建之后，然后释放它。
+     * SpriteFrame 类的构造函数。
      * @method SpriteFrame
      * @param {String|Texture2D} [filename]
      * @param {Rect} [rect]
@@ -108,11 +90,6 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Size} [originalSize] - The size of the frame in the texture
      */
     ctor: function () {
-
-        if (CC_DEV && (!CC_EDITOR || Editor.isRendererProcess) && !CC_TEST && !cc.game._isCloning) {
-            cc.warn("It's not recommended to use SpriteFrame constructor (new SpriteFrame) because its memory usage can't be tracked in native environment, if you know what you are doing, you may need to manually retain it after creation then release it when you no longer need it.");
-        }
-
         var filename = arguments[0];
         var rect = arguments[1];
         var rotated = arguments[2];
@@ -278,7 +255,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         return this._texture;
     },
 
-    /**
+    /*
      * !#en Sets the texture of the frame, the texture is retained automatically.
      * !#zh 设置使用的纹理实例，会被 retain。
      * @method _refreshTexture
@@ -373,11 +350,11 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         return new cc.SpriteFrame(this._texture || this._textureFilename, this._rect, this._rotated, this._offset, this._originalSize);
     },
 
-    /*
-     * Initializes SpriteFrame with Texture, rect, rotated, offset and originalSize in pixels.<br/>
-     * Please pass parameters to the constructor to initialize the sprite, do not call this function yourself.
+    /**
+     * #en Set SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
+     * #zh 通过 Texture，rect，rotated，offset 和 originalSize 设置 SpriteFrame
      * @method setTexture
-     * @param {String|Texture2D} texture
+     * @param {String|Texture2D} textureOrTextureFile
      * @param {Rect} [rect=null]
      * @param {Boolean} [rotated=false]
      * @param {Vec2} [offset=cc.v2(0,0)]

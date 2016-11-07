@@ -66,7 +66,7 @@ var Slider = cc.Class({
         /**
          * !#en The "handle" part of the slider
          * !#zh 滑动器滑块按钮部件
-         * @property {cc.Button} handle
+         * @property {Button} handle
          */
         handle: {
             default: null,
@@ -182,11 +182,12 @@ var Slider = cc.Class({
 
     _handleSliderLogic: function (touch) {
         this._updateProgress(touch);
-        this._emitSldeEvent();
+        this._emitSlideEvent();
     },
 
-    _emitSldeEvent: function () {
+    _emitSlideEvent: function () {
         cc.Component.EventHandler.emitEvents(this.slideEvents, this);
+        this.node.emit('slide', this);
     },
 
     _updateProgress: function (touch) {
@@ -219,3 +220,13 @@ var Slider = cc.Class({
 });
 
 cc.Slider = module.exports = Slider;
+
+/**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event slider
+ * @param {Event} event
+ * @param {Slider} event.detail - The slider component.
+ */

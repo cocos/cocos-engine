@@ -194,7 +194,10 @@ _ccsg.VideoPlayer.EventType = {
     PLAYING: 0,
     PAUSED: 1,
     STOPPED: 2,
-    COMPLETED: 3
+    COMPLETED: 3,
+    META_LOADED: 4,
+    CLICKED: 5,
+    READY_TO_PLAY: 6
 };
 
 (function (video) {
@@ -324,23 +327,16 @@ _ccsg.VideoPlayer.EventType = {
                 return;
             this._loaded = true;
             node.setContentSize(node._contentSize.width, node._contentSize.height);
-            video.removeEventListener(polyfill.event, cb);
             video.currentTime = 0;
-            //IOS does not display video images
-            video.play();
-            if(!this._played){
-                if (!this._playing) {
-                    video.pause();
-                }
-                video.currentTime = 0;
-            }
+            node._dispatchEvent(_ccsg.VideoPlayer.EventType.READY_TO_PLAY);
             this.updateVisibility();
             this.updateMatrix();
         }.bind(this);
-        video.addEventListener(polyfill.event, cb);
+        video.oncanplay = cb;
 
         //video.controls = "controls";
-        video.preload = "metadata";
+        // if preload set to metadata, the canplay event can't be fired on safari
+        // video.preload = "metadata";
         video.style["visibility"] = "hidden";
         this._loaded = false;
         this._played = false;
@@ -363,6 +359,9 @@ _ccsg.VideoPlayer.EventType = {
     proto.bindEvent = function () {
         var node = this._node, video = this._video, self = this;
         //binding event
+        video.onloadedmetadata = function () {
+            node._dispatchEvent(_ccsg.VideoPlayer.EventType.META_LOADED);
+        };
         video.addEventListener("ended", function(){
             if (self._video !== video) return;
             this._playing = false;
@@ -377,11 +376,7 @@ _ccsg.VideoPlayer.EventType = {
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.PAUSED);
         });
         video.addEventListener("click", function () {
-            if (video.paused) {
-                self.play();
-            } else {
-                self.pause();
-            }
+            node._dispatchEvent(_ccsg.VideoPlayer.EventType.CLICKED);
         });
     };
 
@@ -395,6 +390,7 @@ _ccsg.VideoPlayer.EventType = {
         } else {
             video.style.visibility = 'hidden';
             video.pause();
+            this._playing = false;
             if(video){
                 var hasChild = false;
                 if('contains' in cc.game.container) {
@@ -446,13 +442,11 @@ _ccsg.VideoPlayer.EventType = {
     // 播放控制
     proto.play = function () {
         var video = this._video;
-        if (!video) return;
+        if (!video || !this._node.isVisible()) return;
 
         this._played = true;
         if (this._playing) {
-            // 恢复到视频起始位置
-            video.pause();
-            video.currentTime = 0;
+            return;
         }
 
         if(_ccsg.VideoPlayer._polyfill.autoplayAfterOperation){
@@ -468,14 +462,18 @@ _ccsg.VideoPlayer.EventType = {
 
     proto.pause = function () {
         var video = this._video;
-        if (!video) return;
-        video.pause();
+        if(!this._playing) return;
+
         this._playing = false;
+        if (!video) {
+            return;
+        }
+        video.pause();
     };
 
     proto.stop = function () {
         var video = this._video;
-        if (!video) return;
+        if (!video || !this._node.isVisible()) return;
         this._ignorePause = true;
         video.pause();
         var node = this._node;
@@ -520,9 +518,15 @@ _ccsg.VideoPlayer.EventType = {
 
     proto.duration = function () {
         var video = this._video;
-        if(!video) return -1;
+        var duration = -1;
+        if(!video) return duration;
 
-        return video.duration;
+        duration = video.duration;
+        if(duration <= 0) {
+            cc.log("Video player's duration is not ready to get now!");
+        }
+
+        return duration;
     };
 
     proto.currentTime = function () {
