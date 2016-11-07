@@ -822,6 +822,10 @@ void GLViewImpl::onGLFWframebuffersize(GLFWwindow* window, int w, int h)
         _retinaFactor = 1;
         glfwSetWindowSize(window, static_cast<int>(frameSizeW * _retinaFactor * _frameZoomFactor), static_cast<int>(frameSizeH * _retinaFactor * _frameZoomFactor));
     }
+
+    //FIXME: https://github.com/cocos2d/cocos2d-x/issues/16779
+    Director::getInstance()->setViewport();
+    Director::getInstance()->mainLoop();
 }
 
 void GLViewImpl::onGLFWWindowSizeFunCallback(GLFWwindow *window, int width, int height)
@@ -830,7 +834,7 @@ void GLViewImpl::onGLFWWindowSizeFunCallback(GLFWwindow *window, int width, int 
     {
         Size baseDesignSize = _designResolutionSize;
         ResolutionPolicy baseResolutionPolicy = _resolutionPolicy;
-        
+
         int frameWidth = width / _frameZoomFactor;
         int frameHeight = height / _frameZoomFactor;
         setFrameSize(frameWidth, frameHeight);

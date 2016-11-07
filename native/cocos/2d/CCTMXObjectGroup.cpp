@@ -487,7 +487,7 @@ void TMXObjectGroup::_initGroup(TMXObjectGroupInfo* groupInfo, TMXMapInfo* mapIn
     
     // remove the old objects
     auto existedObjCount = this->_objects.size();
-    for (auto i = existedObjCount; i >= 0; i--) {
+    for (auto i = existedObjCount - 1; i >= 0; i--) {
         auto obj = this->_objects.at(i);
         if (obj) {
             this->_objects.erase(i);

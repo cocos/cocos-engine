@@ -881,6 +881,57 @@ void Node::addChild(Node* child, int localZOrder, const std::string &name)
     addChildHelper(child, localZOrder, INVALID_TAG, name, false);
 }
 
+void Node::insertChildBefore(Node* child, Node* relativeChild)
+{
+    CCASSERT(child != nullptr && relativeChild != nullptr, "Argument must be non-nil");
+    CCASSERT(child->_parent == nullptr, "child already added. It can't be added again");
+    CCASSERT(relativeChild->_parent == this, "The relateChild is not a child of this node");
+    
+    if (child == nullptr) {
+        return;
+    }
+    if (child->_parent != nullptr)
+    {
+        log("child already added. It can't be added again");
+        return;
+    }
+    
+    if (relativeChild->_parent != this)
+    {
+        log("The relativeChild is not a child of this node");
+        return;
+    }
+
+    // make sure the index of relativeChild is right
+    if (_reorderChildDirty)
+    {
+        sortAllChildren();
+    }
+    
+    // do insert
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->retainScriptObject(this, child);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    _transformUpdated = true;
+    child->_setLocalZOrder(relativeChild->getLocalZOrder());
+    auto idx = _children.getIndex(relativeChild);
+    _children.insert(idx, child);
+    
+    // update the arrival order
+    for (auto i = idx, n = _children.size(); i < n; ++i)
+    {
+        auto childNode = _children.at(i);
+        childNode->updateOrderOfArrival();
+    }
+
+    child->setParent(this);
+    postInsertChild(child);
+}
+
 void Node::addChildHelper(Node* child, int localZOrder, int tag, const std::string &name, bool setTag)
 {
     if (child == nullptr) {
@@ -906,6 +957,11 @@ void Node::addChildHelper(Node* child, int localZOrder, int tag, const std::stri
     child->setParent(this);
     child->updateOrderOfArrival();
 
+    postInsertChild(child);
+}
+
+void Node::postInsertChild(Node* child)
+{
     if( _running )
     {
         child->onEnter();

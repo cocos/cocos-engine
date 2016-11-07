@@ -452,15 +452,18 @@ if (ccui.VideoPlayer)
      * @type {{PLAYING: string, PAUSED: string, STOPPED: string, COMPLETED: string}}
      */
     ccui.VideoPlayer.EventType = {
-        PLAYING: "play",
-        PAUSED: "pause",
-        STOPPED: "stop",
-        COMPLETED: "complete"
+        PLAYING: 0,
+        PAUSED: 1,
+        STOPPED: 2,
+        COMPLETED: 3,
+        META_LOADED: 4,
+        CLICKED: 5,
+        READY_TO_PLAY: 6
     };
 
     ccui.VideoPlayer.prototype._setURL = ccui.VideoPlayer.prototype.setURL;
     ccui.VideoPlayer.prototype.setURL = function (url) {
-        if (url.indexOf("http://") >= 0)
+        if (url.indexOf("http://") >= 0 || url.indexOf("https://") >=0)
         {
             this._setURL(url);
         }
@@ -476,20 +479,29 @@ if (ccui.VideoPlayer)
             this.videoPlayerCallback = function(sender, eventType){
                 cc.log("videoEventCallback eventType:" + eventType);
                 switch (eventType) {
-                    case 0:
-                        this["VideoPlayer_"+ccui.VideoPlayer.EventType.PLAYING] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.PLAYING](sender);
-                        break;
-                    case 1:
-                        this["VideoPlayer_"+ccui.VideoPlayer.EventType.PAUSED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.PAUSED](sender);
-                        break;
-                    case 2:
-                        this["VideoPlayer_"+ccui.VideoPlayer.EventType.STOPPED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.STOPPED](sender);
-                        break;
-                    case 3:
-                        this["VideoPlayer_"+ccui.VideoPlayer.EventType.COMPLETED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.COMPLETED](sender);
-                        break;
-                    default:
-                        break;
+                  case 0:
+                      this["VideoPlayer_"+ccui.VideoPlayer.EventType.PLAYING] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.PLAYING](sender);
+                      break;
+                  case 1:
+                      this["VideoPlayer_"+ccui.VideoPlayer.EventType.PAUSED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.PAUSED](sender);
+                      break;
+                  case 2:
+                      this["VideoPlayer_"+ccui.VideoPlayer.EventType.STOPPED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.STOPPED](sender);
+                      break;
+                  case 3:
+                      this["VideoPlayer_"+ccui.VideoPlayer.EventType.COMPLETED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.COMPLETED](sender);
+                      break;
+                  case 4:
+                      this["VideoPlayer_"+ccui.VideoPlayer.EventType.META_LOADED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.META_LOADED](sender);
+                      break;
+                  case 5:
+                      this["VideoPlayer_"+ccui.VideoPlayer.EventType.CLICKED] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.CLICKED](sender);
+                      break;
+                  case 6:
+                      this["VideoPlayer_"+ccui.VideoPlayer.EventType.READY_TO_PLAY] && this["VideoPlayer_"+ccui.VideoPlayer.EventType.READY_TO_PLAY](sender);
+                      break;
+                  default:
+                      break;
                 }
             };
             this.addEventListener(this.videoPlayerCallback);

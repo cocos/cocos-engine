@@ -589,7 +589,7 @@ jsval anonEvaluate(JSContext *cx, JS::HandleObject thisObj, const char* string)
 
 void js_add_object_reference(JS::HandleValue owner, JS::HandleValue target)
 {
-    if (target.isPrimitive())
+    if (owner.isNullOrUndefined() || target.isNullOrUndefined() || target.isPrimitive())
     {
         return;
     }
@@ -615,7 +615,7 @@ void js_add_object_reference(JS::HandleValue owner, JS::HandleValue target)
 }
 void js_remove_object_reference(JS::HandleValue owner, JS::HandleValue target)
 {
-    if (target.isPrimitive())
+    if (owner.isNullOrUndefined() || target.isNullOrUndefined() || target.isPrimitive())
     {
         return;
     }
@@ -623,12 +623,6 @@ void js_remove_object_reference(JS::HandleValue owner, JS::HandleValue target)
     JSContext *cx = engine->getGlobalContext();
     JS::RootedObject ownerObj(cx, owner.toObjectOrNull());
     JS::RootedObject targetObj(cx, target.toObjectOrNull());
-    js_proxy_t *pOwner = jsb_get_js_proxy(ownerObj);
-    js_proxy_t *pTarget = jsb_get_js_proxy(targetObj);
-    if (!pOwner || !pTarget)
-    {
-        return;
-    }
 
     JS::RootedObject global(cx, engine->getGlobalObject());
     JS::RootedObject jsbObj(cx);
@@ -1228,8 +1222,8 @@ void JSScheduleWrapper::dump()
     schedTarget_proxy_t *current, *tmp;
     int nativeTargetsCount = 0;
     HASH_ITER(hh, _schedObj_target_ht, current, tmp) {
-        Ref* pObj = nullptr;
-        CCARRAY_FOREACH(current->targets, pObj)
+        auto targets = current->targets;
+        for (const auto& pObj : *targets)
         {
             CCLOG("js target ( %p ), native target[%d]=( %p )", current->jsTargetObj, nativeTargetsCount, pObj);
             nativeTargetsCount++;
@@ -1240,9 +1234,10 @@ void JSScheduleWrapper::dump()
 
     schedFunc_proxy_t *current_func, *tmp_func;
     int jsfuncTargetCount = 0;
-    HASH_ITER(hh, _schedFunc_target_ht, current_func, tmp_func) {
-        Ref* pObj = nullptr;
-        CCARRAY_FOREACH(current_func->targets, pObj)
+    HASH_ITER(hh, _schedFunc_target_ht, current_func, tmp_func)
+    {
+        auto targets = current_func->targets;
+        for (const auto& pObj : *targets)
         {
             CCLOG("js func ( %p ), native target[%d]=( %p )", current_func->jsfuncObj, jsfuncTargetCount, pObj);
             jsfuncTargetCount++;
@@ -1269,8 +1264,12 @@ void JSScheduleWrapper::scheduleFunc(float dt)
         {
             JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(1, &data);
             JS::RootedValue retval(cx);
-            JS::RootedObject target(cx, getJSCallbackThis().toObjectOrNull());
-            JS_CallFunctionValue(cx, target, callback, args, &retval);
+            JS::RootedValue targetVal(cx, getJSCallbackThis());
+            if (!targetVal.isNullOrUndefined())
+            {
+                JS::RootedObject target(cx, targetVal.toObjectOrNull());
+                JS_CallFunctionValue(cx, target, callback, args, &retval);
+            }
         }
     }
 }
@@ -1336,7 +1335,7 @@ bool js_CCNode_unschedule(JSContext *cx, uint32_t argc, jsval *vp)
 
         auto targetArray = JSScheduleWrapper::getTargetForSchedule(args.get(0));
         if (targetArray) {
-            CCLOGINFO("unschedule target number: %d", targetArray->count());
+            CCLOGINFO("unschedule target number: %zd", targetArray->size());
 
             for (const auto& tmp : *targetArray)
             {
@@ -5445,6 +5444,9 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     JS_DefineFunction(cx, tmpObj, "getDataFromFile", js_cocos2dx_CCFileUtils_getDataFromFile, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "writeDataToFile", js_cocos2dx_CCFileUtils_writeDataToFile, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
+    tmpObj.set(jsb_cocos2d_EventDispatcher_prototype);
+    JS_DefineFunction(cx, tmpObj, "addCustomListener", js_EventDispatcher_addCustomEventListener, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE);
+    
     JS_GetProperty(cx, ccObj, "EventListenerTouchOneByOne", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
     JS_DefineFunction(cx, tmpObj, "create", js_EventListenerTouchOneByOne_create, 0, JSPROP_READONLY | JSPROP_PERMANENT);
@@ -5460,10 +5462,18 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     JS_GetProperty(cx, ccObj, "EventListenerKeyboard", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
     JS_DefineFunction(cx, tmpObj, "create", js_EventListenerKeyboard_create, 0, JSPROP_READONLY | JSPROP_PERMANENT);
+    
+    JS_GetProperty(cx, ccObj, "EventListenerAcceleration", &tmpVal);
+    tmpObj = tmpVal.toObjectOrNull();
+    JS_DefineFunction(cx, tmpObj, "create", js_EventListenerAcceleration_create, 1, JSPROP_READONLY | JSPROP_PERMANENT);
 
     JS_GetProperty(cx, ccObj, "EventListenerFocus", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
     JS_DefineFunction(cx, tmpObj, "create", js_EventListenerFocus_create, 0, JSPROP_READONLY | JSPROP_PERMANENT);
+    
+    JS_GetProperty(cx, ccObj, "EventListenerCustom", &tmpVal);
+    tmpObj = tmpVal.toObjectOrNull();
+    JS_DefineFunction(cx, tmpObj, "create", js_EventListenerCustom_create, 2, JSPROP_READONLY | JSPROP_PERMANENT);
 
     JS_GetProperty(cx, ccObj, "BezierBy", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();

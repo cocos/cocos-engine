@@ -57,7 +57,10 @@ namespace experimental{
                 PLAYING = 0,
                 PAUSED,
                 STOPPED,
-                COMPLETED
+                COMPLETED,
+                META_LOADED,
+                CLICKED,
+                READY_TO_PLAY
             };
 
             /**
@@ -201,7 +204,6 @@ namespace experimental{
                 URL
             };
 
-            bool _isPlaying;
             bool _fullScreenDirty;
             bool _fullScreenEnabled;
             bool _keepAspectRatioEnabled;

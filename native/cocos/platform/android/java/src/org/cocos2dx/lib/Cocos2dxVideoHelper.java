@@ -28,6 +28,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -418,6 +419,9 @@ public class Cocos2dxVideoHelper {
                 float duration = -1;
                 if (video != null) {
                     duration = video.getDuration() / 1000.0f;
+                }
+                if (duration <= 0) {
+                    Log.w("Cocos2dxVideoHelper", "Video player's duration is not ready to get now!");
                 }
                 return new Float(duration);
             }

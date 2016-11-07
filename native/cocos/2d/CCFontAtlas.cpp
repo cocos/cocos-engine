@@ -209,7 +209,7 @@ void FontAtlas::conversionU16TOGB2312(const std::u16string& u16Text, std::unorde
 #else
         if (_iconv == nullptr)
         {
-            _iconv = iconv_open("gb2312", "utf-16le");
+            _iconv = iconv_open("GBK//TRANSLIT", "UTF-16LE");
         }
 
         if (_iconv == (iconv_t)-1)
@@ -353,7 +353,7 @@ bool FontAtlas::prepareLetterDefinitions(const std::u16string& utf16Text)
             tempDef.validDefinition = true;
             tempDef.width = tempRect.size.width + _letterPadding + _letterEdgeExtend;
             tempDef.height = tempRect.size.height + _letterPadding + _letterEdgeExtend;
-            tempDef.offsetX = tempRect.origin.x + adjustForDistanceMap + adjustForExtend;
+            tempDef.offsetX = tempRect.origin.x - adjustForDistanceMap - adjustForExtend;
             tempDef.offsetY = _fontAscender + tempRect.origin.y - adjustForDistanceMap - adjustForExtend;
 
             if (_currentPageOrigX + tempDef.width > CacheTextureWidth)

@@ -74,10 +74,10 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
     private OnErrorListener mOnErrorListener;
 
     // recording the seek position while preparing
-    private int         mSeekWhenPrepared;
+    private int         mSeekWhenPrepared = 0;
 
     protected Cocos2dxActivity mCocos2dxActivity = null;
-    
+
     protected int mViewLeft = 0;
     protected int mViewTop = 0;
     protected int mViewWidth = 0;
@@ -93,10 +93,10 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
     protected int mFullScreenHeight = 0;
 
     private int mViewTag = 0;
-    
+
     public Cocos2dxVideoView(Cocos2dxActivity activity,int tag) {
         super(activity);
-        
+
         mViewTag = tag;
         mCocos2dxActivity = activity;
         initVideoView();
@@ -166,19 +166,14 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
         return result;
     }
 
-    private boolean mNeedResume = false;
+    private boolean mMetaUpdated = false;
 
     @Override
     public void setVisibility(int visibility) {
         if (visibility == INVISIBLE) {
-            mNeedResume = isPlaying();
-            if (mNeedResume) {
+            if(getCurrentPosition() > 0 && mSeekWhenPrepared == 0) {
                 mSeekWhenPrepared = getCurrentPosition();
             }
-        }
-        else if (mNeedResume){
-            start();
-            mNeedResume = false;
         }
         super.setVisibility(visibility);
     }
@@ -197,15 +192,11 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP)
-        {
-            if (isPlaying()) {
-                pause();
-            } else if(mCurrentState == STATE_PAUSED){
-                resume();
+        if((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
+            if (mOnVideoEventListener != null) {
+                mOnVideoEventListener.onVideoEvent(mViewTag,EVENT_CLICKED);
             }
         }
-
         return true;
     }
 
@@ -286,6 +277,7 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
                 mMediaPlayer.setOnCompletionListener(mCompletionListener);
                 mMediaPlayer.setOnErrorListener(mErrorListener);
                 mMediaPlayer.setOnBufferingUpdateListener(mBufferingUpdateListener);
+
 
                 mMediaPlayer.setDisplay(mSurfaceHolder);
                 mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -405,12 +397,17 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
 
             // mSeekWhenPrepared may be changed after seekTo() call
             int seekToPosition = mSeekWhenPrepared;
-            if (seekToPosition != 0) {
-                seekTo(seekToPosition);
-            }
+            seekTo(seekToPosition);
+
 
             if (mVideoWidth != 0 && mVideoHeight != 0) {
                 fixSize();
+            }
+
+            if(!mMetaUpdated) {
+                mOnVideoEventListener.onVideoEvent(mViewTag, EVENT_META_LOADED);
+                mOnVideoEventListener.onVideoEvent(mViewTag, EVENT_READY_TO_PLAY);
+                mMetaUpdated = true;
             }
 
             if (mTargetState == STATE_PLAYING) {
@@ -437,6 +434,9 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
     private static final int EVENT_PAUSED = 1;
     private static final int EVENT_STOPPED = 2;
     private static final int EVENT_COMPLETED = 3;
+    private static final int EVENT_META_LOADED = 4;
+    private static final int EVENT_CLICKED = 5;
+    private static final int EVENT_READY_TO_PLAY = 6;
 
     public interface OnVideoEventListener
     {
@@ -476,7 +476,7 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
 
                 int titleId = r.getIdentifier("VideoView_error_title", "string", "android");
                 int buttonStringId = r.getIdentifier("VideoView_error_button", "string", "android");
-                
+
                 new AlertDialog.Builder(mCocos2dxActivity)
                         .setTitle(r.getString(titleId))
                         .setMessage(messageId)
@@ -566,6 +566,10 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
             // after we return from this we can't use the surface any more
             mSurfaceHolder = null;
 
+            if (mOnVideoEventListener != null && mCurrentState == STATE_PLAYING) {
+                mOnVideoEventListener.onVideoEvent(mViewTag, EVENT_PAUSED);
+            }
+
             release(true);
         }
     };
@@ -588,12 +592,15 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
     public void start() {
         if (isInPlaybackState()) {
             mMediaPlayer.start();
-            mCurrentState = STATE_PLAYING;
-            if (mOnVideoEventListener != null) {
+
+            if (mCurrentState != STATE_PLAYING && mOnVideoEventListener != null) {
                 mOnVideoEventListener.onVideoEvent(mViewTag, EVENT_PLAYING);
             }
+
+            mCurrentState = STATE_PLAYING;
+
+            mTargetState = STATE_PLAYING;
         }
-        mTargetState = STATE_PLAYING;
     }
 
     public void pause() {
@@ -611,11 +618,10 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
 
     public void stop() {
         if (isInPlaybackState()) {
-            if (mMediaPlayer.isPlaying()) {
-               stopPlayback();
-                if (mOnVideoEventListener != null) {
-                    mOnVideoEventListener.onVideoEvent(mViewTag, EVENT_STOPPED);
-                }
+            this.pause();
+            this.seekTo(0);
+            if (mOnVideoEventListener != null) {
+                mOnVideoEventListener.onVideoEvent(mViewTag, EVENT_STOPPED);
             }
         }
     }
@@ -660,8 +666,9 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
     public int getCurrentPosition() {
         if (isInPlaybackState()) {
             return mMediaPlayer.getCurrentPosition();
+        } else {
+            return mSeekWhenPrepared;
         }
-        return 0;
     }
 
     public void seekTo(int msec) {
@@ -688,7 +695,8 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
         return (mMediaPlayer != null &&
                 mCurrentState != STATE_ERROR &&
                 mCurrentState != STATE_IDLE &&
-                mCurrentState != STATE_PREPARING);
+                mCurrentState != STATE_PREPARING
+         && this.getVisibility() != INVISIBLE);
     }
 
     @Override

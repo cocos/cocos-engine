@@ -1177,6 +1177,8 @@
 		B63990CD1A490AFE00B07923 /* CCAsyncTaskPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B63990CA1A490AFE00B07923 /* CCAsyncTaskPool.cpp */; };
 		B63990CE1A490AFE00B07923 /* CCAsyncTaskPool.h in Headers */ = {isa = PBXBuildFile; fileRef = B63990CB1A490AFE00B07923 /* CCAsyncTaskPool.h */; };
 		B63990CF1A490AFE00B07923 /* CCAsyncTaskPool.h in Headers */ = {isa = PBXBuildFile; fileRef = B63990CB1A490AFE00B07923 /* CCAsyncTaskPool.h */; };
+		BA0DAAED1DB76F1A00EE23AD /* libwebp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BA0DAAEC1DB76F1A00EE23AD /* libwebp.a */; };
+		BA0DAAEF1DB76F2C00EE23AD /* libwebp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BA0DAAEE1DB76F2C00EE23AD /* libwebp.a */; };
 		BA679B301CEC373000F875FA /* AssetsManagerEx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA679B281CEC373000F875FA /* AssetsManagerEx.cpp */; };
 		BA679B311CEC373000F875FA /* AssetsManagerEx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA679B281CEC373000F875FA /* AssetsManagerEx.cpp */; };
 		BA679B321CEC373000F875FA /* AssetsManagerEx.h in Headers */ = {isa = PBXBuildFile; fileRef = BA679B291CEC373000F875FA /* AssetsManagerEx.h */; };
@@ -2356,6 +2358,8 @@
 		B5CE6DC71B3C05BA002B0419 /* UIRadioButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIRadioButton.h; sourceTree = "<group>"; };
 		B63990CA1A490AFE00B07923 /* CCAsyncTaskPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCAsyncTaskPool.cpp; path = ../base/CCAsyncTaskPool.cpp; sourceTree = "<group>"; };
 		B63990CB1A490AFE00B07923 /* CCAsyncTaskPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCAsyncTaskPool.h; path = ../base/CCAsyncTaskPool.h; sourceTree = "<group>"; };
+		BA0DAAEC1DB76F1A00EE23AD /* libwebp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwebp.a; path = ../external/ios/libs/libwebp.a; sourceTree = "<group>"; };
+		BA0DAAEE1DB76F2C00EE23AD /* libwebp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwebp.a; path = ../external/mac/libs/libwebp.a; sourceTree = "<group>"; };
 		BA679B281CEC373000F875FA /* AssetsManagerEx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AssetsManagerEx.cpp; path = "assets-manager/AssetsManagerEx.cpp"; sourceTree = "<group>"; };
 		BA679B291CEC373000F875FA /* AssetsManagerEx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AssetsManagerEx.h; path = "assets-manager/AssetsManagerEx.h"; sourceTree = "<group>"; };
 		BA679B2A1CEC373000F875FA /* CCEventAssetsManagerEx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCEventAssetsManagerEx.cpp; path = "assets-manager/CCEventAssetsManagerEx.cpp"; sourceTree = "<group>"; };
@@ -2646,6 +2650,7 @@
 				B21770471977ED34009EE11B /* QuartzCore.framework in Frameworks */,
 				B21770451977ED14009EE11B /* Cocoa.framework in Frameworks */,
 				B21770421977ECF8009EE11B /* ApplicationServices.framework in Frameworks */,
+				BA0DAAEF1DB76F2C00EE23AD /* libwebp.a in Frameworks */,
 				B21770401977ECE6009EE11B /* OpenGL.framework in Frameworks */,
 				B217703C1977ECB4009EE11B /* IOKit.framework in Frameworks */,
 			);
@@ -2657,6 +2662,7 @@
 			files = (
 				A60A9D661C200E5A0070800A /* libchipmunk.a in Frameworks */,
 				EDE5DFF81C0D6B3F0014147A /* libwebsockets.a in Frameworks */,
+				BA0DAAED1DB76F1A00EE23AD /* libwebp.a in Frameworks */,
 				B291B51D1D4A106A00BBB345 /* libtiff.a in Frameworks */,
 				ED6822341BECB14500ED75EA /* libfreetype.a in Frameworks */,
 				B291B51B1D4A106A00BBB345 /* libjpeg.a in Frameworks */,
@@ -3980,6 +3986,7 @@
 				ED3057CD1BEC7DA80083C3ED /* libwebsockets.a */,
 				A6A554221C2A7C3100FDD954 /* libcrypto.a */,
 				A6A554241C2A7C4400FDD954 /* libssl.a */,
+				BA0DAAEE1DB76F2C00EE23AD /* libwebp.a */,
 			);
 			name = mac;
 			sourceTree = "<group>";
@@ -3994,6 +4001,7 @@
 				EDE5DFF71C0D6B3F0014147A /* libwebsockets.a */,
 				A60A9D651C200E5A0070800A /* libchipmunk.a */,
 				ED3057BE1BEC78580083C3ED /* libfreetype.a */,
+				BA0DAAEC1DB76F1A00EE23AD /* libwebp.a */,
 			);
 			name = ios;
 			sourceTree = "<group>";
