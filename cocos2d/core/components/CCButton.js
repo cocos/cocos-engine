@@ -480,7 +480,7 @@ var Button = cc.Class({
     },
 
     _onTouchMove: function (event) {
-        if (!this.interactable || !this.enabledInHierarchy) return;
+        if (!this.interactable || !this.enabledInHierarchy || !this._pressed) return;
         // mobile phone will not emit _onMouseMoveOut,
         // so we have to do hit test when touch moving
         var touch = event.touch;
@@ -503,11 +503,16 @@ var Button = cc.Class({
             var sprite = this[state + 'Sprite'];
             this._applyTransition(color, sprite);
         }
-        event.stopPropagation();
+
+        if(!event._preventDefault) {
+            event.stopPropagation();
+        } else {
+            this._pressed = false;
+        }
     },
 
     _onTouchEnded: function (event) {
-        if (!this.interactable || !this.enabledInHierarchy) return;
+        if (!this.interactable || !this.enabledInHierarchy || !this._pressed) return;
 
         if (this._pressed) {
             cc.Component.EventHandler.emitEvents(this.clickEvents, event);
