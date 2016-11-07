@@ -30,14 +30,14 @@ var Destroyed = CCObject.Flags.Destroyed;
 var PersistentMask = CCObject.Flags.PersistentMask;
 var Attr = require('./attribute');
 var JS = require('./js');
+var CCClass = require('./CCClass');
 
 var SERIALIZABLE = Attr.DELIMETER + 'serializable';
 var DEFAULT = Attr.DELIMETER + 'default';
+var NAME_IN_DOT_NOTATION_REG = CCClass.NAME_IN_DOT_NOTATION_REG;
 
-var NAME_IN_DOT_NOTATION_REG = /^[$A-Za-z_][0-9A-Za-z_$]*$/;
 var VAR = 'var ';
 var LOCAL_OBJ = 'o';
-var NEW = 'new ';
 var SCOPE_START = '(function';
 var SCOPE_END = 'return o;})';
 var LINE_INDEX_OF_NEW_OBJ = 0;
@@ -87,6 +87,13 @@ function flattenCodeArray (array, separator) {
     return strList.join(separator);
 }
 
+// wrap a new scope to enalbe minify
+function cleanEval (code) {
+    // jshint evil: true
+    return eval(code);
+    // jshint evil: false
+}
+
 /*
  * Variables:
  * {Object[]} O - objs list
@@ -126,7 +133,7 @@ function Parser (obj, parent) {
                            'if(R){',
                                 LOCAL_OBJ + '=R;',
                            '}else{',
-                                LOCAL_OBJ + '=R=' + NEW + this.getFuncModule(obj.constructor, true) + '();',
+                                LOCAL_OBJ + '=R=new ' + this.getFuncModule(obj.constructor, true) + '();',
                            '}');
         obj._iN$t = { globalVar: 'R' };
         this.objsToClear_iN$t.push(obj);
@@ -144,7 +151,7 @@ function Parser (obj, parent) {
                                  SCOPE_END], CC_DEV ? '\n' : '');
 
     // generate method and bind with objs
-    var createFunction = eval(code);
+    var createFunction = cleanEval(code);
     this.result = createFunction.bind(null, this.objs, this.funcs);
 
     if (CC_TEST && !isPhantomJS) {
@@ -166,7 +173,7 @@ JS.mixin(Parser.prototype, {
         if (clsNameIsModule) {
             try {
                 // ensure is module
-                clsNameIsModule = (func === eval(clsName));
+                clsNameIsModule = (func === cleanEval(clsName));
                 if (clsNameIsModule) {
                     return clsName;
                 }
@@ -327,7 +334,7 @@ JS.mixin(Parser.prototype, {
 
     instantiateObj: function (obj) {
         if (obj instanceof cc.ValueType) {
-            return this.getNewValueTypeCode(obj);
+            return CCClass.getNewValueTypeCode(obj);
         }
         if (obj instanceof cc.Asset) {
             // register to asset list and just return the reference.
@@ -362,7 +369,7 @@ JS.mixin(Parser.prototype, {
                     }
                 }
             }
-            createCode = VAR + LOCAL_OBJ + '=' + NEW + this.getFuncModule(ctor, true) + '();';
+            createCode = VAR + LOCAL_OBJ + '=new ' + this.getFuncModule(ctor, true) + '();';
         }
         else if (ctor === Object) {
             createCode = VAR + LOCAL_OBJ + '={};'
@@ -388,25 +395,6 @@ JS.mixin(Parser.prototype, {
                     codeArray,
                 SCOPE_END + '();'];
     },
-
-    getNewValueTypeCode: function (value) {
-        var clsName = JS.getClassName(value);
-        var type = value.constructor;
-        var res = NEW + clsName + '(';
-        for (var i = 0; i < type.__props__.length; i++) {
-            var prop = type.__props__[i];
-            var propVal = value[prop];
-            if (typeof propVal === 'object') {
-                cc.error('Can not instantiate %s because it contains object property.', clsName);
-                return NEW + this.getFuncModule(value.constructor) + '();';
-            }
-            res += propVal;
-            if (i < type.__props__.length - 1) {
-                res += ',';
-            }
-        }
-        return res + ')';
-    }
 });
 
 

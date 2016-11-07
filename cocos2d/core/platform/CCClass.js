@@ -473,19 +473,16 @@ function normalizeClassName (className) {
     }
 }
 
-var NAME_IN_DOT_NOTATION_REG = /^[$A-Za-z_][0-9A-Za-z_$]*$/;
-var DEFAULT = Attr.DELIMETER + 'default';
-var NEW = 'new ';
 function getNewValueTypeCode (value) {
     var clsName = JS.getClassName(value);
     var type = value.constructor;
-    var res = NEW + clsName + '(';
+    var res = 'new ' + clsName + '(';
     for (var i = 0; i < type.__props__.length; i++) {
         var prop = type.__props__[i];
         var propVal = value[prop];
         if (typeof propVal === 'object') {
             cc.error('Can not construct %s because it contains object property.', clsName);
-            return NEW + clsName + '()';
+            return 'new ' + clsName + '()';
         }
         res += propVal;
         if (i < type.__props__.length - 1) {
@@ -495,7 +492,16 @@ function getNewValueTypeCode (value) {
     return res + ')';
 }
 
+// wrap a new scope to enalbe minify
+function cleanEval_F (code, F) {
+    // jshint evil: true
+    return eval(code);
+    // jshint evil: false
+}
+
+var NAME_IN_DOT_NOTATION_REG = /^[$A-Za-z_][0-9A-Za-z_$]*$/;
 function compileProps (actualClass) {
+    // init deferred properties
     var attrs = Attr.getClassAttrs(actualClass);
     var propList = actualClass.__props__;
     if (propList === null) {
@@ -505,12 +511,11 @@ function compileProps (actualClass) {
 
     // functions for generated code
     var F = [];
-
     var func = '(function(){\n';
 
     for (var i = 0; i < propList.length; i++) {
         var prop = propList[i];
-        var attrKey = prop + DEFAULT;
+        var attrKey = prop + Attr.DELIMETER + 'default';
         if (attrKey in attrs) {  // getter does not have default
             var statement;
             if (NAME_IN_DOT_NOTATION_REG.test(prop)) {
@@ -559,18 +564,19 @@ function compileProps (actualClass) {
         console.log(func);
     }
 
-    // jshint evil: true
-    var instantiateProps = (function (F) {
-        // wrap a new scope to enalbe minify
-        return eval(func);
-    })(F);
-    // jshint evil: false
-
     // overwite __initProps__ to avoid compile again
-    actualClass.prototype.__initProps__ = instantiateProps;
+    actualClass.prototype.__initProps__ = cleanEval_F(func, F);
 
-    // immediate call instantiateProps, no need actualClass anymore
+    // call instantiateProps immediately, no need to pass actualClass into it anymore
     this.__initProps__();
+}
+
+// wrap a new scope to enalbe minify
+function cleanEval_fireClass (code) {
+    // jshint evil: true
+    var fireClass = eval(code);
+    // jshint evil: false
+    return fireClass;
 }
 
 function _createCtor (ctor, baseClass, mixins, className, options) {
@@ -662,7 +668,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
     body += '})';
 
     // jshint evil: true
-    var fireClass = eval(body);
+    var fireClass = cleanEval_fireClass(body);
     // jshint evil: false
 
     Object.defineProperty(fireClass, '__ctors__', {
@@ -1160,7 +1166,9 @@ module.exports = {
         defaultVal = getDefault(defaultVal);
         return Array.isArray(defaultVal);
     },
-    fastDefine: CCClass._fastDefine
+    fastDefine: CCClass._fastDefine,
+    getNewValueTypeCode: getNewValueTypeCode,
+    NAME_IN_DOT_NOTATION_REG: NAME_IN_DOT_NOTATION_REG,
 };
 
 if (CC_EDITOR) {
