@@ -416,7 +416,6 @@ var Button = cc.Class({
 
     update: function (dt) {
         var target = this.target;
-        if(!target) return;
         if(this._transitionFinished) return;
         if (this.transition !== Transition.COLOR && this.transition !== Transition.SCALE) return;
 
