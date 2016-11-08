@@ -754,10 +754,12 @@ var Component = cc.Class({
 
     _destruct: Misc.destructIgnoreId,
 
-    _instantiate: function () {
-        var clone = cc.instantiate._clone(this, this);
-        clone.node = null;
-        return clone;
+    _instantiate: function (cloned) {
+        if (!cloned) {
+            cloned = cc.instantiate._clone(this, this);
+        }
+        cloned.node = null;
+        return cloned;
     },
 
 // Scheduler

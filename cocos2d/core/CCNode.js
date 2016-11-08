@@ -457,8 +457,7 @@ var Node = cc.Class({
         }
     },
 
-    ctor: function () {
-        var name = arguments[0];
+    ctor: function (name) {
         this._name = typeof name !== 'undefined' ? name : 'New Node';
         this._activeInHierarchy = false;
 
@@ -1089,27 +1088,29 @@ var Node = cc.Class({
         }
     },
 
-    _instantiate: function () {
-        var clone = cc.instantiate._clone(this, this);
-        clone._parent = null;
+    _instantiate: function (cloned) {
+        if (!cloned) {
+            cloned = cc.instantiate._clone(this, this);
+        }
 
         var thisPrefabInfo = this._prefab;
         var syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
         if (syncing) {
             // copy non-serialized property
-            clone._prefab._synced = thisPrefabInfo._synced;
+            cloned._prefab._synced = thisPrefabInfo._synced;
             //if (thisPrefabInfo._synced) {
             //    return clone;
             //}
         }
         else if (CC_EDITOR && cc.engine._isPlaying) {
-            this._name += ' (Clone)';
+            cloned._name += ' (Clone)';
         }
 
-        // init
-        clone._onBatchCreated();
+        // reset and init
+        cloned._parent = null;
+        cloned._onBatchCreated();
 
-        return clone;
+        return cloned;
     },
 
 // EVENTS

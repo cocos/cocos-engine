@@ -280,41 +280,6 @@ function getDefault (defaultVal) {
     return defaultVal;
 }
 
-var DELIMETER = Attr.DELIMETER;
-function instantiateProps (instance, itsClass) {
-    var attrs = Attr.getClassAttrs(itsClass);
-    var propList = itsClass.__props__;
-    if (propList === null) {
-        deferredInitializer.init();
-        propList = itsClass.__props__;
-    }
-    for (var i = 0; i < propList.length; i++) {
-        var prop = propList[i];
-        var attrKey = prop + DELIMETER + 'default';
-        if (attrKey in attrs) {  // getter does not have default
-            var def = attrs[attrKey];
-            // default maybe 0
-            if (def) {
-                if (typeof def === 'object' && def) {
-                    if (typeof def.clone === 'function') {
-                        def = def.clone();
-                    }
-                    else if (Array.isArray(def)) {
-                        def = [];
-                    }
-                    else {
-                        def = {};
-                    }
-                }
-                else if (typeof def === 'function') {
-                    def = getDefault(def);
-                }
-            }
-            instance[prop] = def;
-        }
-    }
-}
-
 /**
  * Checks whether subclass is child of superclass or equals to superclass
  *
@@ -417,6 +382,8 @@ function doDefine (className, baseClass, mixins, constructor, options) {
         fireClass.prototype.constructor = fireClass;
     }
 
+    fireClass.prototype.__initProps__ = compileProps;
+
     JS.setClassName(className, fireClass);
     return fireClass;
 }
@@ -468,7 +435,7 @@ function _checkCtor (ctor, className) {
             cc.error('ctor of "%s" must be function type', className);
             return;
         }
-        if (ctor.length > 0) {
+        if (ctor.length > 0 && !className.startsWith('cc.')) {
             // fireball-x/dev#138: To make a unified CCClass serialization process,
             // we don't allow parameters for constructor when creating instances of CCClass.
             // For advance user, construct arguments can still get from 'arguments'.
@@ -506,6 +473,112 @@ function normalizeClassName (className) {
     }
 }
 
+function getNewValueTypeCode (value) {
+    var clsName = JS.getClassName(value);
+    var type = value.constructor;
+    var res = 'new ' + clsName + '(';
+    for (var i = 0; i < type.__props__.length; i++) {
+        var prop = type.__props__[i];
+        var propVal = value[prop];
+        if (typeof propVal === 'object') {
+            cc.error('Can not construct %s because it contains object property.', clsName);
+            return 'new ' + clsName + '()';
+        }
+        res += propVal;
+        if (i < type.__props__.length - 1) {
+            res += ','
+        }
+    }
+    return res + ')';
+}
+
+// wrap a new scope to enalbe minify
+function cleanEval_F (code, F) {
+    // jshint evil: true
+    return eval(code);
+    // jshint evil: false
+}
+
+var NAME_IN_DOT_NOTATION_REG = /^[$A-Za-z_][0-9A-Za-z_$]*$/;
+function compileProps (actualClass) {
+    // init deferred properties
+    var attrs = Attr.getClassAttrs(actualClass);
+    var propList = actualClass.__props__;
+    if (propList === null) {
+        deferredInitializer.init();
+        propList = actualClass.__props__;
+    }
+
+    // functions for generated code
+    var F = [];
+    var func = '(function(){\n';
+
+    for (var i = 0; i < propList.length; i++) {
+        var prop = propList[i];
+        var attrKey = prop + Attr.DELIMETER + 'default';
+        if (attrKey in attrs) {  // getter does not have default
+            var statement;
+            if (NAME_IN_DOT_NOTATION_REG.test(prop)) {
+                statement = 'this.' + prop + '=';
+            }
+            else {
+                statement = 'this["' + prop + '"]=';
+            }
+            var expression;
+            var def = attrs[attrKey];
+            if (typeof def === 'object' && def) {
+                if (def instanceof cc.ValueType) {
+                    expression = getNewValueTypeCode(def);
+                }
+                else if (Array.isArray(def)) {
+                    expression = '[]';
+                }
+                else {
+                    expression = '{}';
+                }
+            }
+            else if (typeof def === 'function') {
+                var index = F.length;
+                F.push(def);
+                expression = 'F[' + index + ']()';
+                if (CC_EDITOR) {
+                    func += 'try {\n' + statement + expression + ';\n}\ncatch(e) {\ncc._throw(e);\n' + statement + 'undefined;\n}\n';
+                    continue;
+                }
+            }
+            else if (typeof def === 'string') {
+                expression = '"' + def + '"';
+            }
+            else {
+                // number, boolean, null, undefined
+                expression = def;
+            }
+            statement = statement + expression + ';\n';
+            func += statement;
+        }
+    }
+
+    func += '})';
+
+    if (CC_TEST && !isPhantomJS) {
+        console.log(func);
+    }
+
+    // overwite __initProps__ to avoid compile again
+    actualClass.prototype.__initProps__ = cleanEval_F(func, F);
+
+    // call instantiateProps immediately, no need to pass actualClass into it anymore
+    this.__initProps__();
+}
+
+// wrap a new scope to enalbe minify
+function cleanEval_fireClass (code) {
+    // jshint evil: true
+    var fireClass = eval(code);
+    // jshint evil: false
+    return fireClass;
+}
+
 function _createCtor (ctor, baseClass, mixins, className, options) {
     var useTryCatch = ! (className && className.startsWith('cc.'));
     var shouldAddProtoCtor;
@@ -529,7 +602,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
     }
     var superCallBounded = options && baseClass && boundSuperCalls(baseClass, options);
 
-    if (ctor && CC_DEV) {
+    if (CC_DEV && ctor) {
         _checkCtor(ctor, className);
     }
     // get base user constructors
@@ -566,7 +639,9 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
     if (superCallBounded) {
         body += 'this._super=null;\n';
     }
-    body += 'instantiateProps(this,fireClass);\n';
+
+    // instantiate props
+    body += 'this.__initProps__(fireClass);\n';
 
     // call user constructors
     if (ctors.length > 0) {
@@ -593,7 +668,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
     body += '})';
 
     // jshint evil: true
-    var fireClass = eval(body);
+    var fireClass = cleanEval_fireClass(body);
     // jshint evil: false
 
     Object.defineProperty(fireClass, '__ctors__', {
@@ -778,11 +853,7 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
     };
  */
 function CCClass (options) {
-    if (arguments.length === 0) {
-        return define();
-    }
-    if ( !options ) {
-        cc.error('cc.Class: Option must be non-nil');
+    if (!options) {
         return define();
     }
 
@@ -1091,12 +1162,13 @@ function parseAttributes (attrs, className, propName) {
 cc.Class = CCClass;
 
 module.exports = {
-    instantiateProps: instantiateProps,
     isArray: function (defaultVal) {
         defaultVal = getDefault(defaultVal);
         return Array.isArray(defaultVal);
     },
-    fastDefine: CCClass._fastDefine
+    fastDefine: CCClass._fastDefine,
+    getNewValueTypeCode: getNewValueTypeCode,
+    NAME_IN_DOT_NOTATION_REG: NAME_IN_DOT_NOTATION_REG,
 };
 
 if (CC_EDITOR) {

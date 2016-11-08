@@ -84,16 +84,9 @@ module.exports = {
         var _localZOrder = node._localZOrder;
         var _globalZOrder = node._globalZOrder;
 
-        // root in prefab asset is always synced
-        var prefabRoot = _prefab.asset.data;
-        prefabRoot._prefab._synced = true;
-
-        // use node as the instantiated prefabRoot to make references to prefabRoot in prefab redirect to node
-        prefabRoot._iN$t = node;
-
-        // instantiate prefab and apply to node
+        // instantiate prefab
         cc.game._isCloning = true;
-        cc.instantiate._clone(prefabRoot, prefabRoot);
+        _prefab.asset._doInstantiate(node);
         cc.game._isCloning = false;
 
         // restore preserved props
