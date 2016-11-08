@@ -156,7 +156,6 @@ var ScrollView = cc.Class({
         this._touchMoveDisplacements = [];
         this._touchMoveTimeDeltas = [];
         this._touchMovePreviousTimestamp = 0;
-        this._touchMoved = false;
 
         this._autoScrolling = false;
         this._autoScrollAttenuate = false;
@@ -566,7 +565,7 @@ var ScrollView = cc.Class({
      * @return {Vec2}  - A Vec2 value indicate the current scroll offset.
      */
     getScrollOffset: function() {
-        var topDelta =  this._topBoundary -  this._getContentTopBoundary();
+        var topDelta =  this._getContentTopBoundary() - this._topBoundary;
         var leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
 
         return cc.p(leftDeta, topDelta);
@@ -718,11 +717,13 @@ var ScrollView = cc.Class({
     //private methods
     _registerEvent: function() {
         this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this, true);
-        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this, true);
-        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this, true);
-        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this, true);
-        this.node.on(cc.Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this);
+        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this);
+        this.node.on(cc.Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMovePreventDefault, this, true);
     },
+
 
     _onMouseWheel: function(event) {
         if (!this.enabledInHierarchy) return;
@@ -882,7 +883,27 @@ var ScrollView = cc.Class({
         if (this.content) {
             this._handlePressLogic(touch);
         }
-        this._touchMoved = false;
+
+        if(event.target === this.node) {
+            event.stopPropagation();
+        }
+    },
+
+    _onTouchMovePreventDefault: function (event) {
+        if (!this.enabledInHierarchy) return;
+
+        var touch = event.touch;
+        if (!this.cancelInnerEvents) {
+            return;
+        }
+
+        var deltaMove = cc.pSub(touch.getLocation(), touch.getStartLocation());
+        //FIXME: touch move delta should be calculated by DPI.
+        if (cc.pLength(deltaMove) > 4) {
+            if (event.target !== this.node) {
+                event.preventDefault();
+            }
+        }
     },
 
     _onTouchMoved: function(event) {
@@ -892,25 +913,8 @@ var ScrollView = cc.Class({
         if (this.content) {
             this._handleMoveLogic(touch);
         }
-        // Do not prevent touch events in inner nodes
-        if (!this.cancelInnerEvents) {
-            return;
-        }
 
-        var deltaMove = cc.pSub(touch.getLocation(), touch.getStartLocation());
-        //FIXME: touch move delta should be calculated by DPI.
-        if (cc.pLength(deltaMove) > 7) {
-            if (!this._touchMoved && event.target !== this.node) {
-                // Simulate touch cancel for target node
-                var cancelEvent = new cc.Event.EventTouch(event.getTouches(), event.bubbles);
-                cancelEvent.type = cc.Node.EventType.TOUCH_CANCEL;
-                cancelEvent.touch = event.touch;
-                cancelEvent.simulate = true;
-                event.target.dispatchEvent(cancelEvent);
-                this._touchMoved = true;
-            }
-            event.stopPropagation();
-        }
+        event.stopPropagation();
     },
 
     _onTouchEnded: function(event) {
@@ -921,20 +925,20 @@ var ScrollView = cc.Class({
             this._handleReleaseLogic(touch);
         }
         this._dispatchEvent('touch-up');
-        if (this._touchMoved) {
-            event.stopPropagation();
-        }
+
+        event.stopPropagation();
     },
+
     _onTouchCancelled: function(event) {
         if (!this.enabledInHierarchy) return;
 
         // Filte touch cancel event send from self
-        if (!event.simulate) {
-            var touch = event.touch;
-            if(this.content){
-                this._handleReleaseLogic(touch);
-            }
+        var touch = event.touch;
+        if(this.content){
+            this._handleReleaseLogic(touch);
         }
+
+        event.stopPropagation();
     },
 
     _processDeltaMove: function(deltaMove) {
