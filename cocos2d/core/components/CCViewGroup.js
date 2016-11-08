@@ -35,7 +35,7 @@
  * ViewGroup的事件处理比较特殊，因为 ViewGroup 里面的子节点关心的事件跟 ViewGroup 本身可能不一样。
  * 为了让子节点能够正确地处理事件，ViewGroup 需要注册 capture 阶段的事件，并且合理地处理 ViewGroup 之间的事件传递。
  * 请参考 ScrollView 的实现来获取更多信息。
- * @class ScrollView
+ * @class ViewGroup
  * @extends Component
  */
 var ViewGroup = cc.Class({
