@@ -90,8 +90,10 @@ dragonBones.ArmatureDisplay = cc.Class({
                 this._parseDragonAsset();
 
                 this._refresh();
-                this._defaultArmatureIndex = 0;
-                this._animationIndex = 0;
+                if (CC_EDITOR) {
+                    this._defaultArmatureIndex = 0;
+                    this._animationIndex = 0;
+                }
             },
             tooltip: 'i18n:COMPONENT.dragon_bones.dragon_bones_asset'
         },
