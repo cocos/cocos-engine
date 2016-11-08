@@ -34,7 +34,7 @@ var CCClass = require('./CCClass');
 
 var SERIALIZABLE = Attr.DELIMETER + 'serializable';
 var DEFAULT = Attr.DELIMETER + 'default';
-var NAME_IN_DOT_NOTATION_REG = CCClass.NAME_IN_DOT_NOTATION_REG;
+var VAR_REG = CCClass.VAR_REG;
 
 var VAR = 'var ';
 var LOCAL_OBJ = 'o';
@@ -292,7 +292,7 @@ JS.mixin(Parser.prototype, {
 
     writeField: function (codeArray, obj, key, value) {
         var statement;
-        if (NAME_IN_DOT_NOTATION_REG.test(key)) {
+        if (VAR_REG.test(key)) {
             statement = LOCAL_OBJ + '.' + key + '=';
         }
         else {

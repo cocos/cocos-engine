@@ -190,9 +190,8 @@ function testInstantiate (module, match, instantiate) {
 
         var node = new cc.Node();
         var comp = node.addComponent(Script);
-        var otherComp = node.addComponent(cc.Sprite);
-        comp.compRef = otherComp;
-        otherComp.destroy();
+        comp.compRef = node.addComponent(cc.Sprite);
+        comp.compRef.destroy();
 
         cc.Object._deferredDestroy();
 

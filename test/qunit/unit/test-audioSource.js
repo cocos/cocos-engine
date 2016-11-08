@@ -12,6 +12,7 @@ if (!isPhantomJS) {
         audioSource.play();
 
         audioSource.audio.on('load', function () {
+            clearTimeout(timerId);
             strictEqual(audioSource.isPlaying, true, 'audio scource play state true after preload');
             start();
         });
