@@ -434,23 +434,27 @@ var PageView = cc.Class({
         }
     },
 
-    _onTouchBegan: function (event) {
+    _onTouchBegan: function (event, captureListeners) {
+
         this._touchBeganPosition = event.touch.getLocation();
-        this._super(event);
+        this._super(event, captureListeners);
     },
 
-    _onTouchMoved: function (event) {
-        this._super(event);
+    _onTouchMoved: function (event, captureListeners) {
+
+        this._super(event, captureListeners);
     },
 
-    _onTouchEnded: function (event) {
+    _onTouchEnded: function (event, captureListeners) {
+
         this._touchEndPosition = event.touch.getLocation();
-        this._super(event);
+        this._super(event, captureListeners);
     },
 
-    _onTouchCancelled: function (event) {
+    _onTouchCancelled: function (event, captureListeners) {
+
         this._touchEndPosition = event.touch.getLocation();
-        this._super(event);
+        this._super(event, captureListeners);
     },
 
     _onMouseWheel: function () { }

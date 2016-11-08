@@ -139,7 +139,7 @@ var eventMap = {
  */
 var ScrollView = cc.Class({
     name: 'cc.ScrollView',
-    extends: require('./CCComponent'),
+    extends: require('./CCViewGroup'),
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/ScrollView',
@@ -566,7 +566,7 @@ var ScrollView = cc.Class({
      * @return {Vec2}  - A Vec2 value indicate the current scroll offset.
      */
     getScrollOffset: function() {
-        var topDelta =  this._topBoundary -  this._getContentTopBoundary();
+        var topDelta =  this._getContentTopBoundary() - this._topBoundary;
         var leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
 
         return cc.p(leftDeta, topDelta);
@@ -724,8 +724,9 @@ var ScrollView = cc.Class({
         this.node.on(cc.Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
     },
 
-    _onMouseWheel: function(event) {
+    _onMouseWheel: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         var deltaMove = cc.p(0, 0);
         var wheelPrecision = -0.1;
@@ -747,7 +748,8 @@ var ScrollView = cc.Class({
             this.schedule(this._checkMouseWheel, 1.0 / 60);
             this._stopMouseWheel = true;
         }
-        event.stopPropagation();
+
+        this._stopPropagationIfTargetIsMe(event);
     },
 
     _checkMouseWheel: function(dt) {
@@ -874,19 +876,53 @@ var ScrollView = cc.Class({
         return contentParent.convertToNodeSpaceAR(scrollViewPositionInWorldSpace);
     },
 
+    //this is for nested scrollview
+    _hasNestedViewGroup: function (event, captureListeners) {
+        if(event.eventPhase !== cc.Event.CAPTURING_PHASE) return;
+
+        if(captureListeners) {
+            //captureListeners are arranged from child to parent
+            for(var i = 0; i < captureListeners.length; ++i){
+                var item = captureListeners[i];
+
+                if(this.node === item) {
+                    if(event.target.getComponent(cc.ViewGroup)) {
+                        return true;
+                    }
+                    return false;
+                }
+
+                if(item.getComponent(cc.ViewGroup)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    },
+
+    //This is for Scrollview as children of a Button
+    _stopPropagationIfTargetIsMe: function (event) {
+        if(event.eventPhase === cc.Event.AT_TARGET && event.target === this.node) {
+            event.stopPropagation();
+        }
+    },
+
     // touch event handler
-    _onTouchBegan: function(event) {
+    _onTouchBegan: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         var touch = event.touch;
         if (this.content) {
             this._handlePressLogic(touch);
         }
         this._touchMoved = false;
+        this._stopPropagationIfTargetIsMe(event);
     },
 
-    _onTouchMoved: function(event) {
+    _onTouchMoved: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         var touch = event.touch;
         if (this.content) {
@@ -909,12 +945,13 @@ var ScrollView = cc.Class({
                 event.target.dispatchEvent(cancelEvent);
                 this._touchMoved = true;
             }
-            event.stopPropagation();
         }
+        this._stopPropagationIfTargetIsMe(event);
     },
 
-    _onTouchEnded: function(event) {
+    _onTouchEnded: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         var touch = event.touch;
         if (this.content) {
@@ -923,10 +960,13 @@ var ScrollView = cc.Class({
         this._dispatchEvent('touch-up');
         if (this._touchMoved) {
             event.stopPropagation();
+        } else {
+            this._stopPropagationIfTargetIsMe(event);
         }
     },
-    _onTouchCancelled: function(event) {
+    _onTouchCancelled: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         // Filte touch cancel event send from self
         if (!event.simulate) {
@@ -935,6 +975,7 @@ var ScrollView = cc.Class({
                 this._handleReleaseLogic(touch);
             }
         }
+        this._stopPropagationIfTargetIsMe(event);
     },
 
     _processDeltaMove: function(deltaMove) {
