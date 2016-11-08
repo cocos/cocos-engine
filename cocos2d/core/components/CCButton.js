@@ -482,8 +482,12 @@ var Button = cc.Class({
 
         if(this.transition === Transition.SCALE && this.target) {
             if(hit) {
-                this.target.scale = this._originalScale * this.zoomScale;
+                this._fromScale = this._originalScale;
+                this._toScale = this._originalScale * this.zoomScale;
+                this._transitionFinished = false;
             } else {
+                this.time = 0;
+                this._transitionFinished = true;
                 this.target.scale = this._originalScale;
             }
         } else {
@@ -625,8 +629,7 @@ var Button = cc.Class({
 
         if (transition === Transition.COLOR) {
             this._updateColorTransition(state);
-        }
-        else if (transition === Transition.SPRITE) {
+        } else if (transition === Transition.SPRITE) {
             this._updateSpriteTransition(state);
         } else if(transition === Transition.SCALE) {
             this._updateScaleTransition(state);
