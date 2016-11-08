@@ -24,7 +24,6 @@
 
 'use strict';
 
-var EventTarget = require('./event/event-target');
 var PrefabHelper = require('./utils/prefab-helper');
 
 var JS = cc.js;
@@ -327,7 +326,6 @@ function findChildComponents (children, constructor, components) {
 var Node = cc.Class({
     name: 'cc.Node',
     extends: require('./utils/base-node'),
-    mixins: [EventTarget],
 
     properties: {
         /**

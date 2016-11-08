@@ -280,7 +280,7 @@ test('prop initial times', function () {
         configurable: true
     });
     Base.call(instanceMocker);
-    fooTester.once('property should init once');
+    fooTester.once('property should init only once');
 
     var Sub = cc.Class({
         extends: Base,
@@ -589,6 +589,26 @@ test('mixins', function () {
     deepEqual(BigDog.__props__, ['p3', 'p2', 'p1', 'p4'], 'should inherit properties');
     strictEqual(cc.Class.attr(BigDog, 'p2').default, 'Defined by Mixin2', 'last mixin property should override previous');
     strictEqual(cc.Class.attr(BigDog, 'p1').default, 'Defined by BigDog', "should override base property");
+});
+
+test('mixins ctor', function () {
+    var ctorOfMixin = Callback().enable();
+
+    var Mixin = cc.Class({
+        ctor: function () {
+            ctorOfMixin();
+        },
+    });
+    var Dog = cc.Class({
+        mixins: [Mixin],
+    });
+    var BigDog = cc.Class({
+        extends: Dog,
+        mixins: [Mixin],
+    });
+
+    new BigDog();
+    ctorOfMixin.once('ctor of mixin should be called only once');
 });
 
 asyncTest('instantiate properties in the next frame', function () {

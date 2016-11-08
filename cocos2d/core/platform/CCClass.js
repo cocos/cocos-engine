@@ -542,11 +542,17 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
             if (CCClass._isCCClass(baseOrMixin)) {
                 var baseCtors = baseOrMixin.__ctors__;
                 if (baseCtors) {
-                    ctors = ctors.concat(baseCtors);
+                    for (var c = 0; c < baseCtors.length; c++) {
+                        if (ctors.indexOf(baseCtors[c]) < 0) {
+                            ctors.push(baseCtors[c]);
+                        }
+                    }
                 }
             }
             else if (baseOrMixin) {
-                ctors.push(baseOrMixin);
+                if (ctors.indexOf(baseOrMixin) < 0) {
+                    ctors.push(baseOrMixin);
+                }
             }
         }
     }
