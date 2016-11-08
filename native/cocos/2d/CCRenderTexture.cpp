@@ -654,8 +654,7 @@ void RenderTexture::onEnd()
 
     // restore viewport
     director->setViewport();
-    Size size = director->getWinSizeInPixels();
-    glViewport(0, 0, (GLsizei)(size.width), (GLsizei)(size.height) );
+   
     //
     director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, _oldProjMatrix);
     director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _oldTransMatrix);
