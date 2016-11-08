@@ -139,7 +139,7 @@ var eventMap = {
  */
 var ScrollView = cc.Class({
     name: 'cc.ScrollView',
-    extends: require('./CCComponent'),
+    extends: require('./CCViewGroup'),
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/ScrollView',
@@ -726,7 +726,7 @@ var ScrollView = cc.Class({
 
     _onMouseWheel: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this._hasNestedScrollview(event, captureListeners)) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         var deltaMove = cc.p(0, 0);
         var wheelPrecision = -0.1;
@@ -877,7 +877,7 @@ var ScrollView = cc.Class({
     },
 
     //this is for nested scrollview
-    _hasNestedScrollview: function (event, captureListeners) {
+    _hasNestedViewGroup: function (event, captureListeners) {
         if(event.eventPhase !== cc.Event.CAPTURING_PHASE) return;
 
         if(captureListeners) {
@@ -886,7 +886,7 @@ var ScrollView = cc.Class({
                 var item = captureListeners[i];
 
                 if(this.node === item) {
-                    if(event.target.getComponent(cc.ScrollView)) {
+                    if(event.target.getComponent(cc.ViewGroup)) {
                         return true;
                     }
                     return false;
@@ -910,7 +910,7 @@ var ScrollView = cc.Class({
     // touch event handler
     _onTouchBegan: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this._hasNestedScrollview(event, captureListeners)) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         var touch = event.touch;
         if (this.content) {
@@ -922,7 +922,7 @@ var ScrollView = cc.Class({
 
     _onTouchMoved: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this._hasNestedScrollview(event, captureListeners)) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         var touch = event.touch;
         if (this.content) {
@@ -951,7 +951,7 @@ var ScrollView = cc.Class({
 
     _onTouchEnded: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this._hasNestedScrollview(event, captureListeners)) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         var touch = event.touch;
         if (this.content) {
@@ -966,7 +966,7 @@ var ScrollView = cc.Class({
     },
     _onTouchCancelled: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this._hasNestedScrollview(event, captureListeners)) return;
+        if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         // Filte touch cancel event send from self
         if (!event.simulate) {
