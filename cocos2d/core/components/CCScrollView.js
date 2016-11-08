@@ -892,7 +892,7 @@ var ScrollView = cc.Class({
                     return false;
                 }
 
-                if(item.getComponent(cc.ScrollView)) {
+                if(item.getComponent(cc.ViewGroup)) {
                     return true;
                 }
             }
