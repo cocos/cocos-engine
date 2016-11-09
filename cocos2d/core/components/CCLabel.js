@@ -149,6 +149,7 @@ var Label = cc.Class({
     ctor: function() {
         if(CC_EDITOR) {
             this._userDefinedFontSize = 40;
+            this._userDefinedFont = null;
             this._debouncedUpdateSgNodeString = debounce(this._updateSgNodeString, 200);
             this._debouncedUpdateFontSize = debounce(this._updateSgNodeFontSize, 200);
         }
@@ -356,6 +357,10 @@ var Label = cc.Class({
                     this._isSystemFontUsed = true;
                 }
 
+                if(CC_EDITOR && value) {
+                    this._userDefinedFont = value;
+                }
+
                 this._N$file = value;
                 this._bmFontOriginalSize = -1;
                 if (value && this._isSystemFontUsed)
@@ -395,7 +400,12 @@ var Label = cc.Class({
                 return this._isSystemFontUsed;
             },
             set: function(value){
-                if(!value && this._isSystemFontUsed) return;
+                if(CC_EDITOR) {
+                    if(!value && this._isSystemFontUsed && this._userDefinedFont) {
+                        this.font = this._userDefinedFont;
+                        return;
+                    }
+                }
 
                 this._isSystemFontUsed = !!value;
                 if (value) {
@@ -476,6 +486,7 @@ var Label = cc.Class({
         sgNode.setString(this.string);
         if (CC_EDITOR) {
             this._userDefinedFontSize = this.fontSize;
+            this._userDefinedFont = this.font;
         }
         if (CC_EDITOR && this._useOriginalSize) {
             this.node.setContentSize(sgNode.getContentSize());
