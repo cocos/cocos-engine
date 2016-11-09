@@ -63,6 +63,9 @@ var RichText = cc.Class({
         this._labelSegmentsCache = [];
 
         this._resetState();
+        if(!CC_JSB) {
+            this._ttfFontLoaded = false;
+        }
 
         if(CC_EDITOR) {
             this._updateRichTextStatus = debounce(this._updateRichText, 200);
@@ -122,6 +125,26 @@ var RichText = cc.Class({
                 if(this.fontSize === oldValue) return;
 
                 this._layoutDirty = true;
+                this._updateRichTextStatus();
+            }
+        },
+
+        /**
+         * !#en Custom TTF font of RichText
+         * !#zh  富文本定制字体
+         * @property {cc.TTFFont} font
+         */
+        font: {
+            default: null,
+            type: cc.TTFFont,
+            tooltip: 'i18n:COMPONENT.richtext.font',
+            notify: function (oldValue) {
+                if(this.font === oldValue) return;
+
+                this._layoutDirty = true;
+                if(!CC_JSB) {
+                    this._ttfFontLoaded = false;
+                }
                 this._updateRichTextStatus();
             }
         },
@@ -212,6 +235,30 @@ var RichText = cc.Class({
 
     _initSgNode: function () {
         this._updateRichText();
+        var self = this;
+        document.fonts.ready.then(function() {
+            self._layoutDirty = true;
+            self._updateRichText();
+        });
+    },
+
+    _createFontLabel: function (string) {
+        var isAsset = this.font instanceof cc.TTFFont;
+        var fntRawUrl = isAsset ? this.font.rawUrl : '';
+        var sgNode =  new _ccsg.Label(string, fntRawUrl);
+        // node should be resize whenever font changed, needed only on web
+        if (!CC_JSB) {
+            sgNode.on('load', this._onTTFLoaded, this);
+        }
+        return sgNode;
+    },
+
+    _onTTFLoaded: function () {
+        if(!this._ttfFontLoaded) {
+            this._layoutDirty = true;
+            this._updateRichText();
+            this._ttfFontLoaded = true;
+        }
     },
 
     _measureText: function (styleIndex, string) {
@@ -219,7 +266,7 @@ var RichText = cc.Class({
         var func = function (string) {
             var label;
             if(self._labelSegmentsCache.length === 0) {
-                label = new _ccsg.Label(string);
+                label = self._createFontLabel(string);
                 self._labelSegmentsCache.push(label);
             } else {
                 label = self._labelSegmentsCache[0];
@@ -285,7 +332,7 @@ var RichText = cc.Class({
     _addLabelSegment: function(stringToken, styleIndex) {
         var labelSegment;
         if(this._labelSegmentsCache.length === 0) {
-            labelSegment = new _ccsg.Label(stringToken);
+            labelSegment = this._createFontLabel(stringToken);
         } else {
             labelSegment = this._labelSegmentsCache.pop();
             labelSegment.setString(stringToken);
@@ -296,6 +343,7 @@ var RichText = cc.Class({
         this._applyTextAttribute(labelSegment);
 
         labelSegment.setAnchorPoint(cc.p(0, 0));
+        labelSegment.getContentSize();
         this._sgNode.addChild(labelSegment);
         this._labelSegments.push(labelSegment);
 
