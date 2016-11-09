@@ -63,9 +63,6 @@ var RichText = cc.Class({
         this._labelSegmentsCache = [];
 
         this._resetState();
-        if(!CC_JSB) {
-            this._ttfFontLoaded = false;
-        }
 
         if(CC_EDITOR) {
             this._updateRichTextStatus = debounce(this._updateRichText, 200);
@@ -142,8 +139,8 @@ var RichText = cc.Class({
                 if(this.font === oldValue) return;
 
                 this._layoutDirty = true;
-                if(!CC_JSB) {
-                    this._ttfFontLoaded = false;
+                if(!CC_JSB && this.font) {
+                    this._onTTFLoaded();
                 }
                 this._updateRichTextStatus();
             }
@@ -235,30 +232,30 @@ var RichText = cc.Class({
 
     _initSgNode: function () {
         this._updateRichText();
-        var self = this;
-        document.fonts.ready.then(function() {
-            self._layoutDirty = true;
-            self._updateRichText();
-        });
+        if(!CC_JSB) {
+            this._onTTFLoaded();
+        }
     },
 
     _createFontLabel: function (string) {
         var isAsset = this.font instanceof cc.TTFFont;
         var fntRawUrl = isAsset ? this.font.rawUrl : '';
         var sgNode =  new _ccsg.Label(string, fntRawUrl);
-        // node should be resize whenever font changed, needed only on web
-        if (!CC_JSB) {
-            sgNode.on('load', this._onTTFLoaded, this);
-        }
         return sgNode;
     },
 
     _onTTFLoaded: function () {
-        if(!this._ttfFontLoaded) {
-            this._layoutDirty = true;
-            this._updateRichText();
-            this._ttfFontLoaded = true;
-        }
+        var self = this;
+
+        var callback = function () {
+            self._layoutDirty = true;
+            self._updateRichText();
+        };
+
+        var isAsset = this.font instanceof cc.TTFFont;
+        var fntRawUrl = isAsset ? this.font.rawUrl : '';
+
+        cc.CustomFontLoader.loadTTF(fntRawUrl, callback);
     },
 
     _measureText: function (styleIndex, string) {
