@@ -334,8 +334,8 @@ var Component = cc.Class({
             get: function () {},
             //set: function (value) {
             //    if (this.__scriptUuid !== value) {
-            //        if (value && Editor.UuidUtils.isUuid(value._uuid)) {
-            //            var classId = Editor.UuidUtils.compressUuid(value._uuid);
+            //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
+            //            var classId = Editor.Utils.UuidUtils.compressUuid(value._uuid);
             //            var NewComp = cc.js._getClassById(classId);
             //            if (cc.isChildClassOf(NewComp, cc.Component)) {
             //                cc.warn('Sorry, replacing component script is not yet implemented.');

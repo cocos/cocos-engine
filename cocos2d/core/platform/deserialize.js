@@ -506,8 +506,8 @@ cc.deserialize = function (data, result, options) {
 
 cc.deserialize.Details = Details;
 cc.deserialize.reportMissingClass = function (id) {
-    if (CC_EDITOR && Editor.UuidUtils.isUuid(id)) {
-        id = Editor.UuidUtils.decompressUuid(id);
+    if (CC_EDITOR && Editor.Utils.UuidUtils.isUuid(id)) {
+        id = Editor.Utils.UuidUtils.decompressUuid(id);
         cc.warn('Can not find script "%s"', id);
     }
     else {

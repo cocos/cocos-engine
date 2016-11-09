@@ -349,7 +349,7 @@ function define (className, baseClasses, mixins, constructor, options) {
                 JS._setClassId(uuid, cls);
                 if (CC_EDITOR) {
                     cc.Component._addMenuItem(cls, 'i18n:MAIN_MENU.component.scripts/' + className, -1);
-                    cls.prototype.__scriptUuid = Editor.UuidUtils.decompressUuid(uuid);
+                    cls.prototype.__scriptUuid = Editor.Utils.UuidUtils.decompressUuid(uuid);
                 }
             }
             frame.beh = cls;
@@ -549,7 +549,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
                     }
                 }
             }
-            else if (baseOrMixin) {
+            else {
                 if (ctors.indexOf(baseOrMixin) < 0) {
                     ctors.push(baseOrMixin);
                 }
