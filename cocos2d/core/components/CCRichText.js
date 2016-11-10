@@ -340,7 +340,6 @@ var RichText = cc.Class({
         this._applyTextAttribute(labelSegment);
 
         labelSegment.setAnchorPoint(cc.p(0, 0));
-        labelSegment.getContentSize();
         this._sgNode.addChild(labelSegment);
         this._labelSegments.push(labelSegment);
 
