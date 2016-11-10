@@ -238,10 +238,13 @@ var RichText = cc.Class({
     },
 
     _createFontLabel: function (string) {
+        return  new _ccsg.Label(string, this._getFontRawUrl());
+    },
+
+    _getFontRawUrl: function() {
         var isAsset = this.font instanceof cc.TTFFont;
         var fntRawUrl = isAsset ? this.font.rawUrl : '';
-        var sgNode =  new _ccsg.Label(string, fntRawUrl);
-        return sgNode;
+        return fntRawUrl;
     },
 
     _onTTFLoaded: function () {
@@ -252,10 +255,7 @@ var RichText = cc.Class({
             self._updateRichText();
         };
 
-        var isAsset = this.font instanceof cc.TTFFont;
-        var fntRawUrl = isAsset ? this.font.rawUrl : '';
-
-        cc.CustomFontLoader.loadTTF(fntRawUrl, callback);
+        cc.CustomFontLoader.loadTTF(this._getFontRawUrl(), callback);
     },
 
     _measureText: function (styleIndex, string) {
