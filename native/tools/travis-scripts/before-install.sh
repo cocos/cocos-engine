@@ -34,8 +34,8 @@ function install_python_module_for_osx()
   which python
   sudo easy_install pip
   python -c 'import sys; print "\n".join(sys.path)'
-  sudo pip install pyyaml
-  sudo pip install Cheetah
+  pip install pyyaml
+  pip install Cheetah
   python -c 'import yaml'
   echo $PYTHONPATH
 }
