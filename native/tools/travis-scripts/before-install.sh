@@ -41,7 +41,5 @@ function install_python_module_for_osx()
 }
 
 #we only use osx for generate bindings
-if [ $TRAVIS_OS_NAME == 'osx' ]; then
-    install_android_ndk
-    install_python_module_for_osx
-fi
+install_android_ndk
+install_python_module_for_osx
