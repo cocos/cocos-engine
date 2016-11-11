@@ -94,7 +94,7 @@ Audio.State = {
         if (!item) {
             return cc.loader.load(src, function (error) {
                 if (!error) {
-                    var item = cc.loader.getItem(src);
+                    var item = cc.loader.getItem(uuid || src);
                     audio.mount(item.element || item.buffer);
                     audio.emit('load');
                 }
