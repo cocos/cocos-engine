@@ -67,6 +67,8 @@ cp "$backup_dir"/js_bindings_chipmunk_functions.h "$JS_AUTO_GENERATED_DIR"/
 cp "$backup_dir"/js_bindings_chipmunk_functions_registration.h "$JS_AUTO_GENERATED_DIR"/
 #move the backup chipmunk js bindings to js auto directory
 
+rm -rf $backup_dir
+
 # 1. Generate js bindings
 generate_bindings_glue_codes
 
