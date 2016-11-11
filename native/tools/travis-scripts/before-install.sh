@@ -32,8 +32,8 @@ install_android_ndk()
 function install_python_module_for_osx()
 {
   sudo easy_install pip
-  sudo pip install PyYAML
-  sudo pip install Cheetah
+  pip install PyYAML
+  pip install Cheetah
 }
 
 #we only use osx for generate bindings
