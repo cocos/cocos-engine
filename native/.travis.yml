@@ -1,6 +1,7 @@
 language: cpp
 os:
 - linux
+  sudo: required
 script:
 - tools/travis-scripts/run-script.sh
 before_install:
