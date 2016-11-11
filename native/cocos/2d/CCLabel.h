@@ -322,6 +322,8 @@ public:
      */
     int getStringLength();
 
+    virtual void setColor(const Color3B& color);
+
     /**
      * Sets the text color of Label.
      *
@@ -784,4 +786,3 @@ private:
 NS_CC_END
 
 #endif /*__COCOS2D_CCLABEL_H */
-
