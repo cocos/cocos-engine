@@ -150,20 +150,8 @@ var AssetLibrary = {
     },
 
     _getAssetUuidInCache: function (url) {
-        if (_urlToUuid[url]) {
-            return _urlToUuid[url];
-        }
-
         var assertUrl = url.replace(_rawAssetsBase, '');
-        var item;
-        for (var uuid in _uuidToRawAsset) {
-            item = _uuidToRawAsset[uuid];
-            if (item.url === assertUrl) {
-                _urlToUuid[url] = uuid;
-                return uuid;
-            }
-        }
-        return '';
+        return _urlToUuid[assertUrl] || '';
     },
 
     /**
@@ -301,10 +289,13 @@ var AssetLibrary = {
                         cc.error('Cannot get', typeId);
                         continue;
                     }
+                    var finalUrl = mountPoint + '/' + url;
                     _uuidToRawAsset[uuid] = {
-                        url: mountPoint + '/' + url,
+                        url: finalUrl,
                         type: type,
                     };
+                    _urlToUuid[finalUrl] = uuid;
+
                     // init resources
                     if (mountPoint === 'assets' && url.startsWith(RES_DIR)) {
                         if (cc.isChildClassOf(type, Asset)) {
