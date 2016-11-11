@@ -34,6 +34,7 @@ generate_bindings_glue_codes()
     echo "Create auto-generated jsbinding glue codes."
     pushd "$TOJS_ROOT"
     ./genbindings.py
+    rm userconf.ini
     popd
 }
 
