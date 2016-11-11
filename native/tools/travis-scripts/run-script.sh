@@ -45,3 +45,4 @@ fi
 
 cd $COCOS2DX_ROOT/tools/travis-scripts
 ./generate-cocosfiles.sh $TRAVIS_BRANCH
+exit 0
