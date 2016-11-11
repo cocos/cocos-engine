@@ -1,7 +1,6 @@
 language: cpp
 os:
 - linux
-- osx
 script:
 - tools/travis-scripts/run-script.sh
 before_install:
