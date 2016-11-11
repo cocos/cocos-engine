@@ -58,6 +58,65 @@ bool js_cocos2dx_dragonbones_TextureAtlasData_addTexture(JSContext *cx, uint32_t
 bool js_cocos2dx_dragonbones_TextureAtlasData_generateTexture(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_dragonbones_TextureAtlasData_getTexture(JSContext *cx, uint32_t argc, jsval *vp);
 
+extern JSClass  *jsb_dragonBones_AnimationData_class;
+extern JSObject *jsb_dragonBones_AnimationData_prototype;
+
+bool js_cocos2dx_dragonbones_AnimationData_constructor(JSContext *cx, uint32_t argc, jsval *vp);
+void js_cocos2dx_dragonbones_AnimationData_finalize(JSContext *cx, JSObject *obj);
+void js_register_cocos2dx_dragonbones_AnimationData(JSContext *cx, JS::HandleObject global);
+void register_all_cocos2dx_dragonbones(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_dragonbones_AnimationData_getClassTypeIndex(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_AnimationData_getBoneTimeline(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_AnimationData_getTypeIndex(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_AnimationData_AnimationData(JSContext *cx, uint32_t argc, jsval *vp);
+
+extern JSClass  *jsb_dragonBones_BoneData_class;
+extern JSObject *jsb_dragonBones_BoneData_prototype;
+
+bool js_cocos2dx_dragonbones_BoneData_constructor(JSContext *cx, uint32_t argc, jsval *vp);
+void js_cocos2dx_dragonbones_BoneData_finalize(JSContext *cx, JSObject *obj);
+void js_register_cocos2dx_dragonbones_BoneData(JSContext *cx, JS::HandleObject global);
+void register_all_cocos2dx_dragonbones(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_dragonbones_BoneData_getTypeIndex(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_BoneData_BoneData(JSContext *cx, uint32_t argc, jsval *vp);
+
+extern JSClass  *jsb_dragonBones_SlotData_class;
+extern JSObject *jsb_dragonBones_SlotData_prototype;
+
+bool js_cocos2dx_dragonbones_SlotData_constructor(JSContext *cx, uint32_t argc, jsval *vp);
+void js_cocos2dx_dragonbones_SlotData_finalize(JSContext *cx, JSObject *obj);
+void js_register_cocos2dx_dragonbones_SlotData(JSContext *cx, JS::HandleObject global);
+void register_all_cocos2dx_dragonbones(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_dragonbones_SlotData_getTypeIndex(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_SlotData_generateColor(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_SlotData_SlotData(JSContext *cx, uint32_t argc, jsval *vp);
+
+extern JSClass  *jsb_dragonBones_SkinData_class;
+extern JSObject *jsb_dragonBones_SkinData_prototype;
+
+bool js_cocos2dx_dragonbones_SkinData_constructor(JSContext *cx, uint32_t argc, jsval *vp);
+void js_cocos2dx_dragonbones_SkinData_finalize(JSContext *cx, JSObject *obj);
+void js_register_cocos2dx_dragonbones_SkinData(JSContext *cx, JS::HandleObject global);
+void register_all_cocos2dx_dragonbones(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_dragonbones_SkinData_getTypeIndex(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_SkinData_SkinData(JSContext *cx, uint32_t argc, jsval *vp);
+
+extern JSClass  *jsb_dragonBones_ArmatureData_class;
+extern JSObject *jsb_dragonBones_ArmatureData_prototype;
+
+bool js_cocos2dx_dragonbones_ArmatureData_constructor(JSContext *cx, uint32_t argc, jsval *vp);
+void js_cocos2dx_dragonbones_ArmatureData_finalize(JSContext *cx, JSObject *obj);
+void js_register_cocos2dx_dragonbones_ArmatureData(JSContext *cx, JS::HandleObject global);
+void register_all_cocos2dx_dragonbones(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_dragonbones_ArmatureData_getBone(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_ArmatureData_getAnimation(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_ArmatureData_getSlot(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_ArmatureData_getSkin(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_ArmatureData_getDefaultSkin(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_ArmatureData_getDefaultAnimation(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_ArmatureData_getTypeIndex(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_ArmatureData_ArmatureData(JSContext *cx, uint32_t argc, jsval *vp);
+
 extern JSClass  *jsb_dragonBones_DragonBonesData_class;
 extern JSObject *jsb_dragonBones_DragonBonesData_prototype;
 
