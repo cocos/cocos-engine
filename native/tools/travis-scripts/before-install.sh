@@ -31,13 +31,9 @@ install_android_ndk()
 
 function install_python_module_for_osx()
 {
-  which python
   sudo easy_install pip
-  python -c 'import sys; print "\n".join(sys.path)'
-  pip install pyyaml
-  pip install Cheetah
-  python -c 'import yaml'
-  echo $PYTHONPATH
+  sudo -H pip install pyyaml
+  sudo -H pip install Cheetah
 }
 
 #we only use osx for generate bindings
