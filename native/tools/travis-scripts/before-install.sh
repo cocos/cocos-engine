@@ -36,6 +36,8 @@ function install_python_module_for_osx()
   python -c 'import sys; print "\n".join(sys.path)'
   python -m pip install pyyaml
   python -m pip install Cheetah
+  python -c 'import yaml'
+  echo $PYTHONPATH
 }
 
 #we only use osx for generate bindings
