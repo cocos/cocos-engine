@@ -29,20 +29,18 @@ JS_COMMIT_PATH="cocos/scripting/js-bindings/auto"
 # Exit on error
 set -e
 
-if [ $TRAVIS_OS_NAME == 'osx' ]; then
-    mkdir -p $HOME/bin
-    pushd $HOME/bin
-    curl -O http://pyyaml.org/download/pyyaml/PyYAML-3.10.zip
-    unzip PyYAML-3.10.zip 2> /dev/null > /dev/null
-    cd PyYAML-3.10
-    sudo python setup.py install 2> /dev/null > /dev/null
-    cd ..
-    curl -O https://pypi.python.org/packages/source/C/Cheetah/Cheetah-2.4.4.tar.gz
-    tar xzf Cheetah-2.4.4.tar.gz
-    cd Cheetah-2.4.4
-    sudo python setup.py install 2> /dev/null > /dev/null
-    popd
-fi
+mkdir -p $HOME/bin
+pushd $HOME/bin
+curl -O http://pyyaml.org/download/pyyaml/PyYAML-3.10.zip
+unzip PyYAML-3.10.zip 2> /dev/null > /dev/null
+cd PyYAML-3.10
+sudo python setup.py install 2> /dev/null > /dev/null
+cd ..
+curl -O https://pypi.python.org/packages/source/C/Cheetah/Cheetah-2.4.4.tar.gz
+tar xzf Cheetah-2.4.4.tar.gz
+cd Cheetah-2.4.4
+sudo python setup.py install 2> /dev/null > /dev/null
+popd
 
 generate_bindings_glue_codes()
 {
