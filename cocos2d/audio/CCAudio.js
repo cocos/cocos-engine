@@ -87,7 +87,8 @@ Audio.State = {
     proto.preload = function () {
         var src = this._src,
             audio = this;
-        var item = cc.loader.getItem(src);
+        var uuid = cc.AssetLibrary._getAssetUuidInCache(src);
+        var item = cc.loader.getItem(uuid || src);
 
         // If the resource does not exist
         if (!item) {

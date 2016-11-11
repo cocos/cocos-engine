@@ -120,7 +120,7 @@ JS.mixin(CCLoader.prototype, {
      * The progression callback is the same as Pipeline's {{#crossLink "Pipeline/onProgress:method"}}onProgress{{/crossLink}}
      * The complete callback is almost the same as Pipeline's {{#crossLink "Pipeline/onComplete:method"}}onComplete{{/crossLink}}
      * The only difference is when user pass a single url as resources, the complete callback will set its result directly as the second parameter.
-     * 
+     *
      * @example
      * cc.loader.load('a.png', function (err, tex) {
      *     cc.log('Result should be a texture: ' + (tex instanceof cc.Texture2D));
@@ -133,7 +133,7 @@ JS.mixin(CCLoader.prototype, {
      * cc.loader.load({id: 'http://example.com/getImageREST?file=a.png', type: 'png'}, function (err, tex) {
      *     cc.log('Should load a texture from RESTful API by specify the type: ' + (tex instanceof cc.Texture2D));
      * });
-     *  
+     *
      * cc.loader.load(['a.png', 'b.json'], function (errors, results) {
      *     if (errors) {
      *         for (var i = 0; i < errors.length; i++) {
@@ -145,19 +145,19 @@ JS.mixin(CCLoader.prototype, {
      * });
      *
      * @method load
-     * @param {String|Array} resources - Url list in an array 
+     * @param {String|Array} resources - Url list in an array
      * @param {Function} [progressCallback] - Callback invoked when progression change
      * @param {Function} completeCallback - Callback invoked when all resources loaded
      */
     load: function(resources, progressCallback, completeCallback) {
-        
+
         // COMPATIBLE WITH 0.X
         if (CC_DEV && typeof resources === 'string' && resources.startsWith('resources://')) {
             cc.warn('Sorry, the "resources://" protocol is obsoleted, use cc.loader.loadRes instead please.');
             this.loadRes(resources.slice('resources://'.length), progressCallback, completeCallback);
             return;
         }
-        
+
         if (completeCallback === undefined) {
             completeCallback = progressCallback;
             progressCallback = this.onProgress || null;
@@ -172,9 +172,20 @@ JS.mixin(CCLoader.prototype, {
 
         for (var i = 0; i < resources.length; ++i) {
             var url = resources[i].id || resources[i];
-            if (typeof url !== 'string')
-                continue;
-            var item = this.getItem(url);
+            var uuid = cc.AssetLibrary._getAssetUuidInCache(url);
+            var item;
+            if (uuid) {
+                resources[i] = {
+                    id: uuid,
+                    type: 'uuid',
+                    uuid: uuid
+                };
+                item = this.getItem(uuid);
+            } else {
+                if (typeof url !== 'string')
+                    continue;
+                item = this.getItem(url);
+            }
             if (item) {
                 resources[i] = item;
             }
@@ -271,7 +282,7 @@ JS.mixin(CCLoader.prototype, {
      * Load resources from the "resources" folder inside the "assets" folder of your project.<br>
      * <br>
      * Note: All asset urls in Creator use forward slashes, urls using backslashes will not work.
-     * 
+     *
      * @method loadRes
      * @param {String} url - Url of the target resource.
      *                       The url is relative to the "resources" folder, extensions must be omitted.
@@ -279,9 +290,9 @@ JS.mixin(CCLoader.prototype, {
      * @param {Function} completeCallback - Callback invoked when the resource loaded.
      * @param {Error} completeCallback.error - The error info or null if loaded successfully.
      * @param {Object} completeCallback.resource - The loaded resource if it can be found otherwise returns null.
-     * 
+     *
      * @example
-     * 
+     *
      * // load the prefab (project/assets/resources/misc/character/cocos) from resources folder
      * cc.loader.loadRes('misc/character/cocos', function (err, prefab) {
      *     if (err) {
@@ -452,7 +463,7 @@ JS.mixin(CCLoader.prototype, {
     /**
      * !#en Get all resource dependencies of the requested asset in an array, including itself.
      * The owner parameter accept the following types: 1. The asset itself; 2. The resource url; 3. The asset's uuid.
-     * The returned array stores the dependencies with their uuids, after retrieve dependencies, 
+     * The returned array stores the dependencies with their uuids, after retrieve dependencies,
      * you can release them, access dependent assets by passing the uuid to {{#crossLink "loader/getRes:method"}}{{/crossLink}}, or other stuffs you want.
      * For release all dependencies of an asset, please refer to {{#crossLink "loader/release:method"}}{{/crossLink}}
      * Here is some examples:
@@ -461,7 +472,7 @@ JS.mixin(CCLoader.prototype, {
      * 返回的数组将仅保存依赖资源的 uuid，获取这些 uuid 后，你可以从 loader 释放这些资源；通过 {{#crossLink "loader/getRes:method"}}{{/crossLink}} 获取某个资源或者其他你需要的处理。
      * 想要释放一个资源及其依赖资源，可以参考 {{#crossLink "loader/release:method"}}{{/crossLink}}。
      * 下面是一些示例代码：
-     * 
+     *
      * @example
      * // Release all dependencies of a loaded prefab
      * var deps = cc.loader.getDependsRecursively(prefab);
@@ -475,7 +486,7 @@ JS.mixin(CCLoader.prototype, {
      *         textures.push(item);
      *     }
      * }
-     * 
+     *
      * @param {Asset|RawAsset|String} owner The owner asset or the resource url or the asset's uuid
      * @returns {Array}
      */
@@ -492,7 +503,7 @@ JS.mixin(CCLoader.prototype, {
         else if (typeof owner === 'object') {
             uuid = owner._uuid || null;
         }
-        
+
         if (uuid) {
             var assets = AutoReleaseUtils.getDependsRecursively(uuid);
             assets.push(uuid);

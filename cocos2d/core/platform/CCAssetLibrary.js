@@ -41,6 +41,7 @@ var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
 var _libraryBase = '';
 var _rawAssetsBase = '';     // The base dir for raw assets in runtime
 var _uuidToRawAsset = {};
+var _urlToUuid = {};
 
 function isScene (asset) {
     return asset && (asset.constructor === cc.SceneAsset || asset instanceof cc.Scene);
@@ -146,6 +147,23 @@ var AssetLibrary = {
                 raw: false,
             };
         }
+    },
+
+    _getAssetUuidInCache: function (url) {
+        if (_urlToUuid[url]) {
+            return _urlToUuid[url];
+        }
+
+        var assertUrl = url.replace(_rawAssetsBase, '');
+        var item;
+        for (var uuid in _uuidToRawAsset) {
+            item = _uuidToRawAsset[uuid];
+            if (item.url === assertUrl) {
+                _urlToUuid[url] = uuid;
+                return uuid;
+            }
+        }
+        return '';
     },
 
     /**
