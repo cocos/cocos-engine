@@ -31,7 +31,9 @@ install_android_ndk()
 
 function install_python_module_for_osx()
 {
+  which python
   sudo easy_install pip
+  python -c 'import sys; print "\n".join(sys.path)'
   python -m pip install pyyaml
   python -m pip install Cheetah
 }
