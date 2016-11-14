@@ -1,19 +1,19 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 zilongshanren
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,26 +37,26 @@
 - (instancetype)initWithFrame:(NSRect)frameRect editBox:(void *)editBox
 {
     self = [super init];
-    
+
     if (self) {
-        
+
         _editState = NO;
         self.frameRect = frameRect;
-        
+
         self.editBox = editBox;
         self.dataInputMode = cocos2d::ui::EditBox::InputFlag::LOWERCASE_ALL_CHARACTERS;
         self.keyboardReturnType = cocos2d::ui::EditBox::KeyboardReturnType::DEFAULT;
-        
+
         [self createMultiLineTextField];
     }
-    
+
     return self;
 }
 
 - (void)createSingleLineTextField
 {
     CCUISingleLineTextField *textField = [[[CCUISingleLineTextField alloc] initWithFrame:self.frameRect] autorelease];
-    
+
     self.textInput = textField;
 }
 
@@ -70,7 +70,7 @@
 - (void)createPasswordTextField
 {
     CCUIPasswordTextField *textField = [[[CCUIPasswordTextField alloc] initWithFrame:self.frameRect] autorelease];
-    
+
     self.textInput = textField;
 }
 
@@ -86,24 +86,24 @@
     textInput.ccui_placeholder = _textInput.ccui_placeholder ?: @"";
     textInput.ccui_font = _textInput.ccui_font ?: [NSFont systemFontOfSize:self.frameRect.size.height*3/2];
     textInput.ccui_maxLength = getEditBoxImplMac()->getMaxLength();
-    
+
     [_textInput removeFromSuperview];
     [_textInput release];
-    
+
     _textInput = [textInput retain];
-    
+
     [_textInput performSelector:@selector(setTextColor:) withObject:_textInput.ccui_textColor];
     [_textInput performSelector:@selector(setBackgroundColor:) withObject:[NSColor clearColor]];
- 
+
     if (![_textInput isKindOfClass:[NSTextView class]]) {
         [_textInput performSelector:@selector(setBordered:)
                          withObject:nil];
     }
     _textInput.hidden = NO;
     _textInput.wantsLayer = YES;
-    
+
     [_textInput ccui_setDelegate:self];
-    
+
     [self setInputFlag:self.dataInputMode];
     [self setReturnType:self.keyboardReturnType];
 }
@@ -122,7 +122,7 @@
 - (void)dealloc
 {
     self.textInput = nil;
-    
+
     [super dealloc];
 }
 
@@ -135,12 +135,13 @@
 - (void)openKeyboard
 {
     [self.window.contentView addSubview:self.textInput];
+    self.window.contentView.wantsLayer = YES;
     if (![self.textInput isKindOfClass:[NSTextView class]]) {
         [self.textInput becomeFirstResponder];
     }else {
         [self.window makeFirstResponder:self.textInput];
     }
-    
+
     auto editbox = getEditBoxImplMac()->getEditBox();
     auto oldPos = editbox->getPosition();
     editbox->setPosition(oldPos + cocos2d::Vec2(10,20));
@@ -165,7 +166,7 @@
 - (void)controlTextDidBeginEditing:(NSNotification *)notification
 {
     _editState = YES;
-    
+
     getEditBoxImplMac()->editBoxEditingDidBegin();
 }
 
@@ -176,7 +177,7 @@
     {
         getEditBoxImplMac()->editBoxEditingReturn();
     }
-    
+
     getEditBoxImplMac()->editBoxEditingDidEnd([self getText]);
 }
 
@@ -220,12 +221,12 @@
     if (self.dataInputMode == inputFlag) {
         return;
     }
-    
+
     if (self.dataInputMode == cocos2d::ui::EditBox::InputFlag::PASSWORD
         && inputFlag != cocos2d::ui::EditBox::InputFlag::PASSWORD) {
         [self createSingleLineTextField];
     }
-    
+
     if (self.dataInputMode != cocos2d::ui::EditBox::InputFlag::PASSWORD
         && inputFlag == cocos2d::ui::EditBox::InputFlag::PASSWORD) {
         [self createPasswordTextField];
@@ -300,7 +301,7 @@
 - (BOOL)textShouldBeginEditing:(NSText *)textObject;        // YES means do it
 {
     _editState = YES;
-    
+
     getEditBoxImplMac()->editBoxEditingDidBegin();
     return YES;
 }
@@ -308,16 +309,16 @@
 - (void)textDidEndEditing:(NSNotification *)notification
 {
     _editState = NO;
-    
+
     getEditBoxImplMac()->editBoxEditingDidEnd([self getText]);
 }
 
 - (void)textDidChange:(NSNotification *)notification
 {
     NSTextView* textView = notification.object;
-    
+
     const char* inputText = [textView.string UTF8String];
-    
+
     getEditBoxImplMac()->editBoxEditingChanged(inputText);
 }
 
@@ -328,21 +329,21 @@
     {
         return YES;
     }
-    
+
     if ([replacementString isEqualToString:[NSString stringWithUTF8String:"\n"]]) {
         getEditBoxImplMac()->editBoxEditingReturn();
     }
-    
+
     if (affectedCharRange.length + affectedCharRange.location > textView.string.length) {
         return NO;
     }
-    
+
     NSUInteger oldLength = textView.string.length;
     NSUInteger replacementLength = replacementString.length;
     NSUInteger rangeLength = affectedCharRange.length;
-    
+
     NSUInteger newLength = oldLength - rangeLength + replacementLength;
-    
+
     return newLength <= maxLength;
 }
 
