@@ -53,8 +53,8 @@ var MissingScript = cc.Class({
         //_scriptUuid: {
         //    get: function () {
         //        var id = this._$erialized.__type__;
-        //        if (Editor.UuidUtils.isUuid(id)) {
-        //            return Editor.UuidUtils.decompressUuid(id);
+        //        if (Editor.Utils.UuidUtils.isUuid(id)) {
+        //            return Editor.Utils.UuidUtils.decompressUuid(id);
         //        }
         //        return '';
         //    },
@@ -63,8 +63,8 @@ var MissingScript = cc.Class({
         //            cc.error('Scripts not yet compiled, please fix script errors and compile first.');
         //            return;
         //        }
-        //        if (value && Editor.UuidUtils.isUuid(value._uuid)) {
-        //            var classId = Editor.UuidUtils.compressUuid(value);
+        //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
+        //            var classId = Editor.Utils.UuidUtils.compressUuid(value);
         //            if (cc.js._getClassById(classId)) {
         //                this._$erialized.__type__ = classId;
         //                Editor.Ipc.sendToWins('reload:window-scripts', sandbox.compiled);
@@ -104,7 +104,7 @@ var MissingScript = cc.Class({
             }
             if (id) {
                 cc.deserialize.reportMissingClass(id);
-                if (data.node && (CC_EDITOR && Editor.UuidUtils.isUuid(id))) {
+                if (data.node && (CC_EDITOR && Editor.Utils.UuidUtils.isUuid(id))) {
                     return MissingScript;
                 }
                 else {
