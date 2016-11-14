@@ -384,6 +384,8 @@ var Button = cc.Class({
         if (!this.target) {
             this.target = this.node;
         }
+        this._applyTarget();
+        this._updateState();
     },
 
     onEnable: function () {
@@ -412,15 +414,10 @@ var Button = cc.Class({
         }
     },
 
-    onLoad: function () {
-        this._applyTarget();
-        this._updateState();
-    },
-
     update: function (dt) {
         var target = this.target;
-        if ((this.transition !== Transition.COLOR && this.transition !== Transition.SCALE)
-            || !target || this._transitionFinished) return;
+        if(this._transitionFinished) return;
+        if (this.transition !== Transition.COLOR && this.transition !== Transition.SCALE) return;
 
         this.time += dt;
         var ratio = 1.0;
@@ -471,16 +468,12 @@ var Button = cc.Class({
         if (!this.interactable || !this.enabledInHierarchy) return;
 
         this._pressed = true;
-        if(this.transition === Transition.SCALE) {
-            this._zoomUp();
-        } else {
-            this._updateState();
-        }
+        this._updateState();
         event.stopPropagation();
     },
 
     _onTouchMove: function (event) {
-        if (!this.interactable || !this.enabledInHierarchy) return;
+        if (!this.interactable || !this.enabledInHierarchy || !this._pressed) return;
         // mobile phone will not emit _onMouseMoveOut,
         // so we have to do hit test when touch moving
         var touch = event.touch;
@@ -488,8 +481,12 @@ var Button = cc.Class({
 
         if(this.transition === Transition.SCALE && this.target) {
             if(hit) {
-                this.target.scale = this._originalScale * this.zoomScale;
+                this._fromScale = this._originalScale;
+                this._toScale = this._originalScale * this.zoomScale;
+                this._transitionFinished = false;
             } else {
+                this.time = 0;
+                this._transitionFinished = true;
                 this.target.scale = this._originalScale;
             }
         } else {
@@ -499,9 +496,7 @@ var Button = cc.Class({
             } else {
                 state = 'normal';
             }
-            var color  = this[state + 'Color'];
-            var sprite = this[state + 'Sprite'];
-            this._applyTransition(color, sprite);
+            this._applyTransition(state);
         }
         event.stopPropagation();
     },
@@ -514,11 +509,7 @@ var Button = cc.Class({
             this.node.emit('click', this);
         }
         this._pressed = false;
-        if(this.transition === Transition.SCALE) {
-            this._zoomBack();
-        } else {
-            this._updateState();
-        }
+        this._updateState();
         event.stopPropagation();
     },
 
@@ -530,7 +521,7 @@ var Button = cc.Class({
     },
 
     _zoomBack: function () {
-        this._fromScale = this._originalScale * this.zoomScale;
+        this._fromScale = this.target.scale;
         this._toScale = this._originalScale;
         this.time = 0;
         this._transitionFinished = false;
@@ -540,7 +531,6 @@ var Button = cc.Class({
         if (!this.interactable || !this.enabledInHierarchy) return;
 
         this._pressed = false;
-
         this._updateState();
     },
 
@@ -563,23 +553,8 @@ var Button = cc.Class({
 
     // state handler
     _updateState: function () {
-        var state;
-        if (!this.interactable) {
-            state = 'disabled';
-        }
-        else if (this._pressed) {
-            state = 'pressed';
-        }
-        else if (this._hovered) {
-            state = 'hover';
-        }
-        else {
-            state = 'normal';
-        }
-        var color  = this[state + 'Color'];
-        var sprite = this[state + 'Sprite'];
-
-        this._applyTransition(color, sprite);
+        var state = this._getButtonState();
+        this._applyTransition(state);
         this._updateDisabledState();
     },
 
@@ -600,24 +575,63 @@ var Button = cc.Class({
         }
     },
 
-    _applyTransition: function (color, sprite) {
+    _getButtonState: function () {
+        var state;
+        if (!this.interactable) {
+            state = 'disabled';
+        }
+        else if (this._pressed) {
+            state = 'pressed';
+        }
+        else if (this._hovered) {
+            state = 'hover';
+        }
+        else {
+            state = 'normal';
+        }
+        return state;
+    },
+
+    _updateColorTransition: function (state) {
+        var color  = this[state + 'Color'];
+        var target = this.target;
+
+        if (CC_EDITOR) {
+            target.color = color;
+        }
+        else {
+            this._fromColor = target.color.clone();
+            this._toColor = color;
+            this.time = 0;
+            this._transitionFinished = false;
+        }
+    },
+
+    _updateSpriteTransition: function (state) {
+        var sprite = this[state + 'Sprite'];
+        if(this._sprite && sprite) {
+            this._sprite.spriteFrame = sprite;
+        }
+    },
+
+    _updateScaleTransition: function (state) {
+        if(state === 'pressed') {
+            this._zoomUp();
+        } else {
+            this._zoomBack();
+        }
+    },
+
+    _applyTransition: function (state) {
+
         var transition = this.transition;
 
         if (transition === Transition.COLOR) {
-            var target = this.target;
-
-            if (CC_EDITOR) {
-                target.color = color;
-            }
-            else {
-                this._fromColor = target.color.clone();
-                this._toColor = color;
-                this.time = 0;
-                this._transitionFinished = false;
-            }
-        }
-        else if (transition === Transition.SPRITE && this._sprite && sprite) {
-            this._sprite.spriteFrame = sprite;
+            this._updateColorTransition(state);
+        } else if (transition === Transition.SPRITE) {
+            this._updateSpriteTransition(state);
+        } else if(transition === Transition.SCALE) {
+            this._updateScaleTransition(state);
         }
     },
 

@@ -194,7 +194,7 @@ _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
             break;
         case cc.TiledMap.Orientation.ISO:
             this.setAnchorPoint(cc.p(0.5, 0));
-            var posIdx = cc.p(this._container.offset.x / mapInfo._tileSize.width * 2, this._container.offset.y / mapInfo._tileSize.height);
+            var posIdx = cc.p(this._container.offset.x / mapInfo._tileSize.height, this._container.offset.y / mapInfo._tileSize.height);
             var pos = cc.p(mapInfo._tileSize.width / 2 * ( mapInfo._mapSize.width + posIdx.x - posIdx.y),
                            mapInfo._tileSize.height / 2 * ( mapInfo._mapSize.height * 2 - posIdx.x - posIdx.y));
             this.setPosition(pos);

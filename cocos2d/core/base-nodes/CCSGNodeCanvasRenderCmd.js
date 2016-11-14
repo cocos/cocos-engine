@@ -341,46 +341,46 @@ _ccsg.Node.RenderCmd.prototype = {
     },
 
     _updateDisplayColor: function (parentColor) {
-       var node = this._node;
-       var locDispColor = this._displayedColor, locRealColor = node._realColor;
-       var i, len, selChildren, item;
+        var node = this._node;
+        var locDispColor = this._displayedColor, locRealColor = node._realColor;
+        var i, len, selChildren, item;
         this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
-       if (this._cascadeColorEnabledDirty && !node._cascadeColorEnabled) {
-           locDispColor.r = locRealColor.r;
-           locDispColor.g = locRealColor.g;
-           locDispColor.b = locRealColor.b;
-           var whiteColor = new cc.Color(255, 255, 255, 255);
-           selChildren = node._children;
-           for (i = 0, len = selChildren.length; i < len; i++) {
-               item = selChildren[i];
-               if (item && item._renderCmd)
-                   item._renderCmd._updateDisplayColor(whiteColor);
-           }
-           this._cascadeColorEnabledDirty = false;
-       } else {
-           if (parentColor === undefined) {
-               var locParent = node._parent;
-               if (locParent && locParent._cascadeColorEnabled)
-                   parentColor = locParent.getDisplayedColor();
-               else
-                   parentColor = cc.Color.WHITE;
-           }
-           locDispColor.r = 0 | (locRealColor.r * parentColor.r / 255.0);
-           locDispColor.g = 0 | (locRealColor.g * parentColor.g / 255.0);
-           locDispColor.b = 0 | (locRealColor.b * parentColor.b / 255.0);
-           if (node._cascadeColorEnabled) {
-               selChildren = node._children;
-               for (i = 0, len = selChildren.length; i < len; i++) {
-                   item = selChildren[i];
-                   if (item && item._renderCmd){
-                       item._renderCmd._updateDisplayColor(locDispColor);
-                       item._renderCmd._updateColor();
-                   }
-               }
-           }
-       }
-       this._dirtyFlag &= ~dirtyFlags.colorDirty;
-   },
+        if (this._cascadeColorEnabledDirty && !node._cascadeColorEnabled) {
+            locDispColor.r = locRealColor.r;
+            locDispColor.g = locRealColor.g;
+            locDispColor.b = locRealColor.b;
+            var whiteColor = new cc.Color(255, 255, 255, 255);
+            selChildren = node._children;
+            for (i = 0, len = selChildren.length; i < len; i++) {
+                item = selChildren[i];
+                if (item && item._renderCmd)
+                    item._renderCmd._updateDisplayColor(whiteColor);
+            }
+            this._cascadeColorEnabledDirty = false;
+        } else {
+            if (parentColor === undefined) {
+                var locParent = node._parent;
+                if (locParent && locParent._cascadeColorEnabled)
+                    parentColor = locParent.getDisplayedColor();
+                else
+                    parentColor = cc.Color.WHITE;
+            }
+            locDispColor.r = 0 | (locRealColor.r * parentColor.r / 255.0);
+            locDispColor.g = 0 | (locRealColor.g * parentColor.g / 255.0);
+            locDispColor.b = 0 | (locRealColor.b * parentColor.b / 255.0);
+            if (node._cascadeColorEnabled) {
+                selChildren = node._children;
+                for (i = 0, len = selChildren.length; i < len; i++) {
+                    item = selChildren[i];
+                    if (item && item._renderCmd){
+                        item._renderCmd._updateDisplayColor(locDispColor);
+                        item._renderCmd._updateColor();
+                    }
+                }
+            }
+        }
+        this._dirtyFlag &= ~dirtyFlags.colorDirty;
+    },
 
     _updateDisplayOpacity: function (parentOpacity) {
         var node = this._node;

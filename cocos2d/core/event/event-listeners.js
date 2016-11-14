@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
- 
+
 var JS = cc.js;
 var CallbacksHandler = require('../platform/callbacks-invoker').CallbacksHandler;
 
@@ -34,7 +34,7 @@ function EventListeners () {
 }
 JS.extend(EventListeners, CallbacksHandler);
 
-EventListeners.prototype.invoke = function (event) {
+EventListeners.prototype.invoke = function (event, captureListeners) {
     var key = event.type,
         list = this._callbackTable[key],
         i, endIndex,
@@ -46,7 +46,7 @@ EventListeners.prototype.invoke = function (event) {
         if (list.length === 1) {
             callingFunc = list[0];
             if (callingFunc !== REMOVE_PLACEHOLDER) {
-                callingFunc.call(event.currentTarget, event);
+                callingFunc.call(event.currentTarget, event, captureListeners);
             }
         }
         else {
@@ -69,11 +69,11 @@ EventListeners.prototype.invoke = function (event) {
                         target = list[i+1];
                         hasTarget = target && typeof target === 'object';
                         if (hasTarget) {
-                            callingFunc.call(target, event);
+                            callingFunc.call(target, event, captureListeners);
                             increment = 2;
                         }
                         else {
-                            callingFunc.call(event.currentTarget, event);
+                            callingFunc.call(event.currentTarget, event, captureListeners);
                         }
 
                         if (event._propagationImmediateStopped || i + increment > endIndex) {

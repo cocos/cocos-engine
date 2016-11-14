@@ -130,7 +130,15 @@ dragonBones.ArmatureDisplay = cc.Class({
             set : function (value) {
                 this._armatureName = value;
                 var animNames = this.getAnimationNames(this._armatureName);
-                this.animationName = animNames[0];
+
+                if (!this.animationName || animNames.indexOf(this.animationName) < 0) {
+                    if (CC_EDITOR) {
+                        this.animationName = animNames[0];
+                    } else {
+                        // Not use default animation name at runtime
+                        this.animationName = '';
+                    }
+                }
                 this._refresh();
             },
             visible: false

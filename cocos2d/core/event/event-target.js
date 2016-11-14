@@ -44,7 +44,7 @@ var _doDispatchEvent = function (owner, event) {
         if (target._isTargetActive(event.type) && target._capturingListeners) {
             event.currentTarget = target;
             // fire event
-            target._capturingListeners.invoke(event);
+            target._capturingListeners.invoke(event, cachedArray);
             // check if propagation stopped
             if (event._propagationStopped) {
                 cachedArray.length = 0;

@@ -253,6 +253,7 @@ cc._LogInfos = {
         addListener_2: "Invalid parameters.",
         addListener_3: "listener must be a cc.EventListener object when adding a fixed priority listener",
         addListener_4: "The listener has been registered, please don't register it again.",
+        addListener_5: "Unsupported listener target.",
         _forceAddEventListener: "Invalid scene graph priority!",
         _updateListeners: "If program goes here, there should be event in dispatch.",
         _updateListeners_2: "_inDispatch should be 1 here."

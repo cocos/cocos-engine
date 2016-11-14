@@ -884,7 +884,7 @@ cc.RotateTo = cc.ActionInterval.extend({
     initWithDuration:function (duration, deltaAngleX, deltaAngleY) {
         if (cc.ActionInterval.prototype.initWithDuration.call(this, duration)) {
             this._dstAngleX = deltaAngleX || 0;
-            this._dstAngleY = deltaAngleY || this._dstAngleX;
+            this._dstAngleY = deltaAngleY !== undefined ? deltaAngleY : this._dstAngleX;
             return true;
         }
         return false;
@@ -985,7 +985,7 @@ cc.RotateBy = cc.ActionInterval.extend({
     initWithDuration:function (duration, deltaAngleX, deltaAngleY) {
         if (cc.ActionInterval.prototype.initWithDuration.call(this, duration)) {
             this._angleX = deltaAngleX || 0;
-            this._angleY = deltaAngleY || this._angleX;
+            this._angleY = deltaAngleY !== undefined ? deltaAngleY : this._angleX;
             return true;
         }
         return false;
