@@ -236,8 +236,8 @@ var CollisionManager = cc.Class({
             t.tx = tmpX;
             t.ty = tmpY;
 
-            aabb.x = tmpX - d;
-            aabb.y = tmpY - d;
+            aabb.x = p.x - d;
+            aabb.y = p.y - d;
             aabb.width = d * 2;
             aabb.height = d * 2;
         }
