@@ -38,14 +38,14 @@ function equalClips (clip1, clip2) {
  * !#en The animation component is used to play back animations.
  *   
  * Animation provide several events to register：
- *  - play : Emit when egine playing animation
+ *  - play : Emit when begin playing animation
  *  - stop : Emit when stop playing animation
  *  - pause : Emit when pause animation
  *  - resume : Emit when resume animation
- *  - lastframe : If animation repeat coutn is larger than 1, emit when animation play to the last frame
+ *  - lastframe : If animation repeat count is larger than 1, emit when animation play to the last frame
  *  - finished : Emit when finish playing animation
  *
- * !#zh Animation 组件用于播放动画。你能指定动画剪辑到动画组件并从脚本控制播放。
+ * !#zh Animation 组件用于播放动画。
  *   
  * Animation 提供了一系列可注册的事件：
  *  - play : 开始播放时
@@ -202,7 +202,7 @@ var Animation = cc.Class({
 
     /**
      * !#en Plays an animation and stop other animations.
-     * !#zh 播放当前或者指定的动画，并且停止当前正在播放动画。
+     * !#zh 播放指定的动画，并且停止当前正在播放动画。如果没有指定动画，则播放默认动画。
      * @method play
      * @param {String} [name] - The name of animation to play. If no name is supplied then the default animation will be played.
      * @param {Number} [startTime] - play an animation from startTime
@@ -230,7 +230,7 @@ var Animation = cc.Class({
      * !#en
      * Plays an additive animation, it will not stop other animations.
      * If there are other animations playing, then will play several animations at the same time.
-     * !#zh 播放当前或者指定的动画（将不会停止当前播放的动画）。
+     * !#zh 播放指定的动画（将不会停止当前播放的动画）。如果没有指定动画，则播放默认动画。
      * @method playAdditive
      * @param {String} [name] - The name of animation to play. If no name is supplied then the default animation will be played.
      * @param {Number} [startTime] - play an animation from startTime
@@ -243,7 +243,7 @@ var Animation = cc.Class({
      */
     playAdditive: function (name, startTime) {
         this._init();
-        var state = this.getAnimationState(name || this._defaultClip.name);
+        var state = this.getAnimationState(name || (this._defaultClip && this._defaultClip.name));
         if (state) {
             var animator = this._animator;
 
@@ -268,7 +268,7 @@ var Animation = cc.Class({
     /**
      * !#en Stops an animation named name. If no name is supplied then stops all playing animations that were started with this Animation. <br/>
      * Stopping an animation also Rewinds it to the Start.
-     * !#zh 停止当前或者指定的动画。如果没有指定名字，则停止所有动画。
+     * !#zh 停止指定的动画。如果没有指定名字，则停止当前正在播放的动画。
      * @method stop
      * @param {String} [name] - The animation to stop, if not supplied then stops all playing animations.
      */
@@ -331,7 +331,7 @@ var Animation = cc.Class({
 
     /**
      * !#en Make an animation named name go to the specified time. If no name is supplied then make all animations go to the specified time.
-     * !#zh 设置指定动画的播放时间。如果没有指定名字，则设置所有动画的播放时间。
+     * !#zh 设置指定动画的播放时间。如果没有指定名字，则设置当前播放动画的播放时间。
      * @method setCurrentTime
      * @param {Number} [time] - The time to go to
      * @param {String} [name] - Specified animation name, if not supplied then make all animations go to the time.
@@ -345,10 +345,7 @@ var Animation = cc.Class({
             }
         }
         else {
-            for (var name in this._nameToState) {
-                state = this._nameToState[name];
-                this._animator.setStateTime(state, time);
-            }
+            this._animator.setStateTime(time);
         }
     },
 
@@ -480,19 +477,29 @@ var Animation = cc.Class({
      * !#en
      * Samples animations at the current state.<br/>
      * This is useful when you explicitly want to set up some animation state, and sample it once.
-     * !#zh 对当前动画进行采样。你可以手动将动画设置到某一个状态，然后采样一次。
+     * !#zh 对指定或当前动画进行采样。你可以手动将动画设置到某一个状态，然后采样一次。
      * @method sample
+     * @param {String} name
      */
-    sample: function () {
+    sample: function (name) {
         this._init();
-        this._animator.sample();
+
+        if (name) {
+            var state = this._nameToState[name];
+            if (state) {
+                state.sample();
+            }
+        }
+        else {
+            this._animator.sample();
+        }
     },
 
 
     /**
      * !#en 
      * Register animation event callback.
-     * The event argumetns will provide the AnimationState which emit the event.
+     * The event arguments will provide the AnimationState which emit the event.
      * When play an animation, will auto register the event callback to the AnimationState, and unregister the event callback from the AnimationState when animation stopped.
      * !#zh
      * 注册动画事件回调。
