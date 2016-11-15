@@ -915,6 +915,1154 @@ void js_register_cocos2dx_dragonbones_TextureAtlasData(JSContext *cx, JS::Handle
     jsb_register_class<dragonBones::TextureAtlasData>(cx, jsb_dragonBones_TextureAtlasData_class, proto, parent_proto);
 }
 
+JSClass  *jsb_dragonBones_AnimationData_class;
+JSObject *jsb_dragonBones_AnimationData_prototype;
+
+bool js_cocos2dx_dragonbones_AnimationData_getClassTypeIndex(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    dragonBones::AnimationData* cobj = (dragonBones::AnimationData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_getClassTypeIndex : Invalid Native Object");
+    if (argc == 0) {
+        unsigned long ret = cobj->getClassTypeIndex();
+        JS::RootedValue jsret(cx);
+        jsret = ulong_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_AnimationData_getClassTypeIndex : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_dragonbones_AnimationData_getBoneTimeline(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    dragonBones::AnimationData* cobj = (dragonBones::AnimationData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_getBoneTimeline : Invalid Native Object");
+    if (argc == 1) {
+        std::string arg0;
+        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationData_getBoneTimeline : Error processing arguments");
+        dragonBones::BoneTimelineData* ret = cobj->getBoneTimeline(arg0);
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::BoneTimelineData>(cx, (dragonBones::BoneTimelineData*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_AnimationData_getBoneTimeline : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_dragonbones_AnimationData_getTypeIndex(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    if (argc == 0) {
+
+        unsigned long ret = dragonBones::AnimationData::getTypeIndex();
+        jsval jsret = JSVAL_NULL;
+        jsret = ulong_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_AnimationData_getTypeIndex : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_dragonbones_AnimationData_get_frameCount(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::AnimationData* cobj = (dragonBones::AnimationData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_get_frameCount : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = uint32_to_jsval(cx, cobj->frameCount);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_AnimationData_set_frameCount(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::AnimationData* cobj = (dragonBones::AnimationData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_frameCount : Invalid Native Object");
+
+    bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= jsval_to_uint32(cx, args.get(0), &arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_frameCount : Error processing new value");
+    cobj->frameCount = arg0;
+    return true;
+}
+bool js_cocos2dx_dragonbones_AnimationData_get_playTimes(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::AnimationData* cobj = (dragonBones::AnimationData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_get_playTimes : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = uint32_to_jsval(cx, cobj->playTimes);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_AnimationData_set_playTimes(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::AnimationData* cobj = (dragonBones::AnimationData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_playTimes : Invalid Native Object");
+
+    bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= jsval_to_uint32(cx, args.get(0), &arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_playTimes : Error processing new value");
+    cobj->playTimes = arg0;
+    return true;
+}
+bool js_cocos2dx_dragonbones_AnimationData_get_position(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::AnimationData* cobj = (dragonBones::AnimationData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_get_position : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = DOUBLE_TO_JSVAL(cobj->position);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_AnimationData_set_position(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::AnimationData* cobj = (dragonBones::AnimationData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_position : Invalid Native Object");
+
+    bool ok = true;
+    double arg0 = 0;
+    ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_position : Error processing new value");
+    cobj->position = arg0;
+    return true;
+}
+bool js_cocos2dx_dragonbones_AnimationData_get_duration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::AnimationData* cobj = (dragonBones::AnimationData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_get_duration : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = DOUBLE_TO_JSVAL(cobj->duration);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_AnimationData_set_duration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::AnimationData* cobj = (dragonBones::AnimationData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_duration : Invalid Native Object");
+
+    bool ok = true;
+    double arg0 = 0;
+    ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_duration : Error processing new value");
+    cobj->duration = arg0;
+    return true;
+}
+bool js_cocos2dx_dragonbones_AnimationData_get_fadeInTime(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::AnimationData* cobj = (dragonBones::AnimationData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_get_fadeInTime : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = DOUBLE_TO_JSVAL(cobj->fadeInTime);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_AnimationData_set_fadeInTime(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::AnimationData* cobj = (dragonBones::AnimationData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_fadeInTime : Invalid Native Object");
+
+    bool ok = true;
+    double arg0 = 0;
+    ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_fadeInTime : Error processing new value");
+    cobj->fadeInTime = arg0;
+    return true;
+}
+bool js_cocos2dx_dragonbones_AnimationData_get_name(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::AnimationData* cobj = (dragonBones::AnimationData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_get_name : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = std_string_to_jsval(cx, cobj->name);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_AnimationData_set_name(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::AnimationData* cobj = (dragonBones::AnimationData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_name : Invalid Native Object");
+
+    bool ok = true;
+    std::string arg0;
+    ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_name : Error processing new value");
+    cobj->name = arg0;
+    return true;
+}
+bool js_cocos2dx_dragonbones_AnimationData_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    dragonBones::AnimationData* cobj = new (std::nothrow) dragonBones::AnimationData();
+
+    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::AnimationData>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_create_weak_jsobject(cx, cobj, typeClass, "dragonBones::AnimationData"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+
+
+void js_dragonBones_AnimationData_finalize(JSFreeOp *fop, JSObject *obj) {
+    CCLOGINFO("jsbindings: finalizing JS object %p (AnimationData)", obj);
+    js_proxy_t* nproxy;
+    js_proxy_t* jsproxy;
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject jsobj(cx, obj);
+    jsproxy = jsb_get_js_proxy(jsobj);
+    if (jsproxy) {
+        dragonBones::AnimationData *nobj = static_cast<dragonBones::AnimationData *>(jsproxy->ptr);
+        nproxy = jsb_get_native_proxy(jsproxy->ptr);
+
+        if (nobj) {
+            jsb_remove_proxy(nproxy, jsproxy);
+            JS::RootedValue flagValue(cx);
+            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
+            if (flagValue.isNullOrUndefined()){
+                delete nobj;
+            }
+        }
+        else
+            jsb_remove_proxy(nullptr, jsproxy);
+    }
+}
+void js_register_cocos2dx_dragonbones_AnimationData(JSContext *cx, JS::HandleObject global) {
+    jsb_dragonBones_AnimationData_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_dragonBones_AnimationData_class->name = "AnimationData";
+    jsb_dragonBones_AnimationData_class->addProperty = JS_PropertyStub;
+    jsb_dragonBones_AnimationData_class->delProperty = JS_DeletePropertyStub;
+    jsb_dragonBones_AnimationData_class->getProperty = JS_PropertyStub;
+    jsb_dragonBones_AnimationData_class->setProperty = JS_StrictPropertyStub;
+    jsb_dragonBones_AnimationData_class->enumerate = JS_EnumerateStub;
+    jsb_dragonBones_AnimationData_class->resolve = JS_ResolveStub;
+    jsb_dragonBones_AnimationData_class->convert = JS_ConvertStub;
+    jsb_dragonBones_AnimationData_class->finalize = js_dragonBones_AnimationData_finalize;
+    jsb_dragonBones_AnimationData_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PSGS("frameCount", js_cocos2dx_dragonbones_AnimationData_get_frameCount, js_cocos2dx_dragonbones_AnimationData_set_frameCount, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PSGS("playTimes", js_cocos2dx_dragonbones_AnimationData_get_playTimes, js_cocos2dx_dragonbones_AnimationData_set_playTimes, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PSGS("position", js_cocos2dx_dragonbones_AnimationData_get_position, js_cocos2dx_dragonbones_AnimationData_set_position, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PSGS("duration", js_cocos2dx_dragonbones_AnimationData_get_duration, js_cocos2dx_dragonbones_AnimationData_set_duration, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PSGS("fadeInTime", js_cocos2dx_dragonbones_AnimationData_get_fadeInTime, js_cocos2dx_dragonbones_AnimationData_set_fadeInTime, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PSGS("name", js_cocos2dx_dragonbones_AnimationData_get_name, js_cocos2dx_dragonbones_AnimationData_set_name, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("getClassTypeIndex", js_cocos2dx_dragonbones_AnimationData_getClassTypeIndex, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getBoneTimeline", js_cocos2dx_dragonbones_AnimationData_getBoneTimeline, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("getTypeIndex", js_cocos2dx_dragonbones_AnimationData_getTypeIndex, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    jsb_dragonBones_AnimationData_prototype = JS_InitClass(
+        cx, global,
+        JS::NullPtr(),
+        jsb_dragonBones_AnimationData_class,
+        js_cocos2dx_dragonbones_AnimationData_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_dragonBones_AnimationData_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "AnimationData"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<dragonBones::AnimationData>(cx, jsb_dragonBones_AnimationData_class, proto, JS::NullPtr());
+}
+
+JSClass  *jsb_dragonBones_BoneData_class;
+JSObject *jsb_dragonBones_BoneData_prototype;
+
+bool js_cocos2dx_dragonbones_BoneData_getTypeIndex(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    if (argc == 0) {
+
+        unsigned long ret = dragonBones::BoneData::getTypeIndex();
+        jsval jsret = JSVAL_NULL;
+        jsret = ulong_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_BoneData_getTypeIndex : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_dragonbones_BoneData_get_name(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::BoneData* cobj = (dragonBones::BoneData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_BoneData_get_name : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = std_string_to_jsval(cx, cobj->name);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_BoneData_set_name(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::BoneData* cobj = (dragonBones::BoneData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_BoneData_set_name : Invalid Native Object");
+
+    bool ok = true;
+    std::string arg0;
+    ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_BoneData_set_name : Error processing new value");
+    cobj->name = arg0;
+    return true;
+}
+bool js_cocos2dx_dragonbones_BoneData_get_parent(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::BoneData* cobj = (dragonBones::BoneData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_BoneData_get_parent : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    if (cobj->parent) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::BoneData>(cx, (dragonBones::BoneData*)cobj->parent));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_BoneData_set_parent(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::BoneData* cobj = (dragonBones::BoneData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_BoneData_set_parent : Invalid Native Object");
+
+    bool ok = true;
+    dragonBones::BoneData* arg0 = nullptr;
+    do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (dragonBones::BoneData*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_BoneData_set_parent : Error processing new value");
+    cobj->parent = arg0;
+    return true;
+}
+bool js_cocos2dx_dragonbones_BoneData_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    dragonBones::BoneData* cobj = new (std::nothrow) dragonBones::BoneData();
+
+    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::BoneData>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_create_weak_jsobject(cx, cobj, typeClass, "dragonBones::BoneData"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+
+
+extern JSObject *jsb_dragonBones_BaseObject_prototype;
+
+void js_dragonBones_BoneData_finalize(JSFreeOp *fop, JSObject *obj) {
+    CCLOGINFO("jsbindings: finalizing JS object %p (BoneData)", obj);
+    js_proxy_t* nproxy;
+    js_proxy_t* jsproxy;
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject jsobj(cx, obj);
+    jsproxy = jsb_get_js_proxy(jsobj);
+    if (jsproxy) {
+        dragonBones::BoneData *nobj = static_cast<dragonBones::BoneData *>(jsproxy->ptr);
+        nproxy = jsb_get_native_proxy(jsproxy->ptr);
+
+        if (nobj) {
+            jsb_remove_proxy(nproxy, jsproxy);
+            JS::RootedValue flagValue(cx);
+            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
+            if (flagValue.isNullOrUndefined()){
+                delete nobj;
+            }
+        }
+        else
+            jsb_remove_proxy(nullptr, jsproxy);
+    }
+}
+void js_register_cocos2dx_dragonbones_BoneData(JSContext *cx, JS::HandleObject global) {
+    jsb_dragonBones_BoneData_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_dragonBones_BoneData_class->name = "BoneData";
+    jsb_dragonBones_BoneData_class->addProperty = JS_PropertyStub;
+    jsb_dragonBones_BoneData_class->delProperty = JS_DeletePropertyStub;
+    jsb_dragonBones_BoneData_class->getProperty = JS_PropertyStub;
+    jsb_dragonBones_BoneData_class->setProperty = JS_StrictPropertyStub;
+    jsb_dragonBones_BoneData_class->enumerate = JS_EnumerateStub;
+    jsb_dragonBones_BoneData_class->resolve = JS_ResolveStub;
+    jsb_dragonBones_BoneData_class->convert = JS_ConvertStub;
+    jsb_dragonBones_BoneData_class->finalize = js_dragonBones_BoneData_finalize;
+    jsb_dragonBones_BoneData_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PSGS("name", js_cocos2dx_dragonbones_BoneData_get_name, js_cocos2dx_dragonbones_BoneData_set_name, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PSGS("parent", js_cocos2dx_dragonbones_BoneData_get_parent, js_cocos2dx_dragonbones_BoneData_set_parent, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("getTypeIndex", js_cocos2dx_dragonbones_BoneData_getTypeIndex, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
+    jsb_dragonBones_BoneData_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_dragonBones_BoneData_class,
+        js_cocos2dx_dragonbones_BoneData_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_dragonBones_BoneData_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "BoneData"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<dragonBones::BoneData>(cx, jsb_dragonBones_BoneData_class, proto, parent_proto);
+}
+
+JSClass  *jsb_dragonBones_SlotData_class;
+JSObject *jsb_dragonBones_SlotData_prototype;
+
+bool js_cocos2dx_dragonbones_SlotData_getTypeIndex(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    if (argc == 0) {
+
+        unsigned long ret = dragonBones::SlotData::getTypeIndex();
+        jsval jsret = JSVAL_NULL;
+        jsret = ulong_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_SlotData_getTypeIndex : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_dragonbones_SlotData_generateColor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    if (argc == 0) {
+
+        dragonBones::ColorTransform* ret = dragonBones::SlotData::generateColor();
+        jsval jsret = JSVAL_NULL;
+        if (ret) {
+        jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::ColorTransform>(cx, (dragonBones::ColorTransform*)ret));
+    } else {
+        jsret = JSVAL_NULL;
+    };
+        args.rval().set(jsret);
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_SlotData_generateColor : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_dragonbones_SlotData_get_name(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::SlotData* cobj = (dragonBones::SlotData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_SlotData_get_name : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = std_string_to_jsval(cx, cobj->name);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_SlotData_set_name(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::SlotData* cobj = (dragonBones::SlotData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_SlotData_set_name : Invalid Native Object");
+
+    bool ok = true;
+    std::string arg0;
+    ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_SlotData_set_name : Error processing new value");
+    cobj->name = arg0;
+    return true;
+}
+bool js_cocos2dx_dragonbones_SlotData_get_parent(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::SlotData* cobj = (dragonBones::SlotData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_SlotData_get_parent : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    if (cobj->parent) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::BoneData>(cx, (dragonBones::BoneData*)cobj->parent));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_SlotData_set_parent(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::SlotData* cobj = (dragonBones::SlotData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_SlotData_set_parent : Invalid Native Object");
+
+    bool ok = true;
+    dragonBones::BoneData* arg0 = nullptr;
+    do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (dragonBones::BoneData*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_SlotData_set_parent : Error processing new value");
+    cobj->parent = arg0;
+    return true;
+}
+bool js_cocos2dx_dragonbones_SlotData_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    dragonBones::SlotData* cobj = new (std::nothrow) dragonBones::SlotData();
+
+    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::SlotData>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_create_weak_jsobject(cx, cobj, typeClass, "dragonBones::SlotData"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+
+
+extern JSObject *jsb_dragonBones_BaseObject_prototype;
+
+void js_dragonBones_SlotData_finalize(JSFreeOp *fop, JSObject *obj) {
+    CCLOGINFO("jsbindings: finalizing JS object %p (SlotData)", obj);
+    js_proxy_t* nproxy;
+    js_proxy_t* jsproxy;
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject jsobj(cx, obj);
+    jsproxy = jsb_get_js_proxy(jsobj);
+    if (jsproxy) {
+        dragonBones::SlotData *nobj = static_cast<dragonBones::SlotData *>(jsproxy->ptr);
+        nproxy = jsb_get_native_proxy(jsproxy->ptr);
+
+        if (nobj) {
+            jsb_remove_proxy(nproxy, jsproxy);
+            JS::RootedValue flagValue(cx);
+            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
+            if (flagValue.isNullOrUndefined()){
+                delete nobj;
+            }
+        }
+        else
+            jsb_remove_proxy(nullptr, jsproxy);
+    }
+}
+void js_register_cocos2dx_dragonbones_SlotData(JSContext *cx, JS::HandleObject global) {
+    jsb_dragonBones_SlotData_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_dragonBones_SlotData_class->name = "SlotData";
+    jsb_dragonBones_SlotData_class->addProperty = JS_PropertyStub;
+    jsb_dragonBones_SlotData_class->delProperty = JS_DeletePropertyStub;
+    jsb_dragonBones_SlotData_class->getProperty = JS_PropertyStub;
+    jsb_dragonBones_SlotData_class->setProperty = JS_StrictPropertyStub;
+    jsb_dragonBones_SlotData_class->enumerate = JS_EnumerateStub;
+    jsb_dragonBones_SlotData_class->resolve = JS_ResolveStub;
+    jsb_dragonBones_SlotData_class->convert = JS_ConvertStub;
+    jsb_dragonBones_SlotData_class->finalize = js_dragonBones_SlotData_finalize;
+    jsb_dragonBones_SlotData_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PSGS("name", js_cocos2dx_dragonbones_SlotData_get_name, js_cocos2dx_dragonbones_SlotData_set_name, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PSGS("parent", js_cocos2dx_dragonbones_SlotData_get_parent, js_cocos2dx_dragonbones_SlotData_set_parent, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("getTypeIndex", js_cocos2dx_dragonbones_SlotData_getTypeIndex, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("generateColor", js_cocos2dx_dragonbones_SlotData_generateColor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
+    jsb_dragonBones_SlotData_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_dragonBones_SlotData_class,
+        js_cocos2dx_dragonbones_SlotData_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_dragonBones_SlotData_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "SlotData"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<dragonBones::SlotData>(cx, jsb_dragonBones_SlotData_class, proto, parent_proto);
+}
+
+JSClass  *jsb_dragonBones_SkinData_class;
+JSObject *jsb_dragonBones_SkinData_prototype;
+
+bool js_cocos2dx_dragonbones_SkinData_getTypeIndex(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    if (argc == 0) {
+
+        unsigned long ret = dragonBones::SkinData::getTypeIndex();
+        jsval jsret = JSVAL_NULL;
+        jsret = ulong_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_SkinData_getTypeIndex : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_dragonbones_SkinData_get_name(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::SkinData* cobj = (dragonBones::SkinData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_SkinData_get_name : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = std_string_to_jsval(cx, cobj->name);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_SkinData_set_name(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::SkinData* cobj = (dragonBones::SkinData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_SkinData_set_name : Invalid Native Object");
+
+    bool ok = true;
+    std::string arg0;
+    ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_SkinData_set_name : Error processing new value");
+    cobj->name = arg0;
+    return true;
+}
+bool js_cocos2dx_dragonbones_SkinData_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    dragonBones::SkinData* cobj = new (std::nothrow) dragonBones::SkinData();
+
+    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::SkinData>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_create_weak_jsobject(cx, cobj, typeClass, "dragonBones::SkinData"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+
+
+extern JSObject *jsb_dragonBones_BaseObject_prototype;
+
+void js_dragonBones_SkinData_finalize(JSFreeOp *fop, JSObject *obj) {
+    CCLOGINFO("jsbindings: finalizing JS object %p (SkinData)", obj);
+    js_proxy_t* nproxy;
+    js_proxy_t* jsproxy;
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject jsobj(cx, obj);
+    jsproxy = jsb_get_js_proxy(jsobj);
+    if (jsproxy) {
+        dragonBones::SkinData *nobj = static_cast<dragonBones::SkinData *>(jsproxy->ptr);
+        nproxy = jsb_get_native_proxy(jsproxy->ptr);
+
+        if (nobj) {
+            jsb_remove_proxy(nproxy, jsproxy);
+            JS::RootedValue flagValue(cx);
+            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
+            if (flagValue.isNullOrUndefined()){
+                delete nobj;
+            }
+        }
+        else
+            jsb_remove_proxy(nullptr, jsproxy);
+    }
+}
+void js_register_cocos2dx_dragonbones_SkinData(JSContext *cx, JS::HandleObject global) {
+    jsb_dragonBones_SkinData_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_dragonBones_SkinData_class->name = "SkinData";
+    jsb_dragonBones_SkinData_class->addProperty = JS_PropertyStub;
+    jsb_dragonBones_SkinData_class->delProperty = JS_DeletePropertyStub;
+    jsb_dragonBones_SkinData_class->getProperty = JS_PropertyStub;
+    jsb_dragonBones_SkinData_class->setProperty = JS_StrictPropertyStub;
+    jsb_dragonBones_SkinData_class->enumerate = JS_EnumerateStub;
+    jsb_dragonBones_SkinData_class->resolve = JS_ResolveStub;
+    jsb_dragonBones_SkinData_class->convert = JS_ConvertStub;
+    jsb_dragonBones_SkinData_class->finalize = js_dragonBones_SkinData_finalize;
+    jsb_dragonBones_SkinData_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PSGS("name", js_cocos2dx_dragonbones_SkinData_get_name, js_cocos2dx_dragonbones_SkinData_set_name, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("getTypeIndex", js_cocos2dx_dragonbones_SkinData_getTypeIndex, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
+    jsb_dragonBones_SkinData_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_dragonBones_SkinData_class,
+        js_cocos2dx_dragonbones_SkinData_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_dragonBones_SkinData_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "SkinData"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<dragonBones::SkinData>(cx, jsb_dragonBones_SkinData_class, proto, parent_proto);
+}
+
+JSClass  *jsb_dragonBones_ArmatureData_class;
+JSObject *jsb_dragonBones_ArmatureData_prototype;
+
+bool js_cocos2dx_dragonbones_ArmatureData_getBone(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    dragonBones::ArmatureData* cobj = (dragonBones::ArmatureData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_ArmatureData_getBone : Invalid Native Object");
+    if (argc == 1) {
+        std::string arg0;
+        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_ArmatureData_getBone : Error processing arguments");
+        dragonBones::BoneData* ret = cobj->getBone(arg0);
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::BoneData>(cx, (dragonBones::BoneData*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_ArmatureData_getBone : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_dragonbones_ArmatureData_getAnimation(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    dragonBones::ArmatureData* cobj = (dragonBones::ArmatureData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_ArmatureData_getAnimation : Invalid Native Object");
+    if (argc == 1) {
+        std::string arg0;
+        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_ArmatureData_getAnimation : Error processing arguments");
+        dragonBones::AnimationData* ret = cobj->getAnimation(arg0);
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::AnimationData>(cx, (dragonBones::AnimationData*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_ArmatureData_getAnimation : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_dragonbones_ArmatureData_getSlot(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    dragonBones::ArmatureData* cobj = (dragonBones::ArmatureData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_ArmatureData_getSlot : Invalid Native Object");
+    if (argc == 1) {
+        std::string arg0;
+        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_ArmatureData_getSlot : Error processing arguments");
+        dragonBones::SlotData* ret = cobj->getSlot(arg0);
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::SlotData>(cx, (dragonBones::SlotData*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_ArmatureData_getSlot : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_dragonbones_ArmatureData_getSkin(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    dragonBones::ArmatureData* cobj = (dragonBones::ArmatureData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_ArmatureData_getSkin : Invalid Native Object");
+    if (argc == 1) {
+        std::string arg0;
+        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_ArmatureData_getSkin : Error processing arguments");
+        dragonBones::SkinData* ret = cobj->getSkin(arg0);
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::SkinData>(cx, (dragonBones::SkinData*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_ArmatureData_getSkin : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_dragonbones_ArmatureData_getDefaultSkin(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    dragonBones::ArmatureData* cobj = (dragonBones::ArmatureData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_ArmatureData_getDefaultSkin : Invalid Native Object");
+    if (argc == 0) {
+        dragonBones::SkinData* ret = cobj->getDefaultSkin();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::SkinData>(cx, (dragonBones::SkinData*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_ArmatureData_getDefaultSkin : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_dragonbones_ArmatureData_getDefaultAnimation(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    dragonBones::ArmatureData* cobj = (dragonBones::ArmatureData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_ArmatureData_getDefaultAnimation : Invalid Native Object");
+    if (argc == 0) {
+        dragonBones::AnimationData* ret = cobj->getDefaultAnimation();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::AnimationData>(cx, (dragonBones::AnimationData*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_ArmatureData_getDefaultAnimation : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_dragonbones_ArmatureData_getTypeIndex(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    if (argc == 0) {
+
+        unsigned long ret = dragonBones::ArmatureData::getTypeIndex();
+        jsval jsret = JSVAL_NULL;
+        jsret = ulong_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_ArmatureData_getTypeIndex : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_dragonbones_ArmatureData_get_frameRate(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::ArmatureData* cobj = (dragonBones::ArmatureData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_ArmatureData_get_frameRate : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = uint32_to_jsval(cx, cobj->frameRate);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_ArmatureData_set_frameRate(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::ArmatureData* cobj = (dragonBones::ArmatureData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_ArmatureData_set_frameRate : Invalid Native Object");
+
+    bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= jsval_to_uint32(cx, args.get(0), &arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_ArmatureData_set_frameRate : Error processing new value");
+    cobj->frameRate = arg0;
+    return true;
+}
+bool js_cocos2dx_dragonbones_ArmatureData_get_name(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::ArmatureData* cobj = (dragonBones::ArmatureData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_ArmatureData_get_name : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = std_string_to_jsval(cx, cobj->name);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_ArmatureData_set_name(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::ArmatureData* cobj = (dragonBones::ArmatureData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_ArmatureData_set_name : Invalid Native Object");
+
+    bool ok = true;
+    std::string arg0;
+    ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_ArmatureData_set_name : Error processing new value");
+    cobj->name = arg0;
+    return true;
+}
+bool js_cocos2dx_dragonbones_ArmatureData_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    dragonBones::ArmatureData* cobj = new (std::nothrow) dragonBones::ArmatureData();
+
+    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::ArmatureData>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_create_weak_jsobject(cx, cobj, typeClass, "dragonBones::ArmatureData"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+
+
+extern JSObject *jsb_dragonBones_BaseObject_prototype;
+
+void js_dragonBones_ArmatureData_finalize(JSFreeOp *fop, JSObject *obj) {
+    CCLOGINFO("jsbindings: finalizing JS object %p (ArmatureData)", obj);
+    js_proxy_t* nproxy;
+    js_proxy_t* jsproxy;
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject jsobj(cx, obj);
+    jsproxy = jsb_get_js_proxy(jsobj);
+    if (jsproxy) {
+        dragonBones::ArmatureData *nobj = static_cast<dragonBones::ArmatureData *>(jsproxy->ptr);
+        nproxy = jsb_get_native_proxy(jsproxy->ptr);
+
+        if (nobj) {
+            jsb_remove_proxy(nproxy, jsproxy);
+            JS::RootedValue flagValue(cx);
+            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
+            if (flagValue.isNullOrUndefined()){
+                delete nobj;
+            }
+        }
+        else
+            jsb_remove_proxy(nullptr, jsproxy);
+    }
+}
+void js_register_cocos2dx_dragonbones_ArmatureData(JSContext *cx, JS::HandleObject global) {
+    jsb_dragonBones_ArmatureData_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_dragonBones_ArmatureData_class->name = "ArmatureData";
+    jsb_dragonBones_ArmatureData_class->addProperty = JS_PropertyStub;
+    jsb_dragonBones_ArmatureData_class->delProperty = JS_DeletePropertyStub;
+    jsb_dragonBones_ArmatureData_class->getProperty = JS_PropertyStub;
+    jsb_dragonBones_ArmatureData_class->setProperty = JS_StrictPropertyStub;
+    jsb_dragonBones_ArmatureData_class->enumerate = JS_EnumerateStub;
+    jsb_dragonBones_ArmatureData_class->resolve = JS_ResolveStub;
+    jsb_dragonBones_ArmatureData_class->convert = JS_ConvertStub;
+    jsb_dragonBones_ArmatureData_class->finalize = js_dragonBones_ArmatureData_finalize;
+    jsb_dragonBones_ArmatureData_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PSGS("frameRate", js_cocos2dx_dragonbones_ArmatureData_get_frameRate, js_cocos2dx_dragonbones_ArmatureData_set_frameRate, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PSGS("name", js_cocos2dx_dragonbones_ArmatureData_get_name, js_cocos2dx_dragonbones_ArmatureData_set_name, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("getBone", js_cocos2dx_dragonbones_ArmatureData_getBone, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getAnimation", js_cocos2dx_dragonbones_ArmatureData_getAnimation, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getSlot", js_cocos2dx_dragonbones_ArmatureData_getSlot, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getSkin", js_cocos2dx_dragonbones_ArmatureData_getSkin, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getDefaultSkin", js_cocos2dx_dragonbones_ArmatureData_getDefaultSkin, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getDefaultAnimation", js_cocos2dx_dragonbones_ArmatureData_getDefaultAnimation, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("getTypeIndex", js_cocos2dx_dragonbones_ArmatureData_getTypeIndex, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
+    jsb_dragonBones_ArmatureData_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_dragonBones_ArmatureData_class,
+        js_cocos2dx_dragonbones_ArmatureData_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_dragonBones_ArmatureData_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ArmatureData"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<dragonBones::ArmatureData>(cx, jsb_dragonBones_ArmatureData_class, proto, parent_proto);
+}
+
 JSClass  *jsb_dragonBones_DragonBonesData_class;
 JSObject *jsb_dragonBones_DragonBonesData_prototype;
 
@@ -5575,16 +6723,21 @@ void register_all_cocos2dx_dragonbones(JSContext* cx, JS::HandleObject obj) {
     js_register_cocos2dx_dragonbones_CCTextureData(cx, ns);
     js_register_cocos2dx_dragonbones_BaseFactory(cx, ns);
     js_register_cocos2dx_dragonbones_CCFactory(cx, ns);
-    js_register_cocos2dx_dragonbones_TextureAtlasData(cx, ns);
     js_register_cocos2dx_dragonbones_WorldClock(cx, ns);
+    js_register_cocos2dx_dragonbones_TextureAtlasData(cx, ns);
     js_register_cocos2dx_dragonbones_CCArmatureDisplay(cx, ns);
     js_register_cocos2dx_dragonbones_AnimationState(cx, ns);
+    js_register_cocos2dx_dragonbones_BoneData(cx, ns);
+    js_register_cocos2dx_dragonbones_ArmatureData(cx, ns);
     js_register_cocos2dx_dragonbones_CCTextureAtlasData(cx, ns);
     js_register_cocos2dx_dragonbones_TransformObject(cx, ns);
     js_register_cocos2dx_dragonbones_CCSlot(cx, ns);
     js_register_cocos2dx_dragonbones_Armature(cx, ns);
     js_register_cocos2dx_dragonbones_Bone(cx, ns);
+    js_register_cocos2dx_dragonbones_SkinData(cx, ns);
     js_register_cocos2dx_dragonbones_EventObject(cx, ns);
+    js_register_cocos2dx_dragonbones_SlotData(cx, ns);
     js_register_cocos2dx_dragonbones_DragonBonesData(cx, ns);
+    js_register_cocos2dx_dragonbones_AnimationData(cx, ns);
 }
 

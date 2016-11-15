@@ -169,6 +169,11 @@ private:
     bool _letterVisible;
 };
 
+void Label::setColor(const cocos2d::Color3B &color)
+{
+    this->setTextColor(Color4B(color));
+}
+
 Label* Label::create()
 {
     auto ret = new (std::nothrow) Label;

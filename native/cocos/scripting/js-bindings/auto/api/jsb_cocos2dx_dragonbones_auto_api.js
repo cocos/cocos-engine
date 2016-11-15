@@ -171,6 +171,236 @@ str
 };
 
 /**
+ * @class AnimationData
+ */
+dragonBones.AnimationData = {
+
+/**
+ * @method getClassTypeIndex
+ * @return {unsigned long}
+ */
+getClassTypeIndex : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getBoneTimeline
+ * @param {String} arg0
+ * @return {dragonBones::BoneTimelineData}
+ */
+getBoneTimeline : function (
+str 
+)
+{
+    return dragonBones::BoneTimelineData;
+},
+
+/**
+ * @method getTypeIndex
+ * @return {unsigned long}
+ */
+getTypeIndex : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method AnimationData
+ * @constructor
+ */
+AnimationData : function (
+)
+{
+},
+
+};
+
+/**
+ * @class BoneData
+ */
+dragonBones.BoneData = {
+
+/**
+ * @method getTypeIndex
+ * @return {unsigned long}
+ */
+getTypeIndex : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method BoneData
+ * @constructor
+ */
+BoneData : function (
+)
+{
+},
+
+};
+
+/**
+ * @class SlotData
+ */
+dragonBones.SlotData = {
+
+/**
+ * @method getTypeIndex
+ * @return {unsigned long}
+ */
+getTypeIndex : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method generateColor
+ * @return {dragonBones::ColorTransform}
+ */
+generateColor : function (
+)
+{
+    return dragonBones::ColorTransform;
+},
+
+/**
+ * @method SlotData
+ * @constructor
+ */
+SlotData : function (
+)
+{
+},
+
+};
+
+/**
+ * @class SkinData
+ */
+dragonBones.SkinData = {
+
+/**
+ * @method getTypeIndex
+ * @return {unsigned long}
+ */
+getTypeIndex : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method SkinData
+ * @constructor
+ */
+SkinData : function (
+)
+{
+},
+
+};
+
+/**
+ * @class ArmatureData
+ */
+dragonBones.ArmatureData = {
+
+/**
+ * @method getBone
+ * @param {String} arg0
+ * @return {dragonBones::BoneData}
+ */
+getBone : function (
+str 
+)
+{
+    return dragonBones::BoneData;
+},
+
+/**
+ * @method getAnimation
+ * @param {String} arg0
+ * @return {dragonBones::AnimationData}
+ */
+getAnimation : function (
+str 
+)
+{
+    return dragonBones::AnimationData;
+},
+
+/**
+ * @method getSlot
+ * @param {String} arg0
+ * @return {dragonBones::SlotData}
+ */
+getSlot : function (
+str 
+)
+{
+    return dragonBones::SlotData;
+},
+
+/**
+ * @method getSkin
+ * @param {String} arg0
+ * @return {dragonBones::SkinData}
+ */
+getSkin : function (
+str 
+)
+{
+    return dragonBones::SkinData;
+},
+
+/**
+ * @method getDefaultSkin
+ * @return {dragonBones::SkinData}
+ */
+getDefaultSkin : function (
+)
+{
+    return dragonBones::SkinData;
+},
+
+/**
+ * @method getDefaultAnimation
+ * @return {dragonBones::AnimationData}
+ */
+getDefaultAnimation : function (
+)
+{
+    return dragonBones::AnimationData;
+},
+
+/**
+ * @method getTypeIndex
+ * @return {unsigned long}
+ */
+getTypeIndex : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method ArmatureData
+ * @constructor
+ */
+ArmatureData : function (
+)
+{
+},
+
+};
+
+/**
  * @class DragonBonesData
  */
 dragonBones.DragonBonesData = {

@@ -1,9 +1,9 @@
 language: cpp
 os:
 - linux
-- osx
 script:
 - tools/travis-scripts/run-script.sh
+sudo: required
 before_install:
 - tools/travis-scripts/before-install.sh
 branches:

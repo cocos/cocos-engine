@@ -29,8 +29,13 @@ install_android_ndk()
     mv android-ndk-r11c android-ndk
 }
 
+function install_python_module_for_osx()
+{
+  sudo easy_install pip
+  sudo -H pip install pyyaml
+  sudo -H pip install Cheetah
+}
+
 #we only use osx for generate bindings
-if [ $TRAVIS_OS_NAME == 'osx' ]; then
-    install_android_ndk
-    sudo pip install PyYAML
-fi
+install_android_ndk
+install_python_module_for_osx
