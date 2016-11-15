@@ -544,7 +544,7 @@ JS.mixin(CCLoader.prototype, {
             AutoReleaseUtils.autoRelease(this, asset);
         }
         else if (asset) {
-            var id = asset._uuid || asset;
+            var id = asset._uuid || asset.url || asset;
             var item = this.getItem(id);
             if (item) {
                 var removed = this.removeItem(id);

@@ -127,6 +127,26 @@ var RichText = cc.Class({
         },
 
         /**
+         * !#en Custom TTF font of RichText
+         * !#zh  富文本定制字体
+         * @property {cc.TTFFont} font
+         */
+        font: {
+            default: null,
+            type: cc.TTFFont,
+            tooltip: 'i18n:COMPONENT.richtext.font',
+            notify: function (oldValue) {
+                if(this.font === oldValue) return;
+
+                this._layoutDirty = true;
+                if(!CC_JSB && this.font) {
+                    this._onTTFLoaded();
+                }
+                this._updateRichTextStatus();
+            }
+        },
+
+        /**
          * !#en The maximize width of the RichText
          * !#zh 富文本的最大宽度
          * @property {Number} maxWidth
@@ -212,6 +232,30 @@ var RichText = cc.Class({
 
     _initSgNode: function () {
         this._updateRichText();
+        if(!CC_JSB) {
+            this._onTTFLoaded();
+        }
+    },
+
+    _createFontLabel: function (string) {
+        return  new _ccsg.Label(string, this._getFontRawUrl());
+    },
+
+    _getFontRawUrl: function() {
+        var isAsset = this.font instanceof cc.TTFFont;
+        var fntRawUrl = isAsset ? this.font.rawUrl : '';
+        return fntRawUrl;
+    },
+
+    _onTTFLoaded: function () {
+        var self = this;
+
+        var callback = function () {
+            self._layoutDirty = true;
+            self._updateRichText();
+        };
+
+        cc.CustomFontLoader.loadTTF(this._getFontRawUrl(), callback);
     },
 
     _measureText: function (styleIndex, string) {
@@ -219,7 +263,7 @@ var RichText = cc.Class({
         var func = function (string) {
             var label;
             if(self._labelSegmentsCache.length === 0) {
-                label = new _ccsg.Label(string);
+                label = self._createFontLabel(string);
                 self._labelSegmentsCache.push(label);
             } else {
                 label = self._labelSegmentsCache[0];
@@ -285,7 +329,7 @@ var RichText = cc.Class({
     _addLabelSegment: function(stringToken, styleIndex) {
         var labelSegment;
         if(this._labelSegmentsCache.length === 0) {
-            labelSegment = new _ccsg.Label(stringToken);
+            labelSegment = this._createFontLabel(stringToken);
         } else {
             labelSegment = this._labelSegmentsCache.pop();
             labelSegment.setString(stringToken);

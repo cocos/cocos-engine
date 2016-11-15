@@ -23,6 +23,127 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var CustomFontDescriptor = function() {
+    this._status =  'unloaded';
+    //when font is loaded, it will notify each observer in the observers array
+    this._observers = [];
+};
+
+CustomFontDescriptor.prototype.onLoaded = function () {
+    this._status = 'loaded';
+    this._observers.forEach(function(item) {
+        item();
+    });
+};
+
+CustomFontDescriptor.prototype.isLoaded = function () {
+    return this._status === 'loaded';
+};
+
+CustomFontDescriptor.prototype.addHandler = function (callback) {
+    if(this._observers.indexOf(callback) === -1) {
+        this._observers.push(callback);
+    }
+};
+
+var CustomFontLoader = {
+    _fontCache: {},
+    loadTTF: function (url, callback) {
+        //these platforms support window.FontFace, but it sucks sometimes.
+        var useFontFace = (cc.sys.browserType !== cc.sys.BROWSER_TYPE_BAIDU
+                           && cc.sys.browserType !== cc.sys.BROWSER_TYPE_BAIDU_APP
+                           && cc.sys.browserType !== cc.sys.BROWSER_TYPE_MOBILE_QQ);
+
+        if (window.FontFace && useFontFace) {
+            this._loadWithFontFace(url, callback);
+        } else {
+            this._loadWithCSS(url, callback);
+        }
+    },
+
+    _loadWithFontFace: function(url, callback) {
+        var fontFamilyName = this._getFontFamily(url);
+
+        var fontDescriptor = this._fontCache[fontFamilyName];
+        if(!fontDescriptor) {
+            var fontFace = new FontFace(fontFamilyName, "url('" + url + "')");
+            document.fonts.add(fontFace);
+
+            fontDescriptor = new CustomFontDescriptor();
+            fontDescriptor.addHandler(callback);
+            this._fontCache[fontFamilyName] = fontDescriptor;
+
+            fontFace.loaded.then(function() {
+                fontDescriptor.onLoaded();
+            });
+        } else {
+            if(!fontDescriptor.isLoaded()) {
+                fontDescriptor.addHandler(callback);
+            }
+        }
+    },
+
+    _loadWithCSS: function(url, callback) {
+        var fontFamilyName = this._getFontFamily(url);
+
+        var fontDescriptor = this._fontCache[fontFamilyName];
+        if(!fontDescriptor) {
+            //fall back implementations
+            var doc = document;
+            var fontStyle = document.createElement("style");
+            fontStyle.type = "text/css";
+            doc.body.appendChild(fontStyle);
+
+            var fontStr = "";
+            if (isNaN(fontFamilyName - 0))
+                fontStr += "@font-face { font-family:" + fontFamilyName + "; src:";
+            else
+                fontStr += "@font-face { font-family:'" + fontFamilyName + "'; src:";
+
+            fontStr += "url('" + url + "');";
+
+            fontStyle.textContent = fontStr + "}";
+
+            var preloadDiv = document.createElement("div");
+            var _divStyle = preloadDiv.style;
+            _divStyle.fontFamily = fontFamilyName;
+            preloadDiv.innerHTML = ".";
+            _divStyle.position = "absolute";
+            _divStyle.left = "-100px";
+            _divStyle.top = "-100px";
+            doc.body.appendChild(preloadDiv);
+
+            fontDescriptor = new CustomFontDescriptor();
+            fontDescriptor.addHandler(callback);
+            this._fontCache[fontFamilyName] = fontDescriptor;
+
+            fontStyle.onload = function() {
+                setTimeout(function () {
+                    fontDescriptor.onLoaded();
+                }, 100);
+            };
+        } else {
+            if(!fontDescriptor.isLoaded()) {
+                fontDescriptor.addHandler(callback);
+            }
+        }
+    },
+
+    _getFontFamily: function (fontHandle) {
+        var ttfIndex = fontHandle.lastIndexOf(".ttf");
+        if (ttfIndex === -1) return fontHandle;
+
+        var slashPos = fontHandle.lastIndexOf("/");
+        var fontFamilyName;
+        if (slashPos === -1) {
+            fontFamilyName = fontHandle.substring(0, ttfIndex) + "_LABEL";
+        } else {
+            fontFamilyName = fontHandle.substring(slashPos + 1, ttfIndex) + "_LABEL";
+        }
+        return fontFamilyName;
+    }
+};
+
 var TextUtils = {
     label_wordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]+|\S)/,
     label_symbolRex : /^[!,.:;}\]%\?>、‘“》？。，！]/,
@@ -133,3 +254,4 @@ var TextUtils = {
 };
 
 cc.TextUtils = module.exports = TextUtils;
+cc.CustomFontLoader = module.exports = CustomFontLoader;
