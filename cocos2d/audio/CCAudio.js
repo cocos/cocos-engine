@@ -144,7 +144,6 @@ Audio.State = {
         this._state = Audio.State.PLAYING;
 
         if (this._audioType === Audio.Type.DOM && this._element.paused) {
-            this.stop();
             touchPlayList.push({ instance: this, offset: 0, audio: this._element });
         }
 
