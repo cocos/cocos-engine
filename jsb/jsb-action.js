@@ -362,7 +362,8 @@ function syncRotationUpdate (dt) {
     this._jsbUpdate(dt);
     var target = this.getTarget();
     if (target._owner) {
-        target._owner.rotation = target.getRotation();
+        target._owner.rotationX = target.getRotationX();
+        target._owner.rotationY = target.getRotationY();
     }
 }
 
