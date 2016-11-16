@@ -270,23 +270,36 @@ var Layout = cc.Class({
             },
             animatable: false
         },
+
+        _N$padding: {
+            default: 0,
+            editorOnly: true
+        },
         /**
-         * !#en The padding of layout, it only effect the layout in one direction.
-         * !#zh 容器内边距，只会在一个布局方向上生效。
+         * !#en The padding of layout, it effects the layout in four direction.
+         * !#zh 容器内边距，该属性会在四个布局方向上生效。
          * @property {Number} padding
          */
         padding: {
             default: 0,
-            tooltip: 'i18n:COMPONENT.layout.padding',
-            notify: function() {
+            get: function () {
                 cc.warn('Property padding is deprecated, please use paddingLeft, paddingRight, paddingTop and paddingBottom instead');
-                this._doLayoutDirty();
+                return this.paddingLeft;
+            },
+            set: function(value) {
+                this._N$padding = value;
+
                 this._migratePaddingData();
+                this._doLayoutDirty();
             },
             animatable: false,
-            editorOnly: true
         },
 
+        /**
+         * !#en The left padding of layout, it only effect the layout in one direction.
+         * !#zh 容器内左边距，只会在一个布局方向上生效。
+         * @property {Number} paddingLeft
+         */
         paddingLeft: {
             default: 0,
             tooltip: 'i18n:COMPONENT.layout.padding_left',
@@ -296,6 +309,11 @@ var Layout = cc.Class({
             animatable: false
         },
 
+        /**
+         * !#en The right padding of layout, it only effect the layout in one direction.
+         * !#zh 容器内右边距，只会在一个布局方向上生效。
+         * @property {Number} paddingRight
+         */
         paddingRight: {
             default: 0,
             tooltip: 'i18n:COMPONENT.layout.padding_right',
@@ -305,6 +323,11 @@ var Layout = cc.Class({
             animatable: false
         },
 
+        /**
+         * !#en The top padding of layout, it only effect the layout in one direction.
+         * !#zh 容器内上边距，只会在一个布局方向上生效。
+         * @property {Number} paddingTop
+         */
         paddingTop: {
             default: 0,
             tooltip: 'i18n:COMPONENT.layout.padding_top',
@@ -314,6 +337,11 @@ var Layout = cc.Class({
             animatable: false
         },
 
+        /**
+         * !#en The bottom padding of layout, it only effect the layout in one direction.
+         * !#zh 容器内下边距，只会在一个布局方向上生效。
+         * @property {Number} paddingBottom
+         */
         paddingBottom: {
             default: 0,
             tooltip: 'i18n:COMPONENT.layout.padding_bottom',
@@ -520,7 +548,7 @@ var Layout = cc.Class({
             var rightBoundaryOfChild = sign * (1 - anchorX) * child.width;
 
             if (rowBreak) {
-                var rowBreakBoundary = nextX + rightBoundaryOfChild + sign * paddingX;
+                var rowBreakBoundary = nextX + rightBoundaryOfChild + sign * (sign > 0 ? this.paddingRight : this.paddingLeft);
                 var leftToRightRowBreak = this.horizontalDirection === HorizontalDirection.LEFT_TO_RIGHT && rowBreakBoundary > (1 - layoutAnchor.x) * baseWidth;
                 var rightToLeftRowBreak = this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT && rowBreakBoundary < -layoutAnchor.x * baseWidth;
 
@@ -544,7 +572,7 @@ var Layout = cc.Class({
             }
 
             var finalPositionY = fnPositionY(child, rowMaxHeight, row);
-            if(baseWidth >= (child.width + 2 * this.padding)) {
+            if(baseWidth >= (child.width + this.paddingLeft + this.paddingRight)) {
                 if (applyChildren) {
                     child.setPosition(cc.p(nextX, finalPositionY));
                 }
@@ -601,12 +629,12 @@ var Layout = cc.Class({
         var children = this.node.children;
 
         var sign = 1;
-        var paddingY = this.paddingTop;
+        var paddingY = this.paddingBottom;
         var bottomBoundaryOfLayout = -layoutAnchor.y * baseHeight;
         if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
             sign = -1;
             bottomBoundaryOfLayout = (1 - layoutAnchor.y) * baseHeight;
-            paddingY = this.paddingBottom;
+            paddingY = this.paddingTop;
         }
 
         var nextY = bottomBoundaryOfLayout + sign * paddingY - sign * this.spacingY;
@@ -654,7 +682,7 @@ var Layout = cc.Class({
             var topBoundaryOfChild = sign * (1 - anchorY) * child.height;
 
             if (columnBreak) {
-                var columnBreakBoundary = nextY + topBoundaryOfChild + sign * this.padding;
+                var columnBreakBoundary = nextY + topBoundaryOfChild + sign * (sign > 0 ? this.paddingTop : this.paddingBottom);
                 var bottomToTopColumnBreak = this.verticalDirection === VerticalDirection.BOTTOM_TO_TOP && columnBreakBoundary > (1 - layoutAnchor.y) * baseHeight;
                 var topToBottomColumnBreak = this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM && columnBreakBoundary < -layoutAnchor.y * baseHeight;
 
@@ -671,7 +699,7 @@ var Layout = cc.Class({
                         secondMaxWidth = child.width;
                         tempMaxWidth = 0;
                     }
-                    nextY = bottomBoundaryOfLayout + sign * (this.padding + anchorY * child.height);
+                    nextY = bottomBoundaryOfLayout + sign * (paddingY + anchorY * child.height);
                     column++;
                 }
             }
@@ -729,9 +757,12 @@ var Layout = cc.Class({
         });
 
         if (allChildrenBoundingBox) {
-            var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x - this.paddingLeft, allChildrenBoundingBox.y - this.paddingBottom));
-            var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x + allChildrenBoundingBox.width + this.paddingRight,
-                                                                                   allChildrenBoundingBox.y + allChildrenBoundingBox.height + this.paddingTop));
+            var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
+            leftBottomInParentSpace = cc.pAdd(leftBottomInParentSpace, cc.p(-this.paddingLeft, -this.paddingBottom));
+
+            var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
+                                                                                   allChildrenBoundingBox.y + allChildrenBoundingBox.height));
+            rightTopInParentSpace = cc.pAdd(rightTopInParentSpace, cc.p(this.paddingRight, this.paddingTop));
 
             var newSize = cc.size(parseFloat((rightTopInParentSpace.x - leftBottomInParentSpace.x).toFixed(2)),
                                   parseFloat((rightTopInParentSpace.y - leftBottomInParentSpace.y).toFixed(2)));
@@ -751,14 +782,15 @@ var Layout = cc.Class({
 
         var sign = 1;
         var bottomBoundaryOfLayout = -layoutAnchor.y * layoutSize.height;
-
+        var paddingY = this.paddingBottom;
         if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
             sign = -1;
             bottomBoundaryOfLayout = (1 - layoutAnchor.y) * layoutSize.height;
+            paddingY = this.paddingTop;
         }
 
         var fnPositionY = function(child, topOffset, row) {
-            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height + this.padding + row * this.spacingY);
+            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height + paddingY + row * this.spacingY);
         }.bind(this);
 
 
@@ -791,14 +823,15 @@ var Layout = cc.Class({
 
         var sign = 1;
         var leftBoundaryOfLayout = -layoutAnchor.x * layoutSize.width;
-
+        var paddingX = this.paddingLeft;
         if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
             sign = -1;
             leftBoundaryOfLayout = (1 - layoutAnchor.x) * layoutSize.width;
+            paddingX = this.paddingRight;
         }
 
         var fnPositionX = function(child, leftOffset, column) {
-            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width + this.padding + column * this.spacingX);
+            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width + paddingX + column * this.spacingX);
         }.bind(this);
 
         var newWidth = 0;
