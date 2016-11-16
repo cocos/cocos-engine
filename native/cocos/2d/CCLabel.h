@@ -322,8 +322,6 @@ public:
      */
     int getStringLength();
 
-    virtual void setColor(const Color3B& color);
-
     /**
      * Sets the text color of Label.
      *
