@@ -115,13 +115,12 @@ jsbLabel.prototype.setLineHeight = function (height) {
 };
 
 jsbLabel.prototype._setColor = jsbLabel.prototype.setColor;
-jsbLabel.prototype._setTextColor = jsbLabel.prototype.setTextColor;
 
 jsbLabel.prototype.setColor = function(color) {
     if(this._labelType === _ccsg.Label.Type.BMFont) {
         this._setColor(color);
     } else {
-        this._setTextColor(color);
+        this.setTextColor(color);
     }
 };
 
