@@ -246,6 +246,8 @@ _ccsg.EditBox = _ccsg.Node.extend({
     _placeholderFontName: '',
     _placeholderFontSize: 14,
     _placeholderColor: null,
+    __fullscreen: false,
+    __autoResize: false,
     _className: 'EditBox',
 
     ctor: function (size, normal9SpriteBg) {
@@ -689,7 +691,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             } else {
                 thisPointer.__fullscreen = false;
             }
-            this.__autoResize = cc.view.__resizeWithBrowserSize;
+            thisPointer.__autoResize = cc.view.__resizeWithBrowserSize;
             cc.view.resizeWithBrowserSize(false);
 
             scrollWindowUp(editBox);
@@ -705,7 +707,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             if(thisPointer.__fullscreen) {
                 cc.view.enableAutoFullScreen(true);
             }
-            if (this.__autoResize) {
+            if (thisPointer.__autoResize) {
                 cc.view.resizeWithBrowserSize(true);
             }
             window.scrollY = 0;
@@ -773,6 +775,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             } else {
                 thisPointer.__fullscreen = false;
             }
+            thisPointer.__autoResize = cc.view.__resizeWithBrowserSize;
+            cc.view.resizeWithBrowserSize(false);
 
             scrollWindowUp(editBox);
 
@@ -799,6 +803,9 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             window.scrollY = 0;
             if(thisPointer.__fullscreen) {
                 cc.view.enableAutoFullScreen(true);
+            }
+            if (thisPointer.__autoResize) {
+                cc.view.resizeWithBrowserSize(true);
             }
 
             if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded) {
