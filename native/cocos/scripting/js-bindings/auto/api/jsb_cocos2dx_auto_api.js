@@ -12300,13 +12300,15 @@ color4b
 },
 
 /**
- * @method getOverflow
- * @return {cc.Label::Overflow}
+ * @method getLetter
+ * @param {int} arg0
+ * @return {cc.Sprite}
  */
-getOverflow : function (
+getLetter : function (
+int 
 )
 {
-    return 0;
+    return cc.Sprite;
 },
 
 /**
@@ -12340,13 +12342,13 @@ color4b
 },
 
 /**
- * @method setColor
- * @param {color3b_object} arg0
+ * @method getOverflow
+ * @return {cc.Label::Overflow}
  */
-setColor : function (
-color3b 
+getOverflow : function (
 )
 {
+    return 0;
 },
 
 /**
@@ -12483,18 +12485,6 @@ setBMFontSize : function (
 float 
 )
 {
-},
-
-/**
- * @method getLetter
- * @param {int} arg0
- * @return {cc.Sprite}
- */
-getLetter : function (
-int 
-)
-{
-    return cc.Sprite;
 },
 
 /**
