@@ -403,10 +403,10 @@ var Layout = cc.Class({
     },
 
     _migratePaddingData: function () {
-        this.paddingLeft = this.padding;
-        this.paddingRight = this.padding;
-        this.paddingTop = this.padding;
-        this.paddingBottom = this.padding;
+        this.paddingLeft = this._N$padding;
+        this.paddingRight = this._N$padding;
+        this.paddingTop = this._N$padding;
+        this.paddingBottom = this._N$padding;
         this._N$padding = 0;
     },
 
