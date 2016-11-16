@@ -45,63 +45,6 @@ if (ENABLE_GL_STATE_CACHE) {
     _GLServerState = 0;
     if(macro.TEXTURE_ATLAS_USE_VAO)
         _uVAO = 0;
-
-    var _currBuffers = {};
-
-    // IE 10 WebGLRenderingContext does not exist
-    if (!window.WebGLRenderingContext) return;
-
-    WebGLRenderingContext.prototype.glBindBuffer = WebGLRenderingContext.prototype.bindBuffer;
-    WebGLRenderingContext.prototype.bindBuffer = function (target, buffer) {
-        if (_currBuffers[target] !== buffer) {
-            this.glBindBuffer(target, buffer);
-            _currBuffers[target] = buffer;
-        }
-    };
-
-    WebGLRenderingContext.prototype.glEnableVertexAttribArray = WebGLRenderingContext.prototype.enableVertexAttribArray;
-    WebGLRenderingContext.prototype.enableVertexAttribArray = function (index) {
-        if (index === macro.VERTEX_ATTRIB_FLAG_POSITION) {
-            if (!this._vertexAttribPosition) {
-                this.glEnableVertexAttribArray(index);
-                this._vertexAttribPosition = true;
-            }
-        }
-        else if (index === macro.VERTEX_ATTRIB_FLAG_COLOR) {
-            if (!this._vertexAttribColor) {
-                this.glEnableVertexAttribArray(index);
-                this._vertexAttribColor = true;
-            }
-        }
-        else if (index === macro.VERTEX_ATTRIB_FLAG_TEX_COORDS) {
-            if (!this._vertexAttribTexCoords) {
-                this.glEnableVertexAttribArray(index);
-                this._vertexAttribTexCoords = true;
-            }
-        }
-        else {
-            this.glEnableVertexAttribArray(index);
-        }
-    };
-
-    WebGLRenderingContext.prototype.glDisableVertexAttribArray = WebGLRenderingContext.prototype.disableVertexAttribArray;
-    WebGLRenderingContext.prototype.disableVertexAttribArray = function (index) {
-        if (index === macro.VERTEX_ATTRIB_FLAG_COLOR) {
-            if (this._vertexAttribColor) {
-                this.glDisableVertexAttribArray(index);
-                this._vertexAttribColor = false;
-            }
-        }
-        else if (index === macro.VERTEX_ATTRIB_FLAG_TEX_COORDS) {
-            if (this._vertexAttribTexCoords) {
-                this.glDisableVertexAttribArray(index);
-                this._vertexAttribTexCoords = false;
-            }
-        }
-        else if (index !== 0) {
-            this.glDisableVertexAttribArray(index);
-        }
-    };
 }
 
 // GL State Cache functions
