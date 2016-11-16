@@ -114,6 +114,17 @@ jsbLabel.prototype.setLineHeight = function (height) {
     }
 };
 
+jsbLabel.prototype._setColor = jsbLabel.prototype.setColor;
+jsbLabel.prototype._setTextColor = jsbLabel.prototype.setTextColor;
+
+jsbLabel.prototype.setColor = function(color) {
+    if(this._labelType === _ccsg.Label.Type.BMFont) {
+        this._setColor(color);
+    } else {
+        this._setTextColor(color);
+    }
+};
+
 jsbLabel.prototype._setTTFConfig = jsbLabel.prototype.setTTFConfig;
 jsbLabel.prototype.setTTFConfig = function (config) {
     this._setTTFConfig(config);
@@ -134,6 +145,7 @@ jsbLabel.prototype.setContentSize = function (size, height) {
     }
     this.setDimensions(newWidth, newHeight);
 };
+
 
 jsbLabel.prototype.setFontFileOrFamily = function (fontHandle) {
     fontHandle = fontHandle || '';
