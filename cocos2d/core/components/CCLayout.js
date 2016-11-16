@@ -276,26 +276,6 @@ var Layout = cc.Class({
             editorOnly: true
         },
         /**
-         * !#en The padding of layout, it effects the layout in four direction.
-         * !#zh 容器内边距，该属性会在四个布局方向上生效。
-         * @property {Number} padding
-         */
-        padding: {
-            default: 0,
-            get: function () {
-                cc.warn('Property padding is deprecated, please use paddingLeft, paddingRight, paddingTop and paddingBottom instead');
-                return this.paddingLeft;
-            },
-            set: function(value) {
-                this._N$padding = value;
-
-                this._migratePaddingData();
-                this._doLayoutDirty();
-            },
-            animatable: false,
-        },
-
-        /**
          * !#en The left padding of layout, it only effect the layout in one direction.
          * !#zh 容器内左边距，只会在一个布局方向上生效。
          * @property {Number} paddingLeft
@@ -423,10 +403,10 @@ var Layout = cc.Class({
     },
 
     _migratePaddingData: function () {
-        this.paddingLeft = this.padding;
-        this.paddingRight = this.padding;
-        this.paddingTop = this.padding;
-        this.paddingBottom = this.padding;
+        this.paddingLeft = this._N$padding;
+        this.paddingRight = this._N$padding;
+        this.paddingTop = this._N$padding;
+        this.paddingBottom = this._N$padding;
         this._N$padding = 0;
     },
 
@@ -436,7 +416,7 @@ var Layout = cc.Class({
         }
 
         if(CC_EDITOR) {
-            if(this.padding !== 0) {
+            if(this._N$padding !== 0) {
                 this._migratePaddingData();
             }
         }
@@ -941,5 +921,22 @@ var Layout = cc.Class({
 
 });
 
+/**
+ * !#en The padding of layout, it effects the layout in four direction.
+ * !#zh 容器内边距，该属性会在四个布局方向上生效。
+ * @property {Number} padding
+ */
+Object.defineProperty(Layout.prototype, "padding", {
+    get: function () {
+        cc.warn('Property padding is deprecated, please use paddingLeft, paddingRight, paddingTop and paddingBottom instead');
+        return this.paddingLeft;
+    },
+    set: function (value) {
+        this._N$padding = value;
+
+        this._migratePaddingData();
+        this._doLayoutDirty();
+    }
+});
 
 cc.Layout = module.exports = Layout;
