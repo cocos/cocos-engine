@@ -169,11 +169,6 @@ private:
     bool _letterVisible;
 };
 
-void Label::setColor(const cocos2d::Color3B &color)
-{
-    this->setTextColor(Color4B(color));
-}
-
 Label* Label::create()
 {
     auto ret = new (std::nothrow) Label;
@@ -890,7 +885,7 @@ bool Label::updateQuads()
     {
         batchNode->getTextureAtlas()->removeAllQuads();
     }
-    
+
     bool letterClamp = false;
     for (int ctr = 0; ctr < _lengthOfString; ++ctr)
     {
@@ -1380,11 +1375,11 @@ void Label::updateContent()
     if (_underlineNode)
     {
         _underlineNode->clear();
-        
+
         if(_currentLabelType == Label::LabelType::STRING_TEXTURE) {
             // system font
             const auto spriteSize = _textSprite->getContentSize();
-            
+
             this->computeStringNumLines();
             float startY = spriteSize.height / 2 - _lineHeight * (_numberOfLines - 1) / 2 - _systemFontSize / 2;
             if (_numberOfLines > 0) {
@@ -1399,9 +1394,9 @@ void Label::updateContent()
                                              Vec2(spriteSize.width, startY - 1), _textColorF);
                 }
             }
-         
+
         }
-        
+
         else if(_numberOfLines)
         {
             const float charheight = (_textDesiredHeight / _numberOfLines);
@@ -1423,7 +1418,7 @@ void Label::updateContent()
     if(updateFinished){
         _contentDirty = false;
     }
-    
+
     if (_italicsEnabled) {
         _contentSize.width += this->_originalFontSize * tan(6 * 0.0174532925);
     }
@@ -1575,7 +1570,7 @@ void Label::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
             // ETC1 ALPHA supports for BMFONT & CHARMAP
             auto textureAtlas = _batchNodes.at(0)->getTextureAtlas();
             auto texture = textureAtlas->getTexture();
-            _quadCommand.init(_globalZOrder, texture, getGLProgramState(), 
+            _quadCommand.init(_globalZOrder, texture, getGLProgramState(),
                 _blendFunc, textureAtlas->getQuads(), textureAtlas->getTotalQuads(), transform, flags);
             renderer->addCommand(&_quadCommand);
         }
@@ -2112,7 +2107,7 @@ void Label::setOverflow(Overflow overflow)
     if(_overflow == overflow){
         return;
     }
-    
+
     if (_currentLabelType == LabelType::CHARMAP) {
         if (overflow == Overflow::SHRINK) {
             return;
@@ -2163,4 +2158,3 @@ void Label::updateLetterSpriteScale(Sprite* sprite)
 }
 
 NS_CC_END
-
