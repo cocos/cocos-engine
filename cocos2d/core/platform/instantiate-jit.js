@@ -35,11 +35,10 @@ var CCClass = require('./CCClass');
 var SERIALIZABLE = Attr.DELIMETER + 'serializable';
 var DEFAULT = Attr.DELIMETER + 'default';
 var VAR_REG = CCClass.VAR_REG;
+var escapeForJS = CCClass.escapeForJS;
 
 var VAR = 'var ';
 var LOCAL_OBJ = 'o';
-var SCOPE_START = '(function';
-var SCOPE_END = 'return o;})';
 var LINE_INDEX_OF_NEW_OBJ = 0;
 
 function equalsToDefault (def, value) {
@@ -145,10 +144,10 @@ function Parser (obj, parent) {
     if (this.globalVariables.length > 0) {
         globalVariablesDeclaration = VAR + this.globalVariables.join(',') + ';';
     }
-    var code = flattenCodeArray([SCOPE_START + '(O,F,R){',
+    var code = flattenCodeArray(['(function(O,F,R){',
                                      globalVariablesDeclaration || [],
                                      this.codeArray,
-                                 SCOPE_END], CC_DEV ? '\n' : '');
+                                 'return o;})'], CC_DEV ? '\n' : '');
 
     // generate method and bind with objs
     var createFunction = cleanEval(code);
@@ -280,7 +279,7 @@ JS.mixin(Parser.prototype, {
             return this.getFuncModule(value);
         }
         else if (typeof value === 'string') {
-            return '"' + value + '"';
+            return escapeForJS(value);
         }
         else {
             if (key === '_objFlags' && obj instanceof CCObject) {
@@ -296,7 +295,7 @@ JS.mixin(Parser.prototype, {
             statement = LOCAL_OBJ + '.' + key + '=';
         }
         else {
-            statement = LOCAL_OBJ + '["' + key + '"]=';
+            statement = LOCAL_OBJ + '[' + escapeForJS(key) + ']=';
         }
         var expression = this.enumerateField(obj, key, value);
         if (Array.isArray(expression)) {
@@ -391,9 +390,9 @@ JS.mixin(Parser.prototype, {
         this.objsToClear_iN$t.push(obj);
 
         this.enumerateObject(codeArray, obj);
-        return [SCOPE_START + '(){',
+        return ['(function(){',
                     codeArray,
-                SCOPE_END + '();'];
+                'return o;})();'];
     },
 });
 

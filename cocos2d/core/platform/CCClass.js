@@ -414,6 +414,15 @@ function cleanEval_F (code, F) {
     // jshint evil: false
 }
 
+// convert a normal string including newlines, quotes and unicode characters into a string literal
+// ready to use in JavaScript source
+function escapeForJS (s) {
+    return JSON.stringify(s).
+        // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
+        replace(/\u2028/g, '\\u2028').
+        replace(/\u2029/g, '\\u2029');
+}
+
 // simple test variable name
 var VAR_REG = /^[$A-Za-z_][0-9A-Za-z_$]*$/;
 function compileProps (actualClass) {
@@ -438,7 +447,7 @@ function compileProps (actualClass) {
                 statement = 'this.' + prop + '=';
             }
             else {
-                statement = 'this["' + prop + '"]=';
+                statement = 'this[' + escapeForJS(prop) + ']=';
             }
             var expression;
             var def = attrs[attrKey];
@@ -463,7 +472,7 @@ function compileProps (actualClass) {
                 }
             }
             else if (typeof def === 'string') {
-                expression = '"' + def + '"';
+                expression = escapeForJS(def);
             }
             else {
                 // number, boolean, null, undefined
@@ -1154,6 +1163,7 @@ module.exports = {
     fastDefine: CCClass._fastDefine,
     getNewValueTypeCode: getNewValueTypeCode,
     VAR_REG: VAR_REG,
+    escapeForJS: escapeForJS
 };
 
 if (CC_EDITOR) {
