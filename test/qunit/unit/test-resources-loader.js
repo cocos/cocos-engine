@@ -24,12 +24,12 @@
         cc.loader.loadRes('grossini', TestSprite, function (err, sprite) {
             ok(sprite._uuid === '1232218' || sprite._uuid === '123200', 'loadRes - checking uuid');
 
-            cc.loader.loadResAll('grossini', TestSprite, function (err, array) {
-                strictEqual(array.length, 3, 'loadResAll - checking count');
+            cc.loader.loadResDir('grossini', TestSprite, function (err, array) {
+                strictEqual(array.length, 3, 'loadResDir - checking count');
                 ['123200', '1232218', '123201'].forEach(function (uuid) {
                     ok(array.some(function (item) {
                         return item._uuid === uuid;
-                    }), 'loadResAll - checking uuid ' + uuid);
+                    }), 'loadResDir - checking uuid ' + uuid);
                 });
                 start();
             });
@@ -71,7 +71,7 @@
     });
 
     asyncTest('load main asset and sub asset by loadAll', function () {
-        cc.loader.loadResAll('grossini', function (err, results) {
+        cc.loader.loadResDir('grossini', function (err, results) {
             ok(Array.isArray(results), 'result should be an array');
             ['123200', '1232218', '123201'].forEach(function (uuid) {
                 ok(results.some(function (item) {
@@ -93,8 +93,8 @@
         }, 5000);
     });
 
-    asyncTest('loadResAll by type', function () {
-        cc.loader.loadResAll('grossini', TestSprite, function (err, results) {
+    asyncTest('loadResDir by type', function () {
+        cc.loader.loadResDir('grossini', TestSprite, function (err, results) {
             ok(Array.isArray(results), 'result should be an array');
             var sprite = results[0];
             ok(sprite instanceof TestSprite, 'should be able to load test sprite');

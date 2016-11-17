@@ -1,7 +1,8 @@
 
+var js = cc.js;
+
 if (CC_DEV) {
 
-    var js = cc.js;
 
     // Label
     if (cc.Label) {
@@ -668,3 +669,6 @@ if (CC_DEV) {
     });
 
 }
+
+// remove after 1.5
+js.obsolete(cc.loader, 'cc.loader.loadResAll', 'loadResDir');
