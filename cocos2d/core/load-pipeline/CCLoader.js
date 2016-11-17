@@ -427,15 +427,16 @@ JS.mixin(CCLoader.prototype, {
      *
      * @method getRes
      * @param {String} url
+     * @param {Function} [type] - Only asset of type will be returned if this argument is supplied.
      * @returns {*}
      */
-    getRes: function (url) {
+    getRes: function (url, type) {
         var item = this._cache[url];
         if (item && item.alias) {
             item = this._cache[item.alias];
         }
         if (!item) {
-            var uuid = this._getResUuid(url);
+            var uuid = this._getResUuid(url, type);
             item = this._cache[uuid];
         }
         return item ? item.content : null;
@@ -581,9 +582,10 @@ JS.mixin(CCLoader.prototype, {
      *
      * @method releaseRes
      * @param {String} url
+     * @param {Function} [type] - Only asset of type will be released if this argument is supplied.
      */
-    releaseRes: function (url) {
-        var uuid = this._getResUuid(url);
+    releaseRes: function (url, type) {
+        var uuid = this._getResUuid(url, type);
         if (uuid) {
             this.release(uuid);
         }
