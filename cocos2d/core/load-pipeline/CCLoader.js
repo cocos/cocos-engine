@@ -595,6 +595,22 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
+     * !#en Release the all assets loaded by {{#crossLink "loader/loadResDir:method"}}{{/crossLink}}. Refer to {{#crossLink "loader/release:method"}}{{/crossLink}} for detailed informations.
+     * !#zh 释放通过 {{#crossLink "loader/loadResDir:method"}}{{/crossLink}} 加载的资源。详细信息请参考 {{#crossLink "loader/release:method"}}{{/crossLink}}
+     *
+     * @method releaseResDir
+     * @param {String} url
+     * @param {Function} [type] - Only asset of type will be released if this argument is supplied.
+     */
+    releaseResDir: function (url, type) {
+        var uuids = resources.getUuidArray(url, type);
+        for (var i = 0; i < uuids.length; i++) {
+            var uuid = uuids[i];
+            this.release(uuid);
+        }
+    },
+
+    /**
      * !#en Resource all assets. Refer to {{#crossLink "loader/release:method"}}{{/crossLink}} for detailed informations.
      * !#zh 释放所有资源。详细信息请参考 {{#crossLink "loader/release:method"}}{{/crossLink}}
      *
