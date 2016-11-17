@@ -517,7 +517,7 @@ var Node = cc.Class({
             // destroy immediate so its _onPreDestroy can be called
             component._destroyImmediate();
         }
-        
+
         // Actions
         cc.director.getActionManager().removeAllActionsFromTarget(this);
         this._releaseAllActions();

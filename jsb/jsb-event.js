@@ -133,18 +133,19 @@ cc.eventManager.addListener = function(listener, nodeOrPriority) {
 
     if (typeof nodeOrPriority === 'number') {
         if (nodeOrPriority === 0) {
-            cc.log('0 priority is forbidden for fixed priority since it\'s used for scene graph based priority.');
+            cc.log(cc._LogInfos.EventManager.addListener);
             return;
         }
 
         cc.eventManager.addEventListenerWithFixedPriority(listener, nodeOrPriority);
     } else {
         var node = nodeOrPriority;
-        if (nodeOrPriority instanceof cc.Component) {
-            node = nodeOrPriority.node._sgNode;
-        }
-        if (nodeOrPriority instanceof cc.Node) {
+        if (nodeOrPriority instanceof cc._BaseNode) {
             node = nodeOrPriority._sgNode;
+        }
+        else if (!(node instanceof _ccsg.Node)) {
+            cc.warn(cc._LogInfos.EventManager.addListener_5);
+            return;
         }
         cc.eventManager.addEventListenerWithSceneGraphPriority(listener, node);
     }
@@ -153,28 +154,26 @@ cc.eventManager.addListener = function(listener, nodeOrPriority) {
 };
 cc.eventManager._removeListeners = cc.eventManager.removeListeners;
 cc.eventManager.removeListeners = function (target, recursive) {
-    if (target instanceof cc.Component) {
-        target = target.node._sgNode;
-    }
-    if (target instanceof cc.Node) {
+    if (target instanceof cc._BaseNode) {
         target = target._sgNode;
     }
-    else if (!(target instanceof _ccsg.Node)) {
-        return;
+    
+    if (target instanceof _ccsg.Node || cc.js.isNumber(target)) {
+        this._removeListeners(target, recursive || false);
     }
-    this._removeListeners(target, recursive || false);
+    else {
+        cc.warn(cc._LogInfos.EventManager.addListener_5);
+    }
 };
 cc.eventManager._pauseTarget = cc.eventManager.pauseTarget;
 cc.eventManager.pauseTarget = function (target, recursive) {
     var sgTarget = target;
     target._eventPaused = true;
-    if (target instanceof cc.Component) {
-        sgTarget = target.node._sgNode;
-    }
-    else if (target instanceof cc.Node) {
+    if (target instanceof cc._BaseNode) {
         sgTarget = target._sgNode;
     }
     else if (!(sgTarget instanceof _ccsg.Node)) {
+        cc.warn(cc._LogInfos.EventManager.addListener_5);
         return;
     }
 
@@ -193,13 +192,11 @@ cc.eventManager.pauseTarget = function (target, recursive) {
 cc.eventManager._resumeTarget = cc.eventManager.resumeTarget;
 cc.eventManager.resumeTarget = function (target, recursive) {
     target._eventPaused = false;
-    if (target instanceof cc.Component) {
-        target = target.node._sgNode;
-    }
-    if (target instanceof cc.Node) {
+    if (target instanceof cc._BaseNode) {
         target = target._sgNode;
     }
     else if (!(target instanceof _ccsg.Node)) {
+        cc.warn(cc._LogInfos.EventManager.addListener_5);
         return;
     }
     this._resumeTarget(target, recursive || false);

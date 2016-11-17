@@ -31,26 +31,26 @@
  */
 var Type = cc.Enum({
     /**
-     * !#en TODO
+     * !#en None Layout
      * !#zh 取消布局
      *@property {Number} NONE
      */
     NONE: 0,
     /**
-     * !#en TODO
+     * !#en Horizontal Layout
      * !#zh 水平布局
      * @property {Number} HORIZONTAL
      */
     HORIZONTAL: 1,
 
     /**
-     * !#en TODO
+     * !#en Vertical Layout
      * !#zh 垂直布局
      * @property {Number} VERTICAL
      */
     VERTICAL: 2,
     /**
-     * !#en TODO
+     * !#en Grid Layout
      * !#zh 网格布局
      * @property {Number} GRID
      */
@@ -64,20 +64,20 @@ var Type = cc.Enum({
  */
 var ResizeMode = cc.Enum({
     /**
-     * !#en TODO
+     * !#en Don't do any scale.
      * !#zh 不做任何缩放
      * @property {Number} NONE
      */
     NONE: 0,
     /**
-     * !#en TODO
-     * !#zh 子节点的大小会随着容器的大小自动缩放。
+     * !#en The container size will be expanded with its children's size.
+     * !#zh 容器的大小会根据子节点的大小自动缩放。
      * @property {Number} CONTAINER
      */
     CONTAINER: 1,
     /**
-     * !#en TODO
-     * !#zh 容器的大小会根据子节点的大小自动缩放。
+     * !#en Child item size will be adjusted with the container's size.
+     * !#zh 子节点的大小会随着容器的大小自动缩放。
      * @property {Number} CHILDREN
      */
     CHILDREN: 2
@@ -85,18 +85,19 @@ var ResizeMode = cc.Enum({
 
 /**
  * !#en Enum for Grid Layout start axis direction.
+ * The items in grid layout will be arranged in each axis at first.;
  * !#zh 布局轴向，只用于 GRID 布局。
  * @enum Layout.AxisDirection
  */
 var AxisDirection = cc.Enum({
     /**
-     * !#en TODO
+     * !#en The horizontal axis.
      * !#zh 进行水平方向布局
      * @property {Number} HORIZONTAL
      */
     HORIZONTAL: 0,
     /**
-     * !#en TODO
+     * !#en The vertical axis.
      * !#zh 进行垂直方向布局
      * @property {Number} VERTICAL
      */
@@ -105,18 +106,19 @@ var AxisDirection = cc.Enum({
 
 /**
  * !#en Enum for vertical layout direction.
+ *  Used in Grid Layout together with AxisDirection is VERTICAL
  * !#zh 垂直方向布局方式
  * @enum Layout.VerticalDirection
  */
 var VerticalDirection = cc.Enum({
     /**
-     * !#en TODO
+     * !#en Items arranged from bottom to top.
      * !#zh 从下到上排列
      * @property {Number} BOTTOM_TO_TOP
      */
     BOTTOM_TO_TOP: 0,
     /**
-     * !#en TODO
+     * !#en Items arranged from top to bottom.
      * !#zh 从上到下排列
      * @property {Number} TOP_TO_BOTTOM
      */
@@ -125,18 +127,19 @@ var VerticalDirection = cc.Enum({
 
 /**
  * !#en Enum for horizontal layout direction.
+ *  Used in Grid Layout together with AxisDirection is HORIZONTAL
  * !#zh 水平方向布局方式
  * @enum Layout.HorizontalDirection
  */
 var HorizontalDirection = cc.Enum({
     /**
-     * !#en TODO
+     * !#en Items arranged from left to right.
      * !#zh 从左往右排列
      * @property {Number} LEFT_TO_RIGHT
      */
     LEFT_TO_RIGHT: 0,
     /**
-     * !#en TODO
+     * !#en Items arranged from right to left.
      * !#zh 从右往左排列
      *@property {Number} RIGHT_TO_LEFT
      */
@@ -267,18 +270,65 @@ var Layout = cc.Class({
             },
             animatable: false
         },
-        /**
-         * !#en The padding of layout, it only effect the layout in one direction.
-         * !#zh 容器内边距，只会在布局方向上生效。
-         * @property {Number} padding
-         */
-        padding: {
+
+        _N$padding: {
             default: 0,
-            tooltip: 'i18n:COMPONENT.layout.padding',
-            notify: function() {
+            editorOnly: true
+        },
+        /**
+         * !#en The left padding of layout, it only effect the layout in one direction.
+         * !#zh 容器内左边距，只会在一个布局方向上生效。
+         * @property {Number} paddingLeft
+         */
+        paddingLeft: {
+            default: 0,
+            tooltip: 'i18n:COMPONENT.layout.padding_left',
+            notify: function () {
                 this._doLayoutDirty();
             },
-            animatable: false,
+            animatable: false
+        },
+
+        /**
+         * !#en The right padding of layout, it only effect the layout in one direction.
+         * !#zh 容器内右边距，只会在一个布局方向上生效。
+         * @property {Number} paddingRight
+         */
+        paddingRight: {
+            default: 0,
+            tooltip: 'i18n:COMPONENT.layout.padding_right',
+            notify: function () {
+                this._doLayoutDirty();
+            },
+            animatable: false
+        },
+
+        /**
+         * !#en The top padding of layout, it only effect the layout in one direction.
+         * !#zh 容器内上边距，只会在一个布局方向上生效。
+         * @property {Number} paddingTop
+         */
+        paddingTop: {
+            default: 0,
+            tooltip: 'i18n:COMPONENT.layout.padding_top',
+            notify: function () {
+                this._doLayoutDirty();
+            },
+            animatable: false
+        },
+
+        /**
+         * !#en The bottom padding of layout, it only effect the layout in one direction.
+         * !#zh 容器内下边距，只会在一个布局方向上生效。
+         * @property {Number} paddingBottom
+         */
+        paddingBottom: {
+            default: 0,
+            tooltip: 'i18n:COMPONENT.layout.padding_bottom',
+            notify: function () {
+                this._doLayoutDirty();
+            },
+            animatable: false
         },
 
         /**
@@ -352,9 +402,23 @@ var Layout = cc.Class({
         AxisDirection: AxisDirection,
     },
 
+    _migratePaddingData: function () {
+        this.paddingLeft = this._N$padding;
+        this.paddingRight = this._N$padding;
+        this.paddingTop = this._N$padding;
+        this.paddingBottom = this._N$padding;
+        this._N$padding = 0;
+    },
+
     __preload: function() {
         if(cc.sizeEqualToSize(this.node.getContentSize(), cc.size(0, 0))) {
             this.node.setContentSize(this._layoutSize);
+        }
+
+        if(CC_EDITOR) {
+            if(this._N$padding !== 0) {
+                this._migratePaddingData();
+            }
         }
 
         this.node.on('size-changed', this._resized, this);
@@ -411,13 +475,15 @@ var Layout = cc.Class({
         var children = this.node.children;
 
         var sign = 1;
+        var paddingX = this.paddingLeft;
         var leftBoundaryOfLayout = -layoutAnchor.x * baseWidth;
         if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
             sign = -1;
             leftBoundaryOfLayout = (1 - layoutAnchor.x) * baseWidth;
+            paddingX = this.paddingRight;
         }
 
-        var nextX = leftBoundaryOfLayout + sign * this.padding - sign * this.spacingX;
+        var nextX = leftBoundaryOfLayout + sign * paddingX - sign * this.spacingX;
         var rowMaxHeight = 0;
         var tempMaxHeight = 0;
         var secondMaxHeight = 0;
@@ -428,7 +494,7 @@ var Layout = cc.Class({
 
         var newChildWidth = this.cellSize.width;
         if (this.type !== Type.GRID && this.resizeMode === ResizeMode.CHILDREN) {
-            newChildWidth = (baseWidth - 2 * this.padding - (children.length - 1) * this.spacingX) / children.length;
+            newChildWidth = (baseWidth - (this.paddingLeft + this.paddingRight) - (children.length - 1) * this.spacingX) / children.length;
         }
 
         children.forEach(function(child) {
@@ -462,7 +528,7 @@ var Layout = cc.Class({
             var rightBoundaryOfChild = sign * (1 - anchorX) * child.width;
 
             if (rowBreak) {
-                var rowBreakBoundary = nextX + rightBoundaryOfChild + sign * this.padding;
+                var rowBreakBoundary = nextX + rightBoundaryOfChild + sign * (sign > 0 ? this.paddingRight : this.paddingLeft);
                 var leftToRightRowBreak = this.horizontalDirection === HorizontalDirection.LEFT_TO_RIGHT && rowBreakBoundary > (1 - layoutAnchor.x) * baseWidth;
                 var rightToLeftRowBreak = this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT && rowBreakBoundary < -layoutAnchor.x * baseWidth;
 
@@ -480,13 +546,13 @@ var Layout = cc.Class({
                         secondMaxHeight = child.height;
                         tempMaxHeight = 0;
                     }
-                    nextX = leftBoundaryOfLayout + sign * (this.padding  + anchorX * child.width);
+                    nextX = leftBoundaryOfLayout + sign * (paddingX  + anchorX * child.width);
                     row++;
                 }
             }
 
             var finalPositionY = fnPositionY(child, rowMaxHeight, row);
-            if(baseWidth >= (child.width + 2 * this.padding)) {
+            if(baseWidth >= (child.width + this.paddingLeft + this.paddingRight)) {
                 if (applyChildren) {
                     child.setPosition(cc.p(nextX, finalPositionY));
                 }
@@ -499,14 +565,14 @@ var Layout = cc.Class({
             if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
                 containerResizeBoundary = containerResizeBoundary || this.node._contentSize.height;
                 signX = -1;
-                tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchorY + this.padding);
+                tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchorY + this.paddingBottom);
                 if (tempFinalPositionY < containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionY;
                 }
             }
             else {
                 containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.height;
-                tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchorY + this.padding);
+                tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchorY + this.paddingTop);
                 if (tempFinalPositionY > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionY;
                 }
@@ -530,7 +596,7 @@ var Layout = cc.Class({
                 newHeight += child.height;
             });
 
-            newHeight += (activeChildCount - 1) * this.spacingY + 2 * this.padding;
+            newHeight += (activeChildCount - 1) * this.spacingY + this.paddingBottom + this.paddingTop;
         }
         else {
             newHeight = this.node.getContentSize().height;
@@ -543,13 +609,15 @@ var Layout = cc.Class({
         var children = this.node.children;
 
         var sign = 1;
+        var paddingY = this.paddingBottom;
         var bottomBoundaryOfLayout = -layoutAnchor.y * baseHeight;
         if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
             sign = -1;
             bottomBoundaryOfLayout = (1 - layoutAnchor.y) * baseHeight;
+            paddingY = this.paddingTop;
         }
 
-        var nextY = bottomBoundaryOfLayout + sign * this.padding - sign * this.spacingY;
+        var nextY = bottomBoundaryOfLayout + sign * paddingY - sign * this.spacingY;
         var columnMaxWidth = 0;
         var tempMaxWidth = 0;
         var secondMaxWidth = 0;
@@ -559,7 +627,7 @@ var Layout = cc.Class({
 
         var newChildHeight = this.cellSize.height;
         if (this.type !== Type.GRID && this.resizeMode === ResizeMode.CHILDREN) {
-            newChildHeight = (baseHeight - 2 * this.padding - (children.length - 1) * this.spacingY) / children.length;
+            newChildHeight = (baseHeight - (this.paddingTop + this.paddingBottom) - (children.length - 1) * this.spacingY) / children.length;
         }
 
         children.forEach(function(child) {
@@ -594,7 +662,7 @@ var Layout = cc.Class({
             var topBoundaryOfChild = sign * (1 - anchorY) * child.height;
 
             if (columnBreak) {
-                var columnBreakBoundary = nextY + topBoundaryOfChild + sign * this.padding;
+                var columnBreakBoundary = nextY + topBoundaryOfChild + sign * (sign > 0 ? this.paddingTop : this.paddingBottom);
                 var bottomToTopColumnBreak = this.verticalDirection === VerticalDirection.BOTTOM_TO_TOP && columnBreakBoundary > (1 - layoutAnchor.y) * baseHeight;
                 var topToBottomColumnBreak = this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM && columnBreakBoundary < -layoutAnchor.y * baseHeight;
 
@@ -611,13 +679,13 @@ var Layout = cc.Class({
                         secondMaxWidth = child.width;
                         tempMaxWidth = 0;
                     }
-                    nextY = bottomBoundaryOfLayout + sign * (this.padding + anchorY * child.height);
+                    nextY = bottomBoundaryOfLayout + sign * (paddingY + anchorY * child.height);
                     column++;
                 }
             }
 
             var finalPositionX = fnPositionX(child, columnMaxWidth, column);
-            if (baseHeight >= (child.height + 2 * this.padding)) {
+            if (baseHeight >= (child.height + (this.paddingTop + this.paddingBottom))) {
                 if (applyChildren) {
                     child.setPosition(cc.p(finalPositionX, nextY));
                 }
@@ -631,14 +699,14 @@ var Layout = cc.Class({
             if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
                 signX = -1;
                 containerResizeBoundary = containerResizeBoundary || this.node._contentSize.width;
-                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this.padding);
+                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this.paddingLeft);
                 if (tempFinalPositionX < containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
                 }
             }
             else {
                 containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.width;
-                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this.padding);
+                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this.paddingRight);
                 if (tempFinalPositionX > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
                 }
@@ -670,8 +738,11 @@ var Layout = cc.Class({
 
         if (allChildrenBoundingBox) {
             var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
+            leftBottomInParentSpace = cc.pAdd(leftBottomInParentSpace, cc.p(-this.paddingLeft, -this.paddingBottom));
+
             var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
                                                                                    allChildrenBoundingBox.y + allChildrenBoundingBox.height));
+            rightTopInParentSpace = cc.pAdd(rightTopInParentSpace, cc.p(this.paddingRight, this.paddingTop));
 
             var newSize = cc.size(parseFloat((rightTopInParentSpace.x - leftBottomInParentSpace.x).toFixed(2)),
                                   parseFloat((rightTopInParentSpace.y - leftBottomInParentSpace.y).toFixed(2)));
@@ -691,14 +762,15 @@ var Layout = cc.Class({
 
         var sign = 1;
         var bottomBoundaryOfLayout = -layoutAnchor.y * layoutSize.height;
-
+        var paddingY = this.paddingBottom;
         if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
             sign = -1;
             bottomBoundaryOfLayout = (1 - layoutAnchor.y) * layoutSize.height;
+            paddingY = this.paddingTop;
         }
 
         var fnPositionY = function(child, topOffset, row) {
-            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height + this.padding + row * this.spacingY);
+            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height + paddingY + row * this.spacingY);
         }.bind(this);
 
 
@@ -731,14 +803,15 @@ var Layout = cc.Class({
 
         var sign = 1;
         var leftBoundaryOfLayout = -layoutAnchor.x * layoutSize.width;
-
+        var paddingX = this.paddingLeft;
         if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
             sign = -1;
             leftBoundaryOfLayout = (1 - layoutAnchor.x) * layoutSize.width;
+            paddingX = this.paddingRight;
         }
 
         var fnPositionX = function(child, leftOffset, column) {
-            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width + this.padding + column * this.spacingX);
+            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width + paddingX + column * this.spacingX);
         }.bind(this);
 
         var newWidth = 0;
@@ -789,7 +862,7 @@ var Layout = cc.Class({
                 activeChildCount++;
                 newWidth += child.width;
             });
-            newWidth += (activeChildCount - 1) * this.spacingX + 2 * this.padding;
+            newWidth += (activeChildCount - 1) * this.spacingX + this.paddingLeft + this.paddingRight;
         }
         else {
             newWidth = this.node.getContentSize().width;
@@ -848,5 +921,22 @@ var Layout = cc.Class({
 
 });
 
+/**
+ * !#en The padding of layout, it effects the layout in four direction.
+ * !#zh 容器内边距，该属性会在四个布局方向上生效。
+ * @property {Number} padding
+ */
+Object.defineProperty(Layout.prototype, "padding", {
+    get: function () {
+        cc.warn('Property padding is deprecated, please use paddingLeft, paddingRight, paddingTop and paddingBottom instead');
+        return this.paddingLeft;
+    },
+    set: function (value) {
+        this._N$padding = value;
+
+        this._migratePaddingData();
+        this._doLayoutDirty();
+    }
+});
 
 cc.Layout = module.exports = Layout;

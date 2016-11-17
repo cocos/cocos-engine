@@ -833,7 +833,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         var layerProps = selLayer.querySelectorAll("properties > property");
         if (layerProps) {
             var layerProp = {};
-            for (j = 0; j < layerProps.length; j++) {
+            for (var j = 0; j < layerProps.length; j++) {
                 layerProp[layerProps[j].getAttribute('name')] = layerProps[j].getAttribute('value');
             }
             layer.properties = layerProp;

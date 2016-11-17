@@ -724,9 +724,6 @@ var Component = cc.Class({
         }
         this.__eventTargets.length = 0;
 
-        // Remove all listeners
-        cc.eventManager.removeListeners(this);
-
         //
         if (CC_EDITOR && !CC_TEST) {
             _Scene.AssetsWatcher.stop(this);

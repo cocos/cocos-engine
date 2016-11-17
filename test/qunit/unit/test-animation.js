@@ -1384,3 +1384,30 @@ test('animation callback', function () {
     entity.parent = null;
 });
 
+test('animation callback', function () {
+    var entity = new cc.Node();
+
+    var animation = entity.addComponent(cc.Animation);
+
+    clip = new cc.AnimationClip();
+    clip._name = 'test';
+    clip._duration = 1;
+    clip.curveData = {
+        props: {
+            x: [
+                {frame: 0, value: 0},
+                {frame: 1, value: 100}
+            ]
+        }
+    };
+
+    animation.addClip(clip);
+
+    animation.play('test');
+    animation.setCurrentTime(0.5,'test');
+    strictEqual(entity.x, 50, 'entity.x should be 50');
+
+    animation.setCurrentTime(0.7);
+    strictEqual(entity.x, 70, 'entity.x should be 70');
+});
+
