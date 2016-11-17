@@ -93,6 +93,7 @@ function testInstantiate (module, match, instantiate) {
                     visible: true,
                     serializable: false
                 },
+                'NeedEscape:\'"\\\n\uD83D': 'NeedEscape:\'"\\\n\uD83D'
             }
         });
 
@@ -107,6 +108,7 @@ function testInstantiate (module, match, instantiate) {
         deepEqual(clone.size, new cc.Vec2(32, 2), 'can clone variable defined by property');
         strictEqual(clone.image, 'sprite.png', 'should not clone variable which not defined by property');
         strictEqual(clone._isValid, true, 'should not clone non-serialized field');
+        strictEqual(clone['NeedEscape:\'"\\\n\uD83D'], 'NeedEscape:\'"\\\n\uD83D', 'property name and string value should support escaped');
 
         cc.js.unregisterClass(Sprite);
     });
