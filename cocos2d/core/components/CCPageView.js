@@ -24,19 +24,19 @@
  ****************************************************************************/
 
 /**
- * !#en The Page View unified Size
+ * !#en The Page View Size Mode
  * !#zh 页面视图每个页面统一的大小类型
- * @enum PageView.UnifiedSize
+ * @enum PageView.SizeMode
  */
-var UnifiedSize = cc.Enum({
+var SizeMode = cc.Enum({
     /**
-     * !#en Each page is uniform in size
+     * !#en Each page is unified in size
      * !#zh 每个页面统一大小
      * @property {Number} Unified
      */
     Unified: 0,
     /**
-     * !#en Each page size is free
+     * !#en Each page is in free size
      * !#zh 每个页面大小随意
      * @property {Number} Free
      */
@@ -106,16 +106,16 @@ var PageView = cc.Class({
     properties: {
 
         /**
-         * !#en Each page size mode in the page view
+         * !#en Specify the size type of each page in PageView.
          * !#zh 页面视图中每个页面大小类型
-         * @property {PageView.UnifiedSize} unifiedSize
+         * @property {PageView.SizeMode} sizeMode
          */
-        unifiedSize: {
-            default: UnifiedSize.Unified,
-            type: UnifiedSize,
-            tooltip: 'i18n:COMPONENT.pageview.unifiedsize',
+        sizeMode: {
+            default: SizeMode.Unified,
+            type: SizeMode,
+            tooltip: 'i18n:COMPONENT.pageview.sizeMode',
             notify: function() {
-                this._syncUnifiedSize();
+                this._syncSizeMode();
             }
         },
 
@@ -157,12 +157,12 @@ var PageView = cc.Class({
          * 快速滑动翻页临界值。
          * 当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值，
          * 该值与此临界值相比较，如果大于临界值，则进行自动翻页。
-         * @property {Number} pageTurningVelocity
+         * @property {Number} autoPageTurningThreshold
          */
-        pageTurningVelocity: {
+        autoPageTurningThreshold: {
             default: 100,
             type: cc.Float,
-            tooltip: 'i18n:COMPONENT.pageview.pageTurningVelocity'
+            tooltip: 'i18n:COMPONENT.pageview.autoPageTurningThreshold'
         },
 
         /**
@@ -206,14 +206,14 @@ var PageView = cc.Class({
     },
 
     statics: {
-        UnifiedSize: UnifiedSize,
+        SizeMode: SizeMode,
         Direction: Direction,
         EventType: EventType
     },
 
     __preload: function () {
         this._super();
-        if (this.unifiedSize === UnifiedSize.Unified) {
+        if (this.sizeMode === SizeMode.Unified) {
             this.node.on('size-changed', this._updateAllPagesSize, this);
         }
     },
@@ -241,7 +241,7 @@ var PageView = cc.Class({
 
     onDestroy: function() {
         this._super();
-        if (this.unifiedSize === UnifiedSize.Unified) {
+        if (this.sizeMode === SizeMode.Unified) {
             this.node.off('size-changed', this._updateAllPagesSize, this);
         }
     },
@@ -384,7 +384,7 @@ var PageView = cc.Class({
         this.vertical = this.direction === Direction.Vertical;
     },
 
-    _syncUnifiedSize: function () {
+    _syncSizeMode: function () {
         if (!this.content) { return; }
         var layout = this.content.getComponent(cc.Layout);
         if (layout) {
@@ -393,7 +393,7 @@ var PageView = cc.Class({
             }
             else {
                 var lastPage = this._pages[this._pages.length - 1];
-                if (this.unifiedSize === UnifiedSize.Free) {
+                if (this.sizeMode === SizeMode.Free) {
                     if (this.direction === Direction.Horizontal) {
                         layout.paddingLeft = (this.node.width - this._pages[0].width) / 2;
                         layout.paddingRight = (this.node.width - lastPage.width) / 2;
@@ -456,7 +456,7 @@ var PageView = cc.Class({
             this._pages.push(page);
         }
         this._syncScrollDirection();
-        this._syncUnifiedSize();
+        this._syncSizeMode();
         this._updatePageView();
     },
 
@@ -469,7 +469,7 @@ var PageView = cc.Class({
 
     // 是否超过自动滚动临界值
     _isScrollable: function (offset, index, nextIndex) {
-        if (this.unifiedSize === UnifiedSize.Free) {
+        if (this.sizeMode === SizeMode.Free) {
             var curPageCenter, nextPageCenter;
             if (this.direction === Direction.Horizontal) {
                 curPageCenter = this._scrollCenterOffsetX[index];
@@ -495,12 +495,12 @@ var PageView = cc.Class({
     // 快速滑动
     _isQuicklyScrollable: function (touchMoveVelocity) {
         if (this.direction === Direction.Horizontal) {
-            if (Math.abs(touchMoveVelocity.x) > this.pageTurningVelocity) {
+            if (Math.abs(touchMoveVelocity.x) > this.autoPageTurningThreshold) {
                 return true;
             }
         }
         else if (this.direction === Direction.Vertical) {
-            if (Math.abs(touchMoveVelocity.y) > this.pageTurningVelocity) {
+            if (Math.abs(touchMoveVelocity.y) > this.autoPageTurningThreshold) {
                 return true;
             }
         }
@@ -510,7 +510,7 @@ var PageView = cc.Class({
     // 通过 idx 获取偏移值数值
     _moveOffsetValue: function (idx) {
         var offset = cc.p(0, 0);
-        if (this.unifiedSize === UnifiedSize.Free) {
+        if (this.sizeMode === SizeMode.Free) {
             if (this.direction === Direction.Horizontal) {
                 offset.x = this._scrollCenterOffsetX[idx];
             }
