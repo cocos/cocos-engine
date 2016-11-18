@@ -213,9 +213,7 @@ var PageView = cc.Class({
 
     __preload: function () {
         this._super();
-        if (this.sizeMode === SizeMode.Unified) {
-            this.node.on('size-changed', this._updateAllPagesSize, this);
-        }
+        this.node.on('size-changed', this._updateAllPagesSize, this);
     },
 
     onEnable: function () {
@@ -241,9 +239,7 @@ var PageView = cc.Class({
 
     onDestroy: function() {
         this._super();
-        if (this.sizeMode === SizeMode.Unified) {
-            this.node.off('size-changed', this._updateAllPagesSize, this);
-        }
+        this.node.off('size-changed', this._updateAllPagesSize, this);
     },
 
     /**
@@ -439,6 +435,9 @@ var PageView = cc.Class({
 
     // 刷新所有页面的大小
     _updateAllPagesSize: function () {
+        if (this.sizeMode !== SizeMode.Unified) {
+            return;
+        }
         var locPages = CC_EDITOR ? this.content.children : this._pages;
         var selfSize = this.node.getContentSize();
         for (var i = 0, len = locPages.length; i < len; i++) {
