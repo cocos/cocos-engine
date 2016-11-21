@@ -51,19 +51,19 @@ function asyncFlow (item) {
                 item.error = err;
                 item.states[pipeId] = ItemState.ERROR;
                 pipe.pipeline.flowOut(item);
+                return;
             }
-            else {
-                // Result can be null, then it means no result for this pipe
-                if (result) {
-                    item.content = result;
-                }
-                item.states[pipeId] = ItemState.COMPLETE;
-                if (next) {
-                    next.flowIn(item);
-                }
-                else {
-                    pipe.pipeline.flowOut(item);
-                }
+
+            // Result can be null, then it means no result for this pipe
+            if (result) {
+                item.content = result;
+            }
+            item.states[pipeId] = ItemState.COMPLETE;
+
+            if (next) {
+                next.flowIn(item);
+            } else {
+                pipe.pipeline.flowOut(item);
             }
         });
     }
@@ -72,7 +72,7 @@ function syncFlow (item) {
     var pipeId = this.id;
     var itemState = item.states[pipeId];
     var next = this.next;
-    
+
     if (item.error || itemState === ItemState.WORKING || itemState === ItemState.ERROR) {
         return;
     }
@@ -252,6 +252,10 @@ JS.mixin(Pipeline.prototype, {
         if (pipe) {
             for (i = 0; i < items.length; i++) {
                 item = items[i];
+                var url = cc.AssetLibrary._getAssetUrl(item.uuid);
+                if (url && url !== item.url) {
+                    item.id = item.url = url;
+                }
                 this._cache[item.id] = item;
                 pipe.flowIn(item);
             }
@@ -361,11 +365,20 @@ JS.mixin(Pipeline.prototype, {
     getItem: function (id) {
         var item = this._cache[id];
 
-        if (!item)
-            return item;
+        var url;
+        if (!item) {
+            url = cc.AssetLibrary._getAssetUrl(id);
+            item = this._cache[url];
+        }
 
-        if (item.alias)
-            item = this._cache[item.alias];
+        if (!item) {
+            return item;
+        }
+
+        if (item.alias) {
+            url = cc.AssetLibrary._getAssetUrl(item.alias);
+            item = this._cache[url];
+        }
 
         return item;
     },
