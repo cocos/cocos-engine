@@ -319,11 +319,12 @@ var CollisionManager = cc.Class({
     },
 
     drawColliders: function () {
-        if (!this._enabledDebugDraw || !this._debugDrawer) {
+        var debugDrawer = this._debugDrawer;
+        if (!this._enabledDebugDraw || !debugDrawer) {
             return;
         }
 
-        this._debugDrawer.clear();
+        debugDrawer.clear();
 
         var colliders = this._colliders;
 
@@ -331,16 +332,35 @@ var CollisionManager = cc.Class({
             var collider = colliders[i];
 
             if (collider instanceof cc.BoxCollider || collider instanceof cc.PolygonCollider) {
-                this._debugDrawer.drawPoly(collider.world.points.concat(), null, 1, cc.Color.WHITE);
+                var ps = collider.world.points;
+                if (ps.length > 0) {
+                    debugDrawer.strokeColor = cc.Color.WHITE;
+                    debugDrawer.moveTo(ps[0].x, ps[0].y);
+                    for (var j = 1; j < ps.length; j++) {
+                        debugDrawer.lineTo(ps[j].x, ps[j].y);
+                    }
+                    debugDrawer.close();
+                    debugDrawer.stroke();
+                }
             }
             else if (collider instanceof cc.CircleCollider) {
-                this._debugDrawer.drawCircle(collider.world.position, collider.world.radius, 0, 30);
+                debugDrawer.circle(collider.world.position.x, collider.world.position.y, collider.world.radius);
+                debugDrawer.stroke();
             }
 
             if (this.enabledDrawBoundingBox) {
                 var aabb = collider.world.aabb;
-                var points = [cc.v2(aabb.xMin, aabb.yMin), cc.v2(aabb.xMin, aabb.yMax), cc.v2(aabb.xMax, aabb.yMax), cc.v2(aabb.xMax, aabb.yMin)];
-                this._debugDrawer.drawPoly(points, null, 1, cc.Color.BLUE);
+                var ps = [cc.v2(aabb.xMin, aabb.yMin), cc.v2(aabb.xMin, aabb.yMax), cc.v2(aabb.xMax, aabb.yMax), cc.v2(aabb.xMax, aabb.yMin)];
+                
+                if (ps.length > 0) {
+                    debugDrawer.strokeColor = cc.Color.BLUE;
+                    debugDrawer.moveTo(ps[0].x, ps[0].y);
+                    for (var j = 1; j < ps.length; j++) {
+                        debugDrawer.lineTo(ps[j].x, ps[j].y);
+                    }
+                    debugDrawer.close();
+                    debugDrawer.stroke();
+                }
             }
         }
     },
@@ -367,7 +387,7 @@ cc.js.getset(CollisionManager.prototype, 'enabledDebugDraw',
     function (value) {
         if (value && !this._enabledDebugDraw) {
             if (!this._debugDrawer) {
-                this._debugDrawer = new cc.DrawNode();
+                this._debugDrawer = new _ccsg.GraphicsNode();
                 this._debugDrawer.retain();
             }
 
