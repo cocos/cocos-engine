@@ -86,8 +86,9 @@ private:
     SimpleRunLoop* _runLoop;
     bool _jsInited;
     bool _needCleanup;
-
     bool _callFromScript;
+    JSObject *_finalizing;
+    
     ScriptingCore();
 public:
     ~ScriptingCore();
@@ -528,6 +529,9 @@ public:
      * Calls the Garbage Collector
      */
     virtual void garbageCollect() override;
+    
+    void setFinalizing (JSObject *finalizing) {_finalizing = finalizing;};
+    JSObject *getFinalizing () {return _finalizing;};
 
 private:
     void string_report(JS::HandleValue val);
