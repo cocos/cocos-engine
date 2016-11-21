@@ -33,6 +33,14 @@ var CanvasRenderCmd = function (renderable) {
     _ccsg.Node.CanvasRenderCmd.call(this, renderable);
     this._needDraw = true;
     this.cmds = [];
+
+    this.style = {
+        strokeStyle: 'black',
+        fillStyle: 'white',
+        lineCap: 'butt',
+        lineJoin: 'miter',
+        miterLimit: 10
+    };
 };
 
 var _p = CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
@@ -51,6 +59,13 @@ _p.rendering = function (ctx, scaleX, scaleY) {
     
     context.save();
     context.scale(1, -1);
+
+    var style = this.style;
+    context.strokeStyle = style.strokeStyle;
+    context.fillStyle = style.fillStyle;
+    context.lineWidth = style.lineWidth;
+    context.lineJoin = style.lineJoin;
+    context.miterLimit = style.miterLimit;
 
     var endPath = true;
     var cmds = this.cmds;
@@ -80,45 +95,56 @@ _p.rendering = function (ctx, scaleX, scaleY) {
 // draw api
 Js.mixin(_p, {
     setStrokeColor: function (v) {
-        var fillStyle = 'rgba(' + (0 | v.r) + ',' + (0 | v.g) + ',' + (0 | v.b) + ',' + v.a / 255 + ')';
-        this.cmds.push(['strokeStyle', fillStyle]);
+        var strokeStyle = 'rgba(' + (0 | v.r) + ',' + (0 | v.g) + ',' + (0 | v.b) + ',' + v.a / 255 + ')';
+        this.cmds.push(['strokeStyle', strokeStyle]);
+        this.style.strokeStyle = strokeStyle;
     },
 
     setFillColor: function (v) {
         var fillStyle = 'rgba(' + (0 | v.r) + ',' + (0 | v.g) + ',' + (0 | v.b) + ',' + v.a / 255 + ')';
         this.cmds.push(['fillStyle', fillStyle]);
+        this.style.fillStyle = fillStyle;
     },
 
     setLineWidth: function (v) {
         this.cmds.push(['lineWidth', v]);
+        this.style.lineWidth = v;
     },
 
     setLineCap: function (v) {
+        var lineCap = 'butt';
         if (v === LineCap.BUTT) {
-            this.cmds.push(['lineCap', 'butt']);
+            lineCap = 'butt';
         }
         else if (v === LineCap.ROUND) {
-            this.cmds.push(['lineCap', 'round']);
+            lineCap = 'round';
         }
         else if (v === LineCap.SQUARE) {
-            this.cmds.push(['lineCap', 'square']);
+            lineCap = 'square';
         }
+        this.cmds.push(['lineCap', lineCap]);
+        this.style.lineCap = lineCap;
     },
 
     setLineJoin: function (v) {
+        var lineJoin = 'bevel';
         if (v === LineJoin.BEVEL) {
-            this.cmds.push(['lineJoin', 'bevel']);
+            lineJoin = 'bevel';
         }
         else if (v === LineJoin.ROUND) {
-            this.cmds.push(['lineJoin', 'round']);
+            lineJoin = 'round';
         }
         else if (v === LineJoin.MITER) {
-            this.cmds.push(['lineJoin', 'miter']);
+            lineJoin = 'miter';
         }
+
+        this.cmds.push(['lineJoin', lineJoin]);
+        this.style.lineJoin = lineJoin;
     },
 
     setMiterLimit: function (v) {
         this.cmds.push(['miterLimit', v]);
+        this.style.miterLimit = v;
     },
 
     // draw functions
