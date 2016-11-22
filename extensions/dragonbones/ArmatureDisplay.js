@@ -290,7 +290,7 @@ dragonBones.ArmatureDisplay = cc.Class({
 
     _createSgNode: function () {
         if (this.dragonAsset && this.dragonAtlasAsset && this.armatureName) {
-            return this._factory.buildArmatureDisplay(this.armatureName);
+            return this._factory.buildArmatureDisplay(this.armatureName, this._dragonBonesData.name);
         }
         return null;
     },
@@ -311,10 +311,17 @@ dragonBones.ArmatureDisplay = cc.Class({
 
     _parseDragonAsset : function() {
         if (this.dragonAsset) {
+            var jsonObj = JSON.parse(this.dragonAsset.dragonBonesJson);
+            var data = this._factory.getDragonBonesData(jsonObj.name);
+            if (data) {
+                // already added asset
+                this._dragonBonesData = data;
+                return;
+            }
+
             if (CC_JSB) {
                 this._dragonBonesData = this._factory.parseDragonBonesData(this.dragonAsset.dragonBonesJson);
             } else {
-                var jsonObj = JSON.parse(this.dragonAsset.dragonBonesJson);
                 this._dragonBonesData = this._factory.parseDragonBonesData(jsonObj);
             }
         }
