@@ -346,7 +346,7 @@ JS.mixin(CCLoader.prototype, {
      * <br>
      * Note: All asset urls in Creator use forward slashes, urls using backslashes will not work.
      *
-     * @method loadResAll
+     * @method loadResDir
      * @param {String} url - Url of the target folder.
      *                       The url is relative to the "resources" folder, extensions must be omitted.
      * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
@@ -357,7 +357,7 @@ JS.mixin(CCLoader.prototype, {
      * @example
      *
      * // load the texture (resources/imgs/cocos.png) and the corresponding sprite frame
-     * cc.loader.loadResAll('imgs/cocos', function (err, assets) {
+     * cc.loader.loadResDir('imgs/cocos', function (err, assets) {
      *     if (err) {
      *         cc.error(err);
      *         return;
@@ -367,7 +367,7 @@ JS.mixin(CCLoader.prototype, {
      * });
      *
      * // load all textures in "resources/imgs/"
-     * cc.loader.loadResAll('imgs', cc.Texture2D, function (err, textures) {
+     * cc.loader.loadResDir('imgs', cc.Texture2D, function (err, textures) {
      *     if (err) {
      *         cc.error(err);
      *         return;
@@ -376,7 +376,7 @@ JS.mixin(CCLoader.prototype, {
      *     var texture2 = textures[1];
      * });
      */
-    loadResAll: function (url, type, completeCallback) {
+    loadResDir: function (url, type, completeCallback) {
         if (!completeCallback && type && !cc.isChildClassOf(type, cc.RawAsset)) {
             completeCallback = type;
             type = null;
@@ -427,15 +427,16 @@ JS.mixin(CCLoader.prototype, {
      *
      * @method getRes
      * @param {String} url
+     * @param {Function} [type] - Only asset of type will be returned if this argument is supplied.
      * @returns {*}
      */
-    getRes: function (url) {
+    getRes: function (url, type) {
         var item = this._cache[url];
         if (item && item.alias) {
             item = this._cache[item.alias];
         }
         if (!item) {
-            var uuid = this._getResUuid(url);
+            var uuid = this._getResUuid(url, type);
             item = this._cache[uuid];
         }
         return item ? item.content : null;
@@ -581,14 +582,31 @@ JS.mixin(CCLoader.prototype, {
      *
      * @method releaseRes
      * @param {String} url
+     * @param {Function} [type] - Only asset of type will be released if this argument is supplied.
      */
-    releaseRes: function (url) {
-        var uuid = this._getResUuid(url);
+    releaseRes: function (url, type) {
+        var uuid = this._getResUuid(url, type);
         if (uuid) {
             this.release(uuid);
         }
         else {
             cc.error('Resources url "%s" does not exist.', url);
+        }
+    },
+
+    /**
+     * !#en Release the all assets loaded by {{#crossLink "loader/loadResDir:method"}}{{/crossLink}}. Refer to {{#crossLink "loader/release:method"}}{{/crossLink}} for detailed informations.
+     * !#zh 释放通过 {{#crossLink "loader/loadResDir:method"}}{{/crossLink}} 加载的资源。详细信息请参考 {{#crossLink "loader/release:method"}}{{/crossLink}}
+     *
+     * @method releaseResDir
+     * @param {String} url
+     * @param {Function} [type] - Only asset of type will be released if this argument is supplied.
+     */
+    releaseResDir: function (url, type) {
+        var uuids = resources.getUuidArray(url, type);
+        for (var i = 0; i < uuids.length; i++) {
+            var uuid = uuids[i];
+            this.release(uuid);
         }
     },
 
@@ -618,7 +636,7 @@ JS.mixin(CCLoader.prototype, {
      * Indicates whether to release the asset when loading a new scene.<br>
      * By default, when loading a new scene, all assets in the previous scene will be released or preserved
      * according to whether the previous scene checked the "Auto Release Assets" option.
-     * On the other hand, assets dynamically loaded by using `cc.loader.loadRes` or `cc.loader.loadResAll`
+     * On the other hand, assets dynamically loaded by using `cc.loader.loadRes` or `cc.loader.loadResDir`
      * will not be affected by that option, remain not released by default.<br>
      * Use this API to change the default behavior on a single asset, to force preserve or release specified asset when scene switching.<br>
      * <br>
@@ -626,7 +644,7 @@ JS.mixin(CCLoader.prototype, {
      * !#zh
      * 设置当场景切换时是否自动释放资源。<br>
      * 默认情况下，当加载新场景时，旧场景的资源根据旧场景是否勾选“Auto Release Assets”，将会被释放或者保留。
-     * 而使用 `cc.loader.loadRes` 或 `cc.loader.loadResAll` 动态加载的资源，则不受场景设置的影响，默认不自动释放。<br>
+     * 而使用 `cc.loader.loadRes` 或 `cc.loader.loadResDir` 动态加载的资源，则不受场景设置的影响，默认不自动释放。<br>
      * 使用这个 API 可以在单个资源上改变这个默认行为，强制在切换场景时保留或者释放指定资源。<br>
      * <br>
      * 参考：{{#crossLink "loader/setAutoReleaseRecursively:method"}}cc.loader.setAutoReleaseRecursively{{/crossLink}}，{{#crossLink "loader/isAutoRelease:method"}}cc.loader.isAutoRelease{{/crossLink}}
@@ -658,7 +676,7 @@ JS.mixin(CCLoader.prototype, {
      * Indicates whether to release the asset and its referenced other assets when loading a new scene.<br>
      * By default, when loading a new scene, all assets in the previous scene will be released or preserved
      * according to whether the previous scene checked the "Auto Release Assets" option.
-     * On the other hand, assets dynamically loaded by using `cc.loader.loadRes` or `cc.loader.loadResAll`
+     * On the other hand, assets dynamically loaded by using `cc.loader.loadRes` or `cc.loader.loadResDir`
      * will not be affected by that option, remain not released by default.<br>
      * Use this API to change the default behavior on the specified asset and its recursively referenced assets, to force preserve or release specified asset when scene switching.<br>
      * <br>
@@ -666,7 +684,7 @@ JS.mixin(CCLoader.prototype, {
      * !#zh
      * 设置当场景切换时是否自动释放资源及资源引用的其它资源。<br>
      * 默认情况下，当加载新场景时，旧场景的资源根据旧场景是否勾选“Auto Release Assets”，将会被释放或者保留。
-     * 而使用 `cc.loader.loadRes` 或 `cc.loader.loadResAll` 动态加载的资源，则不受场景设置的影响，默认不自动释放。<br>
+     * 而使用 `cc.loader.loadRes` 或 `cc.loader.loadResDir` 动态加载的资源，则不受场景设置的影响，默认不自动释放。<br>
      * 使用这个 API 可以在指定资源及资源递归引用到的所有资源上改变这个默认行为，强制在切换场景时保留或者释放指定资源。<br>
      * <br>
      * 参考：{{#crossLink "loader/setAutoRelease:method"}}cc.loader.setAutoRelease{{/crossLink}}，{{#crossLink "loader/isAutoRelease:method"}}cc.loader.isAutoRelease{{/crossLink}}
