@@ -27,6 +27,7 @@ var CustomFontDescriptor = function() {
     this._status =  'unloaded';
     //when font is loaded, it will notify each observer in the observers array
     this._observers = [];
+    this._isLoadWithCSS = false;
 };
 
 CustomFontDescriptor.prototype.onLoaded = function () {
@@ -48,6 +49,10 @@ CustomFontDescriptor.prototype.addHandler = function (callback) {
 
 var CustomFontLoader = {
     _fontCache: {},
+    _fontWidthCache: {},
+    _canvasContext: null,
+    _testString: "BESbswy",
+    _allFontsLoaded: false,
     loadTTF: function (url, callback) {
         //these platforms support window.FontFace, but it sucks sometimes.
         var useFontFace = (cc.sys.browserType !== cc.sys.BROWSER_TYPE_BAIDU
@@ -58,6 +63,33 @@ var CustomFontLoader = {
             this._loadWithFontFace(url, callback);
         } else {
             this._loadWithCSS(url, callback);
+        }
+
+        if(!cc.director.getScheduler().isScheduled(this._checkFontLoaded, this)) {
+            cc.director.getScheduler().schedule(this._checkFontLoaded, this, 0.1);
+        }
+    },
+
+    _checkFontLoaded: function () {
+        this._allFontsLoaded = true;
+
+        for(var k in this._fontCache) {
+            var fontDescriptor = this._fontCache[k];
+            if(fontDescriptor.isLoaded() || !fontDescriptor._isLoadWithCSS) {
+                continue;
+            }
+            var oldWidth = this._fontWidthCache[k];
+            this._canvasContext.font = '40px ' + k;
+            var newWidth = this._canvasContext.measureText(this._testString).width;
+            if(oldWidth !== newWidth) {
+                fontDescriptor.onLoaded();
+            } else {
+                this._allFontsLoaded = false;
+            }
+        }
+
+        if(this._allFontsLoaded) {
+            cc.director.getScheduler().unschedule(this._checkFontLoaded, this);
         }
     },
 
@@ -116,12 +148,33 @@ var CustomFontLoader = {
             fontDescriptor = new CustomFontDescriptor();
             fontDescriptor.addHandler(callback);
             this._fontCache[fontFamilyName] = fontDescriptor;
+            fontDescriptor._isLoadWithCSS = true;
 
+            if(!this._canvasContext) {
+                var labelCanvas = document.createElement('canvas');
+                labelCanvas.width = 100;
+                labelCanvas.height = 100;
+                this._canvasContext = labelCanvas.getContext('2d');
+            }
+
+            var fontDesc = '40px ' + fontFamilyName;
+            this._canvasContext.font = fontDesc;
+
+            var width = this._canvasContext.measureText(this._testString).width;
+            this._fontWidthCache[fontFamilyName] = width;
+
+            var self = this;
             fontStyle.onload = function() {
                 setTimeout(function () {
-                    fontDescriptor.onLoaded();
-                }, 100);
+                    //in case some font won't cause the width as to system font.
+                    if(!self._allFontsLoaded) {
+                        cc.log("force notify all fonts loaded!");
+                        fontDescriptor.onLoaded();
+                        cc.director.getScheduler().unschedule(this._checkFontLoaded, this);
+                    }
+                }, 20000);
             };
+
         } else {
             if(!fontDescriptor.isLoaded()) {
                 fontDescriptor.addHandler(callback);
