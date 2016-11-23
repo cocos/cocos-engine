@@ -1440,7 +1440,7 @@ var Node = cc.Class({
      * cc.log("Running Action Count: " + count);
      */
     getNumberOfRunningActions: function () {
-        cc.director.getActionManager().numberOfRunningActionsInTarget(this);
+        return cc.director.getActionManager().getNumberOfRunningActionsInTarget(this);
     },
 
     _retainAction: function (action) {
