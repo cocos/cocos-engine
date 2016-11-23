@@ -101,7 +101,8 @@ var properties = {
             }
             cc.engine.repaintInEditMode();
         },
-        animatable: false
+        animatable: false,
+        tooltip: 'i18n:COMPONENT.particle_system.preview'
     },
 
     /**
@@ -134,7 +135,8 @@ var properties = {
                 }
             }
         },
-        animatable: false
+        animatable: false,
+        tooltip: 'i18n:COMPONENT.particle_system.custom'
     },
 
     /**
@@ -167,7 +169,8 @@ var properties = {
             }
         },
         animatable: false,
-        url: cc.ParticleAsset
+        url: cc.ParticleAsset,
+        tooltip: 'i18n:COMPONENT.particle_system.file'
     },
 
     /**
@@ -191,7 +194,8 @@ var properties = {
                 this._applyFile();
             }
         },
-        url: cc.Texture2D
+        url: cc.Texture2D,
+        tooltip: 'i18n:COMPONENT.particle_system.texture'
     },
 
     /**
@@ -206,7 +210,8 @@ var properties = {
         set: function (value) {
             this._sgNode.particleCount = value;
         },
-        visible: false
+        visible: false,
+        tooltip: 'i18n:COMPONENT.particle_system.particleCount'
     },
 
     /**
@@ -226,7 +231,8 @@ var properties = {
             this._sgNode.setBlendFunc(this._blendFunc);
         },
         animatable: false,
-        type:BlendFactor
+        type:BlendFactor,
+        tooltip: 'i18n:COMPONENT.particle_system.srcBlendFactor'
     },
 
     /**
@@ -246,7 +252,8 @@ var properties = {
             this._sgNode.setBlendFunc(this._blendFunc);
         },
         animatable: false,
-        type: BlendFactor
+        type: BlendFactor,
+        tooltip: 'i18n:COMPONENT.particle_system.dstBlendFactor'
     },
 
     /**
@@ -276,7 +283,8 @@ var properties = {
                 }
             }
         },
-        animatable: false
+        animatable: false,
+        tooltip: 'i18n:COMPONENT.particle_system.autoRemoveOnFinish'
     },
 
     /**
