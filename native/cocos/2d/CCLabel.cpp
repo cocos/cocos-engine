@@ -688,6 +688,7 @@ void Label::setDimensions(float width, float height)
     if(_overflow == Overflow::RESIZE_HEIGHT){
         height = 0;
     }
+
     if (height != _labelHeight || width != _labelWidth)
     {
         _labelWidth = width;
@@ -784,7 +785,6 @@ bool Label::alignText()
 {
     if (_fontAtlas == nullptr || _utf16Text.empty())
     {
-        setContentSize(Size::ZERO);
         return true;
     }
 
@@ -1247,7 +1247,13 @@ void Label::createSpriteForSystemFont(const FontDefinition& fontDef)
     _textSprite = Sprite::createWithTexture(texture);
     _textSprite->setGlobalZOrder(getGlobalZOrder());
     _textSprite->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-    this->setContentSize(_textSprite->getContentSize());
+
+    auto newSize = _textSprite->getContentSize();
+    if(_overflow == Overflow::RESIZE_HEIGHT) {
+        this->setContentSize(Size(_contentSize.width, newSize.height));
+    } else if (_overflow == Overflow::NONE) {
+        this->setContentSize(newSize);
+    }
     texture->release();
     if (_blendFuncDirty)
     {
