@@ -528,24 +528,33 @@ var PageView = cc.Class({
         return offset;
     },
 
-    _updatePageIndex: function (moveOffset) {
-        var idx = 0;
+    _getDragDirection: function (moveOffset) {
         if (this.direction === Direction.Horizontal) {
-            idx += (moveOffset.x > 0 ? 1 : -1);
+            return (moveOffset.x > 0 ? 1 : -1);
         }
         else if (this.direction === Direction.Vertical) {
             // 由于滚动 Y 轴的原点在在右上角所以应该是小于 0
-            idx += (moveOffset.y < 0 ? 1 : -1);
+            return (moveOffset.y < 0 ? 1 : -1);
         }
-        return this._curPageIdx + idx;
     },
 
     _handleReleaseLogic: function(touch) {
         var bounceBackStarted = this._startBounceBackIfNeeded();
-        if (!bounceBackStarted) {
-            var index = this._curPageIdx;
-            var moveOffset = cc.pSub(this._touchBeganPosition, this._touchEndPosition);
-            var nextIndex = this._updatePageIndex(moveOffset);
+        var index = this._curPageIdx, nextIndex = 0;
+        var moveOffset = cc.pSub(this._touchBeganPosition, this._touchEndPosition);
+        if (bounceBackStarted) {
+            if (this._getDragDirection(moveOffset) > 0) {
+                this._curPageIdx = this._pages.length - 1;
+            }
+            else {
+                this._curPageIdx = 0;
+            }
+            if (this.indicator) {
+                this.indicator._changedState();
+            }
+        }
+        else {
+            nextIndex = index + this._getDragDirection(moveOffset);
             if (nextIndex < this._pages.length) {
                 if (this._isScrollable(moveOffset, index, nextIndex)) {
                     this.scrollToPage(nextIndex);
