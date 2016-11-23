@@ -248,7 +248,8 @@ var RichText = cc.Class({
     },
 
     _onTTFLoaded: function () {
-        if(!this._getFontRawUrl()) return;
+        var rawUrl = this._getFontRawUrl();
+        if(!rawUrl) return;
 
         var self = this;
 
@@ -257,7 +258,7 @@ var RichText = cc.Class({
             self._updateRichText();
         };
 
-        cc.CustomFontLoader.loadTTF(this._getFontRawUrl(), callback);
+        cc.CustomFontLoader.loadTTF(rawUrl, callback);
     },
 
     _measureText: function (styleIndex, string) {
