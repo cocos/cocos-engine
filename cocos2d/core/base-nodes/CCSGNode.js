@@ -1494,7 +1494,7 @@ _ccsg.Node = cc.Class({
      * @return {Number} The number of actions that are running plus the ones that are schedule to run
      */
     getNumberOfRunningActions: function () {
-        return this.actionManager.numberOfRunningActionsInTarget(this);
+        return this.actionManager.getNumberOfRunningActionsInTarget(this);
     },
 
     // _ccsg.Node - Callbacks

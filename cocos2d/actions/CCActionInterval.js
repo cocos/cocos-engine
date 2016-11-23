@@ -126,7 +126,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
      * @param {Object} easeObj
      * @returns {ActionInterval}
      * @example
-     * action.easeing(cc.easeIn(3.0));
+     * action.easing(cc.easeIn(3.0));
      */
     easing: function (easeObj) {
         if (this._easeList)
