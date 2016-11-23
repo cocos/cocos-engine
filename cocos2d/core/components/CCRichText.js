@@ -248,6 +248,8 @@ var RichText = cc.Class({
     },
 
     _onTTFLoaded: function () {
+        if(!this._getFontRawUrl()) return;
+
         var self = this;
 
         var callback = function () {
