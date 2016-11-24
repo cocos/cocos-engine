@@ -31,6 +31,7 @@ var _cloneable_DEV = Utils.cloneable_DEV;
 var Attr = require('./attribute');
 var getTypeChecker = Attr.getTypeChecker;
 var preprocessAttrs = require('./preprocess-attrs');
+var Misc = require('../utils/misc');
 
 var BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', 'properties', 'statics', 'editor'];
 
@@ -401,17 +402,10 @@ function getNewValueTypeCode (value) {
         }
         res += propVal;
         if (i < type.__props__.length - 1) {
-            res += ','
+            res += ',';
         }
     }
     return res + ')';
-}
-
-// wrap a new scope to enalbe minify
-function cleanEval_F (code, F) {
-    // jshint evil: true
-    return eval(code);
-    // jshint evil: false
 }
 
 // convert a normal string including newlines, quotes and unicode characters into a string literal
@@ -485,23 +479,15 @@ function compileProps (actualClass) {
 
     func += '})';
 
-    if (CC_TEST && !isPhantomJS) {
-        console.log(func);
-    }
+    // if (CC_TEST && !isPhantomJS) {
+    //     console.log(func);
+    // }
 
     // overwite __initProps__ to avoid compile again
-    actualClass.prototype.__initProps__ = cleanEval_F(func, F);
+    actualClass.prototype.__initProps__ = Misc.cleanEval_F(func, F);
 
     // call instantiateProps immediately, no need to pass actualClass into it anymore
     this.__initProps__();
-}
-
-// wrap a new scope to enalbe minify
-function cleanEval_fireClass (code) {
-    // jshint evil: true
-    var fireClass = eval(code);
-    // jshint evil: false
-    return fireClass;
 }
 
 function _createCtor (ctor, baseClass, mixins, className, options) {
@@ -611,7 +597,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
     body += '})';
 
     // jshint evil: true
-    var fireClass = cleanEval_fireClass(body);
+    var fireClass = Misc.cleanEval_fireClass(body);
     // jshint evil: false
 
     Object.defineProperty(fireClass, '__ctors__', {

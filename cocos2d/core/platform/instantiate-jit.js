@@ -30,6 +30,7 @@ var Destroyed = CCObject.Flags.Destroyed;
 var PersistentMask = CCObject.Flags.PersistentMask;
 var Attr = require('./attribute');
 var JS = require('./js');
+var cleanEval = require('../utils/misc').cleanEval;
 var CCClass = require('./CCClass');
 
 var SERIALIZABLE = Attr.DELIMETER + 'serializable';
@@ -84,13 +85,6 @@ function flattenCodeArray (array, separator) {
         }
     })(array);
     return strList.join(separator);
-}
-
-// wrap a new scope to enalbe minify
-function cleanEval (code) {
-    // jshint evil: true
-    return eval(code);
-    // jshint evil: false
 }
 
 /*
