@@ -802,8 +802,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
-    _destruct: Misc.destructIgnoreId,
-
     // ABSTRACT INTERFACES
 
     // called when the node's parent changed

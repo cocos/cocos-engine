@@ -152,6 +152,8 @@ test('destroy other at destroy callback', 3, function () {
 });
 
 test('destruct', function () {
+    CCObject.__destruct__ = null;   // allow to parse dynamic properties
+
     var obj1 = new CCObject();
 
     // add dynamic value to instance
@@ -187,4 +189,26 @@ test('destruct', function () {
        !inherited1.function_value, 'should remove instance value');
     ok(inherited1._destruct, 'will not effect prototype method');
     ok(inherited2.array, 'should not effect other instance value');
+
+    // CCClass test
+    var Class = cc.Class({
+        extends: CCObject,
+        ctor: function () {
+            this.dynamicProp = null;
+        },
+        properties: {
+            object_value_by_default: null
+        }
+    });
+    var previousObj = new Class();
+    previousObj.object_value_by_default = true; // change to boolean
+    previousObj._destroyImmediate();
+
+    var newObj = new Class();
+    newObj.object_value_by_default = [];
+    newObj.dynamicProp = [];
+    newObj._destroyImmediate();
+
+    ok(!newObj.object_value_by_default , 'should always reset properties event if type changed on-the-fly');
+    ok(!newObj.dynamicProp , 'should remove instance value even if defined in ctor');
 });

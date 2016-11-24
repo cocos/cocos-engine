@@ -749,8 +749,6 @@ var Component = cc.Class({
         }
     },
 
-    _destruct: Misc.destructIgnoreId,
-
     _instantiate: function (cloned) {
         if (!cloned) {
             cloned = cc.instantiate._clone(this, this);
