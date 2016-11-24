@@ -145,6 +145,13 @@ proto.setStencil = function(stencil){
         node._stencil._parent = node;
 };
 
+// should reset program used by _stencil
+proto.resetProgramByStencil = function () {
+    var node = this._node;
+    var program = node._originStencilProgram;
+    setProgram(node._stencil, program);
+};
+
 proto._onBeforeVisit = function(ctx){
     var gl = ctx || cc._renderContext, node = this._node;
     cc.ClippingNode.WebGLRenderCmd._layer++;
@@ -175,8 +182,8 @@ proto._onBeforeVisit = function(ctx){
         var program = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLORALPHATEST);
         // set our alphaThreshold
         cc.gl.useProgram(program.getProgram());
-        program.setUniformLocationWith1f(cc.UNIFORM_ALPHA_TEST_VALUE_S, node.alphaThreshold);
-        program.setUniformLocationWithMatrix4fv(cc.UNIFORM_MVMATRIX_S, cc.renderer.mat4Identity.mat);
+        program.setUniformLocationWith1f(cc.macro.UNIFORM_ALPHA_TEST_VALUE_S, node.alphaThreshold);
+        program.setUniformLocationWithMatrix4fv(cc.macro.UNIFORM_MVMATRIX_S, cc.renderer.mat4Identity.mat);
         setProgram(node._stencil, program);
     }
 };
