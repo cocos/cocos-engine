@@ -473,14 +473,14 @@ var _Deserializer = (function () {
                 _deserializeFireClass(self, obj, serialized, klass, target);
             }
             else if (type === 'cc.Vec2') {
-                obj.x = serialized.x;
-                obj.y = serialized.y;
+                obj.x = serialized.x || 0;
+                obj.y = serialized.y || 0;
             }
             else if (type === 'cc.Color') {
-                obj.r = serialized.r;
-                obj.g = serialized.g;
-                obj.b = serialized.b;
-                obj.a = serialized.a;
+                obj.r = serialized.r || 0;
+                obj.g = serialized.g || 0;
+                obj.b = serialized.b || 0;
+                obj.a = serialized.a || 255;
             }
             else {
                 _deserializeTypedObject(self, obj, serialized);
