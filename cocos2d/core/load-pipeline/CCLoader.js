@@ -38,6 +38,7 @@ function getXMLHttpRequest () {
     return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
 }
 
+var _sharedResources = [];
 var _sharedList = [];
 
 /**
@@ -170,13 +171,17 @@ JS.mixin(CCLoader.prototype, {
             resources = resources ? [resources] : [];
         }
 
+        _sharedResources.length = resources.length;
         for (var i = 0; i < resources.length; ++i) {
             var url = resources[i].id || resources[i];
             if (typeof url !== 'string')
                 continue;
             var item = this.getItem(url);
             if (item) {
-                resources[i] = item;
+                _sharedResources[i] = item;
+            }
+            else {
+                _sharedResources[i] = resources[i];
             }
         }
 
@@ -205,7 +210,8 @@ JS.mixin(CCLoader.prototype, {
             });
         });
         LoadingItems.initQueueDeps(queue);
-        queue.append(resources);
+        queue.append(_sharedResources);
+        _sharedResources.length = 0;
     },
 
     flowInDeps: function (owner, urlList, callback) {

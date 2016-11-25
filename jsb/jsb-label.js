@@ -134,6 +134,7 @@ jsbLabel.prototype.getTTFConfig = function () {
     return this._ttfConfig;
 };
 
+jsbLabel.prototype._setContentSize = jsbLabel.prototype.setContentSize;
 jsbLabel.prototype.setContentSize = function (size, height) {
     var newWidth = (typeof size.width === 'number') ? size.width : size;
     var newHeight = (typeof size.height === 'number') ? size.height : height;
@@ -141,6 +142,8 @@ jsbLabel.prototype.setContentSize = function (size, height) {
     if(this.getOverflow() === cc.Label.Overflow.NONE) {
         newWidth = 0;
         newHeight = 0;
+    } else {
+        this._setContentSize(newWidth, newHeight);
     }
     this.setDimensions(newWidth, newHeight);
 };

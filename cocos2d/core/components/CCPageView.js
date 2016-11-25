@@ -23,8 +23,25 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// 快速滑动的临界值
-var _CUSTOMSCROLLTHRESHOLD = 200;
+/**
+ * !#en The Page View Size Mode
+ * !#zh 页面视图每个页面统一的大小类型
+ * @enum PageView.SizeMode
+ */
+var SizeMode = cc.Enum({
+    /**
+     * !#en Each page is unified in size
+     * !#zh 每个页面统一大小
+     * @property {Number} Unified
+     */
+    Unified: 0,
+    /**
+     * !#en Each page is in free size
+     * !#zh 每个页面大小随意
+     * @property {Number} Free
+     */
+    Free: 1
+});
 
 /**
  * !#en The Page View Direction
@@ -82,9 +99,26 @@ var PageView = cc.Class({
         this._curPageIdx = 0;
         this._lastPageIdx = 0;
         this._pages = [];
+        this._scrollCenterOffsetX = []; // 每一个页面居中时需要的偏移量（X）
+        this._scrollCenterOffsetY = []; // 每一个页面居中时需要的偏移量（Y）
     },
 
     properties: {
+
+        /**
+         * !#en Specify the size type of each page in PageView.
+         * !#zh 页面视图中每个页面大小类型
+         * @property {PageView.SizeMode} sizeMode
+         */
+        sizeMode: {
+            default: SizeMode.Unified,
+            type: SizeMode,
+            tooltip: 'i18n:COMPONENT.pageview.sizeMode',
+            notify: function() {
+                this._syncSizeMode();
+            }
+        },
+
         /**
          * !#en The page view direction
          * !#zh 页面视图滚动类型
@@ -112,6 +146,23 @@ var PageView = cc.Class({
             slide: true,
             range: [0, 1, 0.01],
             tooltip: 'i18n:COMPONENT.pageview.scrollThreshold'
+        },
+
+        /**
+         * !#en
+         * Auto page turning velocity threshold. When users swipe the PageView quickly,
+         * it will calculate a velocity based on the scroll distance and time,
+         * if the calculated velocity is larger than the threshold, then it will trigger page turning.
+         * !#zh
+         * 快速滑动翻页临界值。
+         * 当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值，
+         * 该值与此临界值相比较，如果大于临界值，则进行自动翻页。
+         * @property {Number} autoPageTurningThreshold
+         */
+        autoPageTurningThreshold: {
+            default: 100,
+            type: cc.Float,
+            tooltip: 'i18n:COMPONENT.pageview.autoPageTurningThreshold'
         },
 
         /**
@@ -155,6 +206,7 @@ var PageView = cc.Class({
     },
 
     statics: {
+        SizeMode: SizeMode,
         Direction: Direction,
         EventType: EventType
     },
@@ -162,12 +214,6 @@ var PageView = cc.Class({
     __preload: function () {
         this._super();
         this.node.on('size-changed', this._updateAllPagesSize, this);
-        this._syncScrollDirection();
-    },
-
-    _syncScrollDirection: function () {
-        this.horizontal = this.direction === Direction.Horizontal;
-        this.vertical = this.direction === Direction.Vertical;
     },
 
     onEnable: function () {
@@ -329,6 +375,35 @@ var PageView = cc.Class({
         return this.pageTurningEventTiming;
     },
 
+    _syncScrollDirection: function () {
+        this.horizontal = this.direction === Direction.Horizontal;
+        this.vertical = this.direction === Direction.Vertical;
+    },
+
+    _syncSizeMode: function () {
+        if (!this.content) { return; }
+        var layout = this.content.getComponent(cc.Layout);
+        if (layout) {
+            if (this._pages.length === 0) {
+                layout.padding = 0;
+            }
+            else {
+                var lastPage = this._pages[this._pages.length - 1];
+                if (this.sizeMode === SizeMode.Free) {
+                    if (this.direction === Direction.Horizontal) {
+                        layout.paddingLeft = (this.node.width - this._pages[0].width) / 2;
+                        layout.paddingRight = (this.node.width - lastPage.width) / 2;
+                    }
+                    else if (this.direction === Direction.Vertical) {
+                        layout.paddingTop = (this.node.height - this._pages[0].height) / 2;
+                        layout.paddingBottom = (this.node.height - lastPage.height) / 2;
+                    }
+                }
+            }
+            layout._updateLayout();
+        }
+    },
+
     // 刷新页面视图
     _updatePageView: function () {
         var pageCount = this._pages.length;
@@ -345,6 +420,12 @@ var PageView = cc.Class({
         // 进行排序
         for (var i = 0; i < pageCount; ++i) {
             this._pages[i].setSiblingIndex(i);
+            if (this.direction === Direction.Horizontal) {
+                this._scrollCenterOffsetX[i] = Math.abs(this.content.x + this._pages[i].x);
+            }
+            else {
+                this._scrollCenterOffsetY[i] = Math.abs(this.content.y + this._pages[i].y);
+            }
         }
         // 刷新 indicator 信息与状态
         if (this.indicator) {
@@ -354,6 +435,9 @@ var PageView = cc.Class({
 
     // 刷新所有页面的大小
     _updateAllPagesSize: function () {
+        if (this.sizeMode !== SizeMode.Unified) {
+            return;
+        }
         var locPages = CC_EDITOR ? this.content.children : this._pages;
         var selfSize = this.node.getContentSize();
         for (var i = 0, len = locPages.length; i < len; i++) {
@@ -370,6 +454,9 @@ var PageView = cc.Class({
             if (this._pages.indexOf(page) >= 0) { continue; }
             this._pages.push(page);
         }
+        this._syncScrollDirection();
+        this._syncSizeMode();
+        this._updatePageView();
     },
 
     _dispatchPageTurningEvent: function () {
@@ -380,79 +467,126 @@ var PageView = cc.Class({
     },
 
     // 是否超过自动滚动临界值
-    _isScrollable: function (offset) {
+    _isScrollable: function (offset, index, nextIndex) {
+        if (this.sizeMode === SizeMode.Free) {
+            var curPageCenter, nextPageCenter;
+            if (this.direction === Direction.Horizontal) {
+                curPageCenter = this._scrollCenterOffsetX[index];
+                nextPageCenter = this._scrollCenterOffsetX[nextIndex];
+                return Math.abs(offset.x) >= Math.abs(curPageCenter - nextPageCenter) * this.scrollThreshold;
+            }
+            else if (this.direction === Direction.Vertical) {
+                curPageCenter = this._scrollCenterOffsetY[index];
+                nextPageCenter = this._scrollCenterOffsetY[nextIndex];
+                return Math.abs(offset.y) >= Math.abs(curPageCenter - nextPageCenter) * this.scrollThreshold;
+            }
+        }
+        else {
+            if (this.direction === Direction.Horizontal) {
+                return Math.abs(offset.x) >= this.node.width * this.scrollThreshold;
+            }
+            else if (this.direction === Direction.Vertical) {
+                return Math.abs(offset.y) >= this.node.height * this.scrollThreshold;
+            }
+        }
+    },
+
+    // 快速滑动
+    _isQuicklyScrollable: function (touchMoveVelocity) {
         if (this.direction === Direction.Horizontal) {
-            return Math.abs(offset.x) >= this.node.width * this.scrollThreshold;
+            if (Math.abs(touchMoveVelocity.x) > this.autoPageTurningThreshold) {
+                return true;
+            }
         }
         else if (this.direction === Direction.Vertical) {
-            return Math.abs(offset.y) >= this.node.height * this.scrollThreshold;
+            if (Math.abs(touchMoveVelocity.y) > this.autoPageTurningThreshold) {
+                return true;
+            }
         }
+        return false;
     },
 
     // 通过 idx 获取偏移值数值
     _moveOffsetValue: function (idx) {
         var offset = cc.p(0, 0);
-        if (this.direction === Direction.Horizontal) {
-            offset.x = idx * this.node.width;
+        if (this.sizeMode === SizeMode.Free) {
+            if (this.direction === Direction.Horizontal) {
+                offset.x = this._scrollCenterOffsetX[idx];
+            }
+            else if (this.direction === Direction.Vertical) {
+                offset.y = this._scrollCenterOffsetY[idx];
+            }
         }
-        else if (this.direction === Direction.Vertical) {
-            offset.y = idx * this.node.height;
+        else {
+            if (this.direction === Direction.Horizontal) {
+                offset.x = idx * this.node.width;
+            }
+            else if (this.direction === Direction.Vertical) {
+                offset.y = idx * this.node.height;
+            }
         }
         return offset;
     },
 
-    _updatePageIndex: function (moveOffset) {
-        var idx = 0;
+    _getDragDirection: function (moveOffset) {
         if (this.direction === Direction.Horizontal) {
-            idx += (moveOffset.x > 0 ? 1 : -1);
+            return (moveOffset.x > 0 ? 1 : -1);
         }
         else if (this.direction === Direction.Vertical) {
             // 由于滚动 Y 轴的原点在在右上角所以应该是小于 0
-            idx += (moveOffset.y < 0 ? 1 : -1);
+            return (moveOffset.y < 0 ? 1 : -1);
         }
-        return this._curPageIdx + idx;
     },
 
     _handleReleaseLogic: function(touch) {
         var bounceBackStarted = this._startBounceBackIfNeeded();
-        if (!bounceBackStarted) {
-            var idx = this._curPageIdx;
-            if (idx === 0 && this._pages.length === 1) {
-                return;
-            }
-            var moveOffset = cc.pSub(this._touchBeganPosition, this._touchEndPosition);
-            if (this._isScrollable(moveOffset)) {
-                idx = this._updatePageIndex(moveOffset);
+        var index = this._curPageIdx, nextIndex = 0;
+        var moveOffset = cc.pSub(this._touchBeganPosition, this._touchEndPosition);
+        if (bounceBackStarted) {
+            if (this._getDragDirection(moveOffset) > 0) {
+                this._curPageIdx = this._pages.length - 1;
             }
             else {
-                var touchMoveVelocity = this._calculateTouchMoveVelocity();
-                if (Math.abs(touchMoveVelocity.x) > _CUSTOMSCROLLTHRESHOLD) {
-                    idx = this._updatePageIndex(moveOffset);
+                this._curPageIdx = 0;
+            }
+            if (this.indicator) {
+                this.indicator._changedState();
+            }
+        }
+        else {
+            nextIndex = index + this._getDragDirection(moveOffset);
+            if (nextIndex < this._pages.length) {
+                if (this._isScrollable(moveOffset, index, nextIndex)) {
+                    this.scrollToPage(nextIndex);
+                    return;
+                }
+                else {
+                    var touchMoveVelocity = this._calculateTouchMoveVelocity();
+                    if (this._isQuicklyScrollable(touchMoveVelocity)) {
+                        this.scrollToPage(nextIndex);
+                        return;
+                    }
                 }
             }
-            this.scrollToPage(idx);
+            this.scrollToPage(index);
         }
     },
 
     _onTouchBegan: function (event, captureListeners) {
-
         this._touchBeganPosition = event.touch.getLocation();
         this._super(event, captureListeners);
     },
 
     _onTouchMoved: function (event, captureListeners) {
-
         this._super(event, captureListeners);
     },
 
     _onTouchEnded: function (event, captureListeners) {
-
         this._touchEndPosition = event.touch.getLocation();
         this._super(event, captureListeners);
     },
 
     _onTouchCancelled: function (event, captureListeners) {
-
         this._touchEndPosition = event.touch.getLocation();
         this._super(event, captureListeners);
     },

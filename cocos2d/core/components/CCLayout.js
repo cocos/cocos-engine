@@ -272,8 +272,7 @@ var Layout = cc.Class({
         },
 
         _N$padding: {
-            default: 0,
-            editorOnly: true
+            default: 0
         },
         /**
          * !#en The left padding of layout, it only effect the layout in one direction.
@@ -415,10 +414,8 @@ var Layout = cc.Class({
             this.node.setContentSize(this._layoutSize);
         }
 
-        if(CC_EDITOR) {
-            if(this._N$padding !== 0) {
-                this._migratePaddingData();
-            }
+        if(this._N$padding !== 0) {
+            this._migratePaddingData();
         }
 
         this.node.on('size-changed', this._resized, this);
