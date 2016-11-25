@@ -48,6 +48,8 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
     _stencil: null,
     _className: "ClippingNode",
 
+    _originStencilProgram: null,
+
     /**
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
      * @param {_ccsg.Node} [stencil=null]
@@ -55,10 +57,7 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
     ctor: function (stencil) {
         stencil = stencil || null;
         _ccsg.Node.prototype.ctor.call(this);
-        this._stencil = stencil;
-        this.alphaThreshold = 1;
-        this.inverted = false;
-        this._renderCmd.initStencilBits();
+        this.init(stencil);
     },
 
     /**
@@ -71,6 +70,10 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
         this.alphaThreshold = 1;
         this.inverted = false;
         this._renderCmd.initStencilBits();
+
+        if (stencil)
+            this._originStencilProgram = stencil.getShaderProgram();
+
         return true;
     },
 
@@ -146,6 +149,10 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
      * @param {Number} alphaThreshold
      */
     setAlphaThreshold: function (alphaThreshold) {
+        if (alphaThreshold === 1 && alphaThreshold !== this.alphaThreshold) {
+            // should reset program used by _stencil
+            this._renderCmd.resetProgramByStencil();
+        }
         this.alphaThreshold = alphaThreshold;
     },
 
@@ -186,6 +193,10 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
     setStencil: function (stencil) {
         if(this._stencil === stencil)
             return;
+
+        if (stencil)
+            this._originStencilProgram = stencil.getShaderProgram();
+
         this._renderCmd.setStencil(stencil);
     },
 

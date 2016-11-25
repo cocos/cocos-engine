@@ -26,16 +26,10 @@
 var Base = cc._RendererInSG;
 
 /**
- * @class Mask
- * @extends _RendererInSG
- */
-
-/**
  * !#en the type for mask.
- * !#zh 遮罩组件的类型
+ * !#zh 遮罩组件类型
  * @enum Mask.Type
  */
-
 var MaskType = cc.Enum({
     /**
      * !#en Rect mask.
@@ -48,9 +42,21 @@ var MaskType = cc.Enum({
      * !#zh 使用椭圆作为遮罩
      * @property {Number} ELLIPSE
      */
-    ELLIPSE: 1
+    ELLIPSE: 1,
+    /**
+     * !#en Image Stencil Mask.
+     * !#zh 使用图像模版作为遮罩
+     * @property {Number} IMAGE_STENCIL
+     */
+    IMAGE_STENCIL: 2,
 });
 
+/**
+ * !#en The Mask Component
+ * !#zh 遮罩组件
+ * @class Mask
+ * @extends _RendererInSG
+ */
 var Mask = cc.Class({
     name: 'cc.Mask',
     extends: Base,
@@ -58,6 +64,7 @@ var Mask = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Mask',
         help: 'i18n:COMPONENT.help_url.mask',
+        inspector: 'packages://inspector/inspectors/comps/mask.js'
     },
 
     properties: {
@@ -66,26 +73,84 @@ var Mask = cc.Class({
             serializable: false,
         },
 
-        _type:0,
-        _segements: 64,
-
         /**
          * !#en The mask type.
          * !#zh 遮罩类型
          * @property type
-         * @type {MaskType}
+         * @type {Mask.Type}
          * @example
-         * mask.type = MaskType.RECT;
+         * mask.type = cc.Mask.Type.RECT;
          */
+        _type: MaskType.RECT,
         type: {
-            get: function() {
+            get: function () {
                 return this._type;
             },
-            set: function(value) {
+            set: function (value) {
                 this._type = value;
                 this._refreshStencil();
             },
-            type: MaskType
+            type: MaskType,
+            tooltip: 'i18n:COMPONENT.mask.type',
+        },
+
+        /**
+         * !#en The mask image
+         * !#zh 遮罩所需要的贴图
+         * @property spriteFrame
+         * @type {SpriteFrame}
+         * @default null
+         * @example
+         * mask.spriteFrame = newSpriteFrame;
+         */
+        spriteFrame: {
+            default: null,
+            type: cc.SpriteFrame,
+            tooltip: 'i18n:COMPONENT.mask.spriteFrame',
+            notify: function() {
+                this._refreshStencil();
+            }
+        },
+
+        /**
+         * !#en
+         * The alpha threshold.  <br/>
+         * The content is drawn only where the stencil have pixel with alpha greater than the alphaThreshold. <br/>
+         * Should be a float between 0 and 1. <br/>
+         * This default to 1 (so alpha test is disabled).
+         * !#zh
+         * Alpha 阈值 <br/>
+         * 只有当模板的像素的 alpha 大于 alphaThreshold 时，才会绘制内容。<br/>
+         * 该数值 0 ~ 1 之间的浮点数，默认值为 1（因此禁用 alpha）
+         * @property alphaThreshold
+         * @type {Number}
+         * @default 1
+         */
+        alphaThreshold: {
+            default: 1,
+            type: cc.Float,
+            range: [0, 1, 0.1],
+            slide: true,
+            tooltip: 'i18n:COMPONENT.mask.alphaThreshold',
+            notify: function() {
+                this._sgNode.setAlphaThreshold(this.alphaThreshold);
+            }
+        },
+
+        /**
+         * !#en Reverse mask
+         * !#zh 反向遮罩
+         * @property inverted
+         * @type {Boolean}
+         * @default false
+         */
+        inverted: {
+            default: false,
+            type: cc.Boolean,
+            tooltip: 'i18n:COMPONENT.mask.inverted',
+            notify: function() {
+                this._sgNode.setInverted(this.inverted);
+            }
         },
 
         /**
@@ -95,29 +160,42 @@ var Mask = cc.Class({
          * @type {Number}
          * @default 64
          */
+        _segements: 64,
         segements: {
-            get: function() {
+            get: function () {
                 return this._segements;
             },
-            set: function(value) {
-                if(value < 3) value = 3;
-                this._segements = value;
+            set: function (value) {
+                this._segements = value < 3 ? 3 : value;
                 this._refreshStencil();
             },
-            type: cc.Integer
+            type: cc.Integer,
+            tooltip: 'i18n:COMPONENT.mask.segements',
         },
+
+        _resizeToTarget: {
+            animatable: false,
+            set: function (value) {
+                if(value) {
+                    this._resizeNodeToTargetNode();
+                }
+            }
+        }
     },
 
     statics: {
         Type: MaskType,
     },
 
-    _createSgNode: function () {
-        this._clippingStencil = new cc.DrawNode();
-        if (CC_JSB) {
-            this._clippingStencil.retain();
+    _resizeNodeToTargetNode: CC_EDITOR && function () {
+        if(this.spriteFrame) {
+            var rect = this.spriteFrame.getRect();
+            this.node.setContentSize(rect.width, rect.height);
         }
-        return new cc.ClippingNode(this._clippingStencil);
+    },
+
+    _createSgNode: function () {
+        return new cc.ClippingNode();
     },
 
     _initSgNode: function () {},
@@ -128,7 +206,7 @@ var Mask = cc.Class({
             h = size.height,
             trans = this.node.getNodeToWorldTransform();
 
-        if (this._type === MaskType.RECT) {
+        if (this.type === MaskType.RECT || this.type === MaskType.IMAGE_STENCIL) {
             var rect = cc.rect(0, 0, w, h);
             cc._rectApplyAffineTransformIn(rect, trans);
             var left = point.x - rect.x,
@@ -142,8 +220,8 @@ var Mask = cc.Class({
                 return false;
             }
         }
-        else {
-            var a = w/2, b = h/2;
+        else if (this.type === MaskType.ELLIPSE) {
+            var a = w / 2, b = h / 2;
             var cx = trans.a * a + trans.c * b + trans.tx;
             var cy = trans.b * a + trans.d * b + trans.ty;
             var px = point.x - cx, py = point.y - cy;
@@ -157,6 +235,11 @@ var Mask = cc.Class({
     },
 
     onEnable: function () {
+        if (this.type === MaskType.IMAGE_STENCIL &&
+            cc._renderType !== cc.game.RENDER_TYPE_WEBGL && !CC_JSB) {
+            cc.warn("MaskType: IMAGE_STENCIL only support WebGL mode.");
+            return;
+        }
         this._refreshStencil();
         this._super();
         this.node.on('size-changed', this._refreshStencil, this);
@@ -183,23 +266,53 @@ var Mask = cc.Class({
     _refreshStencil: function () {
         var contentSize = this.node.getContentSize();
         var anchorPoint = this.node.getAnchorPoint();
-        var width = contentSize.width;
-        var height = contentSize.height;
-        var x = - width * anchorPoint.x;
-        var y = - height * anchorPoint.y;
-        var color = cc.color(255, 255, 255, 0);
-        this._clippingStencil.clear();
-        if(this._type === MaskType.RECT) {
-            var rectangle = [ cc.v2(x, y),
-                cc.v2(x + width, y),
-                cc.v2(x + width, y + height),
-                cc.v2(x, y + height) ];
-            this._clippingStencil.drawPoly(rectangle, color, 0, color);
-        } else {
-            var center = cc.v2(x + width /2, y+height/2);
-            var radius = {x: width/2, y: height/2};
-            var segements = this._segements;
-            this._clippingStencil.drawPoly(this._calculateCircle(center, radius, segements), color, 0, color);
+        var stencil = this._clippingStencil;
+        if (this._type === MaskType.IMAGE_STENCIL) {
+            var isSgSprite = stencil instanceof cc.Scale9Sprite;
+            if (!isSgSprite || stencil._spriteFrame !== this.spriteFrame) {
+                stencil = new cc.Scale9Sprite();
+                stencil.setSpriteFrame(this.spriteFrame);
+                this._sgNode.setStencil(stencil);
+            }
+            stencil.setContentSize(contentSize);
+            stencil.setAnchorPoint(anchorPoint);
+        }
+        else {
+            var isDrawNode = stencil instanceof cc.DrawNode;
+            if (!isDrawNode) {
+                stencil = new cc.DrawNode();
+                if (CC_JSB) {
+                    stencil.retain();
+                }
+                this._sgNode.setStencil(stencil);
+            }
+            var width = contentSize.width;
+            var height = contentSize.height;
+            var x = - width * anchorPoint.x;
+            var y = - height * anchorPoint.y;
+            var color = cc.color(255, 255, 255, 0);
+            stencil.clear();
+            if (this._type === MaskType.RECT) {
+                var rectangle = [cc.v2(x, y),
+                    cc.v2(x + width, y),
+                    cc.v2(x + width, y + height),
+                    cc.v2(x, y + height)];
+                stencil.drawPoly(rectangle, color, 0, color);
+            }
+            else if (this._type === MaskType.ELLIPSE) {
+                var center = cc.v2(x + width / 2, y + height / 2);
+                var radius = {
+                    x: width / 2,
+                    y: height / 2
+                };
+                stencil.drawPoly(this._calculateCircle(center, radius, this._segements), color, 0, color);
+            }
+        }
+        this._sgNode.setInverted(this.inverted);
+        this._sgNode.setAlphaThreshold(this.alphaThreshold);
+        this._clippingStencil = stencil;
+        if (!CC_JSB) {
+            cc.renderer.childrenOrderDirty = true;
         }
     }
 });
