@@ -65,20 +65,6 @@ var Details = function () {
      * @property {String} rawProp
      */
     this.rawProp = '';
-
-    if (CC_DEV) {
-        /**
-         * 用户可以指定一个在反序列化过程中会被触发的回调，该回调会在反序列化之前调用，并且传回反序列化时解析到的字段。
-         * NOTE:
-         * - only available in editor
-         * - 会被传回的字段仅限于非 Asset 类型，并且如果字段值为 null 或 undefined，则可能不会被传回。
-         * @callback visit
-         * @param {Object} obj
-         * @param {String} propName
-         * @private
-         */
-        this.visit = null;
-    }
 };
 /**
  * @method reset
@@ -221,9 +207,6 @@ var _Deserializer = (function () {
                 else {
                     obj[propName] = _deserializeObject(this, jsonObj);
                 }
-                if (CC_DEV && this.result.visit) {
-                    this.result.visit(obj, propName);
-                }
             }
         }
         else {
@@ -236,9 +219,6 @@ var _Deserializer = (function () {
                 this._idObjList.push(obj);
                 this._idPropList.push(propName);
             }
-            if (CC_DEV && this.result.visit) {
-                this.result.visit(obj, propName);
-            }
         }
     };
 
@@ -250,9 +230,6 @@ var _Deserializer = (function () {
                 if (typeof prop !== 'object') {
                     if (propName !== '__type__'/* && k != '__id__'*/) {
                         instance[propName] = prop;
-                        if (CC_DEV && self.result.visit) {
-                            self.result.visit(instance, propName);
-                        }
                     }
                 }
                 else {
@@ -492,8 +469,18 @@ var _Deserializer = (function () {
                 obj._deserialize(serialized.content, self);
                 return obj;
             }
-            if ( cc.Class._isCCClass(klass) ) {
+            if (cc.Class._isCCClass(klass)) {
                 _deserializeFireClass(self, obj, serialized, klass, target);
+            }
+            else if (type === 'cc.Vec2') {
+                obj.x = serialized.x;
+                obj.y = serialized.y;
+            }
+            else if (type === 'cc.Color') {
+                obj.r = serialized.r;
+                obj.g = serialized.g;
+                obj.b = serialized.b;
+                obj.a = serialized.a;
             }
             else {
                 _deserializeTypedObject(self, obj, serialized);
@@ -530,9 +517,6 @@ var _Deserializer = (function () {
                 }
                 else {
                     obj[i] = prop;
-                    if (CC_DEV && self.result.visit) {
-                        self.result.visit(obj, '' + i);
-                    }
                 }
             }
         }
