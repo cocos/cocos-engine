@@ -26,16 +26,10 @@
 var Base = cc._RendererInSG;
 
 /**
- * @class Mask
- * @extends _RendererInSG
- */
-
-/**
  * !#en the type for mask.
- * !#zh 遮罩组件的类型
+ * !#zh 遮罩组件类型
  * @enum Mask.Type
  */
-
 var MaskType = cc.Enum({
     /**
      * !#en Rect mask.
@@ -57,6 +51,12 @@ var MaskType = cc.Enum({
     IMAGE_STENCIL: 2,
 });
 
+/**
+ * !#en The Mask Component
+ * !#zh 遮罩组件
+ * @class Mask
+ * @extends _RendererInSG
+ */
 var Mask = cc.Class({
     name: 'cc.Mask',
     extends: Base,
@@ -77,9 +77,9 @@ var Mask = cc.Class({
          * !#en The mask type.
          * !#zh 遮罩类型
          * @property type
-         * @type {MaskType}
+         * @type {Mask.Type}
          * @example
-         * mask.type = MaskType.RECT;
+         * mask.type = cc.Mask.Type.RECT;
          */
         _type: MaskType.RECT,
         type: {
