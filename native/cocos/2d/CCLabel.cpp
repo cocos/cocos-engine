@@ -1251,9 +1251,10 @@ void Label::createSpriteForSystemFont(const FontDefinition& fontDef)
     auto newSize = _textSprite->getContentSize();
     if(_overflow == Overflow::RESIZE_HEIGHT) {
         this->setContentSize(Size(_contentSize.width, newSize.height));
-    } else if (_overflow == Overflow::NONE) {
+    } else {
         this->setContentSize(newSize);
     }
+    
     texture->release();
     if (_blendFuncDirty)
     {
