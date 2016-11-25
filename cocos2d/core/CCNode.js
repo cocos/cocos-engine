@@ -1418,7 +1418,7 @@ var Node = cc.Class({
             cc.log(cc._LogInfos.Node.getActionByTag);
             return null;
         }
-        cc.director.getActionManager().getActionByTag(tag, this);
+        return cc.director.getActionManager().getActionByTag(tag, this);
     },
 
     /**
