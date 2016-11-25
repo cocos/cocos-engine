@@ -2153,6 +2153,34 @@ bool js_cocos2dx_dragonbones_DragonBonesData_getTypeIndex(JSContext *cx, uint32_
     return false;
 }
 
+bool js_cocos2dx_dragonbones_DragonBonesData_get_name(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::DragonBonesData* cobj = (dragonBones::DragonBonesData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_DragonBonesData_get_name : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = std_string_to_jsval(cx, cobj->name);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_DragonBonesData_set_name(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::DragonBonesData* cobj = (dragonBones::DragonBonesData *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_DragonBonesData_set_name : Invalid Native Object");
+
+    bool ok = true;
+    std::string arg0;
+    ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_DragonBonesData_set_name : Error processing new value");
+    cobj->name = arg0;
+    return true;
+}
 bool js_cocos2dx_dragonbones_DragonBonesData_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -2209,6 +2237,7 @@ void js_register_cocos2dx_dragonbones_DragonBonesData(JSContext *cx, JS::HandleO
     jsb_dragonBones_DragonBonesData_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
+        JS_PSGS("name", js_cocos2dx_dragonbones_DragonBonesData_get_name, js_cocos2dx_dragonbones_DragonBonesData_set_name, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 

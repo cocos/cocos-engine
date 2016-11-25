@@ -154,6 +154,7 @@ CC_CONSTRUCTOR_ACCESS:
 
 protected:
     Node* _stencil;
+    GLProgram* _originStencilProgram;
 
     StencilStateManager* _stencilStateManager;
 
