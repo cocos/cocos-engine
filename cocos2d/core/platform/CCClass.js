@@ -408,6 +408,8 @@ function getNewValueTypeCode (value) {
     return res + ')';
 }
 
+// TODO - move escapeForJS, VAR_REG, getNewValueTypeCode to misc.js or a new source file
+
 // convert a normal string including newlines, quotes and unicode characters into a string literal
 // ready to use in JavaScript source
 function escapeForJS (s) {
