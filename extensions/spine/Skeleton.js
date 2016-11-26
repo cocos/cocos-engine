@@ -388,13 +388,23 @@ sp.Skeleton = cc.Class({
                         cc.error('Invalid type of atlasFile, atlas should be registered as raw asset.');
                         return null;
                     }
-                    return new sp._SGSkeletonAnimation(jsonFile, atlasFile, this.skeletonData.scale);
+                    try {
+                        return new sp._SGSkeletonAnimation(jsonFile, atlasFile, this.skeletonData.scale);
+                    }
+                    catch (e) {
+                        cc._throw(e);
+                    }
                 }
             }
             else {
                 var data = this.skeletonData.getRuntimeData();
                 if (data) {
-                    return new sp._SGSkeletonAnimation(data, null, this.skeletonData.scale);
+                    try {
+                        return new sp._SGSkeletonAnimation(data, null, this.skeletonData.scale);
+                    }
+                    catch (e) {
+                        cc._throw(e);
+                    }
                 }
             }
         }
