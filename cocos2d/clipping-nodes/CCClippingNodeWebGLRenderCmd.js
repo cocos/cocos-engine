@@ -148,8 +148,10 @@ proto.setStencil = function(stencil){
 // should reset program used by _stencil
 proto.resetProgramByStencil = function () {
     var node = this._node;
-    var program = node._originStencilProgram;
-    setProgram(node._stencil, program);
+    if (node._stencil) {
+        var program = node._originStencilProgram;
+        setProgram(node._stencil, program);
+    }
 };
 
 proto._onBeforeVisit = function(ctx){
