@@ -139,6 +139,34 @@ sys.LANGUAGE_NORWEGIAN = "no";
 sys.LANGUAGE_POLISH = "pl";
 
 /**
+ * Turkish language code
+ * @property {String} LANGUAGE_TURKISH
+ * @readOnly
+ */
+sys.LANGUAGE_TURKISH = "tr";
+
+/**
+ * Ukrainian language code
+ * @property {String} LANGUAGE_UKRAINIAN
+ * @readOnly
+ */
+sys.LANGUAGE_UKRAINIAN = "uk";
+
+/**
+ * Romanian language code
+ * @property {String} LANGUAGE_ROMANIAN
+ * @readOnly
+ */
+sys.LANGUAGE_ROMANIAN = "ro";
+
+/**
+ * Bulgarian language code
+ * @property {String} LANGUAGE_BULGARIAN
+ * @readOnly
+ */
+sys.LANGUAGE_BULGARIAN = "bg";
+
+/**
  * Unknown language code
  * @property {String} LANGUAGE_UNKNOWN
  * @readOnly
