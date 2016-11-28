@@ -73,6 +73,7 @@ var AssetLibrary = {
         // var writeMainCache = typeof (options && options.writeMainCache) !== 'undefined' ? writeMainCache : true;
         var item = {
             id: uuid,
+            uuid: uuid,
             type: 'uuid'
         };
         if (options && options.existingAsset) {
@@ -141,6 +142,14 @@ var AssetLibrary = {
                 raw: false,
             };
         }
+    },
+
+    _getAssetUrl: function (uuid) {
+        var info = _uuidToRawAsset[uuid];
+        if (info) {
+            return _rawAssetsBase + info.url;
+        }
+        return null;
     },
 
     /**
