@@ -442,7 +442,7 @@ var View = cc._Class.extend({
         }
         this._antiAliasEnabled = enabled;
         if(cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-            var map = cc.loader._items.map;
+            var map = cc.loader._cache;
             for (var key in map) {
                 var item = map[key];
                 var tex = item && item.content instanceof cc.Texture2D ? item.content : null;
