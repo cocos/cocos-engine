@@ -17,7 +17,6 @@
 
 #include "base/CCDirector.h"
 #include "base/CCEventDispatcher.h"
-#include "SimpleAudioEngine.h"
 
 #include "ide-support/CodeIDESupport.h"
 #include "runtime/Runtime.h"
@@ -34,8 +33,6 @@ AppDelegate::AppDelegate()
 
 AppDelegate::~AppDelegate()
 {
-    SimpleAudioEngine::end();
-
     // NOTE:Please don't remove this call if you want to debug with Cocos Code IDE
     RuntimeEngine::getInstance()->end();
 }
@@ -70,15 +67,15 @@ bool AppDelegate::applicationDidFinishLaunching()
 // This function will be called when the app is inactive. When comes a phone call,it's be invoked too
 void AppDelegate::applicationDidEnterBackground()
 {
-    Director::getInstance()->stopAnimation();
-
-    SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
+    auto director = Director::getInstance();
+    director->stopAnimation();
+    director->getEventDispatcher()->dispatchCustomEvent("game_on_hide");
 }
 
 // this function will be called when the app is active again
 void AppDelegate::applicationWillEnterForeground()
 {
-    Director::getInstance()->startAnimation();
-
-    SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
+    auto director = Director::getInstance();
+    director->startAnimation();
+    director->getEventDispatcher()->dispatchCustomEvent("game_on_show");
 }
