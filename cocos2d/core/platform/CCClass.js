@@ -41,7 +41,7 @@ var TYPO_TO_CORRECT = CC_DEV && {
     constructor: 'ctor'
 };
 
-var INVALID_STATICS = CC_DEV && ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller',
+var INVALID_STATICS_DEV = CC_DEV && ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller',
                        'length', 'prototype'];
 
 var deferredInitializer = {
@@ -404,7 +404,7 @@ function doDefine (className, baseClass, mixins, constructor, options) {
 
             // mixin statics (this will also copy editor attributes for component)
             for (var p in mixin)
-                if (mixin.hasOwnProperty(p) && INVALID_STATICS.indexOf(p) < 0)
+                if (mixin.hasOwnProperty(p) && (!CC_DEV || INVALID_STATICS_DEV.indexOf(p) < 0))
                     fireClass[p] = mixin[p];
 
             // mixin attributes
@@ -818,7 +818,7 @@ function CCClass (options) {
         var staticPropName;
         if (CC_DEV) {
             for (staticPropName in statics) {
-                if (INVALID_STATICS.indexOf(staticPropName) !== -1) {
+                if (INVALID_STATICS_DEV.indexOf(staticPropName) !== -1) {
                     cc.error('Cannot define %s.%s because static member name can not be "%s".', name, staticPropName,
                         staticPropName);
                 }
