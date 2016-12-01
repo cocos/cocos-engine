@@ -1970,7 +1970,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
     },
 
     /**
-     *  Sets a new texture with a rect. The rect is in Points.
+     * Sets a new texture with a rect. The rect is in Points.
      * @param {Texture2D} texture
      * @param {Rect} rect
      */
