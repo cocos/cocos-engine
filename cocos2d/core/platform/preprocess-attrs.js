@@ -202,6 +202,11 @@ module.exports = function (properties, className, cls) {
                         cc.error('The "default" value of "%s.%s" should not be used with a "set" function.',
                             className, propName);
                     }
+                    else if (cc.Class._isCCClass(val.default)) {
+                        val.default = null;
+                        cc.error('The "default" value of "%s.%s" can not be an constructor. Set default to null please.',
+                            className, propName);
+                    }
                 }
                 else if (!val.get && !val.set) {
                     cc.error('Property "%s.%s" must define at least one of "default", "get" or "set".',
