@@ -22,8 +22,6 @@
 #include "runtime/Runtime.h"
 #include "ide-support/RuntimeJsImpl.h"
 
-using namespace CocosDenshion;
-
 USING_NS_CC;
 using namespace std;
 
