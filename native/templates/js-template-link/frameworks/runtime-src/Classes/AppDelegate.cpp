@@ -28,7 +28,6 @@ using namespace anysdk::framework;
 #endif
 
 USING_NS_CC;
-using namespace CocosDenshion;
 
 AppDelegate::AppDelegate()
 {
