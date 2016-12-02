@@ -1,18 +1,18 @@
 /****************************************************************************
- Copyright (c) 2014-2016 Chukong Technologies Inc.
-
+ Copyright (c) 2014 Chukong Technologies Inc.
+ 
  http://www.cocos2d-x.org
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
+ 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,7 +32,7 @@
 #include "audio/apple/AudioPlayer.h"
 #include "audio/apple/AudioCache.h"
 #include "platform/CCFileUtils.h"
-#import <AudioToolbox/ExtendedAudioFile.h>
+#include "audio/apple/AudioDecoder.h"
 
 #define VERY_VERY_VERBOSE_LOGGING
 #ifdef VERY_VERY_VERBOSE_LOGGING
@@ -68,7 +68,7 @@ AudioPlayer::~AudioPlayer()
 {
     ALOGVV("~AudioPlayer() (%p), id=%u", this, _id);
     destroy();
-
+    
     if (_streamingSource)
     {
         alDeleteBuffers(3, _bufferIds);
@@ -79,11 +79,11 @@ void AudioPlayer::destroy()
 {
     if (_isDestroyed)
         return;
-
+    
     ALOGVV("AudioPlayer::destroy begin, id=%u", _id);
 
     _isDestroyed = true;
-
+    
     do
     {
         if (_audioCache != nullptr)
@@ -93,17 +93,17 @@ void AudioPlayer::destroy()
                 ALOGV("AudioPlayer::destroy, id=%u, cache isn't ready!", _id);
                 break;
             }
-
+            
             while (!_audioCache->_isLoadingFinished)
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(5));
             }
         }
-
+        
         // Wait for play2d to be finished.
         _play2dMutex.lock();
         _play2dMutex.unlock();
-
+        
         if (_streamingSource)
         {
             if (_rotateBufferThread != nullptr)
@@ -113,25 +113,25 @@ void AudioPlayer::destroy()
                     _sleepCondition.notify_one();
                     std::this_thread::sleep_for(std::chrono::milliseconds(5));
                 }
-
+                
                 if (_rotateBufferThread->joinable()) {
                     _rotateBufferThread->join();
                 }
-
+                
                 delete _rotateBufferThread;
                 _rotateBufferThread = nullptr;
                 ALOGVV("rotateBufferThread exited!");
             }
         }
     } while(false);
-
+    
     ALOGVV("Before alSourceStop");
     alSourceStop(_alSource); CHECK_AL_ERROR_DEBUG();
     ALOGVV("Before alSourcei");
     alSourcei(_alSource, AL_BUFFER, NULL); CHECK_AL_ERROR_DEBUG();
-
+    
     _removeByAudioEngine = true;
-
+    
     _ready = false;
     ALOGVV("AudioPlayer::destroy end, id=%u", _id);
 }
@@ -236,91 +236,79 @@ bool AudioPlayer::play2d()
 
 void AudioPlayer::rotateBufferThread(int offsetFrame)
 {
-    ALint sourceState;
-    ALint bufferProcessed = 0;
-    ExtAudioFileRef extRef = nullptr;
+    char* tmpBuffer = nullptr;
+    AudioDecoder decoder;
+    do
+    {
+        BREAK_IF(!decoder.open(_audioCache->_fileFullPath.c_str()));
 
-    NSString *fileFullPath = [[NSString alloc] initWithCString:_audioCache->_fileFullPath.c_str() encoding:NSUTF8StringEncoding];
-    auto fileURL = (CFURLRef)[[NSURL alloc] initFileURLWithPath:fileFullPath];
-    [fileFullPath release];
-    char* tmpBuffer = (char*)malloc(_audioCache->_queBufferBytes);
-    auto frames = _audioCache->_queBufferFrames;
+        uint32_t framesRead = 0;
+        const uint32_t framesToRead = _audioCache->_queBufferFrames;
+        const uint32_t bufferSize = framesToRead * decoder.getBytesPerFrame();
+        tmpBuffer = (char*)malloc(bufferSize);
+        memset(tmpBuffer, 0, bufferSize);
 
-    auto error = ExtAudioFileOpenURL(fileURL, &extRef);
-    if(error) {
-        ALOGE("%s: ExtAudioFileOpenURL FAILED, Error = %ld", __PRETTY_FUNCTION__,(long) error);
-        goto ExitBufferThread;
-    }
+        if (offsetFrame != 0) {
+            decoder.seek(offsetFrame);
+        }
 
-    error = ExtAudioFileSetProperty(extRef, kExtAudioFileProperty_ClientDataFormat, sizeof(_audioCache->_outputFormat), &_audioCache->_outputFormat);
-    AudioBufferList		theDataBuffer;
-    theDataBuffer.mNumberBuffers = 1;
-    theDataBuffer.mBuffers[0].mData = tmpBuffer;
-    theDataBuffer.mBuffers[0].mDataByteSize = _audioCache->_queBufferBytes;
-    theDataBuffer.mBuffers[0].mNumberChannels = _audioCache->_outputFormat.mChannelsPerFrame;
+        ALint sourceState;
+        ALint bufferProcessed = 0;
+        bool needToExitThread = false;
 
-    if (offsetFrame != 0) {
-        ExtAudioFileSeek(extRef, offsetFrame);
-    }
-
-    while (!_isDestroyed) {
-        alGetSourcei(_alSource, AL_SOURCE_STATE, &sourceState);
-        if (sourceState == AL_PLAYING) {
-            alGetSourcei(_alSource, AL_BUFFERS_PROCESSED, &bufferProcessed);
-            while (bufferProcessed > 0) {
-                bufferProcessed--;
-                if (_timeDirty) {
-                    _timeDirty = false;
-                    offsetFrame = _currTime * _audioCache->_outputFormat.mSampleRate;
-                    ExtAudioFileSeek(extRef, offsetFrame);
-                }
-                else {
-                    _currTime += QUEUEBUFFER_TIME_STEP;
-                    if (_currTime > _audioCache->_duration) {
-                        if (_loop) {
-                            _currTime = 0.0f;
-                        } else {
-                            _currTime = _audioCache->_duration;
+        while (!_isDestroyed) {
+            alGetSourcei(_alSource, AL_SOURCE_STATE, &sourceState);
+            if (sourceState == AL_PLAYING) {
+                alGetSourcei(_alSource, AL_BUFFERS_PROCESSED, &bufferProcessed);
+                while (bufferProcessed > 0) {
+                    bufferProcessed--;
+                    if (_timeDirty) {
+                        _timeDirty = false;
+                        offsetFrame = _currTime * decoder.getSampleRate();
+                        decoder.seek(offsetFrame);
+                    }
+                    else {
+                        _currTime += QUEUEBUFFER_TIME_STEP;
+                        if (_currTime > _audioCache->_duration) {
+                            if (_loop) {
+                                _currTime = 0.0f;
+                            } else {
+                                _currTime = _audioCache->_duration;
+                            }
                         }
                     }
-                }
 
-                frames = _audioCache->_queBufferFrames;
-                ExtAudioFileRead(extRef, (UInt32*)&frames, &theDataBuffer);
-                if (frames <= 0) {
-                    if (_loop) {
-                        ExtAudioFileSeek(extRef, 0);
-                        frames = _audioCache->_queBufferFrames;
-                        theDataBuffer.mBuffers[0].mDataByteSize = _audioCache->_queBufferBytes;
-                        ExtAudioFileRead(extRef, (UInt32*)&frames, &theDataBuffer);
-                    } else {
-                        _isDestroyed = true;
-                        break;
+                    framesRead = decoder.read(framesToRead, tmpBuffer);
+
+                    if (framesRead == 0) {
+                        if (_loop) {
+                            decoder.seek(0);
+                            framesRead = decoder.read(framesToRead, tmpBuffer);
+                        } else {
+                            needToExitThread = true;
+                            break;
+                        }
                     }
+                    
+                    ALuint bid;
+                    alSourceUnqueueBuffers(_alSource, 1, &bid);
+                    alBufferData(bid, _audioCache->_format, tmpBuffer, framesRead * decoder.getBytesPerFrame(), decoder.getSampleRate());
+                    alSourceQueueBuffers(_alSource, 1, &bid);
                 }
-
-                ALuint bid;
-                alSourceUnqueueBuffers(_alSource, 1, &bid);
-                alBufferData(bid, _audioCache->_format, tmpBuffer, frames * _audioCache->_outputFormat.mBytesPerFrame, _audioCache->_sampleRate);
-                alSourceQueueBuffers(_alSource, 1, &bid);
             }
+            
+            std::unique_lock<std::mutex> lk(_sleepMutex);
+            if (_isDestroyed || needToExitThread) {
+                break;
+            }
+            
+            _sleepCondition.wait_for(lk,std::chrono::milliseconds(75));
         }
+    
+    } while(false);
 
-        std::unique_lock<std::mutex> lk(_sleepMutex);
-        if (_isDestroyed) {
-            break;
-        }
-
-        _sleepCondition.wait_for(lk,std::chrono::milliseconds(75));
-    }
-
-ExitBufferThread:
     ALOGV("Exit rotate buffer thread ...");
-    CFRelease(fileURL);
-	// Dispose the ExtAudioFileRef, it is no longer needed
-	if (extRef){
-        ExtAudioFileDispose(extRef);
-    }
+    decoder.close();
     free(tmpBuffer);
     _isRotateThreadExited = true;
 }
@@ -331,17 +319,17 @@ bool AudioPlayer::setLoop(bool loop)
         _loop = loop;
         return true;
     }
-
+    
     return false;
 }
 
 bool AudioPlayer::setTime(float time)
 {
     if (!_isDestroyed && time >= 0.0f && time < _audioCache->_duration) {
-
+        
         _currTime = time;
         _timeDirty = true;
-
+        
         return true;
     }
     return false;

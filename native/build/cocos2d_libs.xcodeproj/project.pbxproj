@@ -552,6 +552,9 @@
 		1A570311180BCF190088DEC7 /* CCComponentContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A57030A180BCF190088DEC7 /* CCComponentContainer.cpp */; };
 		1A570312180BCF190088DEC7 /* CCComponentContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A57030B180BCF190088DEC7 /* CCComponentContainer.h */; };
 		1A570313180BCF190088DEC7 /* CCComponentContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A57030B180BCF190088DEC7 /* CCComponentContainer.h */; };
+		1A5FB7CA1DF10E3500C918C1 /* AudioDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A5FB7C71DF10E3500C918C1 /* AudioDecoder.mm */; };
+		1A5FB7CB1DF10E3500C918C1 /* AudioDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5FB7C81DF10E3500C918C1 /* AudioDecoder.h */; };
+		1A5FB7CC1DF10E3500C918C1 /* AudioMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5FB7C91DF10E3500C918C1 /* AudioMacros.h */; };
 		1A9DCA27180E6955007A3AD4 /* CCGLBufferedNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A9DCA02180E6955007A3AD4 /* CCGLBufferedNode.cpp */; };
 		1A9DCA28180E6955007A3AD4 /* CCGLBufferedNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A9DCA02180E6955007A3AD4 /* CCGLBufferedNode.cpp */; };
 		1A9DCA29180E6955007A3AD4 /* CCGLBufferedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A9DCA03180E6955007A3AD4 /* CCGLBufferedNode.h */; };
@@ -1823,6 +1826,9 @@
 		1A570309180BCF190088DEC7 /* CCComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCComponent.h; sourceTree = "<group>"; };
 		1A57030A180BCF190088DEC7 /* CCComponentContainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCComponentContainer.cpp; sourceTree = "<group>"; };
 		1A57030B180BCF190088DEC7 /* CCComponentContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCComponentContainer.h; sourceTree = "<group>"; };
+		1A5FB7C71DF10E3500C918C1 /* AudioDecoder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AudioDecoder.mm; sourceTree = "<group>"; };
+		1A5FB7C81DF10E3500C918C1 /* AudioDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioDecoder.h; sourceTree = "<group>"; };
+		1A5FB7C91DF10E3500C918C1 /* AudioMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioMacros.h; sourceTree = "<group>"; };
 		1A97ABFC1A1D962A0076D9CC /* MathUtilNeon64.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MathUtilNeon64.inl; sourceTree = "<group>"; };
 		1A97ABFD1A1D962A0076D9CC /* MathUtilSSE.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MathUtilSSE.inl; sourceTree = "<group>"; };
 		1A9DCA02180E6955007A3AD4 /* CCGLBufferedNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCGLBufferedNode.cpp; sourceTree = "<group>"; };
@@ -3936,8 +3942,11 @@
 			children = (
 				50CB246F19D9C5A100687767 /* AudioCache.h */,
 				50CB247019D9C5A100687767 /* AudioCache.mm */,
+				1A5FB7C81DF10E3500C918C1 /* AudioDecoder.h */,
+				1A5FB7C71DF10E3500C918C1 /* AudioDecoder.mm */,
 				50CB247119D9C5A100687767 /* AudioEngine-inl.h */,
 				50CB247219D9C5A100687767 /* AudioEngine-inl.mm */,
+				1A5FB7C91DF10E3500C918C1 /* AudioMacros.h */,
 				50CB247319D9C5A100687767 /* AudioPlayer.h */,
 				50CB247419D9C5A100687767 /* AudioPlayer.mm */,
 			);
@@ -4471,6 +4480,7 @@
 				BAFF7C781D59E0DA0051B92F /* CCActionFrameEasing.h in Headers */,
 				1A5701FD180BCBAD0088DEC7 /* CCMenuItem.h in Headers */,
 				A63CF00E1CD9CF3500A6971D /* CCUITextInput.h in Headers */,
+				1A5FB7CB1DF10E3500C918C1 /* AudioDecoder.h in Headers */,
 				ED3057831BEC76C90083C3ED /* unzip.h in Headers */,
 				1A570204180BCBD40088DEC7 /* CCClippingNode.h in Headers */,
 				BAFF7CE61D59E0DB0051B92F /* CCUtilMath.h in Headers */,
@@ -4577,6 +4587,7 @@
 				50ABBDA11925AB4100A911A9 /* CCGroupCommand.h in Headers */,
 				BAFF7D6C1D5C1CF80051B92F /* BoneData.h in Headers */,
 				29394CF019B01DBA00D2DE1A /* UIWebView.h in Headers */,
+				1A5FB7CC1DF10E3500C918C1 /* AudioMacros.h in Headers */,
 				BAFF7DBC1D5C1CF80051B92F /* SkeletonRenderer.h in Headers */,
 				15AE186519AAD31D00C27E9E /* CDOpenALSupport.h in Headers */,
 				15AE1B5C19AADA9900C27E9E /* UITextAtlas.h in Headers */,
@@ -5506,6 +5517,7 @@
 				1A5702F2180BCE750088DEC7 /* CCTMXObjectGroup.cpp in Sources */,
 				BAFF7CE41D59E0DB0051B92F /* CCUtilMath.cpp in Sources */,
 				15AE189419AAD33D00C27E9E /* CCLayerLoader.cpp in Sources */,
+				1A5FB7CA1DF10E3500C918C1 /* AudioDecoder.mm in Sources */,
 				826294351AAF004C00CB7CF7 /* HttpCookie.cpp in Sources */,
 				BAFF7DD41D5C1CF80051B92F /* TransformConstraintData.c in Sources */,
 				1A5702FA180BCE750088DEC7 /* CCTMXXMLParser.cpp in Sources */,
