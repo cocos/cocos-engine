@@ -81,47 +81,57 @@ var SystemEvent = cc.Class({
         this._super(type, callback, target, useCapture);
 
         // Keyboard
-        if (!keyboardListener && (type === EventType.KEY_DOWN || type === EventType.KEY_UP)) {
-            keyboardListener = cc.EventListener.create({
-                event: cc.EventListener.KEYBOARD,
-                onKeyPressed: function (keyCode, event) {
-                    event.type = EventType.KEY_DOWN;
-                    if (CC_JSB) {
-                        event.keyCode = keyCode;
-                        event.isPressed = true;
+        if (type === EventType.KEY_DOWN || type === EventType.KEY_UP) {
+            if (!keyboardListener) {
+                keyboardListener = cc.EventListener.create({
+                    event: cc.EventListener.KEYBOARD,
+                    onKeyPressed: function (keyCode, event) {
+                        event.type = EventType.KEY_DOWN;
+                        if (CC_JSB) {
+                            event.keyCode = keyCode;
+                            event.isPressed = true;
+                        }
+                        cc.systemEvent.dispatchEvent(event);
+                    },
+                    onKeyReleased: function (keyCode, event) {
+                        event.type = EventType.KEY_UP;
+                        if (CC_JSB) {
+                            event.keyCode = keyCode;
+                            event.isPressed = false;
+                        }
+                        cc.systemEvent.dispatchEvent(event);
                     }
-                    cc.systemEvent.dispatchEvent(event);
-                },
-                onKeyReleased: function (keyCode, event) {
-                    event.type = EventType.KEY_UP;
-                    if (CC_JSB) {
-                        event.keyCode = keyCode;
-                        event.isPressed = false;
-                    }
-                    cc.systemEvent.dispatchEvent(event);
-                }
-            });
-            cc.eventManager.addListener(keyboardListener, 1);
+                });
+            }
+            var hasKeyboardListener = cc.eventManager._getListeners(keyboardListener._listenerID);
+            if (!hasKeyboardListener) {
+                cc.eventManager.addListener(keyboardListener, 1);
+            }
         }
 
         // Acceleration
-        if (!accelerationListener && type === EventType.DEVICEMOTION) {
-            accelerationListener = cc.EventListener.create({
-                event: cc.EventListener.ACCELERATION,
-                callback: function (accelEvent, event) {
-                    event.type = EventType.DEVICEMOTION;
-                    // fix android acc values are opposite
-                    if (!CC_JSB && cc.sys.os === cc.sys.OS_ANDROID &&
-                        cc.sys.browserType !== cc.sys.BROWSER_TYPE_MOBILE_QQ) {
-                        event.acc = cc.p(-accelEvent.x, -accelEvent.y);
+        if (type === EventType.DEVICEMOTION) {
+            if (accelerationListener) {
+                accelerationListener = cc.EventListener.create({
+                    event: cc.EventListener.ACCELERATION,
+                    callback: function (accelEvent, event) {
+                        event.type = EventType.DEVICEMOTION;
+                        // fix android acc values are opposite
+                        if (!CC_JSB && cc.sys.os === cc.sys.OS_ANDROID &&
+                            cc.sys.browserType !== cc.sys.BROWSER_TYPE_MOBILE_QQ) {
+                            event.acc = cc.p(-accelEvent.x, -accelEvent.y);
+                        }
+                        else {
+                            event.acc = cc.p(accelEvent.x, accelEvent.y);
+                        }
+                        cc.systemEvent.dispatchEvent(event);
                     }
-                    else {
-                        event.acc = cc.p(accelEvent.x, accelEvent.y);
-                    }
-                    cc.systemEvent.dispatchEvent(event);
-                }
-            });
-            cc.eventManager.addListener(accelerationListener, 1);
+                });
+            }
+            var hasAccelerationListener = cc.eventManager._getListeners(accelerationListener._listenerID);
+            if (!hasAccelerationListener) {
+                cc.eventManager.addListener(accelerationListener, 1);
+            }
         }
     },
 
