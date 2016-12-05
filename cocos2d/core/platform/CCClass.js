@@ -393,16 +393,28 @@ function getNewValueTypeCode (value) {
     var clsName = JS.getClassName(value);
     var type = value.constructor;
     var res = 'new ' + clsName + '(';
-    for (var i = 0; i < type.__props__.length; i++) {
-        var prop = type.__props__[i];
-        var propVal = value[prop];
-        if (typeof propVal === 'object') {
-            cc.error('Can not construct %s because it contains object property.', clsName);
-            return 'new ' + clsName + '()';
+    var i;
+    if (type === cc.Mat3 || type === cc.Mat4) {
+        var data = value.data;
+        for (i = 0; i < data.length; i++) {
+            res += data[i];
+            if (i < data.length - 1) {
+                res += ',';
+            }
         }
-        res += propVal;
-        if (i < type.__props__.length - 1) {
-            res += ',';
+    }
+    else {
+        for (i = 0; i < type.__props__.length; i++) {
+            var prop = type.__props__[i];
+            var propVal = value[prop];
+            if (typeof propVal === 'object') {
+                cc.error('Can not construct %s because it contains object property.', clsName);
+                return 'new ' + clsName + '()';
+            }
+            res += propVal;
+            if (i < type.__props__.length - 1) {
+                res += ',';
+            }
         }
     }
     return res + ')';

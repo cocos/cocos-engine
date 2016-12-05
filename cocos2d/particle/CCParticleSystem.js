@@ -897,7 +897,6 @@ var ParticleSystem = cc.Class({
     // PRIVATE METHODS
 
     _applyFile: function () {
-        var sgNode = this._sgNode;
         var file = this._file;
         if (file) {
             var self = this;
@@ -909,6 +908,7 @@ var ParticleSystem = cc.Class({
                     return;
                 }
 
+                var sgNode = self._sgNode;
                 sgNode.particleCount = 0;
 
                 var active = sgNode.isActive();
