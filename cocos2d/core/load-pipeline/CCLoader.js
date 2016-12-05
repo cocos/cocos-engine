@@ -557,12 +557,18 @@ JS.mixin(CCLoader.prototype, {
                 var removed = this.removeItem(id);
                 // TODO: Audio
                 asset = item.content;
-                if (asset instanceof cc.Texture2D) {
-                    cc.textureCache.removeTextureForKey(item.url);
+                if (asset instanceof cc.Asset) {
+                    if (CC_JSB && asset instanceof cc.SpriteFrame && removed) {
+                        // for the "Temporary solution" in deserialize.js
+                        asset.release();
+                    }
+                    var urls = asset.rawUrls;
+                    for (var i = 0; i < urls.length; i++) {
+                        this.release(urls[i]);
+                    }
                 }
-                else if (CC_JSB && asset instanceof cc.SpriteFrame && removed) {
-                    // for the "Temporary solution" in deserialize.js
-                    asset.release();
+                else if (asset instanceof cc.Texture2D) {
+                    cc.textureCache.removeTextureForKey(item.url);
                 }
             }
         }
