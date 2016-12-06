@@ -792,12 +792,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     },
 
     _onPreDestroy: function () {
+        cc.eventManager.removeListeners(this);
         if (CC_JSB) {
             this._sgNode.release();
             this._sgNode._entity = null;
             this._sgNode = null;
         }
-        cc.eventManager.removeListeners(this);
         for (var i = 0, len = this.__eventTargets.length; i < len; ++i) {
             var target = this.__eventTargets[i];
             target && target.targetOff(this);
