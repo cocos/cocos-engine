@@ -103,7 +103,7 @@ var SystemEvent = cc.Class({
                     }
                 });
             }
-            if (!cc.eventManager.hasEventListener('__cc_keyboard')) {
+            if (!cc.eventManager.hasEventListener(cc._EventListenerKeyboard.LISTENER_ID)) {
                 cc.eventManager.addListener(keyboardListener, 1);
             }
         }
@@ -127,7 +127,7 @@ var SystemEvent = cc.Class({
                     }
                 });
             }
-            if (!cc.eventManager.hasEventListener('__cc_acceleration')) {
+            if (!cc.eventManager.hasEventListener(cc._EventListenerAcceleration.LISTENER_ID)) {
                 cc.eventManager.addListener(accelerationListener, 1);
             }
         }

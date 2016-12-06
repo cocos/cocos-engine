@@ -703,7 +703,7 @@ cc.eventManager = {
      * @return {Boolean} true or false
      */
     hasEventListener: function (listenerID) {
-        return this._getListeners(listenerID) ? true : false;
+        return !!this._getListeners(listenerID);
     },
 
     /**
