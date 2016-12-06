@@ -67,7 +67,7 @@ void AudioEngineInterruptionListenerCallback(void* user_data, UInt32 interruptio
     else if (kAudioSessionEndInterruption == interruption_state)
     {
       OSStatus result = AudioSessionSetActive(true);
-      if (result) NSLog(@"Error setting audio session active! %d\n", result);
+      if (result) NSLog(@"Error setting audio session active! %d\n", static_cast<int>(result));
 
       alcMakeContextCurrent(s_ALContext);
     }
@@ -192,7 +192,7 @@ bool AudioEngineImpl::init()
             for (int i = 0; i < MAX_AUDIOINSTANCES; ++i) {
                 _alSourceUsed[_alSources[i]] = false;
             }
-            
+
             // fixed #16170: Random crash in alGenBuffers(AudioCache::readDataTask) at startup
             // Please note that, as we know the OpenAL operation is atomic (threadsafe),
             // 'alGenBuffers' may be invoked by different threads. But in current implementation of 'alGenBuffers',
@@ -200,15 +200,15 @@ bool AudioEngineImpl::init()
             // Why? OpenAL is opensource by Apple and could be found at
             // http://opensource.apple.com/source/OpenAL/OpenAL-48.7/Source/OpenAL/oalImp.cpp .
             /*
-             
+
             void InitializeBufferMap()
             {
                 if (gOALBufferMap == NULL) // Position 1
                 {
                     gOALBufferMap = new OALBufferMap ();  // Position 2
-             
+
                     // Position Gap
-             
+
                     gBufferMapLock = new CAGuard("OAL:BufferMapLock"); // Position 3
                     gDeadOALBufferMap = new OALBufferMap ();
 
@@ -233,7 +233,7 @@ bool AudioEngineImpl::init()
                 ...
                 ...
             }
-             
+
              */
             // 'gBufferMapLock' will be initialized in the 'InitializeBufferMap' function,
             // that's the problem. It means that 'InitializeBufferMap' may be invoked in different threads.
@@ -243,18 +243,18 @@ bool AudioEngineImpl::init()
             // that 'gOALBufferMap' isn't NULL, B just jump over 'InitialBufferMap' and goto 'Position 4'.
             // Meanwhile, A is still at 'Position Gap', B will crash at '*gBufferMapLock' since 'gBufferMapLock'
             // is still a null pointer. Oops, how could Apple implemented this method in this fucking way?
-            
+
             // Workaround is do an unused invocation in the mainthread right after OpenAL is initialized successfully
             // as bellow.
             // ================ Workaround begin ================ //
-            
+
             ALuint unusedAlBufferId = 0;
             alGenBuffers(1, &unusedAlBufferId);
             alDeleteBuffers(1, &unusedAlBufferId);
-            
+
             // ================ Workaround end ================ //
-            
-            
+
+
             _scheduler = Director::getInstance()->getScheduler();
             ret = true;
             ALOGI("OpenAL was initialized successfully!");
@@ -288,7 +288,7 @@ AudioCache* AudioEngineImpl::preload(const std::string& filePath, std::function<
         audioCache = &it->second;
     }
 
-    if(audioCache && callback)
+    if (audioCache && callback)
     {
         audioCache->addLoadCallback(callback);
     }
@@ -319,7 +319,7 @@ int AudioEngineImpl::play2d(const std::string &filePath ,bool loop ,float volume
     if (player == nullptr) {
         return AudioEngine::INVALID_AUDIO_ID;
     }
-    
+
     player->_alSource = alSource;
     player->_loop = loop;
     player->_volume = volume;
@@ -329,16 +329,16 @@ int AudioEngineImpl::play2d(const std::string &filePath ,bool loop ,float volume
         delete player;
         return AudioEngine::INVALID_AUDIO_ID;
     }
-    
+
     player->setCache(audioCache);
     _threadMutex.lock();
     _audioPlayers[_currentAudioID] = player;
     _threadMutex.unlock();
-    
+
     _alSourceUsed[alSource] = true;
-    
+
     audioCache->addPlayCallback(std::bind(&AudioEngineImpl::_play2d,this,audioCache,_currentAudioID));
-    
+
     if (_lazyInitLoop) {
         _lazyInitLoop = false;
         _scheduler->schedule(CC_SCHEDULE_SELECTOR(AudioEngineImpl::update), this, 0.05f, false);
@@ -356,7 +356,7 @@ void AudioEngineImpl::_play2d(AudioCache *cache, int audioID)
         auto playerIt = _audioPlayers.find(audioID);
         if (playerIt != _audioPlayers.end() && playerIt->second->play2d()) {
             _scheduler->performFunctionInCocosThread([audioID](){
-                
+
                 if (AudioEngine::_audioIDInfoMap.find(audioID) != AudioEngine::_audioIDInfoMap.end()) {
                     AudioEngine::_audioIDInfoMap[audioID].state = AudioEngine::AudioState::PLAYING;
                 }
@@ -511,8 +511,8 @@ bool AudioEngineImpl::setCurrentTime(int audioID, float time)
             break;
         }
         else {
-            if (player->_audioCache->_bytesOfRead != player->_audioCache->_dataSize &&
-                (time * player->_audioCache->_sampleRate * player->_audioCache->_bytesPerFrame) > player->_audioCache->_bytesOfRead) {
+            if (player->_audioCache->_framesRead != player->_audioCache->_totalFrames &&
+                (time * player->_audioCache->_sampleRate) > player->_audioCache->_framesRead) {
                 ALOGE("%s: audio id = %d", __PRETTY_FUNCTION__,audioID);
                 break;
             }
@@ -540,18 +540,18 @@ void AudioEngineImpl::update(float dt)
     ALint sourceState;
     int audioID;
     AudioPlayer* player;
-    
+
 //    ALOGV("AudioPlayer count: %d", (int)_audioPlayers.size());
-    
+
     for (auto it = _audioPlayers.begin(); it != _audioPlayers.end(); ) {
         audioID = it->first;
         player = it->second;
         alGetSourcei(player->_alSource, AL_SOURCE_STATE, &sourceState);
 
-        if(player->_removeByAudioEngine)
+        if (player->_removeByAudioEngine)
         {
             _alSourceUsed[player->_alSource] = false;
-            
+
             AudioEngine::remove(audioID);
             _threadMutex.lock();
             it = _audioPlayers.erase(it);
@@ -559,7 +559,7 @@ void AudioEngineImpl::update(float dt)
             delete player;
         }
         else if (player->_ready && sourceState == AL_STOPPED) {
-            
+
             _alSourceUsed[player->_alSource] = false;
             if (player->_finishCallbak) {
                 auto& audioInfo = AudioEngine::_audioIDInfoMap[audioID];

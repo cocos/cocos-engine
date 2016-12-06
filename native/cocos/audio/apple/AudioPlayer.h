@@ -57,7 +57,7 @@ protected:
     void setCache(AudioCache* cache);
     void rotateBufferThread(int offsetFrame);
     bool play2d();
-    
+
     AudioCache* _audioCache;
 
     float _volume;
@@ -90,4 +90,3 @@ protected:
 NS_CC_END
 
 #endif
-
