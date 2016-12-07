@@ -136,10 +136,10 @@ var simpleQuadGenerator = {
             vertices[7] = t;
         }
 
-        cornerId[0] = 0;
-        cornerId[1] = 2;
-        cornerId[2] = 4;
-        cornerId[3] = 6;
+        cornerId[0] = 0; // left
+        cornerId[1] = 2; // right
+        cornerId[2] = 1; // bottom
+        cornerId[3] = 5; // top
 
         //build uvs
         if (sprite._uvsDirty) {
@@ -251,10 +251,10 @@ var scale9QuadGenerator = {
             }
         }
 
-        cornerId[0] = 0;
-        cornerId[1] = 6;
-        cornerId[2] = 24;
-        cornerId[3] = 30;
+        cornerId[0] = 0;  // left
+        cornerId[1] = 6;  // right
+        cornerId[2] = 1;  // bottom
+        cornerId[3] = 31; // top
 
         //build uvs
         if (sprite._uvsDirty) {
@@ -436,10 +436,10 @@ var tiledQuadGenerator = {
             }
         }
 
-        cornerId[0] = 0;
-        cornerId[1] = col * 8 + 2;
-        cornerId[2] = dataLength - col * 8 + 4;
-        cornerId[3] = dataLength - 2;
+        cornerId[0] = 0; // left
+        cornerId[1] = col * 8 + 2; // right
+        cornerId[2] = 1; // bottom
+        cornerId[3] = dataLength - 1; // top
     }
 };
 
@@ -570,10 +570,10 @@ var fillQuadGeneratorBar = {
 
         sprite._vertCount = 4;
 
-        cornerId[0] = 0;
-        cornerId[1] = 2;
-        cornerId[2] = 4;
-        cornerId[3] = 6;
+        cornerId[0] = 0; // left
+        cornerId[1] = 2; // right
+        cornerId[2] = 1; // bottom
+        cornerId[3] = 5; // top
     }
 };
 
@@ -740,10 +740,10 @@ var fillQuadGeneratorRadial = {
         }
         sprite._vertCount = count;
 
-        cornerId[0] = 0;
-        cornerId[1] = 2;
-        cornerId[2] = 4;
-        cornerId[3] = 6;
+        cornerId[0] = 0; // left
+        cornerId[1] = 2; // right
+        cornerId[2] = 1; // bottom
+        cornerId[3] = 5; // top
     },
 
     _generateTriangle: function(wt, offset, vert0, vert1, vert2) {
@@ -949,18 +949,37 @@ var meshQuadGenerator = {
             sprite._uvs = uvs;
         }
 
+        var l, r, b, t;
         for (var i = 0; i < count; i++) {
-            vertices[i * 2] = srcVerts[i].x * wt.a + srcVerts[i].y * wt.c + wt.tx;
-            vertices[i * 2 + 1] = srcVerts[i].x * wt.b + srcVerts[i].y * wt.d + wt.ty;
+            var x = srcVerts[i].x * wt.a + srcVerts[i].y * wt.c + wt.tx;
+            var y = srcVerts[i].x * wt.b + srcVerts[i].y * wt.d + wt.ty;
+            vertices[i * 2] = x;
+            vertices[i * 2 + 1] = y;
             uvs[i * 2] = srcVerts[i].u;
             uvs[i * 2 + 1] = srcVerts[i].v;
+
+            if (l === undefined || x < l) {
+                l = x;
+                cornerId[0] = i * 2; // left
+            }
+
+            if (r === undefined || x > r) {
+                r = x;
+                cornerId[1] = i * 2; // right
+            }
+
+            if (b === undefined || y < b) {
+                b = y;
+                cornerId[2] = i * 2 + 1; // bottom
+            }
+
+            if (t === undefined || y > t) {
+                t = y;
+                cornerId[3] = i * 2 + 1; // top
+            }
         }
 
         sprite._vertCount = count;
-        cornerId[0] = 0;
-        cornerId[1] = 2;
-        cornerId[2] = 4;
-        cornerId[3] = 6;
     }
 };
 
@@ -1395,9 +1414,13 @@ cc.Scale9Sprite = _ccsg.Node.extend({
 
         // Culling
         if (webgl) {
+            // x1, y1  leftBottom
+            // x2, y2  rightBottom
+            // x3, y3  leftTop
+            // x4, y4  rightTop
             var vert = this._isTriangle ? this._rawVerts : this._vertices,
-                x0 = vert[cornerId[0]], x1 = vert[cornerId[1]], x2 = vert[cornerId[2]], x3 = vert[cornerId[3]],
-                y0 = vert[cornerId[0]+1], y1 = vert[cornerId[1]+1], y2 = vert[cornerId[2]+1], y3 = vert[cornerId[3]+1];
+                x0 = vert[cornerId[0]], x1 = vert[cornerId[1]], x2 = vert[cornerId[0]], x3 = vert[cornerId[1]],
+                y0 = vert[cornerId[2]], y1 = vert[cornerId[2]], y2 = vert[cornerId[3]], y3 = vert[cornerId[3]];
             if (((x0-vl.x) & (x1-vl.x) & (x2-vl.x) & (x3-vl.x)) >> 31 || // All outside left
                 ((vr.x-x0) & (vr.x-x1) & (vr.x-x2) & (vr.x-x3)) >> 31 || // All outside right
                 ((y0-vb.y) & (y1-vb.y) & (y2-vb.y) & (y3-vb.y)) >> 31 || // All outside bottom
