@@ -69,6 +69,7 @@ var EventType = cc.Enum({
 
 var keyboardListener = null;
 var accelerationListener = null;
+var LISTENER_ID = '';
 var SystemEvent = cc.Class({
     name: 'SystemEvent',
     extends: EventTarget,
@@ -103,7 +104,8 @@ var SystemEvent = cc.Class({
                     }
                 });
             }
-            if (!cc.eventManager.hasEventListener(cc._EventListenerKeyboard.LISTENER_ID)) {
+            LISTENER_ID = CC_JSB ? '__cc_keyboard' : cc._EventListenerKeyboard.LISTENER_ID;
+            if (!cc.eventManager.hasEventListener(LISTENER_ID)) {
                 cc.eventManager.addListener(keyboardListener, 1);
             }
         }
@@ -127,7 +129,8 @@ var SystemEvent = cc.Class({
                     }
                 });
             }
-            if (!cc.eventManager.hasEventListener(cc._EventListenerAcceleration.LISTENER_ID)) {
+            LISTENER_ID = CC_JSB ? '__cc_acceleration' : cc._EventListenerAcceleration.LISTENER_ID;
+            if (!cc.eventManager.hasEventListener(LISTENER_ID)) {
                 cc.eventManager.addListener(accelerationListener, 1);
             }
         }
