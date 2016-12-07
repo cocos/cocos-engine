@@ -921,6 +921,49 @@ var fillQuadGeneratorRadial = {
     }
 };
 
+var meshQuadGenerator = {
+    _rebuildQuads_base: function (sprite, spriteFrame, polygonInfo) {
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            return;
+        }
+
+        if (!polygonInfo) {
+            return;
+        }
+
+        var wt = sprite._renderCmd._worldTransform;
+        var srcVerts = polygonInfo.triangles.verts;
+        var vertices = sprite._vertices;
+        var uvs = sprite._uvs;
+        var count = srcVerts.length;
+
+        var dataLength = count * 2;
+        if (vertices.length < dataLength) {
+            dataPool.put(vertices);
+            vertices = dataPool.get(dataLength) || new Float32Array(dataLength);
+            sprite._vertices = vertices;
+        }
+        if (uvs.length < dataLength) {
+            dataPool.put(uvs);
+            uvs = dataPool.get(dataLength) || new Float32Array(dataLength);
+            sprite._uvs = uvs;
+        }
+
+        for (var i = 0; i < count; i++) {
+            vertices[i * 2] = srcVerts[i].x * wt.a + srcVerts[i].y * wt.c + wt.tx;
+            vertices[i * 2 + 1] = srcVerts[i].x * wt.b + srcVerts[i].y * wt.d + wt.ty;
+            uvs[i * 2] = srcVerts[i].u;
+            uvs[i * 2 + 1] = srcVerts[i].v;
+        }
+
+        sprite._vertCount = count;
+        cornerId[0] = 0;
+        cornerId[1] = 2;
+        cornerId[2] = 4;
+        cornerId[3] = 6;
+    }
+};
+
 cc.Scale9Sprite = _ccsg.Node.extend({
     //resource data, could be async loaded.
     _spriteFrame: null,
@@ -955,6 +998,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     _fillRange: Math.PI * 2,
     _distortionOffset: null,
     _distortionTiling: null,
+    _meshPolygonInfo: null,
 
     ctor: function (textureOrSpriteFrame) {
         _ccsg.Node.prototype.ctor.call(this);
@@ -1338,6 +1382,9 @@ cc.Scale9Sprite = _ccsg.Node.extend({
                 fillQuadGeneratorRadial._rebuildQuads_base(this, this._spriteFrame, this._contentSize, this._fillCenter,fillstart, fillRange);
             }
             break;
+        case RenderingType.MESH:
+            meshQuadGenerator._rebuildQuads_base(this, this._spriteFrame, this._meshPolygonInfo);
+            break;
         default:
             this._quadsDirty = false;
             this._uvsDirty = false;
@@ -1381,8 +1428,27 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             return new cc.Scale9Sprite.CanvasRenderCmd(this);
         else
             return new cc.Scale9Sprite.WebGLRenderCmd(this);
-    }
+    },
 
+    setMeshPolygonInfo: function (polygonInfo) {
+        /**
+         * polygonInfo in format:
+         * {
+         *     triangles: {
+         *         verts: displayVertices,
+         *         indices: vertexIndices
+         *     },
+         *     rect: boundsRect
+         * }
+         */
+        this._meshPolygonInfo = polygonInfo;
+        this._quadsDirty = true;
+        this._uvsDirty = true;
+    },
+
+    getMeshPolygonInfo: function () {
+        return this._meshPolygonInfo;
+    }
 });
 
 var _p = cc.Scale9Sprite.prototype;
@@ -1415,7 +1481,11 @@ var RenderingType = cc.Scale9Sprite.RenderingType = cc.Enum({
     /*
      * @property {Number} FILLED
      */
-    FILLED: 3
+    FILLED: 3,
+    /*
+     * @property {Number} MESH
+     */
+    MESH: 4
 });
 
 var FillType = cc.Scale9Sprite.FillType = cc.Enum({

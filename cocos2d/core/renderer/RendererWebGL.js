@@ -109,7 +109,8 @@ function initQuadBuffer (numQuads) {
 
 var VertexType = cc.Enum({
     QUAD : 0,
-    TRIANGLE : 1
+    TRIANGLE : 1,
+    CUSTOM: 2
 });
 
 cc.rendererWebGL = {
@@ -298,6 +299,9 @@ cc.rendererWebGL = {
                 _indexData[_indexSize++] = curr + 2;
             }
             break;
+        case VertexType.CUSTOM:
+            // TODO increase index data of custom cmd ??
+            break;
         default:
             return;
         }
@@ -357,6 +361,12 @@ cc.rendererWebGL = {
                     _indexData[_indexSize++] = curr + 0;
                     _indexData[_indexSize++] = curr + 1;
                     _indexData[_indexSize++] = curr + 2;
+                }
+                break;
+            case VertexType.CUSTOM:
+                _pureQuad = false;
+                if (cmd.uploadIndexData) {
+                    _indexSize += cmd.uploadIndexData(_indexData, _indexSize, _batchingSize);
                 }
                 break;
             default:

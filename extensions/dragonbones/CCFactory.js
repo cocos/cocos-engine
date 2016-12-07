@@ -71,6 +71,7 @@ dragonBones.CCFactory = cc.Class({
 
         slot.name = slotData.name;
         slot._rawDisplay = new _ccsg.Sprite();
+        slot._meshDisplay = new cc.Scale9Sprite();
 
         for (var i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
             var displayData = slotDisplayDataSet.displays[i];
@@ -84,19 +85,16 @@ dragonBones.CCFactory = cc.Class({
                     break;
 
                 case dragonBones.DisplayType.Mesh:
-                    // TODO support mesh display
-                    //if (!displayData.texture) {
-                    //    displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
-                    //}
-                    //
-                    //if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-                    //    displayList.push(slot._rawDisplay);
-                    //} else {
-                    //    cc.log('Canvas is not support mesh slot!');
-                    //    displayList.push(slot._rawDisplay);
-                    //}
-                    cc.warn('WARN: Now mesh display is not supported in web!');
-                    displayList.push(slot._rawDisplay);
+                    if (!displayData.texture) {
+                        displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
+                    }
+
+                    if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+                        slot._meshDisplay.setRenderingType(cc.Scale9Sprite.RenderingType.MESH);
+                        displayList.push(slot._meshDisplay);
+                    } else {
+                        cc.warn('Canvas is not support mesh slot!');
+                    }
                     break;
 
                 case dragonBones.DisplayType.Armature:
@@ -126,6 +124,8 @@ dragonBones.CCFactory = cc.Class({
         }
 
         slot._setDisplayList(displayList);
+        slot._rawDisplay.setLocalZOrder(slotData.zOrder);
+        slot._meshDisplay.setLocalZOrder(slotData.zOrder);
 
         return slot;
     }
