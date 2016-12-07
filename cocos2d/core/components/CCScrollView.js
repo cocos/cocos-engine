@@ -25,7 +25,7 @@
 
 var NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 var OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
-var EPSILON = 1e-7;
+var EPSILON = 1e-4;
 var MOVEMENT_FACTOR = 0.7;
 
 var quintEaseOut = function(time) {
