@@ -346,10 +346,15 @@ var RichText = cc.Class({
         this._sgNode.addChild(labelSegment);
         this._labelSegments.push(labelSegment);
 
+        //when lineHeight is less than the content size of labelSize
+        //in Web platform, the extra pixels will be trimed.
+        //so we need to set the overflow to clamp in JSB
+        //FIXME: label in jsb should be refactored to keep the behavior the same as web platform.
         if(CC_JSB) {
             labelSegment.setOverflow(1);
             var size = labelSegment.getContentSize();
-            labelSegment.setContentSize(size.width, this.lineHeight);
+            labelSegment.enableWrap(false);
+            labelSegment.setDimensions(size.width, this.lineHeight);
         }
 
         return labelSegment;
