@@ -46,6 +46,12 @@ var BitmapFont = cc.Class({
         fontSize: {
             default: -1
         }
+    },
+
+    _preloadRawFiles: function (done) {
+        // preload fnt file. (texture already loaded in properties)
+        var fntUrl = this.rawUrl;
+        cc.loader.load({ id: fntUrl, ignoreMaxConcurrency: true }, done);
     }
 });
 
