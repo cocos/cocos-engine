@@ -253,7 +253,7 @@ JS.mixin(Pipeline.prototype, {
             for (i = 0; i < items.length; i++) {
                 item = items[i];
                 var url = cc.AssetLibrary._getAssetUrl(item.uuid);
-                if (url && url !== item.url) {
+                if (url && !item.url) {
                     item.id = item.url = url;
                 }
                 this._cache[item.id] = item;
