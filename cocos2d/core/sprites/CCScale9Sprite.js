@@ -949,7 +949,8 @@ var meshQuadGenerator = {
             sprite._uvs = uvs;
         }
 
-        var l, r, b, t;
+        var l = Infinity, b = Infinity,
+            r = -Infinity, t = -Infinity;
         for (var i = 0; i < count; i++) {
             var x = srcVerts[i].x * wt.a + srcVerts[i].y * wt.c + wt.tx;
             var y = srcVerts[i].x * wt.b + srcVerts[i].y * wt.d + wt.ty;
@@ -958,22 +959,22 @@ var meshQuadGenerator = {
             uvs[i * 2] = srcVerts[i].u;
             uvs[i * 2 + 1] = srcVerts[i].v;
 
-            if (l === undefined || x < l) {
+            if (x < l) {
                 l = x;
                 cornerId[0] = i * 2; // left
             }
 
-            if (r === undefined || x > r) {
+            if (x > r) {
                 r = x;
                 cornerId[1] = i * 2; // right
             }
 
-            if (b === undefined || y < b) {
+            if (y < b) {
                 b = y;
                 cornerId[2] = i * 2 + 1; // bottom
             }
 
-            if (t === undefined || y > t) {
+            if (y > t) {
                 t = y;
                 cornerId[3] = i * 2 + 1; // top
             }
@@ -1464,6 +1465,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
          *     rect: boundsRect
          * }
          */
+        this.setRenderingType(RenderingType.MESH);
         this._meshPolygonInfo = polygonInfo;
         this._quadsDirty = true;
         this._uvsDirty = true;

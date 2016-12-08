@@ -93,7 +93,7 @@ dragonBones.CCFactory = cc.Class({
                         slot._meshDisplay.setRenderingType(cc.Scale9Sprite.RenderingType.MESH);
                         displayList.push(slot._meshDisplay);
                     } else {
-                        cc.warn('Canvas is not support mesh slot!');
+                        cc.warn("Canvas doesn't support mesh slot!");
                     }
                     break;
 
