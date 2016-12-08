@@ -328,35 +328,56 @@ cc.js.mixin(cc.director, {
      * @param {String} uuid - the uuid of the scene asset to load
      * @param {Function} [onLaunched]
      * @param {Function} [onUnloaded]
+     * @param {Boolean} [dontRunScene] - Just download and initialize the scene but will not launch it,
+     *                                   only take effect in the Editor.
      * @private
      */
-    _loadSceneByUuid: function (uuid, onLaunched, onUnloaded) {
+    _loadSceneByUuid: function (uuid, onLaunched, onUnloaded, dontRunScene) {
+        if (CC_EDITOR) {
+            if (typeof onLaunched === 'boolean') {
+                dontRunScene = onLaunched;
+                onLaunched = null;
+            }
+            if (typeof onUnloaded === 'boolean') {
+                dontRunScene = onUnloaded;
+                onUnloaded = null;
+            }
+        }
         //cc.AssetLibrary.unloadAsset(uuid);     // force reload
         cc.AssetLibrary.loadAsset(uuid, function (error, sceneAsset) {
             var self = cc.director;
             self._loadingScene = '';
-            var scene;
             if (error) {
                 error = 'Failed to load scene: ' + error;
                 cc.error(error);
-                if (CC_DEV) {
-                    console.assert(false, error);
-                }
             }
             else {
                 if (sceneAsset instanceof cc.SceneAsset) {
-                    scene = sceneAsset.scene;
+                    var scene = sceneAsset.scene;
                     scene._id = sceneAsset._uuid;
                     scene._name = sceneAsset._name;
-                    self.runSceneImmediate(scene, onUnloaded, onLaunched);
+                    if (CC_EDITOR) {
+                        if (!dontRunScene) {
+                            self.runSceneImmediate(scene, onUnloaded, onLaunched);
+                        }
+                        else {
+                            scene._load();
+                            if (onLaunched) {
+                                onLaunched(null, scene);
+                            }
+                        }
+                    }
+                    else {
+                        self.runSceneImmediate(scene, onUnloaded, onLaunched);
+                    }
+                    return;
                 }
                 else {
                     error = 'The asset ' + uuid + ' is not a scene';
                     cc.error(error);
-                    scene = null;
                 }
             }
-            if (error && onLaunched) {
+            if (onLaunched) {
                 onLaunched(error);
             }
         });
