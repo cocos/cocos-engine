@@ -92,6 +92,15 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
         propList.push(tdInfo.rawProp);
         depends.push(item.url);
     }
+    // preload raw files
+    if (asset._preloadRawFiles) {
+        var finalCallback = callback;
+        callback = function () {
+            asset._preloadRawFiles(function (err) {
+                finalCallback(err || null, asset);
+            });
+        };
+    }
     // fast path
     if (depends.length === 0) {
         asset._uuid = uuid;
