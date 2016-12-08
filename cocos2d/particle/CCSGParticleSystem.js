@@ -1339,8 +1339,10 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                 locModeA.tangentialAccelVar = (pszTmp) ? parseFloat(pszTmp) : 0;
 
                 // rotation is dir
-                var locRotationIsDir = locValueForKey("rotationIsDir", dictionary).toLowerCase();
-                locModeA.rotationIsDir = (locRotationIsDir != null && (locRotationIsDir === "true" || locRotationIsDir === "1"));
+                var locRotationIsDir = locValueForKey("rotationIsDir", dictionary);
+                locRotationIsDir = ("" + locRotationIsDir).toLowerCase();
+                locModeA.rotationIsDir = (locRotationIsDir === "true" || locRotationIsDir === "1");
+
             } else if (this.emitterMode === _ccsg.ParticleSystem.Mode.RADIUS) {
                 // or Mode B: radius movement
                 var locModeB = this.modeB;

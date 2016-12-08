@@ -696,6 +696,17 @@ cc.eventManager = {
     },
 
     /**
+     * !#en Query whether the specified event listener id has been added.
+     * !#zh 查询指定的事件 ID 是否存在
+     * @method hasEventListener
+     * @param {String|Number} listenerID - The listener id.
+     * @return {Boolean} true or false
+     */
+    hasEventListener: function (listenerID) {
+        return !!this._getListeners(listenerID);
+    },
+
+    /**
      * !#en
      * <p>
      * Adds a event listener for a specified event.<br/>

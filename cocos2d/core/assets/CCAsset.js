@@ -102,6 +102,7 @@ cc.Asset = cc.Class({
          * 在 lite 版的 Fireball 里，raw asset 并不仅仅是在 properties 里声明了 rawType 才有，
          * 而是每个 asset 都能指定自己的 raw file url。这些 url 就存在 _rawFiles 字段中。
          * AssetLibrary 并不会帮你加载这些 url，除非你声明了 rawType。
+         * 在 Creator 里，_rawFiles 保留了下来，为了复用 cocos 引擎原有实现，直接用 _rawFiles 来加载 Asset 在 import 之前的源文件。
          *
          * @property _rawFiles
          * @type {String[]}
@@ -152,8 +153,8 @@ cc.Asset = cc.Class({
      * Create a new node using this asset in the scene.<br/>
      * If this type of asset dont have its corresponding node type, this method should be null.
      * !#zh
-     * 使用该资产在场景中创建一个新节点。<br/>
-     * 如果这类资产没有相应的节点类型，该方法应该是空的。
+     * 使用该资源在场景中创建一个新节点。<br/>
+     * 如果这类资源没有相应的节点类型，该方法应该是空的。
      * @method createNode
      * @param {Function} callback
      * @param {String} callback.error - null or the error info
@@ -170,7 +171,17 @@ cc.Asset = cc.Class({
      */
     _setRawFiles: function (rawFiles) {
         this._rawFiles = rawFiles.length > 0 ? rawFiles : null;
-    }
+    },
+
+    /**
+     * Preload raw files when loading scene.
+     *
+     * @method _preloadRawFiles
+     * @param {Function} callback
+     * @param {Error} callback.error
+     * @private
+     */
+    _preloadRawFiles: null,
 });
 
 module.exports = cc.Asset;

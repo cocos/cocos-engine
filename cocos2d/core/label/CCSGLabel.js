@@ -1140,8 +1140,8 @@ cc.BMFontHelper = {
     _setBMFontFile: function(filename, textureUrl) {
         if (filename) {
             this._fontHandle = filename;
-            var self = this;
             if (this._labelType === _ccsg.Label.Type.BMFont) {
+                var self = this;
                 this._resetBMFont();
 
                 cc.loader.load(this._fontHandle, function(err, config) {
