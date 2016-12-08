@@ -365,12 +365,6 @@ JS.mixin(Pipeline.prototype, {
     getItem: function (id) {
         var item = this._cache[id];
 
-        var url;
-        if (!item) {
-            url = cc.AssetLibrary._getAssetUrl(id);
-            item = this._cache[url];
-        }
-
         if (!item)
             return item;
 
