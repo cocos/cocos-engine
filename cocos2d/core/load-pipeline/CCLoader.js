@@ -438,7 +438,7 @@ JS.mixin(CCLoader.prototype, {
             var uuid = this._getResUuid(url);
             item = this._cache[uuid];
         }
-        return item ? item.content : null;
+        return (item && item.complete) ? item.content : null;
     },
 
     /**
