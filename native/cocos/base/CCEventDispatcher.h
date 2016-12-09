@@ -249,7 +249,7 @@ protected:
     void forceAddEventListener(EventListener* listener);
 
     /** Gets event the listener list for the event listener type. */
-    EventListenerVector* getListeners(const EventListener::ListenerID& listenerID);
+    EventListenerVector* getListeners(const EventListener::ListenerID& listenerID) const;
 
     /** Update dirty flag */
     void updateDirtyFlagForSceneGraph();
