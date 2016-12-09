@@ -25,6 +25,7 @@
 
 function JsonUnpacker () {
     this.jsons = {};
+    this.state = -1;
 }
 
 /**
