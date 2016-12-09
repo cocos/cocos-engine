@@ -72,7 +72,7 @@ function syncFlow (item) {
     var pipeId = this.id;
     var itemState = item.states[pipeId];
     var next = this.next;
-    
+
     if (item.error || itemState === ItemState.WORKING || itemState === ItemState.ERROR) {
         return;
     }
@@ -252,6 +252,10 @@ JS.mixin(Pipeline.prototype, {
         if (pipe) {
             for (i = 0; i < items.length; i++) {
                 item = items[i];
+                var url = cc.AssetLibrary._getAssetUrl(item.uuid);
+                if (url && !item.url) {
+                    item.id = item.url = url;
+                }
                 this._cache[item.id] = item;
                 pipe.flowIn(item);
             }
@@ -364,6 +368,7 @@ JS.mixin(Pipeline.prototype, {
         if (!item)
             return item;
 
+        // downloader.js downloadUuid
         if (item.alias)
             item = this._cache[item.alias];
 
