@@ -683,8 +683,8 @@ var game = {
             this._renderContext = cc._renderContext = cc.webglContext
              = cc.create3DContext(localCanvas, {
                 'stencil': true,
-                'antialias': !cc.sys.isMobile,
-                'alpha': true
+                'alpha': true,
+                'preserveDrawingBuffer': false
             });
         }
         // WebGL context created successfully
