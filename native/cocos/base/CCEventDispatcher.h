@@ -177,6 +177,14 @@ public:
      */
     void dispatchCustomEvent(const std::string &eventName, void *optionalUserData = nullptr);
 
+    /** Query whether the specified event listener id has been added.
+     *
+     * @param listenerID The listenerID of the event listener id.
+     *
+     * @return True if dispatching events is exist
+     */
+    bool hasEventListener(const EventListener::ListenerID& listenerID) const;
+
     /////////////////////////////////////////////
 
     /** Constructor of EventDispatcher.
