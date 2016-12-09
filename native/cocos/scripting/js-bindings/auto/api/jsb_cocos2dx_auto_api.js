@@ -4440,6 +4440,18 @@ event
 },
 
 /**
+ * @method hasEventListener
+ * @param {std::basic_string<char>} arg0
+ * @return {bool}
+ */
+hasEventListener : function (
+basic_string<char> 
+)
+{
+    return false;
+},
+
+/**
  * @method pauseEventListenersForTarget
  * @param {cc.Node} arg0
  * @param {bool} arg1
