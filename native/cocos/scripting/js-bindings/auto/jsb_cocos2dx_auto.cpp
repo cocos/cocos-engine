@@ -10729,16 +10729,8 @@ bool js_cocos2dx_EventDispatcher_hasEventListener(JSContext *cx, uint32_t argc, 
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_EventDispatcher_hasEventListener : Invalid Native Object");
     if (argc == 1) {
-        std::basic_string<char> arg0;
-        do {
-            if (args.get(0).isNull()) { arg0 = nullptr; break; }
-            if (!args.get(0).isObject()) { ok = false; break; }
-            js_proxy_t *jsProxy;
-            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
-            arg0 = (const cocos2d::EventListener::ListenerID&)(jsProxy ? jsProxy->ptr : NULL);
-            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
-        } while (0);
+        cocos2d::EventListener::ListenerID arg0;
+        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventDispatcher_hasEventListener : Error processing arguments");
         bool ret = cobj->hasEventListener(arg0);
         JS::RootedValue jsret(cx);
