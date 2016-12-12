@@ -63,30 +63,13 @@ function downloadScript (item, callback, isAsync) {
     d.body.appendChild(s);
 }
 
-function downloadTextSync (item) {
-    var url = item.url;
-    var xhr = cc.loader.getXMLHttpRequest();
-    xhr.open('GET', url, false);
-    if (/msie/i.test(window.navigator.userAgent) && !/opera/i.test(window.navigator.userAgent)) {
-        // IE-specific logic here
-        xhr.setRequestHeader('Accept-Charset', 'utf-8');
-    } else {
-        if (xhr.overrideMimeType) xhr.overrideMimeType('text\/plain; charset=utf-8');
-    }
-    xhr.send(null);
-    if (xhr.readyState !== 4 || !(xhr.status === 200 || xhr.status === 0)) {
-        return null;
-    }
-    return xhr.responseText;
-}
-
-function downloadImage (item, callback, isCrossOrigin) {
+function downloadImage (item, callback, isCrossOrigin, img) {
     if (isCrossOrigin === undefined) {
         isCrossOrigin = true;
     }
 
     var url = urlAppendTimestamp(item.url);
-    var img = new Image();
+    img = img || new Image();
     if (isCrossOrigin && window.location.origin !== 'file://') {
         img.crossOrigin = 'anonymous';
     }
@@ -108,7 +91,7 @@ function downloadImage (item, callback, isCrossOrigin) {
             img.removeEventListener('error', errorCallback);
 
             if (img.crossOrigin && img.crossOrigin.toLowerCase() === 'anonymous') {
-                downloadImage(item, callback, false);
+                downloadImage(item, callback, false, img);
             }
             else {
                 callback('Load image (' + url + ') failed');
