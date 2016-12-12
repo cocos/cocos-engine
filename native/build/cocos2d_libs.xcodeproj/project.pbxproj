@@ -555,6 +555,9 @@
 		1A5FB7CA1DF10E3500C918C1 /* AudioDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A5FB7C71DF10E3500C918C1 /* AudioDecoder.mm */; };
 		1A5FB7CB1DF10E3500C918C1 /* AudioDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5FB7C81DF10E3500C918C1 /* AudioDecoder.h */; };
 		1A5FB7CC1DF10E3500C918C1 /* AudioMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5FB7C91DF10E3500C918C1 /* AudioMacros.h */; };
+		1A75DC171DFE3C7700A271DF /* AudioDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5FB7C81DF10E3500C918C1 /* AudioDecoder.h */; };
+		1A75DC181DFE3C7700A271DF /* AudioDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A5FB7C71DF10E3500C918C1 /* AudioDecoder.mm */; };
+		1A75DC191DFE3C7700A271DF /* AudioMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5FB7C91DF10E3500C918C1 /* AudioMacros.h */; };
 		1A9DCA27180E6955007A3AD4 /* CCGLBufferedNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A9DCA02180E6955007A3AD4 /* CCGLBufferedNode.cpp */; };
 		1A9DCA28180E6955007A3AD4 /* CCGLBufferedNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A9DCA02180E6955007A3AD4 /* CCGLBufferedNode.cpp */; };
 		1A9DCA29180E6955007A3AD4 /* CCGLBufferedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A9DCA03180E6955007A3AD4 /* CCGLBufferedNode.h */; };
@@ -4980,6 +4983,7 @@
 				15AE1C0419AAE01E00C27E9E /* CCTableView.h in Headers */,
 				50ABBEA21925AB6F00A911A9 /* CCScheduler.h in Headers */,
 				1A57020B180BCBDF0088DEC7 /* CCMotionStreak.h in Headers */,
+				1A75DC171DFE3C7700A271DF /* AudioDecoder.h in Headers */,
 				1A570213180BCBF40088DEC7 /* CCProgressTimer.h in Headers */,
 				FA6F1B7C1D80F858007DD223 /* DragonBones.h in Headers */,
 				BA679B331CEC373000F875FA /* AssetsManagerEx.h in Headers */,
@@ -5028,6 +5032,7 @@
 				1A570289180BCC900088DEC7 /* CCSpriteFrame.h in Headers */,
 				BAFF7DD71D5C1CF80051B92F /* TransformConstraintData.h in Headers */,
 				BAFF7C9D1D59E0DA0051B92F /* CCBone.h in Headers */,
+				1A75DC191DFE3C7700A271DF /* AudioMacros.h in Headers */,
 				BAFF7DB51D5C1CF80051B92F /* SkeletonData.h in Headers */,
 				15AE1B7F19AADA9A00C27E9E /* UIText.h in Headers */,
 				50ABBE701925AB6F00A911A9 /* CCEventListenerKeyboard.h in Headers */,
@@ -5695,6 +5700,7 @@
 				15AE185C19AAD31200C27E9E /* CDOpenALSupport.m in Sources */,
 				15AE186119AAD31200C27E9E /* SimpleAudioEngine_objc.m in Sources */,
 				BAFF7D671D5C1CF80051B92F /* Bone.c in Sources */,
+				1A75DC181DFE3C7700A271DF /* AudioDecoder.mm in Sources */,
 				BAFF7D9B1D5C1CF80051B92F /* PathConstraintData.c in Sources */,
 				BAFF7C931D59E0DA0051B92F /* CCArmatureDefine.cpp in Sources */,
 				FA6F1B961D80F858007DD223 /* ArmatureData.cpp in Sources */,
