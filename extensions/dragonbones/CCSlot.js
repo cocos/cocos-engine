@@ -138,10 +138,70 @@ dragonBones.CCSlot = cc.Class({
                 var currentTexture = this._armature._replacedTexture || (currentTextureData.texture ? currentTextureData.texture.getTexture() : null);
                 if (currentTexture) {
                     if (this._meshData && this._display === this._meshDisplay) {
-                        // TODO update the frame for mesh type
-                        //var region = currentTextureData.region;
-                        //var textureAtlasSize = currentTextureData.texture.getTexture().getContentSize();
-                        //var displayVertices = new cc.V3F_C4B_T2F()
+                        var region = currentTextureData.region;
+                        var textureAtlasSize = currentTextureData.texture.getTexture().getContentSize();
+                        var displayVertices = [], vertexIndices = [];
+                        var boundsRect = cc.rect(999999, 999999, -999999, -999999);
+
+                        var i, n;
+                        for (i = 0, n = this._meshData.uvs.length; i < n; i +=2) {
+                            var x = this._meshData.vertices[i];
+                            var y = this._meshData.vertices[i + 1];
+                            var u = (region.x + this._meshData.uvs[i] * region.width) / textureAtlasSize.width;
+                            var v = (region.y + this._meshData.uvs[i + 1] * region.height) / textureAtlasSize.height;
+                            displayVertices.push({ x: x, y: -y, u: u, v: v });
+
+                            if (boundsRect.x > x)
+                            {
+                                boundsRect.x = x;
+                            }
+
+                            if (boundsRect.width < x)
+                            {
+                                boundsRect.width = x;
+                            }
+
+                            if (boundsRect.y > -y)
+                            {
+                                boundsRect.y = -y;
+                            }
+
+                            if (boundsRect.height < -y)
+                            {
+                                boundsRect.height = -y;
+                            }
+                        }
+
+                        boundsRect.width -= boundsRect.x;
+                        boundsRect.height -= boundsRect.y;
+
+                        for (i = 0, n = this._meshData.vertexIndices.length; i < n; ++i)
+                        {
+                            vertexIndices.push(this._meshData.vertexIndices[i]);
+                        }
+                        var polygonInfo = {
+                            triangles: {
+                                verts: displayVertices,
+                                indices: vertexIndices
+                            },
+                            rect: boundsRect
+                        };
+                        this._meshDisplay.setSpriteFrame(currentTextureData.texture);
+                        if (currentTexture != currentTextureData.texture.getTexture())
+                        {
+                            this._meshDisplay.setTexture(currentTexture);
+                        }
+                        this._meshDisplay.setMeshPolygonInfo(polygonInfo);
+                        this._meshDisplay.setContentSize(cc.size(boundsRect.width, boundsRect.height));
+
+                        if (this._meshData.skinned) {
+                            this._meshDisplay.setScale(1, 1);
+                            this._meshDisplay.setRotationX(0);
+                            this._meshDisplay.setRotationY(0);
+                            this._meshDisplay.setPosition(0, 0);
+                        }
+
+                        this._meshDisplay.setAnchorPoint(cc.p(0, 0));
                     }
                     else {
                         var pivot = cc.p(currentDisplayData.pivot.x, currentDisplayData.pivot.y);
@@ -191,7 +251,115 @@ dragonBones.CCSlot = cc.Class({
     },
 
     _updateMesh : function() {
-        // TODO update the mesh
+        var meshDisplay = this._meshDisplay;
+        var polygonInfo = meshDisplay.getMeshPolygonInfo();
+        if (!meshDisplay || !polygonInfo)
+        {
+            return;
+        }
+
+        var hasFFD = this._ffdVertices.length > 0;
+        var displayVertices = polygonInfo.triangles.verts;
+        var boundsRect = cc.rect(999999, 999999, -999999, -999999);
+
+        var iH = 0, xG = 0, yG = 0, i, l;
+        if (this._meshData.skinned)
+        {
+            var iF = 0;
+            for (i = 0, l = this._meshData.vertices.length; i < l; i += 2)
+            {
+                iH = Math.floor(i / 2);
+                var boneIndices = this._meshData.boneIndices[iH];
+                var boneVertices = this._meshData.boneVertices[iH];
+                var weights = this._meshData.weights[iH];
+
+                xG = 0; yG = 0;
+                for (var iB = 0, lB = boneIndices.length; iB < lB; ++iB)
+                {
+                    var bone = this._meshBones[boneIndices[iB]];
+                    var matrix = bone.globalTransformMatrix;
+                    var weight = weights[iB];
+
+                    var xL = 0, yL = 0;
+                    if (hasFFD)
+                    {
+                        xL = boneVertices[iB * 2] + this._ffdVertices[iF];
+                        yL = boneVertices[iB * 2 + 1] + this._ffdVertices[iF + 1];
+                    }
+                    else
+                    {
+                        xL = boneVertices[iB * 2];
+                        yL = boneVertices[iB * 2 + 1];
+                    }
+
+                    xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
+                    yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight;
+
+                    iF += 2;
+                }
+
+                displayVertices[iH].x = xG;
+                displayVertices[iH].y = -yG;
+                if (boundsRect.x > xG)
+                {
+                    boundsRect.x = xG;
+                }
+
+                if (boundsRect.width < xG)
+                {
+                    boundsRect.width = xG;
+                }
+
+                if (boundsRect.y > -yG)
+                {
+                    boundsRect.y = -yG;
+                }
+
+                if (boundsRect.height < -yG)
+                {
+                    boundsRect.height = -yG;
+                }
+            }
+        }
+        else if (hasFFD)
+        {
+            var vertices = this._meshData.vertices;
+            for (i = 0, l = this._meshData.vertices.length; i < l; i += 2)
+            {
+                iH = Math.floor(i / 2);
+                xG = vertices[i] + this._ffdVertices[i];
+                yG = vertices[i + 1] + this._ffdVertices[i + 1];
+
+                displayVertices[iH].x = xG;
+                displayVertices[iH].y = -yG;
+                if (boundsRect.x > xG)
+                {
+                    boundsRect.x = xG;
+                }
+
+                if (boundsRect.width < xG)
+                {
+                    boundsRect.width = xG;
+                }
+
+                if (boundsRect.y > -yG)
+                {
+                    boundsRect.y = -yG;
+                }
+
+                if (boundsRect.height < -yG)
+                {
+                    boundsRect.height = -yG;
+                }
+            }
+        }
+
+        boundsRect.width -= boundsRect.x;
+        boundsRect.height -= boundsRect.y;
+
+        polygonInfo.rect = boundsRect;
+        this._meshDisplay.setMeshPolygonInfo(polygonInfo);
+        meshDisplay.setContentSize(cc.size(boundsRect.width, boundsRect.height));
     },
 
     _updateTransform : function () {

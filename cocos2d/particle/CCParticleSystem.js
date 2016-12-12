@@ -918,6 +918,10 @@ var ParticleSystem = cc.Class({
                 // so use the texutreUuid instead of textureImageData
                 if (content.textureUuid) {
                     cc.AssetLibrary.queryAssetInfo(content.textureUuid, function (err, url, raw) {
+                        if (err) {
+                            cc.error(err);
+                            return;
+                        }
                         self.texture = url;
                     });
                 }

@@ -137,6 +137,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
     case types.SIMPLE:
     case types.TILED:
     case types.FILLED:
+    case types.MESH:
         // Inline for performance
         len = this._node._vertCount;
         for (var i = 0, srcOff = 0; i < len; i++, srcOff += 2) {
@@ -153,12 +154,31 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
         len = this._uploadSliced(vertices, uvs, this._color, z, f32buffer, ui32buffer, offset);
         break;
     }
-    if (node._renderingType === types.FILLED && node._fillType === Scale9Sprite.FillType.RADIAL) {
+
+    if (node._renderingType === types.MESH ) {
+        this.vertexType = cc.renderer.VertexType.CUSTOM;
+    }
+    else if (node._renderingType === types.FILLED && node._fillType === Scale9Sprite.FillType.RADIAL) {
         this.vertexType = cc.renderer.VertexType.TRIANGLE;
     }
     else {
         this.vertexType = cc.renderer.VertexType.QUAD;
     }
+    return len;
+};
+
+proto.uploadIndexData = function (indexData, indexSize, batchingSize) {
+    var polygonInfo = this._node._meshPolygonInfo;
+    if (! polygonInfo) {
+        return 0;
+    }
+
+    var indices = polygonInfo.triangles.indices;
+    var len = indices.length;
+    for (var i = 0; i < len; i++) {
+        indexData[indexSize + i] = batchingSize + indices[i];
+    }
+
     return len;
 };
 
