@@ -785,6 +785,9 @@ bool Label::alignText()
 {
     if (_fontAtlas == nullptr || _utf16Text.empty())
     {
+        if(_overflow == Overflow::NONE) {
+            setContentSize(Size::ZERO);
+        }
         return true;
     }
 
@@ -1208,6 +1211,9 @@ void Label::disableEffect(LabelEffect effect)
         case cocos2d::LabelEffect::BOLD:
             _boldEnabled = false;
             _additionalKerning -= 1;
+            if(_additionalKerning <= 0) {
+                _additionalKerning = 0;
+            }
             disableEffect(LabelEffect::SHADOW);
             break;
         case cocos2d::LabelEffect::UNDERLINE:
