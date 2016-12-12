@@ -608,7 +608,7 @@ else {
 
     /**
      * Indicate the running browser version
-     * @property {Number} browserVersion
+     * @property {String} browserVersion
      */
     sys.browserVersion = "";
     /* Determine the browser version number */
@@ -626,7 +626,7 @@ else {
 
     /**
      * Indicate the real pixel resolution of the whole game window
-     * @property {Number} windowPixelResolution
+     * @property {Size} windowPixelResolution
      */
     sys.windowPixelResolution = {
         width: ratio * w,

@@ -104,13 +104,14 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
 
                 math.glMultMatrix(matrixPerspective);
 
-                math.glMatrixMode(math.KM_GL_MODELVIEW);
-                math.glLoadIdentity();
                 var eye = new math.Vec3(-ox + size.width / 2, -oy + size.height / 2, zeye);
-                var center = new math.Vec3( -ox + size.width / 2, -oy + size.height / 2, 0.0);
-                var up = new math.Vec3( 0.0, 1.0, 0.0);
+                var center = new math.Vec3(-ox + size.width / 2, -oy + size.height / 2, 0.0);
+                var up = new math.Vec3(0.0, 1.0, 0.0);
                 matrixLookup.lookAt(eye, center, up);
                 math.glMultMatrix(matrixLookup);
+
+                math.glMatrixMode(math.KM_GL_MODELVIEW);
+                math.glLoadIdentity();
                 break;
             case cc.Director.PROJECTION_CUSTOM:
                 if (_t._projectionDelegate)
