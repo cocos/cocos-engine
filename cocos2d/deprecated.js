@@ -290,6 +290,10 @@ if (CC_DEV) {
     }
 
     function markAsRemoved (ownerCtor, removedProps, ownerName) {
+        if (!ownerCtor) {
+            // 可能被裁剪了
+            return;
+        }
         ownerName = ownerName || js.getClassName(ownerCtor);
         removedProps.forEach(function (prop) {
             function error () {
@@ -300,6 +304,10 @@ if (CC_DEV) {
     }
 
     function provideClearError (owner, obj, ownerName) {
+        if (!owner) {
+            // 可能被裁剪了
+            return;
+        }
         var className = ownerName || cc.js.getClassName(owner);
         var Info = 'Sorry, ' + className + '.%s is removed, please use %s instead.';
         for (var prop in obj) {
