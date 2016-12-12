@@ -97,7 +97,7 @@ function downloadAudio (item, callback) {
     item.content = item.url;
 
     // If WebAudio is not supported, load using DOM mode
-    if (!__audioSupport.WEB_AUDIO || (item.param && item.param['useDom'])) {
+    if (!__audioSupport.WEB_AUDIO || (item.urlParam && item.urlParam['useDom'])) {
         return loadDomAudio(item, callback);
     }
 

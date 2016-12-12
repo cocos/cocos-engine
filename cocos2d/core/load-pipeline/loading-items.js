@@ -75,7 +75,7 @@ function createItem (id, queueId) {
         result = {
             queueId: queueId,
             url: urlItem.url,
-            param: urlItem.param,
+            urlParam: urlItem.param,
             error: null,
             content: null,
             complete: false,
@@ -90,7 +90,7 @@ function createItem (id, queueId) {
             queueId: queueId,
             id: urlItem.url,
             url: urlItem.url,
-            param: urlItem.param,
+            urlParam: urlItem.param,
             type: Path.extname(id).toLowerCase().substr(1),
             error: null,
             content: null,
