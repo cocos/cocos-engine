@@ -39,20 +39,43 @@ var ItemState = {
 };
 
 var _queueDeps = {};
+var _parseUrl = function (url) {
+    var result = {};
+    if (!url)
+        return result;
+
+    var split = url.split('?');
+    if (!split || !split[0]) {
+        return result;
+    }
+    result.url = split[0];
+    if (!split[1]) {
+        return result;
+    }
+    result.param = {};
+    split = split[1].split('&');
+    split.forEach(function (item) {
+        var itemSplit = item.split('=');
+        result.param[itemSplit[0]] = itemSplit[1];
+    });
+    return result;
+};
 
 function isIdValid (id) {
     var realId = id.id || id;
     return (typeof realId === 'string');
 }
 function createItem (id, queueId) {
-    var result;
+    var result, urlItem;
     if (typeof id === 'object' && id.id) {
         if (!id.type) {
             id.type = Path.extname(id.id).toLowerCase().substr(1);
         }
+        urlItem = _parseUrl(id.url);
         result = {
             queueId: queueId,
-            url: id.url,
+            url: urlItem.url,
+            urlParam: urlItem.param,
             error: null,
             content: null,
             complete: false,
@@ -62,10 +85,12 @@ function createItem (id, queueId) {
         JS.mixin(result, id);
     }
     else if (typeof id === 'string') {
+        urlItem = _parseUrl(id);
         result = {
             queueId: queueId,
-            id: id,
-            url: id,
+            id: urlItem.url,
+            url: urlItem.url,
+            urlParam: urlItem.param,
             type: Path.extname(id).toLowerCase().substr(1),
             error: null,
             content: null,
