@@ -71,7 +71,7 @@ function createItem (id, queueId) {
         if (!id.type) {
             id.type = Path.extname(id.id).toLowerCase().substr(1);
         }
-        urlItem = _parseUrl(id.url);
+        urlItem = _parseUrl(id.url || id.id);
         result = {
             queueId: queueId,
             url: urlItem.url,
