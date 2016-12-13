@@ -308,6 +308,21 @@ cc.rendererWebGL = {
         _batchingSize += increment;
     },
 
+    _updateBatchedInfo: function (texture, blendFunc, shaderProgram) {
+        if (texture) {
+            _batchedInfo.texture = texture;
+        }
+
+        if (blendFunc) {
+            _batchedInfo.blendSrc = blendFunc.src;
+            _batchedInfo.blendDst = blendFunc.dst;
+        }
+
+        if (shaderProgram) {
+            _batchedInfo.shader = shaderProgram;
+        }
+    },
+
     _breakBatch: function () {
         _batchBroken = true;
     },
@@ -319,7 +334,7 @@ cc.rendererWebGL = {
 
         // Check batching
         var node = cmd._node;
-        var texture = cmd._texture || node._texture || node._spriteFrame._texture;
+        var texture = cmd._texture || node._texture || (node._spriteFrame && node._spriteFrame._texture);
         var blendSrc = cmd._node._blendFunc.src;
         var blendDst = cmd._node._blendFunc.dst;
         var shader = cmd._shaderProgram;
