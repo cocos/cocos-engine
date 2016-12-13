@@ -217,23 +217,25 @@ if (CC_DEV) {
         return Math.PI;
     });
 
-    /**
-     * Get the Tile set information for the layer.
-     * @memberof cc.TiledLayer
-     * @deprecated
-     * @return {TMXTilesetInfo}
-     * @function
-     */
-    js.obsolete(cc.TiledLayer.prototype, 'cc.TiledLayer.getTileset', 'getTileSet');
+    if (cc.TiledLayer) {
+        /**
+         * Get the Tile set information for the layer.
+         * @memberof cc.TiledLayer
+         * @deprecated
+         * @return {TMXTilesetInfo}
+         * @function
+         */
+        js.obsolete(cc.TiledLayer.prototype, 'cc.TiledLayer.getTileset', 'getTileSet');
 
-    /**
-     * Set the Tile set information for the layer.
-     * @memberof cc.TiledLayer
-     * @deprecated
-     * @param {TMXTilesetInfo}
-     * @function
-     */
-    js.obsolete(cc.TiledLayer.prototype, 'cc.TiledLayer.setTileset', 'setTileSet');
+        /**
+         * Set the Tile set information for the layer.
+         * @memberof cc.TiledLayer
+         * @deprecated
+         * @param {TMXTilesetInfo}
+         * @function
+         */
+        js.obsolete(cc.TiledLayer.prototype, 'cc.TiledLayer.setTileset', 'setTileSet');
+    }
 
     Object.defineProperty(cc._SGComponent.prototype, 'visible', {
         get: function () {
@@ -290,6 +292,10 @@ if (CC_DEV) {
     }
 
     function markAsRemoved (ownerCtor, removedProps, ownerName) {
+        if (!ownerCtor) {
+            // 可能被裁剪了
+            return;
+        }
         ownerName = ownerName || js.getClassName(ownerCtor);
         removedProps.forEach(function (prop) {
             function error () {
@@ -300,6 +306,10 @@ if (CC_DEV) {
     }
 
     function provideClearError (owner, obj, ownerName) {
+        if (!owner) {
+            // 可能被裁剪了
+            return;
+        }
         var className = ownerName || cc.js.getClassName(owner);
         var Info = 'Sorry, ' + className + '.%s is removed, please use %s instead.';
         for (var prop in obj) {
@@ -502,57 +512,59 @@ if (CC_DEV) {
     });
 
     // Particle
-    markAsRemoved(cc.ParticleSystem, [
-        'batchNode',
-        'drawMode',
-        'getDrawMode',
-        'setDrawMode',
-        'shapeType',
-        'getShapeType',
-        'setShapeType',
-        'atlasIndex',
-        'init',
-        'initParticle',
-        'updateWithNoTime',
-    ]);
-    provideClearError(cc.ParticleSystem, {
-        initWithFile: 'instance.file',
-        initWithDictionary: 'instance.file',
-        initWithTotalParticles: 'instance.totalParticles'
-    });
-    provideClearError(cc.ParticleSystem.prototype, {
-        destroyParticleSystem: 'destroy',
-        clone: 'cc.instantiate',
-        isActive: 'active',
-        '*etParticleCount': 'particleCount',
-        '*etDuration': 'duration',
-        '*etSourcePosition': 'sourcePos',
-        '*etPosVar': 'posVar',
-        '*etGravity': 'gravity',
-        '*etSpeed': 'speed',
-        '*etSpeedVar': 'speedVar',
-        '*etTangentialAccel': 'tangentialAccel',
-        '*etTangentialAccelVar': 'tangentialAccelVar',
-        '*etRadialAccel': 'radialAccel',
-        '*etRadialAccelVar': 'radialAccelVar',
-        '*etRotationIsDir': 'rotationIsDir',
-        '*etStartRadius': 'startRadius',
-        '*etStartRadiusVar': 'startRadiusVar',
-        '*etEndRadius': 'endRadius',
-        '*etEndRadiusVar': 'endRadiusVar',
-        '*etRotatePerSecond': 'rotatePerS',
-        '*etRotatePerSecondVar': 'rotatePerSVar',
-        '*etStartColor': 'startColor',
-        '*etStartColorVar': 'startColorVar',
-        '*etEndColor': 'endColor',
-        '*etEndColorVar': 'endColorVar',
-        '*etTotalParticles': 'totalParticles',
-        '*etTexture': 'texture',
-    });
-    js.obsoletes(cc.ParticleSystem, 'cc.ParticleSystem', {
-        Type: 'PositionType',
-        Mode: 'EmitterMode'
-    });
+    if (cc.ParticleSystem) {
+        markAsRemoved(cc.ParticleSystem, [
+            'batchNode',
+            'drawMode',
+            'getDrawMode',
+            'setDrawMode',
+            'shapeType',
+            'getShapeType',
+            'setShapeType',
+            'atlasIndex',
+            'init',
+            'initParticle',
+            'updateWithNoTime',
+        ]);
+        provideClearError(cc.ParticleSystem, {
+            initWithFile: 'instance.file',
+            initWithDictionary: 'instance.file',
+            initWithTotalParticles: 'instance.totalParticles'
+        });
+        provideClearError(cc.ParticleSystem.prototype, {
+            destroyParticleSystem: 'destroy',
+            clone: 'cc.instantiate',
+            isActive: 'active',
+            '*etParticleCount': 'particleCount',
+            '*etDuration': 'duration',
+            '*etSourcePosition': 'sourcePos',
+            '*etPosVar': 'posVar',
+            '*etGravity': 'gravity',
+            '*etSpeed': 'speed',
+            '*etSpeedVar': 'speedVar',
+            '*etTangentialAccel': 'tangentialAccel',
+            '*etTangentialAccelVar': 'tangentialAccelVar',
+            '*etRadialAccel': 'radialAccel',
+            '*etRadialAccelVar': 'radialAccelVar',
+            '*etRotationIsDir': 'rotationIsDir',
+            '*etStartRadius': 'startRadius',
+            '*etStartRadiusVar': 'startRadiusVar',
+            '*etEndRadius': 'endRadius',
+            '*etEndRadiusVar': 'endRadiusVar',
+            '*etRotatePerSecond': 'rotatePerS',
+            '*etRotatePerSecondVar': 'rotatePerSVar',
+            '*etStartColor': 'startColor',
+            '*etStartColorVar': 'startColorVar',
+            '*etEndColor': 'endColor',
+            '*etEndColorVar': 'endColorVar',
+            '*etTotalParticles': 'totalParticles',
+            '*etTexture': 'texture',
+        });
+        js.obsoletes(cc.ParticleSystem, 'cc.ParticleSystem', {
+            Type: 'PositionType',
+            Mode: 'EmitterMode'
+        });
+    }
 
     if (!CC_JSB) {
         // _ccsg.Node
@@ -587,9 +599,11 @@ if (CC_DEV) {
         getPreferredSize: 'getContentSize',
     });
 
-    js.obsoletes(cc.ActionManager.prototype, 'cc.ActionManager', {
-        'numberOfRunningActionsInTarget' : 'getNumberOfRunningActionsInTarget'
-    });
+    if (cc.ActionManager) {
+        js.obsoletes(cc.ActionManager.prototype, 'cc.ActionManager', {
+            'numberOfRunningActionsInTarget' : 'getNumberOfRunningActionsInTarget'
+        });
+    }
 
     //ui
     if (cc.Layout) {
