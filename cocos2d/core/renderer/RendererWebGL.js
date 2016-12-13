@@ -275,7 +275,7 @@ cc.rendererWebGL = {
         }
     },
 
-    _increaseBatchingSize: function (increment, vertexType) {
+    _increaseBatchingSize: function (increment, vertexType, indices) {
         vertexType = vertexType || VertexType.QUAD;
         var i, curr;
         switch (vertexType) {
@@ -300,7 +300,11 @@ cc.rendererWebGL = {
             }
             break;
         case VertexType.CUSTOM:
-            // TODO increase index data of custom cmd ??
+            // CUSTOM type increase the indices data
+            var len = indices.length;
+            for (i = 0; i < len; i++) {
+                _indexData[_indexSize++] = _batchingSize + indices[i];
+            }
             break;
         default:
             return;
