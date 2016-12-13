@@ -52,7 +52,7 @@ function createItem (id, queueId) {
         }
         result = {
             queueId: queueId,
-            url: id.url,
+            url: id.url || id.id,
             error: null,
             content: null,
             complete: false,
