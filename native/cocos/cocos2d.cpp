@@ -31,7 +31,7 @@ NS_CC_BEGIN
 
 CC_DLL const char* cocos2dVersion()
 {
-    return "1.3.2-lite";
+    return "1.4.0-lite";
 }
 
 NS_CC_END
