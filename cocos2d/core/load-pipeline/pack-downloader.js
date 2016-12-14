@@ -83,7 +83,7 @@ module.exports = {
     _loadNewPack: function (uuid, packUuid, callback) {
         var self = this;
         var packUrl = cc.AssetLibrary.getImportedDir(packUuid) + '/' + packUuid + '.json';
-        LoadingItems.create(cc.loader, [{id: packUrl, ignoreMaxConcurrency: true}], function (err, queue) {
+        LoadingItems.create(cc.loader, [{url: packUrl, ignoreMaxConcurrency: true}], function (err, queue) {
             if (err) {
                 cc.error('Failed to download package for ' + uuid);
                 return callback(err);
