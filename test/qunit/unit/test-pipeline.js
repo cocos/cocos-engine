@@ -40,7 +40,7 @@ test('items', function () {
     var items = cc.LoadingItems.create(pipeline, [
         'res/Background.png',
         {
-            id: 'res/scene.json',
+            url: 'res/scene.json',
             type: 'scene',
             name: 'scene'
         }
@@ -111,7 +111,7 @@ test('pipeline flow', function () {
     var items = cc.LoadingItems.create(pipeline, [
         'res/Background.png',
         {
-            id: 'res/scene.json',
+            url: 'res/scene.json',
             type: 'scene',
             name: 'scene'
         },
@@ -222,7 +222,7 @@ asyncTest('content manipulation', function () {
     var items = cc.LoadingItems.create(pipeline, [
         'res/Background.png',
         {
-            id: 'res/scene.json',
+            url: 'res/scene.json',
             type: 'scene'
         },
         'res/role.plist',

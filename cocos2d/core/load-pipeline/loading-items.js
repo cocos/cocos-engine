@@ -69,9 +69,9 @@ function createItem (id, queueId) {
     var result, urlItem;
     if (typeof id === 'object' && id.id) {
         if (!id.type) {
-            id.type = Path.extname(id.id).toLowerCase().substr(1);
+            id.type = Path.extname(id.url).toLowerCase().substr(1);
         }
-        urlItem = _parseUrl(id.url || id.id);
+        urlItem = _parseUrl(id.url);
         result = {
             queueId: queueId,
             url: urlItem.url,
