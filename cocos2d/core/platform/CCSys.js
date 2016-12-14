@@ -589,11 +589,13 @@ else {
         var typeReg2 = /qqbrowser|qq|chrome|safari|firefox|opr|oupeng|opera/i;
         var browserTypes = typeReg1.exec(ua);
         if(!browserTypes) browserTypes = typeReg2.exec(ua);
-        var browserType = browserTypes ? browserTypes[0] : sys.BROWSER_TYPE_UNKNOWN;
+        var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
         if (browserType === 'micromessenger')
             browserType = sys.BROWSER_TYPE_WECHAT;
-        else if (ua.match(/android.*applewebkit/i))
-            browserType = sys.BROWSER_TYPE_ANDROID;
+        else if (browserType === "safari"  || browserType === "qq") {
+            if (ua.match(/android.*applewebkit/i)) 
+                browserType = sys.BROWSER_TYPE_ANDROID;
+        }
         else if (browserType === "trident")
             browserType = sys.BROWSER_TYPE_IE;
         else if (browserType === "360 aphone")
