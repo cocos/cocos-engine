@@ -88,7 +88,7 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
     },
 
     setKeepAspectRatioEnabled: function () {
-        cc.log("On the web is always keep the aspect ratio");
+        cc.logID(7700);
     },
 
     isKeepAspectRatioEnabled: function () {
@@ -107,7 +107,7 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
     },
 
     isFullScreenEnabled: function () {
-        cc.log("Can't know status");
+        cc.logID(7701);
     },
 
     setEventListener: function (event, callback) {
@@ -523,7 +523,7 @@ _ccsg.VideoPlayer.EventType = {
 
         duration = video.duration;
         if(duration <= 0) {
-            cc.log("Video player's duration is not ready to get now!");
+            cc.logID(7702);
         }
 
         return duration;

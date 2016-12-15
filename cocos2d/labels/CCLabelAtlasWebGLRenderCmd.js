@@ -82,7 +82,7 @@
         var itemWidth = node._itemWidth;
         var itemHeight = node._itemHeight;
         if (n > locTextureAtlas.getCapacity())
-            cc.log("cc.LabelAtlas._updateAtlasValues(): Invalid String length");
+            cc.logID(4006);
         var quads = locTextureAtlas.quads;
         var locItemWidth = node._itemWidth;
         var locItemHeight = node._itemHeight;

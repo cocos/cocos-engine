@@ -78,7 +78,7 @@ var Prefab = cc.Class({
         }
         else {
             // temp guard code
-            cc.warn('internal error: _prefab is undefined');
+            cc.warnID(3700);
         }
         if (!this._createFunction) {
             this.compileCreateFunction();

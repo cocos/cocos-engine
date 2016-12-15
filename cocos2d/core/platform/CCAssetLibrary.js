@@ -257,7 +257,7 @@ var AssetLibrary = {
      */
     init: function (options) {
         if (CC_EDITOR && _libraryBase) {
-            cc.error('AssetLibrary has already been initialized!');
+            cc.errorID(6402);
             return;
         }
 

@@ -184,7 +184,7 @@ cc.shaderCache = /** @lends cc.shaderCache# */{
                 program.addAttribute(macro.ATTRIBUTE_NAME_COLOR, macro.VERTEX_ATTRIB_COLOR);
                 break;
             default:
-                cc.log("cocos2d: cc.shaderCache._loadDefaultShader, error shader type");
+                cc.logID(8105);
                 return;
         }
 

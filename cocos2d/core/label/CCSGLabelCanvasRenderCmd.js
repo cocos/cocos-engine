@@ -162,7 +162,7 @@
                         startShrinkFontSize = actualFontSize;
                     }
                     if(actualFontSize <= 0) {
-                        cc.log("Label font size can't be shirnked less than 0!");
+                        cc.logID(4003);
                         break;
                     }
                     node._fontSize = actualFontSize;

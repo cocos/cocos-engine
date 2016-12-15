@@ -215,7 +215,7 @@ function loadUuid (item, callback) {
         if (cls) {
             return cls;
         }
-        cc.warn('Can not get class "%s"', id);
+        cc.warnID(4903, id);
         return Object;
     };
 

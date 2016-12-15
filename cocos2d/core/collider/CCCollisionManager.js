@@ -304,7 +304,7 @@ var CollisionManager = cc.Class({
             collider.node.off('group-changed', this.onNodeGroupChanged, this);
         }
         else {
-            cc.error('collider not added or already removed');
+            cc.errorID(6600);
         }
     },
 

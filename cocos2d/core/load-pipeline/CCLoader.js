@@ -154,7 +154,7 @@ JS.mixin(CCLoader.prototype, {
 
         // COMPATIBLE WITH 0.X
         if (CC_DEV && typeof resources === 'string' && resources.startsWith('resources://')) {
-            cc.warn('Sorry, the "resources://" protocol is obsoleted, use cc.loader.loadRes instead please.');
+            cc.warnID(4900);
             this.loadRes(resources.slice('resources://'.length), progressCallback, completeCallback);
             return;
         }
@@ -270,7 +270,7 @@ JS.mixin(CCLoader.prototype, {
                 url = url.slice(0, - extname.length);
                 uuid = resources.getUuid(url, type);
                 if (uuid) {
-                    cc.warn('loadRes: should not specify the extname in ' + url + extname);
+                    cc.warnID(4901, url, extname);
                 }
             }
         }
@@ -606,7 +606,7 @@ JS.mixin(CCLoader.prototype, {
             this.release(uuid);
         }
         else {
-            cc.error('Resources url "%s" does not exist.', url);
+            cc.errorID(4914, url);
         }
     },
 
@@ -683,7 +683,7 @@ JS.mixin(CCLoader.prototype, {
             this._autoReleaseSetting[key] = !!autoRelease;
         }
         else if (CC_DEV) {
-            cc.warn('No need to release non-cached asset.');
+            cc.warnID(4902);
         }
     },
 
@@ -730,7 +730,7 @@ JS.mixin(CCLoader.prototype, {
             }
         }
         else if (CC_DEV) {
-            cc.warn('No need to release non-cached asset.');
+            cc.warnID(4902);
         }
     },
 

@@ -58,3 +58,8 @@ require('../cocos2d/core/event-manager/CCSystemEvent');
 require('../CCDebugger');
 
 cc._initDebugSetting(cc.game.DEBUG_MODE_INFO);
+
+if (CC_DEV) {
+    //Debug Info ID map
+    require('../DebugInfos');
+}

@@ -42,7 +42,7 @@ JS.mixin(ValueType.prototype, {
      * @return {ValueType}
      */
     clone: CC_EDITOR && function () {
-        cc.error("%.clone not yet implemented.", JS.getClassName(this));
+        cc.errorID(5801, JS.getClassName(this));
         return null;
     },
 
@@ -54,7 +54,7 @@ JS.mixin(ValueType.prototype, {
      * @return {Boolean}
      */
     equals: CC_EDITOR && function (other) {
-        cc.error("%.equals not yet implemented.", JS.getClassName(this));
+        cc.errorID(5802, JS.getClassName(this));
         return false;
     },
 
@@ -81,7 +81,7 @@ JS.mixin(ValueType.prototype, {
      * @return {ValueType}
      */
     lerp: CC_EDITOR && function (to, ratio) {
-        cc.warn("%.lerp not yet implemented.", JS.getClassName(this));
+        cc.warnID(5800, JS.getClassName(this));
         return this.clone();
     }
 });

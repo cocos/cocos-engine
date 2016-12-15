@@ -35,7 +35,7 @@ module.exports = {
                 return assetOrUrlOrUuid._uuid;
             }
             else if (CC_DEV) {
-                cc.warn('unknown asset type');
+                cc.warnID(4800);
             }
         }
         return '';

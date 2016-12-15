@@ -119,7 +119,7 @@ cc.LabelAtlas = cc.AtlasNode.extend(/** @lends cc.LabelAtlas# */{
         if (itemWidth === undefined) {
             var dict = cc.loader.getRes(charMapFile);
             if (parseInt(dict["version"], 10) !== 1) {
-                cc.log("cc.LabelAtlas.initWithString(): Unsupported version. Upgrade cocos2d version");
+                cc.logID(4005);
                 return false;
             }
 

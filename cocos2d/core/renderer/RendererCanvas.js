@@ -217,7 +217,7 @@ cc.rendererCanvas = {
      */
     _renderingToCacheCanvas: function (ctx, instanceID, scaleX, scaleY) {
         if (!ctx)
-            cc.log("The context of RenderTexture is invalid.");
+            cc.logID(7600);
         scaleX = scaleX === undefined ? 1 : scaleX;
         scaleY = scaleY === undefined ? 1 : scaleY;
         instanceID = instanceID || this._currentID;

@@ -260,7 +260,7 @@ var deferredDestroyTimer = null;
  */
 prototype.destroy = function () {
     if (this._objFlags & Destroyed) {
-        cc.warn('object already destroyed');
+        cc.warnID(5000);
         return false;
     }
     if (this._objFlags & ToDestroy) {
@@ -289,11 +289,11 @@ if (CC_EDITOR || CC_TEST) {
      */
     prototype.realDestroyInEditor = function () {
         if ( !(this._objFlags & Destroyed) ) {
-            cc.warn('object not yet destroyed');
+            cc.warnID(5001);
             return;
         }
         if (this._objFlags & RealDestroyed) {
-            cc.warn('object already destroyed');
+            cc.warnID(5000);
             return;
         }
         this._destruct();
@@ -406,7 +406,7 @@ prototype._onPreDestroy = null;
 
 prototype._destroyImmediate = function () {
     if (this._objFlags & Destroyed) {
-        cc.error('object already destroyed');
+        cc.errorID(5000);
         return;
     }
     // engine internal callback

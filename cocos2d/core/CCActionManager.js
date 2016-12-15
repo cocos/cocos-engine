@@ -196,7 +196,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
                 }
             }
         } else {
-            cc.log(cc._LogInfos.ActionManager.removeAction);
+            cc.logID(1001);
         }
     },
 
@@ -209,9 +209,9 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      */
     removeActionByTag:function (tag, target) {
         if(tag === cc.Action.TAG_INVALID)
-            cc.log(cc._LogInfos.ActionManager.addAction);
+            cc.logID(1002);
 
-        cc.assert(target, cc._LogInfos.ActionManager.addAction);
+        cc.assertID(target, 1003);
 
         var element = this._hashTargets[target.__instanceId];
 
@@ -237,7 +237,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      */
     getActionByTag:function (tag, target) {
         if(tag === cc.Action.TAG_INVALID)
-            cc.log(cc._LogInfos.ActionManager.getActionByTag);
+            cc.logID(1004);
 
         var element = this._hashTargets[target.__instanceId];
         if (element) {
@@ -248,7 +248,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
                         return action;
                 }
             }
-            cc.log(cc._LogInfos.ActionManager.getActionByTag_2, tag);
+            cc.logID(1005, tag);
         }
         return null;
     },

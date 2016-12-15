@@ -119,7 +119,7 @@ var properties = {
         },
         set: function (value) {
             if (CC_EDITOR && !value && !this._file) {
-                return cc.warn('Custom should not be false if file is not specified.');
+                return cc.warnID(6000);
             }
             if (this._custom !== value) {
                 this._custom = value;
@@ -611,7 +611,7 @@ var CustomProps = (function () {
                         this._sgNode[prop] = value;
                     }
                     else {
-                        cc.error('The new %s must not be NaN', prop);
+                        cc.errorID(6001, prop);
                     }
                 };
             }

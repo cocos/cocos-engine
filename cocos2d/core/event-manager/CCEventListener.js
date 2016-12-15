@@ -421,7 +421,7 @@ cc._EventListenerTouchOneByOne = cc.EventListener.extend({
 
     checkAvailable: function () {
         if(!this.onTouchBegan){
-            cc.log(cc._LogInfos._checkEventListenerAvailable.touchOneByOne);
+            cc.logID(1801);
             return false;
         }
         return true;
@@ -452,7 +452,7 @@ cc._EventListenerTouchAllAtOnce = cc.EventListener.extend({
     checkAvailable: function(){
         if (this.onTouchesBegan === null && this.onTouchesMoved === null
             && this.onTouchesEnded === null && this.onTouchesCancelled === null) {
-            cc.log(cc._LogInfos._checkEventListenerAvailable.touchAllAtOnce);
+            cc.logID(1802);
             return false;
         }
         return true;
@@ -476,7 +476,7 @@ cc._EventListenerTouchAllAtOnce.LISTENER_ID = "__cc_touch_all_at_once";
  */
 cc.EventListener.create = function(argObj){
 
-    cc.assert(argObj&&argObj.event, cc._LogInfos.EventListener.create);
+    cc.assertID(argObj&&argObj.event, 1900);
 
     var listenerType = argObj.event;
     delete argObj.event;
@@ -547,7 +547,7 @@ cc._EventListenerAcceleration = cc.EventListener.extend({
 
     checkAvailable: function () {
 
-        cc.assert(this._onAccelerationEvent, cc._LogInfos._checkEventListenerAvailable.acceleration);
+        cc.assertID(this._onAccelerationEvent, 1803);
 
         return true;
     },
@@ -588,7 +588,7 @@ cc._EventListenerKeyboard = cc.EventListener.extend({
 
     checkAvailable: function () {
         if (this.onKeyPressed === null && this.onKeyReleased === null) {
-            cc.log(cc._LogInfos._checkEventListenerAvailable.keyboard);
+            cc.logID(1800);
             return false;
         }
         return true;

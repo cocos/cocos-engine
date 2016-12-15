@@ -25,11 +25,11 @@
  ****************************************************************************/
 
 var js = cc.js;
-var INFO = cc._LogInfos.deprecated;
+// var INFO = cc._LogInfos.deprecated;
 
 exports.removed = function (audioEngine) {
 	function willPlayMusicError () {
-		cc.error('Sorry, cc.audioEngine.willPlayMusic is removed.');
+		cc.errorID(1403);
 	}
 	js.getset(audioEngine, 'willPlayMusic', willPlayMusicError, willPlayMusicError);
 };

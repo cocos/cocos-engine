@@ -15,7 +15,7 @@ var TextAtlasWrapper = cc.Class({
                     this.targetN.string = value;
                 }
                 else {
-                    cc.error('The new text must be String');
+                    cc.errorID(1703);
                 }
             }
         },

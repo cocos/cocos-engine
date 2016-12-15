@@ -239,7 +239,7 @@ _ccsg.Node = cc.Class({
                 }
                 break;
             default :
-                cc.assert(0, cc._LogInfos.Node._arrayMakeObjectsPerformSelector);
+                cc.assertID(0, 1616);
                 break;
         }
     },
@@ -361,7 +361,7 @@ _ccsg.Node = cc.Class({
      * @deprecated since 3.0, please use getLocalZOrder instead
      */
     getZOrder: function () {
-        cc.log(cc._LogInfos.Node.getZOrder);
+        cc.logID(1600);
         return this.getLocalZOrder();
     },
 
@@ -379,7 +379,7 @@ _ccsg.Node = cc.Class({
      * @deprecated since 3.0, please use setLocalZOrder instead
      */
     setZOrder: function (z) {
-        cc.log(cc._LogInfos.Node.setZOrder);
+        cc.logID(1601);
         this.setLocalZOrder(z);
     },
 
@@ -449,7 +449,7 @@ _ccsg.Node = cc.Class({
      */
     getRotation: function () {
         if (this._rotationX !== this._rotationY)
-            cc.log(cc._LogInfos.Node.getRotation);
+            cc.logID(1602);
         return this._rotationX;
     },
 
@@ -526,7 +526,7 @@ _ccsg.Node = cc.Class({
      */
     getScale: function () {
         if (this._scaleX !== this._scaleY)
-            cc.log(cc._LogInfos.Node.getScale);
+            cc.logID(1603);
         return this._scaleX;
     },
 
@@ -1031,7 +1031,7 @@ _ccsg.Node = cc.Class({
      * @return {Rect}
      */
     boundingBox: function(){
-        cc.log(cc._LogInfos.Node.boundingBox);
+        cc.logID(1608);
         return this.getBoundingBox();
     },
 
@@ -1125,8 +1125,8 @@ _ccsg.Node = cc.Class({
             name = "";
         }
 
-        cc.assert(child, cc._LogInfos.Node.addChild_3);
-        cc.assert(child._parent === null, "child already added. It can't be added again");
+        cc.assertID(child, 1606);
+        cc.assertID(child._parent === null, 1605);
 
         this._addChildHelper(child, localZOrder, tag, name, setTag);
     },
@@ -1181,7 +1181,7 @@ _ccsg.Node = cc.Class({
      * @param {Boolean} [cleanup=true] true if all actions and callbacks on this node should be removed, false otherwise.
      */
     removeFromParentAndCleanup: function (cleanup) {
-        cc.log(cc._LogInfos.Node.removeFromParentAndCleanup);
+        cc.logID(1607);
         this.removeFromParent(cleanup);
     },
 
@@ -1218,11 +1218,11 @@ _ccsg.Node = cc.Class({
      */
     removeChildByTag: function (tag, cleanup) {
         if (tag === cc.macro.NODE_TAG_INVALID)
-            cc.log(cc._LogInfos.Node.removeChildByTag);
+            cc.logID(1609);
 
         var child = this.getChildByTag(tag);
         if (!child)
-            cc.log(cc._LogInfos.Node.removeChildByTag_2, tag);
+            cc.logID(1610, tag);
         else
             this.removeChild(child, cleanup);
     },
@@ -1305,7 +1305,7 @@ _ccsg.Node = cc.Class({
      * @param {Number} zOrder Z order for drawing priority. Please refer to setZOrder(int)
      */
     reorderChild: function (child, zOrder) {
-        cc.assert(child, cc._LogInfos.Node.reorderChild);
+        cc.assertID(child, 1617);
         cc.renderer.childrenOrderDirty = this._reorderChildDirty = true;
         child.updateOrderOfArrival();
         child._setLocalZOrder(zOrder);
@@ -1433,7 +1433,7 @@ _ccsg.Node = cc.Class({
      * @return {cc.Action} An Action pointer
      */
     runAction: function (action) {
-        cc.assert(action, cc._LogInfos.Node.runAction);
+        cc.assertID(action, 1618);
 
         this.actionManager.addAction(action, this, !this._running);
         return action;
@@ -1463,7 +1463,7 @@ _ccsg.Node = cc.Class({
      */
     stopActionByTag: function (tag) {
         if (tag === cc.Action.TAG_INVALID) {
-            cc.log(cc._LogInfos.Node.stopActionByTag);
+            cc.logID(1612);
             return;
         }
         this.actionManager.removeActionByTag(tag, this);
@@ -1478,7 +1478,7 @@ _ccsg.Node = cc.Class({
      */
     getActionByTag: function (tag) {
         if (tag === cc.Action.TAG_INVALID) {
-            cc.log(cc._LogInfos.Node.getActionByTag);
+            cc.logID(1613);
             return null;
         }
         return this.actionManager.getActionByTag(tag, this);
@@ -1591,8 +1591,8 @@ _ccsg.Node = cc.Class({
             }
         }
 
-        cc.assert(callback, cc._LogInfos.Node.schedule);
-        cc.assert(interval >= 0, cc._LogInfos.Node.schedule_2);
+        cc.assertID(callback, 1619);
+        cc.assertID(interval >= 0, 1620);
 
         interval = interval || 0;
         repeat = (repeat == null) ? cc.macro.REPEAT_FOREVER : repeat;
@@ -1648,7 +1648,7 @@ _ccsg.Node = cc.Class({
      * @deprecated since v3.0, please use resume() instead
      */
     resumeSchedulerAndActions: function () {
-        cc.log(cc._LogInfos.Node.resumeSchedulerAndActions);
+        cc.logID(1614);
         this.resume();
     },
 
@@ -1669,7 +1669,7 @@ _ccsg.Node = cc.Class({
      * @function
      */
     pauseSchedulerAndActions: function () {
-        cc.log(cc._LogInfos.Node.pauseSchedulerAndActions);
+        cc.logID(1615);
         this.pause();
     },
 
@@ -2221,6 +2221,6 @@ _ccsg.Node.prototype.ctor = _ccsg.Node;
 
 _ccsg.Node._stateCallbackType = {onEnter: 1, onExit: 2, cleanup: 3, onEnterTransitionDidFinish: 4, updateTransform: 5, onExitTransitionDidStart: 6, sortAllChildren: 7};
 
-cc.assert(typeof cc._tmp.PrototypeCCNode === 'function', cc._LogInfos.MissingFile, "BaseNodesPropertyDefine.js");
+cc.assertID(typeof cc._tmp.PrototypeCCNode === 'function', 3200, "BaseNodesPropertyDefine.js");
 cc._tmp.PrototypeCCNode();
 delete cc._tmp.PrototypeCCNode;

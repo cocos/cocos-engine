@@ -237,7 +237,7 @@ var Mask = cc.Class({
     onEnable: function () {
         if (this.type === MaskType.IMAGE_STENCIL &&
             cc._renderType !== cc.game.RENDER_TYPE_WEBGL && !CC_JSB) {
-            cc.warn("MaskType: IMAGE_STENCIL only support WebGL mode.");
+            cc.warnID(4200);
             return;
         }
         this._refreshStencil();

@@ -168,7 +168,7 @@ var CustomFontLoader = {
                 setTimeout(function () {
                     //in case some font won't cause the width as to system font.
                     if(!self._allFontsLoaded) {
-                        cc.log("force notify all fonts loaded!");
+                        cc.logID(4004);
                         fontDescriptor.onLoaded();
                         cc.director.getScheduler().unschedule(this._checkFontLoaded, this);
                     }

@@ -428,7 +428,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             throw new Error("_ccsg.TMXLayer.getTileAt(): invalid position");
         }
         if (!this.tiles) {
-            cc.log("_ccsg.TMXLayer.getTileAt(): TMXLayer: the tiles map has been released");
+            cc.logID(7204);
             return null;
         }
 
@@ -478,7 +478,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             throw new Error("_ccsg.TMXLayer.getTileGIDAt(): invalid position");
         }
         if (!this.tiles) {
-            cc.log("_ccsg.TMXLayer.getTileGIDAt(): TMXLayer: the tiles map has been released");
+            cc.logID(7205);
             return null;
         }
 
@@ -519,11 +519,11 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             throw new Error("_ccsg.TMXLayer.setTileGID(): invalid position");
         }
         if (!this.tiles) {
-            cc.log("_ccsg.TMXLayer.setTileGID(): TMXLayer: the tiles map has been released");
+            cc.logID(7206);
             return;
         }
         if (gid !== 0 && gid < this.tileset.firstGid) {
-            cc.log( "_ccsg.TMXLayer.setTileGID(): invalid gid:" + gid);
+            cc.logID(7207, gid);
             return;
         }
 
@@ -588,7 +588,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
         if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0)
             throw new Error("_ccsg.TMXLayer.getTileFlagsAt(): invalid position");
         if(!this.tiles){
-            cc.log("_ccsg.TMXLayer.getTileFlagsAt(): TMXLayer: the tiles map has been released");
+            cc.logID(7208);
             return null;
         }
 
@@ -617,7 +617,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             throw new Error("_ccsg.TMXLayer.removeTileAt(): invalid position");
         }
         if (!this.tiles) {
-            cc.log("_ccsg.TMXLayer.removeTileAt(): TMXLayer: the tiles map has been released");
+            cc.logID(7209);
             return;
         }
 
@@ -826,10 +826,10 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
                     ret = -(this._layerSize.height - y);
                     break;
                 case cc.TiledMap.Orientation.HEX:
-                    cc.log("TMX Hexa zOrder not supported");
+                    cc.logID(7210);
                     break;
                 default:
-                    cc.log("TMX invalid value");
+                    cc.logID(7211);
                     break;
             }
         } else {

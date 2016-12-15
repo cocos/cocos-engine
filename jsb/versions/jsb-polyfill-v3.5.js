@@ -48,10 +48,10 @@ cc.SpriteFrame.prototype.initWithTexture = function (texture, rect, rotated, off
                 _y = rect.y + rect.height;
             }
             if (_x > texture.getPixelWidth()) {
-                cc.error(cc._LogInfos.RectWidth, _uuid);
+                cc.errorID(3300, _uuid);
             }
             if (_y > texture.getPixelHeight()) {
-                cc.error(cc._LogInfos.RectHeight, _uuid);
+                cc.errorID(3400, _uuid);
             }
         }
     }
@@ -72,7 +72,7 @@ cc.SpriteFrame.prototype.initWithTexture = function (texture, rect, rotated, off
         // deserialize texture from uuid
         var info = cc.AssetLibrary._getAssetInfoInRuntime(_uuid);
         if (!info) {
-            cc.error('SpriteFrame: Failed to load sprite texture "%s"', _uuid);
+            cc.errorID(3114, _uuid);
             return;
         }
 

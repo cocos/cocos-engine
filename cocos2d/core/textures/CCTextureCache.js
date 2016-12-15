@@ -69,7 +69,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * @example {@link utils/api/engine/docs/cocos2d/core/textures/textureForKey.js}
      */
     textureForKey: function (textureKeyName) {
-        cc.log(cc._LogInfos.textureCache.textureForKey);
+        cc.logID(3002);
         return this.getTextureForKey(textureKeyName);
     },
 
@@ -215,7 +215,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * @param {Image|HTMLImageElement|HTMLCanvasElement} texture
      */
     cacheImage: function (path, texture) {
-        cc.assert(path, cc._LogInfos.textureCache.invalidKey);
+        cc.assertID(path, 3009);
 
         if (texture instanceof Texture2D) {
             this._textures[path] = texture;
@@ -239,7 +239,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * @return {Texture2D}
      */
     addUIImage: function (image, key) {
-        cc.assert(image, cc._LogInfos.textureCache.addUIImage_2);
+        cc.assertID(image, 3008);
 
         if (key && this._textures[key]) {
             return this._textures[key];
@@ -251,7 +251,7 @@ var textureCache = /** @lends cc.textureCache# */{
         if (key != null)
             this._textures[key] = texture;
         else
-            cc.log(cc._LogInfos.textureCache.addUIImage);
+            cc.logID(3004);
         return texture;
     },
 
@@ -267,9 +267,9 @@ var textureCache = /** @lends cc.textureCache# */{
             var selTexture = locTextures[key];
             count++;
             if (selTexture.getHtmlElementObj() instanceof  HTMLImageElement)
-                cc.log(cc._LogInfos.textureCache.dumpCachedTextureInfo, key, selTexture.getHtmlElementObj().src, selTexture.getPixelWidth(), selTexture.getPixelHeight());
+                cc.logID(3005, key, selTexture.getHtmlElementObj().src, selTexture.getPixelWidth(), selTexture.getPixelHeight());
             else {
-                cc.log(cc._LogInfos.textureCache.dumpCachedTextureInfo_2, key, selTexture.getPixelWidth(), selTexture.getPixelHeight());
+                cc.logID(3006, key, selTexture.getPixelWidth(), selTexture.getPixelHeight());
             }
             totalBytes += selTexture.getPixelWidth() * selTexture.getPixelHeight() * 4;
         }
@@ -280,12 +280,12 @@ var textureCache = /** @lends cc.textureCache# */{
             for (var selCanvasKey in selCanvasColorsArr) {
                 var selCanvas = selCanvasColorsArr[selCanvasKey];
                 count++;
-                cc.log(cc._LogInfos.textureCache.dumpCachedTextureInfo_2, key, selCanvas.width, selCanvas.height);
+                cc.logID(3006, key, selCanvas.width, selCanvas.height);
                 totalBytes += selCanvas.width * selCanvas.height * 4;
             }
 
         }
-        cc.log(cc._LogInfos.textureCache.dumpCachedTextureInfo_3, count, totalBytes / 1024, (totalBytes / (1024.0 * 1024.0)).toFixed(2));
+        cc.logID(3007, count, totalBytes / 1024, (totalBytes / (1024.0 * 1024.0)).toFixed(2));
     },
 
     _clear: function () {
@@ -304,7 +304,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             //remove judge
             var tex = locTexs[url];
             if (!tex) {
-                cc.assert(url, cc._LogInfos.textureCache.invalidKey);
+                cc.assertID(url, 3009);
                 tex = locTexs[url] = new Texture2D();
                 tex.url = url;
             }
@@ -313,7 +313,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
         _p.addImage = function (url, cb, target) {
 
-            cc.assert(url, cc._LogInfos.Texture2D.addImage);
+            cc.assertID(url, 3103);
 
             var locTexs = this._textures;
             //remove judge
@@ -359,7 +359,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             }
             tex = locTexs[url];
             if (!tex) {
-                cc.assert(url, cc._LogInfos.textureCache.invalidKey);
+                cc.assertID(url, 3009);
                 tex = locTexs[url] = new Texture2D();
                 tex.url = url;
             }
@@ -368,7 +368,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
         };
 
         _p.addImage = function (url, cb, target) {
-            cc.assert(url, cc._LogInfos.Texture2D.addImage_2);
+            cc.assertID(url, 3112);
 
             var locTexs = this._textures;
             //remove judge(webgl)

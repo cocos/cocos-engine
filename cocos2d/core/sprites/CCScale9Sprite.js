@@ -367,7 +367,7 @@ var tiledQuadGenerator = {
         var row = Math.ceil(vRepeat), col = Math.ceil(hRepeat);
 
         if (row * col > (65536 / 4)) {
-            cc.error('too many tiles, only 16384 tiles will be show');
+            cc.errorID(2625);
         }
         var dataLength = row * col * 4 * 2;
         if (vertices.length < dataLength) {
@@ -543,7 +543,7 @@ var fillQuadGeneratorBar = {
                 uvs[7] = quadUV[3] + (quadUV[7] - quadUV[3]) * fillEnd;
                 break;
             default:
-                cc.error('Unrecognized fill type in bar fill');
+                cc.errorID(2626);
                 break;
         }
 
@@ -1409,7 +1409,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             this._quadsDirty = false;
             this._uvsDirty = false;
             this._renderCmd._needDraw = false;
-            cc.error('Can not generate quad');
+            cc.errorID(2627);
             return;
         }
 

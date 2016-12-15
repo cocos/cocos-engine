@@ -118,7 +118,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
                     _t._projectionDelegate.updateProjection();
                 break;
             default:
-                cc.log(cc._LogInfos.Director.setProjection);
+                cc.logID(1201);
                 break;
         }
         _t._projection = projection;

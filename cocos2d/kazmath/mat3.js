@@ -188,7 +188,7 @@ cc.math.Matrix3.rotationAxisAngle = function(axis, radians) {    //cc.kmMat3Rota
 
 proto.assignFrom = function(matIn){      // cc.kmMat3Assign
     if(this === matIn) {
-        cc.log("cc.math.Matrix3.assign(): current matrix equals matIn");
+        cc.logID(7900);
         return this;
     }
     var mat = this.mat, m2 = matIn.mat;

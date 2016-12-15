@@ -608,7 +608,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
 
         if (map.nodeName === "map") {
             if (version !== "1.0" && version !== null)
-                cc.log("cocos2d: TMXFormat: Unsupported TMX version:" + version);
+                cc.logID(7216, version);
 
             if (orientationStr === "orthogonal")
                 this.orientation = cc.TiledMap.Orientation.ORTHO;
@@ -617,7 +617,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
             else if (orientationStr === "hexagonal")
                 this.orientation = cc.TiledMap.Orientation.HEX;
             else if (orientationStr !== null)
-                cc.log("cocos2d: TMXFomat: Unsupported orientation:" + orientationStr);
+                cc.logID(7217, orientationStr);
 
             if (staggerAxisStr === 'x') {
                 this.setStaggerAxis(cc.TiledMap.StaggerAxis.STAGGERAXIS_X);
@@ -790,7 +790,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         var compression = data.getAttribute('compression');
         var encoding = data.getAttribute('encoding');
         if(compression && compression !== "gzip" && compression !== "zlib"){
-            cc.log("cc.TMXMapInfo.parseXMLFile(): unsupported compression method");
+            cc.logID(7218);
             return null;
         }
         var tiles;
@@ -822,7 +822,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 break;
             default:
                 if(this.layerAttrs === cc.TMXLayerInfo.ATTRIB_NONE)
-                    cc.log("cc.TMXMapInfo.parseXMLFile(): Only base64 and/or gzip/zlib maps are supported");
+                    cc.logID(7219);
                 break;
         }
         if (tiles) {

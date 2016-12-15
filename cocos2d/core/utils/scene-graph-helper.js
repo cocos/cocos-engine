@@ -53,7 +53,7 @@ if (CC_DEV) {
                     return offset;
                 }
                 else {
-                    cc.error("%s's scene graph node not contains in the parent's children", firstChildEntity.name);
+                    cc.errorID(3510, firstChildEntity.name);
                     return -1;
                 }
             }
