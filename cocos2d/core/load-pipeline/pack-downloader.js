@@ -142,7 +142,7 @@ module.exports = {
      * @returns {Boolean} specify whether loaded by pack
      */
     load: function (item, callback) {
-        var uuid = item.id;
+        var uuid = item.uuid;
         var packUuid = uuidToPack[uuid];
         if (!packUuid) {
             return false;
