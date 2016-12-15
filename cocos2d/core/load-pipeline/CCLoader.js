@@ -45,7 +45,7 @@ function getResWithUrl (res) {
     if (typeof res === 'object') {
         result = res;
         if (res.url) {
-            return res.url;
+            return result;
         }
         else {
             id = res.uuid;
@@ -199,7 +199,13 @@ JS.mixin(CCLoader.prototype, {
 
         _sharedResources.length = 0;
         for (var i = 0; i < resources.length; ++i) {
-            var res = getResWithUrl(resources[i]);
+            var resource = resources[i];
+            // Backward compatibility
+            if (resource && resource.id) {
+                cc.warn('Sorry, you shouldn\'t use id as item identity any more, please use url or uuid instead, the current id is being set as url: ' + resource.id);
+                resource.url = resource.url || resource.id;
+            }
+            var res = getResWithUrl(resource);
             if (!res.url && !res.uuid)
                 continue;
             var item = this.getItem(res.url);
