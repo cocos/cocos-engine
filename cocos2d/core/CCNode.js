@@ -1238,10 +1238,20 @@ var Node = cc.Class({
     },
 
     _checkTouchListeners: function () {
-        if (!(this._objFlags & Destroying) && this._bubblingListeners && this._touchListener) {
-            for (var i = 0; i < _touchEvents.length; ++i) {
-                if (this._bubblingListeners.has(_touchEvents[i])) {
-                    return;
+        if (!(this._objFlags & Destroying) && this._touchListener) {
+            var i = 0;
+            if (this._bubblingListeners) {
+                for (; i < _touchEvents.length; ++i) {
+                    if (this._bubblingListeners.has(_touchEvents[i])) {
+                        return;
+                    }
+                }
+            }
+            if (this._capturingListeners) {
+                for (; i < _touchEvents.length; ++i) {
+                    if (this._capturingListeners.has(_touchEvents[i])) {
+                        return;
+                    }
                 }
             }
 
@@ -1250,10 +1260,20 @@ var Node = cc.Class({
         }
     },
     _checkMouseListeners: function () {
-        if (!(this._objFlags & Destroying) && this._bubblingListeners && this._mouseListener) {
-            for (var i = 0; i < _mouseEvents.length; ++i) {
-                if (this._bubblingListeners.has(_mouseEvents[i])) {
-                    return;
+        if (!(this._objFlags & Destroying) && this._mouseListener) {
+            var i = 0;
+            if (this._bubblingListeners) {
+                for (; i < _mouseEvents.length; ++i) {
+                    if (this._bubblingListeners.has(_mouseEvents[i])) {
+                        return;
+                    }
+                }
+            }
+            if (this._capturingListeners) {
+                for (; i < _mouseEvents.length; ++i) {
+                    if (this._capturingListeners.has(_mouseEvents[i])) {
+                        return;
+                    }
                 }
             }
 
