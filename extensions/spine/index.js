@@ -102,7 +102,8 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     
     if (!CC_JSB) {
         sp.spine = require('./lib/spine');
-    
+
+        require('./SGSkeletonTexture');
         require('./SGSkeleton');
         require('./SGSkeletonCanvasRenderCmd');
         require('./SGSkeletonWebGLRenderCmd');

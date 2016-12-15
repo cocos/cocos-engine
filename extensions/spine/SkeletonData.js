@@ -28,7 +28,7 @@
  */
 
 // implements a simple texture loader like sp._atlasLoader
-var TextureLoader = cc.Class({
+var TextureLoader = !CC_JSB && cc.Class({
     ctor: function () {
         // {SkeletonData}
         this.asset = arguments[0];
@@ -46,25 +46,22 @@ var TextureLoader = cc.Class({
         for (var i = 0; i < urls.length; i++) {
             var url = urls[i];
             if (url.endsWith(line)) {
-                return cc.textureCache.addImage(url);
+                var texture = cc.textureCache.addImage(url);
+                var tex = new sp.SkeletonTexture({ width: texture.getPixelWidth(), height: texture.getPixelHeight() });
+                tex.setRealTexture(texture);
+                return tex;
             }
         }
         return null;
     },
-    load: function (page, line, spAtlas) {
+    load: function (line) {
         var texture = this.getTexture(line);
         if (texture) {
-            if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-                page.rendererObject = new cc.TextureAtlas(texture, 128);
-                page.width = texture.getPixelWidth();
-                page.height = texture.getPixelHeight();
-            }
-            else {
-                page._texture = texture;
-            }
+            return texture;
         }
         else {
             cc.error('Failed to load spine atlas "$s"', line);
+            return null;
         }
     },
     unload: function (obj) {
@@ -279,7 +276,8 @@ var SkeletonData = cc.Class({
             return null;
         }
 
-        return this._atlasCache = new sp.spine.Atlas(this.atlasText, new TextureLoader(this));
+        var loader =  new TextureLoader(this);
+        return this._atlasCache = new sp.spine.TextureAtlas(this.atlasText, loader.load.bind(loader));
     }
 });
 

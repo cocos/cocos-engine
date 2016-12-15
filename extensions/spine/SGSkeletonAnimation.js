@@ -48,12 +48,12 @@ sp._atlasLoader = {
     setAtlasFile:function(spAtlasFile){
         this.spAtlasFile = spAtlasFile;
     },
-    load:function(page, line, spAtlas){
+    load:function(line){
         var texturePath = cc.path.join(cc.path.dirname(this.spAtlasFile), line);
-        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL)
-            sp._atlasPage_createTexture_webGL(page,texturePath);
-        else
-            sp._atlasPage_createTexture_canvas(page,texturePath);
+        var texture = cc.textureCache.addImage(texturePath);
+        var tex = new sp.SkeletonTexture({ width: texture.getPixelWidth(), height: texture.getPixelHeight() });
+        tex.setRealTexture(texture);
+        return tex;
     },
     unload:function(obj){
     }
@@ -148,7 +148,7 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
             cc.log("Spine: Animation not found: " + name);
             return null;
         }
-        return this._state.setAnimation(trackIndex, animation, loop);
+        return this._state.setAnimationWith(trackIndex, animation, loop);
     },
 
     /**
@@ -166,7 +166,7 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
             cc.log("Spine: Animation not found:" + name);
             return null;
         }
-        return this._state.addAnimation(trackIndex, animation, loop, delay);
+        return this._state.addAnimationWith(trackIndex, animation, loop, delay);
     },
 
     /**

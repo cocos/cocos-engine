@@ -86,17 +86,14 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
 
         // get the vertices length
         var vertCount = 0;
-        switch(attachment.type) {
-            case sp.ATTACHMENT_TYPE.REGION:
-                vertCount = 6; // a quad = two triangles = six vertices
-                break;
-            case sp.ATTACHMENT_TYPE.MESH:
-                //vertCount = attachment.vertices.length;
-                break;
-            case sp.ATTACHMENT_TYPE.SKINNED_MESH:
-                break;
-            default:
-                continue;
+        if (attachment instanceof spine.RegionAttachment) {
+            vertCount = 6; // a quad = two triangles = six vertices
+        }
+        else if (attachment instanceof spine.MeshAttachment) {
+            //vertCount = attachment.uvs.length / 2;
+        }
+        else {
+            continue;
         }
 
         // no vertices to render
@@ -108,7 +105,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
         if (!dataInited) {
             textureAtlas = regionTextureAtlas;
             blendMode = slot.data.blendMode;
-            cc.renderer._updateBatchedInfo(textureAtlas.texture, this._getBlendFunc(blendMode, premultiAlpha), this.getShaderProgram());
+            cc.renderer._updateBatchedInfo(textureAtlas.texture.getRealTexture(), this._getBlendFunc(blendMode, premultiAlpha), this.getShaderProgram());
             dataInited = true;
         }
 
@@ -124,22 +121,19 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
             // update the batched info
             textureAtlas = regionTextureAtlas;
             blendMode = slot.data.blendMode;
-            cc.renderer._updateBatchedInfo(textureAtlas.texture, this._getBlendFunc(blendMode, premultiAlpha), this.getShaderProgram());
+            cc.renderer._updateBatchedInfo(textureAtlas.texture.getRealTexture(), this._getBlendFunc(blendMode, premultiAlpha), this.getShaderProgram());
         }
 
         // update the vertext buffer
         var slotDebugPoints = null;
-        switch(attachment.type) {
-            case sp.ATTACHMENT_TYPE.REGION:
-                slotDebugPoints = this._uploadRegionAttachmentData(attachment, slot, premultiAlpha, f32buffer, ui32buffer, vertexDataOffset);
-                break;
-            case sp.ATTACHMENT_TYPE.MESH:
-                this._uploadMeshAttachmentData(attachment, slot, premultiAlpha, f32buffer, ui32buffer, vertexDataOffset);
-                break;
-            case sp.ATTACHMENT_TYPE.SKINNED_MESH:
-                break;
-            default:
-                continue;
+        if (attachment instanceof spine.RegionAttachment) {
+            slotDebugPoints = this._uploadRegionAttachmentData(attachment, slot, premultiAlpha, f32buffer, ui32buffer, vertexDataOffset);
+        }
+        else if (attachment instanceof spine.MeshAttachment) {
+            this._uploadMeshAttachmentData(attachment, slot, premultiAlpha, f32buffer, ui32buffer, vertexDataOffset);
+        }
+        else {
+            continue;
         }
 
         if (this._node._debugSlots) {
@@ -147,7 +141,11 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
         }
 
         // update the index buffer
-        cc.renderer._increaseBatchingSize(vertCount, cc.renderer.VertexType.TRIANGLE);
+        if (attachment instanceof spine.RegionAttachment) {
+            cc.renderer._increaseBatchingSize(vertCount, cc.renderer.VertexType.TRIANGLE);
+        } else {
+            cc.renderer._increaseBatchingSize(vertCount, cc.renderer.VertexType.CUSTOM, attachment.triangles);
+        }
 
         // update the index data
         cachedVertices += vertCount;
@@ -187,8 +185,8 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
 
             for (i = 0, n = locSkeleton.bones.length; i < n; i++) {
                 bone = locSkeleton.bones[i];
-                var x = bone.data.length * bone.m00 + bone.worldX;
-                var y = bone.data.length * bone.m10 + bone.worldY;
+                var x = bone.data.length * bone.a + bone.worldX;
+                var y = bone.data.length * bone.c + bone.worldY;
                 drawingUtil.drawLine(cc.p(bone.worldX, bone.worldY), cc.p(x, y));
             }
 
@@ -213,19 +211,19 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
 proto._getBlendFunc = function (blendMode, premultiAlpha) {
     var ret = {};
     switch (blendMode) {
-        case spine.BlendMode.normal:
+        case spine.BlendMode.Normal:
             ret.src = premultiAlpha ? cc.macro.ONE : cc.macro.SRC_ALPHA;
             ret.dst = cc.macro.ONE_MINUS_SRC_ALPHA;
             break;
-        case spine.BlendMode.additive:
+        case spine.BlendMode.Additive:
             ret.src = premultiAlpha ? cc.macro.ONE : cc.macro.SRC_ALPHA;
             ret.dst = cc.macro.ONE;
             break;
-        case spine.BlendMode.multiply:
+        case spine.BlendMode.Multiply:
             ret.src = cc.macro.DST_COLOR;
             ret.dst = cc.macro.ONE_MINUS_SRC_ALPHA;
             break;
-        case spine.BlendMode.screen:
+        case spine.BlendMode.Screen:
             ret.src = cc.macro.ONE;
             ret.dst = cc.macro.ONE_MINUS_SRC_COLOR;
             break;
@@ -242,36 +240,41 @@ proto._createChildFormSkeletonData = function(){};
 proto._updateChild = function(){};
 
 proto._uploadRegionAttachmentData = function(attachment, slot, premultipliedAlpha, f32buffer, ui32buffer, vertexDataOffset) {
-    var vertices = new Array(8);
-    attachment.computeVertices(slot.bone.skeleton.x, slot.bone.skeleton.y, slot.bone, vertices);
-    var a = slot.bone.skeleton.a * slot.a * attachment.a * 255;
-    var multiplier = premultipliedAlpha ? a : 255;
-    var r = slot.bone.skeleton.r * slot.r * attachment.r * multiplier;
-    var g = slot.bone.skeleton.g * slot.g * attachment.g * multiplier;
-    var b = slot.bone.skeleton.b * slot.b * attachment.b * multiplier;
-    var color = ((a<<24) | (b<<16) | (g<<8) | r);
-
+    // the vertices in format:
+    // [
+    //   X1, Y1, C1R, C1G, C1B, C1A, U1, V1,    // bottom left
+    //   X2, Y2, C2R, C2G, C2B, C2A, U2, V2,    // top left
+    //   X3, Y3, C3R, C3G, C3B, C3A, U3, V3,    // top right
+    //   X4, Y4, C4R, C4G, C4B, C4A, U4, V4     // bottom right
+    // ]
+    //
+    var vertices = attachment.updateWorldVertices(slot, premultipliedAlpha);
     var offset = vertexDataOffset;
     // generate 6 vertices data (two triangles) from the quad vertices
     // using two angles : (0, 1, 2) & (0, 2, 3)
     for (var i = 0; i < 6; i++) {
         var srcIdx = i < 4 ? i % 3 : i - 2;
-        f32buffer[offset] = vertices[srcIdx * 2];
-        f32buffer[offset + 1] = vertices[srcIdx * 2 + 1];
+        var r = vertices[srcIdx * 8 + 2] * 255,
+            g = vertices[srcIdx * 8 + 3] * 255,
+            b = vertices[srcIdx * 8 + 4] * 255,
+            a = vertices[srcIdx * 8 + 5] * 255;
+        var color = ((a<<24) | (b<<16) | (g<<8) | r);
+        f32buffer[offset] = vertices[srcIdx * 8];
+        f32buffer[offset + 1] = vertices[srcIdx * 8 + 1];
         f32buffer[offset + 2] = this._node.vertexZ;
         ui32buffer[offset + 3] = color;
-        f32buffer[offset + 4] = attachment.uvs[srcIdx * 2];
-        f32buffer[offset + 5] = attachment.uvs[srcIdx * 2 + 1];
+        f32buffer[offset + 4] = vertices[srcIdx * 8 + 6];
+        f32buffer[offset + 5] = vertices[srcIdx * 8 + 7];
         offset += 6;
     }
 
     if (this._node._debugSlots) {
         // return the quad points info if debug slot enabled
         return [
-            cc.p(vertices[0], vertices[1]),
-            cc.p(vertices[2], vertices[3]),
-            cc.p(vertices[4], vertices[5]),
-            cc.p(vertices[6], vertices[7])
+            cc.p(vertices[spine.RegionAttachment.X1], vertices[spine.RegionAttachment.Y1]),
+            cc.p(vertices[spine.RegionAttachment.X2], vertices[spine.RegionAttachment.Y2]),
+            cc.p(vertices[spine.RegionAttachment.X3], vertices[spine.RegionAttachment.Y3]),
+            cc.p(vertices[spine.RegionAttachment.X4], vertices[spine.RegionAttachment.Y4])
         ];
     }
 };
