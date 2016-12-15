@@ -44,6 +44,9 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
     var uuid = item.uuid, uuidList = tdInfo.uuidList;
     var objList, propList, depends;
     var i, dependUuid;
+    // cache dependencies for auto release
+    var dependKeys = item.dependKeys = [];
+
     if (deferredLoadRawAssetsInRuntime) {
         objList = [];
         propList = [];
@@ -58,6 +61,7 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
                 // skip preloading raw assets
                 var url = info.url;
                 obj[prop] = url;
+                dependKeys.push(url);
             }
             else {
                 objList.push(obj);
@@ -104,9 +108,6 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
         asset._uuid = uuid;
         return callback(null, asset);
     }
-
-    // cache dependencies for auto release
-    var dependKeys = item.dependKeys = [];
 
     // Predefine content for dependencies usage
     item.content = asset;
