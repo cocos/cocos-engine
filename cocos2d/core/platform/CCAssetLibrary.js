@@ -72,7 +72,6 @@ var AssetLibrary = {
         // var readMainCache = typeof (options && options.readMainCache) !== 'undefined' ? readMainCache : true;
         // var writeMainCache = typeof (options && options.writeMainCache) !== 'undefined' ? writeMainCache : true;
         var item = {
-            id: uuid,
             uuid: uuid,
             type: 'uuid'
         };
@@ -89,6 +88,7 @@ var AssetLibrary = {
                         Editor.error('Sorry, the scene data of "%s" is corrupted!', uuid);
                     }
                     else {
+                        // We know scene is a raw asset, so we can pass uuid to this API directly
                         asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(uuid);
                     }
                 }
@@ -127,21 +127,27 @@ var AssetLibrary = {
         }
     },
 
-    _getAssetInfoInRuntime: function (uuid) {
+    _getAssetInfoInRuntime: function (uuid, result) {
+        if (!result) {
+            result = {url: null, raw: false};
+        }
         var info = _uuidToRawAsset[uuid];
         if (info && !cc.isChildClassOf(info.type, cc.Asset)) {
-            return {
-                url: _rawAssetsBase + info.url,
-                raw: true,
-            };
+            result.url = _rawAssetsBase + info.url;
+            result.raw = true;
         }
         else {
-            var url = this.getImportedDir(uuid) + '/' + uuid + '.json';
-            return {
-                url: url,
-                raw: false,
-            };
+            result.url = this.getImportedDir(uuid) + '/' + uuid + '.json';
         }
+        return result;
+    },
+
+    _isRawAsset: function (uuid) {
+        var info = _uuidToRawAsset[uuid];
+        if (info) {
+            return !cc.isChildClassOf(info.type, cc.Asset);
+        }
+        return true;
     },
 
     _getAssetUrl: function (uuid) {
@@ -208,7 +214,7 @@ var AssetLibrary = {
     loadJson: function (json, callback) {
         var randomUuid = '' + ((new Date()).getTime() + Math.random());
         var item = {
-            id: randomUuid,
+            uuid: randomUuid,
             type: 'uuid',
             content: json,
             skips: [ Loader.downloader.id ]
@@ -219,6 +225,7 @@ var AssetLibrary = {
             }
             else {
                 if (asset.constructor === cc.SceneAsset) {
+                    // We know scene is a raw asset, so we can pass uuid to this API directly
                     asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(randomUuid);
                 }
                 if (CC_EDITOR || isScene(asset)) {
@@ -360,4 +367,4 @@ AssetLibrary._uuidToAsset = {};
 //    }
 //};
 
-cc.AssetLibrary = AssetLibrary;
+module.exports = cc.AssetLibrary = AssetLibrary;
