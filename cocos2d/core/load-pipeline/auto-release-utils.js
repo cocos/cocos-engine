@@ -22,25 +22,6 @@ function release (loader, key, nextSceneAssets) {
 }
 
 module.exports = {
-
-    // get asset url or uuid
-    getKey: function (loader, assetOrUrlOrUuid) {
-        if (assetOrUrlOrUuid) {
-            if (typeof assetOrUrlOrUuid === 'string') {
-                // try to convert uuid to url
-                var item = cc.loader.getItem(assetOrUrlOrUuid);
-                return (item && item.url) || assetOrUrlOrUuid;
-            }
-            else if (assetOrUrlOrUuid._uuid) {
-                return assetOrUrlOrUuid._uuid;
-            }
-            else if (CC_DEV) {
-                cc.warn('unknown asset type');
-            }
-        }
-        return '';
-    },
-
     // do auto release
     autoRelease: function (loader, oldSceneAssets, nextSceneAssets) {
         var releaseSettings = loader._autoReleaseSetting;

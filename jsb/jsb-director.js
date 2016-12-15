@@ -306,7 +306,7 @@ cc.js.mixin(cc.director, {
         var info = this._getSceneUuid(sceneName);
         if (info) {
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
-            cc.loader.load({ id: info.uuid, type: 'uuid' }, function (error, asset) {
+            cc.loader.load({ uuid: info.uuid, type: 'uuid' }, function (error, asset) {
                 if (error) {
                     cc.error('Failed to preload "%s", %s', sceneName, error.message);
                 }

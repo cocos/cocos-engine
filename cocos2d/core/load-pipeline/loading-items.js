@@ -62,18 +62,19 @@ var _parseUrl = function (url) {
 };
 
 function isIdValid (id) {
-    var realId = id.id || id;
+    var realId = id.url || id;
     return (typeof realId === 'string');
 }
 function createItem (id, queueId) {
     var result, urlItem;
-    if (typeof id === 'object' && id.id) {
-        if (!id.type) {
+    if (typeof id === 'object') {
+        if (id.url && !id.type) {
             id.type = Path.extname(id.url).toLowerCase().substr(1);
         }
         urlItem = _parseUrl(id.url);
         result = {
             queueId: queueId,
+            id: urlItem.url,
             url: urlItem.url,
             urlParam: urlItem.param,
             error: null,
@@ -490,12 +491,12 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
             // Queue new items
             if (isIdValid(url)) {
                 item = createItem(url, this._id);
-                var id = item.id;
+                var key = item.id;
                 // No duplicated url
-                if (!this.map[id]) {
-                    this.map[item.id] = item;
+                if (!this.map[key]) {
+                    this.map[key] = item;
                     this.totalCount++;
-                    LoadingItems.registerDep(owner || this._id, id);
+                    LoadingItems.registerDep(owner || this._id, key);
                     accepted.push(item);
                     // console.log('+++++ Appended ' + item.id);
                 }
@@ -685,7 +686,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
      * !#en Complete an item in the LoadingItems queue, please do not call this method unless you know what's happening.
      * !#zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
      * @method itemComplete
-     * @param {String} item The item id
+     * @param {String} id The item url
      */
     itemComplete: function (id) {
         var item = this.map[id];
@@ -705,7 +706,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         this.completed[id] = item;
         this.completedCount++;
 
-        LoadingItems.finishDep(id);
+        LoadingItems.finishDep(item.id);
         if (this.onProgress) {
             var dep = _queueDeps[this._id];
             this.onProgress(dep ? dep.completed.length : this.completedCount, dep ? dep.deps.length : this.totalCount, item);
