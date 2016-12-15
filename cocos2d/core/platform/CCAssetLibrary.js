@@ -88,7 +88,7 @@ var AssetLibrary = {
                         Editor.error('Sorry, the scene data of "%s" is corrupted!', uuid);
                     }
                     else {
-                        // We know scene is a raw asset, so we can pass uuid to this API directly
+                        // We know scene is not a raw asset, so we can pass uuid to this API directly
                         asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(uuid);
                     }
                 }
@@ -225,7 +225,7 @@ var AssetLibrary = {
             }
             else {
                 if (asset.constructor === cc.SceneAsset) {
-                    // We know scene is a raw asset, so we can pass uuid to this API directly
+                    // We know scene is not a raw asset, so we can pass uuid to this API directly
                     asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(randomUuid);
                 }
                 if (CC_EDITOR || isScene(asset)) {

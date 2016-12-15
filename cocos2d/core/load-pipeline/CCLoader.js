@@ -45,7 +45,7 @@ function getResWithUrl (res) {
     if (typeof res === 'object') {
         result = res;
         if (res.url) {
-            return res.url;
+            return result;
         }
         else {
             id = res.uuid;
