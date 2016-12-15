@@ -63,6 +63,16 @@ function downloadScript (item, callback, isAsync) {
     d.body.appendChild(s);
 }
 
+function downloadWebp (item, callback, isCrossOrigin, img) {
+    if (!cc.sys.capabilities.webp) {
+        setTimeout(function () {
+            callback('Load Webp ( ' + item.url + ' ) failed')
+        }, 0);
+        return;
+    }
+    downloadImage(item, callback, isCrossOrigin, img);
+}
+
 function downloadImage (item, callback, isCrossOrigin, img) {
     if (isCrossOrigin === undefined) {
         isCrossOrigin = true;
@@ -232,7 +242,7 @@ var defaultMap = {
     'gif' : downloadImage,
     'ico' : downloadImage,
     'tiff' : downloadImage,
-    'webp' : downloadImage,
+    'webp' : downloadWebp,
     'image' : downloadImage,
 
     // Audio
