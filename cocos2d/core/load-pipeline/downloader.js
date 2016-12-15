@@ -83,6 +83,9 @@ function downloadImage (item, callback, isCrossOrigin, img) {
     if (isCrossOrigin && window.location.origin !== 'file://') {
         img.crossOrigin = 'anonymous';
     }
+    else {
+        img.crossOrigin = null;
+    }
 
     if (img.complete && img.naturalWidth > 0) {
         callback(null, img);
