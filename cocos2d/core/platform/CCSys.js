@@ -731,6 +731,7 @@ else {
         };
     }
 
+    var _supportWebp = _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
     var _supportCanvas = !!_tmpCanvas1.getContext("2d");
     var _supportWebGL = false;
     if (win.WebGLRenderingContext) {
@@ -794,7 +795,8 @@ else {
      */
     var capabilities = sys.capabilities = {
         "canvas": _supportCanvas,
-        "opengl": _supportWebGL
+        "opengl": _supportWebGL,
+        "webp": _supportWebp,
     };
     if (docEle['ontouchstart'] !== undefined || doc['ontouchstart'] !== undefined || nav.msPointerEnabled)
         capabilities["touches"] = true;
