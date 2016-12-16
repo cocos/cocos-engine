@@ -42,7 +42,7 @@
  * @property {_ccsg.Node}  stencil         - he ccsg.Node to use as a stencil to do the clipping.
  */
 cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
-    alphaThreshold: 0,
+    alphaThreshold: 1,
     inverted: false,
 
     _stencil: null,
