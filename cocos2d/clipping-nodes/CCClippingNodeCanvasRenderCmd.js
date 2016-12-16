@@ -47,6 +47,9 @@ proto.setStencil = function(stencil){
     }
 };
 
+// should reset program used by _stencil
+proto.resetProgramByStencil = function () { };
+
 proto._restoreCmdCallback = function (ctx) {
     var wrapper = ctx || cc._renderContext;
     wrapper.restore();
