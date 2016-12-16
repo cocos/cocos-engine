@@ -314,32 +314,32 @@ cc._initDebugSetting = function (mode) {
     cc.warnID = function (id) { // id in number
         if (CC_DEV) {
             arguments[0] = cc._LogInfos[id];
-            cc.warn(cc.js.formatStr.apply(cc, arguments));
+            cc.warn.apply(cc, arguments);
         } else {
-            cc.warn('Warning ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
             var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-            cc.warn('Arguments: ' + args.join(', '));
+            cc.warn('Warning ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. Arguments: '
+                + Array.prototype.join.call(args, ', '));
         }
     };
 
     cc.errorID = function (id) {
         if (CC_DEV) {
             arguments[0] = cc._LogInfos[id];
-            cc.error(cc.js.formatStr.apply(cc, arguments))            
+            cc.error.apply(cc, arguments);            
         } else {
-            cc.error('Error ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
             var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-            cc.error('Arguments: ' + args.join(', '));
+            cc.error('Error ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. Arguments: '
+                + Array.prototype.join.call(args, ', '));
         }        
     };
     cc.logID = function (id) {
         if (CC_DEV) {
             arguments[0] = cc._LogInfos[id];
-            cc.log(cc.js.formatStr.apply(cc, arguments))
+            cc.log.apply(cc, arguments);
         } else {
-            cc.log('Error ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
             var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-            cc.log('Arguments: ' + args.join(', '));
+            cc.log('Log ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. Arguments: '
+                + Array.prototype.join.call(args, ', '));
         }        
     };
     cc.assertID = function (cond, id) {
@@ -347,12 +347,10 @@ cc._initDebugSetting = function (mode) {
             arguments[1] = cc._LogInfos[id];
             cc.assert(cond, cc._LogInfos[id], arguments);
         } else {
-            cc.assert(cond, 'Assert ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
-            if (!cond) {
-                var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-                args = args.slice(1);
-                cc.log('Arguments: ' + args.join(', '));
-            }
+            var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
+            args = args.slice(1);
+            cc.assert(cond, 'Assert ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. Arguments: '
+                + Array.prototype.join.call(args, ', '));
         }
     };
 };
