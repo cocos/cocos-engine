@@ -226,13 +226,13 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
         var self = this, theString = str || "";
 
         if (self._config)
-            cc.log("cc.LabelBMFont.initWithString(): re-init is no longer supported");
+            cc.logID(4007);
 
         var texture;
         if (fntFile) {
             var newConf = cc.loader.getRes(fntFile);
             if (!newConf) {
-                cc.log("cc.LabelBMFont.initWithString(): Impossible to create font. Please check file");
+                cc.logID(4008);
                 return false;
             }
 
@@ -324,7 +324,7 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
             var kerningAmount = locKerningDict[(prev << 16) | (key & 0xffff)] || 0;
             fontDef = locFontDict[key];
             if (!fontDef) {
-                cc.log("cocos2d: LabelBMFont: character not found " + locStr[i]);
+                cc.logID(4009, locStr[i]);
 
                 fontDef = {
                     rect: {
@@ -710,7 +710,7 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
             var newConf = cc.loader.getRes(fntFile);
 
             if (!newConf) {
-                cc.log("cc.LabelBMFont.setFntFile() : Impossible to create font. Please check file");
+                cc.logID(4010);
                 return;
             }
 

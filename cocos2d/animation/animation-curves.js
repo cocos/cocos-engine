@@ -16,7 +16,7 @@ function computeRatioByType (ratio, type) {
             ratio = func(ratio);
         }
         else {
-            cc.error('Can\'t find easing type [' + type + ']');
+            cc.errorID(3906, type);
         }
     }
     else if (Array.isArray(type)) {

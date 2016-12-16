@@ -532,7 +532,7 @@ var RichText = cc.Class({
                 }
             }
         } else {
-            cc.warn('Invalid RichText img tag! The sprite frame name can\'t be found in the ImageAtlas!');
+            cc.warnID(4400);
         }
     },
 

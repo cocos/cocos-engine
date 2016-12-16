@@ -75,7 +75,7 @@ var CheckBoxWrapper = cc.Class({
                     this.targetN.selected = value;
                 }
                 else {
-                    cc.error('The new selected must be number');
+                    cc.errorID(7300);
                 }
             }
         },

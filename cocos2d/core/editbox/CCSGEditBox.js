@@ -298,7 +298,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
         if(this._renderCmd._edTxt) {
             return this._renderCmd._edTxt.tabIndex;
         }
-        cc.warn('The dom control is not created!');
+        cc.warnID(4700);
         return -1;
     },
 
@@ -312,7 +312,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
         if(this._renderCmd._edTxt) {
             return document.activeElement === this._renderCmd._edTxt;
         }
-        cc.warn('The dom control is not created!');
+        cc.warnID(4700);
         return false;
     },
 

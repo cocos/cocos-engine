@@ -369,8 +369,7 @@ var Label = cc.Class({
                 if (this._sgNode) {
 
                     if ( typeof value === 'string' ) {
-                        cc.warn('Sorry, the cc.Font has been modified from Raw Asset to Asset.' +
-                            'Please load the font asset before using.');
+                        cc.warnID(4000);
                     }
 
                     var isAsset = value instanceof cc.Font;
@@ -459,8 +458,7 @@ var Label = cc.Class({
     _initSgNode: function () {
 
         if ( typeof this.font === 'string' ) {
-            cc.warn('Sorry, the cc.Font has been modified from Raw Asset to Asset.' +
-                'Please load the font asset before using.');
+            cc.warnID(4000);
         }
 
         var isAsset = this.font instanceof cc.Font;

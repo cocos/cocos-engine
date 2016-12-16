@@ -254,7 +254,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
 
         var locTilesets = mapInfo.getTilesets();
         if(!locTilesets || locTilesets.length === 0)
-            cc.log("_ccsg.TMXTiledMap.initWithTMXFile(): Map not found. Please check the filename.");
+            cc.logID(7212);
         this._buildWithMapInfo(mapInfo);
         return true;
     },
@@ -272,7 +272,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
         var mapInfo = new cc.TMXMapInfo(tmxString, resourcePath);
         var locTilesets = mapInfo.getTilesets();
         if(!locTilesets || locTilesets.length === 0)
-            cc.log("_ccsg.TMXTiledMap.initWithXML(): Map not found. Please check the filename.");
+            cc.logID(7213);
         this._buildWithMapInfo(mapInfo);
         return true;
     },
@@ -383,7 +383,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
      * @deprecated
      */
     propertiesForGID:function (GID) {
-        cc.log("propertiesForGID is deprecated. Please use getPropertiesForGID instead.");
+        cc.logID(7214);
         return this.getPropertiesForGID[GID];
     },
 
@@ -430,7 +430,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
         }
 
         // If all the tiles are 0, return empty tileset
-        cc.log("cocos2d: Warning: TMX Layer " + layerInfo.name + " has no tiles");
+        cc.logID(7215, layerInfo.name);
         return null;
     }
 });

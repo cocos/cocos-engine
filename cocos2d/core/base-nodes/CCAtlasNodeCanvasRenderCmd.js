@@ -43,7 +43,7 @@
         node._opacityModifyRGB = true;
         node._texture = texture;
         if (!node._texture) {
-            cc.log(cc._LogInfos.AtlasNode._initWithTexture);
+            cc.logID(1702);
             return false;
         }
         this._textureToRender = texture;

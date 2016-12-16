@@ -53,7 +53,7 @@ cc.js.get(dirtyFlags, 'all', function () {
     return (1 << count) - 1;
 }, false);
 _ccsg.Node._requestDirtyFlag = function (key) {
-    cc.assert(!dirtyFlags[key], cc._LogInfos.Node._requestDirtyFlag, key);
+    cc.assertID(!dirtyFlags[key], 1622, key);
 
     var count = dirtyFlags.COUNT;
     var value = 1 << count;

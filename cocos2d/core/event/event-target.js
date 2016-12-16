@@ -182,7 +182,7 @@ JS.mixin(EventTarget.prototype, {
         }
         else useCapture = !!useCapture;
         if (!callback) {
-            cc.error('Callback of event must be non-nil');
+            cc.errorID(6800);
             return;
         }
         var listeners = null;
@@ -334,7 +334,7 @@ JS.mixin(EventTarget.prototype, {
      */
     emit: function (message, detail) {
         if (CC_DEV && typeof message !== 'string') {
-            cc.error('The message must be provided');
+            cc.errorID(6801);
             return;
         }
         //don't emit event when listeners are not exists.

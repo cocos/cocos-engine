@@ -34,7 +34,7 @@ function Contact (collider1, collider2) {
         this.collider2 = collider1;
     }
     else {
-        cc.error('Can\'t find testFunc for (%s, $s).', cc.js.getClassName(collider1), cc.js.getClassName(collider2));
+        cc.errorID(6601, cc.js.getClassName(collider1), cc.js.getClassName(collider2));
     }
 }
 

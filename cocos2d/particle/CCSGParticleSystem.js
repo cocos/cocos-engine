@@ -1226,7 +1226,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         this._plistFile = plistFile;
         var dict = cc.loader.getRes(plistFile);
         if(!dict){
-            cc.log("_ccsg.ParticleSystem.initWithFile(): Particles: file not found");
+            cc.logID(6008);
             return false;
         }
 
@@ -1353,7 +1353,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                 locModeB.rotatePerSecond = parseFloat(locValueForKey("rotatePerSecond", dictionary));
                 locModeB.rotatePerSecondVar = parseFloat(locValueForKey("rotatePerSecondVariance", dictionary));
             } else {
-                cc.log("_ccsg.ParticleSystem.initWithDictionary(): Invalid emitterType in config file");
+                cc.logID(6009);
                 return false;
             }
 
@@ -1388,14 +1388,14 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                     } else {
                         buffer = cc.Codec.unzipBase64AsArray(textureData, 1);
                         if (!buffer) {
-                            cc.log("_ccsg.ParticleSystem: error decoding or ungzipping textureImageData");
+                            cc.logID(6010);
                             return false;
                         }
 
                         var imageFormat = cc.getImageFormatByData(buffer);
 
                         if(imageFormat !== cc.ImageFormat.TIFF && imageFormat !== cc.ImageFormat.PNG){
-                            cc.log("_ccsg.ParticleSystem: unknown image format with Data");
+                            cc.logID(6011);
                             return false;
                         }
 
@@ -1411,7 +1411,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
 
                         var addTexture = cc.textureCache.getTextureForKey(imgPath);
                         if(!addTexture)
-                            cc.log("_ccsg.ParticleSystem.initWithDictionary() : error loading the texture");
+                            cc.logID(6012);
                         this.setTexture(addTexture);
                     }
                 }
@@ -1436,7 +1436,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         }
 
         if (!locParticles) {
-            cc.log("Particle system: not enough memory");
+            cc.logID(6013);
             return false;
         }
         this._allocatedParticles = numberOfParticles;
@@ -1830,7 +1830,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
 
     _updateBlendFunc:function () {
         if(this._batchNode){
-            cc.log("Can't change blending functions when the particle is being batched");
+            cc.logID(6014);
             return;
         }
 
@@ -1963,7 +1963,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
 
         var locOffset = spriteFrame.getOffset();
         if (locOffset.x !== 0 || locOffset.y !== 0)
-            cc.log("_ccsg.ParticleSystem.setDisplayFrame(): QuadParticle only supports SpriteFrames with no offsets");
+            cc.logID(6015);
 
         // update texture before updating texture rect
         var texture = spriteFrame.getTexture(), locTexture = this._texture;

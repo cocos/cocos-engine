@@ -35,7 +35,7 @@ function JsonUnpacker () {
 JsonUnpacker.prototype.read = function (indices, data) {
     var jsons = typeof data === 'string' ? JSON.parse(data) : data;
     if (jsons.length !== indices.length) {
-        cc.error('Pack indices and data do not match in size');
+        cc.errorID(4915);
     }
     for (var i = 0; i < indices.length; i++) {
         var key = indices[i];

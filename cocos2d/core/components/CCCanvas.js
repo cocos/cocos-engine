@@ -155,7 +155,7 @@ var Canvas = cc.Class({
         }
 
         if (Canvas.instance) {
-            return cc.error("Can't init canvas '%s' because it conflicts with the existing '%s', the scene should only have one active canvas at the same time",
+            return cc.errorID(6700,
                 this.node.name, Canvas.instance.node.name);
         }
         Canvas.instance = this;
@@ -166,11 +166,10 @@ var Canvas = cc.Class({
         else if (CC_DEV) {
             var renderer = this.node.getComponent(cc._RendererUnderSG);
             if (renderer) {
-                cc.error('Should not add Canvas to a node which already contains a renderer component (%s).',
-                    cc.js.getClassName(renderer));
+                cc.errorID(6701, cc.js.getClassName(renderer));
             }
             else {
-                cc.error('Should not add Canvas to a node which size is already used by its other component.');
+                cc.errorID(6702);
             }
         }
 

@@ -451,8 +451,7 @@ var _Deserializer = (function () {
             if (CC_DEV && target) {
                 // use target
                 if ( !(target instanceof klass) ) {
-                    cc.warn('Type of target to deserialize not matched with data: target is %s, data is %s',
-                        JS.getClassName(target), klass);
+                    cc.warnID(5300, JS.getClassName(target), klass);
                 }
                 obj = target;
             }
@@ -585,9 +584,9 @@ cc.deserialize.Details = Details;
 cc.deserialize.reportMissingClass = function (id) {
     if (CC_EDITOR && Editor.Utils.UuidUtils.isUuid(id)) {
         id = Editor.Utils.UuidUtils.decompressUuid(id);
-        cc.warn('Can not find script "%s"', id);
+        cc.warnID(5301, id);
     }
     else {
-        cc.warn('Can not find class "%s"', id);
+        cc.warnID(5302, id);
     }
 };

@@ -94,7 +94,7 @@
         this._textureAtlas.initWithTexture(texture, itemsToRender);
 
         if (!this._textureAtlas) {
-            cc.log(cc._LogInfos.AtlasNode._initWithTexture);
+            cc.logID(1702);
             return false;
         }
 

@@ -1057,7 +1057,7 @@ cc.BMFontHelper = {
     _initBMFontWithString: function(str, fntFile, textureUrl) {
         var self = this;
         if (self._config) {
-            cc.log("_ccsg.Label._initBMFontWithString(): re-init is no longer supported");
+            cc.logID(4002);
             return false;
         }
         this._string = str;
@@ -1146,7 +1146,7 @@ cc.BMFontHelper = {
 
                 cc.loader.load(this._fontHandle, function(err, config) {
                     if (err) {
-                        cc.log("_ccsg.Label._initBMFontWithString(): Impossible to create font. Please check file");
+                        cc.logID(4001);
                     }
 
                     self._config = config;

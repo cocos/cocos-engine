@@ -21,7 +21,7 @@ var LayerWrapper = cc.Class({
                     }
                 }
                 else {
-                    cc.error('The new bake must be boolean');
+                    cc.errorID(7301);
                 }
             }
         }

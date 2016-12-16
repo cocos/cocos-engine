@@ -244,10 +244,10 @@ prototype._checkRect = function (texture) {
         maxY += rect.height;
     }
     if (maxX > texture.getPixelWidth()) {
-        cc.error(cc._LogInfos.RectWidth, texture.url);
+        cc.errorID(3300, texture.url);
     }
     if (maxY > texture.getPixelHeight()) {
-        cc.error(cc._LogInfos.RectHeight, texture.url);
+        cc.errorID(3400, texture.url);
     }
 };
 

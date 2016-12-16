@@ -721,7 +721,7 @@ else {
         localStorage = null;
     } catch (e) {
         var warn = function () {
-            cc.warn("Warning: localStorage isn't enabled. Please confirm browser cookie or privacy option");
+            cc.warnID(5200);
         };
         sys.localStorage = {
             getItem : warn,
@@ -870,7 +870,7 @@ else {
         }
     } catch(error) {
         __audioSupport.WEB_AUDIO = false;
-        cc.log("browser don't support web audio");
+        cc.logID(5201);
     }
 
     var formatSupport = [];

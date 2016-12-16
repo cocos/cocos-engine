@@ -36,10 +36,10 @@ ccs._load = (function(){
         var json = cc.loader.getRes(file);
 
         if(!json)
-            return cc.log("%s does not exist", file);
+            return cc.logID(4904, file);
         var ext = extname(file).toLocaleLowerCase();
         if(ext !== "json" && ext !== "exportjson")
-            return cc.log("%s load error, must be json file", file);
+            return cc.logID(4905, file);
 
         var parse;
         if(!type){
@@ -56,19 +56,19 @@ ccs._load = (function(){
         }
 
         if(!parse){
-            cc.log("Can't find the parser : %s", file);
+            cc.logID(4906, file);
             return new _ccsg.Node();
         }
         var version = json["version"] || json["Version"];
         if(!version && json["armature_data"]){
-            cc.warn("%s is armature. please use:", file);
-            cc.warn("    ccs.armatureDataManager.addArmatureFileInfoAsync(%s);", file);
-            cc.warn("    var armature = new ccs.Armature('name');");
+            cc.warnID(4907, file);
+            cc.warnID(4908, file);
+            cc.warnID(4909);
             return new _ccsg.Node();
         }
         var currentParser = getParser(parse, version);
         if(!currentParser){
-            cc.log("Can't find the parser : %s", file);
+            cc.logID(4910, file);
             return new _ccsg.Node();
         }
 
@@ -84,7 +84,7 @@ ccs._load = (function(){
 
     load.registerParser = function(name, version, target){
         if(!name || !version || !target)
-            return cc.log("register parser error");
+            return cc.logID(4911);
         if(!parser[name])
             parser[name] = {};
         parser[name][version] = target;
@@ -158,7 +158,7 @@ ccs._parser = cc._Class.extend({
         if(parser)
             widget = parser.call(this, json, resourcePath);
         else
-            cc.log("Can't find the parser : %s", this.getClass(json));
+            cc.logID(4912, this.getClass(json));
 
         return widget;
     },

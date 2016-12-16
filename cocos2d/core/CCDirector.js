@@ -418,7 +418,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     popScene: function () {
 
-        cc.assert(this._runningScene, cc._LogInfos.Director.popScene);
+        cc.assertID(this._runningScene, 1204);
 
         this._scenesStack.pop();
         var c = this._scenesStack.length;
@@ -520,7 +520,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     pushScene: function (scene) {
 
-        cc.assert(scene, cc._LogInfos.Director.pushScene);
+        cc.assertID(scene, 1205);
 
         this._sendCleanupToScene = false;
 
@@ -638,7 +638,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      */
     runScene: function (scene, onBeforeLoadScene, onLaunched) {
-        cc.assert(scene, cc._LogInfos.Director.pushScene);
+        cc.assertID(scene, 1205);
         if (scene instanceof cc.Scene) {
             // ensure scene initialized
             scene._load();
@@ -698,11 +698,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                 return scenes[key];
             }
             else {
-                cc.error('loadScene: The scene index to load (%s) is out of range.', key);
+                cc.errorID(1206, key);
             }
         }
         else {
-            cc.error('loadScene: Unknown name type to load: "%s"', key);
+            cc.errorID(1207, key);
         }
         return null;
     },
@@ -718,7 +718,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     loadScene: function (sceneName, onLaunched, _onUnloaded) {
         if (this._loadingScene) {
-            cc.error('loadScene: Failed to load scene "%s" because "%s" is already loading', sceneName, this._loadingScene);
+            cc.errorID(1208, sceneName, this._loadingScene);
             return false;
         }
         var info = this._getSceneUuid(sceneName);
@@ -750,7 +750,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             return true;
         }
         else {
-            cc.error('loadScene: Can not load the scene "%s" because it was not in the build settings before playing.', sceneName);
+            cc.errorID(1209, sceneName);
             return false;
         }
     },
@@ -776,7 +776,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             cc.loader.load({ uuid: info.uuid, type: 'uuid' }, function (error, asset) {
                 if (error) {
-                    cc.error('Failed to preload "%s", %s', sceneName, error.message);
+                    cc.errorID(1210, sceneName, error.message);
                 }
                 if (onLoaded) {
                     onLoaded(error, asset);
@@ -864,7 +864,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this.setAnimationInterval(this._oldAnimationInterval);
         this._lastUpdate = Date.now();
         if (!this._lastUpdate) {
-            cc.log(cc._LogInfos.Director.resume);
+            cc.logID(1200);
         }
 
         this._paused = false;
@@ -1175,7 +1175,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @param {Number} level
      */
     popToSceneStackLevel: function (level) {
-        cc.assert(this._runningScene, cc._LogInfos.Director.popToSceneStackLevel_2);
+        cc.assertID(this._runningScene, 1203);
 
         var locScenesStack = this._scenesStack;
         var c = locScenesStack.length;

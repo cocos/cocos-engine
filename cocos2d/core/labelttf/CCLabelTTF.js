@@ -594,7 +594,7 @@ cc.LabelTTF = _ccsg.Sprite.extend(/** @lends cc.LabelTTF# */{
      */
     getScale: function () {
         if (this._scaleX !== this._scaleY)
-            cc.log(cc._LogInfos.Node_getScale);
+            cc.logID(1603);
         return this._scaleX * cc.view.getDevicePixelRatio();
     },
 
@@ -862,7 +862,7 @@ cc.LabelTTF = _ccsg.Sprite.extend(/** @lends cc.LabelTTF# */{
     }
 });
 
-cc.assert(typeof cc._tmp.PrototypeLabelTTF === 'function', cc._LogInfos.MissingFile, "LabelTTFPropertyDefine.js");
+cc.assertID(typeof cc._tmp.PrototypeLabelTTF === 'function', 3200, "LabelTTFPropertyDefine.js");
 cc._tmp.PrototypeLabelTTF();
 delete cc._tmp.PrototypeLabelTTF;
 

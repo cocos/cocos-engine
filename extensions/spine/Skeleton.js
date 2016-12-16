@@ -198,7 +198,7 @@ sp.Skeleton = cc.Class({
                     skinsEnum = this.skeletonData.getSkinsEnum();
                 }
                 if ( !skinsEnum ) {
-                    return cc.error('Failed to set _defaultSkinIndex for "%s" because its skeletonData is invalid.',
+                    return cc.errorID('',
                         this.name);
                 }
                 var skinName = skinsEnum[value];
@@ -209,7 +209,7 @@ sp.Skeleton = cc.Class({
                     }
                 }
                 else {
-                    cc.error('Failed to set _defaultSkinIndex for "%s" because the index is out of range.', this.name);
+                    cc.errorID(7501, this.name);
                 }
             },
             type: DefaultSkinsEnum,
@@ -243,14 +243,14 @@ sp.Skeleton = cc.Class({
                     animsEnum = this.skeletonData.getAnimsEnum();
                 }
                 if ( !animsEnum ) {
-                    return cc.error('Failed to set _animationIndex for "%s" because its skeletonData is invalid.', this.name);
+                    return cc.errorID(7502, this.name);
                 }
                 var animName = animsEnum[value];
                 if (animName !== undefined) {
                     this.animation = animName;
                 }
                 else {
-                    cc.error('Failed to set _animationIndex for "%s" because the index is out of range.', this.name);
+                    cc.errorID(7503, this.name);
                 }
 
             },
@@ -378,14 +378,14 @@ sp.Skeleton = cc.Class({
             if (CC_JSB) {
                 var uuid = this.skeletonData._uuid;
                 if ( !uuid ) {
-                    cc.error('Can not render dynamic created SkeletonData');
+                    cc.errorID(7504);
                     return null;
                 }
                 var jsonFile = this.skeletonData.rawUrl;
                 var atlasFile = this.skeletonData.atlasUrl;
                 if (atlasFile) {
                     if (typeof atlasFile !== 'string') {
-                        cc.error('Invalid type of atlasFile, atlas should be registered as raw asset.');
+                        cc.errorID(7505);
                         return null;
                     }
                     try {

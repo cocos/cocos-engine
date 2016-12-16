@@ -48,19 +48,19 @@ var _isDomNode = require('./utils').isDomNode;
 function instantiate (original) {
     if (typeof original !== 'object' || Array.isArray(original)) {
         if (CC_DEV) {
-            cc.error('The thing you want to instantiate must be an object');
+            cc.errorID(6900);
         }
         return null;
     }
     if (!original) {
         if (CC_DEV) {
-            cc.error('The thing you want to instantiate is nil');
+            cc.errorID(6901);
         }
         return null;
     }
     if (!cc.isValid(original)) {
         if (CC_DEV) {
-            cc.error('The thing you want to instantiate is destroyed');
+            cc.errorID(6902);
         }
         return null;
     }
@@ -82,7 +82,7 @@ function instantiate (original) {
         else if (original instanceof cc.Asset) {
             // 不允许用通用方案实例化资源
             if (CC_DEV) {
-                cc.error('The instantiate method for given asset do not implemented');
+                cc.errorID(6903);
             }
             return null;
         }
@@ -110,13 +110,13 @@ var objsToClearTmpVar = [];   // used to reset _iN$t variable
 function doInstantiate (obj, parent) {
     if (Array.isArray(obj)) {
         if (CC_DEV) {
-            cc.error('Can not instantiate array');
+            cc.errorID(6904);
         }
         return null;
     }
     if (!CC_JSB && _isDomNode && _isDomNode(obj)) {
         if (CC_DEV) {
-            cc.error('Can not instantiate DOM element');
+            cc.errorID(6905);
         }
         return null;
     }
