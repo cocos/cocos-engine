@@ -316,9 +316,13 @@ cc._initDebugSetting = function (mode) {
             arguments[0] = cc._LogInfos[id];
             cc.warn.apply(cc, arguments);
         } else {
-            var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-            cc.warn('Warning ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. Arguments: '
-                + Array.prototype.join.call(args, ', '));
+            var args = '';
+            if (arguments.length === 2) {
+                args = 'Arguments: ' + arguments[1];
+            } else if (arguments.length > 2) {
+                args = 'Arguments: ' + Array.apply(null, arguments).slice(1).join(', ');
+            }            
+            cc.warn('Warning ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
         }
     };
 
@@ -327,9 +331,13 @@ cc._initDebugSetting = function (mode) {
             arguments[0] = cc._LogInfos[id];
             cc.error.apply(cc, arguments);            
         } else {
-            var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-            cc.error('Error ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. Arguments: '
-                + Array.prototype.join.call(args, ', '));
+            var args = '';
+            if (arguments.length === 2) {
+                args = 'Arguments: ' + arguments[1];
+            } else if (arguments.length > 2) {
+                args = 'Arguments: ' + Array.apply(null, arguments).slice(1).join(', ');
+            }
+            cc.error('Error ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
         }        
     };
     cc.logID = function (id) {
@@ -337,9 +345,13 @@ cc._initDebugSetting = function (mode) {
             arguments[0] = cc._LogInfos[id];
             cc.log.apply(cc, arguments);
         } else {
-            var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-            cc.log('Log ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. Arguments: '
-                + Array.prototype.join.call(args, ', '));
+            var args = '';
+            if (arguments.length === 2) {
+                args = 'Arguments: ' + arguments[1];
+            } else if (arguments.length > 2) {
+                args = 'Arguments: ' + Array.apply(null, arguments).slice(1).join(', ');
+            }
+            cc.log('Log ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
         }        
     };
     cc.assertID = function (cond, id) {
@@ -347,10 +359,13 @@ cc._initDebugSetting = function (mode) {
             arguments[1] = cc._LogInfos[id];
             cc.assert(cond, cc._LogInfos[id], arguments);
         } else {
-            var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-            args = args.slice(1);
-            cc.assert(cond, 'Assert ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. Arguments: '
-                + Array.prototype.join.call(args, ', '));
+            var args = '';
+            if (arguments.length === 3) {
+                args = 'Arguments: ' + arguments[2];
+            } else if (arguments.length > 3) {
+                args = 'Arguments: ' + Array.apply(null, arguments).slice(2).join(', ');
+            }
+            cc.assert(cond, 'Assert ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
         }
     };
 };
