@@ -144,25 +144,6 @@ JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS:
     }
 }
 
-JSFunctionWrapper::~JSFunctionWrapper()
-{
-    JS::RootedValue ownerVal(_cx, _owner);
-    
-    if (!ownerVal.isNullOrUndefined() && ScriptingCore::getInstance()->getFinalizing() != ownerVal.toObjectOrNull())
-    {
-        JS::RootedValue thisVal(_cx, OBJECT_TO_JSVAL(_jsthis));
-        if (!thisVal.isNullOrUndefined())
-        {
-            js_remove_object_reference(ownerVal, thisVal);
-        }
-        JS::RootedValue funcVal(_cx, _fval);
-        if (!funcVal.isNullOrUndefined())
-        {
-            js_remove_object_reference(ownerVal, funcVal);
-        }
-    }
-}
-
 bool JSFunctionWrapper::invoke(unsigned int argc, jsval *argv, JS::MutableHandleValue rval)
 {
     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
