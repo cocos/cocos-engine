@@ -401,7 +401,7 @@ JS_BINDED_CONSTRUCTOR_IMPL(MinXmlHttpRequest)
 
 #if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     CC_UNUSED_PARAM(p);
-    js_add_FinalizeHook(cx, obj);
+    js_add_FinalizeHook(cx, obj, true);
     // don't retain it, already retained
 #if COCOS2D_DEBUG > 1
     CCLOG("++++++RETAINED++++++ Cpp(XMLHttpRequest): %p - JS: %p", req, obj.get());
