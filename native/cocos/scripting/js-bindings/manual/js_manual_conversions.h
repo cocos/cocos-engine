@@ -74,7 +74,6 @@ class JSFunctionWrapper
 public:
     JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval);
     JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval, JS::HandleValue owner);
-    ~JSFunctionWrapper();
 
     bool invoke(unsigned int argc, jsval *argv, JS::MutableHandleValue rval);
 private:

@@ -159,7 +159,6 @@ class JSCallbackWrapper: public cocos2d::Ref {
 public:
     JSCallbackWrapper();
     JSCallbackWrapper(JS::HandleValue owner);
-    virtual ~JSCallbackWrapper();
     void setJSCallbackFunc(JS::HandleValue callback);
     void setJSCallbackThis(JS::HandleValue thisObj);
     void setJSExtraData(JS::HandleValue data);

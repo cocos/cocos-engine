@@ -738,30 +738,6 @@ JSCallbackWrapper::JSCallbackWrapper(JS::HandleValue owner)
     _extraData = JS::NullValue();
 }
 
-JSCallbackWrapper::~JSCallbackWrapper()
-{
-    JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedValue ownerVal(cx, _owner);
-    if (!ownerVal.isNullOrUndefined())
-    {
-        JS::RootedValue target(cx, _jsCallback);
-        if (!target.isNullOrUndefined())
-        {
-            js_remove_object_reference(ownerVal, target);
-        }
-        target.set(_jsThisObj);
-        if (!target.isNullOrUndefined())
-        {
-            js_remove_object_reference(ownerVal, target);
-        }
-        target.set(_extraData);
-        if (!target.isNullOrUndefined())
-        {
-            js_remove_object_reference(ownerVal, target);
-        }
-    }
-}
-
 void JSCallbackWrapper::setJSCallbackFunc(JS::HandleValue func) {
     JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedValue ownerVal(cx, _owner);
