@@ -159,6 +159,7 @@ class JSCallbackWrapper: public cocos2d::Ref {
 public:
     JSCallbackWrapper();
     JSCallbackWrapper(JS::HandleValue owner);
+    virtual ~JSCallbackWrapper();
     void setJSCallbackFunc(JS::HandleValue callback);
     void setJSCallbackThis(JS::HandleValue thisObj);
     void setJSExtraData(JS::HandleValue data);
@@ -171,6 +172,7 @@ protected:
     JS::Heap<JS::Value> _jsCallback;
     JS::Heap<JS::Value> _jsThisObj;
     JS::Heap<JS::Value> _extraData;
+    bool _rooted;
 };
 
 

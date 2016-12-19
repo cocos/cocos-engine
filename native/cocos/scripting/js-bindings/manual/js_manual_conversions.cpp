@@ -101,6 +101,7 @@ const char* JSStringWrapper::get()
 // JSFunctionWrapper
 JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval)
 : _cx(cx)
+, _rooted(false)
 {
     _jsthis = jsthis;
     _fval = fval;
@@ -122,10 +123,12 @@ JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS:
         {
             js_add_object_reference(valRoot, funcVal);
         }
+        _rooted = true;
     }
 }
 JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval, JS::HandleValue owner)
 : _cx(cx)
+, _rooted(false)
 {
     _jsthis = jsthis;
     _fval = fval;
@@ -141,6 +144,25 @@ JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS:
     if (!funcVal.isNullOrUndefined())
     {
         js_add_object_reference(ownerVal, funcVal);
+    }
+}
+
+JSFunctionWrapper::~JSFunctionWrapper()
+{
+    JS::RootedValue ownerVal(_cx, _owner);
+    
+    if (_rooted && !ownerVal.isNullOrUndefined())
+    {
+        JS::RootedValue thisVal(_cx, OBJECT_TO_JSVAL(_jsthis));
+        if (!thisVal.isNullOrUndefined())
+        {
+            js_remove_object_reference(ownerVal, thisVal);
+        }
+        JS::RootedValue funcVal(_cx, _fval);
+        if (!funcVal.isNullOrUndefined())
+        {
+            js_remove_object_reference(ownerVal, funcVal);
+        }
     }
 }
 
