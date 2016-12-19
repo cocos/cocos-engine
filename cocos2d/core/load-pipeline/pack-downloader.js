@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 var JsonUnpacker = require('./json-unpacker');
-var LoadingItems = require('./loading-items');
 
 // {assetUuid: packUuid|[packUuid]}
 // If value is array of packUuid, then the first one will be prioritized for download,
@@ -83,12 +82,11 @@ module.exports = {
     _loadNewPack: function (uuid, packUuid, callback) {
         var self = this;
         var packUrl = cc.AssetLibrary.getImportedDir(packUuid) + '/' + packUuid + '.json';
-        LoadingItems.create(cc.loader, [{url: packUrl, ignoreMaxConcurrency: true}], function (err, queue) {
+        cc.loader.load({ url: packUrl, ignoreMaxConcurrency: true }, function (err, packJson) {
             if (err) {
                 cc.errorID(4916, uuid);
                 return callback(err);
             }
-            var packJson = queue.getContent(packUrl);
             var res = self._doLoadNewPack(uuid, packUuid, packJson);
             if (res) {
                 callback(null, res);
@@ -97,13 +95,6 @@ module.exports = {
                 error(callback, uuid, packUuid);
             }
         });
-        //var packItem = {
-        //    id: packUrl,
-        //    type: 'json',
-        //    uuid: packUuid
-        //};
-        //pipeline.flowInDeps(depends, function (items) {
-        //});
     },
 
     _doLoadNewPack: function (uuid, packUuid, packJson) {
