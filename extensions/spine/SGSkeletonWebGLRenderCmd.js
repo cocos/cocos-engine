@@ -124,7 +124,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
             cc.renderer._updateBatchedInfo(textureAtlas.texture.getRealTexture(), this._getBlendFunc(blendMode, premultiAlpha), this.getShaderProgram());
         }
 
-        // update the vertext buffer
+        // update the vertex buffer
         var slotDebugPoints = null;
         if (attachment instanceof spine.RegionAttachment) {
             slotDebugPoints = this._uploadRegionAttachmentData(attachment, slot, premultiAlpha, f32buffer, ui32buffer, vertexDataOffset);

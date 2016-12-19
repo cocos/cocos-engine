@@ -301,6 +301,7 @@ cc.rendererWebGL = {
             break;
         case VertexType.CUSTOM:
             // CUSTOM type increase the indices data
+            _pureQuad = false;
             var len = indices.length;
             for (i = 0; i < len; i++) {
                 _indexData[_indexSize++] = _batchingSize + indices[i];
