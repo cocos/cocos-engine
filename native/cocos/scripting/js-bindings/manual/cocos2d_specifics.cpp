@@ -2258,9 +2258,10 @@ bool js_cocos2dx_CCScheduler_isScheduled(JSContext *cx, uint32_t argc, jsval *vp
     	    args.rval().set(BOOLEAN_TO_JSVAL(isScheduled));
     	    return true;
         };
+        JSScheduleWrapper* wrapper = nullptr;
         for (ssize_t i = 0; i < arr->size(); ++i) {
-            Ref *wrapper = arr->at(i);
-            if (wrapper) {
+            wrapper = (JSScheduleWrapper*)arr->at(i);
+            if(wrapper && wrapper->getJSCallbackFunc() == args.get(0)) {
                 isScheduled = cobj->isScheduled(schedule_selector(JSScheduleWrapper::scheduleFunc), wrapper);
                 break;
             }
