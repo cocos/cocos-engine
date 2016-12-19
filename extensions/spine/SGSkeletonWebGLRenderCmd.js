@@ -90,7 +90,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
             vertCount = 6; // a quad = two triangles = six vertices
         }
         else if (attachment instanceof spine.MeshAttachment) {
-            //vertCount = attachment.uvs.length / 2;
+            vertCount = attachment.regionUVs.length / 2;
         }
         else {
             continue;
@@ -280,28 +280,22 @@ proto._uploadRegionAttachmentData = function(attachment, slot, premultipliedAlph
 };
 
 proto._uploadMeshAttachmentData = function(attachment, slot, premultipliedAlpha, f32buffer, ui32buffer, vertexDataOffset) {
-    var vertices = {};
-    attachment.computeWorldVertices(slot.bone.x, slot.bone.y, slot, vertices);
-    var r = slot.bone.skeleton.r * slot.r * 255;
-    var g = slot.bone.skeleton.g * slot.g * 255;
-    var b = slot.bone.skeleton.b * slot.b * 255;
-    var normalizedAlpha = slot.bone.skeleton.a * slot.a;
-    if (premultipliedAlpha) {
-        r *= normalizedAlpha;
-        g *= normalizedAlpha;
-        b *= normalizedAlpha;
-    }
-    var a = normalizedAlpha * 255;
-    var color = ((a<<24) | (b<<16) | (g<<8) | r);
-
+    // get the vertex data
+    var vertices = attachment.updateWorldVertices(slot, premultipliedAlpha);
     var offset = vertexDataOffset;
-    for (var i = 0, n = vertices.length / 2; i < n; i++) {
-        f32buffer[offset] = vertices[i * 2];
-        f32buffer[offset + 1] = vertices[i * 2 + 1];
+    for (var i = 0, n = vertices.length; i < n; i += 8) {
+        var r = vertices[i + 2] * 255,
+            g = vertices[i + 3] * 255,
+            b = vertices[i + 4] * 255,
+            a = vertices[i + 5] * 255;
+        var color = ((a<<24) | (b<<16) | (g<<8) | r);
+
+        f32buffer[offset] = vertices[i];
+        f32buffer[offset + 1] = vertices[i + 1];
         f32buffer[offset + 2] = this._node.vertexZ;
         ui32buffer[offset + 3] = color;
-        f32buffer[offset + 4] = attachment.uvs[i * 2];
-        f32buffer[offset + 5] = attachment.uvs[i * 2 + 1];
+        f32buffer[offset + 4] = vertices[i + 6];
+        f32buffer[offset + 5] = vertices[i + 7];
         offset += 6;
     }
 };
