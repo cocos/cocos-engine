@@ -78,7 +78,7 @@ var Widget = cc.Class({
                 }
             },
             type: cc.Node,
-            tooltip: 'i18n:COMPONENT.widget.target',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.target',
         },
 
         // ENABLE ALIGN ?
@@ -98,7 +98,7 @@ var Widget = cc.Class({
                 this._setAlign(TOP, value);
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.widget.align_top',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_top',
         },
 
         /**
@@ -125,7 +125,7 @@ var Widget = cc.Class({
                 }
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.widget.align_v_center',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_v_center',
         },
 
         /**
@@ -143,7 +143,7 @@ var Widget = cc.Class({
                 this._setAlign(BOT, value);
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.widget.align_bottom',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_bottom',
         },
 
         /**
@@ -161,7 +161,7 @@ var Widget = cc.Class({
                 this._setAlign(LEFT, value);
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.widget.align_left',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_left',
         },
 
         /**
@@ -188,7 +188,7 @@ var Widget = cc.Class({
                 }
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.widget.align_h_center',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_h_center',
         },
 
         /**
@@ -206,7 +206,7 @@ var Widget = cc.Class({
                 this._setAlign(RIGHT, value);
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.widget.align_right',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_right',
         },
 
         /**
@@ -263,7 +263,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._top = value;
             },
-            tooltip: 'i18n:COMPONENT.widget.top',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.top',
         },
 
         /**
@@ -283,7 +283,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._bottom = value;
             },
-            tooltip: 'i18n:COMPONENT.widget.bottom',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.bottom',
         },
 
         /**
@@ -303,7 +303,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._left = value;
             },
-            tooltip: 'i18n:COMPONENT.widget.left',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.left',
         },
 
         /**
@@ -323,7 +323,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._right = value;
             },
-            tooltip: 'i18n:COMPONENT.widget.right',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.right',
         },
 
         /**
@@ -342,7 +342,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._horizontalCenter = value;
             },
-            tooltip: 'i18n:COMPONENT.widget.horizontal_center',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.horizontal_center',
         },
 
         /**
@@ -361,7 +361,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._verticalCenter = value;
             },
-            tooltip: 'i18n:COMPONENT.widget.vertical_center',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.vertical_center',
         },
 
         // PARCENTAGE OR ABSOLUTE
@@ -488,7 +488,7 @@ var Widget = cc.Class({
          */
         isAlignOnce: {
             default: true,
-            tooltip: 'i18n:COMPONENT.widget.align_once',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_once',
             displayName: "AlignOnce"
         },
 

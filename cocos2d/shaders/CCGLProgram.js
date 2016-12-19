@@ -85,15 +85,15 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
 
         var preStr = cc.GLProgram._isHighpSupported() ? "precision highp float;\n" : "precision mediump float;\n";
         source = preStr
-            + "uniform mat4 CC_PMatrix;         \n"
-            + "uniform mat4 CC_MVMatrix;        \n"
-            + "uniform mat4 CC_MVPMatrix;       \n"
-            + "uniform vec4 CC_Time;            \n"
-            + "uniform vec4 CC_SinTime;         \n"
-            + "uniform vec4 CC_CosTime;         \n"
-            + "uniform vec4 CC_Random01;        \n"
-            + "uniform sampler2D CC_Texture0;   \n"
-            + "//CC INCLUDES END                \n" + source;
+            + "uniform mat4 CC_PMatrix;\n"
+            + "uniform mat4 CC_MVMatrix;\n"
+            + "uniform mat4 CC_MVPMatrix;\n"
+            + "uniform vec4 CC_Time;\n"
+            + "uniform vec4 CC_SinTime;\n"
+            + "uniform vec4 CC_CosTime;\n"
+            + "uniform vec4 CC_Random01;\n"
+            + "uniform sampler2D CC_Texture0;\n"
+            + "//CC INCLUDES END\n" + source;
 
         this._glContext.shaderSource(shader, source);
         this._glContext.compileShader(shader);

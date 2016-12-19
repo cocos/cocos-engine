@@ -86,7 +86,7 @@ var RichText = cc.Class({
         string: {
             default: '<color=#00ff00>Rich</c><color=#0fffff>Text</color>',
             multiline: true,
-            tooltip: 'i18n:COMPONENT.richtext.string',
+            tooltip: CC_DEV && 'i18n:COMPONENT.richtext.string',
             notify: function () {
                 this._updateRichTextStatus();
             }
@@ -100,7 +100,7 @@ var RichText = cc.Class({
         horizontalAlign: {
             default: HorizontalAlign.LEFT,
             type: HorizontalAlign,
-            tooltip: 'i18n:COMPONENT.richtext.horizontal_align',
+            tooltip: CC_DEV && 'i18n:COMPONENT.richtext.horizontal_align',
             animatable: false,
             notify: function (oldValue) {
                 if(this.horizontalAlign === oldValue) return;
@@ -117,7 +117,7 @@ var RichText = cc.Class({
          */
         fontSize: {
             default: 40,
-            tooltip: 'i18n:COMPONENT.richtext.font_size',
+            tooltip: CC_DEV && 'i18n:COMPONENT.richtext.font_size',
             notify: function (oldValue) {
                 if(this.fontSize === oldValue) return;
 
@@ -134,7 +134,7 @@ var RichText = cc.Class({
         font: {
             default: null,
             type: cc.TTFFont,
-            tooltip: 'i18n:COMPONENT.richtext.font',
+            tooltip: CC_DEV && 'i18n:COMPONENT.richtext.font',
             notify: function (oldValue) {
                 if(this.font === oldValue) return;
 
@@ -153,7 +153,7 @@ var RichText = cc.Class({
          */
         maxWidth: {
             default: 0,
-            tooltip: 'i18n:COMPONENT.richtext.max_width',
+            tooltip: CC_DEV && 'i18n:COMPONENT.richtext.max_width',
             notify: function (oldValue) {
                 if(this.maxWidth === oldValue) return;
 
@@ -169,7 +169,7 @@ var RichText = cc.Class({
          */
         lineHeight: {
             default: 40,
-            tooltip: 'i18n:COMPONENT.richtext.line_height',
+            tooltip: CC_DEV && 'i18n:COMPONENT.richtext.line_height',
             notify: function (oldValue) {
                 if(this.lineHeight === oldValue) return;
 
@@ -186,7 +186,7 @@ var RichText = cc.Class({
         imageAtlas: {
             default: null,
             type: cc.SpriteAtlas,
-            tooltip: 'i18n:COMPONENT.richtext.image_atlas',
+            tooltip: CC_DEV && 'i18n:COMPONENT.richtext.image_atlas',
             notify: function(oldValue) {
                 if(this.imageAtlas === oldValue) return;
 

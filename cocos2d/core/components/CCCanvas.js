@@ -87,7 +87,7 @@ var Canvas = cc.Class({
                 this._designResolution.height = value.height;
                 this.applySettings();
             },
-            tooltip: 'i18n:COMPONENT.canvas.design_resolution'
+            tooltip: CC_DEV && 'i18n:COMPONENT.canvas.design_resolution'
         },
 
         _fitWidth: false,
@@ -109,7 +109,7 @@ var Canvas = cc.Class({
                     this.applySettings();
                 }
             },
-            tooltip: 'i18n:COMPONENT.canvas.fit_height'
+            tooltip: CC_DEV && 'i18n:COMPONENT.canvas.fit_height'
         },
 
         /**
@@ -128,7 +128,7 @@ var Canvas = cc.Class({
                     this.applySettings();
                 }
             },
-            tooltip: 'i18n:COMPONENT.canvas.fit_width'
+            tooltip: CC_DEV && 'i18n:COMPONENT.canvas.fit_width'
         }
     },
 

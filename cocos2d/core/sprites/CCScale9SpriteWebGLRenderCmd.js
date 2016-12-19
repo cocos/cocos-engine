@@ -212,13 +212,13 @@ Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram = function(){
 
 Scale9Sprite.WebGLRenderCmd._grayShaderFragment =
     "precision lowp float;\n"
-    + "varying vec4 v_fragmentColor; \n"
-    + "varying vec2 v_texCoord; \n"
-    + "void main() \n"
-    + "{ \n"
-    + "    vec4 c = texture2D(CC_Texture0, v_texCoord); \n"
-    + "    gl_FragColor.xyz = vec3(0.2126*c.r + 0.7152*c.g + 0.0722*c.b); \n"
-    +"     gl_FragColor.w = c.w ; \n"
+    + "varying vec4 v_fragmentColor;\n"
+    + "varying vec2 v_texCoord;\n"
+    + "void main()\n"
+    + "{\n"
+    + " vec4 c = texture2D(CC_Texture0, v_texCoord);\n"
+    + " gl_FragColor.xyz = vec3(0.2126*c.r + 0.7152*c.g + 0.0722*c.b);\n"
+    +"  gl_FragColor.w = c.w ;\n"
     + "}";
 
 Scale9Sprite.WebGLRenderCmd._distortionProgram = null;
@@ -244,13 +244,13 @@ Scale9Sprite.WebGLRenderCmd._getDistortionProgram = function(){
 var distortionSpriteShader = {
     shaderKey: 'cc.Sprite.Shader.Distortion',
     fShader:  "precision lowp float;\n"
-        + "varying vec4 v_fragmentColor; \n"
-        + "varying vec2 v_texCoord; \n"
-        + "uniform vec2 u_offset; \n"
-        + "uniform vec2 u_offset_tiling; \n"
+        + "varying vec4 v_fragmentColor;\n"
+        + "varying vec2 v_texCoord;\n"
+        + "uniform vec2 u_offset;\n"
+        + "uniform vec2 u_offset_tiling;\n"
         + "const float PI = 3.14159265359;\n"
-        + "void main() \n"
-        + "{ \n"
+        + "void main()\n"
+        + "{\n"
         + "float halfPI = 0.5 * PI;\n"
         + "float maxFactor = sin(halfPI);\n"
         + "vec2 uv = v_texCoord;\n"
@@ -259,7 +259,7 @@ var distortionSpriteShader = {
         + "if (d < (2.0-maxFactor)) {\n"
         + "d = length(xy * maxFactor);\n"
         + "float z = sqrt(1.0 - d * d);\n"
-        + " float r = atan(d, z) / PI;\n"
+        + "float r = atan(d, z) / PI;\n"
         + "float phi = atan(xy.y, xy.x);\n"
         + "uv.x = r * cos(phi) + 0.5;\n"
         + "uv.y = r * sin(phi) + 0.5;\n"
@@ -267,7 +267,7 @@ var distortionSpriteShader = {
         + "discard;\n"
         + "}\n"
         + "uv = uv * u_offset_tiling + u_offset;\n"
-        + "uv = fract(uv); \n"
+        + "uv = fract(uv);\n"
         + "gl_FragColor = v_fragmentColor * texture2D(CC_Texture0, uv);\n"
         + "}"
 };

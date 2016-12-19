@@ -353,6 +353,8 @@ if (CC_DEV) {
         "4100": "Property padding is deprecated, please use paddingLeft, paddingRight, paddingTop and paddingBottom instead", //padding
         //Mask: 4200
         "4200": "MaskType: IMAGE_STENCIL only support WebGL mode.", //onEnable
+        "4201": "The alphaThreshold invalid in Canvas Mode.", // alphaThreshold
+        "4202": "The inverted invalid in Canvas Mode.", // inverted
         //PageView: 4300
         "4300": "can not found the %s page.", //removePage
         //RichText: 4400
