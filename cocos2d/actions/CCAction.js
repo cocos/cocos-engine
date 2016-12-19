@@ -83,12 +83,12 @@ cc.Action = cc._Class.extend({
 
     // called every frame with it's delta time. <br />
     step:function (dt) {
-        cc.log("[Action step]. override me");
+        cc.logID(1006);
     },
 
     // Called once per frame. Time is the number of seconds of a frame interval.
     update:function (dt) {
-        cc.log("[Action update]. override me");
+        cc.logID(1007);
     },
 
     /**
@@ -226,7 +226,7 @@ cc.FiniteTimeAction = cc.Action.extend({
      * @return {Null}
      */
     reverse:function () {
-        cc.log("cocos2d: FiniteTimeAction#reverse: Implement me");
+        cc.logID(1008);
         return null;
     },
 

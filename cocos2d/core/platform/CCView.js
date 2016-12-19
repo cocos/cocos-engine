@@ -710,14 +710,14 @@ var View = cc._Class.extend({
     setDesignResolutionSize: function (width, height, resolutionPolicy) {
         // Defensive code
         if( !(width > 0 || height > 0) ){
-            cc.log(cc._LogInfos.view.setDesignResolutionSize);
+            cc.logID(2200);
             return;
         }
 
         this.setResolutionPolicy(resolutionPolicy);
         var policy = this._resolutionPolicy;
         if (!policy){
-            cc.log(cc._LogInfos.view.setDesignResolutionSize_2);
+            cc.logID(2201);
             return;
         }
         policy.preApply(this);

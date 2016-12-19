@@ -779,7 +779,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                         format = gl.LUMINANCE;
                         break;
                     default:
-                        cc.assert(0, cc._LogInfos.Texture2D.initWithData);
+                        cc.assertID(0, 3113);
                 }
                 gl.texImage2D(gl.TEXTURE_2D, 0, format, pixelsWide, pixelsHigh, 0, format, type, data);
 
@@ -800,7 +800,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
             initWithImage: function (uiImage) {
                 if (uiImage == null) {
-                    cc.log(cc._LogInfos.Texture2D.initWithImage);
+                    cc.logID(3104);
                     return false;
                 }
 
@@ -809,7 +809,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
                 var maxTextureSize = cc.configuration.getMaxTextureSize();
                 if (imageWidth > maxTextureSize || imageHeight > maxTextureSize) {
-                    cc.log(cc._LogInfos.Texture2D.initWithImage_2, imageWidth, imageHeight, maxTextureSize, maxTextureSize);
+                    cc.logID(3105, imageWidth, imageHeight, maxTextureSize, maxTextureSize);
                     return false;
                 }
                 this._textureLoaded = true;
@@ -891,9 +891,9 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 if(magFilter !== undefined)
                     texParams = {minFilter: texParams, magFilter: magFilter, wrapS: wrapS, wrapT: wrapT};
 
-                cc.assert((_t._pixelWidth === misc.NextPOT(_t._pixelWidth) && _t._pixelHeight === misc.NextPOT(_t._pixelHeight)) ||
+                cc.assertID((_t._pixelWidth === misc.NextPOT(_t._pixelWidth) && _t._pixelHeight === misc.NextPOT(_t._pixelHeight)) ||
                     (texParams.wrapS === gl.CLAMP_TO_EDGE && texParams.wrapT === gl.CLAMP_TO_EDGE),
-                    "WebGLRenderingContext.CLAMP_TO_EDGE should be used in NPOT textures");
+                    3116);
 
                 cc.gl.bindTexture2D(_t);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, texParams.minFilter);
@@ -926,7 +926,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
             generateMipmap: function () {
                 var _t = this;
-                cc.assert(_t._pixelWidth === misc.NextPOT(_t._pixelWidth) && _t._pixelHeight === misc.NextPOT(_t._pixelHeight), "Mimpap texture only works in POT textures");
+                cc.assertID(_t._pixelWidth === misc.NextPOT(_t._pixelWidth) && _t._pixelHeight === misc.NextPOT(_t._pixelHeight), 3117);
 
                 cc.gl.bindTexture2D(_t);
                 cc._renderContext.generateMipmap(cc._renderContext.TEXTURE_2D);
@@ -941,7 +941,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 format = format || this._pixelFormat;
                 var value = Texture2D._B[format];
                 if (value != null) return value;
-                cc.log(cc._LogInfos.Texture2D.bitsPerPixelForFormat, format);
+                cc.logID(3110, format);
                 return -1;
             },
 
@@ -962,7 +962,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                     if (bpp >= 8) {
                         pixelFormat = tex2d.PIXEL_FORMAT_RGB888;
                     } else {
-                        cc.log(cc._LogInfos.Texture2D._initPremultipliedATextureWithImage);
+                        cc.logID(3111);
                         pixelFormat = tex2d.PIXEL_FORMAT_RGB565;
                     }
                 }

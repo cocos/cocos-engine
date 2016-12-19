@@ -39,7 +39,7 @@ m.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
                 var clsName = (cc.Class._isCCClass(ctor) && cc.js.getClassName(ctor)) ||
                               ctor.name ||
                               '(anonymous class)';
-                cc.warn('no %s or %s on %s', propName, getter, clsName);
+                cc.warnID(5700, propName, getter, clsName);
             }
             else {
                 cc.js.getset(np, propName, getterFunc, np[setter]);

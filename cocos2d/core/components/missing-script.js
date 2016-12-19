@@ -115,7 +115,7 @@ var MissingScript = cc.Class({
         }
     },
     onLoad: function () {
-        cc.warn('Script attached to "%s" is missing or invalid.', this.node.name);
+        cc.warnID(4600, this.node.name);
     }
 });
 

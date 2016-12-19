@@ -38,6 +38,32 @@ function getXMLHttpRequest () {
     return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
 }
 
+// Convert a resources by finding its real url with uuid, otherwise we will use the uuid or raw url as its url
+// So we gurantee there will be url in result
+function getResWithUrl (res) {
+    var id, url, result;
+    if (typeof res === 'object') {
+        result = res;
+        if (res.url) {
+            return result;
+        }
+        else {
+            id = res.uuid;
+        }
+    }
+    else {
+        result = {};
+        id = res;
+    }
+    url = cc.AssetLibrary._getAssetUrl(id);
+    result.url = url || id;
+    if (url && result.type === 'uuid' && cc.AssetLibrary._isRawAsset(id)) {
+        result.type = null;
+        result.isRawAsset = true;
+    }
+    return result;
+}
+
 var _sharedResources = [];
 var _sharedList = [];
 
@@ -121,7 +147,7 @@ JS.mixin(CCLoader.prototype, {
      * The progression callback is the same as Pipeline's {{#crossLink "Pipeline/onProgress:method"}}onProgress{{/crossLink}}
      * The complete callback is almost the same as Pipeline's {{#crossLink "Pipeline/onComplete:method"}}onComplete{{/crossLink}}
      * The only difference is when user pass a single url as resources, the complete callback will set its result directly as the second parameter.
-     * 
+     *
      * @example
      * cc.loader.load('a.png', function (err, tex) {
      *     cc.log('Result should be a texture: ' + (tex instanceof cc.Texture2D));
@@ -131,10 +157,10 @@ JS.mixin(CCLoader.prototype, {
      *     cc.log('Should load a texture from external url: ' + (tex instanceof cc.Texture2D));
      * });
      *
-     * cc.loader.load({id: 'http://example.com/getImageREST?file=a.png', type: 'png'}, function (err, tex) {
+     * cc.loader.load({url: 'http://example.com/getImageREST?file=a.png', type: 'png'}, function (err, tex) {
      *     cc.log('Should load a texture from RESTful API by specify the type: ' + (tex instanceof cc.Texture2D));
      * });
-     *  
+     *
      * cc.loader.load(['a.png', 'b.json'], function (errors, results) {
      *     if (errors) {
      *         for (var i = 0; i < errors.length; i++) {
@@ -146,19 +172,19 @@ JS.mixin(CCLoader.prototype, {
      * });
      *
      * @method load
-     * @param {String|Array} resources - Url list in an array 
+     * @param {String|Array} resources - Url list in an array
      * @param {Function} [progressCallback] - Callback invoked when progression change
      * @param {Function} completeCallback - Callback invoked when all resources loaded
      */
     load: function(resources, progressCallback, completeCallback) {
-        
+
         // COMPATIBLE WITH 0.X
         if (CC_DEV && typeof resources === 'string' && resources.startsWith('resources://')) {
-            cc.warn('Sorry, the "resources://" protocol is obsoleted, use cc.loader.loadRes instead please.');
+            cc.warnID(4900);
             this.loadRes(resources.slice('resources://'.length), progressCallback, completeCallback);
             return;
         }
-        
+
         if (completeCallback === undefined) {
             completeCallback = progressCallback;
             progressCallback = this.onProgress || null;
@@ -171,18 +197,19 @@ JS.mixin(CCLoader.prototype, {
             resources = resources ? [resources] : [];
         }
 
-        _sharedResources.length = resources.length;
+        _sharedResources.length = 0;
         for (var i = 0; i < resources.length; ++i) {
-            var url = resources[i].id || resources[i];
-            if (typeof url !== 'string')
+            var resource = resources[i];
+            // Backward compatibility
+            if (resource && resource.id) {
+                cc.warn('Sorry, you shouldn\'t use id as item identity any more, please use url or uuid instead, the current id is being set as url: ' + resource.id);
+                resource.url = resource.url || resource.id;
+            }
+            var res = getResWithUrl(resource);
+            if (!res.url && !res.uuid)
                 continue;
-            var item = this.getItem(url);
-            if (item) {
-                _sharedResources[i] = item;
-            }
-            else {
-                _sharedResources[i] = resources[i];
-            }
+            var item = this.getItem(res.url);
+            _sharedResources.push(item || res);
         }
 
         var queue = LoadingItems.create(this, progressCallback, function (errors, items) {
@@ -191,7 +218,7 @@ JS.mixin(CCLoader.prototype, {
                     return;
 
                 if (singleRes) {
-                    var id = singleRes.id || singleRes;
+                    var id = singleRes.url || singleRes.uuid || singleRes;
                     completeCallback.call(self, items.getError(id), items.getContent(id));
                 }
                 else {
@@ -221,17 +248,17 @@ JS.mixin(CCLoader.prototype, {
 
         _sharedList.length = 0;
         for (var i = 0; i < urlList.length; ++i) {
-            var url = urlList[i].id || urlList[i];
-            if (typeof url !== 'string')
+            var res = getResWithUrl(urlList[i]);
+            if (!res.url && ! res.uuid)
                 continue;
-            var item = this.getItem(url);
+            var item = this.getItem(res.url);
             if (item) {
                 _sharedList.push(item);
                 // Collect deps to avoid circle reference
                 owner && owner.deps.push(item);
             }
             else {
-                _sharedList.push(urlList[i]);
+                _sharedList.push(res);
             }
         }
 
@@ -258,6 +285,10 @@ JS.mixin(CCLoader.prototype, {
 
     _resources: resources,
     _getResUuid: function (url, type) {
+        // Ignore parameter
+        var index = url.indexOf('?');
+        if (index !== -1)
+            url = url.substr(0, index);
         var uuid = resources.getUuid(url, type);
         if ( !uuid ) {
             var extname = cc.path.extname(url);
@@ -266,18 +297,33 @@ JS.mixin(CCLoader.prototype, {
                 url = url.slice(0, - extname.length);
                 uuid = resources.getUuid(url, type);
                 if (uuid) {
-                    cc.warn('loadRes: should not specify the extname in ' + url + extname);
+                    cc.warnID(4901, url, extname);
                 }
             }
         }
         return uuid;
+    },
+    // Find the asset's reference id in loader, asset could be asset object, asset uuid or asset url
+    _getReferenceKey: function (assetOrUrlOrUuid) {
+        var key;
+        if (typeof assetOrUrlOrUuid === 'string') {
+            key = this._getResUuid(assetOrUrlOrUuid) || assetOrUrlOrUuid;
+        }
+        else if (typeof assetOrUrlOrUuid === 'object') {
+            key = assetOrUrlOrUuid._uuid || null;
+        }
+        else if (CC_DEV) {
+            cc.warnID(4800, assetOrUrlOrUuid);
+        }
+        key = cc.AssetLibrary._getAssetUrl(key) || key;
+        return key;
     },
 
     /**
      * Load resources from the "resources" folder inside the "assets" folder of your project.<br>
      * <br>
      * Note: All asset urls in Creator use forward slashes, urls using backslashes will not work.
-     * 
+     *
      * @method loadRes
      * @param {String} url - Url of the target resource.
      *                       The url is relative to the "resources" folder, extensions must be omitted.
@@ -285,9 +331,9 @@ JS.mixin(CCLoader.prototype, {
      * @param {Function} completeCallback - Callback invoked when the resource loaded.
      * @param {Error} completeCallback.error - The error info or null if loaded successfully.
      * @param {Object} completeCallback.resource - The loaded resource if it can be found otherwise returns null.
-     * 
+     *
      * @example
-     * 
+     *
      * // load the prefab (project/assets/resources/misc/character/cocos) from resources folder
      * cc.loader.loadRes('misc/character/cocos', function (err, prefab) {
      *     if (err) {
@@ -316,7 +362,6 @@ JS.mixin(CCLoader.prototype, {
         if (uuid) {
             this.load(
                 {
-                    id: uuid,
                     type: 'uuid',
                     uuid: uuid
                 },
@@ -438,12 +483,13 @@ JS.mixin(CCLoader.prototype, {
      */
     getRes: function (url, type) {
         var item = this._cache[url];
-        if (item && item.alias) {
-            item = this._cache[item.alias];
-        }
         if (!item) {
             var uuid = this._getResUuid(url, type);
-            item = this._cache[uuid];
+            var ref = this._getReferenceKey(uuid);
+            item = this._cache[ref];
+        }
+        if (item && item.alias) {
+            item = this._cache[item.alias];
         }
         return (item && item.complete) ? item.content : null;
     },
@@ -459,7 +505,7 @@ JS.mixin(CCLoader.prototype, {
     /**
      * !#en Get all resource dependencies of the requested asset in an array, including itself.
      * The owner parameter accept the following types: 1. The asset itself; 2. The resource url; 3. The asset's uuid.
-     * The returned array stores the dependencies with their uuids, after retrieve dependencies, 
+     * The returned array stores the dependencies with their uuids, after retrieve dependencies,
      * you can release them, access dependent assets by passing the uuid to {{#crossLink "loader/getRes:method"}}{{/crossLink}}, or other stuffs you want.
      * For release all dependencies of an asset, please refer to {{#crossLink "loader/release:method"}}{{/crossLink}}
      * Here is some examples:
@@ -468,7 +514,7 @@ JS.mixin(CCLoader.prototype, {
      * 返回的数组将仅保存依赖资源的 uuid，获取这些 uuid 后，你可以从 loader 释放这些资源；通过 {{#crossLink "loader/getRes:method"}}{{/crossLink}} 获取某个资源或者其他你需要的处理。
      * 想要释放一个资源及其依赖资源，可以参考 {{#crossLink "loader/release:method"}}{{/crossLink}}。
      * 下面是一些示例代码：
-     * 
+     *
      * @example
      * // Release all dependencies of a loaded prefab
      * var deps = cc.loader.getDependsRecursively(prefab);
@@ -482,27 +528,15 @@ JS.mixin(CCLoader.prototype, {
      *         textures.push(item);
      *     }
      * }
-     * 
+     *
      * @param {Asset|RawAsset|String} owner The owner asset or the resource url or the asset's uuid
      * @returns {Array}
      */
     getDependsRecursively: function (owner) {
-        var uuid;
-        if (typeof owner === 'string') {
-            uuid = owner;
-            if (!this._cache[uuid]) {
-                // Not found in cache then try to search res,
-                // If res not found, keep the original value
-                uuid = this._getResUuid(uuid) || uuid;
-            }
-        }
-        else if (typeof owner === 'object') {
-            uuid = owner._uuid || null;
-        }
-        
-        if (uuid) {
-            var assets = AutoReleaseUtils.getDependsRecursively(uuid);
-            assets.push(uuid);
+        if (owner) {
+            var key = this._getReferenceKey(owner);
+            var assets = AutoReleaseUtils.getDependsRecursively(key);
+            assets.push(key);
             return assets;
         }
         else {
@@ -551,7 +585,7 @@ JS.mixin(CCLoader.prototype, {
             AutoReleaseUtils.autoRelease(this, asset);
         }
         else if (asset) {
-            var id = asset._uuid || asset.url || asset;
+            var id = this._getReferenceKey(asset);
             var item = this.getItem(id);
             if (item) {
                 var removed = this.removeItem(id);
@@ -602,7 +636,7 @@ JS.mixin(CCLoader.prototype, {
             this.release(uuid);
         }
         else {
-            cc.error('Resources url "%s" does not exist.', url);
+            cc.errorID(4914, url);
         }
     },
 
@@ -674,12 +708,12 @@ JS.mixin(CCLoader.prototype, {
      * @param {Boolean} autoRelease - indicates whether should release automatically
      */
     setAutoRelease: function (assetOrUrlOrUuid, autoRelease) {
-        var key = AutoReleaseUtils.getKey(this, assetOrUrlOrUuid);
+        var key = this._getReferenceKey(assetOrUrlOrUuid);
         if (key) {
             this._autoReleaseSetting[key] = !!autoRelease;
         }
         else if (CC_DEV) {
-            cc.warn('No need to release non-cached asset.');
+            cc.warnID(4902);
         }
     },
 
@@ -715,7 +749,7 @@ JS.mixin(CCLoader.prototype, {
      */
     setAutoReleaseRecursively: function (assetOrUrlOrUuid, autoRelease) {
         autoRelease = !!autoRelease;
-        var key = AutoReleaseUtils.getKey(this, assetOrUrlOrUuid);
+        var key = this._getReferenceKey(assetOrUrlOrUuid);
         if (key) {
             this._autoReleaseSetting[key] = autoRelease;
 
@@ -726,7 +760,7 @@ JS.mixin(CCLoader.prototype, {
             }
         }
         else if (CC_DEV) {
-            cc.warn('No need to release non-cached asset.');
+            cc.warnID(4902);
         }
     },
 
@@ -745,7 +779,7 @@ JS.mixin(CCLoader.prototype, {
      * @returns {Boolean}
      */
     isAutoRelease: function (assetOrUrl) {
-        var key = AutoReleaseUtils.getKey(this, assetOrUrl);
+        var key = this._getReferenceKey(assetOrUrl);
         if (key) {
             return !!this._autoReleaseSetting[key];
         }

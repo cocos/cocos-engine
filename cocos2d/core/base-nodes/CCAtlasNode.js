@@ -102,7 +102,7 @@ cc.AtlasNode = _ccsg.Node.extend(/** @lends cc.AtlasNode# */{
      * @function
      */
     updateAtlasValues: function () {
-        cc.log(cc._LogInfos.AtlasNode.updateAtlasValues);
+        cc.logID(1700);
     },
 
     /**

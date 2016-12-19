@@ -121,7 +121,7 @@ function attr (ctor, propName, newAttrs) {
             }
         }
         else if (CC_DEV) {
-            cc.error('attribute must be type object');
+            cc.errorID(3629);
         }
     }
 }
@@ -156,7 +156,7 @@ cc.Float = 'Float';
 
 if (CC_EDITOR) {
     JS.get(cc, 'Number', function () {
-        cc.warn('Use "cc.Float" or "cc.Integer" instead of "cc.Number" please. \uD83D\uDE02');
+        cc.warnID(3603);
         return cc.Float;
     });
 }
@@ -213,7 +213,7 @@ function getTypeChecker (type, attrName) {
                     mainPropAttrsType = 'Number';
                 }
                 if (mainPropAttrsType !== type) {
-                    cc.warn('Can only indicate one type attribute for %s.', propInfo);
+                    cc.warnID(3604, propInfo);
                     return;
                 }
             }
@@ -234,40 +234,37 @@ function getTypeChecker (type, attrName) {
                 if (!mainPropAttrs.saveUrlAsAsset) {
                     if (type_lowerCase === 'object') {
                         if (defaultVal && !(defaultVal instanceof mainPropAttrs.ctor)) {
-                            cc.warn('The default value of %s is not instance of %s.',
-                                propInfo, JS.getClassName(mainPropAttrs.ctor));
+                            cc.warnID(3605, propInfo, JS.getClassName(mainPropAttrs.ctor));
                         }
                         else {
                             return;
                         }
                     }
                     else if (type !== 'Number') {
-                        cc.warn('No needs to indicate the "%s" attribute for %s, which its default value is type of %s.',
-                            attrName, propInfo, type);
+                        cc.warnID(3606, attrName, propInfo, type);
                     }
                 }
             }
             else if (defaultType !== 'function') {
                 if (type === cc.String && defaultVal == null) {
                     if (!cc.isChildClassOf(mainPropAttrs.ctor, cc.RawAsset)) {
-                        cc.warn('The default value of %s must be an empty string.', propInfo);
+                        cc.warnID(3607, propInfo);
                     }
                 }
                 else if (mainPropAttrs.ctor === String && (defaultType === 'string' || defaultVal == null)) {
                     mainPropAttrs.type = cc.String;
-                    cc.warn('The type of %s must be cc.String, not String.', propInfo);
+                    cc.warnID(3608, propInfo);
                 }
                 else if (mainPropAttrs.ctor === Boolean && defaultType === 'boolean') {
                     mainPropAttrs.type = cc.Boolean;
-                    cc.warn('The type of %s must be cc.Boolean, not Boolean.', propInfo);
+                    cc.warnID(3609, propInfo);
                 }
                 else if (mainPropAttrs.ctor === Number && defaultType === 'number') {
                     mainPropAttrs.type = cc.Float;
-                    cc.warn('The type of %s must be cc.Float or cc.Integer, not Number.', propInfo);
+                    cc.warnID(3610, propInfo);
                 }
                 else {
-                    cc.warn('Can not indicate the "%s" attribute for %s, which its default value is type of %s.',
-                        attrName, propInfo, defaultType);
+                    cc.warnID(3611, attrName, propInfo, defaultType);
                 }
             }
             else {
@@ -303,8 +300,8 @@ function ObjectType (typeCtor) {
                     cc.log(info);
                 }
                 else {
-                    cc.warn(info + ' Just set the default value to "new %s()" and it will be handled properly.',
-                        typename, JS.getClassName(classCtor), mainPropName, typename);
+                    cc.warnID(3612,
+                        info, typename, JS.getClassName(classCtor), mainPropName, typename);
                 }
             }
         }
@@ -324,7 +321,7 @@ function RawType (typename) {
             // check raw object
             var checked = !CC_DEV || (function checkRawType(constructor) {
                 if (! cc.isChildClassOf(constructor, cc.Asset)) {
-                    cc.error('RawType is only available for Assets');
+                    cc.errorID(3630);
                     return false;
                 }
                 var attrs = getClassAttrs(constructor);
@@ -335,11 +332,11 @@ function RawType (typename) {
                     if (rawType) {
                         var containsUppercase = (rawType.toLowerCase() !== rawType);
                         if (containsUppercase) {
-                            cc.error('RawType name cannot contain uppercase');
+                            cc.errorID(3631);
                             return false;
                         }
                         if (found) {
-                            cc.error('Each asset cannot have more than one RawType');
+                            cc.errorID(3632);
                             return false;
                         }
                         found = true;

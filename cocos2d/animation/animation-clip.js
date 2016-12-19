@@ -96,7 +96,7 @@ var AnimationClip = cc.Class({
          */
         createWithSpriteFrames: function (spriteFrames, sample) {
             if (!Array.isArray(spriteFrames)) {
-                cc.error('sprite frames must be an Array.');
+                cc.errorID(3905);
                 return null;
             }
 

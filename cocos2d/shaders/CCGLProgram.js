@@ -100,7 +100,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         var status = this._glContext.getShaderParameter(shader, this._glContext.COMPILE_STATUS);
 
         if (!status) {
-            cc.log("cocos2d: ERROR: Failed to compile shader:\n" + this._glContext.getShaderSource(shader));
+            cc.logID(8100, this._glContext.getShaderSource(shader));
             if (type === this._glContext.VERTEX_SHADER)
                 cc.log("cocos2d: \n" + this.vertexShaderLog());
             else
@@ -152,7 +152,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         if (vertShaderStr) {
             this._vertShader = locGL.createShader(locGL.VERTEX_SHADER);
             if (!this._compileShader(this._vertShader, locGL.VERTEX_SHADER, vertShaderStr)) {
-                cc.log("cocos2d: ERROR: Failed to compile vertex shader");
+                cc.logID(8101);
             }
         }
 
@@ -160,7 +160,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         if (fragShaderStr) {
             this._fragShader = locGL.createShader(locGL.FRAGMENT_SHADER);
             if (!this._compileShader(this._fragShader, locGL.FRAGMENT_SHADER, fragShaderStr)) {
-                cc.log("cocos2d: ERROR: Failed to compile fragment shader");
+                cc.logID(8102);
             }
         }
 
@@ -228,7 +228,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      */
     link: function () {
         if(!this._programObj) {
-            cc.log("cc.GLProgram.link(): Cannot link invalid program");
+            cc.logID(8103);
             return false;
         }
 
@@ -245,7 +245,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         if (cc.game.config[cc.game.CONFIG_KEY.debugMode]) {
             var status = this._glContext.getProgramParameter(this._programObj, this._glContext.LINK_STATUS);
             if (!status) {
-                cc.log("cocos2d: ERROR: Failed to link program: " + this._glContext.getProgramInfoLog(this._programObj));
+                cc.logID(8104, this._glContext.getProgramInfoLog(this._programObj));
                 cc.gl.deleteProgram(this._programObj);
                 this._programObj = null;
                 return false;

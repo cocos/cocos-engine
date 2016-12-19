@@ -120,17 +120,17 @@ function loadFnt (item, callback) {
     if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
         var texSize = cc.configuration.getMaxTextureSize();
         if (commonObj['scaleW'] > texSize.width || commonObj['scaleH'] > texSize.height) {
-            cc.log('cc.LabelBMFont._parseCommonArguments(): page can\'t be larger than supported');
+            cc.logID(4917);
         }
     }
     if (commonObj['pages'] !== 1) {
-        cc.log('cc.LabelBMFont._parseCommonArguments(): only supports 1 page');
+        cc.logID(4918);
     }
 
     //page
     var pageObj = _parseFntStrToObj(fntStr.match(fntRE.PAGE_EXP)[0]);
     if (pageObj['id'] !== 0) {
-        cc.log('cc.LabelBMFont._parseImageFileName() : file could not be found');
+        cc.logID(4919);
     }
     fnt.atlasName = cc.path.changeBasename(url, pageObj['file']);
 

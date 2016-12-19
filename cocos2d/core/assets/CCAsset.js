@@ -63,7 +63,7 @@ cc.Asset = cc.Class({
                         return cc.AssetLibrary.getImportedDir(this._uuid) + '/' + this._uuid + '/' + this._rawFiles[0];
                     }
                     else {
-                        cc.error('asset.url is not usable in core process');
+                        cc.errorID(6400);
                     }
                 }
                 return '';
@@ -90,7 +90,7 @@ cc.Asset = cc.Class({
                         });
                     }
                     else {
-                        cc.error('asset.urls is not usable in core process');
+                        cc.errorID(6401);
                     }
                 }
                 return [];

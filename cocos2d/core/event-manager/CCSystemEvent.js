@@ -110,7 +110,7 @@ var SystemEvent = cc.Class({
 
         // Acceleration
         if (type === EventType.DEVICEMOTION) {
-            if (accelerationListener) {
+            if (!accelerationListener) {
                 accelerationListener = cc.EventListener.create({
                     event: cc.EventListener.ACCELERATION,
                     callback: function (accelEvent, event) {

@@ -60,7 +60,7 @@ var TextureLoader = !CC_JSB && cc.Class({
             return texture;
         }
         else {
-            cc.error('Failed to load spine atlas "$s"', line);
+            cc.errorID(7506, line);
             return null;
         }
     },
@@ -200,7 +200,7 @@ var SkeletonData = cc.Class({
 
         if ( !(this.textures && this.textures.length > 0) ) {
             if ( !quiet ) {
-                cc.error('Please re-import "%s" because its textures is not initialized! (This workflow will be improved in the future.)', this.name);
+                cc.errorID(7507, this.name);
             }
             return null;
         }
@@ -271,7 +271,7 @@ var SkeletonData = cc.Class({
 
         if ( !this.atlasText ) {
             if ( !quiet ) {
-                cc.error('The atlas asset of "%s" is not exists!', this.name);
+                cc.errorID(7508, this.name);
             }
             return null;
         }

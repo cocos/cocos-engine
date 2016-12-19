@@ -223,7 +223,7 @@ function visitNode (node) {
             if (target) {
                 var isParent = node !== target && node.isChildOf(target);
                 if (!isParent) {
-                    cc.error('Widget target must be one of the parent nodes of it');
+                    cc.errorID(6500);
                     widget._target = null;
                 }
             }

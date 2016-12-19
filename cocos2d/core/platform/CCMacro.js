@@ -2131,7 +2131,7 @@ cc.checkGLErrorDebug = function () {
     if (cc.renderMode === cc.game.RENDER_TYPE_WEBGL) {
         var _error = cc._renderContext.getError();
         if (_error) {
-            cc.log(cc._LogInfos.checkGLErrorDebug, _error);
+            cc.logID(2400, _error);
         }
     }
 };

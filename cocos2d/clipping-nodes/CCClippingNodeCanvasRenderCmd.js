@@ -43,9 +43,12 @@ proto.setStencil = function(stencil){
     if (stencil instanceof cc.DrawNode) {
 
     }else{
-        cc.error('only cc.DrawNode is accepted as stencil');
+        cc.errorID(6300);
     }
 };
+
+// should reset program used by _stencil
+proto.resetProgramByStencil = function () { };
 
 proto._restoreCmdCallback = function (ctx) {
     var wrapper = ctx || cc._renderContext;

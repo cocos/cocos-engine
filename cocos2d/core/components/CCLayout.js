@@ -925,7 +925,7 @@ var Layout = cc.Class({
  */
 Object.defineProperty(Layout.prototype, "padding", {
     get: function () {
-        cc.warn('Property padding is deprecated, please use paddingLeft, paddingRight, paddingTop and paddingBottom instead');
+        cc.warnID(4100);
         return this.paddingLeft;
     },
     set: function (value) {

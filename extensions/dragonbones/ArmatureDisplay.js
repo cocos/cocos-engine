@@ -173,7 +173,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                         armaturesEnum = this.dragonAsset.getArmatureEnum();
                     }
                     if ( !armaturesEnum ) {
-                        return cc.error('Failed to set _defaultArmatureIndex for "%s" because its dragonAsset is invalid.', this.name);
+                        return cc.errorID(7400, this.name);
                     }
 
                     armatureName = armaturesEnum[this._defaultArmatureIndex];
@@ -183,7 +183,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                     this.armatureName = armatureName;
                 }
                 else {
-                    cc.error('Failed to set _defaultArmatureIndex for "%s" because the index is out of range.', this.name);
+                    cc.errorID(7401, this.name);
                 }
             },
             type: DefaultArmaturesEnum,
@@ -216,7 +216,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                     this.animationName = animName;
                 }
                 else {
-                    cc.error('Failed to set _animationIndex for "%s" because the index is out of range.', this.name);
+                    cc.errorID(7402, this.name);
                 }
             },
             type: DefaultAnimsEnum,

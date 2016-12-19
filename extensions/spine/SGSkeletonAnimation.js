@@ -145,7 +145,7 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
     setAnimation: function (trackIndex, name, loop) {
         var animation = this._skeleton.data.findAnimation(name);
         if (!animation) {
-            cc.log("Spine: Animation not found: " + name);
+            cc.logID(7509, name);
             return null;
         }
         return this._state.setAnimationWith(trackIndex, animation, loop);
@@ -163,7 +163,7 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
         delay = delay == null ? 0 : delay;
         var animation = this._skeleton.data.findAnimation(name);
         if (!animation) {
-            cc.log("Spine: Animation not found:" + name);
+            cc.logID(7510, name);
             return null;
         }
         return this._state.addAnimationWith(trackIndex, animation, loop, delay);

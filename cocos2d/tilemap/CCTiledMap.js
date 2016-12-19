@@ -383,11 +383,11 @@ var TiledMap = cc.Class({
     },
 
     initWithTMXFile:function (tmxFile) {
-        cc.error('Method "initWithTMXFile" is no effect now, please set property "tmxAsset" instead.');
+        cc.errorID(7200);
     },
 
     initWithXML:function(tmxString, resourcePath){
-        cc.error('Method "initWithXML" is no effect now, please set property "tmxAsset" instead.');
+        cc.errorID(7201);
     },
 
     /**
@@ -694,7 +694,7 @@ var TiledMap = cc.Class({
                 }
 
                 if (!node || !addedLayer) {
-                    cc.error('Add component TiledLayer into node failed.');
+                    cc.errorID(7202);
                 }
 
                 addedLayer._replaceSgNode(sgLayer);
@@ -730,7 +730,7 @@ var TiledMap = cc.Class({
                 }
 
                 if (!node || !addedGroup) {
-                    cc.error('Add component TiledLayer into node failed.');
+                    cc.errorID(7202);
                 }
 
                 addedGroup._replaceSgNode(sgGroup);
@@ -847,6 +847,6 @@ var TiledMap = cc.Class({
 cc.TiledMap = module.exports = TiledMap;
 cc.js.obsolete(cc.TiledMap.prototype, 'cc.TiledMap.tmxFile', 'tmxAsset', true);
 cc.js.get(cc.TiledMap.prototype, 'mapLoaded', function () {
-    cc.error('Property "mapLoaded" is unused now. Please write the logic to the callback "start".');
+    cc.errorID(7203);
     return [];
 }, false);

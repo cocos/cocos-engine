@@ -316,7 +316,7 @@ var PageView = cc.Class({
         if (!page || !this.content) return;
         var index = this._pages.indexOf(page);
         if (index === -1) {
-            cc.warn('can not found the %s page.', page.name);
+            cc.warnID(4300, page.name);
             return;
         }
         this.removePageAtIndex(index);

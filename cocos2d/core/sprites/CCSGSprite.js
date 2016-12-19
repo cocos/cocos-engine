@@ -249,7 +249,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
      * @return {Boolean}  true if the sprite is initialized properly, false otherwise.
      */
     initWithSpriteFrame:function (spriteFrame) {
-        cc.assert(spriteFrame, cc._LogInfos.Sprite.initWithSpriteFrame);
+        cc.assertID(spriteFrame, 2606);
 
         if(!spriteFrame.textureLoaded()){
             //add event listener
@@ -277,9 +277,9 @@ _ccsg.Sprite = _ccsg.Node.extend({
      * sprite.initWithSpriteFrameName("grossini_dance_01.png");
      */
     initWithSpriteFrameName:function (spriteFrameName) {
-        cc.assert(spriteFrameName, cc._LogInfos.Sprite.initWithSpriteFrameName);
+        cc.assertID(spriteFrameName, 2607);
         var frame = cc.spriteFrameCache.getSpriteFrame(spriteFrameName);
-        cc.assert(frame, spriteFrameName + cc._LogInfos.Sprite.initWithSpriteFrameName1);
+        cc.assertID(frame, 2608, spriteFrameName);
         return this.initWithSpriteFrame(frame);
     },
 
@@ -337,9 +337,9 @@ _ccsg.Sprite = _ccsg.Node.extend({
      * @override
      */
     reorderChild:function (child, zOrder) {
-        cc.assert(child, cc._LogInfos.Sprite.reorderChild_2);
+        cc.assertID(child, 2611);
         if(this._children.indexOf(child) === -1){
-            cc.log(cc._LogInfos.Sprite.reorderChild);
+            cc.logID(2600);
             return;
         }
 
@@ -402,7 +402,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
      */
     setIgnoreAnchorPointForPosition:function (relative) {
         if(this._batchNode){
-            cc.log(cc._LogInfos.Sprite.setIgnoreAnchorPointForPosition);
+            cc.logID(2601);
             return;
         }
         _ccsg.Node.prototype.setIgnoreAnchorPointForPosition.call(this, relative);
@@ -492,16 +492,16 @@ _ccsg.Sprite = _ccsg.Node.extend({
      * @param {Number} frameIndex
      */
     setDisplayFrameWithAnimationName:function (animationName, frameIndex) {
-        cc.assert(animationName, cc._LogInfos.Sprite.setDisplayFrameWithAnimationName_3);
+        cc.assertID(animationName, 2610);
 
         var cache = cc.spriteFrameAnimationCache.getAnimation(animationName);
         if(!cache){
-            cc.log(cc._LogInfos.Sprite.setDisplayFrameWithAnimationName);
+            cc.logID(2602);
             return;
         }
         var animFrame = cache.getFrames()[frameIndex];
         if(!animFrame){
-            cc.log(cc._LogInfos.Sprite.setDisplayFrameWithAnimationName_2);
+            cc.logID(2603);
             return;
         }
         this.setSpriteFrame(animFrame.getSpriteFrame());
@@ -547,7 +547,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
                 if (spriteFrame)
                     this.initWithSpriteFrame(spriteFrame);
                 else
-                    cc.log("%s does not exist", fileName);
+                    cc.logID(2728, fileName);
             } else {
                 // Init  with filename and rect
                 _ccsg.Sprite.prototype.init.call(this, fileName, rect);
@@ -644,7 +644,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
      * @return {Boolean} true if the sprite is initialized properly, false otherwise.
      */
     initWithFile:function (filename, rect) {
-        cc.assert(filename, cc._LogInfos.Sprite.initWithFile);
+        cc.assertID(filename, 2609);
 
         var tex = cc.textureCache.getTextureForKey(filename);
         if (!tex) {
@@ -672,7 +672,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
      */
     initWithTexture: function (texture, rect, rotated, counterclockwise) {
         var _t = this;
-        cc.assert(arguments.length !== 0, cc._LogInfos.SpriteBatchNode.initWithTexture);
+        cc.assertID(arguments.length !== 0, 2710);
 
         rotated = rotated || false;
         texture = this._renderCmd._handleTextureForRotatedTexture(texture, rect, rotated, counterclockwise);
@@ -768,7 +768,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
      * @override
      */
     addChild: function (child, localZOrder, tag) {
-        cc.assert(child, cc._LogInfos.SpriteBatchNode.addChild_2);
+        cc.assertID(child, 2711);
 
         if (localZOrder == null)
             localZOrder = child._localZOrder;
@@ -792,7 +792,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
         var _t = this;
         if(cc.js.isString(newFrame)){
             newFrame = cc.spriteFrameCache.getSpriteFrame(newFrame);
-            cc.assert(newFrame, cc._LogInfos.Sprite.setSpriteFrame)
+            cc.assertID(newFrame, 2712);
         }
 
         this.setNodeDirty(true);
@@ -834,7 +834,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
      * @deprecated
      */
     setDisplayFrame: function(newFrame){
-        cc.log(cc._LogInfos.Sprite.setDisplayFrame);
+        cc.logID(2604);
         this.setSpriteFrame(newFrame);
     },
 
@@ -961,7 +961,7 @@ _ccsg.Sprite.INDEX_NOT_INITIALIZED = -1;
 cc.js.addon(_ccsg.Sprite.prototype, EventTarget.prototype);
 
 
-cc.assert(typeof cc._tmp.PrototypeSprite === 'function', cc._LogInfos.MissingFile, "SpritesPropertyDefine.js");
+cc.assertID(typeof cc._tmp.PrototypeSprite === 'function', 3200, "SpritesPropertyDefine.js");
 cc._tmp.PrototypeSprite();
 delete cc._tmp.PrototypeSprite;
 

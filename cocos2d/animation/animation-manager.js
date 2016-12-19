@@ -77,7 +77,7 @@ var AnimationManager = cc.Class({
             }
         }
         else {
-            cc.error('animator not added or already removed');
+            cc.errorID(3907);
         }
     },
 

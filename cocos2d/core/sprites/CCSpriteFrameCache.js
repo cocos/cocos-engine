@@ -64,7 +64,7 @@ cc.spriteFrameCache = /** @lends cc.spriteFrameCache# */{
     _getFrameConfig : function(url){
         var dict = cc.loader.getRes(url);
 
-        cc.assert(dict, cc._LogInfos.spriteFrameCache._getFrameConfig_2, url);
+        cc.assertID(dict, 2804, url);
 
         cc.loader.release(url);//release it in loader
         if(dict._inited){
@@ -76,7 +76,7 @@ cc.spriteFrameCache = /** @lends cc.spriteFrameCache# */{
     },
 
     _getFrameConfigByJsonObject: function(url, jsonObject) {
-        cc.assert(jsonObject, cc._LogInfos.spriteFrameCache._getFrameConfig_2, url);
+        cc.assertID(jsonObject, 2804, url);
         this._frameConfigCache[url] = this._parseFrameConfig(jsonObject);
         return this._frameConfigCache[url];
     },
@@ -103,7 +103,7 @@ cc.spriteFrameCache = /** @lends cc.spriteFrameCache# */{
                 var oh = frameDict["originalHeight"];
                 // check ow/oh
                 if (!ow || !oh) {
-                    cc.log(cc._LogInfos.spriteFrameCache._getFrameConfig);
+                    cc.logID(2800);
                 }
                 // Math.abs ow/oh
                 ow = Math.abs(ow);
@@ -141,7 +141,7 @@ cc.spriteFrameCache = /** @lends cc.spriteFrameCache# */{
 
     // Adds multiple Sprite Frames from a json object. it uses for local web view app.
     _addSpriteFramesByObject: function(url, jsonObject, texture) {
-        cc.assert(url, cc._LogInfos.spriteFrameCache.addSpriteFrames_2);
+        cc.assertID(url, 2805);
         if(!jsonObject || !jsonObject["frames"])
             return;
 
@@ -160,7 +160,7 @@ cc.spriteFrameCache = /** @lends cc.spriteFrameCache# */{
         }else if(cc.js.isString(texture)){//string
             texture = cc.textureCache.addImage(texture);
         }else{
-            cc.assert(0, cc._LogInfos.spriteFrameCache.addSpriteFrames_3);
+            cc.assertID(0, 2806);
         }
 
         //create sprite frames
@@ -175,7 +175,7 @@ cc.spriteFrameCache = /** @lends cc.spriteFrameCache# */{
                     for(var i = 0, li = aliases.length; i < li; i++){
                         var alias = aliases[i];
                         if (spAliases[alias])
-                            cc.log(cc._LogInfos.spriteFrameCache.addSpriteFrames, alias);
+                            cc.logID(2801, alias);
                         spAliases[alias] = key;
                     }
                 }
@@ -212,7 +212,7 @@ cc.spriteFrameCache = /** @lends cc.spriteFrameCache# */{
      * @example {@link utils/api/engine/docs/cocos2d/core/sprites/addSpriteFrames.js}
      */
     addSpriteFrames: function (url, texture) {
-        cc.assert(url, cc._LogInfos.spriteFrameCache.addSpriteFrames_2);
+        cc.assertID(url, 2805);
 
         //Is it a SpriteFrame plist?
         var dict = this._frameConfigCache[url] || cc.loader.getRes(url);
@@ -230,7 +230,7 @@ cc.spriteFrameCache = /** @lends cc.spriteFrameCache# */{
 
         for (var key in framesDict) {
             if (this._spriteFrames[key]) {
-                cc.log(cc._LogInfos.spriteFrameCache._checkConflict, key);
+                cc.logID(2802, key);
             }
         }
     },

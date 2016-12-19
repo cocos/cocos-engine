@@ -63,6 +63,16 @@ function downloadScript (item, callback, isAsync) {
     d.body.appendChild(s);
 }
 
+function downloadWebp (item, callback, isCrossOrigin, img) {
+    if (!cc.sys.capabilities.webp) {
+        setTimeout(function () {
+            callback('Load Webp ( ' + item.url + ' ) failed')
+        }, 0);
+        return;
+    }
+    downloadImage(item, callback, isCrossOrigin, img);
+}
+
 function downloadImage (item, callback, isCrossOrigin, img) {
     if (isCrossOrigin === undefined) {
         isCrossOrigin = true;
@@ -70,11 +80,14 @@ function downloadImage (item, callback, isCrossOrigin, img) {
 
     var url = urlAppendTimestamp(item.url);
     img = img || new Image();
-    if (isCrossOrigin && window.location.origin !== 'file://') {
+    if (isCrossOrigin && window.location.protocol !== 'file:') {
         img.crossOrigin = 'anonymous';
     }
+    else {
+        img.crossOrigin = null;
+    }
 
-    if (img.complete && img.naturalWidth > 0) {
+    if (img.complete && img.naturalWidth > 0 && img.src === url) {
         callback(null, img);
     }
     else {
@@ -82,15 +95,15 @@ function downloadImage (item, callback, isCrossOrigin, img) {
             img.removeEventListener('load', loadCallback);
             img.removeEventListener('error', errorCallback);
 
-            if (callback) {
-                callback(null, img);
-            }
+            callback(null, img);
         }
         function errorCallback () {
             img.removeEventListener('load', loadCallback);
             img.removeEventListener('error', errorCallback);
 
-            if (img.crossOrigin && img.crossOrigin.toLowerCase() === 'anonymous') {
+            // Retry without crossOrigin mark if crossOrigin loading fails
+            // Do not retry if protocol is https, even if the image is loaded, cross origin image isn't renderable.
+            if (window.location.protocol !== 'https:' && img.crossOrigin && img.crossOrigin.toLowerCase() === 'anonymous') {
                 downloadImage(item, callback, false, img);
             }
             else {
@@ -100,8 +113,8 @@ function downloadImage (item, callback, isCrossOrigin, img) {
 
         img.addEventListener('load', loadCallback);
         img.addEventListener('error', errorCallback);
+        img.src = url;
     }
-    img.src = url;
 }
 
 var FONT_TYPE = {
@@ -232,7 +245,7 @@ var defaultMap = {
     'gif' : downloadImage,
     'ico' : downloadImage,
     'tiff' : downloadImage,
-    'webp' : downloadImage,
+    'webp' : downloadWebp,
     'image' : downloadImage,
 
     // Audio

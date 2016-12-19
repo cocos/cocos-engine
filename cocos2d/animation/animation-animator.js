@@ -234,7 +234,7 @@ function initClipData (root, state) {
                 var motionPath = keyframe.motionPath;
 
                 if (motionPath && !checkMotionPath(motionPath)) {
-                    cc.error('motion path of target [' + target.name + '] in prop [' + propPath + '] frame [' + j +'] is not valid');
+                    cc.errorID(3904, target.name, propPath, j);
                     motionPath = null;
                 }
 

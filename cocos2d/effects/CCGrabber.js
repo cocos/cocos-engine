@@ -63,7 +63,7 @@ cc.Grabber = cc._Class.extend({
         // check if it worked (probably worth doing :) )
         var status = locGL.checkFramebufferStatus(locGL.FRAMEBUFFER);
         if (status !== locGL.FRAMEBUFFER_COMPLETE)
-            cc.log("Frame Grabber: could not attach texture to frmaebuffer");
+            cc.logID(3115);
         locGL.bindFramebuffer(locGL.FRAMEBUFFER, this._oldFBO);
     },
 

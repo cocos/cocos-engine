@@ -460,7 +460,7 @@ cc.LoaderLayer.preload = function (groupname, callback, target) {
                 cc.LoaderLayer.groups = groups;
             }
             else {
-                cc.warn("Group versions haven't been loaded, you can also set group data with 'cc.LoaderLayer.groups'");
+                cc.warnID(4913);
             }
             res_engine_loaded = true;
             callPreload();
