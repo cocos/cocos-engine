@@ -114,12 +114,12 @@ var Mask = cc.Class({
 
         /**
          * !#en
-         * The alpha threshold.  <br/>
+         * The alpha threshold.(Not supported Canvas Mode) <br/>
          * The content is drawn only where the stencil have pixel with alpha greater than the alphaThreshold. <br/>
          * Should be a float between 0 and 1. <br/>
          * This default to 1 (so alpha test is disabled).
          * !#zh
-         * Alpha 阈值 <br/>
+         * Alpha 阈值（不支持 Canvas 模式）<br/>
          * 只有当模板的像素的 alpha 大于 alphaThreshold 时，才会绘制内容。<br/>
          * 该数值 0 ~ 1 之间的浮点数，默认值为 1（因此禁用 alpha）
          * @property alphaThreshold
@@ -133,13 +133,17 @@ var Mask = cc.Class({
             slide: true,
             tooltip: 'i18n:COMPONENT.mask.alphaThreshold',
             notify: function() {
+                if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+                    cc.warn("The alphaThreshold invalid in Canvas Mode.");
+                    return;
+                }
                 this._sgNode.setAlphaThreshold(this.alphaThreshold);
             }
         },
 
         /**
-         * !#en Reverse mask
-         * !#zh 反向遮罩
+         * !#en Reverse mask (Not supported Canvas Mode)
+         * !#zh 反向遮罩（不支持 Canvas 模式）
          * @property inverted
          * @type {Boolean}
          * @default false
@@ -149,6 +153,10 @@ var Mask = cc.Class({
             type: cc.Boolean,
             tooltip: 'i18n:COMPONENT.mask.inverted',
             notify: function() {
+                if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+                    cc.warn("The inverted invalid in Canvas Mode.");
+                    return;
+                }
                 this._sgNode.setInverted(this.inverted);
             }
         },
@@ -251,7 +259,7 @@ var Mask = cc.Class({
         this.node.off('size-changed', this._refreshStencil, this);
         this.node.off('anchor-changed', this._refreshStencil, this);
     },
-    
+
     _calculateCircle: function(center, radius, segements) {
         var polies =[];
         var anglePerStep = Math.PI * 2 / segements;
@@ -276,6 +284,7 @@ var Mask = cc.Class({
             }
             stencil.setContentSize(contentSize);
             stencil.setAnchorPoint(anchorPoint);
+            this._sgNode.setAlphaThreshold(this.alphaThreshold);
         }
         else {
             var isDrawNode = stencil instanceof cc.DrawNode;
@@ -309,7 +318,6 @@ var Mask = cc.Class({
             }
         }
         this._sgNode.setInverted(this.inverted);
-        this._sgNode.setAlphaThreshold(this.alphaThreshold);
         this._clippingStencil = stencil;
         if (!CC_JSB) {
             cc.renderer.childrenOrderDirty = true;
