@@ -43,7 +43,7 @@ cc.PresetShaders = {
         + "varying vec4 v_fragmentColor;\n"
         + "void main()\n"
         + "{\n"
-        + " gl_FragColor = v_fragmentColor;\n"
+        + "gl_FragColor = v_fragmentColor;\n"
         + "}",
 
     /**
@@ -56,10 +56,9 @@ cc.PresetShaders = {
             + "varying lowp vec4 v_fragmentColor;\n"
             + "void main(void)\n"
             + "{\n"
-          //+ " gl_Position = CC_MVPMatrix * a_position;\n"
-            + " gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;\n"
-            + " gl_PointSize = u_pointSize;\n"
-            + " v_fragmentColor = u_color;\n"
+            + "gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;\n"
+            + "gl_PointSize = u_pointSize;\n"
+            + "v_fragmentColor = u_color;\n"
             + "}",
 
     //---------------------Shader_PositionColor Shader Source-----------------------
@@ -71,7 +70,7 @@ cc.PresetShaders = {
             + "varying vec4 v_fragmentColor;\n"
             + "void main()\n"
             + "{\n"
-            + " gl_FragColor = v_fragmentColor;\n"
+            + "gl_FragColor = v_fragmentColor;\n"
             + "}",
 
     /**
@@ -83,8 +82,8 @@ cc.PresetShaders = {
             + "varying lowp vec4 v_fragmentColor;\n"
             + "void main()\n"
             + "{\n"
-            + " gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;\n"
-            + " v_fragmentColor = a_color;\n"
+            + "gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;\n"
+            + "v_fragmentColor = a_color;\n"
             + "}",
 
     /**
@@ -96,8 +95,8 @@ cc.PresetShaders = {
             + "varying lowp vec4 v_fragmentColor;\n"
             + "void main()\n"
             + "{\n"
-            + " gl_Position = CC_PMatrix * a_position;\n"
-            + " v_fragmentColor = a_color;\n"
+            + "gl_Position = CC_PMatrix * a_position;\n"
+            + "v_fragmentColor = a_color;\n"
             + "}",
 
     // --------------------- Shader_PositionColorLengthTexture Shader source------------------------
@@ -105,16 +104,17 @@ cc.PresetShaders = {
      * @property POSITION_COLOR_LENGTH_TEXTURE_FRAG
      * @type {String}
      */
-    POSITION_COLOR_LENGTH_TEXTURE_FRAG : // + #extension GL_OES_standard_derivatives : enable\n"
-              "varying mediump vec4 v_color;\n"
+    POSITION_COLOR_LENGTH_TEXTURE_FRAG :
+              "//#extension GL_OES_standard_derivatives : enable\n"
+            + "varying mediump vec4 v_color;\n"
             + "varying mediump vec2 v_texcoord;\n"
             + "void main()\n"
             + "{\n"
-         // + #if defined GL_OES_standard_derivatives\n"
-         // + gl_FragColor=v_color*smoothstep(0.0, length(fwidth(v_texcoord)), 1.0-length(v_texcoord));\n"
-         // + #else\n"
-            + " gl_FragColor = v_color * step(0.0, 1.0 - length(v_texcoord));\n"
-         // + #endif\n"
+            + "//#if defined GL_OES_standard_derivatives\n"
+            + "//gl_FragColor=v_color*smoothstep(0.0, length(fwidth(v_texcoord)), 1.0-length(v_texcoord));\n"
+            + "//#else\n"
+            + "gl_FragColor = v_color * step(0.0, 1.0 - length(v_texcoord));\n"
+            + "//#endif\n"
             + "}",
 
     /**
@@ -128,10 +128,9 @@ cc.PresetShaders = {
             + "varying mediump vec2 v_texcoord;\n"
             + "void main()\n"
             + "{\n"
-            + " v_color = a_color;\n" //vec4(a_color.rgb*a_color.a, a_color.a);
-            + " v_texcoord = a_texcoord;\n"
-          //+ " gl_Position = CC_MVPMatrix * a_position;\n"
-            + " gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;\n"
+            + "v_color = a_color;\n"//vec4(a_color.rgb*a_color.a, a_color.a);
+            + "v_texcoord = a_texcoord;\n"
+            + "gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;\n"
             + "}",
 
     // ----------------------Shader_PositionTexture Shader Source-------------------------------------
@@ -143,7 +142,7 @@ cc.PresetShaders = {
             + "varying vec2 v_texCoord;\n"
             + "void main()\n"
             + "{\n"
-            + " gl_FragColor = texture2D(CC_Texture0, v_texCoord);\n"
+            + "gl_FragColor = texture2D(CC_Texture0, v_texCoord);\n"
             + "}",
 
     /**
@@ -155,9 +154,8 @@ cc.PresetShaders = {
             + "varying mediump vec2 v_texCoord;\n"
             + "void main()\n"
             + "{\n"
-         // + " gl_Position = CC_MVPMatrix * a_position;\n"
-            + " gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;\n"
-            + " v_texCoord = a_texCoord;\n"
+            + "gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;\n"
+            + "v_texCoord = a_texCoord;\n"
             + "}",
 
     // ------------------------Shader_PositionTexture_uColor Shader Source-------------------------------
@@ -170,7 +168,7 @@ cc.PresetShaders = {
             + "varying vec2 v_texCoord;\n"
             + "void main()\n"
             + "{\n"
-            + " gl_FragColor=texture2D(CC_Texture0, v_texCoord) * u_color;\n"
+            + "gl_FragColor=texture2D(CC_Texture0, v_texCoord) * u_color;\n"
             + "}",
 
     /**
@@ -182,9 +180,8 @@ cc.PresetShaders = {
             + "varying mediump vec2 v_texCoord;\n"
             + "void main()\n"
             + "{\n"
-          //+ " gl_Position = CC_MVPMatrix * a_position;\n"
-            + " gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;\n"
-            + " v_texCoord = a_texCoord;\n"
+            + "gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;\n"
+            + "v_texCoord = a_texCoord;\n"
             + "}",
 
     //---------------------Shader_PositionTextureA8Color Shader source-------------------------------
@@ -197,8 +194,8 @@ cc.PresetShaders = {
             + "varying vec2 v_texCoord;\n"
             + "void main()\n"
             + "{\n"
-            + " gl_FragColor = vec4(v_fragmentColor.rgb,\n"// RGB from uniform
-            + " v_fragmentColor.a * texture2D(CC_Texture0, v_texCoord).a);\n"// A from texture and uniform
+            + "gl_FragColor = vec4(v_fragmentColor.rgb,\n"// RGB from uniform
+            + "v_fragmentColor.a * texture2D(CC_Texture0, v_texCoord).a);\n"// A from texture and uniform
             + "}",
 
     /**
@@ -212,9 +209,9 @@ cc.PresetShaders = {
             + "varying mediump vec2 v_texCoord;\n"
             + "void main()\n"
             + "{\n"
-            + " gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;\n"
-            + " v_fragmentColor = a_color;\n"
-            + " v_texCoord = a_texCoord;\n"
+            + "gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;\n"
+            + "v_fragmentColor = a_color;\n"
+            + "v_texCoord = a_texCoord;\n"
             + "}",
 
     // ------------------------Shader_PositionTextureColor Shader source------------------------------------
@@ -227,7 +224,7 @@ cc.PresetShaders = {
             + "varying vec2 v_texCoord;\n"
             + "void main()\n"
             + "{\n"
-            + " gl_FragColor = v_fragmentColor * texture2D(CC_Texture0, v_texCoord);\n"
+            + "gl_FragColor = v_fragmentColor * texture2D(CC_Texture0, v_texCoord);\n"
             + "}",
 
     /**
@@ -241,9 +238,9 @@ cc.PresetShaders = {
             + "varying mediump vec2 v_texCoord;\n"
             + "void main()\n"
             + "{\n"
-            + " gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;\n"
-            + " v_fragmentColor = a_color;\n"
-            + " v_texCoord = a_texCoord;\n"
+            + "gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;\n"
+            + "v_fragmentColor = a_color;\n"
+            + "v_texCoord = a_texCoord;\n"
             + "}",
 
     /**
@@ -257,9 +254,9 @@ cc.PresetShaders = {
             + "varying mediump vec2 v_texCoord;\n"
             + "void main()\n"
             + "{\n"
-            + " gl_Position = CC_PMatrix * a_position;\n"
-            + " v_fragmentColor = a_color;\n"
-            + " v_texCoord = a_texCoord;\n"
+            + "gl_Position = CC_PMatrix * a_position;\n"
+            + "v_fragmentColor = a_color;\n"
+            + "v_texCoord = a_texCoord;\n"
             + "}",
 
     //-----------------------Shader_PositionTextureColorAlphaTest_frag Shader Source----------------------------
@@ -273,12 +270,10 @@ cc.PresetShaders = {
             + "uniform float CC_alpha_value;\n"
             + "void main()\n"
             + "{\n"
-            + " vec4 texColor=texture2D(CC_Texture0, v_texCoord);\n"
-            // mimic: glAlphaFunc(GL_GREATER)
-            // pass if(incoming_pixel>=CC_alpha_value)=>fail if incoming_pixel<CC_alpha_value
-            + " if(texColor.a <= CC_alpha_value)\n"
-            + "  discard; \n"
-            + " gl_FragColor=texColor*v_fragmentColor;\n"
+            + "vec4 texColor=texture2D(CC_Texture0, v_texCoord);\n"
+            + "if(texColor.a <= CC_alpha_value)\n"
+            + " discard; \n"
+            + "gl_FragColor=texColor*v_fragmentColor;\n"
             + "}",
 
     //-----------------------ShaderEx_SwitchMask_frag Shader Source----------------------------
@@ -293,10 +288,10 @@ cc.PresetShaders = {
             + "uniform sampler2D u_mask;\n"
             + "void main()\n"
             + "{\n"
-            + " vec4 texColorc=texture2D(u_texture, v_texCoord);\n"
-            + " vec4 maskColor=texture2D(u_mask, v_texCoord);\n"
-            + " vec4 finalColor=vec4(texColor.r, texColor.g, texColor.b, maskColor.a*texColor.a);\n"
-            + " gl_FragColor=v_fragmentColor*finalColor;\n"
+            + "vec4 texColorc=texture2D(u_texture, v_texCoord);\n"
+            + "vec4 maskColor=texture2D(u_mask, v_texCoord);\n"
+            + "vec4 finalColor=vec4(texColor.r, texColor.g, texColor.b, maskColor.a*texColor.a);\n"
+            + "gl_FragColor=v_fragmentColor*finalColor;\n"
             + "}"
 
 };
