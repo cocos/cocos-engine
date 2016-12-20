@@ -104,7 +104,7 @@ bool js_cocos2dx_dragonbones_CCArmatureDisplay_getAnimation(JSContext *cx, uint3
     return false;
 }
 
-bool js_cocos2dx_dragonbones_AnimationState_getClip(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_dragonbones_AnimationState_getAnimationData(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -112,7 +112,7 @@ bool js_cocos2dx_dragonbones_AnimationState_getClip(JSContext *cx, uint32_t argc
     dragonBones::AnimationState* cobj = (dragonBones::AnimationState *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationState_getClip : Invalid Native Object");
     if (argc == 0) {
-        const dragonBones::AnimationData& ret = cobj->getClip();
+        const dragonBones::AnimationData& ret = cobj->getAnimationData();
         JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::AnimationData>(cx, (dragonBones::AnimationData*)&ret)));
         args.rval().set(jsret);
         return true;
@@ -362,7 +362,7 @@ void register_all_cocos2dx_dragonbones_manual(JSContext* cx, JS::HandleObject gl
     JS_DefineFunction(cx, armatureDisplay, "getAnimation", js_cocos2dx_dragonbones_CCArmatureDisplay_getAnimation, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
     JS::RootedObject animationState(cx, jsb_dragonBones_AnimationState_prototype);
-    JS_DefineFunction(cx, animationState, "getClip", js_cocos2dx_dragonbones_AnimationState_getClip, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, animationState, "getAnimationData", js_cocos2dx_dragonbones_AnimationState_getAnimationData, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
     JS::RootedObject armatureData(cx, jsb_dragonBones_ArmatureData_prototype);
     JS_DefineProperty(cx, armatureData, "animations", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, js_cocos2dx_dragonbones_ArmatureData_get_animations);

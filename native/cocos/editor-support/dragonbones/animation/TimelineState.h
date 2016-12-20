@@ -24,9 +24,12 @@ private:
 
 protected:
     void _onClear() override;
+    void _onCrossFrame(AnimationFrameData* frame);
 
 public:
+    void fadeIn(Armature* armature, AnimationState* animationState, AnimationData* timelineData, float time) override;
     void update(float time) override;
+    void setCurrentTime(float value);
 };
 
 class BoneTimelineState final : public TweenTimelineState<BoneFrameData, BoneTimelineData>
@@ -55,11 +58,11 @@ private:
 
 protected:
     void _onClear() override;
-    void _onFadeIn() override;
     void _onArriveAtFrame(bool isUpdate) override;
     void _onUpdateFrame(bool isUpdate) override;
 
 public:
+    void fadeIn(Armature* armature, AnimationState* animationState, BoneTimelineData* timelineData, float time) override;
     void fadeOut() override;
     void update(float time) override;
 };
@@ -87,11 +90,11 @@ private:
 
 protected:
     void _onClear() override;
-    void _onFadeIn() override;
     void _onArriveAtFrame(bool isUpdate) override;
     void _onUpdateFrame(bool isUpdate) override;
 
 public:
+    void fadeIn(Armature* armature, AnimationState* animationState, SlotTimelineData* timelineData, float time) override;
     void fadeOut() override;
     void update(float time) override;
 };
@@ -118,11 +121,11 @@ private:
 
 protected:
     void _onClear() override;
-    void _onFadeIn() override;
     void _onArriveAtFrame(bool isUpdate) override;
     void _onUpdateFrame(bool isUpdate) override;
 
 public:
+    void fadeIn(Armature* armature, AnimationState* animationState, FFDTimelineData* timelineData, float time) override;
     void update(float time) override;
 };
 

@@ -5,10 +5,12 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
+class IEventDispatcher;
 class Armature;
 class Bone;
 class Slot;
 class AnimationState;
+class AnimationFrameData;
 
 class EventObject final : public BaseObject
 {
@@ -28,6 +30,10 @@ public:
     static const char* SOUND_EVENT;
 
 public:
+    /** @private */
+    static IEventDispatcher* _soundEventManager;
+
+public:
     std::string type;
     std::string name;
     //void* data; // TODO
@@ -36,6 +42,7 @@ public:
     Bone* bone;
     Slot* slot;
     AnimationState* animationState;
+    AnimationFrameData* frame;
 
 public:
     EventObject();

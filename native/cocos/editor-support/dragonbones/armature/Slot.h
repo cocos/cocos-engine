@@ -25,6 +25,10 @@ public: // private friend class
     /** @private */
     BlendMode _blendMode;
     /** @private */
+    float _pivotX;
+    /** @private */
+    float _pivotY;
+    /** @private */
     SlotDisplayDataSet* _displayDataSet;
     /** @private */
     MeshData* _meshData;
@@ -62,12 +66,12 @@ public:
 protected:
     void _onClear() override;
 
-    virtual void _onUpdateDisplay() = 0;
     virtual void _initDisplay(void* value) = 0;
+    virtual void _disposeDisplay(void* value) = 0;
+    virtual void _onUpdateDisplay() = 0;
     virtual void _addDisplay() = 0;
     virtual void _replaceDisplay(void* value, bool isArmatureDisplayContainer) = 0;
     virtual void _removeDisplay() = 0;
-    virtual void _disposeDisplay(void* value) = 0;
     virtual void _updateColor() = 0;
     virtual void _updateFilters() = 0;
     virtual void _updateFrame() = 0;

@@ -45,6 +45,11 @@ SlotData::~SlotData()
 
 void SlotData::_onClear()
 {
+    for (const auto action : actions) 
+    {
+        action->returnToPool();
+    }
+
     displayIndex = 0;
     zOrder = 0;
     blendMode = BlendMode::Normal;
@@ -60,6 +65,8 @@ void SlotData::_onClear()
 
         color = nullptr;
     }
+
+    actions.clear();
 }
 
 MeshData::MeshData() 
@@ -86,7 +93,7 @@ void MeshData::_onClear()
 }
 
 DisplayData::DisplayData() :
-    meshData(nullptr)
+    mesh(nullptr)
 {
     _onClear();
 }
@@ -100,13 +107,13 @@ void DisplayData::_onClear()
     isRelativePivot = false;
     type = DisplayType::Image;
     name.clear();
-    textureData = nullptr;
-    armatureData = nullptr;
+    texture = nullptr;
+    armature = nullptr;
 
-    if (meshData)
+    if (mesh)
     {
-        meshData->returnToPool();
-        meshData = nullptr;
+        mesh->returnToPool();
+        mesh = nullptr;
     }
 
     pivot.clear();
@@ -183,11 +190,6 @@ ArmatureData::~ArmatureData()
 
 void ArmatureData::_onClear()
 {
-    frameRate = 0;
-    cacheFrameRate = 0;
-    type = ArmatureType::Armature;
-    name.clear();
-
     for (const auto& pair : bones)
     {
         pair.second->returnToPool();
@@ -208,10 +210,24 @@ void ArmatureData::_onClear()
         pair.second->returnToPool();
     }
 
+    for (const auto action : actions)
+    {
+        action->returnToPool();
+    }
+
+    frameRate = 0;
+    type = ArmatureType::Armature;
+    name.clear();
+    parent = nullptr;
+    aabb.clear();
+    actions.clear();
     bones.clear();
     slots.clear();
     skins.clear();
     animations.clear();
+
+    cacheFrameRate = 0;
+    scale = 1.f;
 
     _boneDirty = false;
     _slotDirty = false;

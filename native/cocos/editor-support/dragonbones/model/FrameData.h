@@ -112,26 +112,25 @@ public:
             return;
         }
 
+        const auto curveCount = curve.size();
         const auto samplingTimes = frameCount + 2;
         const auto samplingStep = 1.f / samplingTimes;
-        sampling.reserve((samplingTimes - 1) * 2);
+        sampling.resize((samplingTimes - 1) * 2);
 
-        curve.insert(curve.begin(), 0.f);
-        curve.insert(curve.begin(), 0.f);
-        curve.push_back(1.f);
-        curve.push_back(1.f);
-
-        std::size_t stepIndex = 0;
+        int stepIndex = -2;
         for (std::size_t i = 0; i < samplingTimes - 1; ++i)
         {
             const auto step = samplingStep * (i + 1);
-            while (curve[stepIndex + 6] < step) // stepIndex + 3 * 2
+            while ((stepIndex + 6 < curveCount ? curve[stepIndex + 6] : 1.f) < step) // stepIndex + 3 * 2
             {
                 stepIndex += 6; // stepIndex += 3 * 2
             }
 
-            const auto x1 = curve[stepIndex];
-            const auto x4 = curve[stepIndex + 6];
+            const auto isInCurve = stepIndex >= 0 && stepIndex + 6 < curveCount;
+            const auto x1 = isInCurve ? curve[stepIndex] : 0.f;
+            const auto y1 = isInCurve ? curve[stepIndex + 1] : 0.f;
+            const auto x4 = isInCurve ? curve[stepIndex + 6] : 1.f;
+            const auto y4 = isInCurve ? curve[stepIndex + 7] : 1.f;
 
             const auto t = (step - x1) / (x4 - x1);
             const auto l_t = 1.f - t;
@@ -144,8 +143,8 @@ public:
             const auto kC = 3.f * l_t * powB;
             const auto kD = t * powB;
 
-            sampling.push_back(kA * x1 + kB * curve[stepIndex + 2] + kC * curve[stepIndex + 4] + kD * x4);
-            sampling.push_back(kA * curve[stepIndex + 1] + kB * curve[stepIndex + 3] + kC * curve[stepIndex + 5] + kD * curve[stepIndex + 7]);
+            sampling[i * 2] = kA * x1 + kB * curve[stepIndex + 2] + kC * curve[stepIndex + 4] + kD * x4;
+            sampling[i * 2 + 1] = kA * y1 + kB * curve[stepIndex + 3] + kC * curve[stepIndex + 5] + kD * y4;
         }
     }
 

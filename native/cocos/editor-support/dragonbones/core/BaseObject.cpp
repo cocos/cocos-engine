@@ -60,6 +60,8 @@ void BaseObject::setMaxCount(std::size_t classTypeIndex, std::size_t maxCount)
                 continue;
             }
 
+            _maxCountMap[pair.first] = maxCount;
+
             auto& pool = pair.second;
             if (pool.size() > maxCount)
             {

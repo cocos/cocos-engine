@@ -6,7 +6,7 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-class DragonBonesData final : public BaseObject
+class DragonBonesData : public BaseObject
 {
     BIND_CLASS_TYPE(DragonBonesData);
 

@@ -5,8 +5,17 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
+CCFactory CCFactory::factory;
+
 CCFactory::CCFactory() 
 {
+    if (!EventObject::_soundEventManager) 
+    {
+        const auto display = CCArmatureDisplay::create();
+        display->retain();
+
+        EventObject::_soundEventManager = display;
+    }
 }
 CCFactory::~CCFactory() 
 {
@@ -57,30 +66,31 @@ Slot * CCFactory::_generateSlot(const BuildArmaturePackage& dataPackage, const S
 
     slot->name = slotData->name;
     slot->_rawDisplay = rawDisplay;
-    slot->_meshDisplay = rawDisplay;
+    slot->_meshDisplay = slot->_rawDisplay;
 
     displayList.reserve(slotDisplayDataSet.displays.size());
     rawDisplay->retain();
     rawDisplay->setCascadeOpacityEnabled(true);
     rawDisplay->setCascadeColorEnabled(true);
+    rawDisplay->setAnchorPoint(cocos2d::Vec2::ZERO);
 
     for (const auto displayData : slotDisplayDataSet.displays)
     {
         switch (displayData->type)
         {
             case DisplayType::Image:
-                if (!displayData->textureData)
+                if (!displayData->texture)
                 {
-                    displayData->textureData = this->_getTextureData(dataPackage.dataName, displayData->name);
+                    displayData->texture = this->_getTextureData(dataPackage.dataName, displayData->name);
                 }
 
                 displayList.push_back(std::make_pair(slot->_rawDisplay, DisplayType::Image));
                 break;
 
             case DisplayType::Mesh:
-                if (!displayData->textureData)
+                if (!displayData->texture)
                 {
-                    displayData->textureData = this->_getTextureData(dataPackage.dataName, displayData->name);
+                    displayData->texture = this->_getTextureData(dataPackage.dataName, displayData->name);
                 }
 
                 displayList.push_back(std::make_pair(slot->_meshDisplay, DisplayType::Mesh));
@@ -115,10 +125,10 @@ DragonBonesData* CCFactory::loadDragonBonesData(const std::string& filePath, con
 {
     if (!dragonBonesName.empty())
     {
-        const auto existData = getDragonBonesData(dragonBonesName);
-        if (existData)
+        const auto existedData = this->getDragonBonesData(dragonBonesName);
+        if (existedData)
         {
-            return existData;
+            return existedData;
         }
     }
 
@@ -130,7 +140,7 @@ DragonBonesData* CCFactory::loadDragonBonesData(const std::string& filePath, con
     }
 
     const auto scale = cocos2d::Director::getInstance()->getContentScaleFactor();
-    return parseDragonBonesData(data.c_str(), dragonBonesName, 1.f / scale);
+    return this->parseDragonBonesData(data.c_str(), dragonBonesName, 1.f / scale);
 }
 
 TextureAtlasData* CCFactory::loadTextureAtlasData(const std::string& filePath, const std::string& dragonBonesName, float scale)
@@ -142,7 +152,7 @@ TextureAtlasData* CCFactory::loadTextureAtlasData(const std::string& filePath, c
         return nullptr;
     }
 
-    const auto textureAtlasData = static_cast<CCTextureAtlasData*>(parseTextureAtlasData(data.c_str(), nullptr, dragonBonesName, scale));
+    const auto textureAtlasData = static_cast<CCTextureAtlasData*>(BaseFactory::parseTextureAtlasData(data.c_str(), nullptr, dragonBonesName, scale));
 
     const auto pos = filePath.find_last_of("/");
     if (std::string::npos != pos)
@@ -223,6 +233,32 @@ CCArmatureDisplay * CCFactory::buildArmatureDisplay(const std::string& armatureN
     }
 
     return armatureDisplay;
+}
+
+cocos2d::Sprite* CCFactory::getTextureDisplay(const std::string& textureName, const std::string& dragonBonesName) const
+{
+    const auto textureData = static_cast<CCTextureData*>(this->_getTextureData(dragonBonesName, textureName));
+    if (textureData) 
+    {
+        if (!textureData->texture)
+        {
+            const auto textureAtlasTexture = static_cast<CCTextureAtlasData*>(textureData->parent)->texture;
+            cocos2d::Rect rect(textureData->region.x, textureData->region.y, textureData->region.width, textureData->region.height);
+            cocos2d::Vec2 offset(0.f, 0.f);
+            cocos2d::Size originSize(textureData->region.width, textureData->region.height);
+            textureData->texture = cocos2d::SpriteFrame::createWithTexture(textureAtlasTexture, rect, textureData->rotated, offset, originSize); // TODO multiply textureAtlas
+            textureData->texture->retain();
+        }
+
+        return cocos2d::Sprite::createWithSpriteFrame(textureData->texture);
+    }
+
+    return nullptr;
+}
+
+CCArmatureDisplay* CCFactory::getSoundEventManater() const
+{
+    return dynamic_cast<CCArmatureDisplay*>(static_cast<IArmatureDisplay*>(EventObject::_soundEventManager));
 }
 
 DRAGONBONES_NAMESPACE_END

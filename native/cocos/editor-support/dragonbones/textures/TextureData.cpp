@@ -32,17 +32,16 @@ TextureAtlasData::~TextureAtlasData() {}
 
 void TextureAtlasData::_onClear()
 {
-    autoSearch = false;
-    format = TextureFormat::DEFAULT;
-    scale = 1.f;
-    name.clear();
-    imagePath.clear();
-
     for (const auto& pair : textures)
     {
         pair.second->returnToPool();
     }
 
+    autoSearch = false;
+    format = TextureFormat::DEFAULT;
+    scale = 1.f;
+    name.clear();
+    imagePath.clear();
     textures.clear();
 }
 
@@ -55,7 +54,7 @@ void TextureAtlasData::addTexture(TextureData * value)
     }
     else
     {
-        DRAGONBONES_ASSERT(true, "Argument error.");
+        DRAGONBONES_ASSERT(false, "Argument error.");
     }
 }
 

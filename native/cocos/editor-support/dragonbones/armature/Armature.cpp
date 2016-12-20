@@ -6,8 +6,6 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-IEventDispatcher* Armature::soundEventManager = nullptr;
-
 Armature::Armature() :
     _animation(nullptr),
     _display(nullptr)
@@ -21,6 +19,21 @@ Armature::~Armature()
 
 void Armature::_onClear()
 {
+    for (const auto bone : _bones)
+    {
+        bone->returnToPool();
+    }
+
+    for (const auto slot : _slots)
+    {
+        slot->returnToPool();
+    }
+
+    for (const auto event : _events)
+    {
+        event->returnToPool();
+    }
+
     userData = nullptr;
 
     _bonesDirty = false;
@@ -43,30 +56,14 @@ void Armature::_onClear()
 
     _replacedTexture = nullptr;
     _parent = nullptr;
-    _action = nullptr;
 
     _delayDispose = false;
     _lockDispose = false;
     _lockActionAndEvent = false;
     _slotsDirty = false;
-
-    for (const auto bone : _bones)
-    {
-        bone->returnToPool();
-    }
-
-    for (const auto slot : _slots)
-    {
-        slot->returnToPool();
-    }
-
-    for (const auto event : _events)
-    {
-        event->returnToPool();
-    }
-
     _bones.clear();
     _slots.clear();
+    _actions.clear();
     _events.clear();
 }
 
@@ -126,6 +123,43 @@ void Armature::_sortSlots()
 {
 }
 
+void Armature::_doAction(const ActionData& value)
+{
+    const auto& ints = std::get<0>(value.data);
+    const auto& floats = std::get<1>(value.data);
+    const auto& strings = std::get<2>(value.data);
+
+    switch (value.type) 
+    {
+        case ActionType::Play:
+            _animation->play(strings[0], ints[0]);
+            break;
+
+        case ActionType::Stop:
+            _animation->stop(strings[0]);
+            break;
+
+        case ActionType::GotoAndPlay:
+            _animation->gotoAndPlayByTime(strings[0], floats[0], ints[0]);
+            break;
+
+        case ActionType::GotoAndStop:
+            _animation->gotoAndStopByTime(strings[0], floats[0]);
+            break;
+
+        case ActionType::FadeIn:
+            _animation->fadeIn(strings[0], floats[0], ints[0]);
+            break;
+
+        case ActionType::FadeOut:
+            // TODO fade out
+            break;
+
+        default:
+            break;
+    }
+}
+
 void Armature::_addBoneToBoneList(Bone* value)
 {
     if (std::find(_bones.begin(), _bones.end(), value) == _bones.end())
@@ -166,6 +200,11 @@ void Armature::_removeSlotFromSlotList(Slot* value)
     }
 }
 
+void Armature::_bufferAction(ActionData* value)
+{
+    _actions.push_back(value);
+}
+
 void Armature::_bufferEvent(EventObject* value, const std::string& type)
 {
     value->type = type;
@@ -177,7 +216,7 @@ void Armature::dispose()
 {
     _delayDispose = true;
 
-    if (!_lockDispose)
+    if (!_lockDispose && _animation)
     {
         this->returnToPool();
     }
@@ -185,7 +224,10 @@ void Armature::dispose()
 
 void Armature::advanceTime(float passedTime)
 {
-    _lockDispose = true;
+    if (!_animation) 
+    {
+        DRAGONBONES_ASSERT(false, "The armature has been disposed.");
+    }
 
     const auto scaledPassedTime = passedTime * _animation->timeScale;
 
@@ -229,53 +271,19 @@ void Armature::advanceTime(float passedTime)
         }
     }
 
-    if (!_lockActionAndEvent)
+    //
+
+    if (!_lockDispose)
     {
-        _lockActionAndEvent = true;
-
-        if (_action)
-        {
-            const auto& ints = std::get<0>(_action->data);
-            const auto& floats = std::get<1>(_action->data);
-            const auto& strings = std::get<2>(_action->data);
-
-            switch (_action->type)
-            {
-            case ActionType::Play:
-                _animation->play(strings[0], ints[0]);
-                break;
-
-            case ActionType::Stop:
-                _animation->stop(strings[0]);
-                break;
-
-            case ActionType::GotoAndPlay:
-                _animation->gotoAndPlayByTime(strings[0], floats[0], ints[0]);
-                break;
-
-            case ActionType::GotoAndStop:
-                _animation->gotoAndStopByTime(strings[0], floats[0]);
-                break;
-
-            case ActionType::FadeIn:
-                _animation->fadeIn(strings[0], floats[0], ints[0]);
-                break;
-
-            case ActionType::FadeOut:
-                // TODO
-                break;
-            }
-
-            _action = nullptr;
-        }
+        _lockDispose = true;
 
         if (!_events.empty())
         {
             for (const auto event : _events)
             {
-                if (Armature::soundEventManager && event->type == EventObject::SOUND_EVENT)
+                if (EventObject::_soundEventManager && event->type == EventObject::SOUND_EVENT)
                 {
-                    Armature::soundEventManager->_dispatchEvent(event);
+                    EventObject::_soundEventManager->_dispatchEvent(event);
                 }
                 else
                 {
@@ -288,41 +296,54 @@ void Armature::advanceTime(float passedTime)
             _events.clear();
         }
 
-        _lockActionAndEvent = false;
-    }
+        if (!_actions.empty())
+        {
+            for (const auto action : _actions)
+            {
+                if (action->slot) 
+                {
+                    const auto slot = getSlot(action->slot->name);
+                    if (slot) 
+                    {
+                        const auto childArmature = slot->getChildArmature();
+                        if (childArmature) 
+                        {
+                            childArmature->_doAction(*action);
+                        }
+                    }
+                }
+                else if (action->bone) 
+                {
+                    for (const auto slot : _slots) 
+                    {
+                        const auto childArmature = slot->getChildArmature();
+                        if (childArmature) 
+                        {
+                            childArmature->_doAction(*action);
+                        }
+                    }
+                }
+                else 
+                {
+                    _doAction(*action);
+                }
+            }
 
-    _lockDispose = false;
+            _actions.clear();
+        }
+
+        _lockDispose = false;
+    }
 
     if (_delayDispose)
     {
         this->returnToPool();
     }
-    else if (_delayAdvanceTime >= 0.f)
-    {
-        const auto delayAdvanceTime = _delayAdvanceTime;
-        _delayAdvanceTime = -1.f;
-        advanceTime(delayAdvanceTime);
-    }
 }
 
 void Armature::invalidUpdate(const std::string& boneName, bool updateSlotDisplay)
 {
-    if (boneName.empty())
-    {
-        for (const auto bone: _bones)
-        {
-            bone->invalidUpdate();
-        }
-
-        if (updateSlotDisplay)
-        {
-            for (const auto slot : _slots)
-            {
-                slot->invalidUpdate();
-            }
-        }
-    }
-    else
+    if (!boneName.empty())
     {
         const auto bone = getBone(boneName);
         if (bone)
@@ -338,6 +359,21 @@ void Armature::invalidUpdate(const std::string& boneName, bool updateSlotDisplay
                         slot->invalidUpdate();
                     }
                 }
+            }
+        }
+    }
+    else
+    {
+        for (const auto bone : _bones)
+        {
+            bone->invalidUpdate();
+        }
+
+        if (updateSlotDisplay)
+        {
+            for (const auto slot : _slots)
+            {
+                slot->invalidUpdate();
             }
         }
     }
@@ -459,6 +495,15 @@ void Armature::setCacheFrameRate(unsigned value)
     if (_armatureData->cacheFrameRate != value)
     {
         _armatureData->cacheFrames(value);
+
+        for (const auto slot : _slots) 
+        {
+            const auto childArmature = slot->getChildArmature();
+            if (childArmature && childArmature->getCacheFrameRate() == 0) 
+            {
+                childArmature->setCacheFrameRate(value);
+            }
+        }
     }
 }
 

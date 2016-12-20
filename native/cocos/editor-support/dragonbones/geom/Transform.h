@@ -112,7 +112,7 @@ public:
         return *this;
     }
 
-    inline void toMatrix(Matrix& matrix) const
+    inline Transform& toMatrix(Matrix& matrix)
     {
         matrix.a = scaleX * cos(skewY);
         matrix.b = scaleX * sin(skewY);
@@ -120,6 +120,8 @@ public:
         matrix.d = scaleY * cos(skewX);
         matrix.tx = x;
         matrix.ty = y;
+
+        return *this;
     }
 
     inline float getRotation() const

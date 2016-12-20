@@ -38,6 +38,7 @@ public:
     TextureFormat format;
     std::string name;
     std::string imagePath;
+    /** @private */
     std::map<std::string, TextureData*> textures;
 
     /** @private */

@@ -33,6 +33,7 @@ void DragonBonesData::addArmature(ArmatureData * value)
     {
         armatures[value->name] = value;
         _armatureNames.push_back(value->name);
+        value->parent = this;
     }
     else
     {

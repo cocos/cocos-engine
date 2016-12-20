@@ -31,7 +31,7 @@ bool js_cocos2dx_dragonbones_Armature_getAnimation(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_dragonbones_Armature_getArmatureData(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_dragonbones_Armature_getDisplay(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_dragonbones_CCArmatureDisplay_getAnimation(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_AnimationState_getClip(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_AnimationState_getAnimationData(JSContext *cx, uint32_t argc, jsval *vp);
 
 bool js_cocos2dx_dragonbones_ArmatureData_get_animations(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
 bool js_cocos2dx_dragonbones_ArmatureData_get_bones(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
