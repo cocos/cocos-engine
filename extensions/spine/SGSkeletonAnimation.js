@@ -122,7 +122,7 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
      * @param {Number} duration
      */
     setMix: function (fromAnimation, toAnimation, duration) {
-        this._state.data.setMixByName(fromAnimation, toAnimation, duration);
+        this._state.data.setMixWith(fromAnimation, toAnimation, duration);
     },
 
     /**
