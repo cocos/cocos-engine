@@ -393,7 +393,7 @@ void GLView::handleTouchesOfEndOrCancel(EventTouch::EventCode eventCode, int num
         Touch* touch = g_touches[iter->second];
         if (touch)
         {
-            CCLOGINFO("Ending touches with id: %d, x=%f, y=%f", id, x, y);
+            CCLOGINFO("Ending touches with id: %d, x=%f, y=%f", (int)id, x, y);
             touch->setTouchInfo(iter->second, (x - _viewPortRect.origin.x) / _scaleX,
                                 (y - _viewPortRect.origin.y) / _scaleY);
 
