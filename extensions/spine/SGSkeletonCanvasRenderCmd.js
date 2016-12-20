@@ -113,11 +113,12 @@ proto._updateRegionAttachmentSlot = function(attachment, slot, points) {
         return;
 
     var vertices = attachment.updateWorldVertices(slot, false);
+    var VERTEX = spine.RegionAttachment;
     points.length = 0;
-    points.push(cc.p(vertices[spine.RegionAttachment.X1], vertices[spine.RegionAttachment.Y1]));
-    points.push(cc.p(vertices[spine.RegionAttachment.X4], vertices[spine.RegionAttachment.Y4]));
-    points.push(cc.p(vertices[spine.RegionAttachment.X3], vertices[spine.RegionAttachment.Y3]));
-    points.push(cc.p(vertices[spine.RegionAttachment.X2], vertices[spine.RegionAttachment.Y2]));
+    points.push(cc.p(vertices[VERTEX.X1], vertices[VERTEX.Y1]));
+    points.push(cc.p(vertices[VERTEX.X4], vertices[VERTEX.Y4]));
+    points.push(cc.p(vertices[VERTEX.X3], vertices[VERTEX.Y3]));
+    points.push(cc.p(vertices[VERTEX.X2], vertices[VERTEX.Y2]));
 };
 
 proto._createChildFormSkeletonData = function(){

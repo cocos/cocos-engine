@@ -270,11 +270,12 @@ proto._uploadRegionAttachmentData = function(attachment, slot, premultipliedAlph
 
     if (this._node._debugSlots) {
         // return the quad points info if debug slot enabled
+        var VERTEX = spine.RegionAttachment;
         return [
-            cc.p(vertices[spine.RegionAttachment.X1], vertices[spine.RegionAttachment.Y1]),
-            cc.p(vertices[spine.RegionAttachment.X2], vertices[spine.RegionAttachment.Y2]),
-            cc.p(vertices[spine.RegionAttachment.X3], vertices[spine.RegionAttachment.Y3]),
-            cc.p(vertices[spine.RegionAttachment.X4], vertices[spine.RegionAttachment.Y4])
+            cc.p(vertices[VERTEX.X1], vertices[VERTEX.Y1]),
+            cc.p(vertices[VERTEX.X2], vertices[VERTEX.Y2]),
+            cc.p(vertices[VERTEX.X3], vertices[VERTEX.Y3]),
+            cc.p(vertices[VERTEX.X4], vertices[VERTEX.Y4])
         ];
     }
 };
