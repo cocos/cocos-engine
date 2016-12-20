@@ -98,7 +98,7 @@ var AudioSource = cc.Class({
                 }
             },
             url: cc.AudioClip,
-            tooltip: 'i18n:COMPONENT.audio.clip',
+            tooltip: CC_DEV && 'i18n:COMPONENT.audio.clip',
             animatable: false
         },
 
@@ -126,7 +126,7 @@ var AudioSource = cc.Class({
                 }
                 return value;
             },
-            tooltip: 'i18n:COMPONENT.audio.volume'
+            tooltip: CC_DEV && 'i18n:COMPONENT.audio.volume'
         },
 
         /**
@@ -148,7 +148,7 @@ var AudioSource = cc.Class({
                 return value;
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.audio.mute',
+            tooltip: CC_DEV && 'i18n:COMPONENT.audio.mute',
         },
 
         /**
@@ -170,7 +170,7 @@ var AudioSource = cc.Class({
                 return value;
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.audio.loop'
+            tooltip: CC_DEV && 'i18n:COMPONENT.audio.loop'
         },
 
         /**
@@ -182,7 +182,7 @@ var AudioSource = cc.Class({
          */
         playOnLoad: {
             default: false,
-            tooltip: 'i18n:COMPONENT.audio.play_on_load',
+            tooltip: CC_DEV && 'i18n:COMPONENT.audio.play_on_load',
             animatable: false
         },
 

@@ -37,7 +37,7 @@ var Collider = cc.Class({
         editing: {
             default: false,
             serializable: false,
-            tooltip: 'i18n:COMPONENT.collider.editing'
+            tooltip: CC_DEV && 'i18n:COMPONENT.collider.editing'
         },
 
         /**

@@ -119,7 +119,7 @@ var Animation = cc.Class({
 
                 this.addClip(value);
             },
-            tooltip: 'i18n:COMPONENT.animation.default_clip'
+            tooltip: CC_DEV && 'i18n:COMPONENT.animation.default_clip'
         },
 
         /**
@@ -149,7 +149,7 @@ var Animation = cc.Class({
         _clips: {
             default: [],
             type: [AnimationClip],
-            tooltip: 'i18n:COMPONENT.animation.clips',
+            tooltip: CC_DEV && 'i18n:COMPONENT.animation.clips',
             visible: true
         },
 
@@ -162,7 +162,7 @@ var Animation = cc.Class({
          */
         playOnLoad: {
             default: false,
-            tooltip: 'i18n:COMPONENT.animation.play_on_load'
+            tooltip: CC_DEV && 'i18n:COMPONENT.animation.play_on_load'
         }
     },
 

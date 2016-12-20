@@ -72,7 +72,7 @@ var WebView = cc.Class({
          */
         url: {
             type: String,
-            tooltip: 'i18n:COMPONENT.webview.url',
+            tooltip: CC_DEV && 'i18n:COMPONENT.webview.url',
             get: function () {
                 return this._url;
             },

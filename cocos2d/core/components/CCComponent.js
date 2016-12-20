@@ -352,7 +352,7 @@ var Component = cc.Class({
             //},
             displayName: 'Script',
             type: cc._Script,
-            tooltip: 'i18n:INSPECTOR.component.script'
+            tooltip: CC_DEV && 'i18n:INSPECTOR.component.script'
         },
 
         /**

@@ -144,7 +144,7 @@ var Sprite = cc.Class({
         _atlas: {
             default: null,
             type: cc.SpriteAtlas,
-            tooltip: 'i18n:COMPONENT.sprite.atlas',
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.atlas',
             editorOnly: true,
             visible: true,
             animatable: false
@@ -203,7 +203,7 @@ var Sprite = cc.Class({
             },
             type: SpriteType,
             animatable: false,
-            tooltip: 'i18n:COMPONENT.sprite.type',
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.type',
         },
 
         /**
@@ -225,7 +225,7 @@ var Sprite = cc.Class({
                 this._sgNode && this._sgNode.setFillType(value);
             },
             type: FillType,
-            tooltip: 'i18n:COMPONENT.sprite.fill_type'
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_type'
         },
 
         /**
@@ -246,7 +246,7 @@ var Sprite = cc.Class({
                 this._fillCenter = cc.v2(value);
                 this._sgNode && this._sgNode.setFillCenter(this._fillCenter);
             },
-            tooltip: 'i18n:COMPONENT.sprite.fill_center',
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_center',
         },
 
         /**
@@ -268,7 +268,7 @@ var Sprite = cc.Class({
                 this._fillStart = cc.clampf(value, -1, 1);
                 this._sgNode && this._sgNode.setFillStart(value);
             },
-            tooltip: 'i18n:COMPONENT.sprite.fill_start'
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_start'
         },
 
         /**
@@ -290,7 +290,7 @@ var Sprite = cc.Class({
                 this._fillRange = cc.clampf(value, -1, 1);
                 this._sgNode && this._sgNode.setFillRange(value);
             },
-            tooltip: 'i18n:COMPONENT.sprite.fill_range'
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_range'
         },
         /**
          * !#en specify the frame is trimmed or not.
@@ -311,7 +311,7 @@ var Sprite = cc.Class({
                 }
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.sprite.trim'
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.trim'
         },
 
         /**
@@ -333,7 +333,7 @@ var Sprite = cc.Class({
             },
             animatable: false,
             type:BlendFactor,
-            tooltip: 'i18n:COMPONENT.sprite.src_blend_factor'
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.src_blend_factor'
         },
 
         /**
@@ -355,7 +355,7 @@ var Sprite = cc.Class({
             },
             animatable: false,
             type: BlendFactor,
-            tooltip: 'i18n:COMPONENT.sprite.dst_blend_factor'
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.dst_blend_factor'
         },
 
         /**
@@ -378,7 +378,7 @@ var Sprite = cc.Class({
             },
             animatable: false,
             type: SizeMode,
-            tooltip: 'i18n:COMPONENT.sprite.size_mode'
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.size_mode'
         }
     },
 
