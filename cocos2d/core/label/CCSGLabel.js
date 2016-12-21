@@ -724,17 +724,24 @@ cc.BMFontHelper = {
                 if (this._reusedRect.height > 0 && this._reusedRect.width > 0) {
                     var fontChar = this.getChildByTag(ctr);
                     var locTexture = this._spriteBatchNode._texture;
+                    var spriteFrame = this._spriteFrame;
 
                     var isRotated = this._spriteFrame.isRotated();
-                    var spriteFrameRect = this._spriteFrame._rect;
+
+                    var originalSize = spriteFrame._originalSize;
+                    var rect = spriteFrame._rect;
+                    var offset = spriteFrame._offset;
+                    var trimmedLeft = offset.x + (originalSize.width - rect.width) / 2;
+                    var trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
+
 
                     if(!isRotated) {
-                        this._reusedRect.x += spriteFrameRect.x;
-                        this._reusedRect.y += spriteFrameRect.y;
+                        this._reusedRect.x += (rect.x - trimmedLeft);
+                        this._reusedRect.y += (rect.y + trimmedTop);
                     } else {
                         var originalX = this._reusedRect.x;
-                        this._reusedRect.x = spriteFrameRect.x + spriteFrameRect.height - this._reusedRect.y - this._reusedRect.height;
-                        this._reusedRect.y = originalX + spriteFrameRect.y;
+                        this._reusedRect.x = rect.x + rect.height - this._reusedRect.y - this._reusedRect.height - trimmedTop;
+                        this._reusedRect.y = originalX + rect.y - trimmedLeft;
                     }
 
                     if (!fontChar) {
