@@ -43,6 +43,8 @@ bool js_cocos2dx_dragonbones_WorldClock_getClock(JSContext *cx, JS::HandleObject
 bool js_cocos2dx_dragonbones_WorldClock_add(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_dragonbones_WorldClock_remove(JSContext *cx, uint32_t argc, jsval *vp);
 
+bool js_cocos2dx_dragonbones_CCFactory_getFactory(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
+
 bool js_cocos2dx_dragonbones_TransformObject_getGlobal(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
 bool js_cocos2dx_dragonbones_TransformObject_getOrigin(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
 bool js_cocos2dx_dragonbones_TransformObject_getOffset(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
