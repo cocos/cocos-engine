@@ -387,6 +387,7 @@ if (CC_DEV) {
         "4917": "cc.LabelBMFont._parseCommonArguments(): page can\'t be larger than supported", //loadFnt
         "4918": "cc.LabelBMFont._parseCommonArguments(): only supports 1 page", //loadFnt
         "4919": "cc.LabelBMFont._parseImageFileName() : file could not be found", //loadFnt
+        "4920": "Sorry, you shouldn\'t use id as item identity any more, please use url or uuid instead, the current id is being set as url: (%s)", // load
         //CCObject: 5000
         "5000": "object already destroyed", //destroy
         "5001": "object not yet destroyed", //realDestroyInEditor

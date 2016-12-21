@@ -38,10 +38,12 @@ function getXMLHttpRequest () {
     return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
 }
 
+var _info = {url: null, raw: false};
+
 // Convert a resources by finding its real url with uuid, otherwise we will use the uuid or raw url as its url
 // So we gurantee there will be url in result
 function getResWithUrl (res) {
-    var id, url, result;
+    var id, url, result, isAsset;
     if (typeof res === 'object') {
         result = res;
         if (res.url) {
@@ -55,9 +57,10 @@ function getResWithUrl (res) {
         result = {};
         id = res;
     }
-    url = cc.AssetLibrary._getAssetUrl(id);
-    result.url = url || id;
-    if (url && result.type === 'uuid' && cc.AssetLibrary._isRawAsset(id)) {
+    isAsset = cc.AssetLibrary._getAssetUrl(id);
+    cc.AssetLibrary._getAssetInfoInRuntime(id, _info);
+    result.url = !isAsset ? id : _info.url;
+    if (url && result.type === 'uuid' && _info.raw) {
         result.type = null;
         result.isRawAsset = true;
     }
@@ -202,8 +205,10 @@ JS.mixin(CCLoader.prototype, {
             var resource = resources[i];
             // Backward compatibility
             if (resource && resource.id) {
-                cc.warn('Sorry, you shouldn\'t use id as item identity any more, please use url or uuid instead, the current id is being set as url: ' + resource.id);
-                resource.url = resource.url || resource.id;
+                cc.warnID(4920, resource.id);
+                if (!resource.uuid && !resource.url) {
+                    resource.url = resource.id;
+                }
             }
             var res = getResWithUrl(resource);
             if (!res.url && !res.uuid)
@@ -440,7 +445,6 @@ JS.mixin(CCLoader.prototype, {
             for (var i = 0, len = remain; i < len; ++i) {
                 var uuid = uuids[i];
                 res.push({
-                    id: uuid,
                     type: 'uuid',
                     uuid: uuid
                 });
