@@ -39,7 +39,7 @@ _ccsg.Sprite.WebGLRenderCmd = function (renderable) {
     this._dirty = false;
     this._recursiveDirty = false;
 
-    this._shaderProgram = cc.shaderCache.programForKey(macro.SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST);
+    this._shaderProgram = cc.shaderCache.programForKey(macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
 };
 
 var proto = _ccsg.Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
