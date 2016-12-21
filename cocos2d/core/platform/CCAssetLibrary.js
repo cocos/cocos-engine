@@ -142,14 +142,6 @@ var AssetLibrary = {
         return result;
     },
 
-    _isRawAsset: function (uuid) {
-        var info = _uuidToRawAsset[uuid];
-        if (info) {
-            return !cc.isChildClassOf(info.type, cc.Asset);
-        }
-        return true;
-    },
-
     _getAssetUrl: function (uuid) {
         var info = _uuidToRawAsset[uuid];
         if (info) {
