@@ -383,6 +383,7 @@ Label::Label(TextHAlignment hAlignment /* = TextHAlignment::LEFT */,
 , _italicsEnabled(false)
 , _underlineNode(nullptr)
 , _strikethroughEnabled(false)
+, _fntSpriteFrame(nullptr)
 {
     setAnchorPoint(Vec2::ANCHOR_MIDDLE);
     reset();
@@ -441,6 +442,7 @@ Label::~Label()
 
     CC_SAFE_RELEASE_NULL(_textSprite);
     CC_SAFE_RELEASE_NULL(_shadowNode);
+    CC_SAFE_RELEASE_NULL(_fntSpriteFrame);
 }
 
 void Label::reset()
@@ -449,6 +451,7 @@ void Label::reset()
     CC_SAFE_RELEASE_NULL(_shadowNode);
     Node::removeAllChildrenWithCleanup(true);
     CC_SAFE_RELEASE_NULL(_reusedLetter);
+    
     _letters.clear();
     _batchNodes.clear();
     _lettersInfo.clear();
@@ -655,6 +658,7 @@ bool Label::setBMFontFilePath(const std::string& fntDataString,
 
     _bmFontPath = fntDataString;
     _fntSpriteFrame = spriteFrame;
+    CC_SAFE_RETAIN(_fntSpriteFrame);
 
     _currentLabelType = LabelType::BMFONT;
     setFontAtlas(newAtlas);
