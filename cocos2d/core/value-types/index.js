@@ -37,6 +37,7 @@ require('./CCPointExtension');
 require('./CCSize');
 require('./CCRect');
 require('./CCColor');
+require('./CCColorF');
 require('./CCTypes');
 require('./CCAffineTransform');
 require('./CCTypesWebGL');
