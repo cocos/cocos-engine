@@ -25,7 +25,14 @@
 
 require('./CCValueType');
 require('./CCEnum');
+require('./CCMath');
 require('./CCVec2');
+require('./CCVec2v2');
+require('./CCVec3');
+require('./CCVec4');
+require('./CCQuat');
+require('./CCMat4');
+require('./CCMat3');
 require('./CCPointExtension');
 require('./CCSize');
 require('./CCRect');
