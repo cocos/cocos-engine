@@ -142,17 +142,17 @@ public:
     std::string description() const;
 
     /** allocates a BMFontConfiguration with a FNT file */
-    static BMFontConfiguration * create(const std::string& FNTfile, SpriteFrame* spriteFrame);
+    static BMFontConfiguration * create(const std::string& fntDataString, SpriteFrame* spriteFrame);
 
     /** initializes a BitmapFontConfiguration with a FNT file */
-    bool initWithFNTfile(const std::string& FNTfile, SpriteFrame* spriteFrame);
+    bool initWithFNTfile(const std::string& fntDataString, SpriteFrame* spriteFrame);
 
     inline const std::string& getAtlasName(){ return _atlasName; }
     inline void setAtlasName(const std::string& atlasName) { _atlasName = atlasName; }
 
     std::set<unsigned int>* getCharacterSet() const;
 private:
-    std::set<unsigned int>* parseConfigFile(const std::string& controlFile);
+    std::set<unsigned int>* parseConfigFile(const std::string& fntDataString);
     std::set<unsigned int>* parseBinaryConfigFile(unsigned char* pData, unsigned long size, const std::string& controlFile);
     void parseCharacterDefinition(const char* line, BMFontDef *characterDefinition);
     void parseInfoArguments(const char* line);
@@ -164,12 +164,12 @@ private:
 };
 
 
-BMFontConfiguration* FNTConfigLoadFile(const std::string& fntFile, SpriteFrame* spriteFrame)
+BMFontConfiguration* FNTConfigLoadFile(const std::string& fntDataString, SpriteFrame* spriteFrame)
 {
     BMFontConfiguration* ret = nullptr;
 
 
-    ret = BMFontConfiguration::create(fntFile, spriteFrame);
+    ret = BMFontConfiguration::create(fntDataString, spriteFrame);
 
     return ret;
 }
@@ -178,10 +178,10 @@ BMFontConfiguration* FNTConfigLoadFile(const std::string& fntFile, SpriteFrame* 
 //BitmapFontConfiguration
 //
 
-BMFontConfiguration * BMFontConfiguration::create(const std::string& FNTfile, SpriteFrame* spriteFrame)
+BMFontConfiguration * BMFontConfiguration::create(const std::string& fntDataString, SpriteFrame* spriteFrame)
 {
     BMFontConfiguration * ret = new (std::nothrow) BMFontConfiguration();
-    if (ret->initWithFNTfile(FNTfile, spriteFrame))
+    if (ret->initWithFNTfile(fntDataString, spriteFrame))
     {
         ret->autorelease();
         return ret;
@@ -190,13 +190,13 @@ BMFontConfiguration * BMFontConfiguration::create(const std::string& FNTfile, Sp
     return nullptr;
 }
 
-bool BMFontConfiguration::initWithFNTfile(const std::string& FNTfile, SpriteFrame* spriteFrame)
+bool BMFontConfiguration::initWithFNTfile(const std::string& fntDataString, SpriteFrame* spriteFrame)
 {
     _kerningDictionary = nullptr;
     _fontDefDictionary = nullptr;
     _spriteFrame = spriteFrame;
 
-    _characterSet = this->parseConfigFile(FNTfile);
+    _characterSet = this->parseConfigFile(fntDataString);
 
     if (! _characterSet)
     {
@@ -262,19 +262,19 @@ void BMFontConfiguration::purgeFontDefDictionary()
     }
 }
 
-std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& controlFile)
+std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& fntDataString)
 {
-    std::string data = controlFile;
+    std::string data = fntDataString;
 
     if (data.size() >= (sizeof("BMP") - 1)
         && memcmp("BMF", data.c_str(), sizeof("BMP") - 1) == 0) {
         // Handle fnt file of binary format
-        std::set<unsigned int>* ret = parseBinaryConfigFile((unsigned char*)&data.front(), data.size(), controlFile);
+        std::set<unsigned int>* ret = parseBinaryConfigFile((unsigned char*)&data.front(), data.size(), fntDataString);
         return ret;
     }
     if (data[0] == 0)
     {
-        CCLOG("cocos2d: Error parsing FNTfile %s", controlFile.c_str());
+        CCLOG("cocos2d: Error parsing FNTfile %s", fntDataString.c_str());
         return nullptr;
     }
     auto contents = data.c_str();
@@ -322,7 +322,7 @@ std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& 
         }
         else if (memcmp(line, "page id", 7) == 0)
         {
-            this->parseImageFileName(line, controlFile);
+            this->parseImageFileName(line, fntDataString);
         }
         else if (memcmp(line, "chars c", 7) == 0)
         {

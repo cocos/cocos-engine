@@ -40,7 +40,7 @@ class CC_DLL FontFNT : public Font
 
 public:
 
-    static FontFNT * create(const std::string& fntFilePath,
+    static FontFNT * create(const std::string& fntDataString,
                             SpriteFrame* spriteFrame,
                             const Vec2& imageOffset = Vec2::ZERO);
     /** Purges the cached data.
@@ -75,4 +75,3 @@ private:
 NS_CC_END
 
 #endif /* defined(__cocos2d_libs__CCFontFNT__) */
-

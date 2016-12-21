@@ -230,7 +230,7 @@ Label* Label::createWithTTF(const TTFConfig& ttfConfig, const std::string& text,
     return nullptr;
 }
 
-Label* Label::createWithBMFont(const std::string& bmfontFilePath,
+Label* Label::createWithBMFont(const std::string& fntDataString,
                                const std::string& text,
                                SpriteFrame* spriteFrame,
                                const TextHAlignment& hAlignment /* = TextHAlignment::LEFT */,
@@ -239,7 +239,7 @@ Label* Label::createWithBMFont(const std::string& bmfontFilePath,
 {
     auto ret = new (std::nothrow) Label(hAlignment);
 
-    if (ret && ret->setBMFontFilePath(bmfontFilePath,
+    if (ret && ret->setBMFontFilePath(fntDataString,
                                       spriteFrame,
                                       imageOffset))
     {
@@ -625,15 +625,15 @@ bool Label::setTTFConfig(const TTFConfig& ttfConfig)
     return setTTFConfigInternal(ttfConfig);
 }
 
-bool Label::setBMFontFilePath(const std::string& bmfontFilePath,
+bool Label::setBMFontFilePath(const std::string& fntDataString,
                               SpriteFrame* spriteFrame,
                               const Vec2& imageOffset,
                               float fontSize)
 {
-    FontAtlas *newAtlas = FontAtlasCache::getFontAtlasFNT(bmfontFilePath,
+    FontAtlas *newAtlas = FontAtlasCache::getFontAtlasFNT(fntDataString,
                                                           spriteFrame,
                                                           imageOffset);
-    
+
     if (!newAtlas)
     {
         reset();
@@ -653,7 +653,7 @@ bool Label::setBMFontFilePath(const std::string& bmfontFilePath,
         _bmFontSize = fontSize;
     }
 
-    _bmFontPath = bmfontFilePath;
+    _bmFontPath = fntDataString;
     _fntSpriteFrame = spriteFrame;
 
     _currentLabelType = LabelType::BMFONT;
@@ -956,7 +956,7 @@ bool Label::updateQuads()
                 if(_currentLabelType == Label::LabelType::BMFONT) {
                     auto isRotated = _fntSpriteFrame->isRotated();
                     auto spriteFrameRect = _fntSpriteFrame->getRect();
-                    
+
                     if (!isRotated) {
                         _reusedRect.origin.x += spriteFrameRect.origin.x;
                         _reusedRect.origin.y += spriteFrameRect.origin.y;
@@ -965,17 +965,17 @@ bool Label::updateQuads()
                         _reusedRect.origin.x = spriteFrameRect.origin.x + spriteFrameRect.size.height - _reusedRect.origin.y - _reusedRect.size.height;
                         _reusedRect.origin.y = originalX + spriteFrameRect.origin.y;
                     }
-                    
-                    
+
+
                     _reusedLetter->setTextureRect(_reusedRect, isRotated, _reusedRect.size);
                 } else {
                     _reusedLetter->setTextureRect(_reusedRect, false, _reusedRect.size);
 
                 }
-             
-                
-                
-                
+
+
+
+
                 float letterPositionX = _lettersInfo[ctr].positionX + _linesOffsetX[_lettersInfo[ctr].lineIndex];
                 _reusedLetter->setPosition(letterPositionX, py);
                 auto index = static_cast<int>(_batchNodes.at(letterDef.textureID)->getTextureAtlas()->getTotalQuads());
@@ -1298,7 +1298,7 @@ void Label::createSpriteForSystemFont(const FontDefinition& fontDef)
     } else {
         this->setContentSize(newSize);
     }
-    
+
     texture->release();
     if (_blendFuncDirty)
     {

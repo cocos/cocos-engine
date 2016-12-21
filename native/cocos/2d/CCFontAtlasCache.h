@@ -42,7 +42,7 @@ class CC_DLL FontAtlasCache
 {
 public:
     static FontAtlas* getFontAtlasTTF(const _ttfConfig* config);
-    static FontAtlas* getFontAtlasFNT(const std::string& fontFileName,
+    static FontAtlas* getFontAtlasFNT(const std::string& fntDataString,
                                       SpriteFrame* spriteFrame,
                                       const Vec2& imageOffset = Vec2::ZERO);
 
@@ -61,7 +61,7 @@ public:
      CAUTION : All component use this font texture should be reset font name, though the file name is same!
                otherwise, it will cause program crash!
     */
-    static void reloadFontAtlasFNT(const std::string& fontFileName,
+    static void reloadFontAtlasFNT(const std::string& fntDataString,
                                    SpriteFrame* spriteFrame,
                                    const Vec2& imageOffset = Vec2::ZERO);
 
@@ -79,4 +79,3 @@ NS_CC_END
 
 /// @endcond
 #endif
-
