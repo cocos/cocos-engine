@@ -41,6 +41,7 @@
 #include "base/CCEventDispatcher.h"
 #include "base/CCEventCustom.h"
 #include "2d/CCFontFNT.h"
+#include "2d/CCSpriteFrame.h"
 
 NS_CC_BEGIN
 
@@ -229,11 +230,18 @@ Label* Label::createWithTTF(const TTFConfig& ttfConfig, const std::string& text,
     return nullptr;
 }
 
-Label* Label::createWithBMFont(const std::string& bmfontFilePath, const std::string& text,const TextHAlignment& hAlignment /* = TextHAlignment::LEFT */, int maxLineWidth /* = 0 */, const Vec2& imageOffset /* = Vec2::ZERO */)
+Label* Label::createWithBMFont(const std::string& bmfontFilePath,
+                               const std::string& text,
+                               SpriteFrame* spriteFrame,
+                               const TextHAlignment& hAlignment /* = TextHAlignment::LEFT */,
+                               int maxLineWidth /* = 0 */,
+                               const Vec2& imageOffset /* = Vec2::ZERO */)
 {
     auto ret = new (std::nothrow) Label(hAlignment);
 
-    if (ret && ret->setBMFontFilePath(bmfontFilePath,imageOffset))
+    if (ret && ret->setBMFontFilePath(bmfontFilePath,
+                                      spriteFrame,
+                                      imageOffset))
     {
         ret->setMaxLineWidth(maxLineWidth);
         ret->setString(text);
@@ -617,10 +625,15 @@ bool Label::setTTFConfig(const TTFConfig& ttfConfig)
     return setTTFConfigInternal(ttfConfig);
 }
 
-bool Label::setBMFontFilePath(const std::string& bmfontFilePath, const Vec2& imageOffset, float fontSize)
+bool Label::setBMFontFilePath(const std::string& bmfontFilePath,
+                              SpriteFrame* spriteFrame,
+                              const Vec2& imageOffset,
+                              float fontSize)
 {
-    FontAtlas *newAtlas = FontAtlasCache::getFontAtlasFNT(bmfontFilePath,imageOffset);
-
+    FontAtlas *newAtlas = FontAtlasCache::getFontAtlasFNT(bmfontFilePath,
+                                                          spriteFrame,
+                                                          imageOffset);
+    
     if (!newAtlas)
     {
         reset();
@@ -641,6 +654,7 @@ bool Label::setBMFontFilePath(const std::string& bmfontFilePath, const Vec2& ima
     }
 
     _bmFontPath = bmfontFilePath;
+    _fntSpriteFrame = spriteFrame;
 
     _currentLabelType = LabelType::BMFONT;
     setFontAtlas(newAtlas);
@@ -939,7 +953,29 @@ bool Label::updateQuads()
 
             if (_reusedRect.size.height > 0.f && _reusedRect.size.width > 0.f)
             {
-                _reusedLetter->setTextureRect(_reusedRect, false, _reusedRect.size);
+                if(_currentLabelType == Label::LabelType::BMFONT) {
+                    auto isRotated = _fntSpriteFrame->isRotated();
+                    auto spriteFrameRect = _fntSpriteFrame->getRect();
+                    
+                    if (!isRotated) {
+                        _reusedRect.origin.x += spriteFrameRect.origin.x;
+                        _reusedRect.origin.y += spriteFrameRect.origin.y;
+                    } else {
+                        auto originalX = _reusedRect.origin.x;
+                        _reusedRect.origin.x = spriteFrameRect.origin.x + spriteFrameRect.size.height - _reusedRect.origin.y - _reusedRect.size.height;
+                        _reusedRect.origin.y = originalX + spriteFrameRect.origin.y;
+                    }
+                    
+                    
+                    _reusedLetter->setTextureRect(_reusedRect, isRotated, _reusedRect.size);
+                } else {
+                    _reusedLetter->setTextureRect(_reusedRect, false, _reusedRect.size);
+
+                }
+             
+                
+                
+                
                 float letterPositionX = _lettersInfo[ctr].positionX + _linesOffsetX[_lettersInfo[ctr].lineIndex];
                 _reusedLetter->setPosition(letterPositionX, py);
                 auto index = static_cast<int>(_batchNodes.at(letterDef.textureID)->getTextureAtlas()->getTotalQuads());
@@ -1000,7 +1036,9 @@ bool Label::setTTFConfigInternal(const TTFConfig& ttfConfig)
 void Label::setBMFontSizeInternal(float fontSize)
 {
     if(_currentLabelType == LabelType::BMFONT){
-        this->setBMFontFilePath(_bmFontPath, Vec2::ZERO, fontSize);
+        this->setBMFontFilePath(_bmFontPath,
+                                _fntSpriteFrame,
+                                Vec2::ZERO, fontSize);
         _contentDirty = true;
     }
 }

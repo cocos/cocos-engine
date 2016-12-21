@@ -92,6 +92,7 @@ class Sprite;
 class SpriteBatchNode;
 class DrawNode;
 class EventListenerCustom;
+class SpriteFrame;
 
 /**
  * @brief Label is a subclass of Node that knows how to render text labels.
@@ -153,9 +154,12 @@ public:
      *
      * @return An automatically released Label object.
      */
-    static Label* createWithSystemFont(const std::string& text, const std::string& font, float fontSize,
-        const Size& dimensions = Size::ZERO, TextHAlignment hAlignment = TextHAlignment::LEFT,
-        TextVAlignment vAlignment = TextVAlignment::TOP);
+    static Label* createWithSystemFont(const std::string& text,
+                                       const std::string& font,
+                                       float fontSize,
+                                       const Size& dimensions = Size::ZERO,
+                                       TextHAlignment hAlignment = TextHAlignment::LEFT,
+                                       TextVAlignment vAlignment = TextVAlignment::TOP);
 
     /**
     * Allocates and initializes a Label, base on FreeType2.
@@ -169,9 +173,12 @@ public:
     *
     * @return An automatically released Label object.
     */
-    static Label * createWithTTF(const std::string& text, const std::string& fontFilePath, float fontSize,
-        const Size& dimensions = Size::ZERO, TextHAlignment hAlignment = TextHAlignment::LEFT,
-        TextVAlignment vAlignment = TextVAlignment::TOP);
+    static Label * createWithTTF(const std::string& text,
+                                 const std::string& fontFilePath,
+                                 float fontSize,
+                                 const Size& dimensions = Size::ZERO,
+                                 TextHAlignment hAlignment = TextHAlignment::LEFT,
+                                 TextVAlignment vAlignment = TextVAlignment::TOP);
 
     /**
     * Allocates and initializes a Label, base on FreeType2.
@@ -184,13 +191,15 @@ public:
     * @return An automatically released Label object.
     * @see TTFConfig setTTFConfig setMaxLineWidth
     */
-    static Label* createWithTTF(const TTFConfig& ttfConfig, const std::string& text,
-        TextHAlignment hAlignment = TextHAlignment::LEFT, int maxLineWidth = 0);
+    static Label* createWithTTF(const TTFConfig& ttfConfig,
+                                const std::string& text,
+                                TextHAlignment hAlignment = TextHAlignment::LEFT,
+                                int maxLineWidth = 0);
 
     /**
     * Allocates and initializes a Label, with a bitmap font file.
     *
-    * @param bmfontPath A bitmap font file, it's a FNT format.
+    * @param bmfontString A bitmap font string content
     * @param text The initial text.
     * @param hAlignment Text horizontal alignment.
     * @param maxLineWidth The max line width.
@@ -199,9 +208,13 @@ public:
     * @return An automatically released Label object.
     * @see setBMFontFilePath setMaxLineWidth
     */
-    static Label* createWithBMFont(const std::string& bmfontPath, const std::string& text,
-        const TextHAlignment& hAlignment = TextHAlignment::LEFT, int maxLineWidth = 0,
-        const Vec2& imageOffset = Vec2::ZERO);
+    static Label* createWithBMFont(const std::string& bmfontString,
+                                   const std::string& text,
+                                   SpriteFrame* spriteFrame,
+                                   const TextHAlignment& hAlignment = TextHAlignment::LEFT,
+                                   int maxLineWidth = 0,
+                                   const Vec2& imageOffset = Vec2::ZERO);
+    
 
     /**
     * Allocates and initializes a Label, with char map configuration.
@@ -213,7 +226,10 @@ public:
     *
     * @return An automatically released Label object.
     */
-    static Label * createWithCharMap(const std::string& charMapFile, int itemWidth, int itemHeight, int startCharMap);
+    static Label * createWithCharMap(const std::string& charMapFile,
+                                     int itemWidth,
+                                     int itemHeight,
+                                     int startCharMap);
 
     /**
     * Allocates and initializes a Label, with char map configuration.
@@ -225,7 +241,10 @@ public:
     *
     * @return An automatically released Label object.
     */
-    static Label * createWithCharMap(Texture2D* texture, int itemWidth, int itemHeight, int startCharMap);
+    static Label * createWithCharMap(Texture2D* texture,
+                                     int itemWidth,
+                                     int itemHeight,
+                                     int startCharMap);
 
     /**
     * Allocates and initializes a Label, with char map configuration.
@@ -255,7 +274,10 @@ public:
     virtual const TTFConfig& getTTFConfig() const { return _fontConfig;}
 
     /** Sets a new bitmap font to Label */
-    virtual bool setBMFontFilePath(const std::string& bmfontFilePath, const Vec2& imageOffset = Vec2::ZERO, float fontSize = 0);
+    virtual bool setBMFontFilePath(const std::string& bmfontDataString,
+                                   SpriteFrame* spriteFrame,
+                                   const Vec2& imageOffset = Vec2::ZERO,
+                                   float fontSize = 0);
 
     /** Returns the bitmap font used by the Label.*/
     const std::string& getBMFontFilePath() const { return _bmFontPath;}
@@ -769,6 +791,7 @@ protected:
     float _bmfontScale;
     Overflow _overflow;
     float _originalFontSize;
+    SpriteFrame* _fntSpriteFrame;
 
     bool _boldEnabled;
     bool _italicsEnabled;

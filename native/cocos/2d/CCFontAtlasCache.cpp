@@ -30,6 +30,7 @@
 #include "2d/CCFontAtlas.h"
 #include "2d/CCFontCharMap.h"
 #include "2d/CCLabel.h"
+#include "2d/CCSpriteFrame.h"
 
 NS_CC_BEGIN
 
@@ -89,7 +90,9 @@ FontAtlas* FontAtlasCache::getFontAtlasTTF(const _ttfConfig* config)
     return nullptr;
 }
 
-FontAtlas* FontAtlasCache::getFontAtlasFNT(const std::string& fontFileName, const Vec2& imageOffset /* = Vec2::ZERO */)
+FontAtlas* FontAtlasCache::getFontAtlasFNT(const std::string& fontFileName,
+                                           SpriteFrame* spriteFrame,
+                                           const Vec2& imageOffset /* = Vec2::ZERO */)
 {
     char tmp[ATLAS_MAP_KEY_BUFFER];
     snprintf(tmp, ATLAS_MAP_KEY_BUFFER, "%.2f %.2f %s", imageOffset.x, imageOffset.y, fontFileName.c_str());
@@ -98,7 +101,7 @@ FontAtlas* FontAtlasCache::getFontAtlasFNT(const std::string& fontFileName, cons
     auto it = _atlasMap.find(atlasName);
     if ( it == _atlasMap.end() )
     {
-        auto font = FontFNT::create(fontFileName,imageOffset);
+        auto font = FontFNT::create(fontFileName, spriteFrame, imageOffset);
 
         if(font)
         {
@@ -230,7 +233,9 @@ bool FontAtlasCache::releaseFontAtlas(FontAtlas *atlas)
     return false;
 }
 
-void FontAtlasCache::reloadFontAtlasFNT(const std::string& fontFileName, const Vec2& imageOffset/* = Vec2::ZERO*/)
+void FontAtlasCache::reloadFontAtlasFNT(const std::string& fontFileName,
+                                        SpriteFrame* spriteFrame,
+                                        const Vec2& imageOffset/* = Vec2::ZERO*/)
 {
     char tmp[ATLAS_MAP_KEY_BUFFER];
     snprintf(tmp, ATLAS_MAP_KEY_BUFFER, "%.2f %.2f %s", imageOffset.x, imageOffset.y, fontFileName.c_str());
@@ -242,8 +247,10 @@ void FontAtlasCache::reloadFontAtlasFNT(const std::string& fontFileName, const V
         CC_SAFE_RELEASE_NULL(it->second);
         _atlasMap.erase(it);
     }
-    FontFNT::reloadBMFontResource(fontFileName);
-    auto font = FontFNT::create(fontFileName, imageOffset);
+    
+    auto font = FontFNT::create(fontFileName,
+                                spriteFrame,
+                                imageOffset);
     if (font)
     {
         auto tempAtlas = font->createFontAtlas();
