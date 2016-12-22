@@ -12,7 +12,9 @@
     "Open Project": "打开工程",
     "Error": "错误",
     "Help": "帮助(&H)",
-    "About": "关于(&A)"
+    "About": "关于(&A)",
+    "Show FPS": "显示FPS",
+    "Hide FPS": "隐藏FPS"
   },
   "zh-Hans": {
     "View": "视图",

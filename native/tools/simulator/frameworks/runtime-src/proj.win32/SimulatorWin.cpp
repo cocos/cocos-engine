@@ -463,6 +463,11 @@ void SimulatorWin::setupUI()
         }
     }
 
+    // show FPs
+    bool displayStats = cocos2d::Director::getInstance()->isDisplayStats();
+    string fpsItemName = displayStats ? tr("Hide FPS") : tr("Show FPS");
+    menuBar->addItem("FPS_MENU", fpsItemName);
+
     // About
     menuBar->addItem("HELP_MENU", tr("Help"));
     menuBar->addItem("ABOUT_MENUITEM", tr("About"), "HELP_MENU");
@@ -640,6 +645,12 @@ void SimulatorWin::setupUI()
                         else if (data == "ABOUT_MENUITEM")
                         {
                             onHelpAbout();
+                        }
+                        else if (data == "FPS_MENU")
+                        {
+                           auto director = cocos2d::Director::getInstance();
+                           director->setDisplayStats(director->isDisplayStats() == false);
+                           menuItem->setTitle(director->isDisplayStats() ? tr("Hide FPS") : tr("Show FPS"));
                         }
                     }
                 }
