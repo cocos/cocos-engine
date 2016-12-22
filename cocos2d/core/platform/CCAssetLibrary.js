@@ -136,7 +136,7 @@ var AssetLibrary = {
             result.url = _rawAssetsBase + info.url;
             result.raw = true;
         }
-        else if (uuid) {
+        else {
             result.url = this.getImportedDir(uuid) + '/' + uuid + '.json';
         }
         return result;
