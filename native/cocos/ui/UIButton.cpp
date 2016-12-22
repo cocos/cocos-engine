@@ -790,7 +790,7 @@ void Button::setTitleFontName(const std::string& fontName)
         std::transform(lowerCasedFontName.begin(), lowerCasedFontName.end(), lowerCasedFontName.begin(), ::tolower);
         if (lowerCasedFontName.find(".fnt") != std::string::npos)
         {
-            _titleRenderer->setBMFontFilePath(fontName);
+            _titleRenderer->setBMFontFilePath(fontName, nullptr);
             _type = FontType::BMFONT;
         }
         else

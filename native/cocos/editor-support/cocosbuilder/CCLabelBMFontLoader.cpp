@@ -36,7 +36,7 @@ void LabelBMFontLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, 
 
 void LabelBMFontLoader::onHandlePropTypeFntFile(Node * pNode, Node * pParent, const char * pPropertyName, const char* pFntFile, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_FNTFILE) == 0) {
-        ((Label *)pNode)->setBMFontFilePath(pFntFile);
+        ((Label *)pNode)->setBMFontFilePath(pFntFile, nullptr);
     } else {
         NodeLoader::onHandlePropTypeFntFile(pNode, pParent, pPropertyName, pFntFile, ccbReader);
     }

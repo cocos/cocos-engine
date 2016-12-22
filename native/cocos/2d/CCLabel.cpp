@@ -41,6 +41,7 @@
 #include "base/CCEventDispatcher.h"
 #include "base/CCEventCustom.h"
 #include "2d/CCFontFNT.h"
+#include "2d/CCSpriteFrame.h"
 
 NS_CC_BEGIN
 
@@ -229,11 +230,18 @@ Label* Label::createWithTTF(const TTFConfig& ttfConfig, const std::string& text,
     return nullptr;
 }
 
-Label* Label::createWithBMFont(const std::string& bmfontFilePath, const std::string& text,const TextHAlignment& hAlignment /* = TextHAlignment::LEFT */, int maxLineWidth /* = 0 */, const Vec2& imageOffset /* = Vec2::ZERO */)
+Label* Label::createWithBMFont(const std::string& fntDataString,
+                               const std::string& text,
+                               SpriteFrame* spriteFrame,
+                               const TextHAlignment& hAlignment /* = TextHAlignment::LEFT */,
+                               int maxLineWidth /* = 0 */,
+                               const Vec2& imageOffset /* = Vec2::ZERO */)
 {
     auto ret = new (std::nothrow) Label(hAlignment);
 
-    if (ret && ret->setBMFontFilePath(bmfontFilePath,imageOffset))
+    if (ret && ret->setBMFontFilePath(fntDataString,
+                                      spriteFrame,
+                                      imageOffset))
     {
         ret->setMaxLineWidth(maxLineWidth);
         ret->setString(text);
@@ -375,6 +383,7 @@ Label::Label(TextHAlignment hAlignment /* = TextHAlignment::LEFT */,
 , _italicsEnabled(false)
 , _underlineNode(nullptr)
 , _strikethroughEnabled(false)
+, _fntSpriteFrame(nullptr)
 {
     setAnchorPoint(Vec2::ANCHOR_MIDDLE);
     reset();
@@ -433,6 +442,7 @@ Label::~Label()
 
     CC_SAFE_RELEASE_NULL(_textSprite);
     CC_SAFE_RELEASE_NULL(_shadowNode);
+    CC_SAFE_RELEASE_NULL(_fntSpriteFrame);
 }
 
 void Label::reset()
@@ -441,6 +451,7 @@ void Label::reset()
     CC_SAFE_RELEASE_NULL(_shadowNode);
     Node::removeAllChildrenWithCleanup(true);
     CC_SAFE_RELEASE_NULL(_reusedLetter);
+    
     _letters.clear();
     _batchNodes.clear();
     _lettersInfo.clear();
@@ -617,9 +628,14 @@ bool Label::setTTFConfig(const TTFConfig& ttfConfig)
     return setTTFConfigInternal(ttfConfig);
 }
 
-bool Label::setBMFontFilePath(const std::string& bmfontFilePath, const Vec2& imageOffset, float fontSize)
+bool Label::setBMFontFilePath(const std::string& fntDataString,
+                              SpriteFrame* spriteFrame,
+                              const Vec2& imageOffset,
+                              float fontSize)
 {
-    FontAtlas *newAtlas = FontAtlasCache::getFontAtlasFNT(bmfontFilePath,imageOffset);
+    FontAtlas *newAtlas = FontAtlasCache::getFontAtlasFNT(fntDataString,
+                                                          spriteFrame,
+                                                          imageOffset);
 
     if (!newAtlas)
     {
@@ -640,7 +656,9 @@ bool Label::setBMFontFilePath(const std::string& bmfontFilePath, const Vec2& ima
         _bmFontSize = fontSize;
     }
 
-    _bmFontPath = bmfontFilePath;
+    _bmFontPath = fntDataString;
+    _fntSpriteFrame = spriteFrame;
+    CC_SAFE_RETAIN(_fntSpriteFrame);
 
     _currentLabelType = LabelType::BMFONT;
     setFontAtlas(newAtlas);
@@ -939,7 +957,33 @@ bool Label::updateQuads()
 
             if (_reusedRect.size.height > 0.f && _reusedRect.size.width > 0.f)
             {
-                _reusedLetter->setTextureRect(_reusedRect, false, _reusedRect.size);
+                if(_currentLabelType == Label::LabelType::BMFONT) {
+                    auto isRotated = _fntSpriteFrame->isRotated();
+                    auto spriteFrameRect = _fntSpriteFrame->getRect();
+                    auto originalSize = _fntSpriteFrame->getOriginalSize();
+                    auto offset = _fntSpriteFrame->getOffset();
+                    auto trimmedLeft = offset.x + (originalSize.width - spriteFrameRect.size.width) / 2;
+                    auto trimmedTop = offset.y - (originalSize.height - spriteFrameRect.size.height) / 2;
+
+                    if (!isRotated) {
+                        _reusedRect.origin.x += spriteFrameRect.origin.x - trimmedLeft;
+                        _reusedRect.origin.y += spriteFrameRect.origin.y + trimmedTop;
+                    } else {
+                        auto originalX = _reusedRect.origin.x;
+                        _reusedRect.origin.x = spriteFrameRect.origin.x + spriteFrameRect.size.height - _reusedRect.origin.y - _reusedRect.size.height - trimmedTop;
+                        _reusedRect.origin.y = originalX + spriteFrameRect.origin.y - trimmedLeft;
+                    }
+
+
+                    _reusedLetter->setTextureRect(_reusedRect, isRotated, _reusedRect.size);
+                } else {
+                    _reusedLetter->setTextureRect(_reusedRect, false, _reusedRect.size);
+
+                }
+
+
+
+
                 float letterPositionX = _lettersInfo[ctr].positionX + _linesOffsetX[_lettersInfo[ctr].lineIndex];
                 _reusedLetter->setPosition(letterPositionX, py);
                 auto index = static_cast<int>(_batchNodes.at(letterDef.textureID)->getTextureAtlas()->getTotalQuads());
@@ -1000,7 +1044,9 @@ bool Label::setTTFConfigInternal(const TTFConfig& ttfConfig)
 void Label::setBMFontSizeInternal(float fontSize)
 {
     if(_currentLabelType == LabelType::BMFONT){
-        this->setBMFontFilePath(_bmFontPath, Vec2::ZERO, fontSize);
+        this->setBMFontFilePath(_bmFontPath,
+                                _fntSpriteFrame,
+                                Vec2::ZERO, fontSize);
         _contentDirty = true;
     }
 }
@@ -1260,7 +1306,7 @@ void Label::createSpriteForSystemFont(const FontDefinition& fontDef)
     } else {
         this->setContentSize(newSize);
     }
-    
+
     texture->release();
     if (_blendFuncDirty)
     {

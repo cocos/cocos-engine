@@ -86,7 +86,7 @@ void TextBMFont::setFntFile(const std::string& fileName)
         return;
     }
     _fntFileName = fileName;
-    _labelBMFontRenderer->setBMFontFilePath(fileName);
+    _labelBMFontRenderer->setBMFontFilePath(fileName, nullptr);
 
     updateContentSizeWithTextureSize(_labelBMFontRenderer->getContentSize());
     _labelBMFontRendererAdaptDirty = true;

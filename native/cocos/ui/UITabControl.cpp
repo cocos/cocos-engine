@@ -628,7 +628,7 @@ namespace ui
             std::transform(lowerCasedFontName.begin(), lowerCasedFontName.end(), lowerCasedFontName.begin(), ::tolower);
             if (lowerCasedFontName.find(".fnt") != std::string::npos)
             {
-                _tabLabelRender->setBMFontFilePath(fontName);
+                _tabLabelRender->setBMFontFilePath(fontName, nullptr);
                 _fontType = FontType::BMFONT;
             }
             else

@@ -34,6 +34,7 @@
 #include "base/CCMap.h"
 #include "base/ccUTF8.h"
 #include "renderer/CCTextureCache.h"
+#include "2d/CCSpriteFrame.h"
 
 using namespace std;
 NS_CC_BEGIN
@@ -98,6 +99,8 @@ typedef struct _KerningHashElement
     UT_hash_handle     hh;
 } tKerningHashElement;
 
+class SpriteFrame;
+
 /** @brief BMFontConfiguration has parsed configuration of the .fnt file
 @since v0.8
 */
@@ -114,6 +117,7 @@ public://@public
     BMFontPadding    _padding;
     //! atlas name
     std::string _atlasName;
+    SpriteFrame* _spriteFrame;
     //! values for kerning
     tKerningHashElement *_kerningDictionary;
 
@@ -138,17 +142,17 @@ public:
     std::string description() const;
 
     /** allocates a BMFontConfiguration with a FNT file */
-    static BMFontConfiguration * create(const std::string& FNTfile);
+    static BMFontConfiguration * create(const std::string& fntDataString, SpriteFrame* spriteFrame);
 
     /** initializes a BitmapFontConfiguration with a FNT file */
-    bool initWithFNTfile(const std::string& FNTfile);
+    bool initWithFNTfile(const std::string& fntDataString, SpriteFrame* spriteFrame);
 
     inline const std::string& getAtlasName(){ return _atlasName; }
     inline void setAtlasName(const std::string& atlasName) { _atlasName = atlasName; }
 
     std::set<unsigned int>* getCharacterSet() const;
 private:
-    std::set<unsigned int>* parseConfigFile(const std::string& controlFile);
+    std::set<unsigned int>* parseConfigFile(const std::string& fntDataString);
     std::set<unsigned int>* parseBinaryConfigFile(unsigned char* pData, unsigned long size, const std::string& controlFile);
     void parseCharacterDefinition(const char* line, BMFontDef *characterDefinition);
     void parseInfoArguments(const char* line);
@@ -159,29 +163,13 @@ private:
     void purgeFontDefDictionary();
 };
 
-//
-//FNTConfig Cache - free functions
-//
-static Map<std::string, BMFontConfiguration*>* s_configurations = nullptr;
 
-BMFontConfiguration* FNTConfigLoadFile(const std::string& fntFile)
+BMFontConfiguration* FNTConfigLoadFile(const std::string& fntDataString, SpriteFrame* spriteFrame)
 {
     BMFontConfiguration* ret = nullptr;
 
-    if( s_configurations == nullptr )
-    {
-        s_configurations = new (std::nothrow) Map<std::string, BMFontConfiguration*>();
-    }
 
-    ret = s_configurations->at(fntFile);
-    if( ret == nullptr )
-    {
-        ret = BMFontConfiguration::create(fntFile);
-        if (ret)
-        {
-            s_configurations->insert(fntFile, ret);
-        }
-    }
+    ret = BMFontConfiguration::create(fntDataString, spriteFrame);
 
     return ret;
 }
@@ -190,10 +178,10 @@ BMFontConfiguration* FNTConfigLoadFile(const std::string& fntFile)
 //BitmapFontConfiguration
 //
 
-BMFontConfiguration * BMFontConfiguration::create(const std::string& FNTfile)
+BMFontConfiguration * BMFontConfiguration::create(const std::string& fntDataString, SpriteFrame* spriteFrame)
 {
     BMFontConfiguration * ret = new (std::nothrow) BMFontConfiguration();
-    if (ret->initWithFNTfile(FNTfile))
+    if (ret->initWithFNTfile(fntDataString, spriteFrame))
     {
         ret->autorelease();
         return ret;
@@ -202,12 +190,13 @@ BMFontConfiguration * BMFontConfiguration::create(const std::string& FNTfile)
     return nullptr;
 }
 
-bool BMFontConfiguration::initWithFNTfile(const std::string& FNTfile)
+bool BMFontConfiguration::initWithFNTfile(const std::string& fntDataString, SpriteFrame* spriteFrame)
 {
     _kerningDictionary = nullptr;
     _fontDefDictionary = nullptr;
+    _spriteFrame = spriteFrame;
 
-    _characterSet = this->parseConfigFile(FNTfile);
+    _characterSet = this->parseConfigFile(fntDataString);
 
     if (! _characterSet)
     {
@@ -273,24 +262,19 @@ void BMFontConfiguration::purgeFontDefDictionary()
     }
 }
 
-std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& controlFile)
+std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& fntDataString)
 {
-    std::string data;
-    auto parseRet = FileUtils::getInstance()->getContents(controlFile, &data);
-    if (parseRet != FileUtils::Status::OK || data.empty())
-    {
-        return nullptr;
-    }
+    std::string data = fntDataString;
 
     if (data.size() >= (sizeof("BMP") - 1)
         && memcmp("BMF", data.c_str(), sizeof("BMP") - 1) == 0) {
         // Handle fnt file of binary format
-        std::set<unsigned int>* ret = parseBinaryConfigFile((unsigned char*)&data.front(), data.size(), controlFile);
+        std::set<unsigned int>* ret = parseBinaryConfigFile((unsigned char*)&data.front(), data.size(), fntDataString);
         return ret;
     }
     if (data[0] == 0)
     {
-        CCLOG("cocos2d: Error parsing FNTfile %s", controlFile.c_str());
+        CCLOG("cocos2d: Error parsing FNTfile %s", fntDataString.c_str());
         return nullptr;
     }
     auto contents = data.c_str();
@@ -338,7 +322,7 @@ std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& 
         }
         else if (memcmp(line, "page id", 7) == 0)
         {
-            this->parseImageFileName(line, controlFile);
+            this->parseImageFileName(line, fntDataString);
         }
         else if (memcmp(line, "chars c", 7) == 0)
         {
@@ -537,7 +521,7 @@ void BMFontConfiguration::parseImageFileName(const char* line, const std::string
     // file
     char fileName[255];
     sscanf(strchr(line,'"') + 1, "%[^\"]", fileName);
-    _atlasName = FileUtils::getInstance()->fullPathFromRelativeFile(fileName, fntFile);
+    _atlasName = fntFile;
 }
 
 void BMFontConfiguration::parseInfoArguments(const char* line)
@@ -643,14 +627,22 @@ void BMFontConfiguration::parseKerningEntry(const char* line)
     HASH_ADD_INT(_kerningDictionary,key, element);
 }
 
-FontFNT * FontFNT::create(const std::string& fntFilePath, const Vec2& imageOffset /* = Vec2::ZERO */)
+FontFNT * FontFNT::create(const std::string& fntFilePath,
+                          SpriteFrame* spriteFrame,
+                          const Vec2& imageOffset /* = Vec2::ZERO */)
 {
-    BMFontConfiguration *newConf = FNTConfigLoadFile(fntFilePath);
+    BMFontConfiguration *newConf = FNTConfigLoadFile(fntFilePath, spriteFrame);
     if (!newConf)
         return nullptr;
 
     // add the texture
-    Texture2D *tempTexture = Director::getInstance()->getTextureCache()->addImage(newConf->getAtlasName());
+    Texture2D *tempTexture = nullptr;
+    if (spriteFrame) {
+        tempTexture = spriteFrame->getTexture();
+    } else {
+        tempTexture = Director::getInstance()->getTextureCache()->addImage(newConf->getAtlasName());
+    }
+
     if (!tempTexture)
     {
         return nullptr;
@@ -680,11 +672,6 @@ FontFNT::~FontFNT()
 
 void FontFNT::purgeCachedData()
 {
-    if (s_configurations)
-    {
-        s_configurations->clear();
-        CC_SAFE_DELETE(s_configurations);
-    }
 }
 
 int * FontFNT::getHorizontalKerningForTextUTF16(const std::u16string& text, int &outNumLetters) const
@@ -801,8 +788,11 @@ FontAtlas * FontFNT::createFontAtlas()
     }
 
     // add the texture (only one texture for now)
+    Texture2D *tempTexture = nullptr;
+    if(_configuration->_spriteFrame) {
+        tempTexture = _configuration->_spriteFrame->getTexture();
+    }
 
-    Texture2D *tempTexture = Director::getInstance()->getTextureCache()->addImage(_configuration->getAtlasName());
     if (!tempTexture) {
         CC_SAFE_RELEASE(tempAtlas);
         return nullptr;
@@ -813,27 +803,6 @@ FontAtlas * FontFNT::createFontAtlas()
 
     // done
     return tempAtlas;
-}
-
-void FontFNT::reloadBMFontResource(const std::string& fntFilePath)
-{
-    if (s_configurations == nullptr)
-    {
-        s_configurations = new (std::nothrow) Map<std::string, BMFontConfiguration*>();
-    }
-
-    BMFontConfiguration *ret = s_configurations->at(fntFilePath);
-    if (ret != nullptr)
-    {
-        s_configurations->erase(fntFilePath);
-    }
-    ret = BMFontConfiguration::create(fntFilePath);
-    if (ret)
-    {
-        s_configurations->insert(fntFilePath, ret);
-        Director::getInstance()->getTextureCache()->reloadTexture(ret->getAtlasName());
-
-    }
 }
 
 NS_CC_END
