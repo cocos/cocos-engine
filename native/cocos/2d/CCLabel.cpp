@@ -960,14 +960,18 @@ bool Label::updateQuads()
                 if(_currentLabelType == Label::LabelType::BMFONT) {
                     auto isRotated = _fntSpriteFrame->isRotated();
                     auto spriteFrameRect = _fntSpriteFrame->getRect();
+                    auto originalSize = _fntSpriteFrame->getOriginalSize();
+                    auto offset = _fntSpriteFrame->getOffset();
+                    auto trimmedLeft = offset.x + (originalSize.width - spriteFrameRect.size.width) / 2;
+                    auto trimmedTop = offset.y - (originalSize.height - spriteFrameRect.size.height) / 2;
 
                     if (!isRotated) {
-                        _reusedRect.origin.x += spriteFrameRect.origin.x;
-                        _reusedRect.origin.y += spriteFrameRect.origin.y;
+                        _reusedRect.origin.x += spriteFrameRect.origin.x - trimmedLeft;
+                        _reusedRect.origin.y += spriteFrameRect.origin.y + trimmedTop;
                     } else {
                         auto originalX = _reusedRect.origin.x;
-                        _reusedRect.origin.x = spriteFrameRect.origin.x + spriteFrameRect.size.height - _reusedRect.origin.y - _reusedRect.size.height;
-                        _reusedRect.origin.y = originalX + spriteFrameRect.origin.y;
+                        _reusedRect.origin.x = spriteFrameRect.origin.x + spriteFrameRect.size.height - _reusedRect.origin.y - _reusedRect.size.height - trimmedTop;
+                        _reusedRect.origin.y = originalX + spriteFrameRect.origin.y - trimmedLeft;
                     }
 
 
