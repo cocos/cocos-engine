@@ -373,9 +373,13 @@ var Label = cc.Class({
                     }
 
                     var isAsset = value instanceof cc.Font;
-                    var fntRawUrl = isAsset ? value.rawUrl : '';
-                    var textureUrl = isAsset ? value.texture : '';
-                    this._sgNode.setFontFileOrFamily(fntRawUrl, textureUrl);
+
+                    if (this.font instanceof cc.BitmapFont) {
+                        this._sgNode.setFontFileOrFamily(this.font.fntDataStr, this.font.spriteFrame);
+                    } else {
+                        var ttfName = isAsset ? value.rawUrl : '';
+                        this._sgNode.setFontFileOrFamily(ttfName);
+                    }
                 }
 
                 if (value instanceof cc.BitmapFont) {
@@ -462,19 +466,21 @@ var Label = cc.Class({
         }
 
         var isAsset = this.font instanceof cc.Font;
-        var fntRawUrl = isAsset ? this.font.rawUrl : '';
-        var textureUrl = isAsset ? this.font.texture : '';
+
+        var sgNode;
         if (this.font instanceof cc.BitmapFont) {
             this._bmFontOriginalSize = this.font.fontSize;
+            sgNode = this._sgNode = new _ccsg.Label(this.string, this.font.fntDataStr, this.font.spriteFrame);
+        } else {
+            var ttfName = isAsset ? this.font.rawUrl : '';
+            sgNode = this._sgNode = new _ccsg.Label(this.string, ttfName);
         }
-
-        var sgNode = this._sgNode = new _ccsg.Label(this.string, fntRawUrl, textureUrl);
-        sgNode.setVisible(false);
 
         if (CC_JSB) {
             sgNode.retain();
         }
 
+        sgNode.setVisible(false);
         sgNode.setHorizontalAlign( this.horizontalAlign );
         sgNode.setVerticalAlign( this.verticalAlign );
         sgNode.setFontSize( this._fontSize );
