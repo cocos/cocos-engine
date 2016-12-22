@@ -6282,6 +6282,86 @@ bool js_cocos2dx_dragonbones_CCArmatureDisplay_dispose(JSContext *cx, uint32_t a
     JS_ReportError(cx, "js_cocos2dx_dragonbones_CCArmatureDisplay_dispose : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
+bool js_cocos2dx_dragonbones_CCArmatureDisplay_hasEventCallback(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    dragonBones::CCArmatureDisplay* cobj = (dragonBones::CCArmatureDisplay *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_hasEventCallback : Invalid Native Object");
+    if (argc == 0) {
+        bool ret = cobj->hasEventCallback();
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_CCArmatureDisplay_hasEventCallback : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_dragonbones_CCArmatureDisplay_setEventCallback(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    dragonBones::CCArmatureDisplay* cobj = (dragonBones::CCArmatureDisplay *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_setEventCallback : Invalid Native Object");
+    if (argc == 1) {
+        std::function<void (dragonBones::EventObject *)> arg0;
+        do {
+		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
+		    {
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        auto lambda = [=](dragonBones::EventObject* larg0) -> void {
+		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
+		            jsval largv[1];
+		            if (larg0) {
+		            largv[0] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::EventObject>(cx, (dragonBones::EventObject*)larg0));
+		        } else {
+		            largv[0] = JSVAL_NULL;
+		        };
+		            JS::RootedValue rval(cx);
+		            bool succeed = func->invoke(1, &largv[0], &rval);
+		            if (!succeed && JS_IsExceptionPending(cx)) {
+		                JS_ReportPendingException(cx);
+		            }
+		        };
+		        arg0 = lambda;
+		    }
+		    else
+		    {
+		        arg0 = nullptr;
+		    }
+		} while(0)
+		;
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_setEventCallback : Error processing arguments");
+        cobj->setEventCallback(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_CCArmatureDisplay_setEventCallback : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_dragonbones_CCArmatureDisplay_clearEventCallback(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    dragonBones::CCArmatureDisplay* cobj = (dragonBones::CCArmatureDisplay *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_clearEventCallback : Invalid Native Object");
+    if (argc == 0) {
+        cobj->clearEventCallback();
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_dragonbones_CCArmatureDisplay_clearEventCallback : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
 bool js_cocos2dx_dragonbones_CCArmatureDisplay_addEvent(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -6412,6 +6492,9 @@ void js_register_cocos2dx_dragonbones_CCArmatureDisplay(JSContext *cx, JS::Handl
         JS_FN("advanceTimeBySelf", js_cocos2dx_dragonbones_CCArmatureDisplay_advanceTimeBySelf, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("removeEventListener", js_cocos2dx_dragonbones_CCArmatureDisplay_removeEvent, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("dispose", js_cocos2dx_dragonbones_CCArmatureDisplay_dispose, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("hasEventCallback", js_cocos2dx_dragonbones_CCArmatureDisplay_hasEventCallback, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setEventCallback", js_cocos2dx_dragonbones_CCArmatureDisplay_setEventCallback, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("clearEventCallback", js_cocos2dx_dragonbones_CCArmatureDisplay_clearEventCallback, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("addEventListener", js_cocos2dx_dragonbones_CCArmatureDisplay_addEvent, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("hasEvent", js_cocos2dx_dragonbones_CCArmatureDisplay_hasEvent, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("armature", js_cocos2dx_dragonbones_CCArmatureDisplay_getArmature, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),

@@ -44,7 +44,7 @@ public:
 
     inline bool hasEvent(const std::string& type) const override
     {
-        return _dispatcher->isEnabled();
+        return _eventCallback || _dispatcher->isEnabled();
     }
 
     inline Armature* getArmature() const override 
@@ -56,6 +56,18 @@ public:
     {
         return _armature->getAnimation();
     }
+
+CC_CONSTRUCTOR_ACCESS:
+    // methods added for js bindings
+    void setEventCallback(const std::function<void(EventObject*)>& callback) {
+        this->_eventCallback = callback;
+    }
+    inline bool hasEventCallback() { return this->_eventCallback ? true : false; }
+    inline void clearEventCallback() { this->_eventCallback = nullptr; }
+
+private:
+    // added for js bindings
+    std::function<void(EventObject*)> _eventCallback;
 };
 
 /** @private */
