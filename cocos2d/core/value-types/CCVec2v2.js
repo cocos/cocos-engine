@@ -78,7 +78,7 @@ function Vec2 (x, y) {
     });
 }
 JS.extend(Vec2, ValueType);
-CCClass.fastDefine('cc.Vec2', Vec2, { x: 0, y: 0});
+CCClass.fastDefine('cc.Vec2v2', Vec2, { x: 0, y: 0});
 
 JS.mixin(Vec2.prototype, {
 
