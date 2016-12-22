@@ -194,9 +194,9 @@ JS.mixin(CCLoader.prototype, {
         }
 
         var self = this;
-        var singleRes = null;
+        var singleRes = false;
         if (!(resources instanceof Array)) {
-            singleRes = resources;
+            singleRes = true;
             resources = resources ? [resources] : [];
         }
 
@@ -223,7 +223,7 @@ JS.mixin(CCLoader.prototype, {
                     return;
 
                 if (singleRes) {
-                    var id = singleRes.url || singleRes.uuid || singleRes;
+                    var id = res.url;
                     completeCallback.call(self, items.getError(id), items.getContent(id));
                 }
                 else {
@@ -311,16 +311,20 @@ JS.mixin(CCLoader.prototype, {
     // Find the asset's reference id in loader, asset could be asset object, asset uuid or asset url
     _getReferenceKey: function (assetOrUrlOrUuid) {
         var key;
-        if (typeof assetOrUrlOrUuid === 'string') {
-            key = this._getResUuid(assetOrUrlOrUuid) || assetOrUrlOrUuid;
-        }
-        else if (typeof assetOrUrlOrUuid === 'object') {
+        if (typeof assetOrUrlOrUuid === 'object') {
             key = assetOrUrlOrUuid._uuid || null;
+        }
+        else if (typeof assetOrUrlOrUuid === 'string') {
+            key = this._getResUuid(assetOrUrlOrUuid) || assetOrUrlOrUuid;
         }
         else if (CC_DEV) {
             cc.warnID(4800, assetOrUrlOrUuid);
         }
-        key = cc.AssetLibrary._getAssetUrl(key) || key;
+        var isUuid = cc.AssetLibrary._getAssetUrl(key);
+        if (isUuid) {
+            cc.AssetLibrary._getAssetInfoInRuntime(key, _info);
+            key = _info.url;
+        }
         return key;
     },
 
@@ -453,7 +457,8 @@ JS.mixin(CCLoader.prototype, {
                 var results = [];
                 for (var i = 0; i < res.length; ++i) {
                     var uuid = res[i].uuid;
-                    var item = items.getContent(uuid);
+                    var id = this._getReferenceKey(uuid);
+                    var item = items.getContent(id);
                     if (item) {
                         // should not release these assets, even if they are static referenced in the scene.
                         self.setAutoReleaseRecursively(uuid, false);
