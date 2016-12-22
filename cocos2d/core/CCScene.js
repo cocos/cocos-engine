@@ -36,7 +36,7 @@ var NIL = function () {};
  */
 cc.Scene = cc.Class({
     name: 'cc.Scene',
-    extends: require('./utils/base-node'),
+    extends: require('./CCNode'),
 
     properties: {
 
