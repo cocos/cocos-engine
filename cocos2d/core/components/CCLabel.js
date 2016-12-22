@@ -373,12 +373,12 @@ var Label = cc.Class({
                     }
 
                     var isAsset = value instanceof cc.Font;
-                    var fntRawUrl = isAsset ? value.rawUrl : '';
 
                     if (this.font instanceof cc.BitmapFont) {
                         this._sgNode.setFontFileOrFamily(this.font.fntDataStr, this.font.spriteFrame);
                     } else {
-                        this._sgNode.setFontFileOrFamily(fntRawUrl);
+                        var ttfName = isAsset ? value.rawUrl : '';
+                        this._sgNode.setFontFileOrFamily(ttfName);
                     }
                 }
 
@@ -466,14 +466,14 @@ var Label = cc.Class({
         }
 
         var isAsset = this.font instanceof cc.Font;
-        var fntRawUrl = isAsset ? this.font.rawUrl : '';
 
         var sgNode;
         if (this.font instanceof cc.BitmapFont) {
             this._bmFontOriginalSize = this.font.fontSize;
             sgNode = this._sgNode = new _ccsg.Label(this.string, this.font.fntDataStr, this.font.spriteFrame);
         } else {
-            sgNode = this._sgNode = new _ccsg.Label(this.string, fntRawUrl);
+            var ttfName = isAsset ? this.font.rawUrl : '';
+            sgNode = this._sgNode = new _ccsg.Label(this.string, ttfName);
         }
 
         if (CC_JSB) {
