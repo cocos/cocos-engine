@@ -344,7 +344,9 @@ dragonBones.ArmatureDisplay = cc.Class({
         var self = this;
 
         // discard exists sgNode
+        var listenersBefore = null;
         if (self._sgNode) {
+            listenersBefore = self._sgNode._bubblingListeners; // get the listeners added before
             if ( self.node._sizeProvider === self._sgNode ) {
                 self.node._sizeProvider = null;
             }
@@ -360,6 +362,10 @@ dragonBones.ArmatureDisplay = cc.Class({
             }
             if ( !self.enabledInHierarchy ) {
                 sgNode.setVisible(false);
+            }
+
+            if (listenersBefore) {
+                sgNode._bubblingListeners = listenersBefore; // using the listeners added before
             }
 
             self._initSgNode();
