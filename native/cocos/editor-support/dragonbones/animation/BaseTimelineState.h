@@ -24,14 +24,14 @@ public:
 protected:
     bool _isReverse;
     bool _hasAsynchronyTimeline;
+    unsigned _frameRate;
     unsigned _keyFrameCount;
     unsigned _frameCount;
     float _position;
     float _duration;
-    float _clipDutation;
+    float _animationiDutation;
     float _timeScale;
     float _timeOffset;
-    float _timeToFrameSccale;
     T* _currentFrame;
     Armature* _armature;
     AnimationState* _animationState;
@@ -45,7 +45,7 @@ protected:
     {
         _isCompleted = false;
         _currentPlayTimes = 0;
-        _currentTime = 0.f;
+        _currentTime = -1.f;
         _timeline = nullptr;
 
         _isReverse = false;
@@ -54,95 +54,27 @@ protected:
         _frameCount = 0;
         _position = 0.f;
         _duration = 0.f;
-        _clipDutation = 0.f;
+        _animationiDutation = 0.f;
         _timeScale = 1.f;
         _timeOffset = 0.f;
-        _timeToFrameSccale = 0.f;
         _currentFrame = nullptr;
         _armature = nullptr;
         _animationState = nullptr;
     }
 
-    virtual void _onFadeIn() {}
     virtual void _onUpdateFrame(bool isUpdate) {}
     virtual void _onArriveAtFrame(bool isUpdate) {}
-    virtual void _onCrossFrame(T* frame) 
-    {
-        for (const auto actionData : frame->actions)
-        {
-            if (actionData->slot)
-            {
-                const auto slot = _armature->getSlot(actionData->slot->name);
-                if (slot)
-                {
-                    const auto childArmature = slot->getChildArmature();
-                    if (childArmature)
-                    {
-                        childArmature->_action = actionData;
-                    }
-                }
-            }
-            else if (actionData->bone)
-            {
-                for (const auto slot : _armature->getSlots())
-                {
-                    const auto childArmature = slot->getChildArmature();
-                    if (childArmature)
-                    {
-                        childArmature->_action = actionData;
-                    }
-                }
-            }
-            else
-            {
-                _armature->_action = actionData;
-            }
-        }
-        
-        const auto eventDispatcher = _armature->_display;
-
-        for (const auto eventData : frame->events)
-        {
-            std::string eventType;
-            switch (eventData->type)
-            {
-                case EventType::Frame:
-                    eventType = EventObject::FRAME_EVENT;
-                    break;
-
-                case EventType::Sound:
-                    eventType = EventObject::SOUND_EVENT;
-                    break;
-            }
-
-            if (eventDispatcher->hasEvent(eventType))
-            {
-                const auto eventObject = BaseObject::borrowObject<EventObject>();
-                eventObject->animationState = _animationState;
-
-                if (eventData->bone)
-                {
-                    eventObject->bone = _armature->getBone(eventData->bone->name);
-                }
-
-                if (eventData->slot)
-                {
-                    eventObject->slot = _armature->getSlot(eventData->slot->name);
-                }
-
-                eventObject->name = eventData->name;
-                //eventObject->data = eventData->data; // TODO
-
-                _armature->_bufferEvent(eventObject, eventType);
-            }
-        }
-    }
 
     bool _setCurrentTime(float value)
     {
         unsigned currentPlayTimes = 0;
 
-        if (_hasAsynchronyTimeline)
+        if (_keyFrameCount == 1 && (void*)this != (void*)_animationState->_timeline)
+        {
+            _isCompleted = true;
+            currentPlayTimes = 1;
+        }
+        else if (_hasAsynchronyTimeline)
         {
             const auto playTimes = _animationState->playTimes;
             const auto totalTimes = playTimes * _duration;
@@ -150,7 +82,7 @@ protected:
             value *= _timeScale;
             if (_timeOffset != 0.f)
             {
-                value += _timeOffset * _clipDutation;
+                value += _timeOffset * _animationiDutation;
             }
 
             if (playTimes > 0 && (value >= totalTimes || value <= -totalTimes))
@@ -201,11 +133,6 @@ protected:
             return false;
         }
 
-        if (_keyFrameCount == 1 && value > _position && (void*)this != (void*)_animationState->_timeline)
-        {
-            _isCompleted = true;
-        }
-
         _isReverse = _currentTime > value && _currentPlayTimes == currentPlayTimes;
         _currentTime = value;
         _currentPlayTimes = currentPlayTimes;
@@ -214,32 +141,7 @@ protected:
     }
 
 public:
-    void setCurrentTime(float value)
-    {
-        _setCurrentTime(value);
-
-        switch (_keyFrameCount)
-        {
-            case 0:
-                break;
-
-            case 1:
-                _currentFrame = _timeline->frames[0];
-                _onArriveAtFrame(false);
-                _onUpdateFrame(false);
-                break;
-
-            default:
-                _currentFrame = _timeline->frames[(unsigned)(_currentTime * _timeToFrameSccale)];
-                _onArriveAtFrame(false);
-                _onUpdateFrame(false);
-                break;
-        }
-
-        _currentFrame = nullptr;
-    }
-
-    void fadeIn(Armature* armature, AnimationState* animationState, M* timelineData, float time)
+    virtual void fadeIn(Armature* armature, AnimationState* animationState, M* timelineData, float time)
     {
         _armature = armature;
         _animationState = animationState;
@@ -247,80 +149,30 @@ public:
 
         const auto isMainTimeline = (void*)this == (void*)_animationState->_timeline;
 
-        _hasAsynchronyTimeline = isMainTimeline || _animationState->getClip().hasAsynchronyTimeline;
+        _hasAsynchronyTimeline = isMainTimeline || _animationState->getAnimationData().hasAsynchronyTimeline;
+        _frameRate = _armature->getArmatureData().frameRate;
         _keyFrameCount = _timeline->frames.size();
-        _frameCount = _animationState->getClip().frameCount;
+        _frameCount = _animationState->getAnimationData().frameCount;
         _position = _animationState->_position;
         _duration = _animationState->_duration;
-        _clipDutation = _animationState->_clipDutation;
+        _animationiDutation = _animationState->getAnimationData().duration;
         _timeScale = isMainTimeline ? 1.f : (1.f / _timeline->scale);
         _timeOffset = isMainTimeline ? 0.f : _timeline->offset;
-        _timeToFrameSccale = _frameCount /_clipDutation;
-
-        _onFadeIn();
-
-        setCurrentTime(time);
     }
 
-    virtual void fadeOut() 
-    {
-    }
+    virtual void fadeOut() {}
 
     virtual void update(float time)
     {
-        const auto prevTime = _currentTime;
-
-        if (!_isCompleted && _setCurrentTime(time) && _keyFrameCount)
+        if (!_isCompleted && _setCurrentTime(time))
         {
-            const unsigned currentFrameIndex = _keyFrameCount > 1 ? unsigned(_currentTime * _timeToFrameSccale) : 0;
+            const unsigned currentFrameIndex = _keyFrameCount > 1 ? unsigned(_currentTime * _frameRate) : 0;
             const auto currentFrame = _timeline->frames[currentFrameIndex];
+
             if (_currentFrame != currentFrame)
             {
-                if (_keyFrameCount > 1)
-                {
-                    auto crossedFrame = _currentFrame ? _currentFrame : currentFrame->prev;
-                    _currentFrame = currentFrame;
-
-                    if (_isReverse)
-                    {
-                        while (crossedFrame != currentFrame)
-                        {
-                            if (!crossedFrame)
-                            {
-                                const auto prevFrameIndex = unsigned(prevTime * _timeToFrameSccale);
-                                crossedFrame = _timeline->frames[prevFrameIndex];
-                            }
-
-                            _onCrossFrame(crossedFrame);
-                            crossedFrame = crossedFrame->prev;
-                        }
-                    }
-                    else
-                    {
-                        while (crossedFrame != currentFrame)
-                        {
-                            if (crossedFrame)
-                            {
-                                crossedFrame = crossedFrame->next;
-                            }
-                            else
-                            {
-                                const auto prevFrameIndex = unsigned(prevTime * _timeToFrameSccale);
-                                crossedFrame = _timeline->frames[prevFrameIndex];
-                            }
-
-                            _onCrossFrame(crossedFrame);
-                        }
-                    }
-
-                    _onArriveAtFrame(true);
-                }
-                else
-                {
-                    _currentFrame = currentFrame;
-                    _onCrossFrame(_currentFrame);
-                    _onArriveAtFrame(true);
-                }
+                _currentFrame = currentFrame;
+                _onArriveAtFrame(true);
             }
 
             _onUpdateFrame(true);
@@ -336,6 +188,14 @@ public: // private
     /** @private */
     static float _getEasingValue(float progress, float easing)
     {
+        if (progress <= 0.f) {
+            return 0.f;
+        }
+        else if (progress >= 1.f)
+        {
+            return 1.f;
+        }
+
         auto value = 1.f;
         if (easing > 2.f)
         {
@@ -372,6 +232,14 @@ public: // private
     /** @private */
     static float _getCurveEasingValue(float progress, const std::vector<float>& sampling)
     {
+        if (progress <= 0.f) {
+            return 0.f;
+        }
+        else if (progress >= 1.f) 
+        {
+            return 1.f;
+        }
+
         auto x = 0.f;
         auto y = 0.f;
 
@@ -445,7 +313,7 @@ protected:
 
     virtual void _onUpdateFrame(bool isUpdate) override
     {
-        if (_tweenEasing != NO_TWEEN && this->_currentFrame->duration > 0)
+        if (_tweenEasing != NO_TWEEN)
         {
             _tweenProgress = (float)(this->_currentTime - this->_currentFrame->position + this->_position) / this->_currentFrame->duration;
             if (_tweenEasing != 0.f)
@@ -474,7 +342,7 @@ protected:
                 const auto tweenDuration = next.tweens[i] - current.tweens[i];
                 result.tweens[i] = tweenDuration;
 
-                if (tweenDuration != 0.f)
+                if (tweenDuration > 0.f)
                 {
                     tweenType = TweenType::Always;
                 }

@@ -19,8 +19,12 @@ class AnimationState final : public BaseObject
     BIND_CLASS_TYPE(AnimationState);
 
 public:
+    static bool stateActionEnabled;
+
+public:
     bool displayControl;
     bool additiveBlending;
+    bool actionEnabled;
     unsigned playTimes;
     float timeScale;
     float weight;
@@ -28,26 +32,32 @@ public:
     float fadeTotalTime;
 
 public:
+    /** @private */
     bool _isFadeOutComplete;
+    /** @private */
     int _layer;
+    /** @private */
     float _position;
+    /** @private */
     float _duration;
-    float _clipDutation;
+    /** @private */
     float _weightResult;
+    /** @private */
     float _fadeProgress;
+    /** @private */
     std::string _group;
+    /** @private */
     AnimationTimelineState* _timeline;
 
 private:
     bool _isPlaying;
     bool _isPausePlayhead;
     bool _isFadeOut;
-    unsigned _currentPlayTimes;
     float _fadeTime;
     float _time;
     std::string _name;
     Armature* _armature;
-    AnimationData* _clip;
+    AnimationData* _animationData;
     std::vector<std::string> _boneMask;
     std::vector<BoneTimelineState*> _boneTimelines;
     std::vector<SlotTimelineState*> _slotTimelines;
@@ -66,13 +76,18 @@ protected:
     void _onClear() override;
 
 public:
+    /** @private */
     bool _isDisabled(const Slot& slot) const;
+    /** @private */
     void _fadeIn(Armature* armature, AnimationData* clip, const std::string& animationName,
         unsigned playTimes, float position, float duration, float time, float timeScale, float fadeInTime,
         bool pausePlayhead
     );
+    /** @private */
     void _updateTimelineStates();
+    /** @private */
     void _updateFFDTimelineStates();
+    /** @private */
     void _advanceTime(float passedTime, float weightLeft, int index);
 
 public:
@@ -83,9 +98,10 @@ public:
     void removeBoneMask(const std::string& name, bool recursive = true);
     void removeAllBoneMask();
 
-    bool getIsCompleted() const;
+    bool isCompleted() const;
     float getCurrentTime() const;
     void setCurrentTime(float value);
+    unsigned getCurrentPlayTimes() const;
 
     bool containsBoneMask(const std::string& name)
     {
@@ -107,19 +123,14 @@ public:
         return _group;
     }
 
-    inline const AnimationData& getClip() const
+    inline const AnimationData& getAnimationData() const
     {
-        return *_clip;
+        return *_animationData;
     }
 
-    inline bool getIsPlaying() const
+    inline bool isPlaying() const
     {
-        return (_isPlaying && !getIsCompleted());
-    }
-
-    inline unsigned getCurrentPlayTimes() const
-    {
-        return _currentPlayTimes;
+        return (_isPlaying && !isCompleted());
     }
 
     inline float getTotalTime() const

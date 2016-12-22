@@ -111,6 +111,7 @@ const float ANGLE_TO_RADIAN = PI / 180.f;
 const float RADIAN_TO_ANGLE = 180.f / PI;
 const float SECOND_TO_MILLISECOND = 1000.f;
 const float NO_TWEEN = 100.f;
+// VERSION 4.7.2
 
 template <class T>
 std::string to_string(const T& value)

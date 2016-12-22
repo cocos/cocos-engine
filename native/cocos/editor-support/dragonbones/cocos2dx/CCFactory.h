@@ -10,6 +10,9 @@ DRAGONBONES_NAMESPACE_BEGIN
 class CCFactory : public BaseFactory
 {
 public:
+    static CCFactory factory;
+
+public:
     CCFactory();
     ~CCFactory();
 
@@ -26,7 +29,9 @@ public:
     virtual TextureAtlasData* loadTextureAtlasData(const std::string& filePath, const std::string& dragonBonesName = "", float scale = 0.f);
     virtual TextureAtlasData* parseTextureAtlasData(const std::string& atlasData, const std::string& texturePath, const std::string& dragonBonesName = "", float scale = 0.f);
     virtual CCArmatureDisplay* buildArmatureDisplay(const std::string& armatureName, const std::string& dragonBonesName = "", const std::string& skinName = "") const;
-    
+    virtual cocos2d::Sprite* getTextureDisplay(const std::string& textureName, const std::string& dragonBonesName = "") const;
+    virtual CCArmatureDisplay* getSoundEventManater() const;
+
 private:
     void _initTextureAtlasData(TextureAtlasData* atlasData);
 };

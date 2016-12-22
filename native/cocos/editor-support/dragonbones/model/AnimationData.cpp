@@ -16,17 +16,6 @@ void AnimationData::_onClear()
 {
     TimelineData::_onClear();
 
-    hasBoneTimelineEvent = false;
-    hasAsynchronyTimeline = false;
-    frameCount = 0;
-    playTimes = 0;
-    position = 0.f;
-    duration = 0.f;
-    fadeInTime = 0.f;
-    cacheTimeToFrameScale = 0.f;
-    name.clear();
-    animation = nullptr;
-
     for (const auto& pair : boneTimelines)
     {
         pair.second->returnToPool();
@@ -48,6 +37,15 @@ void AnimationData::_onClear()
         }
     }
 
+    hasAsynchronyTimeline = false;
+    frameCount = 0;
+    playTimes = 0;
+    position = 0.f;
+    duration = 0.f;
+    fadeInTime = 0.f;
+    cacheTimeToFrameScale = 0.f;
+    name.clear();
+    animation = nullptr;
     boneTimelines.clear();
     slotTimelines.clear();
     ffdTimelines.clear();
@@ -61,7 +59,7 @@ void AnimationData::cacheFrames(float value)
         return;
     }
 
-    const auto cacheFrameCount = (unsigned)std::max(std::floor(frameCount * scale * value), 1.f);
+    const auto cacheFrameCount = (unsigned)std::max(std::floor((frameCount + 1) * scale * value), 1.f);
 
     cacheTimeToFrameScale = cacheFrameCount / (duration + 0.0000001f);
     cachedFrames.resize(cacheFrameCount, false);

@@ -8,11 +8,11 @@ DRAGONBONES_NAMESPACE_BEGIN
 
 AnimationTimelineState::AnimationTimelineState() 
 {
-    _onClear();
+    this->_onClear();
 }
 AnimationTimelineState::~AnimationTimelineState() 
 {
-    _onClear();
+    this->_onClear();
 }
 
 void AnimationTimelineState::_onClear()
@@ -22,35 +22,169 @@ void AnimationTimelineState::_onClear()
     _isStarted = false;
 }
 
-void AnimationTimelineState::update(float time)
+void AnimationTimelineState::_onCrossFrame(AnimationFrameData* frame)
 {
-    const auto prevPlayTimes = this->_currentPlayTimes;
-    const auto eventDispatcher = this->_armature->_display;
-
-    if (!_isStarted && time != 0.f)
+    if (this->_animationState->actionEnabled)
     {
-        _isStarted = true;
-
-        if (eventDispatcher->hasEvent(EventObject::START))
+        for (const auto actionData : frame->actions)
         {
-            const auto eventObject = BaseObject::borrowObject<EventObject>();
-            eventObject->animationState = this->_animationState;
-            this->_armature->_bufferEvent(eventObject, EventObject::START);
+            this->_armature->_bufferAction(actionData);
         }
     }
 
-    TimelineState::update(time);
+    const auto eventDispatcher = this->_armature->_display;
 
-    if (prevPlayTimes != this->_currentPlayTimes)
+    for (const auto eventData : frame->events)
     {
-        const auto eventType = _isCompleted ? EventObject::COMPLETE : EventObject::LOOP_COMPLETE;
-        if (eventDispatcher->hasEvent(eventType))
+        std::string eventType;
+        switch (eventData->type)
+        {
+        case EventType::Frame:
+            eventType = EventObject::FRAME_EVENT;
+            break;
+
+        case EventType::Sound:
+            eventType = EventObject::SOUND_EVENT;
+            break;
+        }
+
+        if (
+            (eventData->type == EventType::Sound ? 
+                (EventObject::_soundEventManager ? EventObject::_soundEventManager : eventDispatcher) :
+                eventDispatcher
+            )->hasEvent(eventType)
+        )
         {
             const auto eventObject = BaseObject::borrowObject<EventObject>();
             eventObject->animationState = this->_animationState;
+
+            if (eventData->bone)
+            {
+                eventObject->bone = this->_armature->getBone(eventData->bone->name);
+            }
+
+            if (eventData->slot)
+            {
+                eventObject->slot = this->_armature->getSlot(eventData->slot->name);
+            }
+
+            eventObject->name = eventData->name;
+            //eventObject->data = eventData->data; // TODO
+
             this->_armature->_bufferEvent(eventObject, eventType);
         }
     }
+}
+
+void AnimationTimelineState::fadeIn(Armature* armature, AnimationState* animationState, AnimationData* timelineData, float time)
+{
+    TimelineState::fadeIn(armature, animationState, timelineData, time);
+
+    this->_currentTime = time;
+}
+
+void AnimationTimelineState::update(float time)
+{
+    const auto prevTime = this->_currentTime;
+    const auto prevPlayTimes = this->_currentPlayTimes;
+
+    if (!this->_isCompleted && this->_setCurrentTime(time))
+    {
+        const auto eventDispatcher = this->_armature->_display;
+
+        if (!_isStarted)
+        {
+            _isStarted = true;
+
+            if (eventDispatcher->hasEvent(EventObject::START)) 
+            {
+                const auto eventObject = BaseObject::borrowObject<EventObject>();
+                eventObject->animationState = this->_animationState;
+                this->_armature->_bufferEvent(eventObject, EventObject::START);
+            }
+        }
+
+        if (this->_keyFrameCount)
+        {
+            const auto currentFrameIndex = this->_keyFrameCount > 1 ? (unsigned)(this->_currentTime * this->_frameRate) : 0;
+            const auto currentFrame = this->_timeline->frames[currentFrameIndex];
+            if (this->_currentFrame != currentFrame) 
+            {
+                if (this->_keyFrameCount > 1) 
+                {
+                    auto crossedFrame = this->_currentFrame;
+                    this->_currentFrame = currentFrame;
+
+                    if (!crossedFrame) 
+                    {
+                        const auto prevFrameIndex = (unsigned)(prevTime * this->_frameRate);
+                        crossedFrame = this->_timeline->frames[prevFrameIndex];
+
+                        if (this->_isReverse) 
+                        {
+                        }
+                        else 
+                        {
+                            if (
+                                prevTime <= crossedFrame->position ||
+                                prevPlayTimes != this->_currentPlayTimes
+                            ) 
+                            {
+                                crossedFrame = crossedFrame->prev;
+                            }
+                        }
+                    }
+
+                    if (this->_isReverse) 
+                    {
+                        while (crossedFrame != currentFrame) 
+                        {
+                            this->_onCrossFrame(crossedFrame);
+                            crossedFrame = crossedFrame->prev;
+                        }
+                    }
+                    else 
+                    {
+                        while (crossedFrame != currentFrame) 
+                        {
+                            crossedFrame = crossedFrame->next;
+                            this->_onCrossFrame(crossedFrame);
+                        }
+                    }
+                }
+                else 
+                {
+                    this->_currentFrame = currentFrame;
+                    this->_onCrossFrame(this->_currentFrame);
+                }
+            }
+        }
+
+        if (prevPlayTimes != this->_currentPlayTimes)
+        {
+            if (eventDispatcher->hasEvent(EventObject::LOOP_COMPLETE)) 
+            {
+                const auto eventObject = BaseObject::borrowObject<EventObject>();
+                eventObject->animationState = this->_animationState;
+                this->_armature->_bufferEvent(eventObject, EventObject::LOOP_COMPLETE);
+            }
+
+            if (this->_isCompleted && eventDispatcher->hasEvent(EventObject::COMPLETE))
+            {
+                const auto eventObject = BaseObject::borrowObject<EventObject>();
+                eventObject->animationState = this->_animationState;
+                this->_armature->_bufferEvent(eventObject, EventObject::COMPLETE);
+            }
+
+            this->_currentFrame = nullptr;
+        }
+    }
+}
+
+void AnimationTimelineState::setCurrentTime(float value)
+{
+    this->_setCurrentTime(value);
+    this->_currentFrame = nullptr;
 }
 
 BoneTimelineState::BoneTimelineState() 
@@ -76,12 +210,6 @@ void BoneTimelineState::_onClear()
     _transform.identity();
     _currentTransform.identity();
     _durationTransform.identity();
-}
-
-void BoneTimelineState::_onFadeIn()
-{
-    _originTransform = &this->_timeline->originTransform;
-    _boneTransform = &bone->_animationPose;
 }
 
 void BoneTimelineState::_onArriveAtFrame(bool isUpdate)
@@ -234,6 +362,14 @@ void BoneTimelineState::_onUpdateFrame(bool isUpdate)
     }
 }
 
+void BoneTimelineState::fadeIn(Armature* armature, AnimationState* animationState, BoneTimelineData* timelineData, float time)
+{
+    TimelineState::fadeIn(armature, animationState, timelineData, time);
+
+    _originTransform = &this->_timeline->originTransform;
+    _boneTransform = &bone->_animationPose;
+}
+
 void BoneTimelineState::fadeOut()
 {
     _transform.skewX = Transform::normalizeRadian(_transform.skewX);
@@ -296,11 +432,6 @@ void SlotTimelineState::_onClear()
     _slotColor = nullptr;
     _color.identity();
     _durationColor.identity();
-}
-
-void SlotTimelineState::_onFadeIn()
-{
-    _slotColor = &slot->_colorTransform;
 }
 
 void SlotTimelineState::_onArriveAtFrame(bool isUpdate)
@@ -420,6 +551,13 @@ void SlotTimelineState::_onUpdateFrame(bool isUpdate)
     }
 }
 
+void SlotTimelineState::fadeIn(Armature* armature, AnimationState* animationState, SlotTimelineData* timelineData, float time)
+{
+    TimelineState::fadeIn(armature, animationState, timelineData, time);
+
+    _slotColor = &slot->_colorTransform;
+}
+
 void SlotTimelineState::fadeOut()
 {
     _tweenColor = TweenType::None;
@@ -494,15 +632,6 @@ void FFDTimelineState::_onClear()
     _ffdVertices.clear();
 }
 
-void FFDTimelineState::_onFadeIn()
-{
-    _slotFFDVertices = &slot->_ffdVertices;
-
-    _durationFFDFrame = BaseObject::borrowObject<ExtensionFrameData>();
-    _durationFFDFrame->tweens.resize(_slotFFDVertices->size(), 0.f);
-    _ffdVertices.resize(_slotFFDVertices->size(), 0.f);
-}
-
 void FFDTimelineState::_onArriveAtFrame(bool isUpdate)
 {
     TweenTimelineState::_onArriveAtFrame(isUpdate);
@@ -548,6 +677,16 @@ void FFDTimelineState::_onUpdateFrame(bool isUpdate)
 
         slot->_ffdDirty = true;
     }
+}
+
+void FFDTimelineState::fadeIn(Armature* armature, AnimationState* animationState, FFDTimelineData* timelineData, float time)
+{
+    TimelineState::fadeIn(armature, animationState, timelineData, time);
+
+    _slotFFDVertices = &slot->_ffdVertices;
+    _durationFFDFrame = BaseObject::borrowObject<ExtensionFrameData>();
+    _durationFFDFrame->tweens.resize(_slotFFDVertices->size(), 0.f);
+    _ffdVertices.resize(_slotFFDVertices->size(), 0.f);
 }
 
 void FFDTimelineState::update(float time)

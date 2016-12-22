@@ -27,11 +27,13 @@ const char* DataParser::IK = "ik";
 const char* DataParser::SLOT = "slot";
 const char* DataParser::SKIN = "skin";
 const char* DataParser::DISPLAY = "display";
-const char* DataParser::FFD = "ffd";
 const char* DataParser::ANIMATION = "animation";
+const char* DataParser::FFD = "ffd";
 const char* DataParser::FRAME = "frame";
-const char* DataParser::TRANSFORM = "transform";
+
 const char* DataParser::PIVOT = "pivot";
+const char* DataParser::TRANSFORM = "transform";
+const char* DataParser::AABB = "aabb";
 const char* DataParser::COLOR = "color";
 const char* DataParser::FILTER = "filter";
 
@@ -67,6 +69,8 @@ const char* DataParser::CURVE = "curve";
 const char* DataParser::EVENT = "event";
 const char* DataParser::SOUND = "sound";
 const char* DataParser::ACTION = "action";
+const char* DataParser::ACTIONS = "actions";
+const char* DataParser::DEFAULT_ACTIONS = "defaultActions";
 
 const char* DataParser::X = "x";
 const char* DataParser::Y = "y";
@@ -284,15 +288,23 @@ DataParser::DataParser() :
     _animation(nullptr),
     _timeline(nullptr),
 
-    _armatureScale(1.f),
+    _isOldData(false),
+    _isGlobalTransform(false),
+    _isAutoTween(false),
+    _animationTweenEasing(0.f),
+    _timelinePivot(),
+
     _helpPoint(),
+    _helpTransformA(),
+    _helpTransformB(),
+    _helpMatrix(),
     _rawBones()
 {}
 DataParser::~DataParser() {}
 
 void DataParser::_getTimelineFrameMatrix(const AnimationData& animation, BoneTimelineData& timeline, float position, Transform& transform) const
 {
-    const auto frameIndex = unsigned(position * animation.frameCount / animation.duration);
+    const auto frameIndex = unsigned(position * animation.frameCount / animation.duration); // floor
     if (timeline.frames.size() == 1 || frameIndex >= timeline.frames.size()) 
     {
         transform = timeline.frames[0]->transform; // copy
@@ -316,8 +328,14 @@ void DataParser::_getTimelineFrameMatrix(const AnimationData& animation, BoneTim
             tweenProgress = TweenTimelineState<BoneFrameData, BoneTimelineData>::_getCurveEasingValue(tweenProgress, frame->curve);
         }
 
-        transform = frame->next->transform; // copy
-        transform.minus(frame->transform);
+        const auto nextFrame = frame->next;
+
+        transform.x = nextFrame->transform.x - frame->transform.x;
+        transform.y = nextFrame->transform.y - frame->transform.y;
+        transform.skewX = Transform::normalizeRadian(nextFrame->transform.skewX - frame->transform.skewX);
+        transform.skewY = Transform::normalizeRadian(nextFrame->transform.skewY - frame->transform.skewY);
+        transform.scaleX = nextFrame->transform.scaleX - frame->transform.scaleX;
+        transform.scaleY = nextFrame->transform.scaleY - frame->transform.scaleY;
 
         transform.x = frame->transform.x + transform.x * tweenProgress;
         transform.y = frame->transform.y + transform.y * tweenProgress;
@@ -325,13 +343,15 @@ void DataParser::_getTimelineFrameMatrix(const AnimationData& animation, BoneTim
         transform.skewY = frame->transform.skewY + transform.skewY * tweenProgress;
         transform.scaleX = frame->transform.scaleX + transform.scaleX * tweenProgress;
         transform.scaleY = frame->transform.scaleY + transform.scaleY * tweenProgress;
-        transform.add(timeline.originTransform);
     }
+
+    transform.add(timeline.originTransform);
 }
 
 void DataParser::_globalToLocal(ArmatureData* armature) const
 {
-    auto bones = armature->getSortedBones();
+    std::vector<BoneFrameData*> keyFrames;
+    auto bones = armature->getSortedBones(); // copy
     bones.reserve(bones.size());
 
     for (const auto bone : bones) 
@@ -339,55 +359,60 @@ void DataParser::_globalToLocal(ArmatureData* armature) const
         if (bone->parent) 
         {
             bone->parent->transform.toMatrix(_helpMatrix);
+            _helpMatrix.invert();
             _helpMatrix.transformPoint(bone->transform.x, bone->transform.y, _helpPoint);
             bone->transform.x = _helpPoint.x;
             bone->transform.y = _helpPoint.y;
-            bone->transform.setRotation(
-                bone->transform.getRotation() + 
-                (bone->transform.getRotation() - bone->parent->transform.getRotation())
-            );
+            bone->transform.setRotation(bone->transform.getRotation() - bone->parent->transform.getRotation());
         }
-    }
 
-    for (const auto& animationPair : armature->animations) 
-    {
-        const auto animation = animationPair.second;
-        for (const auto& timelinePair : animation->boneTimelines) 
+        for (const auto& animationPair : armature->animations)
         {
-            const auto timeline = timelinePair.second;
-            if (timeline->bone->parent) 
-            {
-                const auto parentTimeline = animation->getBoneTimeline(timeline->bone->parent->name);
+            const auto animation = animationPair.second;
+            const auto timeline = animation->getBoneTimeline(bone->name);
 
-                for (const auto frame : timeline->frames) 
-                {
-                    _getTimelineFrameMatrix(*animation, *parentTimeline, frame->position, _helpTransform);
-                    frame->transform.add(timeline->originTransform);
-                    _helpTransform.toMatrix(_helpMatrix);
-                    _helpMatrix.transformPoint(frame->transform.x, frame->transform.y, _helpPoint);
-                    frame->transform.x = _helpPoint.x;
-                    frame->transform.y = _helpPoint.y;
-                    frame->transform.setRotation(
-                        frame->transform.getRotation() +
-                        (frame->transform.getRotation() - _helpTransform.getRotation())
-                    );
-                }
+            if (!timeline)
+            {
+                continue;
             }
 
-            _helpTransform = timeline->originTransform; // copy
-            auto isFirstFrame = true;
-            for (const auto frame : timeline->frames) 
-            {
-                frame->transform.add(_helpTransform);
-                frame->transform.minus(timeline->bone->transform);
+            const auto parentTimeline = bone->parent ? animation->getBoneTimeline(bone->parent->name) : nullptr;
+            _helpTransformB = timeline->originTransform; // copy
+            keyFrames.clear();
 
-                if (isFirstFrame) 
+            auto isFirstFrame = true;
+            for (const auto frame : timeline->frames)
+            {
+                if (std::find(keyFrames.cbegin(), keyFrames.cend(), frame) != keyFrames.cend())
+                {
+                    continue;
+                }
+
+                keyFrames.push_back(frame);
+
+                if (parentTimeline)
+                {
+                    _getTimelineFrameMatrix(*animation, *parentTimeline, frame->position, _helpTransformA);
+                    frame->transform.add(_helpTransformB);
+                    _helpTransformA.toMatrix(_helpMatrix);
+                    _helpMatrix.invert();
+                    _helpMatrix.transformPoint(frame->transform.x, frame->transform.y, _helpPoint);
+                    frame->transform.setRotation(frame->transform.getRotation() - _helpTransformA.getRotation());
+                }
+                else
+                {
+                    frame->transform.add(_helpTransformB);
+                }
+
+                frame->transform.minus(bone->transform);
+
+                if (isFirstFrame)
                 {
                     isFirstFrame = false;
-                    timeline->originTransform = frame->transform; // copy
+                    timeline->originTransform = frame->transform;
                     frame->transform.identity();
                 }
-                else 
+                else
                 {
                     frame->transform.minus(timeline->originTransform);
                 }
@@ -395,5 +420,96 @@ void DataParser::_globalToLocal(ArmatureData* armature) const
         }
     }
 }
+
+void DataParser::_mergeFrameToAnimationTimeline(float framePosition, const std::vector<ActionData*>& actions, const std::vector<EventData*>& events) const
+{
+    const auto frameStart = std::floor(framePosition * _armature->frameRate);
+    auto& frames = _animation->frames;
+
+    if (frames.empty()) 
+    {
+        const auto startFrame = BaseObject::borrowObject<AnimationFrameData>();
+        startFrame->position = 0.f;
+
+        if (_animation->frameCount > 1) 
+        {
+            frames.resize(_animation->frameCount + 1, nullptr);
+
+            const auto endFrame = BaseObject::borrowObject<AnimationFrameData>();
+            endFrame->position = _animation->frameCount / _armature->frameRate;
+
+            frames[0] = startFrame;
+            frames[_animation->frameCount] = endFrame;
+        }
+    }
+
+    auto insertedFrame = (AnimationFrameData*)nullptr;
+    const auto replacedFrame = frames[frameStart];
+
+    if (replacedFrame && (frameStart == 0 || frames[frameStart - 1] == replacedFrame->prev)) 
+    {
+        insertedFrame = replacedFrame;
+    }
+    else 
+    {
+        insertedFrame = BaseObject::borrowObject<AnimationFrameData>();
+        insertedFrame->position = frameStart / _armature->frameRate;
+        frames[frameStart] = insertedFrame;
+
+        for (size_t i = frameStart + 1, l = frames.size(); i < l; ++i) 
+        {
+            if (replacedFrame && frames[i] == replacedFrame) 
+            {
+                frames[i] = nullptr;
+            }
+        }
+    }
+
+    if (!actions.empty()) 
+    {
+        for (const auto action : actions)
+        {
+            insertedFrame->actions.push_back(action);
+        }
+    }
+
+    if (!events.empty()) 
+    {
+        for (const auto event : events) 
+        {
+            insertedFrame->events.push_back(event);
+        }
+    }
+
+    auto prevFrame = (AnimationFrameData*)nullptr;
+    auto nextFrame = (AnimationFrameData*)nullptr;
+    for (size_t i = 0, l = frames.size(); i < l; ++i) 
+    {
+        const auto currentFrame = frames[i];
+        if (currentFrame && nextFrame != currentFrame) 
+        {
+            nextFrame = currentFrame;
+
+            if (prevFrame) {
+                nextFrame->prev = prevFrame;
+                prevFrame->next = nextFrame;
+                prevFrame->duration = nextFrame->position - prevFrame->position;
+            }
+
+            prevFrame = nextFrame;
+        }
+        else 
+        {
+            frames[i] = prevFrame;
+        }
+    }
+
+    nextFrame->duration = _animation->duration - nextFrame->position;
+
+    nextFrame = frames[0];
+    prevFrame->next = nextFrame;
+    nextFrame->prev = prevFrame;
+}
+
 
 DRAGONBONES_NAMESPACE_END

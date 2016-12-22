@@ -6,7 +6,13 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-enum class AnimationFadeOutMode { None, SameLayer, SameGroup, SameLayerAndGroup, All };
+enum class AnimationFadeOutMode { 
+    None = 0, 
+    SameLayer = 1, 
+    SameGroup = 2, 
+    SameLayerAndGroup = 3, 
+    All  = 4
+};
 
 class Armature;
 class AnimationState;
@@ -49,7 +55,9 @@ protected:
     void _fadeOut(float fadeOutTime, int layer, const std::string& group, AnimationFadeOutMode fadeOutMode, bool pauseFadeOut);
 
 public:
+    /** @private */
     void _updateFFDTimelineStates();
+    /** @private */
     void _advanceTime(float passedTime);
 
 public:
@@ -69,11 +77,11 @@ public:
     AnimationState* gotoAndStopByFrame(const std::string& animationName, unsigned frame = 0);
     AnimationState* gotoAndStopByProgress(const std::string& animationName, float progress = 0.f);
     AnimationState* getState(const std::string& animationName) const;
-    void setAnimations(const std::map<std::string, AnimationData*>& value);
     bool hasAnimation(const std::string& animationName) const;
-    bool getIsPlaying() const;
-    bool getIsCompleted() const;
+    bool isPlaying() const;
+    bool isCompleted() const;
     const std::string& getLastAnimationName() const;
+    void setAnimations(const std::map<std::string, AnimationData*>& value);
 
     inline AnimationState* getLastAnimationState() const
     {

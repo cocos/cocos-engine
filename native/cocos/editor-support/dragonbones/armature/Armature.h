@@ -18,9 +18,6 @@ class Armature : public virtual IAnimateble, public virtual BaseObject
     BIND_CLASS_TYPE(Armature);
 
 public:
-    static IEventDispatcher* soundEventManager;
-
-public:
     void* userData;
 
 public: // private
@@ -42,8 +39,6 @@ public: // private
     void* _replacedTexture;
     /** @private */
     Slot* _parent;
-    /** @private */
-    ActionData* _action;
 
 protected:
     bool _delayDispose;
@@ -52,6 +47,7 @@ protected:
     bool _slotsDirty;
     std::vector<Bone*> _bones;
     std::vector<Slot*> _slots;
+    std::vector<ActionData*> _actions;
     std::vector<EventObject*> _events;
 
 public:
@@ -62,11 +58,12 @@ public:
 
 private:
     DRAGONBONES_DISALLOW_COPY_AND_ASSIGN(Armature);
+    void _sortBones();
+    void _sortSlots();
+    void _doAction(const ActionData& value);
 
 protected:
     void _onClear() override;
-    void _sortBones();
-    void _sortSlots();
 
 public:
     /** @private */
@@ -77,6 +74,8 @@ public:
     void _addSlotToSlotList(Slot* value);
     /** @private */
     void _removeSlotFromSlotList(Slot* value);
+    /** @private */
+    void _bufferAction(ActionData* value);
     /** @private */
     void _bufferEvent(EventObject* value, const std::string& type);
 

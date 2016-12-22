@@ -14,6 +14,8 @@ const char* EventObject::FADE_OUT_COMPLETE = "fadeOutComplete";
 const char* EventObject::FRAME_EVENT = "frameEvent";
 const char* EventObject::SOUND_EVENT = "soundEvent";
 
+IEventDispatcher* EventObject::_soundEventManager = nullptr;
+
 EventObject::EventObject()
 {
     _onClear();
@@ -34,6 +36,7 @@ void EventObject::_onClear()
     bone = nullptr;
     slot = nullptr;
     animationState = nullptr;
+    frame = nullptr;
 }
 
 DRAGONBONES_NAMESPACE_END

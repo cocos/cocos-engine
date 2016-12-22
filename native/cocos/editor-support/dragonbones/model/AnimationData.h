@@ -12,8 +12,6 @@ class AnimationData final : public TimelineData<AnimationFrameData>
 public:
     /** @private */
     bool hasAsynchronyTimeline;
-    /** @private */
-    bool hasBoneTimelineEvent;
     unsigned frameCount;
     unsigned playTimes;
     float position;

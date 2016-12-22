@@ -12,9 +12,15 @@ void BaseObject::_returnObject(BaseObject* object)
     const auto maxCountIterator = _maxCountMap.find(classTypeIndex);
     const auto maxCount = maxCountIterator != _maxCountMap.end() ? maxCountIterator->second : _defaultMaxCount;
 
-    auto& pool = _poolsMap[classTypeIndex];
-    if (pool.size() < maxCount)
+    const auto iterator = _poolsMap.find(classTypeIndex);
+    if (iterator != _poolsMap.end())
     {
+        auto& pool = iterator->second;
+        if (pool.size() >= maxCount) {
+            delete object;
+            return;
+        }
+
         if (std::find(pool.cbegin(), pool.cend(), object) == pool.cend())
         {
             pool.push_back(object);
@@ -59,6 +65,8 @@ void BaseObject::setMaxCount(std::size_t classTypeIndex, std::size_t maxCount)
             {
                 continue;
             }
+
+            _maxCountMap[pair.first] = maxCount;
 
             auto& pool = pair.second;
             if (pool.size() > maxCount)

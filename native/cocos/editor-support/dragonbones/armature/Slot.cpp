@@ -5,29 +5,47 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-Slot::Slot() {}
+Slot::Slot() :
+    _rawDisplay(nullptr),
+    _meshDisplay(nullptr)
+{}
 Slot::~Slot() {}
 
 void Slot::_onClear()
 {
     TransformObject::_onClear();
 
-    std::vector<void*> disposeDisplayList;
+    std::vector<std::pair<void*, DisplayType>> disposeDisplayList;
     for (const auto& pair : this->_displayList)
+    {
+        if (
+            pair.first != _rawDisplay && pair.first != _meshDisplay &&
+            std::find(disposeDisplayList.cbegin(), disposeDisplayList.cend(), pair) == disposeDisplayList.cend()
+        )
+        {
+            disposeDisplayList.push_back(pair);
+        }
+    }
+
+    for (const auto& pair : disposeDisplayList)
     {
         if (pair.second == DisplayType::Armature)
         {
             static_cast<Armature*>(pair.first)->returnToPool();
         }
-        else if (std::find(disposeDisplayList.cbegin(), disposeDisplayList.cend(), pair.first) == disposeDisplayList.cend())
+        else
         {
-            disposeDisplayList.push_back(pair.first);
+            _disposeDisplay(pair.first);
         }
     }
 
-    for (const auto renderDisplay : disposeDisplayList)
+    if (_meshDisplay && _meshDisplay != _rawDisplay) 
     {
-        this->_disposeDisplay(renderDisplay);
+        _disposeDisplay(_meshDisplay);
+    }
+
+    if (_rawDisplay) {
+        _disposeDisplay(_rawDisplay);
     }
 
     inheritAnimation = true;
@@ -37,6 +55,9 @@ void Slot::_onClear()
     _ffdDirty = false;
     _blendIndex = 0;
     _zOrder = 0;
+    _blendMode = BlendMode::Normal;
+    _pivotX = 0.f;
+    _pivotY = 0.f;
     _displayDataSet = nullptr;
     _meshData = nullptr;
     _cacheFrames = nullptr;
@@ -51,7 +72,6 @@ void Slot::_onClear()
     _originDirty = false;
     _transformDirty = false;
     _displayIndex = 0;
-    _blendMode = BlendMode::Normal;
     _display = nullptr;
     _childArmature = nullptr;
     _localMatrix.identity();
@@ -132,7 +152,28 @@ void Slot::_updateDisplay()
             _childArmature->_parent = this;
             if (inheritAnimation)
             {
-                _childArmature->getAnimation().play();
+                if (_childArmature->getCacheFrameRate() == 0)
+                {
+                    const auto chacheFrameRate = this->_armature->getCacheFrameRate();
+                    if (chacheFrameRate != 0)
+                    {
+                        _childArmature->setCacheFrameRate(chacheFrameRate);
+                    }
+                }
+                
+                const auto slotData = this->_armature->getArmatureData().getSlot(this->name);
+                const auto& actions = !slotData->actions.empty() ? slotData->actions : _childArmature->getArmatureData().actions;
+                if (!actions.empty())
+                {
+                    for (const auto action : actions) 
+                    {
+                        _childArmature->_bufferAction(action);
+                    }
+                }
+                else 
+                {
+                    _childArmature->getAnimation().play();
+                }
             }
         }
     }
@@ -168,10 +209,13 @@ void Slot::_setArmature(Armature* value)
 void Slot::_updateMeshData(bool isTimelineUpdate)
 {
     const auto prevMeshData = _meshData;
-
-    if (_display == _meshDisplay && _displayDataSet && _displayIndex >= 0 && (std::size_t)_displayIndex < _displayDataSet->displays.size())
+    auto rawMeshData = (MeshData*)nullptr;
+    if (_display && _display == _meshDisplay && _displayIndex >= 0)
     {
-        _meshData = _displayDataSet->displays[_displayIndex]->meshData;
+        rawMeshData = (_displayDataSet && _displayIndex < _displayDataSet->displays.size()) ? _displayDataSet->displays[_displayIndex]->mesh : nullptr;
+        const auto replaceDisplayData = (_displayIndex < _replacedDisplayDataSet.size()) ? _replacedDisplayDataSet[_displayIndex] : nullptr;
+        const auto replaceMeshData = replaceDisplayData ? replaceDisplayData->mesh : nullptr;
+        _meshData = replaceMeshData? replaceMeshData: rawMeshData;
     }
     else
     {
@@ -180,7 +224,7 @@ void Slot::_updateMeshData(bool isTimelineUpdate)
 
     if (_meshData != prevMeshData)
     {
-        if (_meshData)
+        if (_meshData && _meshData == rawMeshData)
         {
             if (_meshData->skinned)
             {
@@ -196,6 +240,7 @@ void Slot::_updateMeshData(bool isTimelineUpdate)
                 {
                     ffdVerticesCount += _meshData->boneIndices[i].size();
                 }
+
                 _ffdVertices.resize(ffdVerticesCount * 2.f, 0.f);
             }
             else
@@ -270,7 +315,6 @@ void Slot::_update(int cacheFrameIndex)
     if (cacheFrameIndex >= 0)
     {
         const auto cacheFrame = (*_cacheFrames)[cacheFrameIndex];
-
         if (this->globalTransformMatrix == cacheFrame)
         {
             _transformDirty = false;
@@ -310,7 +354,7 @@ void Slot::_update(int cacheFrameIndex)
         {
             _updateGlobalTransformMatrix();
 
-            if (cacheFrameIndex >= 0)
+            if (cacheFrameIndex >= 0 && !(*_cacheFrames)[cacheFrameIndex])
             {
                 this->globalTransformMatrix = SlotTimelineData::cacheFrame(*_cacheFrames, cacheFrameIndex, this->_globalTransformMatrix);
             }
@@ -329,10 +373,13 @@ bool Slot::_setDisplayList(const std::vector<std::pair<void*, DisplayType>>& val
             _displayList.resize(value.size());
         }
 
-        for (std::size_t i = 0, l = _displayList.size(); i < l; ++i)
+        for (std::size_t i = 0, l = value.size(); i < l; ++i)
         {
             const auto& eachPair = value[i];
-            if (eachPair.first && eachPair.first != _rawDisplay && eachPair.second != DisplayType::Armature && std::find(_displayList.cbegin(), _displayList.cend(), eachPair) == _displayList.cend())
+            if (
+                eachPair.first && eachPair.first != _rawDisplay && eachPair.first != _meshDisplay &&
+                eachPair.second != DisplayType::Armature && std::find(_displayList.cbegin(), _displayList.cend(), eachPair) == _displayList.cend()
+            )
             {
                 _initDisplay(eachPair.first);
             }
@@ -413,7 +460,11 @@ void Slot::setDisplayList(const std::vector<std::pair<void*, DisplayType>>& valu
 
     for (const auto& pair : backupDisplayList)
     {
-        if (pair.first != _rawDisplay && std::find(_displayList.cbegin(), _displayList.cend(), pair) == _displayList.cend())
+        if (
+            pair.first && pair.first != _rawDisplay && pair.first != _meshDisplay &&
+            std::find(_displayList.cbegin(), _displayList.cend(), pair) == _displayList.cend() &&
+            std::find(disposeDisplayList.cbegin(), disposeDisplayList.cend(), pair) == disposeDisplayList.cend()
+        )
         {
             disposeDisplayList.push_back(pair);
         }
@@ -469,6 +520,11 @@ void Slot::setChildArmature(Armature* value)
     if (_childArmature == value)
     {
         return;
+    }
+
+    if (value)
+    {
+        (value->getDisplay())->advanceTimeBySelf(false);
     }
 
     setDisplay(value, DisplayType::Armature);

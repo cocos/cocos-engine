@@ -42,6 +42,7 @@ protected:
 
     static const char* PIVOT;
     static const char* TRANSFORM;
+    static const char* AABB;
     static const char* COLOR;
     static const char* FILTER;
 
@@ -77,6 +78,8 @@ protected:
     static const char* EVENT;
     static const char* SOUND;
     static const char* ACTION;
+    static const char* ACTIONS;
+    static const char* DEFAULT_ACTIONS;
 
     static const char* X;
     static const char* Y;
@@ -127,12 +130,15 @@ protected:
     mutable AnimationData* _animation;
     mutable void* _timeline; // TimelineData*
 
-    bool _isParentCooriinate;
+    bool _isOldData;
+    bool _isGlobalTransform;
     mutable bool _isAutoTween;
     mutable float _animationTweenEasing;
-    mutable float _armatureScale;
+    mutable Point _timelinePivot;
+
     mutable Point _helpPoint;
-    mutable Transform _helpTransform;
+    mutable Transform _helpTransformA;
+    mutable Transform _helpTransformB;
     mutable Matrix _helpMatrix;
     std::vector<BoneData*> _rawBones;
 
@@ -149,6 +155,7 @@ private:
 protected:
     void _globalToLocal(ArmatureData* armature) const;
 
+    void _mergeFrameToAnimationTimeline(float framePosition, const std::vector<ActionData*>& actions, const std::vector<EventData*>& events) const;
 };
 
 DRAGONBONES_NAMESPACE_END

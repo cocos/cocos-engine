@@ -36,11 +36,14 @@ private:
 
 class BaseFactory
 {
+protected:
+    static JSONDataParser _defaultDataParser;
+
 public:
     bool autoSearch;
 
 protected:
-    JSONDataParser _jsonDataParser;
+    DataParser* _dataParser;
     std::map<std::string, DragonBonesData*> _dragonBonesDataMap;
     std::map<std::string, std::vector<TextureAtlasData*>> _textureAtlasDataMap;
 

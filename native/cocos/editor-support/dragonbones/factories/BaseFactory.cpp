@@ -2,10 +2,12 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
+JSONDataParser BaseFactory::_defaultDataParser;
+
 BaseFactory::BaseFactory() :
     autoSearch(false),
 
-    _jsonDataParser(),
+    _dataParser(&_defaultDataParser),
     _dragonBonesDataMap(),
     _textureAtlasDataMap()
 {}
@@ -132,7 +134,6 @@ void BaseFactory::_buildSlots(const BuildArmaturePackage& dataPackage, Armature&
 {
     const auto currentSkin = dataPackage.skin;
     const auto defaultSkin = dataPackage.armature->getDefaultSkin();
-
     auto slotDisplayDataSetMap = defaultSkin->slots; // copy
 
     if (currentSkin != defaultSkin)
@@ -156,7 +157,6 @@ void BaseFactory::_buildSlots(const BuildArmaturePackage& dataPackage, Armature&
         slot->_setDisplayIndex(slotData->displayIndex);
         slot->_setBlendMode(slotData->blendMode);
         slot->_setColor(*slotData->color);
-        slot->_replacedDisplayDataSet.resize(slot->_displayDataSet->displays.size(), nullptr);
 
         armature.addSlot(slot, slotData->parent->name);
     }
@@ -177,10 +177,12 @@ void BaseFactory::_replaceSlotDisplay(const BuildArmaturePackage& dataPackage, D
             displayList.resize(displayIndex + 1, std::make_pair(nullptr, DisplayType::Image));
         }
 
-        if (!displayData.textureData)
+        if (slot._replacedDisplayDataSet.size() <= (unsigned)displayIndex)
         {
-            displayData.textureData = _getTextureData(dataPackage.dataName, displayData.name);
+            slot._replacedDisplayDataSet.resize(displayIndex + 1, nullptr);
         }
+
+        slot._replacedDisplayDataSet[displayIndex] = const_cast<DisplayData*>(&displayData);
 
         if (displayData.type == DisplayType::Armature)
         {
@@ -189,14 +191,15 @@ void BaseFactory::_replaceSlotDisplay(const BuildArmaturePackage& dataPackage, D
         }
         else
         {
-            if (slot._replacedDisplayDataSet.size() <= (unsigned)displayIndex)
+            if (!displayData.texture)
             {
-                slot._replacedDisplayDataSet.resize(displayIndex + 1, nullptr);
+                displayData.texture = _getTextureData(dataPackage.dataName, displayData.name);
             }
 
-            slot._replacedDisplayDataSet[displayIndex] = const_cast<DisplayData*>(&displayData);
-
-            if (displayData.meshData)
+            if (
+                displayData.mesh &&
+                (displayIndex < slot._displayDataSet->displays.size() && slot._displayDataSet->displays[displayIndex]->mesh)
+            )
             {
                 displayList[displayIndex] = std::make_pair(slot.getMeshDisplay(), displayData.type);
             }
@@ -213,7 +216,7 @@ void BaseFactory::_replaceSlotDisplay(const BuildArmaturePackage& dataPackage, D
 
 DragonBonesData* BaseFactory::parseDragonBonesData(const char* rawData, const std::string& dragonBonesName, float scale)
 {
-    const auto dragonBonesData = _jsonDataParser.parseDragonBonesData(rawData, scale);
+    const auto dragonBonesData = _dataParser->parseDragonBonesData(rawData, scale);
     addDragonBonesData(dragonBonesData, dragonBonesName);
 
     return dragonBonesData;
@@ -222,7 +225,7 @@ DragonBonesData* BaseFactory::parseDragonBonesData(const char* rawData, const st
 TextureAtlasData* BaseFactory::parseTextureAtlasData(const char* rawData, void* textureAtlas, const std::string& dragonBonesName, float scale)
 {
     const auto textureAtlasData = _generateTextureAtlasData(nullptr, nullptr);
-    _jsonDataParser.parseTextureAtlasData(rawData, *textureAtlasData, scale);
+    _dataParser->parseTextureAtlasData(rawData, *textureAtlasData, scale);
 
     _generateTextureAtlasData(textureAtlasData, textureAtlas);
     addTextureAtlasData(textureAtlasData, dragonBonesName);
@@ -302,7 +305,7 @@ void BaseFactory::removeTextureAtlasData(const std::string& dragonBonesName, boo
     {
         if (disposeData)
         {
-            for (auto textureAtlasData : iterator->second)
+            for (const auto textureAtlasData : iterator->second)
             {
                 textureAtlasData->returnToPool();
             }
