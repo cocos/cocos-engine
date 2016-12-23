@@ -410,7 +410,7 @@ var PageView = cc.Class({
 
         // 当页面数组变化时修改 content 大小
         var layout = this.content.getComponent(cc.Layout);
-        if(layout && layout.enabledInHierarchy) {
+        if(layout && layout.enabled) {
             layout._updateLayout();
         }
         if (this._curPageIdx >= pageCount) {
