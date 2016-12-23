@@ -122,49 +122,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @example
          * node.parent = newNode;
          */
-        parent: {
-            get: function () {
-                return this._parent;
-            },
-            set: function (value) {
-                if (this._parent === value) {
-                    return;
-                }
-                if (CC_EDITOR && !cc.engine.isPlaying) {
-                    if (_Scene.DetectConflict.beforeAddChild(this)) {
-                        return;
-                    }
-                }
-                var sgNode = this._sgNode;
-                if (sgNode.parent) {
-                    sgNode.parent.removeChild(sgNode, false);
-                }
-                //
-                var oldParent = this._parent;
-                this._parent = value || null;
-                if (value) {
-                    var parent = value._sgNode;
-                    parent.addChild(sgNode);
-                    updateOrder(this);
-                    value._children.push(this);
-                    value.emit(CHILD_ADDED, this);
-                }
-                if (oldParent) {
-                    if (!(oldParent._objFlags & Destroying)) {
-                        var removeAt = oldParent._children.indexOf(this);
-                        if (CC_DEV && removeAt < 0) {
-                            return cc.errorID(1633);
-                        }
-                        oldParent._children.splice(removeAt, 1);
-                        oldParent.emit(CHILD_REMOVED, this);
-                        this._onHierarchyChanged(oldParent);
-                    }
-                }
-                else if (value) {
-                    this._onHierarchyChanged(null);
-                }
-            },
-        },
 
         _id: {
             default: '',
@@ -645,15 +602,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @example
          * node.tag = 1001;
          */
-        tag: {
-            get: function () {
-                return this._tag;
-            },
-            set: function (value) {
-                this._tag = value;
-                this._sgNode.tag = value;
-            },
-        },
 
         /**
          * !#en Opacity of node, default value is 255.
@@ -787,6 +735,58 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @private
          */
         this.__eventTargets = [];
+    },
+
+    getTag: function () {
+        return this._tag;
+    },
+
+    setTag: function (value) {
+        this._tag = value;
+        this._sgNode.tag = value;
+    },
+
+    getParent: function() {
+        return this._parent;
+    },
+
+    setParent: function (value) {
+        if (this._parent === value) {
+            return;
+        }
+        if (CC_EDITOR && !cc.engine.isPlaying) {
+            if (_Scene.DetectConflict.beforeAddChild(this)) {
+                return;
+            }
+        }
+        var sgNode = this._sgNode;
+        if (sgNode.parent) {
+            sgNode.parent.removeChild(sgNode, false);
+        }
+        //
+        var oldParent = this._parent;
+        this._parent = value || null;
+        if (value) {
+            var parent = value._sgNode;
+            parent.addChild(sgNode);
+            updateOrder(this);
+            value._children.push(this);
+            value.emit(CHILD_ADDED, this);
+        }
+        if (oldParent) {
+            if (!(oldParent._objFlags & Destroying)) {
+                var removeAt = oldParent._children.indexOf(this);
+                if (CC_DEV && removeAt < 0) {
+                    return cc.errorID(1633);
+                }
+                oldParent._children.splice(removeAt, 1);
+                oldParent.emit(CHILD_REMOVED, this);
+                this._onHierarchyChanged(oldParent);
+            }
+        }
+        else if (value) {
+            this._onHierarchyChanged(null);
+        }
     },
 
     _onPreDestroy: function () {
