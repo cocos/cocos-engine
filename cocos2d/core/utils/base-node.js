@@ -140,34 +140,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         },
 
         /**
-         * !#en Z order in depth which stands for the drawing order.
-         * !#zh 该节点渲染排序的 Z 轴深度。
-         * @property zIndex
-         * @type {Number}
-         * @example
-         * node.zIndex = 1;
-         * cc.log("Node zIndex: " + node.zIndex);
-         */
-        zIndex: {
-            get: function () {
-                return this._localZOrder;
-            },
-            set: function (value) {
-                if (this._localZOrder !== value) {
-                    this._localZOrder = value;
-                    this._sgNode.zIndex = value;
-
-                    if(this._parent) {
-                        this._parent._delaySort();
-                        if (!CC_JSB) {
-                            cc.eventManager._setDirtyForNode(this);
-                        }
-                    }
-                }
-            }
-        },
-
-        /**
          * !#en All children nodes.
          * !#zh 节点的所有子节点。
          * @property children
@@ -1316,7 +1288,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 var SameNameGetSets = ['name', 'children', 'childrenCount', 'parent',
                        /*'shaderProgram',*/ 'tag'];
 var DiffNameGetSets = {
-    zIndex: ['getLocalZOrder', 'setLocalZOrder'],
     //// privates
     //width: ['_getWidth', '_setWidth'],
     //height: ['_getHeight', '_setHeight'],
