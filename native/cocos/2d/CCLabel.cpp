@@ -972,6 +972,9 @@ bool Label::updateQuads()
                         auto originalX = _reusedRect.origin.x;
                         _reusedRect.origin.x = spriteFrameRect.origin.x + spriteFrameRect.size.height - _reusedRect.origin.y - _reusedRect.size.height - trimmedTop;
                         _reusedRect.origin.y = originalX + spriteFrameRect.origin.y - trimmedLeft;
+                        if(_reusedRect.origin.y < 0) {
+                            _reusedRect.size.height += trimmedTop;
+                        }
                     }
 
 
