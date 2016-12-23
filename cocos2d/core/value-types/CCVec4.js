@@ -40,46 +40,6 @@ function Vec4 (x, y, z, w) {
     this.data[1] = y || 0;
     this.data[2] = z || 0;
     this.data[3] = w || 0;
-
-    Object.defineProperty(this, 'x', {
-        get: function () {
-            return this.data[0];
-        },
-        set: function (value) {
-            this.data[0] = value;
-        },
-        enumerable: true
-    });
-
-    Object.defineProperty(this, 'y', {
-        get: function () {
-            return this.data[1];
-        },
-        set: function (value) {
-            this.data[1] = value;
-        },
-        enumerable: true
-    });
-
-    Object.defineProperty(this, 'z', {
-        get: function () {
-            return this.data[2];
-        },
-        set: function (value) {
-            this.data[2] = value;
-        },
-        enumerable: true
-    });
-
-    Object.defineProperty(this, 'w', {
-        get: function () {
-            return this.data[3];
-        },
-        set: function (value) {
-            this.data[3] = value;
-        },
-        enumerable: true
-    });
 }
 JS.extend(Vec4, ValueType);
 CCClass.fastDefine('cc.Vec4', Vec4, { x: 0, y: 0, z: 0, w: 1});
@@ -263,5 +223,41 @@ Object.defineProperty(Vec4, 'ZERO', {
 cc.v4 = function v4 (x, y, z, w) {
     return new Vec4(x, y, z, w);
 };
+
+Object.defineProperty(Vec4.prototype, 'x', {
+    get: function () {
+        return this.data[0];
+    },
+    set: function (value) {
+        this.data[0] = value;
+    },
+});
+
+Object.defineProperty(Vec4.prototype, 'y', {
+    get: function () {
+        return this.data[1];
+    },
+    set: function (value) {
+        this.data[1] = value;
+    },
+});
+
+Object.defineProperty(Vec4.prototype, 'z', {
+    get: function () {
+        return this.data[2];
+    },
+    set: function (value) {
+        this.data[2] = value;
+    },
+});
+
+Object.defineProperty(Vec4.prototype, 'w', {
+    get: function () {
+        return this.data[3];
+    },
+    set: function (value) {
+        this.data[3] = value;
+    },
+});
 
 cc.Vec4 = module.exports = Vec4;

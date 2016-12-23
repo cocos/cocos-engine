@@ -39,35 +39,6 @@ function Vec3 (x, y, z) {
     this.data[1] = y || 0;
     this.data[2] = z || 0;
 
-    Object.defineProperty(this, 'x', {
-        get: function () {
-            return this.data[0];
-        },
-        set: function (value) {
-            this.data[0] = value;
-        },
-        enumerable: true
-    });
-
-    Object.defineProperty(this, 'y', {
-        get: function () {
-            return this.data[1];
-        },
-        set: function (value) {
-            this.data[1] = value;
-        },
-        enumerable: true
-    });
-
-    Object.defineProperty(this, 'z', {
-        get: function () {
-            return this.data[2];
-        },
-        set: function (value) {
-            this.data[2] = value;
-        },
-        enumerable: true
-    });
 }
 JS.extend(Vec3, ValueType);
 CCClass.fastDefine('cc.Vec3', Vec3, { x: 0, y: 0, z: 0, });
@@ -311,4 +282,32 @@ Object.defineProperty(Vec3, 'ZERO', {
 cc.v3 = function v3 (x, y, z) {
     return new Vec3(x, y, z);
 };
+
+Object.defineProperty(Vec3.prototype, 'x', {
+    get: function () {
+        return this.data[0];
+    },
+    set: function (value) {
+        this.data[0] = value;
+    },
+});
+
+Object.defineProperty(Vec3.prototype, 'y', {
+    get: function () {
+        return this.data[1];
+    },
+    set: function (value) {
+        this.data[1] = value;
+    },
+});
+
+Object.defineProperty(Vec3.prototype, 'z', {
+    get: function () {
+        return this.data[2];
+    },
+    set: function (value) {
+        this.data[2] = value;
+    },
+});
+
 cc.Vec3 = module.exports = Vec3;

@@ -56,26 +56,6 @@ function Vec2 (x, y) {
     this.data = new Float32Array(2);
     this.data[0] = x || 0;
     this.data[1] = y || 0;
-
-    Object.defineProperty(this, 'x', {
-        get: function () {
-            return this.data[0];
-        },
-        set: function (value) {
-            this.data[0] = value;
-        },
-        enumerable: true
-    });
-
-    Object.defineProperty(this, 'y', {
-        get: function () {
-            return this.data[1];
-        },
-        set: function (value) {
-            this.data[1] = value;
-        },
-        enumerable: true
-    });
 }
 JS.extend(Vec2, ValueType);
 CCClass.fastDefine('cc.Vec2v2', Vec2, { x: 0, y: 0});
@@ -246,6 +226,24 @@ Object.defineProperty(Vec2, 'ZERO', {
     get: function() {
         return new Vec2(0, 0);
     }
+});
+
+Object.defineProperty(Vec2.prototype, 'x', {
+    get: function () {
+        return this.data[0];
+    },
+    set: function (value) {
+        this.data[0] = value;
+    },
+});
+
+Object.defineProperty(Vec2.prototype, 'y', {
+    get: function () {
+        return this.data[1];
+    },
+    set: function (value) {
+        this.data[1] = value;
+    },
 });
 
 cc.Vec2v2 = module.exports = Vec2;

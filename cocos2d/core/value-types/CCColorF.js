@@ -45,46 +45,6 @@ var ColorF = function () {
         this.data[3] = 1;
     }
 
-    Object.defineProperty(this, 'r', {
-        get: function () {
-            return this.data[0];
-        },
-        set: function (value) {
-            this.data[0] = value;
-        },
-        enumerable: true
-    });
-
-    Object.defineProperty(this, 'g', {
-        get: function () {
-            return this.data[1];
-        },
-        set: function (value) {
-            this.data[1] = value;
-        },
-        enumerable: true
-    });
-
-    Object.defineProperty(this, 'b', {
-        get: function () {
-            return this.data[2];
-        },
-        set: function (value) {
-            this.data[2] = value;
-        },
-        enumerable: true
-    });
-
-    Object.defineProperty(this, 'a', {
-        get: function () {
-            return this.data[3];
-        },
-        set: function (value) {
-            this.data[3] = value;
-        },
-        enumerable: true
-    });
-
 };
 
 JS.extend(ColorF, ValueType);
@@ -148,6 +108,42 @@ JS.mixin(ColorF.prototype, {
 
         return s;
     }
+});
+
+Object.defineProperty(ColorF.prototype, 'r', {
+    get: function () {
+        return this.data[0];
+    },
+    set: function (value) {
+        this.data[0] = value;
+    },
+});
+
+Object.defineProperty(ColorF.prototype, 'g', {
+    get: function () {
+        return this.data[1];
+    },
+    set: function (value) {
+        this.data[1] = value;
+    },
+});
+
+Object.defineProperty(ColorF.prototype, 'b', {
+    get: function () {
+        return this.data[2];
+    },
+    set: function (value) {
+        this.data[2] = value;
+    },
+});
+
+Object.defineProperty(ColorF.prototype, 'a', {
+    get: function () {
+        return this.data[3];
+    },
+    set: function (value) {
+        this.data[3] = value;
+    },
 });
 
 cc.ColorF = module.exports = ColorF;
