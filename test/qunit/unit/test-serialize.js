@@ -238,6 +238,51 @@
         cc.js.unregisterClass(Sprite);
     });
 
+    test('fast defined property', function () {
+        function Vec3 (x, y, z) {
+            this.data = [x, y, z];
+        }
+        cc.Class._fastDefine('Vec3', Vec3, { x: 0, y: 0, z: 0, });
+
+        Object.defineProperties(Vec3.prototype, {
+            x: {
+                get: function () {
+                    return this.data[0];
+                },
+                set: function (value) {
+                    this.data[0] = value;
+                },
+            },
+            y: {
+                get: function () {
+                    return this.data[1];
+                },
+                set: function (value) {
+                    this.data[1] = value;
+                },
+            },
+            z: {
+                get: function () {
+                    return this.data[2];
+                },
+                set: function (value) {
+                    this.data[2] = value;
+                },
+            }
+        });
+
+        var obj = new Vec3(2, 3 ,1);
+        var expected = {
+            __type__: 'Vec3',
+            x: 2,
+            y: 3,
+            z: 1,
+        };
+        match(obj, expected, 'should be able to serialize');
+
+        cc.js.unregisterClass(Vec3);
+    });
+
     test('test asset property', function () {
         var sprite = new TestSprite();
         sprite.texture = new TestTexture();
@@ -321,7 +366,7 @@
               { "__type__": "cc.Object", "_name": "test_1", "_objFlags": 0 },
               { "__type__": "cc.Object", "_name": "test_3", "_objFlags": 0 },
               { "__type__": "cc.Object", "_name": "test_4", "_objFlags": 0 }
-        ]
+        ];
 
         cc._Test.nicifySerialized(data);
         deepEqual(data, expected, 'nicify success');

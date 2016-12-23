@@ -279,7 +279,7 @@ dragonBones.ArmatureDisplay = cc.Class({
 
     // IMPLEMENT
     ctor : function () {
-        this._factory = new dragonBones.CCFactory();
+        this._factory = dragonBones.CCFactory.getFactory();
     },
 
     __preload : function () {

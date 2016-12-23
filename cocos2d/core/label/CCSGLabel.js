@@ -25,7 +25,93 @@
  ****************************************************************************/
 
 var EventTarget = require("../cocos2d/core/event/event-target");
-cc.fontFamilyCache = {};
+
+var FntLoader = {
+    INFO_EXP: /info [^\n]*(\n|$)/gi,
+    COMMON_EXP: /common [^\n]*(\n|$)/gi,
+    PAGE_EXP: /page [^\n]*(\n|$)/gi,
+    CHAR_EXP: /char [^\n]*(\n|$)/gi,
+    KERNING_EXP: /kerning [^\n]*(\n|$)/gi,
+    ITEM_EXP: /\w+=[^ \r\n]+/gi,
+    INT_EXP: /^[\-]?\d+$/,
+
+    _parseStrToObj: function (str) {
+        var arr = str.match(this.ITEM_EXP);
+        var obj = {};
+        if (arr) {
+            for (var i = 0, li = arr.length; i < li; i++) {
+                var tempStr = arr[i];
+                var index = tempStr.indexOf("=");
+                var key = tempStr.substring(0, index);
+                var value = tempStr.substring(index + 1);
+                if (value.match(this.INT_EXP)) value = parseInt(value);
+                else if (value[0] === '"') value = value.substring(1, value.length - 1);
+                obj[key] = value;
+            }
+        }
+        return obj;
+    },
+
+    /**
+     * Parse Fnt string.
+     * @param fntStr
+     * @returns {{}}
+     */
+    parseFnt: function (fntStr) {
+        var self = this, fnt = {};
+        //padding
+        var infoObj = self._parseStrToObj(fntStr.match(self.INFO_EXP)[0]);
+        var paddingArr = infoObj["padding"].split(",");
+        var padding = {
+            left: parseInt(paddingArr[0]),
+            top: parseInt(paddingArr[1]),
+            right: parseInt(paddingArr[2]),
+            bottom: parseInt(paddingArr[3])
+        };
+
+        //common
+        var commonObj = self._parseStrToObj(fntStr.match(self.COMMON_EXP)[0]);
+        fnt.commonHeight = commonObj["lineHeight"];
+        fnt.fontSize = infoObj["size"];
+
+        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+            var texSize = cc.configuration.getMaxTextureSize();
+            if (commonObj["scaleW"] > texSize.width || commonObj["scaleH"] > texSize.height)
+                cc.log("cc.LabelBMFont._parseCommonArguments(): page can't be larger than supported");
+        }
+        if (commonObj["pages"] !== 1) cc.log("cc.LabelBMFont._parseCommonArguments(): only supports 1 page");
+
+        //page
+        var pageObj = self._parseStrToObj(fntStr.match(self.PAGE_EXP)[0]);
+        if (pageObj["id"] !== 0) cc.log("cc.LabelBMFont._parseImageFileName() : file could not be found");
+        fnt.atlasName = pageObj["file"];
+
+        //char
+        var charLines = fntStr.match(self.CHAR_EXP);
+        var fontDefDictionary = fnt.fontDefDictionary = {};
+        for (var i = 0, li = charLines.length; i < li; i++) {
+            var charObj = self._parseStrToObj(charLines[i]);
+            var charId = charObj["id"];
+            fontDefDictionary[charId] = {
+                rect: {x: charObj["x"], y: charObj["y"], width: charObj["width"], height: charObj["height"]},
+                xOffset: charObj["xoffset"],
+                yOffset: charObj["yoffset"],
+                xAdvance: charObj["xadvance"]
+            };
+        }
+
+        //kerning
+        var kerningDict = fnt.kerningDict = {};
+        var kerningLines = fntStr.match(self.KERNING_EXP);
+        if (kerningLines) {
+            for (i = 0, li = kerningLines.length; i < li; i++) {
+                var kerningObj = self._parseStrToObj(kerningLines[i]);
+                kerningDict[(kerningObj["first"] << 16) | (kerningObj["second"] & 0xffff)] = kerningObj["amount"];
+            }
+        }
+        return fnt;
+    }
+};
 
 var FontLetterDefinition = function() {
     this._u = 0;
@@ -138,7 +224,7 @@ _ccsg.Label = _ccsg.Node.extend({
     _isUnderline: false,
 
     //fontHandle it is a system font name, ttf file path or bmfont file path.
-    ctor: function(string, fontHandle, textureUrl) {
+    ctor: function(string, fontHandle, spriteFrame) {
         EventTarget.call(this);
 
         fontHandle = fontHandle || "";
@@ -154,7 +240,7 @@ _ccsg.Label = _ccsg.Node.extend({
         _ccsg.Node.prototype.setContentSize.call(this, cc.size(128, 128));
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
 
-        this.setFontFileOrFamily(fontHandle, textureUrl);
+        this.setFontFileOrFamily(fontHandle, spriteFrame);
         this.setString(this._string);
     },
 
@@ -395,13 +481,13 @@ _ccsg.Label = _ccsg.Node.extend({
         }
     },
 
-    setFontFileOrFamily: function(fontHandle, textureUrl) {
+    setFontFileOrFamily: function(fontHandle, spriteFrame) {
         fontHandle = fontHandle || "Arial";
         var extName = cc.path.extname(fontHandle);
 
         this._resetBMFont();
         //specify font family name directly
-        if (!extName) {
+        if (!extName && !spriteFrame) {
             this._fontHandle = fontHandle;
             this._labelType = _ccsg.Label.Type.SystemFont;
             this._blendFunc = cc.BlendFunc._alphaPremultiplied();
@@ -416,12 +502,12 @@ _ccsg.Label = _ccsg.Node.extend({
             this._blendFunc = cc.BlendFunc._alphaPremultiplied();
             this._renderCmd._needDraw = true;
             this._fontHandle = this._loadTTFFont(fontHandle);
-        } else if (extName === ".fnt") {
+        } else if (spriteFrame) {
             //todo add bmfont here
             this._labelType = _ccsg.Label.Type.BMFont;
             this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
             this._renderCmd._needDraw = false;
-            this._initBMFontWithString(this._string, fontHandle, textureUrl);
+            this._initBMFontWithString(this._string, fontHandle, spriteFrame);
         }
         this._notifyLabelSkinDirty();
     },
@@ -638,14 +724,34 @@ cc.BMFontHelper = {
                 if (this._reusedRect.height > 0 && this._reusedRect.width > 0) {
                     var fontChar = this.getChildByTag(ctr);
                     var locTexture = this._spriteBatchNode._texture;
+                    var spriteFrame = this._spriteFrame;
+
+                    var isRotated = this._spriteFrame.isRotated();
+
+                    var originalSize = spriteFrame._originalSize;
+                    var rect = spriteFrame._rect;
+                    var offset = spriteFrame._offset;
+                    var trimmedLeft = offset.x + (originalSize.width - rect.width) / 2;
+                    var trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
+
+
+                    if(!isRotated) {
+                        this._reusedRect.x += (rect.x - trimmedLeft);
+                        this._reusedRect.y += (rect.y + trimmedTop);
+                    } else {
+                        var originalX = this._reusedRect.x;
+                        this._reusedRect.x = rect.x + rect.height - this._reusedRect.y - this._reusedRect.height - trimmedTop;
+                        this._reusedRect.y = originalX + rect.y - trimmedLeft;
+                    }
 
                     if (!fontChar) {
                         fontChar = new _ccsg.Sprite();
-                        fontChar.initWithTexture(locTexture);
+                        fontChar.initWithTexture(locTexture, this._reusedRect, isRotated);
                         fontChar.setAnchorPoint(cc.p(0, 1));
+                    } else {
+                        fontChar.setTextureRect(this._reusedRect, isRotated);
                     }
 
-                    fontChar.setTextureRect(this._reusedRect, false, this._reusedRect.size);
 
                     var letterPositionX = this._lettersInfo[ctr]._positionX + this._linesOffsetX[this._lettersInfo[ctr]._lineIndex];
                     fontChar.setPosition(letterPositionX, py);
@@ -1054,14 +1160,14 @@ cc.BMFontHelper = {
 
     },
 
-    _initBMFontWithString: function(str, fntFile, textureUrl) {
+    _initBMFontWithString: function(str, fntFile, spriteFrame) {
         var self = this;
         if (self._config) {
             cc.logID(4002);
             return false;
         }
         this._string = str;
-        this._setBMFontFile(fntFile, textureUrl);
+        this._setBMFontFile(fntFile, spriteFrame);
     },
 
     _createSpriteBatchNode: function(texture) {
@@ -1137,40 +1243,36 @@ cc.BMFontHelper = {
         }
     },
 
-    _setBMFontFile: function(filename, textureUrl) {
-        if (filename) {
-            this._fontHandle = filename;
+    _setBMFontFile: function(fntDataStr, spriteFrame) {
+        if (fntDataStr) {
+            this._fontHandle = fntDataStr;
             if (this._labelType === _ccsg.Label.Type.BMFont) {
                 var self = this;
                 this._resetBMFont();
 
-                cc.loader.load(this._fontHandle, function(err, config) {
-                    if (err) {
-                        cc.logID(4001);
-                    }
+                self._config = FntLoader.parseFnt(fntDataStr);
+                self._createFontChars();
+                var texture = spriteFrame.getTexture();
+                self._spriteFrame = spriteFrame;
 
-                    self._config = config;
-                    self._createFontChars();
-                    var texture = cc.textureCache.addImage(textureUrl || self._config.atlasName);
-                    var locIsLoaded = texture.isLoaded();
-                    self._textureLoaded = locIsLoaded;
-                    if (!locIsLoaded) {
-                        texture.once("load", function() {
-                            var self = this;
+                var locIsLoaded = texture.isLoaded();
+                self._textureLoaded = locIsLoaded;
+                if (!locIsLoaded) {
+                    texture.once("load", function() {
+                        var self = this;
 
-                            if (!self._spriteBatchNode) {
-                                self._createSpriteBatchNode(texture);
-                            }
-                            self._textureLoaded = true;
-                            self.emit("load");
-                        }, self);
-                    } else {
                         if (!self._spriteBatchNode) {
                             self._createSpriteBatchNode(texture);
-                            self.emit("load");
                         }
+                        self._textureLoaded = true;
+                        self.emit("load");
+                    }, self);
+                } else {
+                    if (!self._spriteBatchNode) {
+                        self._createSpriteBatchNode(texture);
+                        self.emit("load");
                     }
-                });
+                }
             }
         }
     }

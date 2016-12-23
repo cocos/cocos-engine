@@ -153,7 +153,7 @@ sp._SGSkeleton = _ccsg.Node.extend({
         for (var i = 0, slotCount = slots.length; i < slotCount; ++i) {
             var slot = slots[i];
             var attachment = slot.attachment;
-            if (!attachment || ! attachment instanceof spine.RegionAttachment)
+            if (!attachment || !(attachment instanceof spine.RegionAttachment))
                 continue;
             vertices = attachment.updateWorldVertices(slot, false);
             minX = Math.min(minX, vertices[VERTEX.X1] * scaleX, vertices[VERTEX.X4] * scaleX, vertices[VERTEX.X2] * scaleX, vertices[VERTEX.X3] * scaleX);
