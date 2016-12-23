@@ -1560,6 +1560,120 @@ if (CC_JSB) {
  *
  */
 
+/**
+ * !#en The local scale relative to the parent.
+ * !#zh 节点相对父节点的缩放。
+ * @property scale
+ * @type {Number}
+ * @example
+ * node.scale = 1;
+ */
+
+/**
+ * !#en Returns the x axis position of the node in cocos2d coordinates.
+ * !#zh 获取节点 X 轴坐标。
+ * @method getPositionX
+ * @return {Number} x - The new position in x axis
+ * @example
+ * var posX = node.getPositionX();
+ */
+
+/**
+ * !#en Sets the x axis position of the node in cocos2d coordinates.
+ * !#zh 设置节点 X 轴坐标。
+ * @method setPositionX
+ * @param {Number} x
+ * @example
+ * node.setPositionX(1);
+ */
+
+/**
+ * !#en Returns the y axis position of the node in cocos2d coordinates.
+ * !#zh 获取节点 Y 轴坐标。
+ * @method getPositionY
+ * @return {Number}
+ * @example
+ * var posY = node.getPositionY();
+ */
+
+/**
+ * !#en Sets the y axis position of the node in cocos2d coordinates.
+ * !#zh 设置节点 Y 轴坐标。
+ * @method setPositionY
+ * @param {Number} y - The new position in y axis
+ * @example
+ * node.setPositionY(100);
+ */
+
+/**
+ * !#en Returns the local Z order of this node.
+ * !#zh 获取节点局部 Z 轴顺序。
+ * @method getLocalZOrder
+ * @returns {Number} The local (relative to its siblings) Z order.
+ * @example
+ * var localZorder = node.getLocalZOrder();
+ */
+
+/**
+ * !#en
+ * LocalZOrder is the 'key' used to sort the node relative to its siblings.                                        <br/>
+ *                                                                                                                 <br/>
+ * The Node's parent will sort all its children based ont the LocalZOrder value.                                   <br/>
+ * If two nodes have the same LocalZOrder, then the node that was added first to the children's array              <br/>
+ * will be in front of the other node in the array.                                                                <br/>
+ * Also, the Scene Graph is traversed using the "In-Order" tree traversal algorithm ( http://en.wikipedia.org/wiki/Tree_traversal#In-order ) <br/>
+ * And Nodes that have LocalZOder values smaller than 0 are the "left" subtree <br/>
+ * While Nodes with LocalZOder greater than 0 are the "right" subtree.
+ * !#zh
+ * LocalZOrder 是 “key” (关键)来分辨节点和它兄弟节点的相关性。
+ * 父节点将会通过 LocalZOrder 的值来分辨所有的子节点。
+ * 如果两个节点有同样的 LocalZOrder，那么先加入子节点数组的节点将会显示在后加入的节点的前面。
+ * 同样的，场景图使用 “In-Order（按顺序）” 遍历数算法来遍历
+ * ( http://en.wikipedia.org/wiki/Tree_traversal#In-order ) 并且拥有小于 0 的 LocalZOrder 的值的节点是 “ left ” 子树（左子树）
+ * 所以拥有大于 0 的 LocalZOrder 的值得节点是 “ right ”子树（右子树）。
+ * @method setLocalZOrder
+ * @param {Number} localZOrder
+ * @example
+ * node.setLocalZOrder(1);
+ */
+
+/**
+ * !#en Returns whether node's opacity value affect its child nodes.
+ * !#zh 返回节点的不透明度值是否影响其子节点。
+ * @method isCascadeOpacityEnabled
+ * @returns {Boolean}
+ * @example
+ * cc.log(node.isCascadeOpacityEnabled());
+ */
+
+/**
+ * !#en Enable or disable cascade opacity, if cascade enabled, child nodes' opacity will be the multiplication of parent opacity and its own opacity.
+ * !#zh 启用或禁用级连不透明度，如果级连启用，子节点的不透明度将是父不透明度乘上它自己的不透明度。
+ * @method setCascadeOpacityEnabled
+ * @param {Boolean} cascadeOpacityEnabled
+ * @example
+ * node.setCascadeOpacityEnabled(true);
+ */
+
+/*
+ * !#en Returns whether node's color value affect its child nodes.
+ * !#zh 返回节点的颜色值是否影响其子节点。
+ * @method isCascadeColorEnabled
+ * @returns {Boolean}
+ * @example
+ * cc.log(node.isCascadeColorEnabled());
+ */
+
+/**
+ * !#en Enable or disable cascade color, if cascade enabled, child nodes' opacity will be the cascade value of parent color and its own color.
+ * !#zh 启用或禁用级连颜色，如果级连启用，子节点的颜色将是父颜色和它自己的颜色的级连值。
+ * @method setCascadeColorEnabled
+ * @param {Boolean} cascadeColorEnabled
+ * @example
+ * node.setCascadeColorEnabled(true);
+ */
+
+
 Node.EventType = EventType;
 
 cc.Node = module.exports = Node;
