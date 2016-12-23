@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var math = {
+var MathUtils = {
 
     DEG_TO_RAD: Math.PI / 180,
 
@@ -82,7 +82,7 @@ var math = {
     },
 
     lerp: function (a, b, alpha) {
-        return a + (b - a) * math.clamp(alpha, 0, 1);
+        return a + (b - a) * MathUtils.clamp(alpha, 0, 1);
     },
 
     lerpAngle: function (a, b, alpha) {
@@ -92,7 +92,7 @@ var math = {
         if (b - a < -180 ) {
             b += 360;
         }
-        return math.lerp(a, b, math.clamp(alpha, 0, 1));
+        return MathUtils.lerp(a, b, MathUtils.clamp(alpha, 0, 1));
     },
 
     powerOfTwo: function (x) {
@@ -134,14 +134,14 @@ var math = {
     }
 };
 
-math.intToBytes = math.intToBytes32;
-math.bytesToInt = math.bytesToInt32;
+MathUtils.intToBytes = MathUtils.intToBytes32;
+MathUtils.bytesToInt = MathUtils.bytesToInt32;
 
 // IE doesn't have native log2
 if (!Math.log2) {
     Math.log2 = function(x) {
-        return Math.log(x) * math.INV_LOG2;
+        return Math.log(x) * MathUtils.INV_LOG2;
     };
 }
 
-cc.math = math;
+cc.MathUtils = MathUtils;

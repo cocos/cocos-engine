@@ -366,7 +366,7 @@ JS.mixin(Mat4.prototype, {
     setFromAxisAngle: function (axis, angle) {
         var x, y, z, c, s, t, tx, ty, m;
 
-        angle *= cc.math.DEG_TO_RAD;
+        angle *= cc.MathUtils.DEG_TO_RAD;
 
         x = axis.x;
         y = axis.y;
@@ -710,9 +710,9 @@ JS.mixin(Mat4.prototype, {
     setFromEulerAngles: function (ex, ey, ez) {
         var s1, c1, s2, c2, s3, c3, m;
 
-        ex *= cc.math.DEG_TO_RAD;
-        ey *= cc.math.DEG_TO_RAD;
-        ez *= cc.math.DEG_TO_RAD;
+        ex *= cc.MathUtils.DEG_TO_RAD;
+        ey *= cc.MathUtils.DEG_TO_RAD;
+        ez *= cc.MathUtils.DEG_TO_RAD;
 
         // Solution taken from http://en.wikipedia.org/wiki/Euler_angles#Matrix_orientation
         s1 = Math.sin(-ex);
@@ -781,7 +781,7 @@ JS.mixin(Mat4.prototype, {
                 x = Math.atan2(m[4] / sy, m[5] / sy);
             }
 
-            return eulers.set(x, y, z).scale(cc.math.RAD_TO_DEG);
+            return eulers.set(x, y, z).scale(cc.MathUtils.RAD_TO_DEG);
         };
     }()),
 

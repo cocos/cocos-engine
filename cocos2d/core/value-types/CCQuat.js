@@ -88,7 +88,7 @@ JS.mixin(Quat.prototype, {
             z = Math.atan2(2 * (qw * qz + qx * qy), 1 - 2 * (qy * qy + qz * qz));
         }
 
-        return eulers.set(x, y, z).scale(cc.math.RAD_TO_DEG);
+        return eulers.set(x, y, z).scale(cc.MathUtils.RAD_TO_DEG);
     },
 
     invert: function () {
@@ -186,7 +186,7 @@ JS.mixin(Quat.prototype, {
     setFromAxisAngle: function (axis, angle) {
         var sa, ca;
 
-        angle *= 0.5 * cc.math.DEG_TO_RAD;
+        angle *= 0.5 * cc.MathUtils.DEG_TO_RAD;
 
         sa = Math.sin(angle);
         ca = Math.cos(angle);
@@ -202,7 +202,7 @@ JS.mixin(Quat.prototype, {
     setFromEulerAngles: function (ex, ey, ez) {
         var sx, cx, sy, cy, sz, cz, halfToRad;
 
-        halfToRad = 0.5 * cc.math.DEG_TO_RAD;
+        halfToRad = 0.5 * cc.MathUtils.DEG_TO_RAD;
         ex *= halfToRad;
         ey *= halfToRad;
         ez *= halfToRad;
