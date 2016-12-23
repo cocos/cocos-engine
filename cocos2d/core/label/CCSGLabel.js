@@ -60,7 +60,10 @@ var FntLoader = {
     parseFnt: function (fntStr) {
         var self = this, fnt = {};
         //padding
-        var infoObj = self._parseStrToObj(fntStr.match(self.INFO_EXP)[0]);
+        var infoResult = fntStr.match(self.INFO_EXP);
+        if (!infoResult) return;
+
+        var infoObj = self._parseStrToObj(infoResult[0]);
         var paddingArr = infoObj["padding"].split(",");
         var padding = {
             left: parseInt(paddingArr[0]),
