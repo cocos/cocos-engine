@@ -786,6 +786,157 @@ var Node = cc.Class({
             },
         },
 
+        /**
+         * !#en Anchor point's position on x axis.
+         * !#zh 节点 X 轴锚点位置。
+         * @property anchorX
+         * @type {Number}
+         * @example
+         * node.anchorX = 0;
+         */
+        anchorX: {
+            get: function () {
+                return this._anchorPoint.x;
+            },
+            set: function (value) {
+                var anchorPoint = this._anchorPoint;
+                if (anchorPoint.x !== value) {
+                    anchorPoint.x = value;
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node) {
+                        sizeProvider.setAnchorPoint(anchorPoint);
+                    }
+                    this.emit(ANCHOR_CHANGED);
+                }
+            },
+        },
+
+        /**
+         * !#en Anchor point's position on y axis.
+         * !#zh 节点 Y 轴锚点位置。
+         * @property anchorY
+         * @type {Number}
+         * @example
+         * node.anchorY = 0;
+         */
+        anchorY: {
+            get: function () {
+                return this._anchorPoint.y;
+            },
+            set: function (value) {
+                var anchorPoint = this._anchorPoint;
+                if (anchorPoint.y !== value) {
+                    anchorPoint.y = value;
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node) {
+                        sizeProvider.setAnchorPoint(anchorPoint);
+                    }
+                    this.emit(ANCHOR_CHANGED);
+                }
+            },
+        },
+
+        /**
+         * !#en Width of node.
+         * !#zh 节点宽度。
+         * @property width
+         * @type {Number}
+         * @example
+         * node.width = 100;
+         */
+        width: {
+            get: function () {
+                if (this._sizeProvider) {
+                    var w = this._sizeProvider._getWidth();
+                    this._contentSize.width = w;
+                    return w;
+                }
+                else {
+                    return this._contentSize.width;
+                }
+            },
+            set: function (value) {
+                if (value !== this._contentSize.width) {
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider) {
+                        sizeProvider.setContentSize(value, sizeProvider._getHeight());
+                    }
+                    if (CC_EDITOR) {
+                        var clone = cc.size(this._contentSize);
+                    }
+                    this._contentSize.width = value;
+                    if (CC_EDITOR) {
+                        this.emit(SIZE_CHANGED, clone);
+                    }
+                    else {
+                        this.emit(SIZE_CHANGED);
+                    }
+                }
+            },
+        },
+
+        /**
+         * !#en Height of node.
+         * !#zh 节点高度。
+         * @property height
+         * @type {Number}
+         * @example
+         * node.height = 100;
+         */
+        height: {
+            get: function () {
+                if (this._sizeProvider) {
+                    var h = this._sizeProvider._getHeight();
+                    this._contentSize.height = h;
+                    return h;
+                }
+                else {
+                    return this._contentSize.height;
+                }
+            },
+            set: function (value) {
+                if (value !== this._contentSize.height) {
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider) {
+                        sizeProvider.setContentSize(sizeProvider._getWidth(), value);
+                    }
+                    if (CC_EDITOR) {
+                        var clone = cc.size(this._contentSize);
+                    }
+                    this._contentSize.height = value;
+                    if (CC_EDITOR) {
+                        this.emit(SIZE_CHANGED, clone);
+                    }
+                    else {
+                        this.emit(SIZE_CHANGED);
+                    }
+                }
+            },
+        },
+
+        /**
+         * Indicate whether ignore the anchor point property for positioning.
+         * @property _ignoreAnchor
+         * @type {Boolean}
+         * @private
+         */
+        _ignoreAnchor: {
+            get: function () {
+                return this.__ignoreAnchor;
+            },
+            set: function (value) {
+                if (this.__ignoreAnchor !== value) {
+                    this.__ignoreAnchor = value;
+                    this._sgNode.ignoreAnchor = value;
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node && sizeProvider !== this._sgNode) {
+                        sizeProvider.ignoreAnchor = value;
+                    }
+                    this.emit(ANCHOR_CHANGED);
+                }
+            },
+        },
+
         //properties moved from base node end
     },
 
