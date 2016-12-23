@@ -404,21 +404,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
-    /**
-     * !#en
-     * Returns a "local" axis aligned bounding box of the node. <br/>
-     * The returned box is relative only to its parent.
-     * !#zh 返回父节坐标系下的轴向对齐的包围盒。
-     * @method getBoundingBox
-     * @return {Rect} The calculated bounding box of the node
-     * @example
-     * var boundingBox = node.getBoundingBox();
-     */
-    getBoundingBox: function () {
-        var size = this.getContentSize();
-        var rect = cc.rect( 0, 0, size.width, size.height );
-        return cc._rectApplyAffineTransformIn(rect, this.getNodeToParentTransform());
-    },
 
     /**
      * !#en Stops all running actions and schedulers.
@@ -921,77 +906,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         return mat;
     },
 
-    /**
-     * !#en
-     * Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.<br/>
-     * The matrix is in Pixels.<br/>
-     * This method is AR (Anchor Relative).
-     * !#zh
-     * 返回这个将节点（局部）的空间坐标系转换成父节点的空间坐标系的矩阵。<br/>
-     * 这个矩阵以像素为单位。<br/>
-     * 该方法基于节点坐标。
-     * @method getNodeToParentTransformAR
-     * @return {AffineTransform} The affine transform object
-     * @example
-     * var affineTransform = node.getNodeToParentTransformAR();
-     */
-    getNodeToParentTransformAR: function () {
-        var contentSize = this.getContentSize();
-        var mat = this._sgNode.getNodeToParentTransform();
-        if ( !this._isSgTransformArToMe(contentSize) ) {
-            // see getNodeToWorldTransform
-            var tx = this._anchorPoint.x * contentSize.width;
-            var ty = this._anchorPoint.y * contentSize.height;
-            var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
-            mat = cc.affineTransformConcatIn(offset, mat);
-        }
-        return mat;
-    },
-
-    /**
-     * !#en
-     * Returns a "world" axis aligned bounding box of the node.<br/>
-     * The bounding box contains self and active children's world bounding box.
-     * !#zh
-     * 返回节点在世界坐标系下的对齐轴向的包围盒（AABB）。<br/>
-     * 该边框包含自身和已激活的子节点的世界边框。
-     * @method getBoundingBoxToWorld
-     * @return {Rect}
-     * @example
-     * var newRect = node.getBoundingBoxToWorld();
-     */
-    getBoundingBoxToWorld: function () {
-        var trans;
-        if (this.parent) {
-            trans = this.parent.getNodeToWorldTransformAR();
-        }
-        return this._getBoundingBoxTo(trans);
-    },
-
-    _getBoundingBoxTo: function (parentTransformAR) {
-        var size = this.getContentSize();
-        var width = size.width;
-        var height = size.height;
-        var rect = cc.rect(- this._anchorPoint.x * width, - this._anchorPoint.y * height, width, height);
-
-        var transAR = cc.affineTransformConcat(this.getNodeToParentTransformAR(), parentTransformAR);
-        cc._rectApplyAffineTransformIn(rect, transAR);
-
-        //query child's BoundingBox
-        if (!this._children)
-            return rect;
-
-        var locChildren = this._children;
-        for (var i = 0; i < locChildren.length; i++) {
-            var child = locChildren[i];
-            if (child && child.active) {
-                var childRect = child._getBoundingBoxTo(transAR);
-                if (childRect)
-                    rect = cc.rectUnion(rect, childRect);
-            }
-        }
-        return rect;
-    },
 
     // HIERARCHY METHODS
 
