@@ -28,14 +28,6 @@ var Destroying = require('../platform/CCObject').Flags.Destroying;
 var Misc = require('./misc');
 var IdGenerater = require('../platform/id-generater');
 
-function updateOrder (node) {
-    var parent = node._parent;
-    parent._delaySort();
-    if (!CC_JSB) {
-        cc.eventManager._setDirtyForNode(node);
-    }
-}
-
 var POSITION_CHANGED = 'position-changed';
 var SIZE_CHANGED = 'size-changed';
 var ANCHOR_CHANGED = 'anchor-changed';
@@ -166,7 +158,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     this._sgNode.zIndex = value;
 
                     if(this._parent) {
-                        updateOrder(this);
+                        this._parent._delaySort();
+                        if (!CC_JSB) {
+                            cc.eventManager._setDirtyForNode(this);
+                        }
                     }
                 }
             }
@@ -300,7 +295,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (value) {
             var parent = value._sgNode;
             parent.addChild(sgNode);
-            updateOrder(this);
+            value._delaySort();
+            if (!CC_JSB) {
+                cc.eventManager._setDirtyForNode(this);
+            }
             value._children.push(this);
             value.emit(CHILD_ADDED, this);
         }
