@@ -61,7 +61,7 @@ var FntLoader = {
         var self = this, fnt = {};
         //padding
         var infoResult = fntStr.match(self.INFO_EXP);
-        if (!infoResult) return;
+        if (!infoResult) return fnt;
 
         var infoObj = self._parseStrToObj(infoResult[0]);
         var paddingArr = infoObj["padding"].split(",");
