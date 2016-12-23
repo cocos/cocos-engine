@@ -39,7 +39,7 @@ var Mat3 = function () {
 
 JS.extend(Mat3, ValueType);
 //todo add something here
-CCClass.fastDefine('cc.Mat3', Mat3, {m:[1,0,0,0,1,0,0,0,1]});
+CCClass.fastDefine('cc.Mat3', Mat3, {});
 
 JS.mixin(Mat3.prototype,{
 

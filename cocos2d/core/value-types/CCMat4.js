@@ -39,7 +39,7 @@ var Mat4 = function () {
 
 JS.extend(Mat4, ValueType);
 //todo add something here
-CCClass.fastDefine('cc.Mat4', Mat4, {m:[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]});
+CCClass.fastDefine('cc.Mat4', Mat4, {});
 
 JS.mixin(Mat4.prototype, {
     add2: function (lhs, rhs) {
