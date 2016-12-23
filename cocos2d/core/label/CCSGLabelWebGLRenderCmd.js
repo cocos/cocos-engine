@@ -53,7 +53,7 @@ _ccsg.Label.WebGLRenderCmd = function(renderableObject){
     this._color = new Uint32Array(1);
     this._dirty = false;
 
-    this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST);
+    this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
 };
 
 var proto = _ccsg.Label.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);

@@ -75,12 +75,12 @@ dragonBones.CCSlot = cc.Class({
     },
 
     _updateBlendMode : function () {
-        if (this._renderDisplay instanceof _ccsg.Sprite) {
+        if (this._renderDisplay instanceof cc.Scale9Sprite) {
             switch (this._blendMode) {
             case 0: // BlendMode Normal
                 break;
             case 1: // BlendMode Add
-                var texture = this._renderDisplay.getTexture();
+                var texture = this._renderDisplay._spriteFrame.getTexture();
                 if (texture && texture.hasPremultipliedAlpha()) {
                     this._renderDisplay.setBlendFunc(cc.BlendFunc.BlendFactor.ONE, cc.BlendFunc.BlendFactor.ONE);
                 }
@@ -204,23 +204,25 @@ dragonBones.CCSlot = cc.Class({
                         this._meshDisplay.setAnchorPoint(cc.p(0, 0));
                     }
                     else {
+                        var scale = this._armature.armatureData.scale;
                         var pivot = cc.p(currentDisplayData.pivot.x, currentDisplayData.pivot.y);
-                        var rectData = currentTextureData.frame || currentTextureData.region;
-                        var width = rectData.width;
-                        var height = rectData.height;
-                        if (!currentTextureData.frame && currentTextureData.rotated) {
-                            width = rectData.height;
-                            height = rectData.width;
-                        }
 
                         if (currentDisplayData.isRelativePivot) {
+                            var rectData = currentTextureData.frame || currentTextureData.region;
+                            var width = rectData.width * scale;
+                            var height = rectData.height * scale;
+                            if (!currentTextureData.frame && currentTextureData.rotated) {
+                                width = rectData.height;
+                                height = rectData.width;
+                            }
+
                             pivot.x *= width;
                             pivot.y *= height;
                         }
 
                         if (currentTextureData.frame) {
-                            pivot.x += currentTextureData.frame.x;
-                            pivot.y += currentTextureData.frame.y;
+                            pivot.x += currentTextureData.frame.x * scale;
+                            pivot.y += currentTextureData.frame.y * scale;
                         }
 
                         if (rawDisplayData && rawDisplayData !== currentDisplayData) {
@@ -236,6 +238,7 @@ dragonBones.CCSlot = cc.Class({
                             this._rawDisplay.setTexture(currentTexture);
                         }
                         this._rawDisplay.setAnchorPoint(pivot);
+                        this._blendModeDirty = true;
                     }
 
                     this._updateVisible();
@@ -245,7 +248,6 @@ dragonBones.CCSlot = cc.Class({
         }
 
         this._rawDisplay.setTexture(null);
-        this._rawDisplay.setTextureRect(cc.rect(0, 0, 0, 0));
         this._rawDisplay.setAnchorPoint(cc.p(0, 0));
         this._rawDisplay.setVisible(false);
     },
