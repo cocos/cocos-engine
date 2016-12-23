@@ -32,6 +32,15 @@ var Destroying = Flags.Destroying;
 var DontDestroy = Flags.DontDestroy;
 var Activating = Flags.Activating;
 
+var POSITION_CHANGED = 'position-changed';
+var SIZE_CHANGED = 'size-changed';
+var ANCHOR_CHANGED = 'anchor-changed';
+var CHILD_ADDED = 'child-added';
+var CHILD_REMOVED = 'child-removed';
+var CHILD_REORDER = 'child-reorder';
+
+var ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
+
 var Misc = require('./utils/misc');
 //var RegisteredInEditor = Flags.RegisteredInEditor;
 
@@ -457,6 +466,98 @@ var Node = cc.Class({
         },
 
         //properties moved from base node begin
+
+        /**
+         * !#en x axis position of node.
+         * !#zh 节点 X 轴坐标。
+         * @property x
+         * @type {Number}
+         * @example
+         * node.x = 100;
+         * cc.log("Node Position X: " + node.x);
+         */
+        x: {
+            get: function () {
+                return this._position.x;
+            },
+            set: function (value) {
+                var localPosition = this._position;
+                if (value !== localPosition.x) {
+                    if (!CC_EDITOR || isFinite(value)) {
+                        if (CC_EDITOR) {
+                            var oldValue = localPosition.x;
+                        }
+
+                        localPosition.x = value;
+                        this._sgNode.setPositionX(value);
+
+                        // fast check event
+                        var capListeners = this._capturingListeners &&
+                            this._capturingListeners._callbackTable[POSITION_CHANGED];
+                        var bubListeners = this._bubblingListeners &&
+                            this._bubblingListeners._callbackTable[POSITION_CHANGED];
+                        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
+                            // send event
+                            if (CC_EDITOR) {
+                                this.emit(POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
+                            }
+                            else {
+                                this.emit(POSITION_CHANGED);
+                            }
+                        }
+                    }
+                    else {
+                        cc.error(ERR_INVALID_NUMBER, 'new x');
+                    }
+                }
+            },
+        },
+
+        /**
+         * !#en y axis position of node.
+         * !#zh 节点 Y 轴坐标。
+         * @property y
+         * @type {Number}
+         * @example
+         * node.y = 100;
+         * cc.log("Node Position Y: " + node.y);
+         */
+        y: {
+            get: function () {
+                return this._position.y;
+            },
+            set: function (value) {
+                var localPosition = this._position;
+                if (value !== localPosition.y) {
+                    if (!CC_EDITOR || isFinite(value)) {
+                        if (CC_EDITOR) {
+                            var oldValue = localPosition.y;
+                        }
+
+                        localPosition.y = value;
+                        this._sgNode.setPositionY(value);
+
+                        // fast check event
+                        var capListeners = this._capturingListeners &&
+                            this._capturingListeners._callbackTable[POSITION_CHANGED];
+                        var bubListeners = this._bubblingListeners &&
+                            this._bubblingListeners._callbackTable[POSITION_CHANGED];
+                        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
+                            // send event
+                            if (CC_EDITOR) {
+                                this.emit(POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
+                            }
+                            else {
+                                this.emit(POSITION_CHANGED);
+                            }
+                        }
+                    }
+                    else {
+                        cc.error(ERR_INVALID_NUMBER, 'new y');
+                    }
+                }
+            },
+        },
 
         /**
          * !#en Rotation of node.
@@ -1629,6 +1730,85 @@ var Node = cc.Class({
     //functions moved from base node begin
 
     /**
+     * !#en Returns a copy of the position (x,y) of the node in cocos2d coordinates. (0,0) is the left-bottom corner.
+     * !#zh 获取在父节点坐标系中节点的位置（ x , y ）。
+     * @method getPosition
+     * @return {Vec2} The position (x,y) of the node in OpenGL coordinates
+     * @example
+     * cc.log("Node Position: " + node.getPosition());
+     */
+    getPosition: function () {
+        return cc.p(this._position);
+    },
+
+    /**
+     * !#en
+     * Changes the position (x,y) of the node in cocos2d coordinates.<br/>
+     * The original point (0,0) is at the left-bottom corner of screen.<br/>
+     * Usually we use cc.v2(x,y) to compose CCVec2 object.<br/>
+     * and Passing two numbers (x,y) is more efficient than passing CCPoint object.
+     * !#zh
+     * 设置节点在父坐标系中的位置。<br/>
+     * 可以通过 2 种方式设置坐标点：<br/>
+     * 1.传入 cc.v2(x, y) 类型为 cc.Vec2 的对象。<br/>
+     * 2.传入 2 个数值 x 和 y。
+     * @method setPosition
+     * @param {Vec2|Number} newPosOrxValue - The position (x,y) of the node in coordinates or the X coordinate for position
+     * @param {Number} [yValue] - Y coordinate for position
+     * @example {@link utils/api/engine/docs/cocos2d/core/utils/base-node/setPosition.js}
+     */
+    setPosition: function (newPosOrxValue, yValue) {
+        var xValue;
+        if (typeof yValue === 'undefined') {
+            xValue = newPosOrxValue.x;
+            yValue = newPosOrxValue.y;
+        }
+        else {
+            xValue = newPosOrxValue;
+            yValue = yValue;
+        }
+
+        var locPosition = this._position;
+        if(locPosition.x === xValue && locPosition.y === yValue) {
+            return;
+        }
+
+        if (CC_EDITOR) {
+            var oldPosition = new cc.Vec2(locPosition);
+        }
+
+        if (!CC_EDITOR || isFinite(xValue)) {
+            locPosition.x = xValue;
+        }
+        else {
+            return cc.error(ERR_INVALID_NUMBER, 'x of new position');
+        }
+        if (!CC_EDITOR || isFinite(yValue)) {
+            locPosition.y = yValue;
+        }
+        else {
+            return cc.error(ERR_INVALID_NUMBER, 'y of new position');
+        }
+
+        this._sgNode.setPosition(xValue, yValue);
+
+        // fast check event
+        var capListeners = this._capturingListeners &&
+            this._capturingListeners._callbackTable[POSITION_CHANGED];
+        var bubListeners = this._bubblingListeners &&
+            this._bubblingListeners._callbackTable[POSITION_CHANGED];
+        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
+            // send event
+            if (CC_EDITOR) {
+                this.emit(POSITION_CHANGED, oldPosition);
+            }
+            else {
+                this.emit(POSITION_CHANGED);
+            }
+        }
+    },
+
+    /**
      * !#en
      * Returns the scale factor of the node.
      * Assertion will fail when _scaleX != _scaleY.
@@ -1869,9 +2049,11 @@ if (CC_JSB) {
  * node.setCascadeColorEnabled(true);
  */
 
-var SameNameGetSets = ['skewX', 'skewY', 'rotation', 'rotationX', 'rotationY', 'scale', 'scaleX', 'scaleY', ];
+var SameNameGetSets = ['skewX', 'skewY', 'position', 'rotation', 'rotationX', 'rotationY', 'scale', 'scaleX', 'scaleY', ];
 
 var DiffNameGetSets = {
+    x: ['getPositionX', 'setPositionX'],
+    y: ['getPositionY', 'setPositionY'],
 };
 
 Misc.propertyDefine(Node, SameNameGetSets, DiffNameGetSets);
