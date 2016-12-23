@@ -742,6 +742,9 @@ cc.BMFontHelper = {
                         var originalX = this._reusedRect.x;
                         this._reusedRect.x = rect.x + rect.height - this._reusedRect.y - this._reusedRect.height - trimmedTop;
                         this._reusedRect.y = originalX + rect.y - trimmedLeft;
+                        if (this._reusedRect.y < 0) {
+                            this._reusedRect.height = this._reusedRect.height + trimmedTop;
+                        }
                     }
 
                     if (!fontChar) {

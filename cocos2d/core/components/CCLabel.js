@@ -374,7 +374,7 @@ var Label = cc.Class({
 
                     var isAsset = value instanceof cc.Font;
 
-                    if (this.font instanceof cc.BitmapFont) {
+                    if ((this.font instanceof cc.BitmapFont) || (this.font instanceof cc.LabelAtlas)) {
                         this._sgNode.setFontFileOrFamily(this.font.fntDataStr, this.font.spriteFrame);
                     } else {
                         var ttfName = isAsset ? value.rawUrl : '';
@@ -468,8 +468,7 @@ var Label = cc.Class({
         var isAsset = this.font instanceof cc.Font;
 
         var sgNode;
-        if (this.font instanceof cc.BitmapFont) {
-            this._bmFontOriginalSize = this.font.fontSize;
+        if ((this.font instanceof cc.BitmapFont) || (this.font instanceof cc.LabelAtlas)) {
             sgNode = this._sgNode = new _ccsg.Label(this.string, this.font.fntDataStr, this.font.spriteFrame);
         } else {
             var ttfName = isAsset ? this.font.rawUrl : '';
@@ -478,6 +477,10 @@ var Label = cc.Class({
 
         if (CC_JSB) {
             sgNode.retain();
+        }
+
+        if (this.font instanceof cc.BitmapFont) {
+            this._bmFontOriginalSize = this.font.fontSize;
         }
 
         sgNode.setVisible(false);
@@ -494,7 +497,7 @@ var Label = cc.Class({
         }
         if (CC_EDITOR && this._useOriginalSize) {
             this.node.setContentSize(sgNode.getContentSize());
-            if (this.font instanceof cc.BitmapFont) {
+            if ((this.font instanceof cc.BitmapFont) || (this.font instanceof cc.LabelAtlas)) {
                 this.lineHeight = sgNode.getBMFontLineHeight();
             }
             this._useOriginalSize = false;
