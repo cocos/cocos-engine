@@ -148,44 +148,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         },
 
         /**
-         * !#en Skew x
-         * !#zh 该节点 Y 轴倾斜角度。
-         * @property skewX
-         * @type {Number}
-         * @example
-         * node.skewX = 0;
-         * cc.log("Node SkewX: " + node.skewX);
-         */
-        skewX: {
-            get: function () {
-                return this._skewX;
-            },
-            set: function (value) {
-                this._skewX = value;
-                this._sgNode.skewX = value;
-            }
-        },
-
-        /**
-         * !#en Skew y
-         * !#zh 该节点 X 轴倾斜角度。
-         * @property skewY
-         * @type {Number}
-         * @example
-         * node.skewY = 0;
-         * cc.log("Node SkewY: " + node.skewY);
-         */
-        skewY: {
-            get: function () {
-                return this._skewY;
-            },
-            set: function (value) {
-                this._skewY = value;
-                this._sgNode.skewY = value;
-            }
-        },
-
-        /**
          * !#en Z order in depth which stands for the drawing order.
          * !#zh 该节点渲染排序的 Z 轴深度。
          * @property zIndex
@@ -208,113 +170,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     }
                 }
             }
-        },
-
-        /**
-         * !#en Rotation of node.
-         * !#zh 该节点旋转角度。
-         * @property rotation
-         * @type {Number}
-         * @example
-         * node.rotation = 90;
-         * cc.log("Node Rotation: " + node.rotation);
-         */
-        rotation: {
-            get: function () {
-                if (this._rotationX !== this._rotationY)
-                    cc.logID(1602);
-                return this._rotationX;
-            },
-            set: function (value) {
-                if (this._rotationX !== value || this._rotationY !== value ) {
-                    this._rotationX = this._rotationY = value;
-                    this._sgNode.rotation = value;
-                }
-            }
-        },
-
-        /**
-         * !#en Rotation on x axis.
-         * !#zh 该节点 X 轴旋转角度。
-         * @property rotationX
-         * @type {Number}
-         * @example
-         * node.rotationX = 45;
-         * cc.log("Node Rotation X: " + node.rotationX);
-         */
-        rotationX: {
-            get: function () {
-                return this._rotationX;
-            },
-            set: function (value) {
-                if (this._rotationX !== value) {
-                    this._rotationX = value;
-                    this._sgNode.rotationX = value;
-                }
-            },
-        },
-
-        /**
-         * !#en Rotation on y axis.
-         * !#zh 该节点 Y 轴旋转角度。
-         * @property rotationY
-         * @type {Number}
-         * @example
-         * node.rotationY = 45;
-         * cc.log("Node Rotation Y: " + node.rotationY);
-         */
-        rotationY: {
-            get: function () {
-                return this._rotationY;
-            },
-            set: function (value) {
-                if (this._rotationY !== value) {
-                    this._rotationY = value;
-                    this._sgNode.rotationY = value;
-                }
-            },
-        },
-
-        /**
-         * !#en Scale on x axis.
-         * !#zh 节点 X 轴缩放。
-         * @property scaleX
-         * @type {Number}
-         * @example
-         * node.scaleX = 0.5;
-         * cc.log("Node Scale X: " + node.scaleX);
-         */
-        scaleX: {
-            get: function () {
-                return this._scaleX;
-            },
-            set: function (value) {
-                if (this._scaleX !== value) {
-                    this._scaleX = value;
-                    this._sgNode.scaleX = value;
-                }
-            },
-        },
-
-        /**
-         * !#en Scale on y axis.
-         * !#zh 节点 Y 轴缩放。
-         * @property scaleY
-         * @type {Number}
-         * @example
-         * node.scaleY = 0.5;
-         * cc.log("Node Scale Y: " + node.scaleY);
-         */
-        scaleY: {
-            get: function () {
-                return this._scaleY;
-            },
-            set: function (value) {
-                if (this._scaleY !== value) {
-                    this._scaleY = value;
-                    this._sgNode.scaleY = value;
-                }
-            },
         },
 
         /**
@@ -884,47 +739,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     getGlobalZOrder: function () {
         this._globalZOrder = this._sgNode.getGlobalZOrder();
         return this._globalZOrder;
-    },
-
-    /**
-     * !#en
-     * Returns the scale factor of the node.
-     * Assertion will fail when _scaleX != _scaleY.
-     * !#zh 获取节点的缩放。当 X 轴和 Y 轴有相同的缩放数值时。
-     * @method getScale
-     * @return {Number} The scale factor
-     * @example
-     * cc.log("Node Scale: " + node.getScale());
-     */
-    getScale: function () {
-        if (this._scaleX !== this._scaleY)
-            cc.logID(1603);
-        return this._scaleX;
-    },
-
-    /**
-     * !#en Sets the scale factor of the node. 1.0 is the default scale factor. This function can modify the X and Y scale at the same time.
-     * !#zh 设置节点的缩放比例，默认值为 1.0。这个函数可以在同一时间修改 X 和 Y 缩放。
-     * @method setScale
-     * @param {Number|Vec2} scaleX - scaleX or scale
-     * @param {Number} [scaleY=scale]
-     * @example
-     * node.setScale(cc.v2(1, 1));
-     * node.setScale(1, 1);
-     */
-    setScale: function (scaleX, scaleY) {
-        if (typeof scaleX === 'object') {
-            scaleY = scaleX.y;
-            scaleX = scaleX.x
-        }
-        else {
-            scaleY = (scaleY || scaleY === 0) ? scaleY : scaleX;
-        }
-        if (this._scaleX !== scaleX || this._scaleY !== scaleY) {
-            this._scaleX = scaleX;
-            this._scaleY = scaleY;
-            this._sgNode.setScale(scaleX, scaleY);
-        }
     },
 
     /**
@@ -2070,8 +1884,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
 // Define public getter and setter methods to ensure api compatibility.
 
-var SameNameGetSets = ['name', 'skewX', 'skewY', 'position', 'rotation', 'rotationX', 'rotationY',
-                       'scale', 'scaleX', 'scaleY', 'children', 'childrenCount', 'parent',
+var SameNameGetSets = ['name', 'position', 'children', 'childrenCount', 'parent',
                        /*'shaderProgram',*/ 'opacity', 'color', 'tag'];
 var DiffNameGetSets = {
     x: ['getPositionX', 'setPositionX'],
