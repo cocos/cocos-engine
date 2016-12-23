@@ -116,6 +116,48 @@ if (TestEditorExtends) {
         deepEqual(cc.deserialize(str, null, {target: null}), obj, 'can deserialize null');
     });
 
+    test('fast defined property', function () {
+        function Vec3 (x, y, z) {
+            this.data = [x, y, z];
+        }
+        cc.Class._fastDefine('Vec3', Vec3, { x: 0, y: 0, z: 0, });
+
+        Object.defineProperties(Vec3.prototype, {
+            x: {
+                get: function () {
+                    return this.data[0];
+                },
+                set: function (value) {
+                    this.data[0] = value;
+                },
+            },
+            y: {
+                get: function () {
+                    return this.data[1];
+                },
+                set: function (value) {
+                    this.data[1] = value;
+                },
+            },
+            z: {
+                get: function () {
+                    return this.data[2];
+                },
+                set: function (value) {
+                    this.data[2] = value;
+                },
+            }
+        });
+
+        var vec3 = cc.deserialize({ __type__: "Vec3", x: 1, y: 2, z: 3 });
+        ok(vec3 instanceof Vec3, 'test type');
+        strictEqual(vec3.x, 1, 'test x');
+        strictEqual(vec3.y, 2, 'test y');
+        strictEqual(vec3.z, 3, 'test z');
+
+        cc.js.unregisterClass(Vec3);
+    });
+
     test('json deserialize test', function () {
 
         // TODO:
