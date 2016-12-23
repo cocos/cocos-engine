@@ -275,7 +275,7 @@ cc.rendererWebGL = {
         }
     },
 
-    _increaseBatchingSize: function (increment, vertexType) {
+    _increaseBatchingSize: function (increment, vertexType, indices) {
         vertexType = vertexType || VertexType.QUAD;
         var i, curr;
         switch (vertexType) {
@@ -300,12 +300,32 @@ cc.rendererWebGL = {
             }
             break;
         case VertexType.CUSTOM:
-            // TODO increase index data of custom cmd ??
+            // CUSTOM type increase the indices data
+            _pureQuad = false;
+            var len = indices.length;
+            for (i = 0; i < len; i++) {
+                _indexData[_indexSize++] = _batchingSize + indices[i];
+            }
             break;
         default:
             return;
         }
         _batchingSize += increment;
+    },
+
+    _updateBatchedInfo: function (texture, blendFunc, shaderProgram) {
+        if (texture) {
+            _batchedInfo.texture = texture;
+        }
+
+        if (blendFunc) {
+            _batchedInfo.blendSrc = blendFunc.src;
+            _batchedInfo.blendDst = blendFunc.dst;
+        }
+
+        if (shaderProgram) {
+            _batchedInfo.shader = shaderProgram;
+        }
     },
 
     _breakBatch: function () {
@@ -319,7 +339,7 @@ cc.rendererWebGL = {
 
         // Check batching
         var node = cmd._node;
-        var texture = cmd._texture || node._texture || node._spriteFrame._texture;
+        var texture = cmd._texture || node._texture || (node._spriteFrame && node._spriteFrame._texture);
         var blendSrc = cmd._node._blendFunc.src;
         var blendDst = cmd._node._blendFunc.dst;
         var shader = cmd._shaderProgram;

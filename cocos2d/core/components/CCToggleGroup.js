@@ -51,7 +51,7 @@ var ToggleGroup = cc.Class({
          * @property {Boolean} allowSwitchOff
          */
         allowSwitchOff: {
-            tooltip: 'i18n:COMPONENT.toggle_group.allowSwitchOff',
+            tooltip: CC_DEV && 'i18n:COMPONENT.toggle_group.allowSwitchOff',
             default: false
         }
     },

@@ -71,7 +71,7 @@ var Slider = cc.Class({
         handle: {
             default: null,
             type: cc.Button,
-            tooltip: 'i18n:COMPONENT.slider.handle',
+            tooltip: CC_DEV && 'i18n:COMPONENT.slider.handle',
             notify: function() {
                 if (CC_EDITOR && this.handle) {
                     this._updateHandlePosition();
@@ -87,7 +87,7 @@ var Slider = cc.Class({
         direction: {
             default: Direction.Horizontal,
             type: Direction,
-            tooltip: 'i18n:COMPONENT.slider.direction'
+            tooltip: CC_DEV && 'i18n:COMPONENT.slider.direction'
         },
 
         /**
@@ -100,7 +100,7 @@ var Slider = cc.Class({
             type: cc.Float,
             range: [0, 1, 0.1],
             slide: true,
-            tooltip: 'i18n:COMPONENT.slider.progress',
+            tooltip: CC_DEV && 'i18n:COMPONENT.slider.progress',
             notify: function() {
                 this._updateHandlePosition();
             }
@@ -114,7 +114,7 @@ var Slider = cc.Class({
         slideEvents: {
             default: [],
             type: cc.Component.EventHandler,
-            tooltip: 'i18n:COMPONENT.slider.slideEvents'
+            tooltip: CC_DEV && 'i18n:COMPONENT.slider.slideEvents'
         }
     },
 
