@@ -1931,6 +1931,39 @@ var Node = cc.Class({
         }
     },
 
+    /**
+     * !#en
+     * Set whether color should be changed with the opacity value,
+     * useless in ccsg.Node, but this function is override in some class to have such behavior.
+     * !#zh 设置更改透明度时是否修改RGB值，
+     * @method setOpacityModifyRGB
+     * @param {Boolean} opacityValue
+     * @example
+     * node.setOpacityModifyRGB(true);
+     */
+    setOpacityModifyRGB: function (opacityValue) {
+        if (this._opacityModifyRGB !== opacityValue) {
+            this._opacityModifyRGB = opacityValue;
+            this._sgNode.setOpacityModifyRGB(opacityValue);
+            var sizeProvider = this._sizeProvider;
+            if (sizeProvider instanceof _ccsg.Node && sizeProvider !== this._sgNode) {
+                sizeProvider.setOpacityModifyRGB(opacityValue);
+            }
+        }
+    },
+
+    /**
+     * !#en Get whether color should be changed with the opacity value.
+     * !#zh 更改透明度时是否修改RGB值。
+     * @method isOpacityModifyRGB
+     * @return {Boolean}
+     * @example
+     * var hasChange = node.isOpacityModifyRGB();
+     */
+    isOpacityModifyRGB: function () {
+        return this._opacityModifyRGB;
+    },
+
     //functions moved from base node end
 
 });
@@ -2137,6 +2170,7 @@ var SameNameGetSets = ['skewX', 'skewY', 'position', 'rotation', 'rotationX', 'r
 var DiffNameGetSets = {
     x: ['getPositionX', 'setPositionX'],
     y: ['getPositionY', 'setPositionY'],
+    opacityModifyRGB: ['isOpacityModifyRGB', 'setOpacityModifyRGB'],
     cascadeOpacity: ['isCascadeOpacityEnabled', 'setCascadeOpacityEnabled'],
 };
 
