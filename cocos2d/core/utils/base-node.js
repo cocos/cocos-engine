@@ -366,87 +366,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * node.tag = 1001;
          */
 
-        /**
-         * !#en Opacity of node, default value is 255.
-         * !#zh 节点透明度，默认值为 255。
-         * @property opacity
-         * @type {Number}
-         * @example
-         * node.opacity = 255;
-         */
-        opacity: {
-            get: function () {
-                return this._opacity;
-            },
-            set: function (value) {
-                if (this._opacity !== value) {
-                    this._opacity = value;
-                    this._sgNode.setOpacity(value);
-                    if (!this._cascadeOpacityEnabled) {
-                        var sizeProvider = this._sizeProvider;
-                        if (sizeProvider instanceof _ccsg.Node && sizeProvider !== this._sgNode) {
-                            sizeProvider.setOpacity(value);
-                        }
-                    }
-                }
-            },
-            range: [0, 255]
-        },
-
-        /**
-         * !#en Indicate whether node's opacity value affect its child nodes, default value is true.
-         * !#zh 节点的不透明度值是否影响其子节点，默认值为 true。
-         * @property cascadeOpacity
-         * @type {Boolean}
-         * @example
-         * cc.log("CascadeOpacity: " + node.cascadeOpacity);
-         */
-        cascadeOpacity: {
-            get: function () {
-                return this._cascadeOpacityEnabled;
-            },
-            set: function (value) {
-                if (this._cascadeOpacityEnabled !== value) {
-                    this._cascadeOpacityEnabled = value;
-                    this._sgNode.cascadeOpacity = value;
-
-                    var opacity = value ? 255 : this._opacity;
-                    var sizeProvider = this._sizeProvider;
-                    if (sizeProvider instanceof _ccsg.Node) {
-                        sizeProvider.setOpacity(opacity);
-                    }
-                }
-            },
-        },
-
-        /**
-         * !#en Color of node, default value is white: (255, 255, 255).
-         * !#zh 节点颜色。默认为白色，数值为：（255，255，255）。
-         * @property color
-         * @type {Color}
-         * @example
-         * node.color = new cc.Color(255, 255, 255);
-         */
-        color: {
-            get: function () {
-                var color = this._color;
-                return new cc.Color(color.r, color.g, color.b, color.a);
-            },
-            set: function (value) {
-                if ( !this._color.equals(value) ) {
-                    var color = this._color;
-                    color.r = value.r;
-                    color.g = value.g;
-                    color.b = value.b;
-                    if (CC_DEV && value.a !== 255) {
-                        cc.warnID(1626);
-                    }
-                    if (this._sizeProvider instanceof _ccsg.Node) {
-                        this._sizeProvider.setColor(value);
-                    }
-                }
-            },
-        },
     },
 
     ctor: function () {
@@ -1714,11 +1633,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 // Define public getter and setter methods to ensure api compatibility.
 
 var SameNameGetSets = ['name', 'children', 'childrenCount', 'parent',
-                       /*'shaderProgram',*/ 'opacity', 'color', 'tag'];
+                       /*'shaderProgram',*/ 'tag'];
 var DiffNameGetSets = {
     zIndex: ['getLocalZOrder', 'setLocalZOrder'],
     opacityModifyRGB: ['isOpacityModifyRGB'],
-    cascadeOpacity: ['isCascadeOpacityEnabled', 'setCascadeOpacityEnabled'],
     //// privates
     //width: ['_getWidth', '_setWidth'],
     //height: ['_getHeight', '_setHeight'],
