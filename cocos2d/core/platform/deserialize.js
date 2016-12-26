@@ -135,11 +135,13 @@ var _Deserializer = (function () {
             // deserialize
             for (var i = 0; i < refCount; i++) {
                 if (jsonArray[i]) {
-                    var mainTarget;
-                    if (CC_DEV) {
-                        mainTarget = (i === 0 && target);
+                    if (CC_EDITOR || CC_TEST) {
+                        var mainTarget = (i === 0 && target);
+                        this.deserializedList[i] = _deserializeObject(this, jsonArray[i], mainTarget, this.deserializedList, '' + i);
                     }
-                    this.deserializedList[i] = _deserializeObject(this, jsonArray[i], mainTarget);
+                    else {
+                        this.deserializedList[i] = _deserializeObject(this, jsonArray[i]);
+                    }
                 }
             }
             this.deserializedData = refCount > 0 ? this.deserializedList[0] : [];
@@ -153,7 +155,12 @@ var _Deserializer = (function () {
         }
         else {
             this.deserializedList = [null];
-            this.deserializedData = jsonObj ? _deserializeObject(this, jsonObj, target) : null;
+            if (CC_EDITOR || CC_TEST) {
+                this.deserializedData = jsonObj ? _deserializeObject(this, jsonObj, target, this.deserializedList, '0') : null;
+            }
+            else {
+                this.deserializedData = jsonObj ? _deserializeObject(this, jsonObj) : null;
+            }
             this.deserializedList[0] = this.deserializedData;
 
             //// callback
@@ -172,10 +179,22 @@ var _Deserializer = (function () {
         var idPropList = self._idPropList;
         var idList = self._idList;
         var idObjList = self._idObjList;
-        for (var i = 0, len = self._idList.length; i < len; i++) {
-            var propName = idPropList[i];
-            var id = idList[i];
-            idObjList[i][propName] = deserializedList[id];
+        var onDereferenced = self._classFinder && self._classFinder.onDereferenced;
+        var i, propName, id;
+        if (CC_EDITOR && onDereferenced) {
+            for (i = 0; i < idList.length; i++) {
+                propName = idPropList[i];
+                id = idList[i];
+                idObjList[i][propName] = deserializedList[id];
+                onDereferenced(deserializedList, id, idObjList[i], propName);
+            }
+        }
+        else {
+            for (i = 0; i < idList.length; i++) {
+                propName = idPropList[i];
+                id = idList[i];
+                idObjList[i][propName] = deserializedList[id];
+            }
         }
     }
 
@@ -201,8 +220,8 @@ var _Deserializer = (function () {
                 this.result.uuidPropList.push(propName);
             }
             else {
-                if (CC_DEV) {
-                    obj[propName] = _deserializeObject(this, jsonObj, target && target[propName]);
+                if (CC_EDITOR || CC_TEST) {
+                    obj[propName] = _deserializeObject(this, jsonObj, target && target[propName], obj, propName);
                 }
                 else {
                     obj[propName] = _deserializeObject(this, jsonObj);
@@ -426,9 +445,11 @@ var _Deserializer = (function () {
 
     ///**
     // * @param {Object} serialized - The obj to deserialize, must be non-nil
-    // * @param {Object} [target=null]
+    // * @param {Object} [target=null] - editor only
+    // * @param {Object} [owner] - debug only
+    // * @param {String} [propName] - debug only
     // */
-    function _deserializeObject (self, serialized, target) {
+    function _deserializeObject (self, serialized, target, owner, propName) {
         var prop;
         var obj = null;     // the obj to return
         var klass = null;
@@ -437,10 +458,10 @@ var _Deserializer = (function () {
             // Type Object (including CCClass)
 
             var type = serialized.__type__;
-            klass = self._classFinder(type, serialized);
+            klass = self._classFinder(type, serialized, owner, propName);
             if (!klass) {
-                var noLog = self._classFinder === JS._getClassById;
-                if (noLog) {
+                var notReported = self._classFinder === JS._getClassById;
+                if (notReported) {
                     cc.deserialize.reportMissingClass(type);
                 }
                 return null;

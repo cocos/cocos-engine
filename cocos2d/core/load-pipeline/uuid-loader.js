@@ -41,13 +41,11 @@ function isSceneObj (json) {
 }
 
 function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRuntime, callback) {
-    var uuid = item.uuid, uuidList = tdInfo.uuidList;
+    var uuidList = tdInfo.uuidList;
     var objList, propList, depends;
     var i, dependUuid;
     // cache dependencies for auto release
     var dependKeys = item.dependKeys = [];
-
-    asset._uuid = uuid;
 
     if (deferredLoadRawAssetsInRuntime) {
         objList = [];
@@ -202,7 +200,13 @@ function canDeferredLoad (asset, item, isScene) {
     return res;
 }
 
+var MissingClass;
+
 function loadUuid (item, callback) {
+    if (CC_EDITOR) {
+        MissingClass = MissingClass || Editor.require('app://editor/page/scene-utils/missing-class-reporter').MissingClass;
+    }
+
     var json;
     if (typeof item.content === 'string') {
         try {
@@ -221,15 +225,34 @@ function loadUuid (item, callback) {
         return;
     }
 
+    var classFinder;
     var isScene = isSceneObj(json);
-    var classFinder = isScene ? cc._MissingScript.safeFindClass : function (id) {
-        var cls = JS._getClassById(id);
-        if (cls) {
-            return cls;
+    if (isScene) {
+        if (CC_EDITOR) {
+            MissingClass.hasMissingClass = false;
+            classFinder = function (type, data, owner, propName) {
+                var res = MissingClass.classFinder(type, data, owner, propName);
+                if (res) {
+                    return res;
+                }
+                return cc._MissingScript.getMissingWrapper(type, data);
+            };
+            classFinder.onDereferenced = MissingClass.classFinder.onDereferenced;
         }
-        cc.warnID(4903, id);
-        return Object;
-    };
+        else {
+            classFinder = cc._MissingScript.safeFindClass;
+        }
+    }
+    else {
+        classFinder = function (id) {
+            var cls = JS._getClassById(id);
+            if (cls) {
+                return cls;
+            }
+            cc.warnID(4903, id);
+            return Object;
+        };
+    }
 
     var tdInfo = CC_JSB ? new cc.deserialize.Details() : _tdInfo;
 
@@ -246,6 +269,12 @@ function loadUuid (item, callback) {
         var err = CC_JSB ? (e + '\n' + e.stack) : e.stack;
         callback( new Error('Uuid Loader: Deserialize asset [' + item.id + '] failed : ' + err) );
         return;
+    }
+
+    asset._uuid = item.uuid;
+
+    if (CC_EDITOR && isScene && MissingClass.hasMissingClass) {
+        MissingClass.reportMissingClass(asset);
     }
 
     var deferredLoad = canDeferredLoad(asset, item, isScene);
