@@ -469,7 +469,6 @@ var Label = cc.Class({
 
         var sgNode;
         if (this.font instanceof cc.BitmapFont) {
-            this._bmFontOriginalSize = this.font.fontSize;
             sgNode = this._sgNode = new _ccsg.Label(this.string, this.font.fntDataStr, this.font.spriteFrame);
         } else {
             var ttfName = isAsset ? this.font.rawUrl : '';
@@ -478,6 +477,10 @@ var Label = cc.Class({
 
         if (CC_JSB) {
             sgNode.retain();
+        }
+
+        if (this.font instanceof cc.BitmapFont) {
+            this._bmFontOriginalSize = this.font.fontSize;
         }
 
         sgNode.setVisible(false);

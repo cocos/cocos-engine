@@ -23,17 +23,20 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCRawAsset');
-require('./CCAsset');
-require('./CCFont');
-require('./CCPrefab');
-require('./CCAudioClip');
-require('./CCScripts');
-require('./CCSceneAsset');
-require('../sprites/CCSpriteFrame');
-require('../textures/CCTexture2D');
-require('./CCTTFFont');
-require('./CCSpriteAtlas');
-require('./CCBitmapFont');
-require('./CCLabelAtlas');
-//require('./CCTextAsset');
+/**
+ * @module cc
+ */
+/**
+ * !#en Class for LabelAtlas handling.
+ * !#zh 艺术数字字体资源类。
+ * @class LabelAtlas
+ * @extends cc.BitmapFont
+ *
+ */
+var LabelAtlas = cc.Class({
+    name: 'cc.LabelAtlas',
+    extends: cc.BitmapFont
+});
+
+cc.LabelAtlas = LabelAtlas;
+module.exports = LabelAtlas;
