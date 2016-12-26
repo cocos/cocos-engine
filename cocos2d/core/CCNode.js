@@ -1990,6 +1990,56 @@ var Node = cc.Class({
 
     //functions moved from base node begin
 
+    //override
+    setTag: function (value) {
+        this._tag = value;
+        this._sgNode.tag = value;
+    },
+
+    setParent: function (value) {
+        if (this._parent === value) {
+            return;
+        }
+        if (CC_EDITOR && !cc.engine.isPlaying) {
+            if (_Scene.DetectConflict.beforeAddChild(this)) {
+                return;
+            }
+        }
+        var sgNode = this._sgNode;
+        if (sgNode.parent) {
+            sgNode.parent.removeChild(sgNode, false);
+        }
+        //
+        var oldParent = this._parent;
+        this._parent = value || null;
+        if (value) {
+            var parent = value._sgNode;
+            parent.addChild(sgNode);
+            value._delaySort();
+            if (!CC_JSB) {
+                cc.eventManager._setDirtyForNode(this);
+            }
+            value._children.push(this);
+            value.emit(CHILD_ADDED, this);
+        }
+        if (oldParent) {
+            if (!(oldParent._objFlags & Destroying)) {
+                var removeAt = oldParent._children.indexOf(this);
+                if (CC_DEV && removeAt < 0) {
+                    return cc.errorID(1633);
+                }
+                oldParent._children.splice(removeAt, 1);
+                oldParent.emit(CHILD_REMOVED, this);
+                this._onHierarchyChanged(oldParent);
+            }
+        }
+        else if (value) {
+            this._onHierarchyChanged(null);
+        }
+    },
+
+    //end override
+
     /**
      * !#en Returns a copy of the position (x,y) of the node in cocos2d coordinates. (0,0) is the left-bottom corner.
      * !#zh 获取在父节点坐标系中节点的位置（ x , y ）。

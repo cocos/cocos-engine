@@ -239,75 +239,22 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         return this._tag;
     },
 
-    setTag: function (value) {
-        this._tag = value;
-        this._sgNode.tag = value;
-    },
 
     getParent: function() {
         return this._parent;
     },
 
-    setParent: function (value) {
-        if (this._parent === value) {
-            return;
-        }
-        if (CC_EDITOR && !cc.engine.isPlaying) {
-            if (_Scene.DetectConflict.beforeAddChild(this)) {
-                return;
-            }
-        }
-        var sgNode = this._sgNode;
-        if (sgNode.parent) {
-            sgNode.parent.removeChild(sgNode, false);
-        }
-        //
-        var oldParent = this._parent;
-        this._parent = value || null;
-        if (value) {
-            var parent = value._sgNode;
-            parent.addChild(sgNode);
-            value._delaySort();
-            if (!CC_JSB) {
-                cc.eventManager._setDirtyForNode(this);
-            }
-            value._children.push(this);
-            value.emit(CHILD_ADDED, this);
-        }
-        if (oldParent) {
-            if (!(oldParent._objFlags & Destroying)) {
-                var removeAt = oldParent._children.indexOf(this);
-                if (CC_DEV && removeAt < 0) {
-                    return cc.errorID(1633);
-                }
-                oldParent._children.splice(removeAt, 1);
-                oldParent.emit(CHILD_REMOVED, this);
-                this._onHierarchyChanged(oldParent);
-            }
-        }
-        else if (value) {
-            this._onHierarchyChanged(null);
-        }
-    },
+    //interface need to be implemented in derived classes
+    setTag: null,
+    setParent: null,
 
-    _onPreDestroy: function () {
-        cc.eventManager.removeListeners(this);
-        if (CC_JSB) {
-            this._sgNode.release();
-            this._sgNode._entity = null;
-            this._sgNode = null;
-        }
-        for (var i = 0, len = this.__eventTargets.length; i < len; ++i) {
-            var target = this.__eventTargets[i];
-            target && target.targetOff(this);
-        }
-    },
 
     // ABSTRACT INTERFACES
 
     // called when the node's parent changed
     _onHierarchyChanged: null,
 
+    _onPreDestroy: null,
     /*
      * Initializes the instance of cc.Node
      * @method init
@@ -443,7 +390,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (children !== null) {
             for (var i = 0; i < children.length; i++) {
                 var node = children[i];
-                if (node && node.tag === aTag)
+                if (node && node._tag === aTag)
                     return node;
             }
         }
