@@ -21,18 +21,7 @@
  */
 
 var proto = dragonBones.CCArmatureDisplay.prototype;
-
 proto.animation = proto.getAnimation;
-
-proto.addEvent = function(type, listener, target) {
-    this.addEventListener(type, function(event) {
-        listener.call(target, { type : event.type, detail: event });
-    });
-};
-
-proto.removeEvent = function(type) {
-    this.removeEventListener(type);
-};
 
 var slotProto = dragonBones.Slot.prototype;
 cc.defineGetterSetter(slotProto, 'childArmature', slotProto.getChildArmature, slotProto.setChildArmature);
@@ -41,18 +30,6 @@ var armatureProto = dragonBones.Armature.prototype;
 cc.defineGetterSetter(armatureProto, 'animation', armatureProto.getAnimation, null);
 cc.defineGetterSetter(armatureProto, 'display', armatureProto.getDisplay, null);
 cc.defineGetterSetter(armatureProto, 'name', armatureProto.getName, null);
-
-armatureProto.addEventListener = function (type, listener, target) {
-    var display = this.display;
-    jsb.registerNativeRef(this, display);
-    display.addEvent(type, listener, target);
-};
-
-armatureProto.removeEventListener = function (type) {
-    var display = this.display;
-    jsb.unregisterNativeRef(this, display);
-    display.removeEvent(type);
-};
 
 var animationStateProto = dragonBones.AnimationState.prototype;
 cc.defineGetterSetter(animationStateProto, 'name', animationStateProto.getName);

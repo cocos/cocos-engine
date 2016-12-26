@@ -1603,6 +1603,34 @@ dispose : function (
 },
 
 /**
+ * @method hasEventCallback
+ * @return {bool}
+ */
+hasEventCallback : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method setEventCallback
+ * @param {function} arg0
+ */
+setEventCallback : function (
+func 
+)
+{
+},
+
+/**
+ * @method clearEventCallback
+ */
+clearEventCallback : function (
+)
+{
+},
+
+/**
  * @method addEvent
  * @param {String} arg0
  * @param {function} arg1
