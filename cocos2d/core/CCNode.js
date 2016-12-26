@@ -2460,6 +2460,134 @@ var Node = cc.Class({
         return rect;
     },
 
+    /**
+     * !#en
+     * Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.<br/>
+     * The matrix is in Pixels.
+     * !#zh 返回这个将节点（局部）的空间坐标系转换成父节点的空间坐标系的矩阵。这个矩阵以像素为单位。
+     * @method getNodeToParentTransform
+     * @return {AffineTransform} The affine transform object
+     * @example
+     * var affineTransform = node.getNodeToParentTransform();
+     */
+    getNodeToParentTransform: function () {
+        var contentSize = this.getContentSize();
+        var mat = this._sgNode.getNodeToParentTransform();
+        if (this._isSgTransformArToMe(contentSize)) {
+            // see getNodeToWorldTransform
+            var tx = - this._anchorPoint.x * contentSize.width;
+            var ty = - this._anchorPoint.y * contentSize.height;
+            var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
+            mat = cc.affineTransformConcatIn(offset, mat);
+        }
+        return mat;
+    },
+
+    /**
+     * !#en Returns the world affine transform matrix. The matrix is in Pixels.
+     * !#zh 返回节点到世界坐标系的仿射变换矩阵。矩阵单位是像素。
+     * @method getNodeToWorldTransform
+     * @return {AffineTransform}
+     * @example
+     * var affineTransform = node.getNodeToWorldTransform();
+     */
+    getNodeToWorldTransform: function () {
+        var contentSize = this.getContentSize();
+
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            // ensure transform computed
+            cc.director._visitScene();
+        }
+        var mat = this._sgNode.getNodeToWorldTransform();
+
+        if (this._isSgTransformArToMe(contentSize)) {
+            // _sgNode.getNodeToWorldTransform is not anchor relative (AR), in this case,
+            // we should translate to bottem left to consistent with it
+            // see https://github.com/cocos-creator/engine/pull/391
+            var tx = - this._anchorPoint.x * contentSize.width;
+            var ty = - this._anchorPoint.y * contentSize.height;
+            var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
+            mat = cc.affineTransformConcatIn(offset, mat);
+        }
+        return mat;
+    },
+
+    /**
+     * !#en
+     * Returns the world affine transform matrix. The matrix is in Pixels.<br/>
+     * This method is AR (Anchor Relative).
+     * !#zh
+     * 返回节点到世界坐标仿射变换矩阵。矩阵单位是像素。<br/>
+     * 该方法基于节点坐标。
+     * @method getNodeToWorldTransformAR
+     * @return {AffineTransform}
+     * @example
+     * var mat = node.getNodeToWorldTransformAR();
+     */
+    getNodeToWorldTransformAR: function () {
+        var contentSize = this.getContentSize();
+
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            // ensure transform computed
+            cc.director._visitScene();
+        }
+        var mat = this._sgNode.getNodeToWorldTransform();
+
+        if ( !this._isSgTransformArToMe(contentSize) ) {
+            // see getNodeToWorldTransform
+            var tx = this._anchorPoint.x * contentSize.width;
+            var ty = this._anchorPoint.y * contentSize.height;
+            var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
+            mat = cc.affineTransformConcatIn(offset, mat);
+        }
+        return mat;
+    },
+
+    /**
+     * !#en
+     * Returns the matrix that transform parent's space coordinates to the node's (local) space coordinates.<br/>
+     * The matrix is in Pixels. The returned transform is readonly and cannot be changed.
+     * !#zh
+     * 返回将父节点的坐标系转换成节点（局部）的空间坐标系的矩阵。<br/>
+     * 该矩阵以像素为单位。返回的矩阵是只读的，不能更改。
+     * @method getParentToNodeTransform
+     * @return {AffineTransform}
+     * @example
+     * var affineTransform = node.getParentToNodeTransform();
+     */
+    getParentToNodeTransform: function () {
+        return this._sgNode.getParentToNodeTransform();
+    },
+
+    /**
+     * !#en Returns the inverse world affine transform matrix. The matrix is in Pixels.
+     * !#en 返回世界坐标系到节点坐标系的逆矩阵。
+     * @method getWorldToNodeTransform
+     * @return {AffineTransform}
+     * @example
+     * var affineTransform = node.getWorldToNodeTransform();
+     */
+    getWorldToNodeTransform: function () {
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            // ensure transform computed
+            cc.director._visitScene();
+        }
+        return this._sgNode.getWorldToNodeTransform();
+    },
+
+    _isSgTransformArToMe: function (myContentSize) {
+        var renderSize = this._sgNode.getContentSize();
+        if (renderSize.width === 0 && renderSize.height === 0 &&
+            (myContentSize.width !== 0 || myContentSize.height !== 0)) {
+            // anchor point ignored
+            return true;
+        }
+        if (this._sgNode.isIgnoreAnchorPointForPosition()) {
+            // sg transform become anchor relative...
+            return true;
+        }
+        return false;
+    },
 
     /**
      * !#en Converts a Point to node (local) space coordinates. The result is in Vec2.
