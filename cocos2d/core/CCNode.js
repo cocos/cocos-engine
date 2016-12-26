@@ -278,52 +278,6 @@ function getConstructor (typeOrClassName) {
     return typeOrClassName;
 }
 
-function findComponent (node, constructor) {
-    for (var i = 0; i < node._components.length; ++i) {
-        var comp = node._components[i];
-        if (comp instanceof constructor) {
-            return comp;
-        }
-    }
-    return null;
-}
-
-function findComponents (node, constructor, components) {
-    for (var i = 0; i < node._components.length; ++i) {
-        var comp = node._components[i];
-        if (comp instanceof constructor) {
-            components.push(comp);
-        }
-    }
-}
-
-function findChildComponent (children, constructor) {
-    for (var i = 0; i < children.length; ++i) {
-        var node = children[i];
-        var comp = findComponent(node, constructor);
-        if (comp) {
-            return comp;
-        }
-        else if (node.children.length > 0) {
-            comp = findChildComponent(node.children, constructor);
-            if (comp) {
-                return comp;
-            }
-        }
-    }
-    return null;
-}
-
-function findChildComponents (children, constructor, components) {
-    for (var i = 0; i < children.length; ++i) {
-        var node = children[i];
-        findComponents(node, constructor, components);
-        if (node._children.length > 0) {
-            findChildComponents(node._children, constructor, components);
-        }
-    }
-}
-
 /**
  * !#en
  * Class of all entities in Cocos Creator scenes.<br/>
