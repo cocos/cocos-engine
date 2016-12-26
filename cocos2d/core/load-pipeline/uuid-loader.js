@@ -47,6 +47,8 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
     // cache dependencies for auto release
     var dependKeys = item.dependKeys = [];
 
+    asset._uuid = uuid;
+
     if (deferredLoadRawAssetsInRuntime) {
         objList = [];
         propList = [];
@@ -105,14 +107,13 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
     }
     // fast path
     if (depends.length === 0) {
-        asset._uuid = uuid;
         return callback(null, asset);
     }
 
     // Predefine content for dependencies usage
     item.content = asset;
     pipeline.flowInDeps(item, depends, function (errors, items) {
-        var item;
+        var item, missingAssetReporter;
         for (var src in items.map) {
             item = items.map[src];
             if (item.uuid && item.content) {
@@ -128,7 +129,16 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
             if (item) {
                 if (item.complete || item.content) {
                     if (item.error) {
-                        cc._throw(item.error);
+                        if (CC_EDITOR && item.error.errorCode === 'db.NOTFOUND') {
+                            if (!missingAssetReporter) {
+                                var MissingObjectReporter = Editor.require('app://editor/page/scene-utils/missing-object-reporter');
+                                missingAssetReporter = new MissingObjectReporter(asset);
+                            }
+                            missingAssetReporter.stashByOwner(dependObj, dependProp, Editor.serialize.asAsset(dependSrc));
+                        }
+                        else {
+                            cc._throw(item.error);
+                        }
                     }
                     else {
                         var value = item.isRawAsset ? item.url : item.content;
@@ -159,7 +169,9 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
                 }
             }
         }
-        asset._uuid = uuid;
+        if (CC_EDITOR && missingAssetReporter) {
+            missingAssetReporter.reportByOwner();
+        }
         callback(null, asset);
     });
 }
