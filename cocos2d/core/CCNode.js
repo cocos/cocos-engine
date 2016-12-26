@@ -405,47 +405,6 @@ var Node = cc.Class({
 
         // internal properties
 
-        _active: true,
-
-        /**
-         * @property _components
-         * @type {Component[]}
-         * @default []
-         * @readOnly
-         * @private
-         */
-        _components: [],
-
-        /**
-         * The PrefabInfo object
-         * @property _prefab
-         * @type {PrefabInfo}
-         * @private
-         */
-        _prefab: null,
-
-        /**
-         * If true, the node is an persist node which won't be destroyed during scene transition.
-         * If false, the node will be destroyed automatically when loading a new scene. Default is false.
-         * @property _persistNode
-         * @type {Boolean}
-         * @default false
-         * @private
-         */
-        _persistNode: {
-            get: function () {
-                return (this._objFlags & DontDestroy) > 0;
-            },
-            set: function (value) {
-                if (value) {
-                    this._objFlags |= DontDestroy;
-                }
-                else {
-                    this._objFlags &= ~DontDestroy;
-                }
-            }
-        },
-
         /**
          * !#en
          * Group index of node.<br/>

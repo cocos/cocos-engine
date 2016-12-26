@@ -24,10 +24,13 @@
  ****************************************************************************/
 
 var SgHelper = require('./scene-graph-helper');
-var Destroying = require('../platform/CCObject').Flags.Destroying;
+var Flags = require('../platform/CCObject').Flags;
 var Misc = require('./misc');
 var IdGenerater = require('../platform/id-generater');
 
+var Destroying = Flags.Destroying;
+var DontDestroy = Flags.DontDestroy;
+var Activating = Flags.Activating;
 var POSITION_CHANGED = 'position-changed';
 var SIZE_CHANGED = 'size-changed';
 var ANCHOR_CHANGED = 'anchor-changed';
@@ -66,6 +69,47 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         _children: [],
 
         _tag: cc.macro.NODE_TAG_INVALID,
+
+        _active: true,
+
+        /**
+         * @property _components
+         * @type {Component[]}
+         * @default []
+         * @readOnly
+         * @private
+         */
+        _components: [],
+
+        /**
+         * The PrefabInfo object
+         * @property _prefab
+         * @type {PrefabInfo}
+         * @private
+         */
+        _prefab: null,
+
+        /**
+         * If true, the node is an persist node which won't be destroyed during scene transition.
+         * If false, the node will be destroyed automatically when loading a new scene. Default is false.
+         * @property _persistNode
+         * @type {Boolean}
+         * @default false
+         * @private
+         */
+        _persistNode: {
+            get: function () {
+                return (this._objFlags & DontDestroy) > 0;
+            },
+            set: function (value) {
+                if (value) {
+                    this._objFlags |= DontDestroy;
+                }
+                else {
+                    this._objFlags &= ~DontDestroy;
+                }
+            }
+        },
 
         // API
 
