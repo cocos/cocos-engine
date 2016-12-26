@@ -1089,6 +1089,11 @@ var Node = cc.Class({
         }
 
         var thisPrefabInfo = this._prefab;
+        if (CC_EDITOR && thisPrefabInfo) {
+            if (this !== thisPrefabInfo.root) {
+                _Scene.PrefabUtils.initClonedChildOfPrefab(cloned);
+            }
+        }
         var syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
         if (syncing) {
             // copy non-serialized property
