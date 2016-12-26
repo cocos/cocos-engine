@@ -62,24 +62,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         // SERIALIZABLE
 
-        _opacity: 255,
-        _color: cc.Color.WHITE,
-        _cascadeOpacityEnabled: true,
         _parent: null,
-        _anchorPoint: cc.p(0.5, 0.5),
-        _contentSize: cc.size(0, 0),
         _children: [],
-        _rotationX: 0,
-        _rotationY: 0.0,
-        _scaleX: 1.0,
-        _scaleY: 1.0,
-        _position: cc.p(0, 0),
-        _skewX: 0,
-        _skewY: 0,
-        _localZOrder: 0,
-        _globalZOrder: 0,
+
         _tag: cc.macro.NODE_TAG_INVALID,
-        _opacityModifyRGB: false,
 
         // API
 
@@ -186,42 +172,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
     ctor: function () {
 
-        /**
-         * Current scene graph node for this node.
-         *
-         * @property _sgNode
-         * @type {_ccsg.Node}
-         * @private
-         */
-        var sgNode = this._sgNode = new _ccsg.Node();
-        if (CC_JSB) {
-            sgNode.retain();
-            sgNode._entity = this;
-            sgNode.onEnter = function () {
-                _ccsg.Node.prototype.onEnter.call(this);
-                if (this._entity && !this._entity._active) {
-                    cc.director.getActionManager().pauseTarget(this);
-                    cc.eventManager.pauseTarget(this);
-                }
-            };
-        }
-        if (!cc.game._isCloning) {
-            sgNode.cascadeOpacity = true;
-        }
-
-        /**
-         * Current active size provider for this node.
-         * Size provider can equals to this._sgNode.
-         *
-         * @property _sizeProvider
-         * @type {_ccsg.Node}
-         * @private
-         */
-        this._sizeProvider = null;
-
-        this.__ignoreAnchor = false;
-        this._reorderChildDirty = false;
-
         // Support for ActionManager and EventManager
         this.__instanceId = this._id || cc.ClassManager.getNewInstanceId();
 
@@ -239,13 +189,15 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         return this._tag;
     },
 
+    setTag: function (tag) {
+        this._tag = tag;
+    },
 
     getParent: function() {
         return this._parent;
     },
 
     //interface need to be implemented in derived classes
-    setTag: null,
     setParent: null,
 
 
@@ -281,96 +233,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     attr: function (attrs) {
         for (var key in attrs) {
             this[key] = attrs[key];
-        }
-    },
-
-    /**
-     * !#en
-     * Returns a copy the untransformed size of the node. <br/>
-     * The contentSize remains the same no matter the node is scaled or rotated.<br/>
-     * All nodes has a size. Layer and Scene has the same size of the screen by default. <br/>
-     * !#zh 获取节点自身大小，不受该节点是否被缩放或者旋转的影响。
-     * @method getContentSize
-     * @param {Boolean} [ignoreSizeProvider=false] - true if you need to get the original size of the node
-     * @return {Size} The untransformed size of the node.
-     * @example
-     * cc.log("Content Size: " + node.getContentSize());
-     */
-    getContentSize: function (ignoreSizeProvider) {
-        if (this._sizeProvider && !ignoreSizeProvider) {
-            var size = this._sizeProvider.getContentSize();
-            this._contentSize = size;
-            return size;
-        }
-        else {
-            return cc.size(this._contentSize);
-        }
-    },
-
-    /**
-     * !#en
-     * Sets the untransformed size of the node.<br/>
-     * The contentSize remains the same no matter the node is scaled or rotated.<br/>
-     * All nodes has a size. Layer and Scene has the same size of the screen.
-     * !#zh 设置节点原始大小，不受该节点是否被缩放或者旋转的影响。
-     * @method setContentSize
-     * @param {Size|Number} size - The untransformed size of the node or The untransformed size's width of the node.
-     * @param {Number} [height] - The untransformed size's height of the node.
-     * @example
-     * node.setContentSize(cc.size(100, 100));
-     * node.setContentSize(100, 100);
-     */
-    setContentSize: function (size, height) {
-        var locContentSize = this._contentSize;
-        var clone;
-        if (height === undefined) {
-            if ((size.width === locContentSize.width) && (size.height === locContentSize.height))
-                return;
-            if (CC_EDITOR) {
-                clone = cc.size(locContentSize);
-            }
-            locContentSize.width = size.width;
-            locContentSize.height = size.height;
-        } else {
-            if ((size === locContentSize.width) && (height === locContentSize.height))
-                return;
-            if (CC_EDITOR) {
-                clone = cc.size(locContentSize);
-            }
-            locContentSize.width = size;
-            locContentSize.height = height;
-        }
-        if (this._sizeProvider) {
-            this._sizeProvider.setContentSize(locContentSize);
-        }
-        if (CC_EDITOR) {
-            this.emit(SIZE_CHANGED, clone);
-        }
-        else {
-            this.emit(SIZE_CHANGED);
-        }
-    },
-
-
-    /**
-     * !#en Stops all running actions and schedulers.
-     * !#zh 停止所有正在播放的动作和计时器。
-     * @method cleanup
-     * @example
-     * node.cleanup();
-     */
-    cleanup: function () {
-        // actions
-        cc.director.getActionManager().removeAllActionsFromTarget(this);
-        // event
-        cc.eventManager.removeListeners(this);
-
-        // children
-        var i, len = this._children.length, node;
-        for (i = 0; i < len; ++i) {
-            node = this._children[i];
-            if (node)
-                node.cleanup();
         }
     },
 
@@ -444,168 +306,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     },
 
     // composition: ADD
-
-    /**
-     * !#en
-     * "add" logic MUST only be in this method <br/>
-     * !#zh
-     * 添加子节点，并且可以修改该节点的 局部 Z 顺序和标签。
-     * @method addChild
-     * @param {Node} child - A child node
-     * @param {Number} [localZOrder] - Z order for drawing priority. Please refer to setZOrder(int)
-     * @param {Number|String} [tag] - An integer or a name to identify the node easily. Please refer to setTag(int) and setName(string)
-     * @example
-     * node.addChild(newNode, 1, 1001);
-     */
-    addChild: function (child, localZOrder, tag) {
-        localZOrder = localZOrder === undefined ? child._localZOrder : localZOrder;
-        var name, setTag = false;
-        if(typeof tag === 'undefined'){
-            tag = undefined;
-            name = child._name;
-        } else if(cc.js.isString(tag)){
-            name = tag;
-            tag = undefined;
-        } else if(cc.js.isNumber(tag)){
-            setTag = true;
-            name = "";
-        }
-
-        if (CC_DEV && !(child instanceof cc.Node)) {
-            return cc.errorID(1634, cc.js.getClassName(child));
-        }
-        cc.assertID(child, 1606);
-        cc.assertID(child._parent === null, 1605);
-
-        // invokes the parent setter
-        child.parent = this;
-
-        child.zIndex = localZOrder;
-        if (setTag)
-            child.setTag(tag);
-        else
-            child.setName(name);
-    },
-
-    // composition: REMOVE
-
-    /**
-     * !#en
-     * Remove itself from its parent node. If cleanup is true, then also remove all actions and callbacks. <br/>
-     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
-     * If the node orphan, then nothing happens.
-     * !#zh
-     * 从父节点中删除一个节点。cleanup 参数为 true，那么在这个节点上所有的动作和回调都会被删除，反之则不会。<br/>
-     * 如果不传入 cleanup 参数，默认是 true 的。<br/>
-     * 如果这个节点是一个孤节点，那么什么都不会发生。
-     * @method removeFromParent
-     * @param {Boolean} [cleanup=true] - true if all actions and callbacks on this node should be removed, false otherwise.
-     * @see cc.Node#removeFromParentAndCleanup
-     * @example
-     * node.removeFromParent();
-     * node.removeFromParent(false);
-     */
-    removeFromParent: function (cleanup) {
-        if (this._parent) {
-            if (cleanup === undefined)
-                cleanup = true;
-            this._parent.removeChild(this, cleanup);
-        }
-    },
-
-    /**
-     * !#en
-     * Removes a child from the container. It will also cleanup all running actions depending on the cleanup parameter. </p>
-     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
-     * "remove" logic MUST only be on this method  <br/>
-     * If a class wants to extend the 'removeChild' behavior it only needs <br/>
-     * to override this method.
-     * !#zh
-     * 移除节点中指定的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
-     * 如果 cleanup 参数不传入，默认为 true 表示清理。<br/>
-     * @method removeChild
-     * @param {Node} child - The child node which will be removed.
-     * @param {Boolean} [cleanup=true] - true if all running actions and callbacks on the child node will be cleanup, false otherwise.
-     * @example
-     * node.removeChild(newNode);
-     * node.removeChild(newNode, false);
-     */
-    removeChild: function (child, cleanup) {
-        if (this._children.indexOf(child) > -1) {
-            // If you don't do cleanup, the child's actions will not get removed and the
-            if (cleanup || cleanup === undefined) {
-                child.cleanup();
-            }
-            // invoke the parent setter
-            child.parent = null;
-        }
-    },
-
-    /**
-     * !#en
-     * Removes a child from the container by tag value. It will also cleanup all running actions depending on the cleanup parameter.
-     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
-     * !#zh
-     * 通过标签移除节点中指定的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
-     * 如果 cleanup 参数不传入，默认为 true 表示清理。
-     * @method removeChildByTag
-     * @param {Number} tag - An integer number that identifies a child node
-     * @param {Boolean} [cleanup=true] - true if all running actions and callbacks on the child node will be cleanup, false otherwise.
-     * @see cc.Node#removeChildByTag
-     * @example
-     * node.removeChildByTag(1001);
-     * node.removeChildByTag(1001, false);
-     */
-    removeChildByTag: function (tag, cleanup) {
-        if (tag === cc.macro.NODE_TAG_INVALID)
-            cc.logID(1609);
-
-        var child = this.getChildByTag(tag);
-        if (!child)
-            cc.logID(1610, tag);
-        else
-            this.removeChild(child, cleanup);
-    },
-
-    /**
-     * !#en
-     * Removes all children from the container and do a cleanup all running actions depending on the cleanup parameter. <br/>
-     * If the cleanup parameter is not passed, it will force a cleanup.
-     * !#zh
-     * 移除节点所有的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
-     * 如果 cleanup 参数不传入，默认为 true 表示清理。
-     * @method removeAllChildren
-     * @param {Boolean} [cleanup=true] - true if all running actions on all children nodes should be cleanup, false otherwise.
-     * @example
-     * node.removeAllChildren();
-     * node.removeAllChildren(false);
-     */
-    removeAllChildren: function (cleanup) {
-        // not using detachChild improves speed here
-        var children = this._children;
-        if (cleanup === undefined)
-            cleanup = true;
-        for (var i = children.length - 1; i >= 0; i--) {
-            var node = children[i];
-            if (node) {
-                //if (this._running) {
-                //    node.onExitTransitionDidStart();
-                //    node.onExit();
-                //}
-
-                // If you don't do cleanup, the node's actions will not get removed and the
-                if (cleanup)
-                    node.cleanup();
-
-                node.parent = null;
-            }
-        }
-        this._children.length = 0;
-    },
-
-    setNodeDirty: function(){
-        this._sgNode.setNodeDirty();
-    },
+    addChild: null,
+    removeFromParent: null,
+    removeChild: null,
+    removeChildByTag: null,
+    removeAllChildren: null,
 
     getNodeToParentTransform: null,
     getNodeToWorldTransform: null,
@@ -639,61 +344,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @example
      * node.setSiblingIndex(1);
      */
-    setSiblingIndex: function (index) {
-        if (!this._parent) {
-            return;
-        }
-        var array = this._parent._children;
-        index = index !== -1 ? index : array.length - 1;
-        var oldIndex = array.indexOf(this);
-        if (index !== oldIndex) {
-            array.splice(oldIndex, 1);
-            if (index < array.length) {
-                array.splice(index, 0, this);
-            }
-            else {
-                array.push(this);
-            }
-
-            // update rendering scene graph, sort them by arrivalOrder
-            var parent = this._parent;
-            var siblings = parent._children;
-
-            var i = 0, len = siblings.length, sibling;
-            if (CC_JSB) {
-                if (cc.runtime) {
-                    for (; i < len; i++) {
-                        sibling = siblings[i]._sgNode;
-                        // Reset zorder to update their arrival order
-                        var zOrder = sibling.getLocalZOrder();
-                        sibling.setLocalZOrder(zOrder + 1);
-                        sibling.setLocalZOrder(zOrder);
-                    }
-                }
-                else {
-                    parent._sgNode.removeChild(this._sgNode, false);
-                    if (index + 1 < array.length) {
-                        var nextSibling = array[index + 1];
-                        parent._sgNode.insertChildBefore(this._sgNode, nextSibling._sgNode);
-                    }
-                    else {
-                        parent._sgNode.addChild(this._sgNode);
-                    }
-                }
-            }
-            else {
-                for (; i < len; i++) {
-                    sibling = siblings[i]._sgNode;
-                    sibling._arrivalOrder = i;
-                    cc.eventManager._setDirtyForNode(sibling);
-                }
-                cc.renderer.childrenOrderDirty = true;
-                parent._sgNode._reorderChildDirty = true;
-                parent._delaySort();
-            }
-        }
-    },
-
+    setSiblingIndex: null,
     /**
      * !#en Is this node a child of the given node?
      * !#zh 是否是指定节点的子节点？
@@ -715,144 +366,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         return false;
     },
 
-    /**
-     * !#en Sorts the children array depends on children's zIndex and arrivalOrder,
-     * normally you won't need to invoke this function.
-     * !#zh 根据子节点的 zIndex 和 arrivalOrder 进行排序，正常情况下开发者不需要手动调用这个函数。
-     *
-     * @method sortAllChildren
-     */
-    sortAllChildren: function () {
-        if (this._reorderChildDirty) {
-            this._reorderChildDirty = false;
-            var _children = this._children;
-            if (_children.length > 1) {
-                // insertion sort
-                var len = _children.length, i, j, child;
-                for (i = 1; i < len; i++){
-                    child = _children[i];
-                    j = i - 1;
-
-                    //continue moving element downwards while zOrder is smaller or when zOrder is the same but mutatedIndex is smaller
-                    while(j >= 0){
-                        if (child._localZOrder < _children[j]._localZOrder) {
-                            _children[j+1] = _children[j];
-                        } else if (child._localZOrder === _children[j]._localZOrder &&
-                                   child._sgNode._arrivalOrder < _children[j]._sgNode._arrivalOrder) {
-                            _children[j+1] = _children[j];
-                        } else {
-                            break;
-                        }
-                        j--;
-                    }
-                    _children[j+1] = child;
-                }
-                this.emit(CHILD_REORDER);
-            }
-            cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this, this.__eventTargets);
-        }
-    },
-
-    _delaySort: function () {
-        if (!this._reorderChildDirty) {
-            this._reorderChildDirty = true;
-            cc.director.__fastOn(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this, this.__eventTargets);
-        }
-    },
-
-    _updateDummySgNode: function () {
-        var self = this;
-        var sgNode = self._sgNode;
-
-        sgNode.setPosition(self._position);
-        sgNode.setRotationX(self._rotationX);
-        sgNode.setRotationY(self._rotationY);
-        sgNode.setScale(self._scaleX, self._scaleY);
-        sgNode.setSkewX(self._skewX);
-        sgNode.setSkewY(self._skewY);
-        sgNode.setIgnoreAnchorPointForPosition(self.__ignoreAnchor);
-
-        var arrivalOrder = sgNode._arrivalOrder;
-        sgNode.setLocalZOrder(self._localZOrder);
-        sgNode._arrivalOrder = arrivalOrder;     // revert arrivalOrder changed in setLocalZOrder
-
-        sgNode.setGlobalZOrder(self._globalZOrder);
-
-        if (CC_JSB) {
-            // fix tintTo and tintBy action for jsb displays err for fireball/issues/4137
-            sgNode.setColor(this._color);
-        }
-        sgNode.setOpacity(self._opacity);
-        sgNode.setOpacityModifyRGB(self._opacityModifyRGB);
-        sgNode.setCascadeOpacityEnabled(self._cascadeOpacityEnabled);
-        sgNode.setTag(self._tag);
-    },
-
-    _updateSgNode: function () {
-        this._updateDummySgNode();
-        var sgNode = this._sgNode;
-        sgNode.setAnchorPoint(this._anchorPoint);
-        sgNode.setVisible(this._active);
-        sgNode.setColor(this._color);
-
-        // update ActionManager and EventManager because sgNode maybe changed
-        if (this._activeInHierarchy) {
-            cc.director.getActionManager().resumeTarget(this);
-            cc.eventManager.resumeTarget(this);
-        }
-        else {
-            cc.director.getActionManager().pauseTarget(this);
-            cc.eventManager.pauseTarget(this);
-        }
-    },
-
-    onRestore: CC_EDITOR && function () {
-        this._updateDummySgNode();
-
-        var sizeProvider = this._sizeProvider;
-        if (sizeProvider) {
-            sizeProvider.setContentSize(this._contentSize);
-            if (sizeProvider instanceof _ccsg.Node) {
-                sizeProvider.setAnchorPoint(this._anchorPoint);
-                sizeProvider.setColor(this._color);
-                if (sizeProvider !== this._sgNode) {
-                    sizeProvider.ignoreAnchor = this.__ignoreAnchor;
-                    sizeProvider.setOpacityModifyRGB(this._opacityModifyRGB);
-                    if ( !this._cascadeOpacityEnabled ) {
-                        sizeProvider.setOpacity(this._opacity);
-                    }
-                }
-            }
-        }
-
-        var sgParent = this._parent && this._parent._sgNode;
-        if (this._sgNode._parent !== sgParent) {
-            if (this._sgNode._parent) {
-                this._sgNode.removeFromParent();
-            }
-            if (sgParent) {
-                sgParent.addChild(this._sgNode);
-            }
-        }
-
-        // check activity state
-        var shouldActiveInHierarchy = (this._parent && this._parent._activeInHierarchy && this._active);
-        if (shouldActiveInHierarchy !== this._activeInHierarchy) {
-            this._onActivatedInHierarchy(shouldActiveInHierarchy);
-            this.emit('active-in-hierarchy-changed', this);
-        }
-
-        if (this._activeInHierarchy) {
-            cc.director.getActionManager().resumeTarget(this);
-            cc.eventManager.resumeTarget(this);
-        }
-        else {
-            cc.director.getActionManager().pauseTarget(this);
-            cc.eventManager.pauseTarget(this);
-        }
-    },
-
-    _removeSgNode: SgHelper.removeSgNode,
 });
 
 
