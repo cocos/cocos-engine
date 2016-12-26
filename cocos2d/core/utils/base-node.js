@@ -1100,8 +1100,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
 // Define public getter and setter methods to ensure api compatibility.
 
-var SameNameGetSets = ['name', 'children', 'childrenCount', 'parent',
-                       /*'shaderProgram',*/ 'tag'];
+var SameNameGetSets = ['name', 'children', 'childrenCount',];
 var DiffNameGetSets = {
     //// privates
     //width: ['_getWidth', '_setWidth'],

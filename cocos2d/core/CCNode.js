@@ -2660,7 +2660,7 @@ if (CC_JSB) {
  * node.setCascadeColorEnabled(true);
  */
 
-var SameNameGetSets = ['skewX', 'skewY', 'position', 'rotation', 'rotationX', 'rotationY',
+var SameNameGetSets = ['parent', 'tag', 'skewX', 'skewY', 'position', 'rotation', 'rotationX', 'rotationY',
     'scale', 'scaleX', 'scaleY', 'opacity', 'color', ];
 
 var DiffNameGetSets = {
