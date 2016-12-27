@@ -65,31 +65,60 @@ sp.TrackEntryListeners = function(startListener, endListener, completeListener, 
     this.endListener = endListener || null;
     this.completeListener = completeListener || null;
     this.eventListener = eventListener || null;
+    this.callback = null;
+    this.callbackTarget = null;
+    this.skeletonNode = null;
+
+    this.start = function(trackEntry) {
+        if (this.startListener) {
+            this.startListener(trackEntry.trackIndex);
+        }
+        if (this.callback && this.callbackTarget) {
+            this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry.trackIndex, animEventType.START, null, 0);
+        }
+    };
+
+    this.end = function (trackEntry) {
+        if (this.endListener) {
+            this.endListener(trackEntry.trackIndex);
+        }
+        if (this.callback && this.callbackTarget) {
+            this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry.trackIndex, animEventType.END, null, 0);
+        }
+    };
+
+    this.complete = function (trackEntry) {
+        var loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
+        if (this.completeListener) {
+            this.completeListener(trackEntry.trackIndex, loopCount);
+        }
+        if (this.callback && this.callbackTarget) {
+            this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry.trackIndex, animEventType.COMPLETE, null, loopCount);
+        }
+    };
+
+    this.event = function (trackEntry, event) {
+        if (this.eventListener) {
+            this.eventListener(trackEntry.trackIndex, event);
+        }
+        if (this.callback && this.callbackTarget) {
+            this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry.trackIndex, animEventType.EVENT, event, 0);
+        }
+    };
 };
 
 sp.TrackEntryListeners.getListeners = function(entry){
-    if(!entry.rendererObject){
-        entry.rendererObject = new sp.TrackEntryListeners();
-        entry.listener = sp.trackEntryCallback;
+    if(!entry.listener){
+        entry.listener = new sp.TrackEntryListeners();
     }
-    return entry.rendererObject;
+    return entry.listener;
 };
-
-sp.trackEntryCallback = function(state, trackIndex, type, event, loopCount) {
-    state.rendererObject.onTrackEntryEvent(trackIndex, type, event, loopCount);
-};
-
 
 sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
     _state: null,
-    _target: null,
-    _callback: null,
 
     _ownsAnimationStateData: false,
-    _startListener: null,
-    _endListener: null,
-    _completeListener: null,
-    _eventListener: null,
+    _listener: null,
 
     /**
      * Initializes a sp._SGSkeletonAnimation. please do not call this function by yourself, you should pass the parameters to constructor to initialize it.
@@ -107,11 +136,9 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
      */
     setAnimationStateData: function (stateData) {
         var state = new spine.AnimationState(stateData);
+        this._listener = new sp.TrackEntryListeners();
         state.rendererObject = this;
-        state.onStart = this._onAnimationStateStart.bind(this);
-        state.onComplete = this._onAnimationStateComplete.bind(this);
-        state.onEnd = this._onAnimationStateEnd.bind(this);
-        state.onEvent = this._onAnimationStateEvent.bind(this);
+        state.addListener(this._listener);
         this._state = state;
     },
 
@@ -131,8 +158,9 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
      * @param {Function} callback
      */
     setAnimationListener: function (target, callback) {
-        this._target = target;
-        this._callback = callback;
+        this._listener.callbackTarget = target;
+        this._listener.callback = callback;
+        this._listener.skeletonNode = this;
     },
 
     /**
@@ -214,7 +242,7 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
      * @param {function} listener
      */
     setStartListener: function(listener){
-        this._startListener = listener;
+        this._listener.startListener = listener;
     },
 
     /**
@@ -222,15 +250,15 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
      * @param {function} listener
      */
     setEndListener: function(listener) {
-        this._endListener = listener;
+        this._listener.endListener = listener;
     },
 
     setCompleteListener: function(listener) {
-        this._completeListener = listener;
+        this._listener.completeListener = listener;
     },
 
     setEventListener: function(listener){
-        this._eventListener = listener;
+        this._listener.eventListener = listener;
     },
 
     setTrackStartListener: function(entry, listener){
@@ -249,72 +277,7 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
         sp.TrackEntryListeners.getListeners(entry).eventListener = listener;
     },
 
-    onTrackEntryEvent: function(traceIndex, type, event, loopCount){
-        var entry = this._state.getCurrent(traceIndex);
-        if(!entry.rendererObject)
-            return;
-        var listeners = entry.rendererObject;
-        switch (type){
-            case animEventType.START:
-                if(listeners.startListener)
-                    listeners.startListener(traceIndex);
-                break;
-            case animEventType.END:
-                if(listeners.endListener)
-                    listeners.endListener(traceIndex);
-                break;
-            case animEventType.COMPLETE:
-                if(listeners.completeListener)
-                    listeners.completeListener(traceIndex, loopCount);
-                break;
-            case animEventType.EVENT:
-                if(listeners.eventListener)
-                    listeners.eventListener(traceIndex, event);
-                break;
-        }
-    },
-
-    onAnimationStateEvent: function(trackIndex, type, event, loopCount) {
-        switch(type){
-            case animEventType.START:
-                if(this._startListener)
-                    this._startListener(trackIndex);
-                break;
-            case animEventType.END:
-                if(this._endListener)
-                    this._endListener(trackIndex);
-                break;
-            case animEventType.COMPLETE:
-                if(this._completeListener)
-                    this._completeListener(trackIndex, loopCount);
-                break;
-            case animEventType.EVENT:
-                if(this._eventListener)
-                    this._eventListener(trackIndex, event);
-                break;
-        }
-    },
-
     getState: function(){
         return this._state;
-    },
-
-    _onAnimationStateStart: function (trackIndex) {
-        this._animationStateCallback(trackIndex, animEventType.START, null, 0);
-    },
-    _onAnimationStateEnd: function (trackIndex) {
-        this._animationStateCallback(trackIndex, animEventType.END, null, 0);
-    },
-    _onAnimationStateComplete: function (trackIndex, count) {
-        this._animationStateCallback(trackIndex, animEventType.COMPLETE, null, count);
-    },
-    _onAnimationStateEvent: function (trackIndex, event) {
-        this._animationStateCallback(trackIndex, animEventType.EVENT, event, 0);
-    },
-    _animationStateCallback: function (trackIndex, type, event, loopCount) {
-        this.onAnimationStateEvent(trackIndex, type, event, loopCount);
-        if (this._target && this._callback) {
-            this._callback.call(this._target, this, trackIndex, type, event, loopCount)
-        }
     }
 });

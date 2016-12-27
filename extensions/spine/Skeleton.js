@@ -838,36 +838,76 @@ sp.Skeleton = cc.Class({
         }
     },
 
+    /**
+     * !#en Set the complete event listener.
+     * !#zh 用来设置动画播放一次循环结束后的事件监听。
+     * @method setCompleteListener
+     * @param {function} listener
+     */
     setCompleteListener: function (listener) {
         if (this._sgNode) {
             this._sgNode.setCompleteListener(listener);
         }
     },
 
+    /**
+     * !#en Set the animation event listener.
+     * !#zh 用来设置动画播放过程中帧事件的监听。
+     * @method setEventListener
+     * @param {function} listener
+     */
     setEventListener: function (listener) {
         if (this._sgNode) {
             this._sgNode.setEventListener(listener);
         }
     },
 
+    /**
+     * !#en Set the start event listener for specified TrackEntry (only supported on Web).
+     * !#zh 用来为指定的 TrackEntry 设置动画开始播放的事件监听。
+     * @method setTrackStartListener
+     * @param {sp.spine.TrackEntry} entry
+     * @param {function} listener
+     */
     setTrackStartListener: function (entry, listener) {
         if (this._sgNode) {
             this._sgNode.setTrackStartListener(entry, listener);
         }
     },
 
+    /**
+     * !#en Set the end event listener for specified TrackEntry (only supported on Web).
+     * !#zh 用来为指定的 TrackEntry 设置动画播放结束的事件监听。
+     * @method setTrackEndListener
+     * @param {sp.spine.TrackEntry} entry
+     * @param {function} listener
+     */
     setTrackEndListener: function (entry, listener) {
         if (this._sgNode) {
             this._sgNode.setTrackEndListener(entry, listener);
         }
     },
 
+    /**
+     * !#en Set the complete event listener for specified TrackEntry (only supported on Web).
+     * !#zh 用来为指定的 TrackEntry 设置动画一次循环播放结束的事件监听。
+     * @method setTrackCompleteListener
+     * @param {sp.spine.TrackEntry} entry
+     * @param {function} listener
+     */
     setTrackCompleteListener: function (entry, listener) {
         if (this._sgNode) {
             this._sgNode.setTrackCompleteListener(entry, listener);
         }
     },
 
+    /**
+     * !#en Set the event listener for specified TrackEntry (only supported on Web).
+     * !#zh 用来为指定的 TrackEntry 设置动画帧事件的监听。
+     * @method setTrackEventListener
+     * @param {sp.spine.TrackEntry} entry
+     * @param {function} listener
+     */
     setTrackEventListener: function (entry, listener) {
         if (this._sgNode) {
             this._sgNode.setTrackEventListener(entry, listener);
