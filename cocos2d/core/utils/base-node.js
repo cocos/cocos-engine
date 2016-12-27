@@ -263,6 +263,52 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         },
 
         /**
+         * !#en
+         * The local active state of this node.<br/>
+         * Note that a Node may be inactive because a parent is not active, even if this returns true.<br/>
+         * Use {{#crossLink "Node/activeInHierarchy:property"}}{{/crossLink}} if you want to check if the Node is actually treated as active in the scene.
+         * !#zh
+         * 当前节点的自身激活状态。<br/>
+         * 值得注意的是，一个节点的父节点如果不被激活，那么即使它自身设为激活，它仍然无法激活。<br/>
+         * 如果你想检查节点在场景中实际的激活状态可以使用 {{#crossLink "Node/activeInHierarchy:property"}}{{/crossLink}}。
+         * @property active
+         * @type {Boolean}
+         * @default true
+         * @example
+         * node.active = false;
+         */
+        active: {
+            get: function () {
+                return this._active;
+            },
+            set: function (value) {
+                value = !!value;
+                if (this._active !== value) {
+                    this._active = value;
+                    var couldActiveInHierarchy = (this._parent && this._parent._activeInHierarchy);
+                    if (couldActiveInHierarchy) {
+                        this._onActivatedInHierarchy(value);
+                        this.emit('active-in-hierarchy-changed', this);
+                    }
+                }
+            }
+        },
+
+        /**
+         * !#en Indicates whether this node is active in the scene.
+         * !#zh 表示此节点是否在场景中激活。
+         * @property activeInHierarchy
+         * @type {Boolean}
+         * @example
+         * cc.log("activeInHierarchy: " + node.activeInHierarchy);
+         */
+        activeInHierarchy: {
+            get: function () {
+                return this._activeInHierarchy;
+            }
+        },
+
+        /**
          * !#en Tag of node.
          * !#zh 节点标签。
          * @property tag
@@ -765,6 +811,79 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 cc.errorID(3815);
             }
         }
+    },
+
+    _onActivatedInHierarchy: function (newActive) {
+        if (newActive) {
+            cc.Component._callPreloadOnNode(this);
+        }
+        this._activeRecursively(newActive);
+    },
+
+    _activeRecursively: function (newActive) {
+        var cancelActivation = false;
+        if (this._objFlags & Activating) {
+            if (newActive) {
+                cc.errorID(3816, this.name);
+                return;
+            }
+            else {
+                cancelActivation = true;
+            }
+        }
+        else if (newActive) {
+            this._objFlags |= Activating;
+        }
+
+        this._activeInHierarchy = newActive;
+
+        // component maybe added during onEnable, and the onEnable of new component is already called
+        // so we should record the origin length
+        var originCount = this._components.length;
+        for (var c = 0; c < originCount; ++c) {
+            var component = this._components[c];
+            if (component instanceof cc.Component) {
+                component.__onNodeActivated(newActive);
+                if (newActive && !this._activeInHierarchy) {
+                    // deactivated during activating
+                    this._objFlags &= ~Activating;
+                    return;
+                }
+            }
+            else {
+                if (CC_DEV) {
+                    cc.errorID(3817, this.name, c);
+                    console.log('Corrupted component value:', component);
+                }
+                if (component) {
+                    this._removeComponent(component);
+                }
+                else {
+                    JS.array.removeAt(this._components, c);
+                }
+                --c;
+                --originCount;
+            }
+        }
+
+        // activate children recursively
+        for (var i = 0, len = this._children.length; i < len; ++i) {
+            var child = this._children[i];
+            if (child._active) {
+                child._activeRecursively(newActive);
+                if (newActive && !this._activeInHierarchy) {
+                    // deactivated during activating
+                    this._objFlags &= ~Activating;
+                    return;
+                }
+            }
+        }
+        this._objFlags &= ~Activating;
+
+        if (!cancelActivation && this._onActive_EventsActions) {
+            this._onActive_EventsActions(newActive);
+        }
+
     },
 
     _deactivateChildComponents: function () {
