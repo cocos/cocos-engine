@@ -200,28 +200,48 @@ void MinXmlHttpRequest::handle_requestResponse(cocos2d::network::HttpClient *sen
         return;
     }
 
-    if (0 != strlen(response->getHttpRequest()->getTag()))
+    std::string tag = response->getHttpRequest()->getTag();
+    if (0 != strlen(tag.c_str()))
     {
-        CCLOG("%s completed", response->getHttpRequest()->getTag());
+        CCLOG("%s completed", tag);
     }
 
     long statusCode = response->getResponseCode();
     char statusString[64] = {0};
-    sprintf(statusString, "HTTP Status Code: %ld, tag = %s", statusCode, response->getHttpRequest()->getTag());
+    sprintf(statusString, "HTTP Status Code: %ld, tag = %s", statusCode, tag);
 
     if (!response->isSucceed())
     {
-        CCLOG("Response failed, error buffer: %s", response->getErrorBuffer());
+        std::string errorBuffer = response->getErrorBuffer();
+        CCLOG("Response failed, error buffer: %s", errorBuffer);
         if (statusCode == 0 || statusCode == -1)
         {
             _errorFlag = true;
             _status = 0;
             _statusText.clear();
+            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
             JS::RootedObject callback(_cx);
             if (_onerrorCallback)
             {
+                // fix https://github.com/cocos-creator/fireball/issues/4582
+                JS::RootedObject progressEvent(_cx, JS_NewObject(_cx, NULL, JS::NullPtr(), JS::NullPtr()));
+                // event type
+                JS::RootedValue value(_cx, std_string_to_jsval(_cx, "error"));
+                JS_SetProperty(_cx, progressEvent, "type", value);
+                // status
+                value.set(long_to_jsval(_cx, statusCode));
+                JS_SetProperty(_cx, progressEvent, "status", value);
+                // tag
+                value.set(std_string_to_jsval(_cx, tag));
+                JS_SetProperty(_cx, progressEvent, "tag", value);
+                // errorBuffer
+                value.set(std_string_to_jsval(_cx, errorBuffer));
+                JS_SetProperty(_cx, progressEvent, "errorBuffer", value);
+                jsval args[1];
+                args[0] = JS::RootedValue(_cx, OBJECT_TO_JSVAL(progressEvent));
+
                 callback.set(_onerrorCallback);
-                _notify(callback);
+                _notify(callback, &JS::HandleValueArray::fromMarkedLocation(1, args));
             }
             if (_onloadendCallback)
             {
@@ -1019,7 +1039,7 @@ static void basic_object_finalize(JSFreeOp *freeOp, JSObject *obj)
    CCLOG("basic_object_finalize %p ...", obj);
 }
 
-void MinXmlHttpRequest::_notify(JS::HandleObject callback)
+void MinXmlHttpRequest::_notify(JS::HandleObject callback, JS::HandleValueArray *progressEvent)
 {
     js_proxy_t * p;
     void* ptr = (void*)this;
@@ -1029,14 +1049,18 @@ void MinXmlHttpRequest::_notify(JS::HandleObject callback)
     {
         if (callback)
         {
+            if (!progressEvent)
+            {
+                progressEvent = &JS::HandleValueArray::empty();
+            }
+
             JS::RootedObject obj(_cx, p->obj);
             JSAutoCompartment ac(_cx, obj);
             //JS_IsExceptionPending(cx) && JS_ReportPendingException(cx);
             JS::RootedValue callbackVal(_cx, OBJECT_TO_JSVAL(callback));
             JS::RootedValue out(_cx);
-            JS_CallFunctionValue(_cx, JS::NullPtr(), callbackVal, JS::HandleValueArray::empty(), &out);
+            JS_CallFunctionValue(_cx, JS::NullPtr(), callbackVal, *progressEvent, &out);
         }
-
     }
 }
 
