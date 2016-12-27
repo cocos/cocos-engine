@@ -418,11 +418,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     removeChildByTag: null,
     removeAllChildren: null,
 
-    getNodeToParentTransform: null,
-    getNodeToWorldTransform: null,
-    getParentToNodeTransform: null,
-    getWorldToNodeTransform: null,
-
     // HIERARCHY METHODS
 
     /**
@@ -771,6 +766,23 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             }
         }
     },
+
+    _deactivateChildComponents: function () {
+        // 和 _activeRecursively 类似但不修改 this._activeInHierarchy
+        var originCount = this._components.length;
+        for (var c = 0; c < originCount; ++c) {
+            var component = this._components[c];
+            component.__onNodeActivated(false);
+        }
+        // deactivate children recursively
+        for (var i = 0, len = this.childrenCount; i < len; ++i) {
+            var entity = this._children[i];
+            if (entity._active) {
+                entity._deactivateChildComponents();
+            }
+        }
+    },
+
 });
 
 
