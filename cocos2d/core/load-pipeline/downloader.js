@@ -80,11 +80,14 @@ function downloadImage (item, callback, isCrossOrigin, img) {
 
     var url = urlAppendTimestamp(item.url);
     img = img || new Image();
-    if (isCrossOrigin && window.location.origin !== 'file://') {
+    if (isCrossOrigin && window.location.protocol !== 'file:') {
         img.crossOrigin = 'anonymous';
     }
+    else {
+        img.crossOrigin = null;
+    }
 
-    if (img.complete && img.naturalWidth > 0) {
+    if (img.complete && img.naturalWidth > 0 && img.src === url) {
         callback(null, img);
     }
     else {
@@ -92,9 +95,7 @@ function downloadImage (item, callback, isCrossOrigin, img) {
             img.removeEventListener('load', loadCallback);
             img.removeEventListener('error', errorCallback);
 
-            if (callback) {
-                callback(null, img);
-            }
+            callback(null, img);
         }
         function errorCallback () {
             img.removeEventListener('load', loadCallback);
@@ -110,8 +111,8 @@ function downloadImage (item, callback, isCrossOrigin, img) {
 
         img.addEventListener('load', loadCallback);
         img.addEventListener('error', errorCallback);
+        img.src = url;
     }
-    img.src = url;
 }
 
 var FONT_TYPE = {
