@@ -349,8 +349,40 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         return this._parent;
     },
 
-    //interface need to be implemented in derived classes
-    setParent: null,
+    setParent: function (value) {
+        if (this._parent === value) {
+            return;
+        }
+        if (CC_EDITOR && !cc.engine.isPlaying) {
+            if (_Scene.DetectConflict.beforeAddChild(this)) {
+                return;
+            }
+        }
+        //
+        var oldParent = this._parent;
+        this._parent = value || null;
+        if (value) {
+            if (!CC_JSB) {
+                cc.eventManager._setDirtyForNode(this);
+            }
+            value._children.push(this);
+            value.emit(CHILD_ADDED, this);
+        }
+        if (oldParent) {
+            if (!(oldParent._objFlags & Destroying)) {
+                var removeAt = oldParent._children.indexOf(this);
+                if (CC_DEV && removeAt < 0) {
+                    return cc.errorID(1633);
+                }
+                oldParent._children.splice(removeAt, 1);
+                oldParent.emit(CHILD_REMOVED, this);
+                this._onHierarchyChanged(oldParent);
+            }
+        }
+        else if (value) {
+            this._onHierarchyChanged(null);
+        }
+    },
 
 
     // ABSTRACT INTERFACES
@@ -458,11 +490,18 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     },
 
     // composition: ADD
-    addChild: null,
-    removeFromParent: null,
-    removeChild: null,
-    removeChildByTag: null,
-    removeAllChildren: null,
+    addChild: function (child) {
+
+        if (CC_DEV && !(child instanceof cc._BaseNode)) {
+            return cc.errorID(1634, cc.js.getClassName(child));
+        }
+        cc.assertID(child, 1606);
+        cc.assertID(child._parent === null, 1605);
+
+        // invokes the parent setter
+        child.setParent(this);
+
+    },
 
     // HIERARCHY METHODS
 
@@ -491,7 +530,140 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @example
      * node.setSiblingIndex(1);
      */
-    setSiblingIndex: null,
+    setSiblingIndex: function (index) {
+        if (!this._parent) {
+            return;
+        }
+        var array = this._parent._children;
+        index = index !== -1 ? index : array.length - 1;
+        var oldIndex = array.indexOf(this);
+        if (index !== oldIndex) {
+            array.splice(oldIndex, 1);
+            if (index < array.length) {
+                array.splice(index, 0, this);
+            }
+            else {
+                array.push(this);
+            }
+        }
+    },
+
+    cleanup: null,
+
+    /**
+     * !#en
+     * Remove itself from its parent node. If cleanup is true, then also remove all actions and callbacks. <br/>
+     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
+     * If the node orphan, then nothing happens.
+     * !#zh
+     * 从父节点中删除一个节点。cleanup 参数为 true，那么在这个节点上所有的动作和回调都会被删除，反之则不会。<br/>
+     * 如果不传入 cleanup 参数，默认是 true 的。<br/>
+     * 如果这个节点是一个孤节点，那么什么都不会发生。
+     * @method removeFromParent
+     * @param {Boolean} [cleanup=true] - true if all actions and callbacks on this node should be removed, false otherwise.
+     * @see cc.Node#removeFromParentAndCleanup
+     * @example
+     * node.removeFromParent();
+     * node.removeFromParent(false);
+     */
+    removeFromParent: function (cleanup) {
+        if (this._parent) {
+            if (cleanup === undefined)
+                cleanup = true;
+            this._parent.removeChild(this, cleanup);
+        }
+    },
+
+    /**
+     * !#en
+     * Removes a child from the container. It will also cleanup all running actions depending on the cleanup parameter. </p>
+     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
+     * "remove" logic MUST only be on this method  <br/>
+     * If a class wants to extend the 'removeChild' behavior it only needs <br/>
+     * to override this method.
+     * !#zh
+     * 移除节点中指定的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
+     * 如果 cleanup 参数不传入，默认为 true 表示清理。<br/>
+     * @method removeChild
+     * @param {Node} child - The child node which will be removed.
+     * @param {Boolean} [cleanup=true] - true if all running actions and callbacks on the child node will be cleanup, false otherwise.
+     * @example
+     * node.removeChild(newNode);
+     * node.removeChild(newNode, false);
+     */
+    removeChild: function (child, cleanup) {
+        if (this._children.indexOf(child) > -1) {
+            // If you don't do cleanup, the child's actions will not get removed and the
+            if (cleanup || cleanup === undefined) {
+                child.cleanup();
+            }
+            // invoke the parent setter
+            child.parent = null;
+        }
+    },
+
+    /**
+     * !#en
+     * Removes a child from the container by tag value. It will also cleanup all running actions depending on the cleanup parameter.
+     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
+     * !#zh
+     * 通过标签移除节点中指定的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
+     * 如果 cleanup 参数不传入，默认为 true 表示清理。
+     * @method removeChildByTag
+     * @param {Number} tag - An integer number that identifies a child node
+     * @param {Boolean} [cleanup=true] - true if all running actions and callbacks on the child node will be cleanup, false otherwise.
+     * @see cc.Node#removeChildByTag
+     * @example
+     * node.removeChildByTag(1001);
+     * node.removeChildByTag(1001, false);
+     */
+    removeChildByTag: function (tag, cleanup) {
+        if (tag === cc.macro.NODE_TAG_INVALID)
+            cc.logID(1609);
+
+        var child = this.getChildByTag(tag);
+        if (!child)
+            cc.logID(1610, tag);
+        else
+            this.removeChild(child, cleanup);
+    },
+
+    /**
+     * !#en
+     * Removes all children from the container and do a cleanup all running actions depending on the cleanup parameter. <br/>
+     * If the cleanup parameter is not passed, it will force a cleanup.
+     * !#zh
+     * 移除节点所有的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
+     * 如果 cleanup 参数不传入，默认为 true 表示清理。
+     * @method removeAllChildren
+     * @param {Boolean} [cleanup=true] - true if all running actions on all children nodes should be cleanup, false otherwise.
+     * @example
+     * node.removeAllChildren();
+     * node.removeAllChildren(false);
+     */
+    removeAllChildren: function (cleanup) {
+        // not using detachChild improves speed here
+        var children = this._children;
+        if (cleanup === undefined)
+            cleanup = true;
+        for (var i = children.length - 1; i >= 0; i--) {
+            var node = children[i];
+            if (node) {
+                //if (this._running) {
+                //    node.onExitTransitionDidStart();
+                //    node.onExit();
+                //}
+
+                // If you don't do cleanup, the node's actions will not get removed and the
+                if (cleanup)
+                    node.cleanup();
+
+                node.parent = null;
+            }
+        }
+        this._children.length = 0;
+    },
+
     /**
      * !#en Is this node a child of the given node?
      * !#zh 是否是指定节点的子节点？
@@ -902,6 +1074,187 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
+    destroy: function () {
+        if (cc.Object.prototype.destroy.call(this)) {
+            // disable hierarchy
+            if (this._activeInHierarchy) {
+                this._deactivateChildComponents();
+            }
+        }
+    },
+
+    _onHierarchyChanged: function (oldParent) {
+        var newParent = this._parent;
+        if (this._persistNode && !(newParent instanceof cc.Scene)) {
+            cc.game.removePersistRootNode(this);
+            if (CC_EDITOR) {
+                cc.warnID(1623);
+            }
+        }
+        var activeInHierarchyBefore = this._active && !!(oldParent && oldParent._activeInHierarchy);
+        var shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);
+        if (activeInHierarchyBefore !== shouldActiveNow) {
+            this._onActivatedInHierarchy(shouldActiveNow);
+        }
+        if (CC_EDITOR || CC_TEST) {
+            var scene = cc.director.getScene();
+            var inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
+            var inCurrentSceneNow = newParent && newParent.isChildOf(scene);
+            if (!inCurrentSceneBefore && inCurrentSceneNow) {
+                // attached
+                this._registerIfAttached(true);
+            }
+            else if (inCurrentSceneBefore && !inCurrentSceneNow) {
+                // detached
+                this._registerIfAttached(false);
+            }
+
+            // update prefab
+            var newPrefabRoot = newParent && newParent._prefab && newParent._prefab.root;
+            var myPrefabInfo = this._prefab;
+            if (myPrefabInfo) {
+                if (newPrefabRoot) {
+                    // change prefab
+                    _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                }
+                else if (myPrefabInfo.root !== this) {
+                    // detach from prefab
+                    _Scene.PrefabUtils.unlinkPrefab(this);
+                }
+            }
+            else if (newPrefabRoot) {
+                // attach to prefab
+                _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+            }
+
+            // conflict detection
+            _Scene.DetectConflict.afterAddChild(this);
+        }
+
+    },
+
+    _onBatchCreated: function () {
+        var prefabInfo = this._prefab;
+        if (prefabInfo && prefabInfo.sync && !prefabInfo._synced) {
+            // checks to ensure no recursion, recursion will caused only on old data.
+            if (prefabInfo.root === this) {
+                PrefabHelper.syncWithPrefab(this);
+            }
+        }
+
+        var children = this._children;
+        for (var i = 0, len = children.length; i < len; i++) {
+            children[i]._onBatchCreated();
+        }
+    },
+
+    _instantiate: function (cloned) {
+        if (!cloned) {
+            cloned = cc.instantiate._clone(this, this);
+        }
+
+        var thisPrefabInfo = this._prefab;
+        var syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
+        if (syncing) {
+            // copy non-serialized property
+            cloned._prefab._synced = thisPrefabInfo._synced;
+            //if (thisPrefabInfo._synced) {
+            //    return clone;
+            //}
+        }
+        else if (CC_EDITOR && cc.engine._isPlaying) {
+            cloned._name += ' (Clone)';
+        }
+
+        // reset and init
+        cloned._parent = null;
+        cloned._onBatchCreated();
+
+        return cloned;
+    },
+
+    _registerIfAttached: (CC_EDITOR || CC_TEST) && function (register) {
+        if (register) {
+            cc.engine.attachedObjsForEditor[this.uuid] = this;
+            cc.engine.emit('node-attach-to-scene', {target: this});
+            //this._objFlags |= RegisteredInEditor;
+        }
+        else {
+            cc.engine.emit('node-detach-from-scene', {target: this});
+            delete cc.engine.attachedObjsForEditor[this._id];
+        }
+        var children = this._children;
+        for (var i = 0, len = children.length; i < len; ++i) {
+            var child = children[i];
+            child._registerIfAttached(register);
+        }
+    },
+
+    _onPreDestroy: function () {
+        var i, len;
+
+        // marked as destroying
+        this._objFlags |= Destroying;
+
+        // detach self and children from editor
+        var parent = this._parent;
+        var destroyByParent = parent && (parent._objFlags & Destroying);
+        if ( !destroyByParent ) {
+            if (CC_EDITOR || CC_TEST) {
+                this._registerIfAttached(false);
+            }
+        }
+
+        // destroy children
+        var children = this._children;
+        for (i = 0, len = children.length; i < len; ++i) {
+            // destroy immediate so its _onPreDestroy can be called
+            children[i]._destroyImmediate();
+        }
+
+        // destroy self components
+        for (i = 0, len = this._components.length; i < len; ++i) {
+            var component = this._components[i];
+            // destroy immediate so its _onPreDestroy can be called
+            component._destroyImmediate();
+        }
+
+
+        for (i = 0, len = this.__eventTargets.length; i < len; ++i) {
+            var target = this.__eventTargets[i];
+            target && target.targetOff(this);
+        }
+        this.__eventTargets.length = 0;
+
+        // remove from persist
+        if (this._persistNode) {
+            cc.game.removePersistRootNode(this);
+        }
+
+        if ( !destroyByParent ) {
+            // remove from parent
+            if (parent) {
+                var childIndex = parent._children.indexOf(this);
+                parent._children.splice(childIndex, 1);
+                parent.emit('child-removed', this);
+            }
+
+            // simulate some destruct logic to make undo system work correctly
+            if (CC_EDITOR) {
+                // ensure this node can reattach to scene by undo system
+                this._parent = null;
+            }
+        }
+    },
+
+    onRestore: CC_EDITOR && function () {
+        // check activity state
+        var shouldActiveInHierarchy = (this._parent && this._parent._activeInHierarchy && this._active);
+        if (shouldActiveInHierarchy !== this._activeInHierarchy) {
+            this._onActivatedInHierarchy(shouldActiveInHierarchy);
+            this.emit('active-in-hierarchy-changed', this);
+        }
+    },
 });
 
 
@@ -916,5 +1269,5 @@ var DiffNameGetSets = {
     //anchorY: ['_getAnchorY', '_setAnchorY'],
 };
 Misc.propertyDefine(BaseNode, SameNameGetSets, DiffNameGetSets);
-
+BaseNode.prototype._onHierarchyChangedBase = BaseNode.prototype._onHierarchyChanged;
 cc._BaseNode = module.exports = BaseNode;

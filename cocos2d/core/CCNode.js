@@ -266,18 +266,6 @@ var _searchMaskParent = function (node) {
     return null;
 };
 
-function getConstructor (typeOrClassName) {
-    if ( !typeOrClassName ) {
-        cc.errorID(3804);
-        return null;
-    }
-    if (typeof typeOrClassName === 'string') {
-        return JS.getClassByName(typeOrClassName);
-    }
-
-    return typeOrClassName;
-}
-
 /**
  * !#en
  * Class of all entities in Cocos Creator scenes.<br/>
@@ -913,15 +901,6 @@ var Node = cc.Class({
 
     // OVERRIDES
 
-    destroy: function () {
-        if (cc.Object.prototype.destroy.call(this)) {
-            // disable hierarchy
-            if (this._activeInHierarchy) {
-                this._deactivateChildComponents();
-            }
-        }
-    },
-
     _onPreDestroy: function () {
         var i, len;
 
@@ -1010,23 +989,6 @@ var Node = cc.Class({
 
     // INTERNAL
 
-    _registerIfAttached: (CC_EDITOR || CC_TEST) && function (register) {
-        if (register) {
-            cc.engine.attachedObjsForEditor[this.uuid] = this;
-            cc.engine.emit('node-attach-to-scene', {target: this});
-            //this._objFlags |= RegisteredInEditor;
-        }
-        else {
-            cc.engine.emit('node-detach-from-scene', {target: this});
-            delete cc.engine.attachedObjsForEditor[this._id];
-        }
-        var children = this._children;
-        for (var i = 0, len = children.length; i < len; ++i) {
-            var child = children[i];
-            child._registerIfAttached(register);
-        }
-    },
-
     /*
      * The initializer for Node which will be called before all components onLoad
      */
@@ -1078,78 +1040,8 @@ var Node = cc.Class({
     },
 
     _onHierarchyChanged: function (oldParent) {
-        var newParent = this._parent;
-        if (this._persistNode && !(newParent instanceof cc.Scene)) {
-            cc.game.removePersistRootNode(this);
-            if (CC_EDITOR) {
-                cc.warnID(1623);
-            }
-        }
-        var activeInHierarchyBefore = this._active && !!(oldParent && oldParent._activeInHierarchy);
-        var shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);
-        if (activeInHierarchyBefore !== shouldActiveNow) {
-            this._onActivatedInHierarchy(shouldActiveNow);
-        }
+        this._onHierarchyChangedBase(oldParent);
         cc._widgetManager._nodesOrderDirty = true;
-        if (CC_EDITOR || CC_TEST) {
-            var scene = cc.director.getScene();
-            var inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
-            var inCurrentSceneNow = newParent && newParent.isChildOf(scene);
-            if (!inCurrentSceneBefore && inCurrentSceneNow) {
-                // attached
-                this._registerIfAttached(true);
-            }
-            else if (inCurrentSceneBefore && !inCurrentSceneNow) {
-                // detached
-                this._registerIfAttached(false);
-            }
-
-            // update prefab
-            var newPrefabRoot = newParent && newParent._prefab && newParent._prefab.root;
-            var myPrefabInfo = this._prefab;
-            if (myPrefabInfo) {
-                if (newPrefabRoot) {
-                    // change prefab
-                    _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
-                }
-                else if (myPrefabInfo.root !== this) {
-                    // detach from prefab
-                    _Scene.PrefabUtils.unlinkPrefab(this);
-                }
-            }
-            else if (newPrefabRoot) {
-                // attach to prefab
-                _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
-            }
-
-            // conflict detection
-            _Scene.DetectConflict.afterAddChild(this);
-        }
-    },
-
-    _instantiate: function (cloned) {
-        if (!cloned) {
-            cloned = cc.instantiate._clone(this, this);
-        }
-
-        var thisPrefabInfo = this._prefab;
-        var syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
-        if (syncing) {
-            // copy non-serialized property
-            cloned._prefab._synced = thisPrefabInfo._synced;
-            //if (thisPrefabInfo._synced) {
-            //    return clone;
-            //}
-        }
-        else if (CC_EDITOR && cc.engine._isPlaying) {
-            cloned._name += ' (Clone)';
-        }
-
-        // reset and init
-        cloned._parent = null;
-        cloned._onBatchCreated();
-
-        return cloned;
     },
 
 // EVENTS
@@ -2425,122 +2317,6 @@ var Node = cc.Class({
             if (node)
                 node.cleanup();
         }
-    },
-
-    // composition: REMOVE
-
-    /**
-     * !#en
-     * Remove itself from its parent node. If cleanup is true, then also remove all actions and callbacks. <br/>
-     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
-     * If the node orphan, then nothing happens.
-     * !#zh
-     * 从父节点中删除一个节点。cleanup 参数为 true，那么在这个节点上所有的动作和回调都会被删除，反之则不会。<br/>
-     * 如果不传入 cleanup 参数，默认是 true 的。<br/>
-     * 如果这个节点是一个孤节点，那么什么都不会发生。
-     * @method removeFromParent
-     * @param {Boolean} [cleanup=true] - true if all actions and callbacks on this node should be removed, false otherwise.
-     * @see cc.Node#removeFromParentAndCleanup
-     * @example
-     * node.removeFromParent();
-     * node.removeFromParent(false);
-     */
-    removeFromParent: function (cleanup) {
-        if (this._parent) {
-            if (cleanup === undefined)
-                cleanup = true;
-            this._parent.removeChild(this, cleanup);
-        }
-    },
-
-    /**
-     * !#en
-     * Removes a child from the container. It will also cleanup all running actions depending on the cleanup parameter. </p>
-     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
-     * "remove" logic MUST only be on this method  <br/>
-     * If a class wants to extend the 'removeChild' behavior it only needs <br/>
-     * to override this method.
-     * !#zh
-     * 移除节点中指定的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
-     * 如果 cleanup 参数不传入，默认为 true 表示清理。<br/>
-     * @method removeChild
-     * @param {Node} child - The child node which will be removed.
-     * @param {Boolean} [cleanup=true] - true if all running actions and callbacks on the child node will be cleanup, false otherwise.
-     * @example
-     * node.removeChild(newNode);
-     * node.removeChild(newNode, false);
-     */
-    removeChild: function (child, cleanup) {
-        if (this._children.indexOf(child) > -1) {
-            // If you don't do cleanup, the child's actions will not get removed and the
-            if (cleanup || cleanup === undefined) {
-                child.cleanup();
-            }
-            // invoke the parent setter
-            child.parent = null;
-        }
-    },
-
-    /**
-     * !#en
-     * Removes a child from the container by tag value. It will also cleanup all running actions depending on the cleanup parameter.
-     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
-     * !#zh
-     * 通过标签移除节点中指定的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
-     * 如果 cleanup 参数不传入，默认为 true 表示清理。
-     * @method removeChildByTag
-     * @param {Number} tag - An integer number that identifies a child node
-     * @param {Boolean} [cleanup=true] - true if all running actions and callbacks on the child node will be cleanup, false otherwise.
-     * @see cc.Node#removeChildByTag
-     * @example
-     * node.removeChildByTag(1001);
-     * node.removeChildByTag(1001, false);
-     */
-    removeChildByTag: function (tag, cleanup) {
-        if (tag === cc.macro.NODE_TAG_INVALID)
-            cc.logID(1609);
-
-        var child = this.getChildByTag(tag);
-        if (!child)
-            cc.logID(1610, tag);
-        else
-            this.removeChild(child, cleanup);
-    },
-
-    /**
-     * !#en
-     * Removes all children from the container and do a cleanup all running actions depending on the cleanup parameter. <br/>
-     * If the cleanup parameter is not passed, it will force a cleanup.
-     * !#zh
-     * 移除节点所有的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
-     * 如果 cleanup 参数不传入，默认为 true 表示清理。
-     * @method removeAllChildren
-     * @param {Boolean} [cleanup=true] - true if all running actions on all children nodes should be cleanup, false otherwise.
-     * @example
-     * node.removeAllChildren();
-     * node.removeAllChildren(false);
-     */
-    removeAllChildren: function (cleanup) {
-        // not using detachChild improves speed here
-        var children = this._children;
-        if (cleanup === undefined)
-            cleanup = true;
-        for (var i = children.length - 1; i >= 0; i--) {
-            var node = children[i];
-            if (node) {
-                //if (this._running) {
-                //    node.onExitTransitionDidStart();
-                //    node.onExit();
-                //}
-
-                // If you don't do cleanup, the node's actions will not get removed and the
-                if (cleanup)
-                    node.cleanup();
-
-                node.parent = null;
-            }
-        }
-        this._children.length = 0;
     },
 
     /**
