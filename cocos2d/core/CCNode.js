@@ -27,11 +27,8 @@
 var PrefabHelper = require('./utils/prefab-helper');
 var SgHelper = require('./utils/scene-graph-helper');
 
-var JS = cc.js;
 var Flags = cc.Object.Flags;
 var Destroying = Flags.Destroying;
-var DontDestroy = Flags.DontDestroy;
-var Activating = Flags.Activating;
 
 var POSITION_CHANGED = 'position-changed';
 var SIZE_CHANGED = 'size-changed';

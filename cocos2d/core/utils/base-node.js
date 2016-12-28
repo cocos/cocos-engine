@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var SgHelper = require('./scene-graph-helper');
 var Flags = require('../platform/CCObject').Flags;
 var Misc = require('./misc');
 var IdGenerater = require('../platform/id-generater');
@@ -32,14 +31,10 @@ var JS = cc.js;
 var Destroying = Flags.Destroying;
 var DontDestroy = Flags.DontDestroy;
 var Activating = Flags.Activating;
-var POSITION_CHANGED = 'position-changed';
-var SIZE_CHANGED = 'size-changed';
-var ANCHOR_CHANGED = 'anchor-changed';
+
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
-var CHILD_REORDER = 'child-reorder';
 
-var ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 
 var idGenerater = new IdGenerater('Node');
 
@@ -81,8 +76,8 @@ function findChildComponent (children, constructor) {
         if (comp) {
             return comp;
         }
-        else if (node.children.length > 0) {
-            comp = findChildComponent(node.children, constructor);
+        else if (node._children.length > 0) {
+            comp = findChildComponent(node._children, constructor);
             if (comp) {
                 return comp;
             }
@@ -387,10 +382,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
     // ABSTRACT INTERFACES
 
-    // called when the node's parent changed
-    _onHierarchyChanged: null,
 
-    _onPreDestroy: null,
     /*
      * Initializes the instance of cc.Node
      * @method init
@@ -548,7 +540,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
-    cleanup: null,
+    cleanup: function() {
+
+    },
 
     /**
      * !#en
@@ -1066,7 +1060,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             component.__onNodeActivated(false);
         }
         // deactivate children recursively
-        for (var i = 0, len = this.childrenCount; i < len; ++i) {
+        for (var i = 0, len = this._children.length; i < len; ++i) {
             var entity = this._children[i];
             if (entity._active) {
                 entity._deactivateChildComponents();
