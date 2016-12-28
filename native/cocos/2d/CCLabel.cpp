@@ -451,7 +451,7 @@ void Label::reset()
     CC_SAFE_RELEASE_NULL(_shadowNode);
     Node::removeAllChildrenWithCleanup(true);
     CC_SAFE_RELEASE_NULL(_reusedLetter);
-    
+
     _letters.clear();
     _batchNodes.clear();
     _lettersInfo.clear();
@@ -1258,12 +1258,12 @@ void Label::disableEffect(LabelEffect effect)
             _italicsEnabled = false;
             break;
         case cocos2d::LabelEffect::BOLD:
-            _boldEnabled = false;
-            _additionalKerning -= 1;
-            if(_additionalKerning <= 0) {
-                _additionalKerning = 0;
+            if (_boldEnabled)
+            {
+                _boldEnabled = false;
+                _additionalKerning -= 1;
+                disableEffect(LabelEffect::SHADOW);
             }
-            disableEffect(LabelEffect::SHADOW);
             break;
         case cocos2d::LabelEffect::UNDERLINE:
             if (_underlineNode) {
