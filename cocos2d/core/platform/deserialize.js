@@ -234,7 +234,7 @@ var _Deserializer = (function () {
                 }
                 else {
                     if (prop) {
-                        if (CC_DEV) {
+                        if (CC_EDITOR || CC_TEST) {
                             self._deserializeObjField(instance, prop, propName, self._target && instance);
                         }
                         else {
@@ -250,33 +250,31 @@ var _Deserializer = (function () {
         }
     };
 
-    function _deserializeTypedObject (self, instance, serialized) {
-        //++self.stackCounter;
-        //if (self.stackCounter === 100) {
-        //    debugger;
-        //}
-        for (var propName in instance) {    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
+    function _deserializeTypedObject (self, instance, serialized, klass) {
+        var fastDefinedProps = klass.__props__;
+        if (!fastDefinedProps) {
+            fastDefinedProps = Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
+        }
+        for (var i = 0; i < fastDefinedProps.length; i++) {
+            var propName = fastDefinedProps[i];
             var prop = serialized[propName];
             if (typeof prop !== 'undefined' && serialized.hasOwnProperty(propName)) {
                 if (typeof prop !== 'object') {
                     instance[propName] = prop;
                 }
-                else {
-                    if (prop) {
-                        if (CC_DEV) {
-                            self._deserializeObjField(instance, prop, propName, self._target && instance);
-                        }
-                        else {
-                            self._deserializeObjField(instance, prop, propName);
-                        }
+                else if (prop) {
+                    if (CC_EDITOR || CC_TEST) {
+                        self._deserializeObjField(instance, prop, propName, self._target && instance);
                     }
                     else {
-                        instance[propName] = null;
+                        self._deserializeObjField(instance, prop, propName);
                     }
+                }
+                else {
+                    instance[propName] = null;
                 }
             }
         }
-        //--self.stackCounter;
     }
 
     // function _deserializeFireClass(self, obj, serialized, klass, target) {
@@ -308,7 +306,7 @@ var _Deserializer = (function () {
     //             }
     //             else {
     //                 if (prop) {
-    //                     if (CC_DEV) {
+    //                     if (CC_EDITOR || CC_TEST) {
     //                         self._deserializeObjField(obj, prop, propName, target && obj);
     //                     }
     //                     else {
@@ -380,7 +378,7 @@ var _Deserializer = (function () {
                                     'o' + accessor + '=prop;');
                 sources.push(   '}else{' +
                                     'if(prop)');
-                if (CC_DEV) {
+                if (CC_EDITOR || CC_TEST) {
                     sources.push(       's._deserializeObjField(o,prop,' + propNameLiteral + ',t&&o);');
                 }
                 else {
@@ -448,7 +446,7 @@ var _Deserializer = (function () {
                 return null;
             }
 
-            if (CC_DEV && target) {
+            if ((CC_EDITOR || CC_TEST) && target) {
                 // use target
                 if ( !(target instanceof klass) ) {
                     cc.warnID(5300, JS.getClassName(target), klass);
@@ -482,21 +480,21 @@ var _Deserializer = (function () {
                 obj.a = serialized.a || 255;
             }
             else {
-                _deserializeTypedObject(self, obj, serialized);
+                _deserializeTypedObject(self, obj, serialized, klass);
             }
         }
         else if ( !Array.isArray(serialized) ) {
 
             // embedded primitive javascript object
 
-            obj = (CC_DEV && target) || {};
+            obj = ((CC_EDITOR || CC_TEST) && target) || {};
             self._deserializePrimitiveObject(obj, serialized);
         }
         else {
 
             // Array
 
-            if (CC_DEV && target) {
+            if ((CC_EDITOR || CC_TEST) && target) {
                 target.length = serialized.length;
                 obj = target;
             }
@@ -507,7 +505,7 @@ var _Deserializer = (function () {
             for (var i = 0; i < serialized.length; i++) {
                 prop = serialized[i];
                 if (typeof prop === 'object' && prop) {
-                    if (CC_DEV) {
+                    if (CC_EDITOR || CC_TEST) {
                         self._deserializeObjField(obj, prop, '' + i, target && obj);
                     }
                     else {
@@ -547,7 +545,7 @@ cc.deserialize = function (data, result, options) {
     var classFinder = options.classFinder || JS._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
     var createAssetRefs = options.createAssetRefs || cc.sys.platform === cc.sys.EDITOR_CORE;
-    var target = CC_DEV && options.target;
+    var target = (CC_EDITOR || CC_TEST) && options.target;
     var customEnv = options.customEnv;
     var ignoreEditorOnly = options.ignoreEditorOnly;
 

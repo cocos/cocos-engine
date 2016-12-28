@@ -74,6 +74,11 @@ dragonBones.CCSlot = cc.Class({
         this._renderDisplay.setVisible(this._parent.visible);
     },
 
+    _updateZOrder: function() {
+        var container = this._armature._display;
+        container.addChild(this._renderDisplay, this._zOrder);
+    },
+
     _updateBlendMode : function () {
         if (this._renderDisplay instanceof cc.Scale9Sprite) {
             switch (this._blendMode) {

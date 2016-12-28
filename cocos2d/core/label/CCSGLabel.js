@@ -60,7 +60,10 @@ var FntLoader = {
     parseFnt: function (fntStr) {
         var self = this, fnt = {};
         //padding
-        var infoObj = self._parseStrToObj(fntStr.match(self.INFO_EXP)[0]);
+        var infoResult = fntStr.match(self.INFO_EXP);
+        if (!infoResult) return fnt;
+
+        var infoObj = self._parseStrToObj(infoResult[0]);
         var paddingArr = infoObj["padding"].split(",");
         var padding = {
             left: parseInt(paddingArr[0]),
@@ -742,6 +745,9 @@ cc.BMFontHelper = {
                         var originalX = this._reusedRect.x;
                         this._reusedRect.x = rect.x + rect.height - this._reusedRect.y - this._reusedRect.height - trimmedTop;
                         this._reusedRect.y = originalX + rect.y - trimmedLeft;
+                        if (this._reusedRect.y < 0) {
+                            this._reusedRect.height = this._reusedRect.height + trimmedTop;
+                        }
                     }
 
                     if (!fontChar) {
