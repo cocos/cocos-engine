@@ -201,14 +201,14 @@ void MinXmlHttpRequest::handle_requestResponse(cocos2d::network::HttpClient *sen
     }
 
     std::string tag = response->getHttpRequest()->getTag();
-    if (0 != strlen(tag.c_str()))
+    if (!tag.empty())
     {
-        CCLOG("%s completed", tag);
+        CCLOG("%s completed", tag.c_str());
     }
 
     long statusCode = response->getResponseCode();
     char statusString[64] = {0};
-    sprintf(statusString, "HTTP Status Code: %ld, tag = %s", statusCode, tag);
+    sprintf(statusString, "HTTP Status Code: %ld, tag = %s", statusCode, tag.c_str());
 
     if (!response->isSucceed())
     {
@@ -237,16 +237,16 @@ void MinXmlHttpRequest::handle_requestResponse(cocos2d::network::HttpClient *sen
                 // errorBuffer
                 value.set(std_string_to_jsval(_cx, errorBuffer));
                 JS_SetProperty(_cx, progressEvent, "errorBuffer", value);
-                jsval args[1];
-                args[0] = JS::RootedValue(_cx, OBJECT_TO_JSVAL(progressEvent));
+
+                jsval arg = JS::RootedValue(_cx, OBJECT_TO_JSVAL(progressEvent));
 
                 callback.set(_onerrorCallback);
-                _notify(callback, &JS::HandleValueArray::fromMarkedLocation(1, args));
+                _notify(callback, JS::HandleValueArray::fromMarkedLocation(1, &arg));
             }
             if (_onloadendCallback)
             {
                 callback.set(_onloadendCallback);
-                _notify(callback);
+                _notify(callback, JS::HandleValueArray::empty());
             }
             return;
         }
@@ -279,17 +279,17 @@ void MinXmlHttpRequest::handle_requestResponse(cocos2d::network::HttpClient *sen
     if (_onreadystateCallback)
     {
         callback.set(_onreadystateCallback);
-        _notify(callback);
+        _notify(callback, JS::HandleValueArray::empty());
     }
     if (_onloadCallback)
     {
         callback.set(_onloadCallback);
-        _notify(callback);
+        _notify(callback, JS::HandleValueArray::empty());
     }
     if (_onloadendCallback)
     {
         callback.set(_onloadendCallback);
-        _notify(callback);
+        _notify(callback, JS::HandleValueArray::empty());
     }
 }
 /**
@@ -867,7 +867,7 @@ JS_BINDED_FUNC_IMPL(MinXmlHttpRequest, send)
     if (_onloadstartCallback)
     {
         JS::RootedObject callback(cx, _onloadstartCallback);
-        _notify(callback);
+        _notify(callback, JS::HandleValueArray::empty());
     }
 
     //begin schedule for timeout
@@ -887,7 +887,7 @@ void MinXmlHttpRequest::update(float dt)
         if (_ontimeoutCallback)
         {
             JS::RootedObject callback(_cx, _ontimeoutCallback);
-            _notify(callback);
+            _notify(callback, JS::HandleValueArray::empty());
         }
         _elapsedTime = 0;
         _readyState = UNSENT;
@@ -913,7 +913,7 @@ JS_BINDED_FUNC_IMPL(MinXmlHttpRequest, abort)
     if (_onabortCallback)
     {
         JS::RootedObject callback(cx, _onabortCallback);
-        _notify(callback);
+        _notify(callback, JS::HandleValueArray::empty());
     }
 
     return true;
@@ -1039,7 +1039,7 @@ static void basic_object_finalize(JSFreeOp *freeOp, JSObject *obj)
    CCLOG("basic_object_finalize %p ...", obj);
 }
 
-void MinXmlHttpRequest::_notify(JS::HandleObject callback, JS::HandleValueArray *progressEvent)
+void MinXmlHttpRequest::_notify(JS::HandleObject callback, JS::HandleValueArray progressEvent)
 {
     js_proxy_t * p;
     void* ptr = (void*)this;
@@ -1049,17 +1049,12 @@ void MinXmlHttpRequest::_notify(JS::HandleObject callback, JS::HandleValueArray 
     {
         if (callback)
         {
-            if (!progressEvent)
-            {
-                progressEvent = &JS::HandleValueArray::empty();
-            }
-
             JS::RootedObject obj(_cx, p->obj);
             JSAutoCompartment ac(_cx, obj);
             //JS_IsExceptionPending(cx) && JS_ReportPendingException(cx);
             JS::RootedValue callbackVal(_cx, OBJECT_TO_JSVAL(callback));
             JS::RootedValue out(_cx);
-            JS_CallFunctionValue(_cx, JS::NullPtr(), callbackVal, *progressEvent, &out);
+            JS_CallFunctionValue(_cx, JS::NullPtr(), callbackVal, progressEvent, &out);
         }
     }
 }
