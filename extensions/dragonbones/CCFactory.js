@@ -143,7 +143,7 @@ dragonBones.CCFactory = cc.Class({
                 textureData.texture.setTexture(textureAtlasTexture, rect, textureData.rotated, offset, originSize); // TODO multiply textureAtlas
             }
 
-            var ret = new _ccsg.Sprite();
+            var ret = new cc.Scale9Sprite();
             ret.initWithSpriteFrame(textureData.texture);
             return ret;
         }
