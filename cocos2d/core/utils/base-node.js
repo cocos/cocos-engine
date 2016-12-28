@@ -131,7 +131,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     return;
                 }
                 if (CC_EDITOR && !cc.engine.isPlaying) {
-                    if (_Scene.DetectConflict.beforeAddChild(this)) {
+                    if (_Scene.DetectConflict.beforeAddChild(this, value)) {
                         return;
                     }
                 }

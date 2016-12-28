@@ -1049,8 +1049,10 @@ var Node = cc.Class({
             var myPrefabInfo = this._prefab;
             if (myPrefabInfo) {
                 if (newPrefabRoot) {
-                    // change prefab
-                    _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                    if (myPrefabInfo.root !== newPrefabRoot) {
+                        // change prefab
+                        _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                    }
                 }
                 else if (myPrefabInfo.root !== this) {
                     // detach from prefab

@@ -50,11 +50,10 @@ var Prefab = cc.Class({
         }
     },
 
-    createNode: function (cb) {
-        if (CC_EDITOR) {
-            var node = cc.instantiate(this);
-            cb(null, node);
-        }
+    createNode: CC_EDITOR && function (cb) {
+        var node = cc.instantiate(this);
+        node.name = this.name;
+        cb(null, node);
     },
 
     /**
