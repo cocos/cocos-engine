@@ -283,9 +283,15 @@ _ccsg.Node.RenderCmd.prototype = {
     },
 
     setNodeToParentTransform: function(transform) {
-        this._transform = transform;
+        if (transform) {
+            // use specified transform
+            this._transform = transform;
+            this._transformUpdated = true;
+        } else {
+            // not use the specified transform
+            this._transformUpdated = false;
+        }
         this.setDirtyFlag(1);
-        this._transformUpdated = true;
     },
 
     _propagateFlagsDown: function(parentCmd) {
