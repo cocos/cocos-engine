@@ -840,20 +840,6 @@ var Node = cc.Class({
 
     ctor: function (name) {
 
-        // cache component
-        this._widget = null;
-
-        // Touch event listener
-        this._touchListener = null;
-
-        // Mouse event listener
-        this._mouseListener = null;
-
-        // Retained actions for JSB
-        if (CC_JSB) {
-            this._retainedActions = [];
-        }
-
         /**
          * Current scene graph node for this node.
          *
@@ -890,6 +876,19 @@ var Node = cc.Class({
         this.__ignoreAnchor = false;
         this._reorderChildDirty = false;
 
+        // cache component
+        this._widget = null;
+
+        // Touch event listener
+        this._touchListener = null;
+
+        // Mouse event listener
+        this._mouseListener = null;
+
+        // Retained actions for JSB
+        if (CC_JSB) {
+            this._retainedActions = [];
+        }
     },
 
     //statics: {
