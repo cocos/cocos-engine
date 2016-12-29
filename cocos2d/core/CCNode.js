@@ -1013,7 +1013,7 @@ var Node = cc.Class({
     },
 
     _onActive_EventsActions: function (newActive) {
-// ActionManager, EventManager
+        // ActionManager, EventManager
         if (newActive) {
             // activate
             cc.director.getActionManager().resumeTarget(this);
@@ -1452,7 +1452,7 @@ var Node = cc.Class({
         }
     },
 
-    _updateOrder: function() {
+    _updateOrder: function () {
         this._parent && this._parent._delaySort();
         if (!CC_JSB) {
             cc.eventManager._setDirtyForNode(this);
@@ -1460,7 +1460,7 @@ var Node = cc.Class({
     },
 
     _onSiblingIndexChanged: function (index) {
-    // update rendering scene graph, sort them by arrivalOrder
+        // update rendering scene graph, sort them by arrivalOrder
         var parent = this._parent;
         var siblings = parent._children;
         var i = 0, len = siblings.length, sibling;
