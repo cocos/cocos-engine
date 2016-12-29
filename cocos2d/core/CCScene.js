@@ -36,7 +36,7 @@ var NIL = function () {};
  */
 cc.Scene = cc.Class({
     name: 'cc.Scene',
-    extends: require('./utils/base-node'),
+    extends: require('./CCNode'),
 
     properties: {
 
@@ -84,6 +84,7 @@ cc.Scene = cc.Class({
     },
 
     _onHierarchyChanged: NIL,
+    _instantiate : null,
 
     _load: function () {
         if ( ! this._inited) {
