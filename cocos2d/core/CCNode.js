@@ -1458,58 +1458,41 @@ var Node = cc.Class({
         }
     },
 
-    setSiblingIndex: function (index) {
-        if (!this._parent) {
-            return;
-        }
-        var array = this._parent._children;
-        index = index !== -1 ? index : array.length - 1;
-        var oldIndex = array.indexOf(this);
-        if (index !== oldIndex) {
-            array.splice(oldIndex, 1);
-            if (index < array.length) {
-                array.splice(index, 0, this);
-            }
-            else {
-                array.push(this);
-            }
-
-            // update rendering scene graph, sort them by arrivalOrder
-            var parent = this._parent;
-            var siblings = parent._children;
-
-            var i = 0, len = siblings.length, sibling;
-            if (CC_JSB) {
-                if (cc.runtime) {
-                    for (; i < len; i++) {
-                        sibling = siblings[i]._sgNode;
-                        // Reset zorder to update their arrival order
-                        var zOrder = sibling.getLocalZOrder();
-                        sibling.setLocalZOrder(zOrder + 1);
-                        sibling.setLocalZOrder(zOrder);
-                    }
-                }
-                else {
-                    parent._sgNode.removeChild(this._sgNode, false);
-                    if (index + 1 < array.length) {
-                        var nextSibling = array[index + 1];
-                        parent._sgNode.insertChildBefore(this._sgNode, nextSibling._sgNode);
-                    }
-                    else {
-                        parent._sgNode.addChild(this._sgNode);
-                    }
-                }
-            }
-            else {
+    _onSiblingIndexChanged: function (index) {
+    // update rendering scene graph, sort them by arrivalOrder
+        var parent = this._parent;
+        var siblings = parent._children;
+        var i = 0, len = siblings.length, sibling;
+        if (CC_JSB) {
+            if (cc.runtime) {
                 for (; i < len; i++) {
                     sibling = siblings[i]._sgNode;
-                    sibling._arrivalOrder = i;
-                    cc.eventManager._setDirtyForNode(sibling);
+                    // Reset zorder to update their arrival order
+                    var zOrder = sibling.getLocalZOrder();
+                    sibling.setLocalZOrder(zOrder + 1);
+                    sibling.setLocalZOrder(zOrder);
                 }
-                cc.renderer.childrenOrderDirty = true;
-                parent._sgNode._reorderChildDirty = true;
-                parent._delaySort();
             }
+            else {
+                parent._sgNode.removeChild(this._sgNode, false);
+                if (index + 1 < siblings.length) {
+                    var nextSibling = siblings[index + 1];
+                    parent._sgNode.insertChildBefore(this._sgNode, nextSibling._sgNode);
+                }
+                else {
+                    parent._sgNode.addChild(this._sgNode);
+                }
+            }
+        }
+        else {
+            for (; i < len; i++) {
+                sibling = siblings[i]._sgNode;
+                sibling._arrivalOrder = i;
+                cc.eventManager._setDirtyForNode(sibling);
+            }
+            cc.renderer.childrenOrderDirty = true;
+            parent._sgNode._reorderChildDirty = true;
+            parent._delaySort();
         }
     },
 

@@ -524,17 +524,18 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (!this._parent) {
             return;
         }
-        var array = this._parent._children;
-        index = index !== -1 ? index : array.length - 1;
-        var oldIndex = array.indexOf(this);
+        var siblings = this._parent._children;
+        index = index !== -1 ? index : siblings.length - 1;
+        var oldIndex = siblings.indexOf(this);
         if (index !== oldIndex) {
-            array.splice(oldIndex, 1);
-            if (index < array.length) {
-                array.splice(index, 0, this);
+            siblings.splice(oldIndex, 1);
+            if (index < siblings.length) {
+                siblings.splice(index, 0, this);
             }
             else {
-                array.push(this);
+                siblings.push(this);
             }
+            this._onSiblingIndexChanged && this._onSiblingIndexChanged(index);
         }
     },
 
