@@ -2521,15 +2521,6 @@ if (CC_JSB) {
  * @event group-changed
  * @param {Event} event
  */
-/**
- * !#en
- * Note: This event is only emitted from the top most node whose active value did changed,
- * not including its child nodes.
- * !#zh
- * 注意：此节点激活时，此事件仅从最顶部的节点发出。
- * @event active-in-hierarchy-changed
- * @param {Event} event
- */
 
 /**
  *

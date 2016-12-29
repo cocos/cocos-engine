@@ -97,14 +97,12 @@ function findChildComponents(children, constructor, components) {
 }
 
 /**
- * A base node for CCNode and CCEScene, it will:
- * - provide the same api with origin cocos2d rendering node (SGNode)
- * - maintains properties of the internal SGNode
- * - retain and release the SGNode
- * - serialize datas for SGNode (but SGNode itself will not being serialized)
+ * A base node for CCNode, it will:
+ * - maintain scene hierarchy and active logic
  * - notifications if some properties changed
- * - define some interfaces shares between CCNode and CCEScene
- *
+ * - define some interfaces shares between CCNode
+ * - define machanisms for Enity Component Systems
+ * - define prefab and serialize functions
  *
  * @class _BaseNode
  * @extends Object
@@ -1043,12 +1041,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 }
             }
         }
+
         this._objFlags &= ~Activating;
 
         if (!cancelActivation && this._onActive_EventsActions) {
             this._onActive_EventsActions(newActive);
         }
-
     },
 
     _deactivateChildComponents: function () {
@@ -1255,18 +1253,20 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     },
 });
 
+/**
+ * !#en
+ * Note: This event is only emitted from the top most node whose active value did changed,
+ * not including its child nodes.
+ * !#zh
+ * 注意：此节点激活时，此事件仅从最顶部的节点发出。
+ * @event active-in-hierarchy-changed
+ * @param {Event} event
+ */
 
 // Define public getter and setter methods to ensure api compatibility.
 
 var SameNameGetSets = ['name', 'children', 'childrenCount',];
-var DiffNameGetSets = {
-    //// privates
-    //width: ['_getWidth', '_setWidth'],
-    //height: ['_getHeight', '_setHeight'],
-    //anchorX: ['_getAnchorX', '_setAnchorX'],
-    //anchorY: ['_getAnchorY', '_setAnchorY'],
-};
-Misc.propertyDefine(BaseNode, SameNameGetSets, DiffNameGetSets);
+Misc.propertyDefine(BaseNode, SameNameGetSets, {});
 BaseNode.prototype._onHierarchyChangedBase = BaseNode.prototype._onHierarchyChanged;
 BaseNode.prototype._onRestoreBase = BaseNode.prototype.onRestore;
 cc._BaseNode = module.exports = BaseNode;
