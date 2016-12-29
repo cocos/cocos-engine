@@ -30,17 +30,10 @@ var _isPlainEmptyObj_DEV = Utils.isPlainEmptyObj_DEV;
 var _cloneable_DEV = Utils.cloneable_DEV;
 var Attr = require('./attribute');
 var getTypeChecker = Attr.getTypeChecker;
-var preprocessAttrs = require('./preprocess-attrs');
+var preprocess = require('./preprocess-class');
 var Misc = require('../utils/misc');
 
 var BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', 'properties', 'statics', 'editor'];
-
-var TYPO_TO_CORRECT = CC_DEV && {
-    extend: 'extends',
-    property: 'properties',
-    static: 'statics',
-    constructor: 'ctor'
-};
 
 var INVALID_STATICS_DEV = CC_DEV && ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller',
                        'length', 'prototype'];
@@ -686,7 +679,7 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
 
     if (properties) {
         // 预处理属性
-        preprocessAttrs(properties, className, cls);
+        preprocess.preprocessAttrs(properties, className, cls);
 
         for (var propName in properties) {
             var val = properties[propName];
@@ -842,38 +835,17 @@ function CCClass (options) {
         if (BUILTIN_ENTRIES.indexOf(funcName) >= 0) {
             continue;
         }
-        if (CC_EDITOR && funcName === 'constructor') {
-            cc.errorID(3643, name);
+        var func = options[funcName];
+        if (!preprocess.validateMethod(func, funcName, name, cls, base)) {
             continue;
         }
-        var func = options[funcName];
-        if (typeof func === 'function' || func === null) {
-            // use defineProperty to redefine some super method defined as getter
-            Object.defineProperty(cls.prototype, funcName, {
-                value: func,
-                enumerable: true,
-                configurable: true,
-                writable: true,
-            });
-        }
-        else if (CC_DEV) {
-            if (func === false && base && base.prototype) {
-                // check override
-                var overrided = base.prototype[funcName];
-                if (typeof overrided === 'function') {
-                    var baseFuc = JS.getClassName(base) + '.' + funcName;
-                    var subFuc = name + '.' + funcName;
-                    cc.warnID(3624, subFuc, baseFuc, subFuc, subFuc);
-                }
-            }
-            var correct = TYPO_TO_CORRECT[funcName];
-            if (correct) {
-                cc.warnID(3621, name, funcName, correct);
-            }
-            else if (func) {
-                cc.errorID(3622, name, funcName);
-            }
-        }
+        // use defineProperty to redefine some super method defined as getter
+        Object.defineProperty(cls.prototype, funcName, {
+            value: func,
+            enumerable: true,
+            configurable: true,
+            writable: true,
+        });
     }
 
     if (CC_DEV) {
