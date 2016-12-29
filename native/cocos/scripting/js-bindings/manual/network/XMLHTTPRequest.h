@@ -95,7 +95,7 @@ private:
     void _setHttpRequestHeader();
     void _setHttpRequestData(const char *data, size_t len);
     void _sendRequest(JSContext *cx);
-    void _notify(JS::HandleObject callback);
+    void _notify(JS::HandleObject callback, JS::HandleValueArray progressEvent);
 
     std::string                       _url;
     JSContext*                        _cx;
