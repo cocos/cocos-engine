@@ -107,13 +107,13 @@ cc.js.mixin(cc.game, {
                 cc.loader.load(jsList, function (err) {
                     if (err) throw new Error(JSON.stringify(err));
                     self._prepared = true;
-                    self.emit(self.EVENT_GAME_INITED);
                     if (cb) cb();
+                    self.emit(self.EVENT_GAME_INITED);
                 });
             }
             else {
-                self.emit(self.EVENT_GAME_INITED);
                 if (cb) cb();
+                self.emit(self.EVENT_GAME_INITED);
             }
 
             return;
