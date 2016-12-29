@@ -84,7 +84,8 @@ cc.Scene = cc.Class({
     },
 
     _onHierarchyChanged: NIL,
-
+    _instantiate : null,
+    
     _load: function () {
         if ( ! this._inited) {
 
