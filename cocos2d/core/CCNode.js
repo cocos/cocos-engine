@@ -2438,12 +2438,7 @@ var Node = cc.Class({
             }
         }
 
-        // check activity state
-        var shouldActiveInHierarchy = (this._parent && this._parent._activeInHierarchy && this._active);
-        if (shouldActiveInHierarchy !== this._activeInHierarchy) {
-            this._onActivatedInHierarchy(shouldActiveInHierarchy);
-            this.emit('active-in-hierarchy-changed', this);
-        }
+        this._onRestoreBase();
 
         if (this._activeInHierarchy) {
             cc.director.getActionManager().resumeTarget(this);

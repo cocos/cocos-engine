@@ -1268,4 +1268,5 @@ var DiffNameGetSets = {
 };
 Misc.propertyDefine(BaseNode, SameNameGetSets, DiffNameGetSets);
 BaseNode.prototype._onHierarchyChangedBase = BaseNode.prototype._onHierarchyChanged;
+BaseNode.prototype._onRestoreBase = BaseNode.prototype.onRestore;
 cc._BaseNode = module.exports = BaseNode;
