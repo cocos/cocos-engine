@@ -445,7 +445,7 @@ var Node = cc.Class({
                 return this._rotationX;
             },
             set: function (value) {
-                if (this._rotationX !== value || this._rotationY !== value ) {
+                if (this._rotationX !== value || this._rotationY !== value) {
                     this._rotationX = this._rotationY = value;
                     this._sgNode.rotation = value;
                 }
@@ -641,7 +641,7 @@ var Node = cc.Class({
                 return new cc.Color(color.r, color.g, color.b, color.a);
             },
             set: function (value) {
-                if ( !this._color.equals(value) ) {
+                if (!this._color.equals(value)) {
                     var color = this._color;
                     color.r = value.r;
                     color.g = value.g;
@@ -825,7 +825,7 @@ var Node = cc.Class({
                     this._localZOrder = value;
                     this._sgNode.zIndex = value;
 
-                    if(this._parent) {
+                    if (this._parent) {
                         this._parent._delaySort();
                         if (!CC_JSB) {
                             cc.eventManager._setDirtyForNode(this);
@@ -907,7 +907,7 @@ var Node = cc.Class({
         // detach self and children from editor
         var parent = this._parent;
         var destroyByParent = parent && (parent._objFlags & Destroying);
-        if ( !destroyByParent ) {
+        if (!destroyByParent) {
             if (CC_EDITOR || CC_TEST) {
                 this._registerIfAttached(false);
             }
@@ -961,7 +961,7 @@ var Node = cc.Class({
             cc.game.removePersistRootNode(this);
         }
 
-        if ( !destroyByParent ) {
+        if (!destroyByParent) {
             // remove from parent
             if (parent) {
                 var childIndex = parent._children.indexOf(this);
@@ -1004,7 +1004,7 @@ var Node = cc.Class({
             this._parent._sgNode.addChild(this._sgNode);
         }
 
-        if ( !this._activeInHierarchy ) {
+        if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
             cc.director.getActionManager().pauseTarget(this);
             cc.eventManager.pauseTarget(this);
@@ -1113,7 +1113,7 @@ var Node = cc.Class({
             }
         }
         if (newAdded && !this._activeInHierarchy) {
-            cc.director.getScheduler().schedule(function() {
+            cc.director.getScheduler().schedule(function () {
                 if (!this._activeInHierarchy) {
                     cc.eventManager.pauseTarget(this);
                 }
@@ -1230,7 +1230,8 @@ var Node = cc.Class({
             if (listener && listener.mask) {
                 var mask = listener.mask;
                 var parent = this;
-                for (var i = 0; parent && i < mask.index; ++i, parent = parent.parent) {}
+                for (var i = 0; parent && i < mask.index; ++i, parent = parent.parent) {
+                }
                 // find mask parent, should hit test it
                 if (parent === mask.node) {
                     var comp = parent.getComponent(cc.Mask);
@@ -1555,7 +1556,7 @@ var Node = cc.Class({
         }
 
         var locPosition = this._position;
-        if(locPosition.x === xValue && locPosition.y === yValue) {
+        if (locPosition.x === xValue && locPosition.y === yValue) {
             return;
         }
 
@@ -1931,7 +1932,7 @@ var Node = cc.Class({
     getNodeToParentTransformAR: function () {
         var contentSize = this.getContentSize();
         var mat = this._sgNode.getNodeToParentTransform();
-        if ( !this._isSgTransformArToMe(contentSize) ) {
+        if (!this._isSgTransformArToMe(contentSize)) {
             // see getNodeToWorldTransform
             var tx = this._anchorPoint.x * contentSize.width;
             var ty = this._anchorPoint.y * contentSize.height;
@@ -1953,7 +1954,7 @@ var Node = cc.Class({
      */
     getBoundingBox: function () {
         var size = this.getContentSize();
-        var rect = cc.rect( 0, 0, size.width, size.height );
+        var rect = cc.rect(0, 0, size.width, size.height);
         return cc._rectApplyAffineTransformIn(rect, this.getNodeToParentTransform());
     },
 
@@ -1981,7 +1982,7 @@ var Node = cc.Class({
         var size = this.getContentSize();
         var width = size.width;
         var height = size.height;
-        var rect = cc.rect(- this._anchorPoint.x * width, - this._anchorPoint.y * height, width, height);
+        var rect = cc.rect(-this._anchorPoint.x * width, -this._anchorPoint.y * height, width, height);
 
         var transAR = cc.affineTransformConcat(this.getNodeToParentTransformAR(), parentTransformAR);
         cc._rectApplyAffineTransformIn(rect, transAR);
@@ -2017,8 +2018,8 @@ var Node = cc.Class({
         var mat = this._sgNode.getNodeToParentTransform();
         if (this._isSgTransformArToMe(contentSize)) {
             // see getNodeToWorldTransform
-            var tx = - this._anchorPoint.x * contentSize.width;
-            var ty = - this._anchorPoint.y * contentSize.height;
+            var tx = -this._anchorPoint.x * contentSize.width;
+            var ty = -this._anchorPoint.y * contentSize.height;
             var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
             mat = cc.affineTransformConcatIn(offset, mat);
         }
@@ -2046,8 +2047,8 @@ var Node = cc.Class({
             // _sgNode.getNodeToWorldTransform is not anchor relative (AR), in this case,
             // we should translate to bottem left to consistent with it
             // see https://github.com/cocos-creator/engine/pull/391
-            var tx = - this._anchorPoint.x * contentSize.width;
-            var ty = - this._anchorPoint.y * contentSize.height;
+            var tx = -this._anchorPoint.x * contentSize.width;
+            var ty = -this._anchorPoint.y * contentSize.height;
             var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
             mat = cc.affineTransformConcatIn(offset, mat);
         }
@@ -2075,7 +2076,7 @@ var Node = cc.Class({
         }
         var mat = this._sgNode.getNodeToWorldTransform();
 
-        if ( !this._isSgTransformArToMe(contentSize) ) {
+        if (!this._isSgTransformArToMe(contentSize)) {
             // see getNodeToWorldTransform
             var tx = this._anchorPoint.x * contentSize.width;
             var ty = this._anchorPoint.y * contentSize.height;
@@ -2248,7 +2249,7 @@ var Node = cc.Class({
         return this.convertToNodeSpaceAR(touch.getLocation());
     },
 
-    setNodeDirty: function(){
+    setNodeDirty: function () {
         this._sgNode.setNodeDirty();
     },
 
@@ -2267,13 +2268,13 @@ var Node = cc.Class({
     addChild: function (child, localZOrder, tag) {
         localZOrder = localZOrder === undefined ? child._localZOrder : localZOrder;
         var name, setTag = false;
-        if(typeof tag === 'undefined'){
+        if (typeof tag === 'undefined') {
             tag = undefined;
             name = child._name;
-        } else if(cc.js.isString(tag)){
+        } else if (cc.js.isString(tag)) {
             name = tag;
             tag = undefined;
-        } else if(cc.js.isNumber(tag)){
+        } else if (cc.js.isNumber(tag)) {
             setTag = true;
             name = "";
         }
@@ -2330,23 +2331,23 @@ var Node = cc.Class({
             if (_children.length > 1) {
                 // insertion sort
                 var len = _children.length, i, j, child;
-                for (i = 1; i < len; i++){
+                for (i = 1; i < len; i++) {
                     child = _children[i];
                     j = i - 1;
 
                     //continue moving element downwards while zOrder is smaller or when zOrder is the same but mutatedIndex is smaller
-                    while(j >= 0){
+                    while (j >= 0) {
                         if (child._localZOrder < _children[j]._localZOrder) {
-                            _children[j+1] = _children[j];
+                            _children[j + 1] = _children[j];
                         } else if (child._localZOrder === _children[j]._localZOrder &&
                             child._sgNode._arrivalOrder < _children[j]._sgNode._arrivalOrder) {
-                            _children[j+1] = _children[j];
+                            _children[j + 1] = _children[j];
                         } else {
                             break;
                         }
                         j--;
                     }
-                    _children[j+1] = child;
+                    _children[j + 1] = child;
                 }
                 this.emit(CHILD_REORDER);
             }
@@ -2421,7 +2422,7 @@ var Node = cc.Class({
                 if (sizeProvider !== this._sgNode) {
                     sizeProvider.ignoreAnchor = this.__ignoreAnchor;
                     sizeProvider.setOpacityModifyRGB(this._opacityModifyRGB);
-                    if ( !this._cascadeOpacityEnabled ) {
+                    if (!this._cascadeOpacityEnabled) {
                         sizeProvider.setOpacity(this._opacity);
                     }
                 }
@@ -2656,7 +2657,7 @@ if (CC_JSB) {
  */
 
 var SameNameGetSets = ['parent', 'tag', 'skewX', 'skewY', 'position', 'rotation', 'rotationX', 'rotationY',
-    'scale', 'scaleX', 'scaleY', 'opacity', 'color', ];
+    'scale', 'scaleX', 'scaleY', 'opacity', 'color',];
 
 var DiffNameGetSets = {
     x: ['getPositionX', 'setPositionX'],

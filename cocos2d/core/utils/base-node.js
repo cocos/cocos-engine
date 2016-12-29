@@ -5,11 +5,11 @@
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
  Chukong Aipu reserves all rights not expressly granted to you.
@@ -38,8 +38,8 @@ var CHILD_REMOVED = 'child-removed';
 
 var idGenerater = new IdGenerater('Node');
 
-function getConstructor (typeOrClassName) {
-    if ( !typeOrClassName ) {
+function getConstructor(typeOrClassName) {
+    if (!typeOrClassName) {
         cc.errorID(3804);
         return null;
     }
@@ -50,7 +50,7 @@ function getConstructor (typeOrClassName) {
     return typeOrClassName;
 }
 
-function findComponent (node, constructor) {
+function findComponent(node, constructor) {
     for (var i = 0; i < node._components.length; ++i) {
         var comp = node._components[i];
         if (comp instanceof constructor) {
@@ -60,7 +60,7 @@ function findComponent (node, constructor) {
     return null;
 }
 
-function findComponents (node, constructor, components) {
+function findComponents(node, constructor, components) {
     for (var i = 0; i < node._components.length; ++i) {
         var comp = node._components[i];
         if (comp instanceof constructor) {
@@ -69,7 +69,7 @@ function findComponents (node, constructor, components) {
     }
 }
 
-function findChildComponent (children, constructor) {
+function findChildComponent(children, constructor) {
     for (var i = 0; i < children.length; ++i) {
         var node = children[i];
         var comp = findComponent(node, constructor);
@@ -86,7 +86,7 @@ function findChildComponent (children, constructor) {
     return null;
 }
 
-function findChildComponents (children, constructor, components) {
+function findChildComponents(children, constructor, components) {
     for (var i = 0; i < children.length; ++i) {
         var node = children[i];
         findComponents(node, constructor, components);
@@ -216,7 +216,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         uuid: {
             get: function () {
                 var id = this._id;
-                if ( !id ) {
+                if (!id) {
                     id = this._id = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : idGenerater.getNewId();
                 }
                 return id;
@@ -340,7 +340,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this._tag = tag;
     },
 
-    getParent: function() {
+    getParent: function () {
         return this._parent;
     },
 
@@ -444,15 +444,15 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @example
      * var child = node.getChildByUuid(uuid);
      */
-    getChildByUuid: function(uuid){
-        if(!uuid){
+    getChildByUuid: function (uuid) {
+        if (!uuid) {
             cc.log("Invalid uuid");
             return null;
         }
 
         var locChildren = this._children;
-        for(var i = 0, len = locChildren.length; i < len; i++){
-            if(locChildren[i]._id === uuid)
+        for (var i = 0, len = locChildren.length; i < len; i++) {
+            if (locChildren[i]._id === uuid)
                 return locChildren[i];
         }
         return null;
@@ -467,16 +467,16 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @example
      * var child = node.getChildByName("Test Node");
      */
-    getChildByName: function(name){
-        if(!name){
+    getChildByName: function (name) {
+        if (!name) {
             cc.log("Invalid name");
             return null;
         }
 
         var locChildren = this._children;
-        for(var i = 0, len = locChildren.length; i < len; i++){
-           if(locChildren[i]._name === name)
-            return locChildren[i];
+        for (var i = 0, len = locChildren.length; i < len; i++) {
+            if (locChildren[i]._name === name)
+                return locChildren[i];
         }
         return null;
     },
@@ -540,7 +540,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
-    cleanup: function() {
+    cleanup: function () {
 
     },
 
@@ -796,7 +796,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         var constructor;
         if (typeof typeOrClassName === 'string') {
             constructor = JS.getClassByName(typeOrClassName);
-            if ( !constructor ) {
+            if (!constructor) {
                 cc.errorID(3807, typeOrClassName);
                 if (cc._RFpeek()) {
                     cc.errorID(3808, typeOrClassName);
@@ -805,7 +805,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             }
         }
         else {
-            if ( !typeOrClassName ) {
+            if (!typeOrClassName) {
                 cc.errorID(3804);
                 return null;
             }
@@ -874,7 +874,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (this._objFlags & Destroying) {
             return cc.error('isDestroying');
         }
-        if ( !(comp instanceof cc.Component) ) {
+        if (!(comp instanceof cc.Component)) {
             return cc.errorID(3811);
         }
         if (index > this._components.length) {
@@ -905,8 +905,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this._components.splice(index, 0, comp);
 
         if (this._activeInHierarchy) {
-            if (typeof comp.__preload === 'function' &&
-                !(comp._objFlags & cc.Object.Flags.IsPreloadCalled)) {
+            if (typeof comp.__preload === 'function' && !(comp._objFlags & cc.Object.Flags.IsPreloadCalled)) {
                 cc.Component._callPreloadOnComponent(comp);
             }
             // call onLoad/onEnable
@@ -930,7 +929,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * node.removeComponent(Test);
      */
     removeComponent: function (component) {
-        if ( !component ) {
+        if (!component) {
             cc.errorID(3813);
             return;
         }
@@ -1198,7 +1197,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         // detach self and children from editor
         var parent = this._parent;
         var destroyByParent = parent && (parent._objFlags & Destroying);
-        if ( !destroyByParent ) {
+        if (!destroyByParent) {
             if (CC_EDITOR || CC_TEST) {
                 this._registerIfAttached(false);
             }
@@ -1230,7 +1229,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             cc.game.removePersistRootNode(this);
         }
 
-        if ( !destroyByParent ) {
+        if (!destroyByParent) {
             // remove from parent
             if (parent) {
                 var childIndex = parent._children.indexOf(this);
