@@ -213,7 +213,7 @@ void MinXmlHttpRequest::handle_requestResponse(cocos2d::network::HttpClient *sen
     if (!response->isSucceed())
     {
         std::string errorBuffer = response->getErrorBuffer();
-        CCLOG("Response failed, error buffer: %s", errorBuffer);
+        CCLOG("Response failed, error buffer: %s", errorBuffer.c_str());
         if (statusCode == 0 || statusCode == -1)
         {
             _errorFlag = true;
