@@ -904,7 +904,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this._components.splice(index, 0, comp);
 
         if (this._activeInHierarchy) {
-            if (typeof comp.__preload === 'function' && !(comp._objFlags & cc.Object.Flags.IsPreloadCalled)) {
+            if (typeof comp.__preload === 'function' &&
+                !(comp._objFlags & cc.Object.Flags.IsPreloadCalled)) {
                 cc.Component._callPreloadOnComponent(comp);
             }
             // call onLoad/onEnable
@@ -1269,5 +1270,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 var SameNameGetSets = ['name', 'children', 'childrenCount',];
 Misc.propertyDefine(BaseNode, SameNameGetSets, {});
 BaseNode.prototype._onHierarchyChangedBase = BaseNode.prototype._onHierarchyChanged;
-BaseNode.prototype._onRestoreBase = BaseNode.prototype.onRestore;
+if(CC_EDITOR) {
+    BaseNode.prototype._onRestoreBase = BaseNode.prototype.onRestore;
+}
 cc._BaseNode = module.exports = BaseNode;
