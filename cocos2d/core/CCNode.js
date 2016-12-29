@@ -826,10 +826,7 @@ var Node = cc.Class({
                     this._sgNode.zIndex = value;
 
                     if (this._parent) {
-                        this._parent._delaySort();
-                        if (!CC_JSB) {
-                            cc.eventManager._setDirtyForNode(this);
-                        }
+                        this._updateOrder();
                     }
                 }
             }
@@ -1435,10 +1432,7 @@ var Node = cc.Class({
         if (value) {
             var parent = value._sgNode;
             parent.addChild(sgNode);
-            value._delaySort();
-            if (!CC_JSB) {
-                cc.eventManager._setDirtyForNode(this);
-            }
+            this._updateOrder();
             value._children.push(this);
             value.emit(CHILD_ADDED, this);
         }
@@ -1455,6 +1449,13 @@ var Node = cc.Class({
         }
         else if (value) {
             this._onHierarchyChanged(null);
+        }
+    },
+
+    _updateOrder: function() {
+        this._parent && this._parent._delaySort();
+        if (!CC_JSB) {
+            cc.eventManager._setDirtyForNode(this);
         }
     },
 
