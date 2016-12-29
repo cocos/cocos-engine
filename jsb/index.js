@@ -105,6 +105,7 @@ require('./jsb-action');
 require('./jsb-etc');
 require('./jsb-audio');
 require('./jsb-tiledmap');
+require('./jsb-dragonbones');
 
 if (cc.runtime) {
     require('./versions/jsb-polyfill-runtime');
