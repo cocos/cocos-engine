@@ -74,7 +74,7 @@ function createItem (id, queueId) {
         urlItem = _parseUrl(id.url);
         result = {
             queueId: queueId,
-            id: urlItem.url,
+            id: id.url,
             url: urlItem.url,
             urlParam: urlItem.param,
             error: null,
@@ -89,7 +89,7 @@ function createItem (id, queueId) {
         urlItem = _parseUrl(id);
         result = {
             queueId: queueId,
-            id: urlItem.url,
+            id: id,
             url: urlItem.url,
             urlParam: urlItem.param,
             type: Path.extname(id).toLowerCase().substr(1),
