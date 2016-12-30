@@ -43,7 +43,7 @@ var _info = {url: null, raw: false};
 // Convert a resources by finding its real url with uuid, otherwise we will use the uuid or raw url as its url
 // So we gurantee there will be url in result
 function getResWithUrl (res) {
-    var id, url, result, isUuid;
+    var id, result, isUuid;
     if (typeof res === 'object') {
         result = res;
         if (res.url) {
@@ -60,10 +60,12 @@ function getResWithUrl (res) {
     isUuid = cc.AssetLibrary._getAssetUrl(id);
     cc.AssetLibrary._getAssetInfoInRuntime(id, _info);
     result.url = !isUuid ? id : _info.url;
-    if (url && result.type === 'uuid' && _info.raw) {
+    if (_info.url && result.type === 'uuid' && _info.raw) {
         result.type = null;
         result.isRawAsset = true;
     }
+    _info.url = null;
+    _info.raw = false;
     return result;
 }
 
