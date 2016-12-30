@@ -6829,6 +6829,16 @@ int
 },
 
 /**
+ * @method getBackgroundSprite
+ * @return {ccui.Scale9Sprite}
+ */
+getBackgroundSprite : function (
+)
+{
+    return ccui.Scale9Sprite;
+},
+
+/**
  * @method setPlaceholderFontName
  * @param {char} arg0
  */

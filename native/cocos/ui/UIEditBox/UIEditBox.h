@@ -185,7 +185,7 @@ namespace ui {
              * Capitalize all characters automatically.
              */
             INITIAL_CAPS_ALL_CHARACTERS,
-            
+
             /**
              * Lowercase all characters automatically.
              */
@@ -401,6 +401,8 @@ namespace ui {
          */
         int getMaxLength();
 
+        ui::Scale9Sprite* getBackgroundSprite() const;
+
         /**
          * Set the input flags that are to be applied to the edit box.
          * @param inputFlag One of the EditBox::InputFlag constants.
@@ -503,4 +505,3 @@ namespace ui {
 NS_CC_END
 
 #endif /* __UIEDITTEXT_H__ */
-

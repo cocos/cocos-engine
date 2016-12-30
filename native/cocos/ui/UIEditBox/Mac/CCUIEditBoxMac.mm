@@ -135,7 +135,6 @@
 - (void)openKeyboard
 {
     [self.window.contentView addSubview:self.textInput];
-    self.window.contentView.wantsLayer = YES;
     if (![self.textInput isKindOfClass:[NSTextView class]]) {
         [self.textInput becomeFirstResponder];
     }else {
