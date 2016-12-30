@@ -887,6 +887,7 @@ void js_register_cocos2dx_ui_EditBox(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx_ui(JSContext* cx, JS::HandleObject obj);
 bool js_cocos2dx_ui_EditBox_getText(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_ui_EditBox_setFontSize(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_ui_EditBox_getBackgroundSprite(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_ui_EditBox_setPlaceholderFontName(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_ui_EditBox_getPlaceHolder(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_ui_EditBox_setFontName(JSContext *cx, uint32_t argc, jsval *vp);

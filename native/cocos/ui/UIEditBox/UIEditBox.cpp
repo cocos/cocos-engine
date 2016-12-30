@@ -509,6 +509,11 @@ void EditBox::keyboardDidHide(IMEKeyboardNotificationInfo& info)
 
 }
 
+ui::Scale9Sprite* EditBox::getBackgroundSprite() const
+{
+    return _backgroundSprite;
+}
+
 #if CC_ENABLE_SCRIPT_BINDING
 void EditBox::registerScriptEditBoxHandler(int handler)
 {
@@ -529,4 +534,3 @@ void EditBox::unregisterScriptEditBoxHandler()
 }
 
 NS_CC_END
-
