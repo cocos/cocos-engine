@@ -1135,8 +1135,8 @@ bool Texture2D::initWithString(const std::string& text, const FontDefinition& te
         return false;
     }
 
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID) && (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
-    CCASSERT(textDefinition._stroke._strokeEnabled == false, "Currently stroke only supported on iOS and Android!");
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+    CCASSERT(textDefinition._stroke._strokeEnabled == false, "Currently stroke doesn't support win32!");
 #endif
 
     PixelFormat      pixelFormat = g_defaultAlphaPixelFormat;
