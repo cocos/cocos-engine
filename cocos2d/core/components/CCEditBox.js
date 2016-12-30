@@ -190,7 +190,7 @@ var EditBox = cc.Class({
         /**
          * !#en The background image of EditBox.
          * !#zh 输入框的背景图片
-         * @property {SpriteFrame} backGroundImage
+         * @property {SpriteFrame} backgroundImage
          */
         backgroundImage: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.backgroundImage',
