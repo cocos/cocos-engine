@@ -33,7 +33,7 @@ var math = cc.math;
 cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
 
     // Do nothing under other render mode
-    if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL) {
+    if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL || cc.game._is3D) {
         return;
     }
 

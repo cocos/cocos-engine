@@ -108,7 +108,7 @@ var game = {
     _rendererInitialized: false,
 
     _renderContext: null,
-
+    _is3D: false,
     _intervalId: null,//interval target of main
 
     _lastTime: null,
@@ -704,6 +704,77 @@ var game = {
             cc.renderer.init();
             this._renderContext = cc._renderContext = new cc.CanvasContextWrapper(localCanvas.getContext("2d"));
             cc._drawingUtil = cc.DrawingPrimitiveCanvas ? new cc.DrawingPrimitiveCanvas(this._renderContext) : null;
+        }
+
+        cc._gameDiv = localContainer;
+        game.canvas.oncontextmenu = function () {
+            if (!cc._isContextMenuEnable) return false;
+        };
+
+        this.emit(this.EVENT_RENDERER_INITED, true);
+
+        this._rendererInitialized = true;
+    },
+
+    _init3dRenderer: function (width, height) {
+        // Avoid setup to be called twice.
+        if (this._rendererInitialized) return;
+
+        if (!cc._supportRender) {
+            throw new Error("The renderer doesn't support the renderMode " + this.config[this.CONFIG_KEY.renderMode]);
+        }
+
+        var el = this.config[game.CONFIG_KEY.id],
+            win = window,
+            element = cc.$(el) || cc.$('#' + el),
+            localCanvas, localContainer, localConStyle;
+
+        if (element.tagName === "CANVAS") {
+            width = width || element.width;
+            height = height || element.height;
+
+            //it is already a canvas, we wrap it around with a div
+            this.canvas = cc._canvas = localCanvas = element;
+            this.container = cc.container = localContainer = document.createElement("DIV");
+            if (localCanvas.parentNode)
+                localCanvas.parentNode.insertBefore(localContainer, localCanvas);
+        } else {
+            //we must make a new canvas and place into this element
+            if (element.tagName !== "DIV") {
+                cc.warnID(3819);
+            }
+            width = width || element.clientWidth;
+            height = height || element.clientHeight;
+            this.canvas = cc._canvas = localCanvas = document.createElement("CANVAS");
+            this.container = cc.container = localContainer = document.createElement("DIV");
+            element.appendChild(localContainer);
+        }
+        localContainer.setAttribute('id', 'Cocos2dGameContainer');
+        localContainer.appendChild(localCanvas);
+        this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
+
+        localCanvas.addClass("gameCanvas");
+        localCanvas.setAttribute("width", width || 480);
+        localCanvas.setAttribute("height", height || 320);
+        localCanvas.setAttribute("tabindex", 99);
+
+        if (cc._renderType === game.RENDER_TYPE_WEBGL) {
+            this._renderContext = cc._renderContext = cc.webglContext
+                = cc.create3DContext(localCanvas, {
+                'stencil': true,
+                'alpha': true,
+                'preserveDrawingBuffer': false
+            });
+        }
+        // WebGL context created successfully
+        if (this._renderContext) {
+            cc.renderer = cc.rendererWebGL;
+            win.gl = this._renderContext; // global variable declared in CCMacro.js
+
+            cc.textureCache._initializingRenderer();
+
+        } else {
+            cc.error('does not support canvas rendering for 3D');
         }
 
         cc._gameDiv = localContainer;
