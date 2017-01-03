@@ -279,7 +279,14 @@ dragonBones.ArmatureDisplay = cc.Class({
 
     // IMPLEMENT
     ctor : function () {
-        this._factory = dragonBones.CCFactory.getFactory();
+        if (CC_JSB) {
+            // TODO Fix me
+            // If using the getFactory in JSB.
+            // There may be throw errors when close the application.
+            this._factory = new dragonBones.CCFactory();
+        } else {
+            this._factory = dragonBones.CCFactory.getFactory();
+        }
     },
 
     __preload : function () {
