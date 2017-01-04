@@ -3957,6 +3957,34 @@ bool js_cocos2dx_dragonbones_Animation_getTypeIndex(JSContext *cx, uint32_t argc
     return false;
 }
 
+bool js_cocos2dx_dragonbones_Animation_get_timeScale(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::Animation* cobj = (dragonBones::Animation *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Animation_get_timeScale : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = DOUBLE_TO_JSVAL(cobj->timeScale);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_dragonbones_Animation_set_timeScale(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    dragonBones::Animation* cobj = (dragonBones::Animation *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Animation_set_timeScale : Invalid Native Object");
+
+    bool ok = true;
+    double arg0 = 0;
+    ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_set_timeScale : Error processing new value");
+    cobj->timeScale = arg0;
+    return true;
+}
 bool js_cocos2dx_dragonbones_Animation_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -4013,6 +4041,7 @@ void js_register_cocos2dx_dragonbones_Animation(JSContext *cx, JS::HandleObject 
     jsb_dragonBones_Animation_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
+        JS_PSGS("timeScale", js_cocos2dx_dragonbones_Animation_get_timeScale, js_cocos2dx_dragonbones_Animation_set_timeScale, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
