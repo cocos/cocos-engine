@@ -197,21 +197,21 @@ var Scrollbar = cc.Class({
     _fixupHandlerPosition: function() {
         var barSize = this.node.getContentSize();
         var barAnchor = this.node.getAnchorPoint();
-        var barPosition = this.node.getPosition();
+        var handleSize = this.handle.node.getContentSize();
 
-        var fixupPosition;
         var handleParent = this.handle.node.parent;
+
+        var leftBottomWorldPosition = this.node.convertToWorldSpaceAR(cc.p(-barSize.width * barAnchor.x, -barSize.height * barAnchor.y));
+        var fixupPosition = handleParent.convertToNodeSpaceAR(leftBottomWorldPosition);
+
         if (this.direction === Direction.HORIZONTAL) {
-            var leftSideWorldPosition = this.node.convertToWorldSpaceAR(cc.p(-barSize.width * barAnchor.x, -barSize.height * barAnchor.y));
-
-            fixupPosition = handleParent.convertToNodeSpaceAR(leftSideWorldPosition);
+            fixupPosition = cc.pAdd(fixupPosition, cc.p(0, (barSize.height - handleSize.height) / 2));
         } else if (this.direction === Direction.VERTICAL) {
-            var bottomSideWorldPosition = this.node.convertToWorldSpaceAR(cc.p(-barSize.width * barAnchor.x, -barSize.height * barAnchor.y));
-
-            fixupPosition = handleParent.convertToNodeSpaceAR(bottomSideWorldPosition);
+            fixupPosition = cc.pAdd(fixupPosition, cc.p((barSize.width - handleSize.width) / 2, 0));
         }
 
         this.handle.node.setPosition(fixupPosition);
+
         return fixupPosition;
     },
 
@@ -295,7 +295,7 @@ var Scrollbar = cc.Class({
     _updateLength: function(length) {
         if (this.handle) {
             var handleNode = this.handle.node;
-            var handleNodeSize = this.node.getContentSize();
+            var handleNodeSize = handleNode.getContentSize();
             handleNode.setAnchorPoint(cc.p(0, 0));
             if (this.direction === Direction.HORIZONTAL) {
                 handleNode.setContentSize(length, handleNodeSize.height);
