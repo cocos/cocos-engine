@@ -1,5 +1,5 @@
 cc3d.extend(cc3d, function () {
-
+    console.error('cc3d#lightMapper is not implemented!');
     var maxSize = 2048;
     var maskDynamic = 1;
     var maskBaked = 2;
@@ -21,7 +21,7 @@ cc3d.extend(cc3d, function () {
 
 
     function collectModels(node, nodes, nodesMeshInstances, allNodes) {
-        if (!node.enabled) return;
+        if (!node.active) return;
 
         var i;
         if (node.model && node.model.model && node.model.enabled) {
@@ -127,10 +127,10 @@ cc3d.extend(cc3d, function () {
             area.y *= areaMult;
             area.z *= areaMult;
 
-            scale.copy(node.localScale);
+            scale.copy(node._localScale);
             parent = node._parent;
             while (parent) {
-                scale.mul(parent.localScale);
+                scale.mul(parent._localScale);
                 parent = parent._parent;
             }
 
@@ -356,7 +356,7 @@ cc3d.extend(cc3d, function () {
             // Create pseudo-camera
             if (!lmCamera) {
                 lmCamera = new cc3d.Camera();
-                lmCamera._node = new cc3d.GraphNode();
+                lmCamera._node = new cc.Node3D();
                 lmCamera.setClearOptions({color: [0.0, 0.0, 0.0, 0.0], depth: 1, flags: cc3d.CLEARFLAG_COLOR});
                 lmCamera.frustumCulling = false;
             }
@@ -505,8 +505,8 @@ cc3d.extend(cc3d, function () {
                     light = lights[i];
                     shadowCam = this.renderer.getShadowCamera(device, light);
 
-                    shadowCam._node.setPosition(light._node.getPosition());
-                    shadowCam._node.setRotation(light._node.getRotation());
+                    shadowCam._node.setWorldPosition(light._node.getWorldPosition());
+                    shadowCam._node.setWorldRotation(light._node.getWorldRotation());
                     shadowCam._node.rotateLocal(-90, 0, 0);
 
                     shadowCam.setProjection(cc3d.PROJECTION_PERSPECTIVE);
@@ -533,8 +533,8 @@ cc3d.extend(cc3d, function () {
                         tempVec.copy(bounds.center);
                         tempVec.y += bounds.halfExtents.y;
 
-                        lmCamera._node.setPosition(tempVec);
-                        lmCamera._node.setEulerAngles(-90, 0, 0);
+                        lmCamera._node.setWorldPosition(tempVec);
+                        lmCamera._node.setWorldEulerAngles(-90, 0, 0);
 
                         var frustumSize = Math.max(bounds.halfExtents.x, bounds.halfExtents.z);
 

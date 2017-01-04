@@ -175,9 +175,9 @@ cc3d.extend(cc3d, function () {
                     device.setDepthWrite(material.depthWrite);
                     device.setDepthTest(material.depthTest);
 
-                    modelMatrixId.setValue(meshInstance.node.worldTransform.data);
+                    modelMatrixId.setValue(meshInstance.node._worldTransform.data);
                     if (meshInstance.skinInstance) {
-                        skinPosOffsetId.setValue(meshInstance.node.getPosition().data);
+                        skinPosOffsetId.setValue(meshInstance.node.getWorldPosition().data);
                         if (device.supportsBoneTextures) {
                             boneTextureId.setValue(meshInstance.skinInstance.boneTexture);
                             var w = meshInstance.skinInstance.boneTexture.width;

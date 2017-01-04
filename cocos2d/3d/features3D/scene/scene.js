@@ -539,7 +539,7 @@ cc3d.extend(cc3d, function () {
             }
             material.cull = cc3d.CULLFACE_NONE;
 
-            var node = new cc3d.GraphNode();
+            var node = new cc.Node3D();
             var mesh = cc3d.createBox(device);
             var meshInstance = new cc3d.MeshInstance(node, mesh, material);
             meshInstance.updateKey = function () {

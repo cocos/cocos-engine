@@ -27,7 +27,7 @@ cc3d.extend(cc3d, function () {
      * @name cc3d.Skeleton
      * @property {Boolean} looping Determines whether skeleton is looping its animation.
      * @class Represents a skeleton used to play animations.
-     * @param {cc3d.GraphNode} graph The root cc3d.GraphNode of the skeleton.
+     * @param {cc.Node3D} graph The root cc.Node3D of the skeleton.
      */
     var Skeleton = function Skeleton(graph) {
         this._animation = null;
@@ -305,7 +305,7 @@ cc3d.extend(cc3d, function () {
      * @description Links a skeleton to a node hierarchy. The nodes animated skeleton are
      * then subsequently used to drive the local transformation matrices of the node
      * hierarchy.
-     * @param {cc3d.GraphNode} graph The root node of the graph that the skeleton is to drive.
+     * @param {cc.Node3D} graph The root node of the graph that the skeleton is to drive.
      * @author Will Eastcott
      */
     Skeleton.prototype.setGraph = function (graph) {
@@ -341,10 +341,10 @@ cc3d.extend(cc3d, function () {
                 if (interpKey._written) {
                     var transform = interpKey.getTarget();
 
-                    transform.localPosition.copy(interpKey._pos);
-                    transform.localRotation.copy(interpKey._quat);
-                    transform.localScale.copy(interpKey._scale);
-                    transform.dirtyLocal = true;
+                    transform._localPosition.copy(interpKey._pos);
+                    transform._localRotation.copy(interpKey._quat);
+                    transform._localScale.copy(interpKey._scale);
+                    transform._dirtyLocal = true;
 
                     interpKey._written = false;
                 }

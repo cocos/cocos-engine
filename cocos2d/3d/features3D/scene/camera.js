@@ -147,7 +147,7 @@ cc3d.extend(cc3d, function () {
                 farW.scale(1 / w);
 
                 var alpha = z / this._farClip;
-                worldCoord.lerp(this._node.getPosition(), farW, alpha);
+                worldCoord.lerp(this._node.getWorldPosition(), farW, alpha);
             } else {
                 // Calculate the screen click as a point on the far plane of the
                 // normalized device coordinate 'box' (z=1)

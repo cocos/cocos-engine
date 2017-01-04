@@ -1,6 +1,6 @@
 require('./scene');
 require('./forward-renderer');
-require('./graph-node');
+//require('./graph-node');
 require('./camera');
 require('./light');
 require('./material');

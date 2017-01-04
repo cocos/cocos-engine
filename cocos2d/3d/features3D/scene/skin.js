@@ -80,7 +80,7 @@ cc3d.extend(cc3d, function () {
 
         updateMatrices: function () {
 
-            var pos = this.rootNode.getPosition();
+            var pos = this.rootNode.getWorldPosition();
             for (var i = this.bones.length - 1; i >= 0; i--) {
                 this.matrices[i].mul2(this.bones[i].getWorldTransform(), this.skin.inverseBindPose[i]);
                 this.matrices[i].data[12] -= pos.x;

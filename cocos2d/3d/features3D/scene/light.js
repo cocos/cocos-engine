@@ -450,22 +450,22 @@ cc3d.extend(cc3d, function () {
                 var f = Math.cos(angle * cc3d.math.DEG_TO_RAD);
                 var node = this._node;
 
-                spotCenter.copy(node.up);
+                spotCenter.copy(node.getUp());
                 spotCenter.scale(-range * 0.5 * f);
-                spotCenter.add(node.getPosition());
+                spotCenter.add(node.getWorldPosition());
                 sphere.center = spotCenter;
 
-                spotEndPoint.copy(node.up);
+                spotEndPoint.copy(node.getUp());
                 spotEndPoint.scale(-range);
 
-                tmpVec.copy(node.right);
+                tmpVec.copy(node.getRight());
                 tmpVec.scale(Math.sin(angle * cc3d.math.DEG_TO_RAD) * range);
                 spotEndPoint.add(tmpVec);
 
                 sphere.radius = spotEndPoint.length() * 0.5;
 
             } else if (this._type === cc3d.LIGHTTYPE_POINT) {
-                sphere.center = this._node.getPosition();
+                sphere.center = this._node.getWorldPosition();
                 sphere.radius = this._attenuationEnd;
             }
         },
@@ -484,7 +484,7 @@ cc3d.extend(cc3d, function () {
                 box.setFromTransformedAabb(box, node.getWorldTransform());
 
             } else if (this._type === cc3d.LIGHTTYPE_POINT) {
-                box.center.copy(this._node.getPosition());
+                box.center.copy(this._node.getWorldPosition());
                 box.halfExtents.set(this._attenuationEnd, this._attenuationEnd, this._attenuationEnd);
             }
         },

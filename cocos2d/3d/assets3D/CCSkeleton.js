@@ -53,7 +53,7 @@ var Skeleton = cc.Class(/** @lends cc.Skeleton# */{
     },
 
     _parseNodeTree: function(jason) {
-        var nodeTree = new cc3d.GraphNode();
+        var nodeTree = new cc.Node3D();
         var nodeSkinMesh = [];
         nodeTree.setName(jason.id);
         //todo review TRS parsing

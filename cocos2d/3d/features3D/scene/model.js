@@ -7,7 +7,7 @@ cc3d.extend(cc3d, function () {
      * @example
      * // Create a new model
      * var model = new cc3d.Model();
-     * @property {cc3d.GraphNode} graph The root node of the model's graph node hierarchy.
+     * @property {cc.Node3D} graph The root node of the model's graph node hierarchy.
      * @property {cc3d.MeshInstance[]} meshInstances An array of meshInstances contained in this model.
      */
     var Model = function Model() {
@@ -70,6 +70,8 @@ cc3d.extend(cc3d, function () {
          * @author Will Eastcott
          */
         clone: function () {
+            console.error('Model#clone not implemented!');
+            return;
             var i, j;
 
             // Duplicate the node hierarchy

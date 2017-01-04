@@ -22,6 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var Misc = require('./utils/misc');
 
 var Node = cc.Class({
     name: 'cc.Node3D',
@@ -46,6 +47,24 @@ var Node = cc.Class({
 
         this._dirtyLocal = false;
         this._dirtyWorld = false;
+
+        this._right = new cc.Vec3();
+        this._up = new cc.Vec3();
+        this._forward = new cc.Vec3();
+
+        this._aabbVer = 0;
+    },
+
+    getRight: function() {
+        this.getWorldTransform().getX(this._right).normalize();
+    },
+
+    getUp: function() {
+        return this.getWorldTransform().getY(this._up).normalize();
+    },
+
+    getForward: function() {
+        return this.getWorldTransform().getZ(this._forward).normalize().scale(-1);
     },
 
     getLocalEulerAngles: function () {
@@ -71,7 +90,7 @@ var Node = cc.Class({
 
             this._dirtyLocal = false;
             this._dirtyWorld = true;
-            //this._aabbVer++;
+            this._aabbVer++;
         }
         return this._localTransform;
     },
@@ -235,7 +254,7 @@ var Node = cc.Class({
 
             this._dirtyLocal = false;
             this._dirtyWorld = true;
-            //this._aabbVer++;
+            this._aabbVer++;
         }
 
         if (this._dirtyWorld) {
@@ -251,7 +270,7 @@ var Node = cc.Class({
             for (var i = 0, len = this._children.length; i < len; i++) {
                 child = this._children[i];
                 child._dirtyWorld = true;
-                //child._aabbVer++;
+                child._aabbVer++;
 
             }
         }
@@ -412,5 +431,12 @@ var Node = cc.Class({
         this._dirtyWorld = true;
     },
 });
+
+var SameNameGetSets = ['parent', 'tag',];
+
+var DiffNameGetSets = {
+};
+
+Misc.propertyDefine(Node, SameNameGetSets, DiffNameGetSets);
 
 cc.Node3D = module.exports = Node;

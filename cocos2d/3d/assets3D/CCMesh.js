@@ -144,7 +144,7 @@ var Mesh = cc.Class(/** @lends cc.Mesh# */{
         }
     },
     _parseNodeTree: function(jason) {
-        var nodeTree = new cc3d.GraphNode();
+        var nodeTree = new cc.Node3D();
         var nodeMeshRefs = [];
         nodeTree.setName(jason.id);
         if(this._skeleton.nodeMap[jason.id]) {

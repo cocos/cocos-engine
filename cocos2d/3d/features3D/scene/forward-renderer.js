@@ -428,7 +428,7 @@ cc3d.extend(cc3d, function () {
             depth: 1.0,
             flags: flags
         });
-        shadowCam._node = new cc3d.GraphNode();
+        shadowCam._node = new cc.Node3D();
         return shadowCam;
     }
 
@@ -680,8 +680,8 @@ cc3d.extend(cc3d, function () {
         updateCameraFrustum: function (camera) {
             var projMat = camera.getProjectionMatrix();
 
-            var pos = camera._node.getPosition();
-            var rot = camera._node.getRotation();
+            var pos = camera._node.getWorldPosition();
+            var rot = camera._node.getWorldRotation();
             viewInvMat.setTRS(pos, rot, cc.Vec3.ONE);
             this.viewInvId.setValue(viewInvMat.data);
 
@@ -696,8 +696,8 @@ cc3d.extend(cc3d, function () {
             this.projId.setValue(projMat.data);
 
             // ViewInverse Matrix
-            var pos = camera._node.getPosition();
-            var rot = camera._node.getRotation();
+            var pos = camera._node.getWorldPosition();
+            var rot = camera._node.getWorldRotation();
             viewInvMat.setTRS(pos, rot, cc.Vec3.ONE);
             this.viewInvId.setValue(viewInvMat.data);
 
@@ -724,7 +724,7 @@ cc3d.extend(cc3d, function () {
             this.viewProjId.setValue(viewProjMat.data);
 
             // View Position (world space)
-            this.viewPosId.setValue(camera._node.getPosition().data);
+            this.viewPosId.setValue(camera._node.getWorldPosition().data);
 
             // Near and far clip values
             this.nearClipId.setValue(camera.getNearClip());
@@ -940,15 +940,15 @@ cc3d.extend(cc3d, function () {
                     var shadowCam = this.getShadowCamera(this.device, spot);
                     var shadowCamNode = shadowCam._node;
 
-                    shadowCamNode.setPosition(spot._node.getPosition());
-                    shadowCamNode.setRotation(spot._node.getRotation());
+                    shadowCamNode.setWorldPosition(spot._node.getWorldPosition());
+                    shadowCamNode.setWorldRotation(spot._node.getWorldRotation());
                     shadowCamNode.rotateLocal(-90, 0, 0);
 
                     shadowCam.setProjection(cc3d.PROJECTION_PERSPECTIVE);
                     shadowCam.setAspectRatio(1);
                     shadowCam.setFov(spot.getOuterConeAngle() * 2);
 
-                    shadowCamView.setTRS(shadowCamNode.getPosition(), shadowCamNode.getRotation(), cc.Vec3.ONE).invert();
+                    shadowCamView.setTRS(shadowCamNode.getWorldPosition(), shadowCamNode.getWorldRotation(), cc.Vec3.ONE).invert();
                     shadowCamViewProj.mul2(shadowCam.getProjectionMatrix(), shadowCamView);
                     spot._shadowMatrix.mul2(scaleShift, shadowCamViewProj);
                 }
@@ -1214,12 +1214,12 @@ cc3d.extend(cc3d, function () {
                     autoInstances = 0;
                     if (drawCalls[next].mesh === mesh && drawCalls[next]._key[keyType] === key) {
                         for (j = 0; j < 16; j++) {
-                            cc3d._autoInstanceBufferData[offset + j] = meshInstance.node.worldTransform.data[j];
+                            cc3d._autoInstanceBufferData[offset + j] = meshInstance.node._worldTransform.data[j];
                         }
                         autoInstances = 1;
                         while (next !== drawCallsCount && drawCalls[next].mesh === mesh && drawCalls[next]._key[keyType] === key) {
                             for (j = 0; j < 16; j++) {
-                                cc3d._autoInstanceBufferData[offset + autoInstances * 16 + j] = drawCalls[next].node.worldTransform.data[j];
+                                cc3d._autoInstanceBufferData[offset + autoInstances * 16 + j] = drawCalls[next].node._worldTransform.data[j];
                             }
                             autoInstances++;
                             next++;
@@ -1276,7 +1276,7 @@ cc3d.extend(cc3d, function () {
         setSkinning: function (device, meshInstance, material) {
             if (meshInstance.skinInstance) {
                 this._skinDrawCalls++;
-                this.skinPosOffsetId.setValue(meshInstance.skinInstance.rootNode.getPosition().data);
+                this.skinPosOffsetId.setValue(meshInstance.skinInstance.rootNode.getWorldPosition().data);
                 if (device.supportsBoneTextures) {
                     boneTexture = meshInstance.skinInstance.boneTexture;
                     this.boneTextureId.setValue(boneTexture);
@@ -1301,7 +1301,7 @@ cc3d.extend(cc3d, function () {
                     return instancingData.count - 1;
                 }
             } else {
-                modelMatrix = meshInstance.node.worldTransform;
+                modelMatrix = meshInstance.node._worldTransform;
                 this.modelMatrixId.setValue(modelMatrix.data);
 
                 if (normal) {
@@ -1355,8 +1355,8 @@ cc3d.extend(cc3d, function () {
                     lightNode = light._node;
                     passes = 1;
 
-                    shadowCamNode.setPosition(lightNode.getPosition());
-                    shadowCamNode.setRotation(lightNode.getRotation());
+                    shadowCamNode.setWorldPosition(lightNode.getWorldPosition());
+                    shadowCamNode.setWorldRotation(lightNode.getWorldRotation());
                     shadowCamNode.rotateLocal(-90, 0, 0); // Camera's look down negative Z, and directional lights point down negative Y
 
                     if (type === cc3d.LIGHTTYPE_DIRECTIONAL) {
@@ -1374,7 +1374,7 @@ cc3d.extend(cc3d, function () {
 
                         // 3. Transform the 8 corners of the camera frustum into the shadow camera's view space
                         shadowCamView.copy(shadowCamNode.getWorldTransform()).invert();
-                        c2sc.copy(shadowCamView).mul(camera._node.worldTransform);
+                        c2sc.copy(shadowCamView).mul(camera._node._worldTransform);
                         for (j = 0; j < 8; j++) {
                             c2sc.transformPoint(frustumPoints[j], frustumPoints[j]);
                         }
@@ -1429,7 +1429,7 @@ cc3d.extend(cc3d, function () {
                         shadowCam.setAspectRatio(1);
                         shadowCam.setFov(light.getOuterConeAngle() * 2);
 
-                        this.viewPosId.setValue(shadowCamNode.getPosition().data);
+                        this.viewPosId.setValue(shadowCamNode.getWorldPosition().data);
                         this.shadowMapLightRadiusId.setValue(light.getAttenuationEnd());
 
                     } else if (type === cc3d.LIGHTTYPE_POINT) {
@@ -1447,7 +1447,7 @@ cc3d.extend(cc3d, function () {
                         shadowCam.setFov(90);
 
                         passes = 6;
-                        this.viewPosId.setValue(shadowCamNode.getPosition().data);
+                        this.viewPosId.setValue(shadowCamNode.getWorldPosition().data);
                         this.shadowMapLightRadiusId.setValue(light.getAttenuationEnd());
                     }
 
@@ -1459,19 +1459,19 @@ cc3d.extend(cc3d, function () {
 
                         if (type === cc3d.LIGHTTYPE_POINT) {
                             if (pass === 0) {
-                                shadowCamNode.setEulerAngles(0, 90, 180);
+                                shadowCamNode.setWorldEulerAngles(0, 90, 180);
                             } else if (pass === 1) {
-                                shadowCamNode.setEulerAngles(0, -90, 180);
+                                shadowCamNode.setWorldEulerAngles(0, -90, 180);
                             } else if (pass === 2) {
-                                shadowCamNode.setEulerAngles(90, 0, 0);
+                                shadowCamNode.setWorldEulerAngles(90, 0, 0);
                             } else if (pass === 3) {
-                                shadowCamNode.setEulerAngles(-90, 0, 0);
+                                shadowCamNode.setWorldEulerAngles(-90, 0, 0);
                             } else if (pass === 4) {
-                                shadowCamNode.setEulerAngles(0, 180, 180);
+                                shadowCamNode.setWorldEulerAngles(0, 180, 180);
                             } else if (pass === 5) {
-                                shadowCamNode.setEulerAngles(0, 0, 180);
+                                shadowCamNode.setWorldEulerAngles(0, 0, 180);
                             }
-                            shadowCamNode.setPosition(lightNode.getPosition());
+                            shadowCamNode.setWorldPosition(lightNode.getWorldPosition());
                             shadowCam.setRenderTarget(light._shadowCubeMap[pass]);
                         }
 
@@ -1532,7 +1532,7 @@ cc3d.extend(cc3d, function () {
                             if (z.min > minz) minz = z.min;
 
                             // 3. Fix projection
-                            shadowCamNode.setPosition(lightNode.getPosition());
+                            shadowCamNode.setWorldPosition(lightNode.getWorldPosition());
                             shadowCamNode.translateLocal(centerx, centery, maxz + directionalShadowEpsilon);
                             shadowCam.setFarClip(maxz - minz);
 
@@ -1541,7 +1541,7 @@ cc3d.extend(cc3d, function () {
 
                         if (type !== cc3d.LIGHTTYPE_POINT) {
 
-                            shadowCamView.setTRS(shadowCamNode.getPosition(), shadowCamNode.getRotation(), cc.Vec3.ONE).invert();
+                            shadowCamView.setTRS(shadowCamNode.getWorldPosition(), shadowCamNode.getWorldRotation(), cc.Vec3.ONE).invert();
                             shadowCamViewProj.mul2(shadowCam.getProjectionMatrix(), shadowCamView);
                             light._shadowMatrix.mul2(scaleShift, shadowCamViewProj);
                         }
@@ -2151,7 +2151,7 @@ cc3d.extend(cc3d, function () {
                         j = staticLights[s];
                         light = lights[j];
 
-                        invMatrix.copy(drawCall.node.worldTransform).invert();
+                        invMatrix.copy(drawCall.node._worldTransform).invert();
                         localLightBounds.setFromTransformedAabb(lightAabb[j], invMatrix);
                         minv = localLightBounds.getMin().data;
                         maxv = localLightBounds.getMax().data;
@@ -2343,8 +2343,8 @@ cc3d.extend(cc3d, function () {
             var lights = this.sortLights(scene);
 
             // Camera data
-            var camPos = camera._node.getPosition().data;
-            var camFwd = camera._node.forward.data;
+            var camPos = camera._node.getWorldPosition().data;
+            var camFwd = camera._node.getForward().data;
 
             // Set up instancing if needed
             this.setupInstancing(device);

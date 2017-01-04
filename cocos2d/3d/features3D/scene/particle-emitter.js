@@ -1,5 +1,6 @@
 // Mr F
 cc3d.extend(cc3d, function () {
+    console.error('cc3d#particle not implemented');
     var particleVerts = [
         [-1, -1],
         [1, -1],
@@ -428,7 +429,7 @@ cc3d.extend(cc3d, function () {
         calculateWorldBounds: function () {
             if (!this.node) return;
 
-            var pos = this.node.getPosition();
+            var pos = this.node.getWorldPosition();
             //if (this.prevPos.equals(pos)) return; // TODO: test whole matrix?
 
             this.prevWorldBoundsSize.copy(this.worldBoundsSize);
@@ -564,7 +565,7 @@ cc3d.extend(cc3d, function () {
             this.rebuildGraphs();
             this.calculateLocalBounds();
             if (this.node) {
-                //this.prevPos.copy(this.node.getPosition());
+                //this.prevPos.copy(this.node.getWorldPosition());
                 this.worldBounds.setFromTransformedAabb(this.localBounds, this.node.getWorldTransform());
                 this.worldBoundsTrail[0].copy(this.worldBounds);
                 this.worldBoundsTrail[1].copy(this.worldBounds);
@@ -584,12 +585,12 @@ cc3d.extend(cc3d, function () {
             this.frameRandom.z = Math.random();
 
             this.particleTex = new Float32Array(this.numParticlesPot * particleTexHeight * particleTexChannels);
-            var emitterPos = this.node === null ? cc.Vec3.ZERO : this.node.getPosition();
+            var emitterPos = this.node === null ? cc.Vec3.ZERO : this.node.getWorldPosition();
             if (this.emitterShape === cc3d.EMITTERSHAPE_BOX) {
                 if (this.node === null) {
                     spawnMatrix.setTRS(cc.Vec3.ZERO, cc.Quat.IDENTITY, this.spawnBounds);
                 } else {
-                    spawnMatrix.setTRS(cc.Vec3.ZERO, this.node.getRotation(), tmpVec3.copy(this.spawnBounds).mul(this.node.localScale));
+                    spawnMatrix.setTRS(cc.Vec3.ZERO, this.node.getWorldRotation(), tmpVec3.copy(this.spawnBounds).mul(this.node._localScale));
                 }
             }
             for (i = 0; i < this.numParticles; i++) {
@@ -1155,12 +1156,12 @@ cc3d.extend(cc3d, function () {
                 if (this.meshInstance.node === null) {
                     spawnMatrix.setTRS(cc.Vec3.ZERO, cc.Quat.IDENTITY, this.emitterExtents);
                 } else {
-                    spawnMatrix.setTRS(cc.Vec3.ZERO, this.meshInstance.node.getRotation(), tmpVec3.copy(this.emitterExtents).mul(this.meshInstance.node.localScale));
+                    spawnMatrix.setTRS(cc.Vec3.ZERO, this.meshInstance.node.getWorldRotation(), tmpVec3.copy(this.emitterExtents).mul(this.meshInstance.node._localScale));
                 }
             }
 
             var emitterPos;
-            var emitterScale = this.meshInstance.node === null ? cc.Vec3.ONE.data : this.meshInstance.node.localScale.data;
+            var emitterScale = this.meshInstance.node === null ? cc.Vec3.ONE.data : this.meshInstance.node._localScale.data;
             this.material.setParameter("emitterScale", emitterScale);
 
             if (!this.useCpu) {
@@ -1194,7 +1195,7 @@ cc3d.extend(cc3d, function () {
                     this.constantMaxVel.setValue(maxVel);
                 }
 
-                emitterPos = this.meshInstance.node === null ? cc.Vec3.ZERO.data : this.meshInstance.node.getPosition().data;
+                emitterPos = this.meshInstance.node === null ? cc.Vec3.ZERO.data : this.meshInstance.node.getWorldPosition().data;
                 var emitterMatrix = this.meshInstance.node === null ? cc.Mat4.IDENTITY : this.meshInstance.node.getWorldTransform();
                 if (this.emitterShape === cc3d.EMITTERSHAPE_BOX) {
                     mat4ToMat3(spawnMatrix, spawnMatrix3);
@@ -1244,17 +1245,17 @@ cc3d.extend(cc3d, function () {
             } else {
                 var data = new Float32Array(this.vertexBuffer.lock());
                 if (this.meshInstance.node) {
-                    var fullMat = this.meshInstance.node.worldTransform;
+                    var fullMat = this.meshInstance.node._worldTransform;
                     for (j = 0; j < 12; j++) {
                         rotMat.data[j] = fullMat.data[j];
                     }
-                    nonUniformScale = this.meshInstance.node.localScale;
+                    nonUniformScale = this.meshInstance.node._localScale;
                     uniformScale = Math.max(Math.max(nonUniformScale.x, nonUniformScale.y), nonUniformScale.z);
                 }
 
                 // Particle updater emulation
-                emitterPos = this.meshInstance.node === null ? cc.Vec3.ZERO : this.meshInstance.node.getPosition();
-                var posCam = this.camera ? this.camera._node.getPosition() : cc.Vec3.ZERO;
+                emitterPos = this.meshInstance.node === null ? cc.Vec3.ZERO : this.meshInstance.node.getWorldPosition();
+                var posCam = this.camera ? this.camera._node.getWorldPosition() : cc.Vec3.ZERO;
 
                 var vertSize = 14;
                 var a, b, c;

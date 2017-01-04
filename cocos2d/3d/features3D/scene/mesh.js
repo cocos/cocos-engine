@@ -68,14 +68,14 @@ cc3d.extend(cc3d, function () {
      * @class An instance of a {@link cc3d.Mesh}. A single mesh can be referenced by many
      * mesh instances that can have different transforms and materials.
      * @description Create a new mesh instance.
-     * @param {cc3d.GraphNode} node The graph node defining the transform for this instance.
+     * @param {cc.Node3D} node The graph node defining the transform for this instance.
      * @param {cc3d.Mesh} mesh The graphics mesh being instanced.
      * @param {cc3d.Material} material The material used to render this instance.
      * @example
      * // Create a mesh instance pointing to a 1x1x1 'cube' mesh
      * var mesh = cc3d.createBox(graphicsDevice);
      * var material = new cc3d.StandardMaterial();
-     * var node = new cc3d.GraphNode();
+     * var node = new cc.Node3D();
      * var meshInstance = new cc3d.MeshInstance(node, mesh, material);
      * @property {cc3d.BoundingBox} aabb The world space axis-aligned bounding box for this
      * mesh instance.
@@ -238,7 +238,7 @@ cc3d.extend(cc3d, function () {
                 for (i = 0; i < this.mesh.boneAabb.length; i++) {
                     if (!boneUsed[i]) continue;
                     this._boneAabb[i].setFromTransformedAabb(this.mesh.boneAabb[i], this.skinInstance.matrices[i]);
-                    this._boneAabb[i].center.add(this.skinInstance.rootNode.getPosition());
+                    this._boneAabb[i].center.add(this.skinInstance.rootNode.getWorldPosition());
                 }
                 // Update full instance AABB
                 var first = true;
