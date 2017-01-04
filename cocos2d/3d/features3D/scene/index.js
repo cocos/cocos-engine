@@ -1,0 +1,16 @@
+require('./scene');
+require('./forward-renderer');
+require('./graph-node');
+require('./camera');
+require('./light');
+require('./material');
+require('./basic-material');
+require('./depth-material');
+require('./standard-material');
+require('./mesh');
+require('./skin');
+require('./skin-partition');
+require('./model');
+require('./particle-emitter');
+require('./pick');
+require('./procedural');

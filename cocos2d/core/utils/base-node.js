@@ -591,7 +591,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 child.cleanup();
             }
             // invoke the parent setter
-            child.parent = null;
+            child.setParent(null);
         }
     },
 
@@ -651,7 +651,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (cleanup)
                     node.cleanup();
 
-                node.parent = null;
+                node.setParent(null);
             }
         }
         this._children.length = 0;

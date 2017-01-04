@@ -57,7 +57,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         // Render
         cc.g_NumberOfDraws = 0;
 
-        console.log('rendering in cc.DisplayLinkDirector.mainLoop in 3D');
+        //console.log('rendering in cc.DisplayLinkDirector.mainLoop in 3D');
 
         this._totalFrames++;
 
@@ -97,7 +97,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
 
             // Render
             cc.g_NumberOfDraws = 0;
-            console.log('rendering in cc.DisplayLinkDirector.mainLoop in 3D');
+            //console.log('rendering in cc.DisplayLinkDirector.mainLoop in 3D');
 
             this._totalFrames++;
 
