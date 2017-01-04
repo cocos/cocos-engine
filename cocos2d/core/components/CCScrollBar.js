@@ -149,6 +149,7 @@ var Scrollbar = cc.Class({
             if(content){
                 var contentSize = content.getContentSize();
                 var scrollViewSize = this._scrollView.node.getContentSize();
+                var handleNodeSize = this.node.getContentSize();
 
                 if(this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
                     return;
@@ -163,23 +164,27 @@ var Scrollbar = cc.Class({
                 var scrollViewMeasure = 0;
                 var outOfBoundaryValue = 0;
                 var contentPosition = 0;
+                var handleNodeMeasure = 0;
 
                 if (this.direction === Direction.HORIZONTAL) {
                     contentMeasure = contentSize.width;
                     scrollViewMeasure = scrollViewSize.width;
+                    handleNodeMeasure = handleNodeSize.width;
                     outOfBoundaryValue = outOfBoundary.x;
 
                     contentPosition = -this._convertToScrollViewSpace(content).x;
                 } else if (this.direction === Direction.VERTICAL) {
                     contentMeasure = contentSize.height;
                     scrollViewMeasure = scrollViewSize.height;
+                    handleNodeMeasure = handleNodeSize.height;
                     outOfBoundaryValue = outOfBoundary.y;
 
                     contentPosition = -this._convertToScrollViewSpace(content).y;
                 }
 
-                var length = this._calculateLength(contentMeasure, scrollViewMeasure, outOfBoundaryValue);
-                var position = this._calculatePosition(contentMeasure, scrollViewMeasure, contentPosition, outOfBoundaryValue, length);
+                var length = this._calculateLength(contentMeasure, scrollViewMeasure, handleNodeMeasure, outOfBoundaryValue);
+                var position = this._calculatePosition(contentMeasure, scrollViewMeasure, handleNodeMeasure, contentPosition, outOfBoundaryValue, length);
+
                 this._updateLength(length);
                 this._updateHanlderPosition(position);
             }
@@ -262,17 +267,17 @@ var Scrollbar = cc.Class({
         this._autoHideRemainingTime = this.autoHideTime;
     },
 
-    _calculateLength: function(contentMeasure, scrollViewMeasure, outOfBoundary) {
+    _calculateLength: function(contentMeasure, scrollViewMeasure, handleNodeMeasure, outOfBoundary) {
         var denominatorValue = contentMeasure;
         if (outOfBoundary) {
             denominatorValue += (outOfBoundary > 0 ? outOfBoundary : -outOfBoundary) * GETTINGSHORTERFACTOR;
         }
 
         var lengthRation = scrollViewMeasure / denominatorValue;
-        return scrollViewMeasure * lengthRation;
+        return handleNodeMeasure * lengthRation;
     },
 
-    _calculatePosition: function(contentMeasure, scrollViewMeasure, contentPosition, outOfBoundary, actualLenth) {
+    _calculatePosition: function(contentMeasure, scrollViewMeasure, handleNodeMeasure, contentPosition, outOfBoundary, actualLenth) {
         var denominatorValue = contentMeasure - scrollViewMeasure;
         if (outOfBoundary) {
             denominatorValue += Math.abs(outOfBoundary);
@@ -284,7 +289,7 @@ var Scrollbar = cc.Class({
             positionRatio = cc.clamp01(positionRatio);
         }
 
-        var position = (scrollViewMeasure - actualLenth) * positionRatio;
+        var position = (handleNodeMeasure - actualLenth) * positionRatio;
         if (this.direction === Direction.VERTICAL) {
             return cc.p(0, position);
         } else {
