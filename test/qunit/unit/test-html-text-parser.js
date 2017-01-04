@@ -387,8 +387,70 @@ test('test image tag', function () {
               [], "image element invalid test");
 
 
-    var invalidImageTest4 = "<b><u><img src='world' click='handler' /></b></u>";
-    deepEqual(parser.parse(invalidImageTest4),
+    var nestedImageTest4 = "<b><u><img src='world' click='handler' /></b></u>";
+    deepEqual(parser.parse(nestedImageTest4),
               [{text: "", style: {isImage: true, src: 'world',
                                   event: {click: 'handler'}}}], "image element invalid test");
+});
+
+test('test outline tag', function () {
+    var outlineTest1 = "<outline color=#0f00ff width=2 >hello</outline>";
+
+    deepEqual(parser.parse(outlineTest1),
+              [
+                  {text: "hello",
+                   style: { outline: {
+                       color: "#0f00ff",
+                       width: 2
+                   }}}
+              ], "outline element test 1");
+
+    var outlineTest2 = '<outline color=#0f00ff>hello</outline>';
+
+    deepEqual(parser.parse(outlineTest2),
+              [
+                  {text: "hello", style: {
+                      outline: {
+                          color: "#0f00ff",
+                          width: 1
+                      }
+                  }}
+              ], "outline element test 2");
+
+    var outlineTest3 = '<outline width=4>hello</outline>';
+
+    deepEqual(parser.parse(outlineTest3),
+              [
+                  {text: "hello", style: {
+                      outline: {
+                          color: "#ffffff",
+                          width: 4
+                      }
+                  }}
+              ], "outline element test 3");
+
+    var outlineTest4 = '<outline>hello</outline>';
+
+    deepEqual(parser.parse(outlineTest4),
+              [
+                  {text: "hello", style: {
+                      outline: {
+                          color: "#ffffff",
+                          width: 1
+                      }
+                  }}
+              ], "outline element test 4");
+
+    var outlineTest5 = "<outline  width=2 color=#0f00ff>hello</outline>";
+
+    deepEqual(parser.parse(outlineTest5),
+              [
+                  {text: "hello",
+                   style: { outline: {
+                       color: "#0f00ff",
+                       width: 2
+                   }}}
+              ], "outline element test 5");
+
+
 });
