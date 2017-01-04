@@ -94,7 +94,7 @@ var PageViewIndicator = cc.Class({
          */
         cellSize: {
             default: cc.size(20, 20),
-            tooltip: CC_DEV && 'i18n:COMPONENT.layout.cell_size'
+            tooltip: CC_DEV && 'i18n:COMPONENT.pageview_indicator.cell_size'
         },
 
         /**
