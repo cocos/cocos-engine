@@ -337,6 +337,9 @@ static bool _initWithString(const char * text,
             
             drawString = [[[NSAttributedString alloc] initWithString:string
                                                            attributes:tokenAttributesDict] autorelease];
+            if (overflow == 2) {
+                _calculateShrinkedSizeForString(&drawString, font, dimensions, enableWrap, shrinkFontSize);
+            }
         }
       
         
