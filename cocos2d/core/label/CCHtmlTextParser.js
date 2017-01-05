@@ -162,6 +162,34 @@ cc.HtmlTextParser.prototype = {
             }
         }
 
+        header = attribute.match(/^(outline(\s)*[^>]*)/);
+        if (header) {
+            attribute = header[0].substring("outline".length).trim();
+            console.log(attribute);
+            var defaultOutline = {color: "#ffffff", width: 1};
+            if (attribute) {
+                var outlineAttrReg = /(\s)*color(\s)*=|(\s)*width(\s)*=|(\s)*click(\s)*=/;
+                header = attribute.match(outlineAttrReg);
+                var tagValue;
+                while (header) {
+                    attribute = attribute.substring(attribute.indexOf(header[0]));
+                    tagName = attribute.substr(0, header[0].length);
+                    remainingArgument = attribute.substring(tagName.length).trim();
+                    nextSpace = remainingArgument.indexOf(' ');
+                    if (nextSpace > -1) {
+                        tagValue = remainingArgument.substr(0, nextSpace);
+                    } else {
+                        tagValue = remainingArgument;
+                    }
+                    cc.log("tagName:" + tagName + ", tagValue:" + tagValue);
+                    attribute = remainingArgument.substring(nextSpace).trim();
+                    header = attribute.match(outlineAttrReg);
+                }
+            } else {
+                obj.outline = defaultOutline;
+            }
+        }
+
         header = attribute.match(/^(on|u|b|i)(\s)*/);
         if(header && header[0].length > 0) {
             tagName = header[0];
