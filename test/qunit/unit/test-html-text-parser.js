@@ -473,6 +473,40 @@ test('test outline tag', function () {
                    }}
               ], "outline element test 6");
 
+    var outlineTest7 = "<outline  width =2 color=#0f00ff><on click='clickme'>hello</on></outline>";
+
+    deepEqual(parser.parse(outlineTest7),
+              [
+                  {text: "hello",
+                   style: {
+                       outline: {
+                           color: "#0f00ff",
+                           width: 2
+                       },
+                       event: {
+                           click: "clickme"
+                       }
+                   }}
+              ], "outline element test 7");
+
+    var outlineTest8 = "<b><outline  width =2 color=#0f00ff><on click='clickme'><u>hello</u></on></outline></b>";
+
+    deepEqual(parser.parse(outlineTest8),
+              [
+                  {text: "hello",
+                   style: {
+                       bold: true,
+                       underline: true,
+                       outline: {
+                           color: "#0f00ff",
+                           width: 2
+                       },
+                       event: {
+                           click: "clickme"
+                       }
+                   }}
+              ], "outline element test 8");
+
     var invalidOutlineTest1 = "<outline  width=2 color #0f00ff click='clickme'>hello</outline>";
 
     deepEqual(parser.parse(invalidOutlineTest1),
@@ -501,5 +535,14 @@ test('test outline tag', function () {
                        }
                    }}
               ], "invalid outline element test 2");
+
+    var invalidOutlineTest3 = "<outilne  width 2 color #0f00ff click 'clickme'>hello</outline>";
+
+    deepEqual(parser.parse(invalidOutlineTest3),
+              [
+                  {text: "hello",
+                   style: {}}
+              ], "invalid outline element test 3");
+
 
 });
