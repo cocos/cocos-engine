@@ -69,6 +69,8 @@ require('./cocos2d/core/platform/CCMacro');
 require('./cocos2d/core/load-pipeline');
 require('./cocos2d/core/textures');
 
+require('./cocos2d/3d/features3D');
+
 if (!CC_JSB) {
     require('./cocos2d/kazmath');
     require('./cocos2d/core/CCDirector');

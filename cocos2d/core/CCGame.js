@@ -339,8 +339,11 @@ var game = {
         // Prepare never called and engine ready
         if (cc._engineLoaded) {
             this._prepareCalled = true;
-
-            this._initRenderer(config[CONFIG_KEY.width], config[CONFIG_KEY.height]);
+            if(this._is3D) {
+                this._init3DRenderer(config[CONFIG_KEY.width], config[CONFIG_KEY.height]);
+            } else {
+                this._initRenderer(config[CONFIG_KEY.width], config[CONFIG_KEY.height]);
+            }
 
             /**
              * @module cc
@@ -716,7 +719,7 @@ var game = {
         this._rendererInitialized = true;
     },
 
-    _init3dRenderer: function (width, height) {
+    _init3DRenderer: function (width, height) {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) return;
 
@@ -759,17 +762,15 @@ var game = {
         localCanvas.setAttribute("tabindex", 99);
 
         if (cc._renderType === game.RENDER_TYPE_WEBGL) {
+            this._renderDevice = new cc3d.GraphicsDevice(localCanvas);
             this._renderContext = cc._renderContext = cc.webglContext
-                = cc.create3DContext(localCanvas, {
-                'stencil': true,
-                'alpha': true,
-                'preserveDrawingBuffer': false
-            });
+                = this._renderDevice.gl;
+            //cc.renderer = new cc3d.ForwardRenderer(this._renderDevice);
         }
         // WebGL context created successfully
         if (this._renderContext) {
-            cc.renderer = cc.rendererWebGL;
-            win.gl = this._renderContext; // global variable declared in CCMacro.js
+            //cc.renderer = cc.rendererWebGL;
+            //win.gl = this._renderContext; // global variable declared in CCMacro.js
 
             cc.textureCache._initializingRenderer();
 

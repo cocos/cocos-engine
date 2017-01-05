@@ -41,8 +41,8 @@ var callback = function(){
         cc.view.resizeWithBrowserSize(true);
     }
 
-    var scene = new cc.Scene();
-    cc.director.runScene(scene);
+    //var scene = new cc.Scene();
+    //cc.director.runScene(scene);
 
 }
 

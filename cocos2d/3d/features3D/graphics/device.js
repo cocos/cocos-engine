@@ -232,7 +232,6 @@ cc3d.extend(cc3d, function () {
         }
 
         var gl = this.gl;
-
         // put the rest of the contructor in a function
         // so that the constructor remains small. Small constructors
         // are optimized by Firefox due to type inference
@@ -663,7 +662,6 @@ cc3d.extend(cc3d, function () {
             gl.vertexAttribPointer(0, 4, gl.UNSIGNED_BYTE, false, 4, 0);
             this.supportsUnsignedByte = (gl.getError() === 0);
             gl.deleteBuffer(bufferId);
-
             if (!cc3d._benchmarked) {
                 if (this.extTextureFloat) {
                     this.extTextureFloatRenderable = testRenderable(gl, this.extTextureFloat, gl.FLOAT);
@@ -677,7 +675,6 @@ cc3d.extend(cc3d, function () {
                     var test1 = chunks.createShaderFromCode(device, chunks.fullscreenQuadVS, chunks.precisionTestPS, "ptest1");
                     var test2 = chunks.createShaderFromCode(device, chunks.fullscreenQuadVS, chunks.precisionTest2PS, "ptest2");
                     var size = 1;
-
                     var tex = new cc3d.Texture(device, {
                         format: cc3d.PIXELFORMAT_RGBA32F,
                         width: size,
@@ -728,6 +725,7 @@ cc3d.extend(cc3d, function () {
                     targ2.destroy();
                     cc3d.destroyPostEffectQuad();
                 }
+
                 cc3d.extTextureFloatRenderable = this.extTextureFloatRenderable;
                 cc3d.extTextureHalfFloatRenderable = this.extTextureHalfFloatRenderable;
                 cc3d.extTextureFloatHighPrecision = this.extTextureFloatHighPrecision;
@@ -737,6 +735,7 @@ cc3d.extend(cc3d, function () {
                 this.extTextureHalfFloatRenderable = cc3d.extTextureHalfFloatRenderable;
                 this.extTextureFloatHighPrecision = cc3d.extTextureFloatHighPrecision;
             }
+
 
         }).call(this);
     };
