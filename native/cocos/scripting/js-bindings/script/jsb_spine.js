@@ -27,6 +27,36 @@ sp.ANIMATION_EVENT_TYPE = {
     EVENT: 3
 };
 
+// The methods are added to be compatibility with old versions.
+sp.SkeletonAnimation.prototype.setStartListener = function (listener) {
+    this._startListener = listener;
+    this.setStartListenerNative(function (trackEntry) {
+        this._startListener(trackEntry.trackIndex);
+    });
+};
+
+sp.SkeletonAnimation.prototype.setEndListener = function (listener) {
+    this._endListener = listener;
+    this.setEndListenerNative(function (trackEntry) {
+        this._endListener(trackEntry.trackIndex);
+    });
+};
+
+sp.SkeletonAnimation.prototype.setCompleteListener = function (listener) {
+    this._compeleteListener = listener;
+    this.setCompleteListenerNative(function (trackEntry) {
+        var loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
+        this._compeleteListener(trackEntry.trackIndex, loopCount);
+    });
+};
+
+sp.SkeletonAnimation.prototype.setEventListener = function (listener) {
+    this._eventListener = listener;
+    this.setEventListenerNative(function (trackEntry, event) {
+        this._eventListener(trackEntry.trackIndex, event);
+    });
+};
+
 // Temporary solution before upgrade the Spine API
 sp.SkeletonAnimation.prototype.setAnimationListener = function (target, callback) {
     this._target = target;
