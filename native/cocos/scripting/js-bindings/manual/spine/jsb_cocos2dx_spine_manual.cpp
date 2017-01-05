@@ -84,9 +84,7 @@ jsval spbonedata_to_jsval(JSContext* cx, const spBoneData* v)
         JS_DefineProperty(cx, tmp, "y", v->y, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
         JS_DefineProperty(cx, tmp, "rotation", v->rotation, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
         JS_DefineProperty(cx, tmp, "scaleX", v->scaleX, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-        JS_DefineProperty(cx, tmp, "scaleY", v->scaleY, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-        JS_DefineProperty(cx, tmp, "inheritScale", v->inheritScale, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-        JS_DefineProperty(cx, tmp, "inheritRotation", v->inheritRotation, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+        JS_DefineProperty(cx, tmp, "scaleY", v->scaleY, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     if (ok)
     {
@@ -122,8 +120,6 @@ jsval spbone_to_jsval(JSContext* cx, spBone& v)
         JS_DefineProperty(cx, tmp, "m10", v.c, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
         JS_DefineProperty(cx, tmp, "m11", v.d, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
         JS_DefineProperty(cx, tmp, "worldY", v.worldY, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-        JS_DefineProperty(cx, tmp, "worldSignX", v.worldSignX, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-        JS_DefineProperty(cx, tmp, "worldSignY", v.worldSignY, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     /*
         JS_DefineProperty(cx, tmp, "worldRotation", v.worldRotation, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
         JS_DefineProperty(cx, tmp, "worldScaleX", v.worldScaleX, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
@@ -297,22 +293,22 @@ bool jsb_spine_TrackEntry_get_next(JSContext *cx, JS::HandleObject obj, JS::Hand
     }
 }
 
-bool jsb_spine_TrackEntry_get_previous(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp)
+bool jsb_spine_TrackEntry_get_mixingFrom(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp)
 {
     JS::RootedObject jsthis(cx, obj);
     js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
     spTrackEntry* cobj = (spTrackEntry *)(proxy ? proxy->ptr : NULL);
     if (cobj) {
         JS::RootedValue jsret(cx, JS::NullValue());
-        if (cobj->previous)
+        if (cobj->mixingFrom)
         {
-            jsret = sptrackentry_to_jsval(cx, *cobj->previous);
+            jsret = sptrackentry_to_jsval(cx, *cobj->mixingFrom);
         }
         vp.set(jsret);
         return true;
     }
     else {
-        CCLOGERROR("jsb_spine_TrackEntry_get_previous : Invalid Native Object");
+        CCLOGERROR("jsb_spine_TrackEntry_get_mixingFrom : Invalid Native Object");
         return false;
     }
 }
@@ -339,15 +335,21 @@ jsval sptrackentry_to_jsval(JSContext* cx, spTrackEntry& v)
         
         JS::RootedValue jsanimation(cx, spanimation_to_jsval(cx, *v.animation));
         bool ok = JS_DefineProperty(cx, tmp, "delay", v.delay, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-        JS_DefineProperty(cx, tmp, "time", v.time, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-        JS_DefineProperty(cx, tmp, "lastTime", v.lastTime, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-        JS_DefineProperty(cx, tmp, "endTime", v.endTime, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "trackIndex", v.trackIndex, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "trackTime", v.trackTime, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "trackLast", v.trackLast, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "trackEnd", v.trackEnd, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "nextTrackLast", v.nextTrackLast, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
         JS_DefineProperty(cx, tmp, "timeScale", v.timeScale, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
         JS_DefineProperty(cx, tmp, "mixTime", v.mixTime, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
         JS_DefineProperty(cx, tmp, "mixDuration", v.mixDuration, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "animationStart", v.animationStart, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "animationEnd", v.animationEnd, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "animationLast", v.animationLast, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "nextAnimationLast", v.nextAnimationLast, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
         JS_DefineProperty(cx, tmp, "animation", jsanimation, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
         JS_DefineProperty(cx, tmp, "next", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, jsb_spine_TrackEntry_get_next) &&
-        JS_DefineProperty(cx, tmp, "previous", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, jsb_spine_TrackEntry_get_previous);
+        JS_DefineProperty(cx, tmp, "mixingFrom", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, jsb_spine_TrackEntry_get_mixingFrom);
         
         if (ok)
         {
