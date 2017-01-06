@@ -129,7 +129,8 @@ dragonBones.CCSlot = cc.Class({
 
             if (currentTextureData) {
                 var textureAtlasTexture = currentTextureData.parent.texture;
-                if (!currentTextureData.texture && textureAtlasTexture) {
+                if ((!currentTextureData.texture && textureAtlasTexture) ||
+                    (currentDisplayData.texture && textureAtlasTexture && currentTextureData.texture.getTexture() !== textureAtlasTexture)){
                     // Create and cache texture
                     var rect = cc.rect(currentTextureData.region.x, currentTextureData.region.y,
                                        currentTextureData.region.width, currentTextureData.region.height);
