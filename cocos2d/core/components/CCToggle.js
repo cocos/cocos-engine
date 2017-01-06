@@ -187,7 +187,7 @@ var Toggle = cc.Class({
         }
 
         this.isChecked = true;
-        this.node.emit('toggle', this);
+        this._emitToggleEvents();
 
         if(this.toggleGroup) {
             this.toggleGroup.updateToggles(this);
@@ -208,7 +208,7 @@ var Toggle = cc.Class({
 
         this.isChecked = false;
 
-        this.node.emit('toggle', this);
+        this._emitToggleEvents();
     }
 
 
