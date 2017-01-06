@@ -57,15 +57,15 @@ function getResWithUrl (res) {
         result = {};
         id = res;
     }
-    isUuid = cc.AssetLibrary._getAssetUrl(id);
+    isUuid = result.type ? result.type === 'uuid' : cc.AssetLibrary._getAssetUrl(id);
+    _info.url = null;
+    _info.raw = false;
     cc.AssetLibrary._getAssetInfoInRuntime(id, _info);
     result.url = !isUuid ? id : _info.url;
     if (_info.url && result.type === 'uuid' && _info.raw) {
         result.type = null;
         result.isRawAsset = true;
     }
-    _info.url = null;
-    _info.raw = false;
     return result;
 }
 
@@ -324,6 +324,8 @@ JS.mixin(CCLoader.prototype, {
         }
         var isUuid = cc.AssetLibrary._getAssetUrl(key);
         if (isUuid) {
+            _info.url = null;
+            _info.raw = false;
             cc.AssetLibrary._getAssetInfoInRuntime(key, _info);
             key = _info.url;
         }
