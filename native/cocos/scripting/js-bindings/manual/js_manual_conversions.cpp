@@ -599,7 +599,7 @@ bool jsval_to_long_long(JSContext *cx, JS::HandleValue vp, long long* r)
 }
 
 bool jsval_to_std_string(JSContext *cx, JS::HandleValue v, std::string* ret) {
-    if(v.isString() || v.isNumber() || v.isBoolean())
+    if (v.isString() || v.isBoolean() || v.isNumber())
     {
         JSString *tmp = JS::ToString(cx, v);
         JSB_PRECONDITION3(tmp, cx, false, "Error processing arguments");
@@ -1962,21 +1962,6 @@ jsval uniform_to_jsval(JSContext* cx, const cocos2d::Uniform* uniform)
 
     return JSVAL_NULL;
 }
-
-//
-//jsval meshVertexAttrib_to_jsval(JSContext* cx, const cocos2d::MeshVertexAttrib& q)
-//{
-//    JS::RootedObject tmp(cx, JS_NewObject(cx, nullptr, JS::NullPtr(), JS::NullPtr()));
-//    if(!tmp) return JSVAL_NULL;
-//    bool ok = JS_DefineProperty(cx, tmp, "size", q.size, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-//        JS_DefineProperty(cx, tmp, "type", q.type, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-//        JS_DefineProperty(cx, tmp, "vertexAttrib", q.vertexAttrib, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-//        JS_DefineProperty(cx, tmp, "attribSizeBytes", q.attribSizeBytes, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-//    if(ok)
-//        return OBJECT_TO_JSVAL(tmp);
-//
-//    return JSVAL_NULL;
-//}
 
 jsval FontDefinition_to_jsval(JSContext* cx, const FontDefinition& t)
 {

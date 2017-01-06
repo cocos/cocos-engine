@@ -166,9 +166,8 @@ void JSTouchDelegate::unregisterTouchDelegate()
     this->release();
 }
 
-bool JSTouchDelegate::onTouchBegan(Touch *touch, Event *event)
+bool JSTouchDelegate::onTouchBegan(Touch *touch, Event* /*event*/)
 {
-    CC_UNUSED_PARAM(event);
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedValue retval(cx);
     bool bRet = false;
@@ -185,52 +184,45 @@ bool JSTouchDelegate::onTouchBegan(Touch *touch, Event *event)
 };
 // optional
 
-void JSTouchDelegate::onTouchMoved(Touch *touch, Event *event)
+void JSTouchDelegate::onTouchMoved(Touch *touch, Event* /*event*/)
 {
-    CC_UNUSED_PARAM(event);
     JS::RootedObject obj(ScriptingCore::getInstance()->getGlobalContext(), _obj);
     ScriptingCore::getInstance()->executeCustomTouchEvent(EventTouch::EventCode::MOVED, touch, obj);
 }
 
-void JSTouchDelegate::onTouchEnded(Touch *touch, Event *event)
+void JSTouchDelegate::onTouchEnded(Touch *touch, Event* /*event*/)
 {
-    CC_UNUSED_PARAM(event);
     JS::RootedObject obj(ScriptingCore::getInstance()->getGlobalContext(), _obj);
     ScriptingCore::getInstance()->executeCustomTouchEvent(EventTouch::EventCode::ENDED, touch, obj);
 }
 
-void JSTouchDelegate::onTouchCancelled(Touch *touch, Event *event)
+void JSTouchDelegate::onTouchCancelled(Touch *touch, Event* /*event*/)
 {
-    CC_UNUSED_PARAM(event);
     JS::RootedObject obj(ScriptingCore::getInstance()->getGlobalContext(), _obj);
     ScriptingCore::getInstance()->executeCustomTouchEvent(EventTouch::EventCode::CANCELLED, touch, obj);
 }
 
 // optional
-void JSTouchDelegate::onTouchesBegan(const std::vector<Touch*>& touches, Event *event)
+void JSTouchDelegate::onTouchesBegan(const std::vector<Touch*>& touches, Event* /*event*/)
 {
-    CC_UNUSED_PARAM(event);
     JS::RootedObject obj(ScriptingCore::getInstance()->getGlobalContext(), _obj);
     ScriptingCore::getInstance()->executeCustomTouchesEvent(EventTouch::EventCode::BEGAN, touches, obj);
 }
 
-void JSTouchDelegate::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
+void JSTouchDelegate::onTouchesMoved(const std::vector<Touch*>& touches, Event* /*event*/)
 {
-    CC_UNUSED_PARAM(event);
     JS::RootedObject obj(ScriptingCore::getInstance()->getGlobalContext(), _obj);
     ScriptingCore::getInstance()->executeCustomTouchesEvent(EventTouch::EventCode::MOVED, touches, obj);
 }
 
-void JSTouchDelegate::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
+void JSTouchDelegate::onTouchesEnded(const std::vector<Touch*>& touches, Event* /*event*/)
 {
-    CC_UNUSED_PARAM(event);
     JS::RootedObject obj(ScriptingCore::getInstance()->getGlobalContext(), _obj);
     ScriptingCore::getInstance()->executeCustomTouchesEvent(EventTouch::EventCode::ENDED, touches, obj);
 }
 
-void JSTouchDelegate::onTouchesCancelled(const std::vector<Touch*>& touches, Event *event)
+void JSTouchDelegate::onTouchesCancelled(const std::vector<Touch*>& touches, Event* /*event*/)
 {
-    CC_UNUSED_PARAM(event);
     JS::RootedObject obj(ScriptingCore::getInstance()->getGlobalContext(), _obj);
     ScriptingCore::getInstance()->executeCustomTouchesEvent(EventTouch::EventCode::CANCELLED, touches, obj);
 }
@@ -1346,7 +1338,7 @@ bool js_CCNode_unschedule(JSContext *cx, uint32_t argc, jsval *vp)
 
         auto targetArray = JSScheduleWrapper::getTargetForSchedule(args.get(0));
         if (targetArray) {
-            CCLOGINFO("unschedule target number: %zd", targetArray->size());
+            CCLOGINFO("unschedule target number: %ld", static_cast<long>(targetArray->size()));
 
             for (const auto& tmp : *targetArray)
             {
@@ -1691,7 +1683,6 @@ bool js_cocos2dx_CCNode_scheduleUpdate(JSContext *cx, uint32_t argc, jsval *vp)
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (argc == 0) {
-
         bool isFoundUpdate = false;
         ok = JS_HasProperty(cx, obj, "update", &isFoundUpdate);
         JS::RootedValue jsUpdateFunc(cx);

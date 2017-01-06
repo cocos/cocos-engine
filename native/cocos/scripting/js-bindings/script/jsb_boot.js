@@ -1091,7 +1091,7 @@ var _initSys = function () {
      * @constant
      * @type {Number}
      */
-    sys.LANGUAGE_UNKNOWN = "unkonwn";
+    sys.LANGUAGE_UNKNOWN = "unknown";
 
     /**
      * @memberof cc.sys
@@ -1481,6 +1481,10 @@ var _initSys = function () {
      */
     sys.openURL = function(url){
         sys._application.openURL(url);
+    };
+
+    sys.now = function () {
+        return Date.now();
     };
 
     // JS to Native bridges
