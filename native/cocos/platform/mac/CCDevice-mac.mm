@@ -35,6 +35,8 @@ THE SOFTWARE.
 
 NS_CC_BEGIN
 
+using FontUtils::tImageInfo;
+
 static NSAttributedString* __attributedStringWithFontSize(NSMutableAttributedString* attributedString, CGFloat fontSize)
 {
     {
@@ -75,15 +77,6 @@ void Device::setAccelerometerInterval(float interval)
 
 }
 
-typedef struct
-{
-    int height;
-    int width;
-    bool hasAlpha;
-    bool isPremultipliedAlpha;
-    unsigned char* data;
-} tImageInfo;
-
 static NSSize _calculateStringSize(NSAttributedString *str, id font, CGSize *constrainSize, bool enableWrap, int overflow)
 {
     NSSize textRect = NSZeroSize;
@@ -119,7 +112,12 @@ static NSSize _calculateStringSize(NSAttributedString *str, id font, CGSize *con
     return dim;
 }
 
-static NSSize _calculateRealSizeForString(NSAttributedString **str, id font, NSSize constrainSize, bool enableWrap)
+static NSSize _calculateShrinkedSizeForString(NSAttributedString **str,
+                                              id font,
+                                              NSSize
+                                              constrainSize,
+                                              bool enableWrap,
+                                              int& newFontSize)
 {
     CGRect actualSize = CGRectMake(0, 0, constrainSize.width + 1, constrainSize.height + 1);
     int fontSize = [font pointSize];
@@ -197,6 +195,9 @@ static NSSize _calculateRealSizeForString(NSAttributedString **str, id font, NSS
         }
 
     }
+    
+    newFontSize = fontSize;
+
     return CGSizeMake(actualSize.size.width, actualSize.size.height);
 }
 
@@ -249,34 +250,24 @@ static bool _initWithString(const char * text,
                             const char * fontName,
                             int size,
                             tImageInfo* info,
-                            const Color3B* fontColor,
-                            int fontAlpha,
                             bool enableWrap,
                             int overflow,
                             bool enableBold)
 {
     bool ret = false;
     
-    CCASSERT(text, "Invalid text");
-    CCASSERT(info, "Invalid info");
-    
     do {
-        NSString * string  = [NSString stringWithUTF8String:text];
-        CC_BREAK_IF(!string);
+        CC_BREAK_IF(! text || ! info);
         
         id font = _createSystemFont(fontName, size, enableBold);
         CC_BREAK_IF(!font);
         
-        // color
-        NSColor* foregroundColor;
-        if (fontColor) {
-            foregroundColor = [NSColor colorWithDeviceRed:fontColor->r/255.0
-                                                    green:fontColor->g/255.0
-                                                     blue:fontColor->b/255.0
-                                                    alpha:fontAlpha/255.0];
-        } else {
-            foregroundColor = [NSColor whiteColor];
-        }
+        NSString * string  = [NSString stringWithUTF8String:text];
+        CC_BREAK_IF(!string);
+        
+        
+        CGSize dimensions = CGSizeMake(info->width, info->height);
+        
         
         // alignment
         NSTextAlignment textAlign = FontUtils::_calculateTextAlignment(align);
@@ -284,23 +275,33 @@ static bool _initWithString(const char * text,
         NSMutableParagraphStyle *paragraphStyle = FontUtils::_calculateParagraphStyle(enableWrap, overflow);
         [paragraphStyle setAlignment:textAlign];
         
+        // color
+        NSColor* foregroundColor = [NSColor colorWithRed:info->tintColorR
+                                                   green:info->tintColorG
+                                                    blue:info->tintColorB
+                                                   alpha:info->tintColorA];
+
+        
         // attribute
-        NSDictionary* tokenAttributesDict = [NSDictionary dictionaryWithObjectsAndKeys:
+        NSMutableDictionary* tokenAttributesDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                              foregroundColor,NSForegroundColorAttributeName,
                                              font, NSFontAttributeName,
+                                             
                                              paragraphStyle, NSParagraphStyleAttributeName, nil];
+        
         NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:string
                                                                                    attributes:tokenAttributesDict] autorelease];
         
-        CGSize dimensions = CGSizeMake(info->width, info->height);
+        
 
         NSSize realDimensions;
-        
+        int shrinkFontSize = size;
         if (overflow == 2) {
-            realDimensions = _calculateRealSizeForString(&stringWithAttributes,
+            realDimensions = _calculateShrinkedSizeForString(&stringWithAttributes,
                                                          font,
                                                          dimensions,
-                                                         enableWrap);
+                                                         enableWrap,
+                                                         shrinkFontSize);
         } else {
             realDimensions = _calculateStringSize(stringWithAttributes,
                                                   font,
@@ -319,6 +320,26 @@ static bool _initWithString(const char * text,
         }
         if (dimensions.height <= 0.f) {
             dimensions.height = realDimensions.height;
+        }
+        
+        NSAttributedString *drawString = stringWithAttributes;
+        
+        if (info->hasStroke) {
+            NSColor *strokeColor = [NSColor colorWithRed:info->strokeColorR
+                                                   green:info->strokeColorG
+                                                    blue:info->strokeColorB
+                                                   alpha:info->strokeColorA];
+            
+            
+            [tokenAttributesDict setObject:[NSNumber numberWithFloat: -info->strokeSize]
+                                    forKey:NSStrokeWidthAttributeName];
+            [tokenAttributesDict setObject:strokeColor forKey:NSStrokeColorAttributeName];
+            
+            drawString = [[[NSAttributedString alloc] initWithString:string
+                                                           attributes:tokenAttributesDict] autorelease];
+            if (overflow == 2) {
+                _calculateShrinkedSizeForString(&drawString, font, dimensions, enableWrap, shrinkFontSize);
+            }
         }
       
         
@@ -339,7 +360,7 @@ static bool _initWithString(const char * text,
         [image lockFocus];
         // patch for mac retina display and lableTTF
         [[NSAffineTransform transform] set];
-        [stringWithAttributes drawInRect:textRect];
+        [drawString drawInRect:textRect];
         NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect (0.0f, 0.0f, POTWide, POTHigh)];
         [image unlockFocus];
         
@@ -353,7 +374,6 @@ static bool _initWithString(const char * text,
             info->width = static_cast<int>(POTWide);
             info->height = static_cast<int>(POTHigh);
             info->data = dataNew;
-            info->hasAlpha = true;
             info->isPremultipliedAlpha = true;
             ret = true;
         }
@@ -375,11 +395,28 @@ Data Device::getTextureDataForText(const char * text,
         tImageInfo info = {0};
         info.width = textDefinition._dimensions.width;
         info.height = textDefinition._dimensions.height;
+        info.hasShadow              = textDefinition._shadow._shadowEnabled;
+        info.shadowOffset.width     = textDefinition._shadow._shadowOffset.width;
+        info.shadowOffset.height    = textDefinition._shadow._shadowOffset.height;
+        info.shadowBlur             = textDefinition._shadow._shadowBlur;
+        info.shadowOpacity          = textDefinition._shadow._shadowOpacity;
+        info.hasStroke              = textDefinition._stroke._strokeEnabled;
+        info.strokeColorR           = textDefinition._stroke._strokeColor.r / 255.0f;
+        info.strokeColorG           = textDefinition._stroke._strokeColor.g / 255.0f;
+        info.strokeColorB           = textDefinition._stroke._strokeColor.b / 255.0f;
+        info.strokeColorA           = textDefinition._stroke._strokeAlpha / 255.0f;
+        info.strokeSize             = textDefinition._stroke._strokeSize;
+        info.tintColorR             = textDefinition._fontFillColor.r / 255.0f;
+        info.tintColorG             = textDefinition._fontFillColor.g / 255.0f;
+        info.tintColorB             = textDefinition._fontFillColor.b / 255.0f;
+        info.tintColorA             = textDefinition._fontAlpha / 255.0f;
 
-        if (! _initWithString(text, align, textDefinition._fontName.c_str(),
-                              textDefinition._fontSize, &info,
-                              &textDefinition._fontFillColor,
-                              textDefinition._fontAlpha,
+
+        if (! _initWithString(text,
+                              align,
+                              textDefinition._fontName.c_str(),
+                              textDefinition._fontSize,
+                              &info,
                               textDefinition._enableWrap,
                               textDefinition._overflow,
                               textDefinition._enableBold))
