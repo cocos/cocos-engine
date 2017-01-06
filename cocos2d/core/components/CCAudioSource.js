@@ -42,7 +42,6 @@ var AudioSource = cc.Class({
 
     ctor: function () {
         this.audio = new cc.Audio(this._clip);
-        this._break = false;
     },
 
     properties: {
