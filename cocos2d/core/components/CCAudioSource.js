@@ -194,7 +194,7 @@ var AudioSource = cc.Class({
 
     _pausedCallback: function () {
         var audio = this.audio;
-        if (!audio || !audio._element || audio._element.paused) return;
+        if (!audio || audio.paused) return;
         this.audio.pause();
         this._pausedFlag = true;
     },
