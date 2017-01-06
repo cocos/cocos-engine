@@ -42,6 +42,7 @@ var AudioSource = cc.Class({
 
     ctor: function () {
         this.audio = new cc.Audio(this._clip);
+        this._break = false;
     },
 
     properties: {
@@ -193,7 +194,8 @@ var AudioSource = cc.Class({
     },
 
     _pausedCallback: function () {
-        if (!this.audio || this.audio.paused) return;
+        var audio = this.audio;
+        if (!audio || !audio._element || audio._element.paused) return;
         this.audio.pause();
         this._pausedFlag = true;
     },
@@ -313,7 +315,7 @@ var AudioSource = cc.Class({
         }
         return time;
     },
-    
+
     /**
      * !#en Set current time
      * !#zh 设置当前的播放时间
@@ -333,7 +335,7 @@ var AudioSource = cc.Class({
         audio.setCurrentTime(time);
         return time;
     },
-    
+
     /**
      * !#en Get audio duration
      * !#zh 获取当前音频的长度
