@@ -4846,8 +4846,9 @@ void get_or_create_js_obj(const std::string &name, JS::MutableHandleObject jsObj
     {
         subProp = name.substr(start);
         get_or_create_js_obj(cx, obj, subProp, &prop);
-        jsObj.set(obj);
+        obj.set(prop);
     }
+    jsObj.set(obj);
 }
 
 JSClass  *jsb_cocos2d_PolygonInfo_class;
