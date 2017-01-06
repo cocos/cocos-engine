@@ -34,6 +34,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./CCNode');
     require('./CCNode3D');
     require('./CCScene');
+    require('./CCScene3D');
 
     require('./components');
     require('./graphics');

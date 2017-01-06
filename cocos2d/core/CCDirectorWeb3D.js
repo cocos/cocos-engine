@@ -164,7 +164,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         var id, node, game = cc.game;
         var persistNodes = game._persistRootNodes;
 
-        if (scene instanceof cc.Scene) {
+        if (scene instanceof cc.Scene3D) {
             scene._load();  // ensure scene initialized
         }
 
@@ -199,10 +199,8 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         }
         this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
 
-        var sgScene = scene;
-
         // Run an Entity Scene
-        if (scene instanceof cc.Scene) {
+        if (scene instanceof cc.Scene3D) {
             this._scene = scene;
 
             // Re-attach or replace persist nodes
@@ -223,13 +221,24 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
             scene._activate();
         }
 
-        this.startAnimation();
-
         if (onLaunched) {
             onLaunched(null, scene);
         }
         //cc.renderer.clear();
         this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
+    };
+
+    _p.runScene = function (scene, onBeforeLoadScene, onLaunched) {
+        cc.assertID(scene, 1205);
+        if (scene instanceof cc.Scene3D) {
+            // ensure scene initialized
+            scene._load();
+        }
+
+        // Delay run / replace scene to the end of the frame
+        this.once(cc.Director.EVENT_AFTER_UPDATE, function () {
+            this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
+        });
     };
 
     _p.purgeDirector = function () {
