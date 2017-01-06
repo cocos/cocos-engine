@@ -274,18 +274,10 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
     };
 
     _p._visitScene = function () {
-        //todo
-        //cc.game._renderDevice.updateBegin();
-        //cc.game._renderDevice.clear({color:[1,0,0,1]});
-        var device = cc.game._renderDevice;
-        var width = cc.game.canvas.width;
-        var height = cc.game.canvas.height;
-        device.setRenderTarget(null);
-        device.updateBegin();
-        device.setViewport(0,0,width,height);
-        device.setScissor(0,0,width,height);
-        device.clear({color:[1,1,0,1]});
-        device.updateEnd();
+        if(this._scene) {
+            this._scene.syncHierarchy();
+            cc.renderer.render(this._scene._sgScene, this._scene._testCamera);
+        }
     };
 
     _p.popToSceneStackLevel = function() {

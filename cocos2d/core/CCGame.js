@@ -765,7 +765,7 @@ var game = {
             this._renderDevice = new cc3d.GraphicsDevice(localCanvas);
             this._renderContext = cc._renderContext = cc.webglContext
                 = this._renderDevice.gl;
-            //cc.renderer = new cc3d.ForwardRenderer(this._renderDevice);
+            cc.renderer = new cc3d.ForwardRenderer(this._renderDevice);
         }
         // WebGL context created successfully
         if (this._renderContext) {

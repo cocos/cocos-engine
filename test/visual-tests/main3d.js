@@ -40,9 +40,18 @@ var callback = function(){
         cc.view.setDesignResolutionSize(800, 450, resolutionPolicy);
         cc.view.resizeWithBrowserSize(true);
     }
-
-    //var scene = new cc.Scene();
-    //cc.director.runScene(scene);
+    var node = new cc.Node3D();
+    var scene = new cc.Scene3D();
+    scene.addChild(node);
+    node.setLocalPosition(new cc.Vec3(0,0,-10));
+    var mesh = cc3d.createSphere(cc.game._renderDevice);
+    var mtl = new cc3d.BasicMaterial();
+    mtl.update();
+    var meshIns = new cc3d.MeshInstance(node, mesh, mtl);
+    var model = new cc3d.Model();
+    model.meshInstances.push(meshIns);
+    scene._sgScene.addModel(model);
+    cc.director.runSceneImmediate(scene);
 
 }
 

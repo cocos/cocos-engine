@@ -280,7 +280,7 @@ var Node = cc.Class({
         // cache this._children and the syncHierarchy method itself
         // for optimization purposes
         var F = function () {
-            if (!this._enabled) {
+            if (!this._active) {
                 return;
             }
 
