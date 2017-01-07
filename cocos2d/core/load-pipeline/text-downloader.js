@@ -9,7 +9,7 @@ if (CC_JSB) {
         else {
             callback(new Error('Download text failed: ' + url));
         }
-    }
+    };
 }
 else {
     var urlAppendTimestamp = require('./utils').urlAppendTimestamp;

@@ -295,7 +295,7 @@ var View = cc._Class.extend({
      */
     setOrientation: function (orientation) {
         orientation = orientation & cc.macro.ORIENTATION_AUTO;
-        if (orientation) {
+        if (orientation && this._orientation !== orientation) {
             this._orientation = orientation;
             var designWidth = this._originalDesignResolutionSize.width;
             var designHeight = this._originalDesignResolutionSize.height;
