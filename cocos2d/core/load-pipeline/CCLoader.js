@@ -602,13 +602,13 @@ JS.mixin(CCLoader.prototype, {
             var item = this.getItem(id);
             if (item) {
                 var removed = this.removeItem(id);
-                // TODO: Audio
                 asset = item.content;
                 if (asset instanceof cc.Asset) {
                     if (CC_JSB && asset instanceof cc.SpriteFrame && removed) {
                         // for the "Temporary solution" in deserialize.js
                         asset.release();
                     }
+                    // Audio
                     var urls = asset.rawUrls;
                     for (var i = 0; i < urls.length; i++) {
                         this.release(urls[i]);
