@@ -341,8 +341,26 @@ dragonBones.ArmatureDisplay = cc.Class({
                 this._factory.parseTextureAtlasData(this.dragonAtlasAsset.atlasJson, this.dragonAtlasAsset.texture);
             } else {
                 var atlasJsonObj = JSON.parse(this.dragonAtlasAsset.atlasJson);
-                var texture = cc.textureCache.getTextureForKey(this.dragonAtlasAsset.texture);
-                this._factory.parseTextureAtlasData(atlasJsonObj, texture);
+                var atlasName = atlasJsonObj.name;
+                var existedAtlasData = null;
+                var atlasDataList = this._factory.getTextureAtlasData(atlasName);
+                var texturePath = this.dragonAtlasAsset.texture;
+                if (atlasDataList && atlasDataList.length > 0) {
+                    for (var idx in atlasDataList) {
+                        var data = atlasDataList[idx];
+                        if (data && data.texture && data.texture.url === texturePath) {
+                            existedAtlasData = data;
+                            break;
+                        }
+                    }
+                }
+
+                var texture = cc.textureCache.getTextureForKey(texturePath);
+                if (existedAtlasData) {
+                    existedAtlasData.texture = texture;
+                } else {
+                    this._factory.parseTextureAtlasData(atlasJsonObj, texture);
+                }
             }
         }
     },
