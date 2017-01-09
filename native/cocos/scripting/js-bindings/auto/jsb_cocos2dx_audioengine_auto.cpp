@@ -453,7 +453,7 @@ bool js_cocos2dx_audioengine_AudioEngine_preload(JSContext *cx, uint32_t argc, j
 			            jsval largv[1];
 			            largv[0] = BOOLEAN_TO_JSVAL(larg0);
 			            JS::RootedValue rval(cx);
-			            bool succeed = func->invoke(1, &largv[0], &rval);
+			            bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
 			            if (!succeed && JS_IsExceptionPending(cx)) {
 			                JS_ReportPendingException(cx);
 			            }
@@ -683,7 +683,7 @@ bool js_cocos2dx_audioengine_AudioEngine_setFinishCallback(JSContext *cx, uint32
 		            largv[0] = int32_to_jsval(cx, larg0);
 		            largv[1] = std_string_to_jsval(cx, larg1);
 		            JS::RootedValue rval(cx);
-		            bool succeed = func->invoke(2, &largv[0], &rval);
+		            bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(2, largv), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
 		                JS_ReportPendingException(cx);
 		            }
