@@ -93,7 +93,8 @@ var AssetLibrary = {
                     }
                 }
                 if (CC_EDITOR || isScene(asset)) {
-                    Loader.removeItem(uuid);
+                    var id = cc.AssetLibrary._getAssetInfoInRuntime(uuid).url;
+                    Loader.removeItem(id);
                 }
             }
             if (callback) {
@@ -223,7 +224,8 @@ var AssetLibrary = {
                     asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(randomUuid);
                 }
                 if (CC_EDITOR || isScene(asset)) {
-                    Loader.removeItem(randomUuid);
+                    var id = cc.AssetLibrary._getAssetInfoInRuntime(randomUuid).url;
+                    Loader.removeItem(id);
                 }
             }
             asset._uuid = '';

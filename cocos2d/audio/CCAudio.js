@@ -89,6 +89,10 @@ Audio.State = {
             audio = this;
         var item = cc.loader.getItem(src);
 
+        if (!item) {
+            item = cc.loader.getItem(src + '?useDom=1');
+        }
+
         // If the resource does not exist
         if (!item) {
             return cc.loader.load(src, function (error) {
