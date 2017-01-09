@@ -39,6 +39,7 @@
 #include "math/CCAffineTransform.h"
 #include "platform/CCPlatformMacros.h"
 #include "renderer/CCGLProgram.h"
+#include "extensions/assets-manager/Manifest.h"
 #include "scripting/js-bindings/manual/spidermonkey_specifics.h"
 #include "scripting/js-bindings/manual/js-BindingsExport.h"
 
@@ -283,7 +284,7 @@ jsval FontDefinition_to_jsval(JSContext* cx, const cocos2d::FontDefinition& t);
 jsval quaternion_to_jsval(JSContext* cx, const cocos2d::Quaternion& q);
 jsval uniform_to_jsval(JSContext* cx, const cocos2d::Uniform* uniform);
 jsval resourcedata_to_jsval(JSContext* cx, const cocos2d::ResourceData& v);
-
+jsval asset_to_jsval(JSContext* cx, const cocos2d::extension::Manifest::Asset& v);
 
 // forward declaration
 template <class T>
