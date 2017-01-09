@@ -320,7 +320,7 @@ void AudioPlayerProvider::preloadEffect(const AudioFileInfo &info, const Preload
             if (preloadIter != _preloadCallbackMap.end())
             {
                 auto&& params = preloadIter->second;
-                ALOGV("preload (%s) callback count: %d", audioFilePath.c_str(), params.size());
+                ALOGV("preload (%s) callback count: %d", audioFilePath.c_str(), (int)params.size());
                 PcmData result = decoder->getResult();
                 for (auto&& param : params)
                 {
