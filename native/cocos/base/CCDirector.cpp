@@ -60,6 +60,7 @@ THE SOFTWARE.
 #include "base/CCConfiguration.h"
 #include "base/CCAsyncTaskPool.h"
 #include "platform/CCApplication.h"
+#include "editor-support/spine/SkeletonBatch.h"
 
 #if CC_ENABLE_SCRIPT_BINDING
 #include "base/CCScriptSupport.h"
@@ -1025,6 +1026,7 @@ void Director::reset()
     GLProgramStateCache::destroyInstance();
     FileUtils::destroyInstance();
     AsyncTaskPool::destroyInstance();
+    spine::SkeletonBatch::destroyInstance();
     
     // cocos2d-x specific data structures
     UserDefault::destroyInstance();

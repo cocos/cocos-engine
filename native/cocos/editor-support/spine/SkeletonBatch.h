@@ -46,6 +46,8 @@ public:
 
 	static SkeletonBatch* getInstance ();
 
+	static void destroyInstance ();
+
 	void update (float delta);
 
 	void addCommand (cocos2d::Renderer* renderer, float globalOrder, GLuint textureID, cocos2d::GLProgramState* glProgramState,

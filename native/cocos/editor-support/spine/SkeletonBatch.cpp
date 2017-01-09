@@ -51,6 +51,13 @@ SkeletonBatch* SkeletonBatch::getInstance () {
 	return instance;
 }
 
+void SkeletonBatch::destroyInstance () {
+    if (instance) {
+        delete instance;
+        instance = nullptr;
+    }
+}
+
 SkeletonBatch::SkeletonBatch (int capacity) :
 	_capacity(capacity), _position(0)
 {
