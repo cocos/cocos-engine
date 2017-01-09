@@ -1,8 +1,8 @@
+#define LOG_TAG "AudioDecoderMp3"
+
 #include "audio/android/AudioDecoderMp3.h"
 #include "audio/android/mp3reader.h"
 #include "platform/CCFileUtils.h"
-
-#define LOG_TAG "AudioDecoderMp3"
 
 namespace cocos2d { namespace experimental {
 

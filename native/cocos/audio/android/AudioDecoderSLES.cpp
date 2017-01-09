@@ -1,7 +1,7 @@
+#define LOG_TAG "AudioDecoderSLES"
+
 #include "audio/android/AudioDecoderSLES.h"
 #include "platform/CCFileUtils.h"
-
-#define LOG_TAG "AudioDecoderSLES"
 
 namespace cocos2d { namespace experimental {
 

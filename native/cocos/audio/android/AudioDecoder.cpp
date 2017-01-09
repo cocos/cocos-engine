@@ -37,7 +37,7 @@ namespace cocos2d { namespace experimental {
 size_t AudioDecoder::fileRead(void* ptr, size_t size, size_t nmemb, void* datasource)
 {
     AudioDecoder* thiz = (AudioDecoder*)datasource;
-    ssize_t toReadBytes = std::min(thiz->_fileData.getSize() - thiz->_fileCurrPos, (ssize_t)(nmemb * size));
+    ssize_t toReadBytes = std::min((ssize_t)(thiz->_fileData.getSize() - thiz->_fileCurrPos), (ssize_t)(nmemb * size));
     if (toReadBytes > 0)
     {
         memcpy(ptr, (unsigned char*) thiz->_fileData.getBytes() + thiz->_fileCurrPos, toReadBytes);
@@ -51,9 +51,9 @@ int AudioDecoder::fileSeek(void* datasource, int64_t offset, int whence)
 {
     AudioDecoder* thiz = (AudioDecoder*)datasource;
     if (whence == SEEK_SET)
-        thiz->_fileCurrPos = (unsigned int) offset;
+        thiz->_fileCurrPos = offset;
     else if (whence == SEEK_CUR)
-        thiz->_fileCurrPos = thiz->_fileCurrPos + (unsigned int) offset;
+        thiz->_fileCurrPos = thiz->_fileCurrPos + offset;
     else if (whence == SEEK_END)
         thiz->_fileCurrPos = thiz->_fileData.getSize();
     return 0;

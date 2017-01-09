@@ -57,7 +57,7 @@ protected:
     PcmData _result;
     int _sampleRate;
     Data _fileData;
-    uint32_t _fileCurrPos;
+    size_t _fileCurrPos;
 };
 
 }} // namespace cocos2d { namespace experimental {
