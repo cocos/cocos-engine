@@ -251,4 +251,12 @@ cc.defineGetterSetter(_p, "width", _p._getWidth);
 _p.height;
 cc.defineGetterSetter(_p, "height", _p._getHeight);
 
-cc.Texture = module.exports = Texture;
+cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
+
+    // Do nothing if it is not 3d
+    if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL || !cc.game._is3D) {
+        return;
+    }
+
+    cc.Texture2D = Texture;
+});
