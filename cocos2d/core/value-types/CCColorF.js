@@ -83,9 +83,9 @@ JS.mixin(ColorF.prototype, {
         var i = parseInt(hex.replace('#', '0x'));
         var bytes;
         if (hex.length > 7) {
-            bytes = pc.math.intToBytes32(i);
+            bytes = cc.MathUtils.intToBytes32(i);
         } else {
-            bytes = pc.math.intToBytes24(i);
+            bytes = cc.MathUtils.intToBytes24(i);
             bytes[3] = 255;
         }
 
