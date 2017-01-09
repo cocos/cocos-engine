@@ -101,7 +101,6 @@ const char* JSStringWrapper::get()
 // JSFunctionWrapper
 JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval)
 : _cx(cx)
-, _rooted(false)
 {
     _jsthis = jsthis;
     _fval = fval;
@@ -123,12 +122,10 @@ JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS:
         {
             js_add_object_reference(valRoot, funcVal);
         }
-        _rooted = true;
     }
 }
 JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval, JS::HandleValue owner)
 : _cx(cx)
-, _rooted(false)
 {
     _jsthis = jsthis;
     _fval = fval;
@@ -151,7 +148,7 @@ JSFunctionWrapper::~JSFunctionWrapper()
 {
     JS::RootedValue ownerVal(_cx, _owner);
     
-    if (_rooted && !ownerVal.isNullOrUndefined())
+    if (!ScriptingCore::getInstance()->getFinalizing() && !ownerVal.isNullOrUndefined())
     {
         JS::RootedValue thisVal(_cx, OBJECT_TO_JSVAL(_jsthis));
         if (!thisVal.isNullOrUndefined())
@@ -173,6 +170,15 @@ bool JSFunctionWrapper::invoke(unsigned int argc, jsval *argv, JS::MutableHandle
     JS::RootedObject thisObj(_cx, _jsthis);
     JS::RootedValue fval(_cx, _fval);
     return JS_CallFunctionValue(_cx, thisObj, fval, JS::HandleValueArray::fromMarkedLocation(argc, argv), rval);
+}
+
+bool JSFunctionWrapper::invoke(JS::HandleValueArray args, JS::MutableHandleValue rval)
+{
+    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
+    
+    JS::RootedObject thisObj(_cx, _jsthis);
+    JS::RootedValue fval(_cx, _fval);
+    return JS_CallFunctionValue(_cx, thisObj, fval, args, rval);
 }
 
 static Color3B getColorFromJSObject(JSContext *cx, JS::HandleObject colorObject)
@@ -599,7 +605,7 @@ bool jsval_to_long_long(JSContext *cx, JS::HandleValue vp, long long* r)
 }
 
 bool jsval_to_std_string(JSContext *cx, JS::HandleValue v, std::string* ret) {
-    if(v.isString() || v.isNumber() || v.isBoolean())
+    if (v.isString() || v.isBoolean() || v.isNumber())
     {
         JSString *tmp = JS::ToString(cx, v);
         JSB_PRECONDITION3(tmp, cx, false, "Error processing arguments");
@@ -1962,21 +1968,6 @@ jsval uniform_to_jsval(JSContext* cx, const cocos2d::Uniform* uniform)
 
     return JSVAL_NULL;
 }
-
-//
-//jsval meshVertexAttrib_to_jsval(JSContext* cx, const cocos2d::MeshVertexAttrib& q)
-//{
-//    JS::RootedObject tmp(cx, JS_NewObject(cx, nullptr, JS::NullPtr(), JS::NullPtr()));
-//    if(!tmp) return JSVAL_NULL;
-//    bool ok = JS_DefineProperty(cx, tmp, "size", q.size, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-//        JS_DefineProperty(cx, tmp, "type", q.type, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-//        JS_DefineProperty(cx, tmp, "vertexAttrib", q.vertexAttrib, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-//        JS_DefineProperty(cx, tmp, "attribSizeBytes", q.attribSizeBytes, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-//    if(ok)
-//        return OBJECT_TO_JSVAL(tmp);
-//
-//    return JSVAL_NULL;
-//}
 
 jsval FontDefinition_to_jsval(JSContext* cx, const FontDefinition& t)
 {

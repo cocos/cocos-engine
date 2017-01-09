@@ -22,14 +22,16 @@
  */
 
 #include "scripting/js-bindings/manual/extension/jsb_cocos2dx_extension_manual.h"
-#include "base/CCDirector.h"
-#include "base/CCScheduler.h"
-#include "renderer/CCTextureCache.h"
 #include "extensions/cocos-ext.h"
 #include "scripting/js-bindings/manual/ScriptingCore.h"
 #include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 #include <thread>
+#include <chrono>
+
+#include "base/CCDirector.h"
+#include "base/CCScheduler.h"
+#include "renderer/CCTextureCache.h"
 
 USING_NS_CC;
 USING_NS_CC_EXT;
@@ -994,6 +996,17 @@ bool js_load_remote_image(JSContext *cx, uint32_t argc, jsval *vp)
     return false;
 }
 
+using namespace std::chrono;
+
+bool js_performance_now(JSContext *cx, uint32_t argc, jsval *vp)
+{
+	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+	auto now = steady_clock::now();
+	auto micro = duration_cast<microseconds>(now - ScriptingCore::getInstance()->getEngineStartTime()).count();
+	args.rval().set(DOUBLE_TO_JSVAL((double)micro * 0.001));
+	return true;
+}
+
 extern JSObject* jsb_cocos2d_extension_ScrollView_prototype;
 extern JSObject* jsb_cocos2d_extension_TableView_prototype;
 extern JSObject* jsb_cocos2d_extension_Control_prototype;
@@ -1038,4 +1051,8 @@ void register_all_cocos2dx_extension_manual(JSContext* cx, JS::HandleObject glob
     JS_DefineFunction(cx, tmpObj, "create", js_cocos2dx_CCTableView_create, 3, JSPROP_READONLY | JSPROP_PERMANENT);
 
     JS_DefineFunction(cx, jsbObj, "loadRemoteImg", js_load_remote_image, 2, JSPROP_READONLY | JSPROP_PERMANENT);
+
+    JS::RootedObject performance(cx);
+    get_or_create_js_obj(cx, global, "performance", &performance);
+    JS_DefineFunction(cx, performance, "now", js_performance_now, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 }
