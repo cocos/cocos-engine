@@ -50,7 +50,7 @@ cc._RF = {
                 return;
             }
             // auto export component
-        module.exports = exports = frameInfo.beh;
+            module.exports = exports = frameInfo.cls;
         }
     },
     peek: function () {

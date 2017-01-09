@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2015 Chukong Technologies Inc.
+ Copyright (c) 2013-2017 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -694,7 +694,7 @@ var Node = cc.Class({
             constructor = JS.getClassByName(typeOrClassName);
             if ( !constructor ) {
                 cc.errorID(3807, typeOrClassName);
-                if (cc._RFpeek()) {
+                if (cc._RF.peek()) {
                     cc.errorID(3808, typeOrClassName);
                 }
                 return null;

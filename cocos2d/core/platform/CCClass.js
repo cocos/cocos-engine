@@ -1,5 +1,5 @@
 ﻿/****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2013-2017 Chukong Technologies Inc.
 
  http://www.cocos.com
 
@@ -32,6 +32,7 @@ var Attr = require('./attribute');
 var getTypeChecker = Attr.getTypeChecker;
 var preprocess = require('./preprocess-class');
 var Misc = require('../utils/misc');
+require('./requiring-frame');
 
 var BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', 'properties', 'statics', 'editor'];
 
@@ -311,41 +312,43 @@ function doDefine (className, baseClass, mixins, constructor, options) {
     return fireClass;
 }
 
-function define (className, baseClasses, mixins, constructor, options) {
-    if (cc.isChildClassOf(baseClasses, cc.Component)) {
-        var frame = cc._RFpeek();
-        if (frame) {
-            if (CC_DEV && constructor) {
-                cc.warnID(3614, className);
-            }
-            if (frame.beh) {
-                cc.errorID(3615);
-                return cls;
-            }
+function define (className, baseClass, mixins, constructor, options) {
+    var Component = cc.Component;
+    var frame = cc._RF.peek();
+    if (frame && cc.isChildClassOf(baseClass, Component)) {
+        // project component
+        if (CC_DEV && constructor) {
+            cc.warnID(3614, className);
+        }
+        if (frame.cls instanceof Component) {
+            cc.errorID(3615);
+            return null;
+        }
+        if (CC_DEV && frame.uuid && className) {
+            cc.warnID(3616, className);
+        }
+        className = className || frame.script;
+    }
+
+    var cls = doDefine(className, baseClass, mixins, constructor, options);
+
+    if (frame) {
+        if (cc.isChildClassOf(baseClass, Component)) {
             var uuid = frame.uuid;
-            if (uuid) {
-                if (CC_EDITOR && className) {
-                    cc.warnID(3616, className);
-                }
-            }
-            //else {
-            //    builtin
-            //}
-            className = className || frame.script;
-            var cls = doDefine(className, baseClasses, mixins, constructor, options);
             if (uuid) {
                 JS._setClassId(uuid, cls);
                 if (CC_EDITOR) {
-                    cc.Component._addMenuItem(cls, 'i18n:MAIN_MENU.component.scripts/' + className, -1);
+                    Component._addMenuItem(cls, 'i18n:MAIN_MENU.component.scripts/' + className, -1);
                     cls.prototype.__scriptUuid = Editor.Utils.UuidUtils.decompressUuid(uuid);
                 }
             }
-            frame.beh = cls;
-            return cls;
+            frame.cls = cls;
+        }
+        else if (!(frame.cls instanceof Component)) {
+            frame.cls = cls;
         }
     }
-    // not project component
-    return doDefine(className, baseClasses, mixins, constructor, options);
+    return cls;
 }
 
 function normalizeClassName (className) {
