@@ -1,6 +1,8 @@
 #include "audio/android/AudioDecoderOgg.h"
 #include "platform/CCFileUtils.h"
 
+#define LOG_TAG "AudioDecoderOgg"
+
 namespace cocos2d { namespace experimental {
 
 AudioDecoderOgg::AudioDecoderOgg()

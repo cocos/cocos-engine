@@ -1,6 +1,8 @@
 #include "audio/android/AudioDecoderSLES.h"
 #include "platform/CCFileUtils.h"
 
+#define LOG_TAG "AudioDecoderSLES"
+
 namespace cocos2d { namespace experimental {
 
 /* Explicitly requesting SL_IID_ANDROIDSIMPLEBUFFERQUEUE and SL_IID_PREFETCHSTATUS
