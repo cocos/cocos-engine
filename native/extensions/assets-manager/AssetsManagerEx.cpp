@@ -1071,7 +1071,7 @@ void AssetsManagerEx::batchDownload()
     _queue.clear();
     for(auto iter : _downloadUnits)
     {
-        DownloadUnit& unit = iter.second;
+        const DownloadUnit& unit = iter.second;
         if (unit.size > 0)
         {
             _totalSize += unit.size;
@@ -1091,7 +1091,7 @@ void AssetsManagerEx::batchDownload()
 
 void AssetsManagerEx::queueDowload()
 {
-    if (_totalWaitToDownload == 0)
+    if (_queue.size() == 0)
     {
         this->onDownloadUnitsFinished();
         return;

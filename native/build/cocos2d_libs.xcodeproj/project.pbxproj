@@ -3100,7 +3100,6 @@
 				ED3057941BEC778C0083C3ED /* xxhash */,
 				ED30578E1BEC77660083C3ED /* edtaa3func */,
 				ED3057851BEC77300083C3ED /* tinyxml2 */,
-				ED3057841BEC76D70083C3ED /* rapidjson */,
 				ED3057751BEC76B00083C3ED /* unzip */,
 			);
 			name = external;
@@ -4116,13 +4115,6 @@
 				ED30577C1BEC76C90083C3ED /* unzip.h */,
 			);
 			name = unzip;
-			sourceTree = "<group>";
-		};
-		ED3057841BEC76D70083C3ED /* rapidjson */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = rapidjson;
 			sourceTree = "<group>";
 		};
 		ED3057851BEC77300083C3ED /* tinyxml2 */ = {
