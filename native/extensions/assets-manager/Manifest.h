@@ -34,7 +34,7 @@
 #include "network/CCDownloader.h"
 #include "platform/CCFileUtils.h"
 
-#include "json/document.h"
+#include "json/document-wrapper.h"
 
 NS_CC_EXT_BEGIN
 
@@ -44,6 +44,14 @@ struct DownloadUnit
     std::string storagePath;
     std::string customId;
     float       size;
+};
+
+struct ManifestAsset {
+    std::string md5;
+    std::string path;
+    bool compressed;
+    float size;
+    int downloadState;
 };
 
 typedef std::unordered_map<std::string, DownloadUnit> DownloadUnits;
@@ -61,20 +69,14 @@ public:
         MODIFIED
     };
     
-    enum class DownloadState {
+    enum DownloadState {
         UNSTARTED,
         DOWNLOADING,
         SUCCESSED
     };
     
     //! Asset object
-    struct Asset {
-        std::string md5;
-        std::string path;
-        bool compressed;
-        float size;
-        DownloadState downloadState;
-    };
+    typedef ManifestAsset Asset;
     
     //! Object indicate the difference between two Assets
     struct AssetDiff {

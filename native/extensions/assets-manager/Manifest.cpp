@@ -428,7 +428,7 @@ Manifest::Asset Manifest::parseAsset(const std::string &path, const rapidjson::V
     
     if ( json.HasMember(KEY_DOWNLOAD_STATE) && json[KEY_DOWNLOAD_STATE].IsInt() )
     {
-        asset.downloadState = (DownloadState)(json[KEY_DOWNLOAD_STATE].GetInt());
+        asset.downloadState = (json[KEY_DOWNLOAD_STATE].GetInt());
     }
     else asset.downloadState = DownloadState::UNSTARTED;
     
