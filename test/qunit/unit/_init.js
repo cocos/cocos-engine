@@ -218,6 +218,8 @@ var SetupEngine = {
     }
 };
 
+QUnit.config.testTimeout = 5000;
+
 // force stop to ensure start will only called once
 function asyncEnd () {
     cc.game.pause();
