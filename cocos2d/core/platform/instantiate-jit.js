@@ -42,6 +42,23 @@ var VAR = 'var ';
 var LOCAL_OBJ = 'o';
 var LINE_INDEX_OF_NEW_OBJ = 0;
 
+function Declaration (varName, expression) {
+    this.varName = varName;
+    this.expression = expression;
+}
+Declaration.prototype.toString = function () {
+    return VAR + this.varName + '=' + this.expression + ';';
+};
+
+function mergeDeclaration (statement, expression) {
+    if (expression instanceof Declaration) {
+        return new Declaration(expression.varName, statement + expression.expression);
+    }
+    else {
+        return statement + expression;
+    }
+}
+
 function equalsToDefault (def, value) {
     if (typeof def === 'function') {
         try {
@@ -79,6 +96,9 @@ function flattenCodeArray (array, separator) {
             if (Array.isArray(item)) {
                 deepFlatten(item);
             }
+            // else if (item instanceof Declaration) {
+            //     strList.push(item.toString());
+            // }
             else {
                 strList.push(item);
             }
@@ -206,7 +226,7 @@ JS.mixin(Parser.prototype, {
                 if (equalsToDefault(attrs[key + DEFAULT], val)) {
                     continue;
                 }
-                this.writeField(codeArray, obj, key, val);
+                this.writeObjectField(codeArray, obj, key, val);
             }
         }
     },
@@ -217,7 +237,8 @@ JS.mixin(Parser.prototype, {
         }
 
         var arrayVar = 't' + (++this.localVariableId);
-        var codeArray = [arrayVar + '=new Array(' + value.length + ');'];
+        var declaration = new Declaration(arrayVar, 'new Array(' + value.length + ')');
+        var codeArray = [declaration];
 
         // assign a _iN$t flag to indicate that this object has been parsed.
         value._iN$t = {
@@ -227,14 +248,8 @@ JS.mixin(Parser.prototype, {
         this.objsToClear_iN$t.push(value);
 
         for (var i = 0; i < value.length; ++i) {
-            var expression = this.enumerateField(value, i, value[i]);
-            if (Array.isArray(expression)) {
-                expression[0] = arrayVar + '[' + i + ']=' + expression[0];
-                codeArray.push(expression);
-            }
-            else {
-                codeArray.push(arrayVar + '[' + i + ']=' + expression + ';');
-            }
+            var statement = arrayVar + '[' + i + ']=';
+            this.writeFiled(codeArray, statement, value, i, value[i]);
         }
         return codeArray;
     },
@@ -251,14 +266,12 @@ JS.mixin(Parser.prototype, {
                     this.globalVariables.push(globalVar);
                     // insert assignment statement to assign to global var
                     var line = _iN$t.source[LINE_INDEX_OF_NEW_OBJ];
-                    if (line.startsWith(VAR)) {
-                        // var o=xxx -> var o=global=xxx
-                        var LEN_OF_VAR_O = 5;
-                        _iN$t.source[LINE_INDEX_OF_NEW_OBJ] = line.slice(0, LEN_OF_VAR_O) + '=' + globalVar + line.slice(LEN_OF_VAR_O);
-                    }
-                    else {
-                        _iN$t.source[LINE_INDEX_OF_NEW_OBJ] = globalVar + '=' + _iN$t.source[LINE_INDEX_OF_NEW_OBJ];
-                    }
+                    _iN$t.source[LINE_INDEX_OF_NEW_OBJ] = mergeDeclaration(globalVar + '=', line);
+                    // if (typeof line ==='string' && line.startsWith(VAR)) {
+                    //     // var o=xxx -> var o=global=xxx
+                    //     var LEN_OF_VAR_O = 5;
+                    //     _iN$t.source[LINE_INDEX_OF_NEW_OBJ] = line.slice(0, LEN_OF_VAR_O) + '=' + globalVar + line.slice(LEN_OF_VAR_O);
+                    // }
                 }
                 return globalVar;
             }
@@ -283,7 +296,7 @@ JS.mixin(Parser.prototype, {
         }
     },
 
-    writeField: function (codeArray, obj, key, value) {
+    writeObjectField: function (codeArray, obj, key, value) {
         var statement;
         if (VAR_REG.test(key)) {
             statement = LOCAL_OBJ + '.' + key + '=';
@@ -291,13 +304,17 @@ JS.mixin(Parser.prototype, {
         else {
             statement = LOCAL_OBJ + '[' + escapeForJS(key) + ']=';
         }
+        this.writeFiled(codeArray, statement, obj, key, value);
+    },
+
+    writeFiled: function (codeArray, statement, obj, key, value) {
         var expression = this.enumerateField(obj, key, value);
         if (Array.isArray(expression)) {
-            expression[0] = statement + expression[0];
+            expression[0] = mergeDeclaration(statement, expression[0]);
             codeArray.push(expression);
         }
         else {
-            codeArray.push(statement + expression + ';');
+            codeArray.push(mergeDeclaration(statement, expression) + ';');
         }
     },
 
@@ -320,7 +337,7 @@ JS.mixin(Parser.prototype, {
                 if (typeof value === 'object' && value && value === obj._iN$t) {
                     continue;
                 }
-                this.writeField(codeArray, obj, key, value);
+                this.writeObjectField(codeArray, obj, key, value);
             }
         }
     },
@@ -362,10 +379,10 @@ JS.mixin(Parser.prototype, {
                     }
                 }
             }
-            createCode = VAR + LOCAL_OBJ + '=new ' + this.getFuncModule(ctor, true) + '();';
+            createCode = new Declaration(LOCAL_OBJ, 'new ' + this.getFuncModule(ctor, true) + '()');
         }
         else if (ctor === Object) {
-            createCode = VAR + LOCAL_OBJ + '={};'
+            createCode = new Declaration(LOCAL_OBJ, '{}');
         }
         else {
             // do not clone unknown type

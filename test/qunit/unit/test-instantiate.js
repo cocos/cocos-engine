@@ -283,6 +283,8 @@ testInstantiate('Instantiate-JIT',
             obj._instantiate(cloned);
         }
         cc.game._isCloning = false;
+
+        ok(!('t1' in window), 'should not pollute globals');
         return cloned;
     }
 );
