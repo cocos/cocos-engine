@@ -34,6 +34,9 @@ cc.defineGetterSetter(armatureProto, 'name', armatureProto.getName, null);
 var animationStateProto = dragonBones.AnimationState.prototype;
 cc.defineGetterSetter(animationStateProto, 'name', animationStateProto.getName);
 
+var slotProto = dragonBones.Slot.prototype;
+cc.defineGetterSetter(slotProto, 'display', slotProto.getDisplay);
+
 dragonBones.EventObject.START = "start";
 dragonBones.EventObject.LOOP_COMPLETE = "loopComplete";
 dragonBones.EventObject.COMPLETE = "complete";
