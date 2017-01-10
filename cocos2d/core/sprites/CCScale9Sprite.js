@@ -136,10 +136,10 @@ var simpleQuadGenerator = {
             vertices[7] = t;
         }
 
-        cornerId[0] = 0; // left
-        cornerId[1] = 2; // right
-        cornerId[2] = 1; // bottom
-        cornerId[3] = 5; // top
+        cornerId[0] = 0; // bl
+        cornerId[1] = 2; // br
+        cornerId[2] = 4; // tl
+        cornerId[3] = 6; // tr
 
         //build uvs
         if (sprite._uvsDirty) {
@@ -251,10 +251,10 @@ var scale9QuadGenerator = {
             }
         }
 
-        cornerId[0] = 0;  // left
-        cornerId[1] = 6;  // right
-        cornerId[2] = 1;  // bottom
-        cornerId[3] = 31; // top
+        cornerId[0] = 0;  // bl
+        cornerId[1] = 6;  // br
+        cornerId[2] = 24; // tl
+        cornerId[3] = 30; // tr
 
         //build uvs
         if (sprite._uvsDirty) {
@@ -436,10 +436,10 @@ var tiledQuadGenerator = {
             }
         }
 
-        cornerId[0] = 0; // left
-        cornerId[1] = col * 8 + 2; // right
-        cornerId[2] = 1; // bottom
-        cornerId[3] = dataLength - 1; // top
+        cornerId[0] = 0; // bl
+        cornerId[1] = (col-1) * 8 + 2; // br
+        cornerId[2] = (row-1) * col * 8 + 4; // tl
+        cornerId[3] = dataLength - 2; // tr
     }
 };
 
@@ -570,10 +570,10 @@ var fillQuadGeneratorBar = {
 
         sprite._vertCount = 4;
 
-        cornerId[0] = 0; // left
-        cornerId[1] = 2; // right
-        cornerId[2] = 1; // bottom
-        cornerId[3] = 5; // top
+        cornerId[0] = 0; // bl
+        cornerId[1] = 2; // br
+        cornerId[2] = 4; // tl
+        cornerId[3] = 6; // tr
     }
 };
 
@@ -740,10 +740,10 @@ var fillQuadGeneratorRadial = {
         }
         sprite._vertCount = count;
 
-        cornerId[0] = 0; // left
-        cornerId[1] = 2; // right
-        cornerId[2] = 1; // bottom
-        cornerId[3] = 5; // top
+        cornerId[0] = 0; // bl
+        cornerId[1] = 2; // br
+        cornerId[2] = 4; // tl
+        cornerId[3] = 6; // tr
     },
 
     _generateTriangle: function(wt, offset, vert0, vert1, vert2) {
@@ -971,12 +971,12 @@ var meshQuadGenerator = {
 
             if (y < b) {
                 b = y;
-                cornerId[2] = i * 2 + 1; // bottom
+                cornerId[2] = i * 2; // bottom
             }
 
             if (y > t) {
                 t = y;
-                cornerId[3] = i * 2 + 1; // top
+                cornerId[3] = i * 2; // top
             }
         }
 
@@ -1420,8 +1420,8 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             // x3, y3  leftTop
             // x4, y4  rightTop
             var vert = this._isTriangle ? this._rawVerts : this._vertices,
-                x0 = vert[cornerId[0]], x1 = vert[cornerId[1]], x2 = vert[cornerId[0]], x3 = vert[cornerId[1]],
-                y0 = vert[cornerId[2]], y1 = vert[cornerId[2]], y2 = vert[cornerId[3]], y3 = vert[cornerId[3]];
+                x0 = vert[cornerId[0]], x1 = vert[cornerId[1]], x2 = vert[cornerId[2]], x3 = vert[cornerId[3]],
+                y0 = vert[cornerId[0] + 1], y1 = vert[cornerId[1] + 1], y2 = vert[cornerId[2] + 1], y3 = vert[cornerId[3] + 1];
             if (((x0-vl.x) & (x1-vl.x) & (x2-vl.x) & (x3-vl.x)) >> 31 || // All outside left
                 ((vr.x-x0) & (vr.x-x1) & (vr.x-x2) & (vr.x-x3)) >> 31 || // All outside right
                 ((y0-vb.y) & (y1-vb.y) & (y2-vb.y) & (y3-vb.y)) >> 31 || // All outside bottom
