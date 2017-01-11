@@ -79,6 +79,7 @@ public:
     JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval, JS::HandleValue owner);
     ~JSFunctionWrapper();
 
+    void setOwner(JSContext* cx, JS::HandleValue owner);
     bool invoke(unsigned int argc, jsval *argv, JS::MutableHandleValue rval);
     bool invoke(JS::HandleValueArray args, JS::MutableHandleValue rval);
 private:
@@ -86,7 +87,8 @@ private:
     JS::Heap<JSObject*> _jsthis;
     JS::Heap<JS::Value> _fval;
     JS::Heap<JS::Value> _owner;
-private:
+    bool _cppRelated;
+
     CC_DISALLOW_COPY_AND_ASSIGN(JSFunctionWrapper);
 };
 
