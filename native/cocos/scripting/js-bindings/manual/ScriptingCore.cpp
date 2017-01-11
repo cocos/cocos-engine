@@ -2437,8 +2437,8 @@ void jsb_ref_rebind(JSContext* cx, JS::HandleObject jsobj, js_proxy_t *proxy, co
 #else
     JS::RemoveObjectRoot(cx, &proxy->obj);
 #endif
+    
     jsb_remove_proxy(proxy);
-
     // Rebind js obj with new action
     js_proxy_t* newProxy = jsb_new_proxy(newRef, jsobj);
     
