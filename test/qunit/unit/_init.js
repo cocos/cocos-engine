@@ -243,6 +243,35 @@ function fastArrayEqual (actual, expected, message) {
     }
 }
 
+function createNodes (data) {
+    var nodes = {};
+    function createNode (data) {
+        var node = new cc.Node();
+        for (var key in data) {
+            var value = data[key];
+            if (typeof value === 'object') {
+                var child = createNode(value);
+                child.parent = node;
+                nodes[key] = child;
+            }
+            else if (key === 'comps') {
+                if (Array.isArray(value)) {
+                    for (var i = 0; i < value.length; i++) {
+                        node.addComponent(value[i]);
+                    }
+                }
+                else {
+                    node.addComponent(value);
+                }
+                nodes[key + 'Comps'] = node._components.slice();
+            }
+        }
+        return node;
+    }
+    nodes.root = createNode(data);
+    return nodes;
+}
+
 // output test states
 
 //QUnit.testStart = function(test) {
