@@ -287,6 +287,15 @@ bool Sequence::initWithTwoActions(FiniteTimeAction *actionOne, FiniteTimeAction 
 
     _actions[1] = actionTwo;
     actionTwo->retain();
+    
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->retainScriptObject(this, actionOne);
+        sEngine->retainScriptObject(this, actionTwo);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
 
     return true;
 }
@@ -448,11 +457,18 @@ bool Repeat::initWithAction(FiniteTimeAction *action, unsigned int times)
         _times = times;
         _innerAction = action;
         action->retain();
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            sEngine->retainScriptObject(this, _innerAction);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
 
         _actionInstant = dynamic_cast<ActionInstant*>(action) ? true : false;
         //an instant action needs to be executed one time less in the update method since it uses startWithTarget to execute the action
         // minggo: instant action doesn't execute action in Repeat::startWithTarget(), so comment it.
-//        if (_actionInstant) 
+//        if (_actionInstant)
 //        {
 //            _times -=1;
 //        }
@@ -582,6 +598,13 @@ bool RepeatForever::initWithAction(ActionInterval *action)
 
     action->retain();
     _innerAction = action;
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->retainScriptObject(this, _innerAction);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
 
     return true;
 }
@@ -759,6 +782,15 @@ bool Spawn::initWithTwoActions(FiniteTimeAction *action1, FiniteTimeAction *acti
 
         _one->retain();
         _two->retain();
+        
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            sEngine->retainScriptObject(this, _one);
+            sEngine->retainScriptObject(this, _two);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
 
         ret = true;
     }
@@ -2186,6 +2218,13 @@ bool ReverseTime::initWithAction(FiniteTimeAction *action)
 
         _other = action;
         action->retain();
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            sEngine->retainScriptObject(this, action);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
 
         return true;
     }
@@ -2469,6 +2508,13 @@ bool TargetedAction::initWithTarget(Node* target, FiniteTimeAction* action)
         _forcedTarget = target;
         CC_SAFE_RETAIN(action);
         _action = action;
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            sEngine->retainScriptObject(this, _action);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         return true;
     }
     return false;
