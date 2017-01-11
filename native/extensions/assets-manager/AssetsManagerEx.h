@@ -157,7 +157,7 @@ protected:
     void startUpdate();
     void updateSucceed();
     bool decompress(const std::string &filename);
-    void decompressDownloadedZip();
+    void decompressDownloadedZip(const std::string &customId, const std::string &storagePath);
     
     /** @brief Update a list of assets under the current AssetsManagerEx context
      */
@@ -177,7 +177,7 @@ protected:
     
     void fileError(const std::string& identifier, const std::string& errorStr, int errorCode = 0, int errorCodeInternal = 0);
     
-    void fileSuccess(const std::string &customId, const std::string &storagePath, bool compressed);
+    void fileSuccess(const std::string &customId, const std::string &storagePath);
     
     /** @brief  Call back function for error handling,
      the error will then be reported to user's listener registed in addUpdateEventListener
@@ -284,9 +284,6 @@ private:
     
     //! Current concurrent task count
     int _currConcurrentTask;
-    
-    //! All files to be decompressed
-    std::vector<std::string> _compressedFiles;
     
     //! Download percent
     float _percent;

@@ -422,7 +422,7 @@ Manifest::Asset Manifest::parseAsset(const std::string &path, const rapidjson::V
     
     if ( json.HasMember(KEY_SIZE) && json[KEY_SIZE].IsFloat() )
     {
-        asset.size = json[KEY_COMPRESSED].GetFloat();
+        asset.size = json[KEY_SIZE].GetFloat();
     }
     else asset.size = 0;
     

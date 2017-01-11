@@ -420,18 +420,42 @@ bool AssetsManagerEx::decompress(const std::string &zip)
     return true;
 }
 
-void AssetsManagerEx::decompressDownloadedZip()
+void AssetsManagerEx::decompressDownloadedZip(const std::string &customId, const std::string &storagePath)
 {
-    // Decompress all compressed files
-    for (auto it = _compressedFiles.begin(); it != _compressedFiles.end(); ++it) {
-        std::string zipfile = *it;
-        if (!decompress(zipfile))
+    struct AsyncData
+    {
+        std::string customId;
+        std::string zipFile;
+        bool succeed;
+    };
+    
+    AsyncData* asyncData = new AsyncData;
+    asyncData->customId = customId;
+    asyncData->zipFile = storagePath;
+    asyncData->succeed = false;
+    
+    std::function<void(void*)> decompressFinished = [this](void* param) {
+        auto dataInner = reinterpret_cast<AsyncData*>(param);
+        if (dataInner->succeed)
         {
-            dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ERROR_DECOMPRESS, "", "Unable to decompress file " + zipfile);
+            fileSuccess(dataInner->customId, dataInner->zipFile);
         }
-        _fileUtils->removeFile(zipfile);
-    }
-    _compressedFiles.clear();
+        else
+        {
+            std::string errorMsg = "Unable to decompress file " + dataInner->zipFile;
+            dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ERROR_DECOMPRESS, "", errorMsg);
+            fileError(dataInner->customId, errorMsg);
+        }
+        delete dataInner;
+    };
+    AsyncTaskPool::getInstance()->enqueue(AsyncTaskPool::TaskType::TASK_OTHER, decompressFinished, (void*)asyncData, [this, asyncData]() {
+        // Decompress all compressed files
+        if (decompress(asyncData->zipFile))
+        {
+            asyncData->succeed = true;
+        }
+        _fileUtils->removeFile(asyncData->zipFile);
+    });
 }
 
 void AssetsManagerEx::dispatchUpdateEvent(EventAssetsManagerEx::EventCode code, const std::string &assetId/* = ""*/, const std::string &message/* = ""*/, int curle_code/* = CURLE_OK*/, int curlm_code/* = CURLM_OK*/)
@@ -515,14 +539,11 @@ void AssetsManagerEx::parseVersion()
         }
         else
         {
-            // Save the old update entry type since its value may be changed in event listener.
-            UpdateEntry oldUpdateEntry = _updateEntry;
-
             _updateState = State::NEED_UPDATE;
             dispatchUpdateEvent(EventAssetsManagerEx::EventCode::NEW_VERSION_FOUND);
 
             // Wait to update so continue the process
-            if (oldUpdateEntry == UpdateEntry::DO_UPDATE)
+            if (_updateEntry == UpdateEntry::DO_UPDATE)
             {
                 _updateState = State::PREDOWNLOAD_MANIFEST;
                 downloadManifest();
@@ -600,7 +621,6 @@ void AssetsManagerEx::startUpdate()
     // Clean up before update
     _failedUnits.clear();
     _downloadUnits.clear();
-    _compressedFiles.clear();
     _totalWaitToDownload = _totalToDownload = 0;
     _percent = _percentByFile = _sizeCollected = _totalSize = 0;
     _downloadedSize.clear();
@@ -668,6 +688,9 @@ void AssetsManagerEx::startUpdate()
                     _tempManifest->setAssetDownloadState(key, Manifest::DownloadState::SUCCESSED);
                 }
             }
+            // Save current download manifest information for resuming
+            _tempManifest->saveToFile(_tempManifestPath);
+            
             _totalWaitToDownload = _totalToDownload = (int)_downloadUnits.size();
             this->batchDownload();
             
@@ -689,50 +712,10 @@ void AssetsManagerEx::updateSucceed()
     _remoteManifest = nullptr;
     // 3. make local manifest take effect
     prepareLocalManifest();
-
-
-    _updateState = State::UNZIPPING;
-    // 4. decompress all compressed files
-    //decompressDownloadedZip();
-
-    struct AsyncData
-    {
-        std::vector<std::string> compressedFiles;
-        std::string errorCompressedFile;
-    };
-
-    AsyncData* asyncData = new AsyncData;
-    asyncData->compressedFiles = _compressedFiles;
-    _compressedFiles.clear();
-
-    std::function<void(void*)> mainThread = [this](void* param) {
-        auto asyncDataInner = reinterpret_cast<AsyncData*>(param);
-        if (asyncDataInner->errorCompressedFile.empty())
-        {
-            // 5. Set update state
-            _updateState = State::UP_TO_DATE;
-            // 6. Notify finished event
-            dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_FINISHED);
-        }
-        else
-        {
-            _updateState = State::FAIL_TO_UPDATE;
-            dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ERROR_DECOMPRESS, "", "Unable to decompress file " + asyncDataInner->errorCompressedFile);
-        }
-
-        delete asyncDataInner;
-    };
-    AsyncTaskPool::getInstance()->enqueue(AsyncTaskPool::TaskType::TASK_OTHER, mainThread, (void*)asyncData, [this, asyncData]() {
-        // Decompress all compressed files
-        for (auto& zipFile : asyncData->compressedFiles) {
-            if (!decompress(zipFile))
-            {
-                asyncData->errorCompressedFile = zipFile;
-                break;
-            }
-            _fileUtils->removeFile(zipFile);
-        }
-    });
+    // 4. Set update state
+    _updateState = State::UP_TO_DATE;
+    // 5. Notify finished event
+    dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_FINISHED);
 }
 
 void AssetsManagerEx::checkUpdate()
@@ -909,15 +892,10 @@ void AssetsManagerEx::fileError(const std::string& identifier, const std::string
     queueDowload();
 }
 
-void AssetsManagerEx::fileSuccess(const std::string &customId, const std::string &storagePath, bool compressed)
+void AssetsManagerEx::fileSuccess(const std::string &customId, const std::string &storagePath)
 {
     // Set download state to SUCCESSED
     _tempManifest->setAssetDownloadState(customId, Manifest::DownloadState::SUCCESSED);
-    
-    // Add file to need decompress list
-    if (compressed) {
-        _compressedFiles.push_back(storagePath);
-    }
     
     auto unitIt = _failedUnits.find(customId);
     // Found unit and delete it
@@ -1051,7 +1029,14 @@ void AssetsManagerEx::onSuccess(const std::string &/*srcUrl*/, const std::string
         if (ok)
         {
             bool compressed = assetIt != assets.end() ? assetIt->second.compressed : false;
-            fileSuccess(customId, storagePath, compressed);
+            if (compressed)
+            {
+                decompressDownloadedZip(customId, storagePath);
+            }
+            else
+            {
+                fileSuccess(customId, storagePath);
+            }
         }
         else
         {
@@ -1091,12 +1076,14 @@ void AssetsManagerEx::batchDownload()
 
 void AssetsManagerEx::queueDowload()
 {
-    if (_queue.size() == 0)
+    if (_totalWaitToDownload == 0)
     {
         this->onDownloadUnitsFinished();
         return;
     }
     
+    bool taskCreated = false;
+        
     while (_currConcurrentTask < _maxConcurrentTask && _queue.size() > 0)
     {
         std::string key = _queue.back();
@@ -1105,6 +1092,14 @@ void AssetsManagerEx::queueDowload()
         _currConcurrentTask++;
         DownloadUnit& unit = _downloadUnits[key];
         _downloader->createDownloadFileTask(unit.srcUrl, unit.storagePath, unit.customId);
+        
+        _tempManifest->setAssetDownloadState(key, Manifest::DownloadState::DOWNLOADING);
+        taskCreated = true;
+    }
+    if (taskCreated)
+    {
+        // Save current download manifest information for resuming
+        _tempManifest->saveToFile(_tempManifestPath);
     }
 }
 
@@ -1115,8 +1110,6 @@ void AssetsManagerEx::onDownloadUnitsFinished()
     {
         // Save current download manifest information for resuming
         _tempManifest->saveToFile(_tempManifestPath);
-    
-        decompressDownloadedZip();
     
         _updateState = State::FAIL_TO_UPDATE;
         dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_FAILED);
