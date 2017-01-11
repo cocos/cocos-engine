@@ -244,6 +244,10 @@ Audio.State = {
         return this._src = string;
     });
 
+    proto.__defineGetter__('paused', function () {
+        return this._element ? this._element.paused : true;
+    });
+
     // setFinishCallback
 
 })(Audio.prototype);

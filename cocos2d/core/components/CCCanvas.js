@@ -59,6 +59,10 @@ var Canvas = cc.Class({
         disallowMultiple: true,
     },
 
+    resetInEditor: CC_EDITOR && function () {
+        _Scene._applyCanvasPreferences(this);
+    },
+
     statics: {
         /**
          * !#en Current active canvas, the scene should only have one active canvas at the same time.

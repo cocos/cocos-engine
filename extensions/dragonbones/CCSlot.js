@@ -129,7 +129,7 @@ dragonBones.CCSlot = cc.Class({
 
             if (currentTextureData) {
                 var textureAtlasTexture = currentTextureData.parent.texture;
-                if (!currentTextureData.texture && textureAtlasTexture) {
+                if (textureAtlasTexture && (!currentTextureData.texture || currentTextureData.texture.getTexture() !== textureAtlasTexture)) {
                     // Create and cache texture
                     var rect = cc.rect(currentTextureData.region.x, currentTextureData.region.y,
                                        currentTextureData.region.width, currentTextureData.region.height);
@@ -247,6 +247,7 @@ dragonBones.CCSlot = cc.Class({
                     this._pivotY -= currentTextureData.region.height * scale;
 
                     this._rawDisplay.setSpriteFrame(currentTextureData.texture);
+                    this._rawDisplay.setContentSize(currentTextureData.texture.getOriginalSize());
                     if (texture !== currentTextureData.texture.getTexture()) {
                         this._rawDisplay.setTexture(texture);
                     }
