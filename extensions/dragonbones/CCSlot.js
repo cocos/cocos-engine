@@ -247,6 +247,7 @@ dragonBones.CCSlot = cc.Class({
                     this._pivotY -= currentTextureData.region.height * scale;
 
                     this._rawDisplay.setSpriteFrame(currentTextureData.texture);
+                    this._rawDisplay.setContentSize(currentTextureData.texture.getOriginalSize());
                     if (texture !== currentTextureData.texture.getTexture()) {
                         this._rawDisplay.setTexture(texture);
                     }
