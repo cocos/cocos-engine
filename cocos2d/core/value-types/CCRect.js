@@ -221,6 +221,18 @@ Object.defineProperty(proto, 'size', {
         this.height = value.height;
     }
 });
+/**
+ * @property {Size} origin
+ */
+Object.defineProperty(proto, 'origin', {
+    get: function () {
+        return new cc.Vec2(this.x, this.y);
+    },
+    set: function (value) {
+        this.x = value.x;
+        this.y = value.y;
+    }
+});
 
 /**
  * @method intersects
