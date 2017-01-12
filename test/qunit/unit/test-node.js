@@ -398,9 +398,6 @@ test('activation logic for component in hierarchy', function () {
             restComp = createDisabledComp(node, 'rest');
         }
 
-        var child = new cc.Node();
-        createDisabledComp(child, 'child');
-
         cc.director.getScene().addChild(node);
 
         strictEqual(node.active, false, 'node should be deactivated');
@@ -418,37 +415,39 @@ test('activation logic for component in hierarchy', function () {
         cc.game.step();
     });
 
-    test('could deactivate parent in onLoad', function () {
+    test('could deactivate parent in onLoad if activate from parent to child', function () {
         strictEqual(StillInvokeRestCompsOnSameNode, false, 'test cases not implemented if "StillInvokeRestCompsOnSameNode"');
         strictEqual(StillInvokeOnEnableOnSameComp, false, 'test cases not implemented if "StillInvokeOnEnableOnSameComp"');
 
-        var parent = new cc.Node();
-        var prevNode = new cc.Node();
-        var node = new cc.Node();
-        var nextNode = new cc.Node();
-        parent.addChild(prevNode);
-        parent.addChild(node);
-        parent.addChild(nextNode);
-        var child = new cc.Node();
-        node.addChild(child);
+        var nodes = createNodes({
+            prevNode: {},
+            testerNode: {
+                comment: 'the node that tester component attached',
+                child: {}
+            },
+            nextNode: {}
+        });
+        var parentToDeactivate = nodes.root;
+        var prevNode = nodes.prevNode;
+        var testerNode = nodes.testerNode;
+        var nextNode = nodes.nextNode;
+        var child = nodes.child;
 
         // init parent
-        var compOfParent = createNormalComp(parent);
+        var compOfParent = createNormalComp(parentToDeactivate);
 
         // init prevNode
         var compOfPrevNode = createNormalComp(prevNode);
 
         // init nextNode
-        var compOfNextNode = createDisabledComp(nextNode, 'next node\'s');
+        createDisabledComp(nextNode, 'next node\'s');
 
         // init node
-
-        var previousComp = createNormalComp(node);
-
-        var testComp = node.addComponent(cc.Component);
+        var previousComp = createNormalComp(testerNode);
+        var testComp = testerNode.addComponent(cc.Component);
         testComp.onLoad = function () {
             // deactivate parent
-            parent.active = false;
+            parentToDeactivate.active = false;
         };
         if (StillInvokeOnEnableOnSameComp) {
             testComp.onEnable = new Callback(function () {
@@ -466,22 +465,22 @@ test('activation logic for component in hierarchy', function () {
 
         var restComp;
         if (StillInvokeRestCompsOnSameNode) {
-            restComp = createNormalComp(node);
+            restComp = createNormalComp(testerNode);
         }
         else {
-            restComp = createDisabledComp(node, 'rest');
+            restComp = createDisabledComp(testerNode, 'rest');
         }
 
         // init child
         createDisabledComp(child, 'child');
 
         // ACTIVATE
-        cc.director.getScene().addChild(parent);
+        cc.director.getScene().addChild(parentToDeactivate);
 
         // test
 
-        strictEqual(parent.active, false, 'parent should be deactivated');
-        strictEqual(node.active, true, 'node should be deactivated');
+        strictEqual(parentToDeactivate.active, false, 'parent should be deactivated');
+        strictEqual(testerNode.active, true, 'node should be deactivated');
         compShouldBeActivated(compOfParent, 'parent node\'s');
         compShouldBeActivated(compOfPrevNode, 'previous node\'s');
         compShouldBeActivated(previousComp, 'previous');
@@ -497,6 +496,88 @@ test('activation logic for component in hierarchy', function () {
 
         cc.game.step();
     });
+
+    // test('could deactivate parent in onLoad', function () {
+    //     strictEqual(StillInvokeRestCompsOnSameNode, false, 'test cases not implemented if "StillInvokeRestCompsOnSameNode"');
+    //     strictEqual(StillInvokeOnEnableOnSameComp, false, 'test cases not implemented if "StillInvokeOnEnableOnSameComp"');
+    //
+    //     var nodes = createNodes({
+    //         prevNode: {},
+    //         testerNode: {
+    //             comment: 'the node that tester component attached',
+    //             child: {}
+    //         },
+    //         nextNode: {}
+    //     });
+    //     var parentToDeactivate = nodes.root;
+    //     var prevNode = nodes.prevNode;
+    //     var testerNode = nodes.testerNode;
+    //     var nextNode = nodes.nextNode;
+    //     var child = nodes.child;
+    //
+    //     // init parent
+    //     createDisabledComp(parentToDeactivate, 'parent component');
+    //
+    //     // init prevNode
+    //     var compOfPrevNode = createNormalComp(prevNode);
+    //
+    //     // init nextNode
+    //     createDisabledComp(nextNode, 'next node\'s');
+    //
+    //     // init node
+    //     var previousComp = createNormalComp(testerNode);
+    //     var testComp = testerNode.addComponent(cc.Component);
+    //     testComp.onLoad = function () {
+    //         // deactivate parent
+    //         parentToDeactivate.active = false;
+    //     };
+    //     if (StillInvokeOnEnableOnSameComp) {
+    //         testComp.onEnable = new Callback(function () {
+    //             this.onDisable.enable();
+    //         }).enable();
+    //         testComp.onDisable = new Callback().disable('onDisable should called after onEnable');
+    //     }
+    //     else {
+    //         testComp.onEnable = new Callback().disable(
+    //             'onEnable of testing component should not be called (deactivated)');
+    //         testComp.onDisable = new Callback().disable(
+    //             'onDisable of testing component should not be called (deactivated)');
+    //     }
+    //     testComp.update = new Callback().disable('update of testing component should not be called (deactivated)');
+    //
+    //     var restComp;
+    //     if (StillInvokeRestCompsOnSameNode) {
+    //         restComp = createNormalComp(testerNode);
+    //     }
+    //     else {
+    //         restComp = createDisabledComp(testerNode, 'rest');
+    //     }
+    //
+    //     // init child
+    //     var childComp = createNormalComp(child);
+    //
+    //     // ACTIVATE
+    //     cc.director.getScene().addChild(parentToDeactivate);
+    //
+    //     // test
+    //
+    //     strictEqual(parentToDeactivate.active, false, 'parent should be deactivated');
+    //     strictEqual(testerNode.active, true, 'node should be deactivated');
+    //     compShouldBeActivated(childComp, 'child node\'s');
+    //     compShouldBeActivated(compOfPrevNode, 'previous node\'s');
+    //     compShouldBeActivated(previousComp, 'previous');
+    //
+    //     if (StillInvokeOnEnableOnSameComp) {
+    //         testComp.onEnable.once('onEnable of test component should still be called').disable();
+    //         testComp.onDisable.once('onDisable of test component should still be called').disable();
+    //     }
+    //
+    //     if (StillInvokeRestCompsOnSameNode) {
+    //         compShouldBeActivated(restComp, 'rest');
+    //     }
+    //
+    //     cc.game.step();
+    // });
 
     test('could deactivate self node in onEnable', function () {
         var node = new cc.Node();
@@ -536,7 +617,53 @@ test('activation logic for component in hierarchy', function () {
     });
 })();
 
-test('call onLoad on dynamic created child component in onLoad', function () {
+test('life-cycle order between parent and children', function () {
+    var parent = new cc.Node('parent');
+    var child = new cc.Node('child');
+    child.parent = parent;
+
+    // init parent
+    var childComp = child.addComponent(cc.Component);
+    var parentComp = parent.addComponent(cc.Component);
+
+    function assertOrder (firstComp, lastComp, method) {
+        lastComp[method] = new Callback().disable(lastComp.node.name + '\'s ' + method + ' should be called after ' + firstComp.node.name + '\'s');
+        firstComp[method] = new Callback(function () {
+            lastComp[method].enable();
+        }).enable();
+    }
+
+    assertOrder(parentComp, childComp, 'onLoad');
+    assertOrder(childComp, parentComp, 'onDestroy');
+    // assertOrder(parentComp, childComp, 'onDestroy');
+
+    assertOrder(parentComp, childComp, 'onEnable');
+    assertOrder(parentComp, childComp, 'onDisable');
+    // assertOrder(childComp, parentComp, 'onDisable');
+
+    assertOrder(parentComp, childComp, 'start');
+    assertOrder(parentComp, childComp, 'update');
+
+    parentComp._destruct = function () {};
+    childComp._destruct = function () {};
+
+    // ACTIVATE
+    cc.director.getScene().addChild(parent);
+    cc.game.step();
+    parent.destroy();
+    cc.game.step();
+
+    // if (parentComp.update.calledCount === 0 || childComp.update.calledCount === 0) {
+    //     ok(false, 'update should be called');
+    // }
+    if (parentComp.onDestroy.calledCount === 0 || childComp.onDestroy.calledCount === 0) {
+        ok(false, 'onDestroy should be called');
+    }
+
+    expect(0);
+});
+
+test('The onLoad of dynamic created child component', function () {
     var node = new cc.Node();
     var child = new cc.Node();
 
@@ -555,11 +682,37 @@ test('call onLoad on dynamic created child component in onLoad', function () {
     var testComp = node.addComponent(cc.Component);
     testComp.onLoad = function () {
         child.addComponent(ChildComponent);
-        strictEqual(onLoadCalled, true, 'Child onLoad should be called during onLoad');
+        strictEqual(onLoadCalled, true, 'should be called during onLoad');
     };
 
     child.parent = node;
     node.parent = cc.director.getScene();
+});
+
+test('The onLoad of dynamic created parent component', function () {
+    var node = new cc.Node();
+    var parent = new cc.Node();
+
+    var onLoadCalled = false;
+
+    var ParentComponent = cc.Class({
+        extends: cc.Component,
+        editor: {
+            executeInEditMode: true
+        },
+        onLoad: function () {
+            onLoadCalled = true;
+        }
+    });
+
+    var testComp = node.addComponent(cc.Component);
+    testComp.onLoad = function () {
+        parent.addComponent(ParentComponent);
+        strictEqual(onLoadCalled, true, 'should be called during onLoad');
+    };
+
+    node.parent = parent;
+    parent.parent = cc.director.getScene();
 });
 
 test('destroy', function () {
