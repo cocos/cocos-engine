@@ -153,7 +153,7 @@ var SkeletonData = cc.Class({
 
     // PUBLIC
 
-    createNode: function (callback) {
+    createNode: CC_EDITOR && function (callback) {
         //var Url = require('fire-url');
         //var node = new cc.Node(Url.basenameNoExt(info.url));
         //var skeleton = node.addComponent(sp.Skeleton);

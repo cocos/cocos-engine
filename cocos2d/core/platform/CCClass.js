@@ -1,5 +1,5 @@
 ﻿/****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2013-2017 Chukong Technologies Inc.
 
  http://www.cocos.com
 
@@ -30,17 +30,11 @@ var _isPlainEmptyObj_DEV = Utils.isPlainEmptyObj_DEV;
 var _cloneable_DEV = Utils.cloneable_DEV;
 var Attr = require('./attribute');
 var getTypeChecker = Attr.getTypeChecker;
-var preprocessAttrs = require('./preprocess-attrs');
+var preprocess = require('./preprocess-class');
 var Misc = require('../utils/misc');
+require('./requiring-frame');
 
 var BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', 'properties', 'statics', 'editor'];
-
-var TYPO_TO_CORRECT = CC_DEV && {
-    extend: 'extends',
-    property: 'properties',
-    static: 'statics',
-    constructor: 'ctor'
-};
 
 var INVALID_STATICS_DEV = CC_DEV && ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller',
                        'length', 'prototype'];
@@ -318,41 +312,43 @@ function doDefine (className, baseClass, mixins, constructor, options) {
     return fireClass;
 }
 
-function define (className, baseClasses, mixins, constructor, options) {
-    if (cc.isChildClassOf(baseClasses, cc.Component)) {
-        var frame = cc._RFpeek();
-        if (frame) {
-            if (CC_DEV && constructor) {
-                cc.warnID(3614, className);
-            }
-            if (frame.beh) {
-                cc.errorID(3615);
-                return cls;
-            }
+function define (className, baseClass, mixins, constructor, options) {
+    var Component = cc.Component;
+    var frame = cc._RF.peek();
+    if (frame && cc.isChildClassOf(baseClass, Component)) {
+        // project component
+        if (CC_DEV && constructor) {
+            cc.warnID(3614, className);
+        }
+        if (frame.cls instanceof Component) {
+            cc.errorID(3615);
+            return null;
+        }
+        if (CC_DEV && frame.uuid && className) {
+            cc.warnID(3616, className);
+        }
+        className = className || frame.script;
+    }
+
+    var cls = doDefine(className, baseClass, mixins, constructor, options);
+
+    if (frame) {
+        if (cc.isChildClassOf(baseClass, Component)) {
             var uuid = frame.uuid;
-            if (uuid) {
-                if (CC_EDITOR && className) {
-                    cc.warnID(3616, className);
-                }
-            }
-            //else {
-            //    builtin
-            //}
-            className = className || frame.script;
-            var cls = doDefine(className, baseClasses, mixins, constructor, options);
             if (uuid) {
                 JS._setClassId(uuid, cls);
                 if (CC_EDITOR) {
-                    cc.Component._addMenuItem(cls, 'i18n:MAIN_MENU.component.scripts/' + className, -1);
+                    Component._addMenuItem(cls, 'i18n:MAIN_MENU.component.scripts/' + className, -1);
                     cls.prototype.__scriptUuid = Editor.Utils.UuidUtils.decompressUuid(uuid);
                 }
             }
-            frame.beh = cls;
-            return cls;
+            frame.cls = cls;
+        }
+        else if (!(frame.cls instanceof Component)) {
+            frame.cls = cls;
         }
     }
-    // not project component
-    return doDefine(className, baseClasses, mixins, constructor, options);
+    return cls;
 }
 
 function normalizeClassName (className) {
@@ -686,7 +682,7 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
 
     if (properties) {
         // 预处理属性
-        preprocessAttrs(properties, className, cls);
+        preprocess.preprocessAttrs(properties, className, cls);
 
         for (var propName in properties) {
             var val = properties[propName];
@@ -842,38 +838,17 @@ function CCClass (options) {
         if (BUILTIN_ENTRIES.indexOf(funcName) >= 0) {
             continue;
         }
-        if (CC_EDITOR && funcName === 'constructor') {
-            cc.errorID(3643, name);
+        var func = options[funcName];
+        if (!preprocess.validateMethod(func, funcName, name, cls, base)) {
             continue;
         }
-        var func = options[funcName];
-        if (typeof func === 'function' || func === null) {
-            // use defineProperty to redefine some super method defined as getter
-            Object.defineProperty(cls.prototype, funcName, {
-                value: func,
-                enumerable: true,
-                configurable: true,
-                writable: true,
-            });
-        }
-        else if (CC_DEV) {
-            if (func === false && base && base.prototype) {
-                // check override
-                var overrided = base.prototype[funcName];
-                if (typeof overrided === 'function') {
-                    var baseFuc = JS.getClassName(base) + '.' + funcName;
-                    var subFuc = name + '.' + funcName;
-                    cc.warnID(3624, subFuc, baseFuc, subFuc, subFuc);
-                }
-            }
-            var correct = TYPO_TO_CORRECT[funcName];
-            if (correct) {
-                cc.warnID(3621, name, funcName, correct);
-            }
-            else if (func) {
-                cc.errorID(3622, name, funcName);
-            }
-        }
+        // use defineProperty to redefine some super method defined as getter
+        Object.defineProperty(cls.prototype, funcName, {
+            value: func,
+            enumerable: true,
+            configurable: true,
+            writable: true,
+        });
     }
 
     if (CC_DEV) {

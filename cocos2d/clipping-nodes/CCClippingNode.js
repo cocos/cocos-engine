@@ -42,8 +42,8 @@
  * @property {_ccsg.Node}  stencil         - he ccsg.Node to use as a stencil to do the clipping.
  */
 cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
-    alphaThreshold: 1,
     inverted: false,
+    _alphaThreshold: 0,
 
     _stencil: null,
     _className: "ClippingNode",
@@ -67,12 +67,12 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
      */
     init: function (stencil) {
         this._stencil = stencil;
-        this.alphaThreshold = 1;
-        this.inverted = false;
-        this._renderCmd.initStencilBits();
-
-        if (stencil)
+        if (stencil) {
             this._originStencilProgram = stencil.getShaderProgram();
+        }
+        this.inverted = false;
+        this.alphaThreshold = 1;
+        this._renderCmd.initStencilBits();
 
         return true;
     },
@@ -141,7 +141,7 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
      * @return {Number}
      */
     getAlphaThreshold: function () {
-        return this.alphaThreshold;
+        return this._alphaThreshold;
     },
 
     /**
@@ -149,11 +149,11 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
      * @param {Number} alphaThreshold
      */
     setAlphaThreshold: function (alphaThreshold) {
-        if (alphaThreshold === 1 && alphaThreshold !== this.alphaThreshold) {
+        if (alphaThreshold === 1 && alphaThreshold !== this._alphaThreshold) {
             // should reset program used by _stencil
             this._renderCmd.resetProgramByStencil();
         }
-        this.alphaThreshold = alphaThreshold;
+        this._alphaThreshold = alphaThreshold;
     },
 
     /**
@@ -214,5 +214,4 @@ var _p = cc.ClippingNode.prototype;
 
 // Extended properties
 cc.defineGetterSetter(_p, "stencil", _p.getStencil, _p.setStencil);
-/** @expose */
-_p.stencil;
+cc.defineGetterSetter(_p, "alphaThreshold", _p.getAlphaThreshold, _p.setAlphaThreshold);

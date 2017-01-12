@@ -2,13 +2,12 @@ var proto = dragonBones.CCArmatureDisplay.prototype;
 
 cc.js.mixin(proto, cc.EventTarget.prototype);
 
-proto.eventCallback = function (eventObject) {
-    this.emit(eventObject.type, eventObject);
-};
-
 proto.addEvent = function(type, listener, target) {
     if (!this.hasEventCallback()) {
-        this.setEventCallback(this.eventCallback.bind(this));
+        var self = this;
+        this.setEventCallback(function (eventObject) {
+            self.emit(eventObject.type, eventObject);
+        });
     }
     this.on(type, listener, target);
 };

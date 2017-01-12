@@ -30,7 +30,7 @@
             callback(null, res);
         };
         PackDownloader.initPacks(PACKS);
-        PackDownloader.load({ id: "f10d21ed" }, function (err, data) {
+        PackDownloader.load({ uuid: "f10d21ed" }, function (err, data) {
             ok(data === "f10d21ed", 'simple test');
             start();
         });
@@ -58,8 +58,8 @@
             };
             PackDownloader.initPacks(PACKS);
             //
-            PackDownloader.load({ id: "" + firstToLoad }, function (err, data) {
-                PackDownloader.load({ id: "A" }, function (err, data) {
+            PackDownloader.load({ uuid: "" + firstToLoad }, function (err, data) {
+                PackDownloader.load({ uuid: "A" }, function (err, data) {
                     strictEqual(lastLoadedPackUuid, 'PACK ' + firstToLoad, 'asset should load from previous loaded pack');
                     start();
                 });
@@ -93,9 +93,9 @@
         };
         PackDownloader.initPacks(PACKS);
         //
-        PackDownloader.load({ id: "1" }, function (err, data) {
+        PackDownloader.load({ uuid: "1" }, function (err, data) {
             strictEqual(lastLoadedPackUuid, 'PACK 1', 'asset should load from smallest pack 1');
-            PackDownloader.load({ id: "2" }, function (err, data) {
+            PackDownloader.load({ uuid: "2" }, function (err, data) {
                 strictEqual(lastLoadedPackUuid, 'PACK 2', 'asset should load from smallest pack 2');
                 start();
             });

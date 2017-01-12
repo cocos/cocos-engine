@@ -35,6 +35,13 @@ var SerializableAttrs = {
     rawType: {},
 };
 
+var TYPO_TO_CORRECT_DEV = CC_DEV && {
+    extend: 'extends',
+    property: 'properties',
+    static: 'statics',
+    constructor: 'ctor'
+};
+
 // 预处理 notify 等扩展属性
 function parseNotify (val, propName, notify, properties) {
     if (val.get || val.set) {
@@ -153,7 +160,7 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     }
 }
 
-module.exports = function (properties, className, cls) {
+module.exports.preprocessAttrs = function (properties, className, cls) {
     for (var propName in properties) {
         var val = properties[propName];
         var isLiteral = val && val.constructor === Object;
@@ -230,4 +237,41 @@ module.exports = function (properties, className, cls) {
             }
         }
     }
+};
+
+module.exports.validateMethod = function (func, funcName, className, cls, base) {
+    if (CC_DEV && funcName === 'constructor') {
+        cc.errorID(3643, className);
+        return false;
+    }
+    if (typeof func === 'function' || func === null) {
+        if (CC_DEV && cls.__props__ && cls.__props__.indexOf(funcName) >= 0) {
+            // find class that defines this method as a property
+            var baseClassName = cc.js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));
+            cc.errorID(3648, className, funcName, baseClassName);
+            return false;
+        }
+    }
+    else {
+        if (CC_DEV) {
+            if (func === false && base && base.prototype) {
+                // check override
+                var overrided = base.prototype[funcName];
+                if (typeof overrided === 'function') {
+                    var baseFuc = cc.js.getClassName(base) + '.' + funcName;
+                    var subFuc = className + '.' + funcName;
+                    cc.warnID(3624, subFuc, baseFuc, subFuc, subFuc);
+                }
+            }
+            var correct = TYPO_TO_CORRECT_DEV[funcName];
+            if (correct) {
+                cc.warnID(3621, className, funcName, correct);
+            }
+            else if (func) {
+                cc.errorID(3622, className, funcName);
+            }
+        }
+        return false;
+    }
+    return true;
 };

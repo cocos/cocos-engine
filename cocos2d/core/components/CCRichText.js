@@ -687,51 +687,68 @@ var RichText = cc.Class({
         }
     },
 
+    _convertLiteralColorValue: function (color) {
+        var colorValue = color.toUpperCase();
+        if (cc.Color[colorValue]) {
+            return cc.Color[colorValue];
+        } else {
+            return cc.hexToColor(color);
+        }
+    },
+
     _applyTextAttribute: function (label) {
         if(label instanceof cc.Scale9Sprite) return;
 
         var index = label._styleIndex;
         label.setLineHeight(this.lineHeight);
         label.setVerticalAlign(VerticalAlign.CENTER);
-        label.enableBold(false);
-        label.enableItalics(false);
-        label.enableUnderline(false);
 
         var textStyle = null;
-        if(this._textArray[index]) {
+        if (this._textArray[index]) {
             textStyle = this._textArray[index].style;
         }
-        if(textStyle && textStyle.color) {
-            var colorValue = textStyle.color.toUpperCase();
-            if(cc.Color[colorValue]) {
-                label.setColor(cc.Color[colorValue]);
-            } else {
-                label.setColor(cc.hexToColor(textStyle.color));
-            }
+        if (textStyle && textStyle.color) {
+            label.setColor(this._convertLiteralColorValue(textStyle.color));
         } else {
             label.setColor(this.node.color);
         }
 
-        if(textStyle && textStyle.bold) {
+        if (textStyle && textStyle.bold) {
             label.enableBold(true);
+        } else {
+            label.enableBold(false);
         }
 
-        if(textStyle && textStyle.italic) {
+        if (textStyle && textStyle.italic) {
             label.enableItalics(true);
+        } else {
+            label.enableItalics(false);
         }
 
-        if(textStyle && textStyle.underline) {
+        if (textStyle && textStyle.underline) {
             label.enableUnderline(true);
+        } else {
+            label.enableUnderline(false);
         }
 
-        if(textStyle && textStyle.size) {
+        if (textStyle && textStyle.outline) {
+            label.setOutlined(true);
+            label.setOutlineColor(this._convertLiteralColorValue(textStyle.outline.color));
+            label.setOutlineWidth(textStyle.outline.width);
+            label.setMargin(textStyle.outline.width);
+        } else {
+            label.setOutlined(false);
+            label.setMargin(0);
+        }
+
+        if (textStyle && textStyle.size) {
             label.setFontSize(textStyle.size);
         } else {
             label.setFontSize(this.fontSize);
         }
 
-        if(textStyle && textStyle.event) {
-            if(textStyle.event.click) {
+        if (textStyle && textStyle.event) {
+            if (textStyle.event.click) {
                 label._clickHandler = textStyle.event.click;
             }
         }

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2015 Chukong Technologies Inc.
+ Copyright (c) 2013-2017 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -1425,7 +1425,7 @@ var Node = cc.Class({
             return;
         }
         if (CC_EDITOR && !cc.engine.isPlaying) {
-            if (_Scene.DetectConflict.beforeAddChild(this)) {
+            if (_Scene.DetectConflict.beforeAddChild(this, value)) {
                 return;
             }
         }
