@@ -86,7 +86,7 @@ cc.PlistParser = cc.SAXParser.extend(/** @lends cc.plistParser# */{
         var xmlDoc = this._parseXML(xmlTxt);
         var plist = xmlDoc.documentElement;
         if (plist.tagName !== 'plist') {
-            cc.warn("Not a plist file!");
+            cc.warnID(5100);
             return {};
         }
 

@@ -95,9 +95,9 @@ proto._checkTextureBoundary = function (texture, rect, rotated) {
     if (texture && texture.url) {
         var _x = rect.x + rect.width, _y = rect.y + rect.height;
         if (_x > texture.width)
-            cc.error(cc._LogInfos.RectWidth, texture.url);
+            cc.errorID(3300, texture.url);
         if (_y > texture.height)
-            cc.error(cc._LogInfos.RectHeight, texture.url);
+            cc.errorID(3400, texture.url);
     }
 };
 

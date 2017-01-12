@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+// TODO - merge with misc.js
+
 module.exports = {
     isDomNode: typeof window === 'object' && (typeof Node === 'function' ?
         function (obj) {

@@ -586,14 +586,16 @@ else {
     /* Determine the browser type */
     (function(){
         var typeReg1 = /mqqbrowser|sogou|qzone|liebao|micromessenger|ucbrowser|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|trident|miuibrowser/i;
-        var typeReg2 = /qqbrowser|chrome|safari|firefox|opr|oupeng|opera/i;
+        var typeReg2 = /qqbrowser|qq|chrome|safari|firefox|opr|oupeng|opera/i;
         var browserTypes = typeReg1.exec(ua);
         if(!browserTypes) browserTypes = typeReg2.exec(ua);
-        var browserType = browserTypes ? browserTypes[0] : sys.BROWSER_TYPE_UNKNOWN;
+        var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
         if (browserType === 'micromessenger')
             browserType = sys.BROWSER_TYPE_WECHAT;
-        else if (browserType === "safari" && (ua.match(/android.*applewebkit/)))
-            browserType = sys.BROWSER_TYPE_ANDROID;
+        else if (browserType === "safari"  || browserType === "qq") {
+            if (ua.match(/android.*applewebkit/i)) 
+                browserType = sys.BROWSER_TYPE_ANDROID;
+        }
         else if (browserType === "trident")
             browserType = sys.BROWSER_TYPE_IE;
         else if (browserType === "360 aphone")
@@ -719,7 +721,7 @@ else {
         localStorage = null;
     } catch (e) {
         var warn = function () {
-            cc.warn("Warning: localStorage isn't enabled. Please confirm browser cookie or privacy option");
+            cc.warnID(5200);
         };
         sys.localStorage = {
             getItem : warn,
@@ -870,7 +872,7 @@ else {
         }
     } catch(error) {
         __audioSupport.WEB_AUDIO = false;
-        cc.log("browser don't support web audio");
+        cc.logID(5201);
     }
 
     var formatSupport = [];

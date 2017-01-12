@@ -173,7 +173,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                         armaturesEnum = this.dragonAsset.getArmatureEnum();
                     }
                     if ( !armaturesEnum ) {
-                        return cc.error('Failed to set _defaultArmatureIndex for "%s" because its dragonAsset is invalid.', this.name);
+                        return cc.errorID(7400, this.name);
                     }
 
                     armatureName = armaturesEnum[this._defaultArmatureIndex];
@@ -183,7 +183,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                     this.armatureName = armatureName;
                 }
                 else {
-                    cc.error('Failed to set _defaultArmatureIndex for "%s" because the index is out of range.', this.name);
+                    cc.errorID(7401, this.name);
                 }
             },
             type: DefaultArmaturesEnum,
@@ -216,7 +216,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                     this.animationName = animName;
                 }
                 else {
-                    cc.error('Failed to set _animationIndex for "%s" because the index is out of range.', this.name);
+                    cc.errorID(7402, this.name);
                 }
             },
             type: DefaultAnimsEnum,
@@ -279,7 +279,14 @@ dragonBones.ArmatureDisplay = cc.Class({
 
     // IMPLEMENT
     ctor : function () {
-        this._factory = new dragonBones.CCFactory();
+        if (CC_JSB) {
+            // TODO Fix me
+            // If using the getFactory in JSB.
+            // There may be throw errors when close the application.
+            this._factory = new dragonBones.CCFactory();
+        } else {
+            this._factory = dragonBones.CCFactory.getFactory();
+        }
     },
 
     __preload : function () {
@@ -334,8 +341,26 @@ dragonBones.ArmatureDisplay = cc.Class({
                 this._factory.parseTextureAtlasData(this.dragonAtlasAsset.atlasJson, this.dragonAtlasAsset.texture);
             } else {
                 var atlasJsonObj = JSON.parse(this.dragonAtlasAsset.atlasJson);
-                var texture = cc.textureCache.getTextureForKey(this.dragonAtlasAsset.texture);
-                this._factory.parseTextureAtlasData(atlasJsonObj, texture);
+                var atlasName = atlasJsonObj.name;
+                var existedAtlasData = null;
+                var atlasDataList = this._factory.getTextureAtlasData(atlasName);
+                var texturePath = this.dragonAtlasAsset.texture;
+                if (atlasDataList && atlasDataList.length > 0) {
+                    for (var idx in atlasDataList) {
+                        var data = atlasDataList[idx];
+                        if (data && data.texture && data.texture.url === texturePath) {
+                            existedAtlasData = data;
+                            break;
+                        }
+                    }
+                }
+
+                var texture = cc.textureCache.getTextureForKey(texturePath);
+                if (existedAtlasData) {
+                    existedAtlasData.texture = texture;
+                } else {
+                    this._factory.parseTextureAtlasData(atlasJsonObj, texture);
+                }
             }
         }
     },
@@ -344,7 +369,9 @@ dragonBones.ArmatureDisplay = cc.Class({
         var self = this;
 
         // discard exists sgNode
+        var listenersBefore = null;
         if (self._sgNode) {
+            listenersBefore = self._sgNode._bubblingListeners; // get the listeners added before
             if ( self.node._sizeProvider === self._sgNode ) {
                 self.node._sizeProvider = null;
             }
@@ -360,6 +387,10 @@ dragonBones.ArmatureDisplay = cc.Class({
             }
             if ( !self.enabledInHierarchy ) {
                 sgNode.setVisible(false);
+            }
+
+            if (listenersBefore) {
+                sgNode._bubblingListeners = listenersBefore; // using the listeners added before
             }
 
             self._initSgNode();

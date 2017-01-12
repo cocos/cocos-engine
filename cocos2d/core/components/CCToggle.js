@@ -48,7 +48,7 @@ var Toggle = cc.Class({
          */
         isChecked: {
             default: true,
-            tooltip: 'i18n:COMPONENT.toggle.isChecked',
+            tooltip: CC_DEV && 'i18n:COMPONENT.toggle.isChecked',
             notify: function() {
                 this._updateCheckMark();
             }
@@ -63,7 +63,7 @@ var Toggle = cc.Class({
          */
         toggleGroup: {
             default: null,
-            tooltip: 'i18n:COMPONENT.toggle.toggleGroup',
+            tooltip: CC_DEV && 'i18n:COMPONENT.toggle.toggleGroup',
             type: cc.ToggleGroup
         },
 
@@ -75,7 +75,7 @@ var Toggle = cc.Class({
         checkMark: {
             default: null,
             type: cc.Sprite,
-            tooltip: 'i18n:COMPONENT.toggle.checkMark'
+            tooltip: CC_DEV && 'i18n:COMPONENT.toggle.checkMark'
         },
 
         /**
@@ -187,7 +187,7 @@ var Toggle = cc.Class({
         }
 
         this.isChecked = true;
-        this.node.emit('toggle', this);
+        this._emitToggleEvents();
 
         if(this.toggleGroup) {
             this.toggleGroup.updateToggles(this);
@@ -208,7 +208,7 @@ var Toggle = cc.Class({
 
         this.isChecked = false;
 
-        this.node.emit('toggle', this);
+        this._emitToggleEvents();
     }
 
 

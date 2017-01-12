@@ -109,7 +109,8 @@ function initQuadBuffer (numQuads) {
 
 var VertexType = cc.Enum({
     QUAD : 0,
-    TRIANGLE : 1
+    TRIANGLE : 1,
+    CUSTOM: 2
 });
 
 cc.rendererWebGL = {
@@ -274,7 +275,7 @@ cc.rendererWebGL = {
         }
     },
 
-    _increaseBatchingSize: function (increment, vertexType) {
+    _increaseBatchingSize: function (increment, vertexType, indices) {
         vertexType = vertexType || VertexType.QUAD;
         var i, curr;
         switch (vertexType) {
@@ -298,10 +299,33 @@ cc.rendererWebGL = {
                 _indexData[_indexSize++] = curr + 2;
             }
             break;
+        case VertexType.CUSTOM:
+            // CUSTOM type increase the indices data
+            _pureQuad = false;
+            var len = indices.length;
+            for (i = 0; i < len; i++) {
+                _indexData[_indexSize++] = _batchingSize + indices[i];
+            }
+            break;
         default:
             return;
         }
         _batchingSize += increment;
+    },
+
+    _updateBatchedInfo: function (texture, blendFunc, shaderProgram) {
+        if (texture) {
+            _batchedInfo.texture = texture;
+        }
+
+        if (blendFunc) {
+            _batchedInfo.blendSrc = blendFunc.src;
+            _batchedInfo.blendDst = blendFunc.dst;
+        }
+
+        if (shaderProgram) {
+            _batchedInfo.shader = shaderProgram;
+        }
     },
 
     _breakBatch: function () {
@@ -315,7 +339,7 @@ cc.rendererWebGL = {
 
         // Check batching
         var node = cmd._node;
-        var texture = cmd._texture || node._texture || node._spriteFrame._texture;
+        var texture = cmd._texture || node._texture || (node._spriteFrame && node._spriteFrame._texture);
         var blendSrc = cmd._node._blendFunc.src;
         var blendDst = cmd._node._blendFunc.dst;
         var shader = cmd._shaderProgram;
@@ -357,6 +381,12 @@ cc.rendererWebGL = {
                     _indexData[_indexSize++] = curr + 0;
                     _indexData[_indexSize++] = curr + 1;
                     _indexData[_indexSize++] = curr + 2;
+                }
+                break;
+            case VertexType.CUSTOM:
+                _pureQuad = false;
+                if (cmd.uploadIndexData) {
+                    _indexSize += cmd.uploadIndexData(_indexData, _indexSize, _batchingSize);
                 }
                 break;
             default:

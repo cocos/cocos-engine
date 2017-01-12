@@ -1,6 +1,11 @@
 module('JSON packer/unpacker');
 
 (function () {
+
+    if (!TestEditorExtends) {
+        return;
+    }
+
     var KEY1 = 'amitabha';
     var JSON1 = {
         __born__: 1985,

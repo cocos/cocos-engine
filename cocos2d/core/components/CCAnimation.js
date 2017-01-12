@@ -119,7 +119,7 @@ var Animation = cc.Class({
 
                 this.addClip(value);
             },
-            tooltip: 'i18n:COMPONENT.animation.default_clip'
+            tooltip: CC_DEV && 'i18n:COMPONENT.animation.default_clip'
         },
 
         /**
@@ -149,7 +149,7 @@ var Animation = cc.Class({
         _clips: {
             default: [],
             type: [AnimationClip],
-            tooltip: 'i18n:COMPONENT.animation.clips',
+            tooltip: CC_DEV && 'i18n:COMPONENT.animation.clips',
             visible: true
         },
 
@@ -162,7 +162,7 @@ var Animation = cc.Class({
          */
         playOnLoad: {
             default: false,
-            tooltip: 'i18n:COMPONENT.animation.play_on_load'
+            tooltip: CC_DEV && 'i18n:COMPONENT.animation.play_on_load'
         }
     },
 
@@ -388,7 +388,7 @@ var Animation = cc.Class({
      */
     addClip: function (clip, newName) {
         if (!clip) {
-            cc.warn('Invalid clip to add');
+            cc.warnID(3900);
             return;
         }
         this._init();
@@ -434,7 +434,7 @@ var Animation = cc.Class({
      */
     removeClip: function (clip, force) {
         if (!clip) {
-            cc.warn('Invalid clip to remove');
+            cc.warnID(3901);
             return;
         }
         this._init();
@@ -451,7 +451,7 @@ var Animation = cc.Class({
         if (clip === this._defaultClip) {
             if (force) this._defaultClip = null;
             else {
-                if (!CC_TEST) cc.warn('clip is defaultClip, set force to true to force remove clip and animation state');
+                if (!CC_TEST) cc.warnID(3902);
                 return;
             } 
         }
@@ -459,7 +459,7 @@ var Animation = cc.Class({
         if (state && state.isPlaying) {
             if (force) this.stop(state.name);
             else {
-                if (!CC_TEST) cc.warn('animation state is playing, set force to true to force stop and remove clip and animation state');
+                if (!CC_TEST) cc.warnID(3903);
                 return;
             }
         }

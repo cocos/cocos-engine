@@ -72,7 +72,7 @@ function syncFlow (item) {
     var pipeId = this.id;
     var itemState = item.states[pipeId];
     var next = this.next;
-    
+
     if (item.error || itemState === ItemState.WORKING || itemState === ItemState.ERROR) {
         return;
     }
@@ -364,6 +364,7 @@ JS.mixin(Pipeline.prototype, {
         if (!item)
             return item;
 
+        // downloader.js downloadUuid
         if (item.alias)
             item = this._cache[item.alias];
 

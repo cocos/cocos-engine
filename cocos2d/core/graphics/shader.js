@@ -28,8 +28,7 @@ var vert = [
     '',
     'void main()',
     '{',
-    // '    gl_Position = CC_MVPMatrix * a_position;',
-    '    gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;',
+    'gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;',
     '}'
 ];
 
@@ -41,7 +40,7 @@ var frag = [
     'uniform vec4 color;',
     '',
     'void main(void) {',
-    '    gl_FragColor = color;',
+    'gl_FragColor = color;',
     '}'
 ];
     

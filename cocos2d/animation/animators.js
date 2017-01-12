@@ -83,7 +83,7 @@ animProto.removeAnimation = function (anim) {
         }
     }
     else {
-        cc.error('animation not added or already removed');
+        cc.errorID(3908);
     }
 };
 
@@ -140,7 +140,7 @@ if (CC_TEST) {
 // */
 entProto.animate = function (keyFrames, timingInput) {
     if (! keyFrames) {
-        cc.error('[animate] keyFrames must be non-nil');
+        cc.errorID(3909);
         return null;
     }
     // compute absolute ratio of each keyframe with a null ratio
@@ -196,11 +196,11 @@ entProto._doAnimate = function (keyFrames, timingInput) {
             ratio = frame.computedRatio;
         }
         if (ratio < 0) {
-            cc.error('[animate] ratio should >= 0!');
+            cc.errorID(3910);
             continue;
         }
         if (ratio < lastRatio) {
-            cc.error('[animate] ratio should in the order of smallest to largest!');
+            cc.errorID(3911);
             continue;
         }
         lastRatio = ratio;

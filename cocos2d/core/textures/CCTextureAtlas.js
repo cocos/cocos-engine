@@ -215,7 +215,7 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
         if (texture)
             return this.initWithTexture(texture, capacity);
         else {
-            cc.log(cc._LogInfos.TextureAtlas.initWithFile, file);
+            cc.logID(2900, file);
             return false;
         }
     },
@@ -232,7 +232,7 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
      * @example {@link utils/api/engine/docs/cocos2d/core/textures/initWithTexture.js}
      */
     initWithTexture: function (texture, capacity) {
-        cc.assert(texture, cc._LogInfos.TextureAtlas.initWithTexture);
+        cc.assertID(texture, 2902);
 
         capacity = 0 | (capacity);
         this._capacity = capacity;
@@ -269,8 +269,8 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
      * @param {Number} index
      */
     updateQuad: function (quad, index) {
-        cc.assert(quad, cc._LogInfos.TextureAtlas.updateQuad);
-        cc.assert(index >= 0 && index < this._capacity, cc._LogInfos.TextureAtlas.updateQuad_2);
+        cc.assertID(quad, 2903);
+        cc.assertID(index >= 0 && index < this._capacity, 2904);
 
         this._totalQuads = Math.max(index + 1, this._totalQuads);
         this._setQuadToArray(quad, index);
@@ -285,11 +285,11 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
      * @param {Number} index
      */
     insertQuad: function (quad, index) {
-        cc.assert(index < this._capacity, cc._LogInfos.TextureAtlas.insertQuad_2);
+        cc.assertID(index < this._capacity, 2905);
 
         this._totalQuads++;
         if (this._totalQuads > this._capacity) {
-            cc.log(cc._LogInfos.TextureAtlas.insertQuad);
+            cc.logID(2901);
             return;
         }
         var quadSize = cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT;
@@ -319,12 +319,12 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
     insertQuads: function (quads, index, amount) {
         amount = amount || quads.length;
 
-        cc.assert((index + amount) <= this._capacity, cc._LogInfos.TextureAtlas.insertQuads);
+        cc.assertID((index + amount) <= this._capacity, 2906);
 
         var quadSize = cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT;
         this._totalQuads += amount;
         if (this._totalQuads > this._capacity) {
-            cc.log(cc._LogInfos.TextureAtlas.insertQuad);
+            cc.logID(2901);
             return;
         }
 
@@ -355,9 +355,9 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
         if (fromIndex === newIndex)
             return;
 
-        cc.assert(newIndex >= 0 || newIndex < this._totalQuads, cc._LogInfos.TextureAtlas.insertQuadFromIndex);
+        cc.assertID(newIndex >= 0 || newIndex < this._totalQuads, 2907);
 
-        cc.assert(fromIndex >= 0 || fromIndex < this._totalQuads, cc._LogInfos.TextureAtlas.insertQuadFromIndex_2);
+        cc.assertID(fromIndex >= 0 || fromIndex < this._totalQuads, 2908);
 
         var quadSize = cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT;
         var locQuadsReader = this._quadsReader;
@@ -384,7 +384,7 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
      * @param {Number} index
      */
     removeQuadAtIndex: function (index) {
-        cc.assert(index < this._totalQuads, cc._LogInfos.TextureAtlas.removeQuadAtIndex);
+        cc.assertID(index < this._totalQuads, 2909);
 
         var quadSize = cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT;
         this._totalQuads--;
@@ -405,7 +405,7 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
      * @param {Number} amount
      */
     removeQuadsAtIndex: function (index, amount) {
-        cc.assert(index + amount <= this._totalQuads, cc._LogInfos.TextureAtlas.removeQuadsAtIndex);
+        cc.assertID(index + amount <= this._totalQuads, 2910);
 
         this._totalQuads -= amount;
 
@@ -531,13 +531,13 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
             newIndex = amount;
             amount = this._totalQuads - oldIndex;
 
-            cc.assert((newIndex + (this._totalQuads - oldIndex)) <= this._capacity, cc._LogInfos.TextureAtlas.moveQuadsFromIndex);
+            cc.assertID((newIndex + (this._totalQuads - oldIndex)) <= this._capacity, 2911);
 
             if (amount === 0)
                 return;
         } else {
-            cc.assert((newIndex + amount) <= this._totalQuads, cc._LogInfos.TextureAtlas.moveQuadsFromIndex_2);
-            cc.assert(oldIndex < this._totalQuads, cc._LogInfos.TextureAtlas.moveQuadsFromIndex_3);
+            cc.assertID((newIndex + amount) <= this._totalQuads, 2912);
+            cc.assertID(oldIndex < this._totalQuads, 2913);
 
             if (oldIndex === newIndex)
                 return;

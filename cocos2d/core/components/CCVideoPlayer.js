@@ -95,7 +95,7 @@ var VideoPlayer = cc.Class({
          * @property {VideoPlayer.ResourceType} resourceType
          */
         resourceType: {
-            tooltip: 'i18n:COMPONENT.videoplayer.resourceType',
+            tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.resourceType',
             type: ResourceType,
             set: function ( value ) {
                 this._resourceType = value;
@@ -113,7 +113,7 @@ var VideoPlayer = cc.Class({
          * @property {String} remoteURL
          */
         remoteURL: {
-            tooltip: 'i18n:COMPONENT.videoplayer.url',
+            tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.url',
             type: cc.String,
             set: function ( url ) {
                 this._remoteURL = url;
@@ -134,7 +134,7 @@ var VideoPlayer = cc.Class({
          * @property {String} clip
          */
         clip: {
-            tooltip: 'i18n:COMPONENT.videoplayer.video',
+            tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.video',
             get: function () {
                 return this._clip;
             },
@@ -153,7 +153,7 @@ var VideoPlayer = cc.Class({
          * @property {Number} currentTime
          */
         currentTime: {
-            tooltip: 'i18n:COMPONENT.videoplayer.currentTime',
+            tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.currentTime',
             type: cc.Float,
             set: function ( time ) {
                 if(this._sgNode) {
@@ -174,7 +174,7 @@ var VideoPlayer = cc.Class({
          * @property {Boolean} keepAspectRatio
          */
         keepAspectRatio: {
-            tooltip: 'i18n:COMPONENT.videoplayer.keepAspectRatio',
+            tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.keepAspectRatio',
             default: true,
             type: cc.Boolean,
             notify: function () {
@@ -188,7 +188,7 @@ var VideoPlayer = cc.Class({
          * @property {Boolean} isFullscreen
          */
         isFullscreen: {
-            tooltip: 'i18n:COMPONENT.videoplayer.isFullscreen',
+            tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.isFullscreen',
             default: false,
             type: cc.Boolean,
             notify: function() {

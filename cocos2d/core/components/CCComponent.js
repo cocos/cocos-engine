@@ -334,8 +334,8 @@ var Component = cc.Class({
             get: function () {},
             //set: function (value) {
             //    if (this.__scriptUuid !== value) {
-            //        if (value && Editor.UuidUtils.isUuid(value._uuid)) {
-            //            var classId = Editor.UuidUtils.compressUuid(value._uuid);
+            //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
+            //            var classId = Editor.Utils.UuidUtils.compressUuid(value._uuid);
             //            var NewComp = cc.js._getClassById(classId);
             //            if (cc.isChildClassOf(NewComp, cc.Component)) {
             //                cc.warn('Sorry, replacing component script is not yet implemented.');
@@ -352,7 +352,7 @@ var Component = cc.Class({
             //},
             displayName: 'Script',
             type: cc._Script,
-            tooltip: 'i18n:INSPECTOR.component.script'
+            tooltip: CC_DEV && 'i18n:INSPECTOR.component.script'
         },
 
         /**
@@ -646,7 +646,7 @@ var Component = cc.Class({
         if (CC_EDITOR) {
             var depend = this.node._getDependComponent(this);
             if (depend) {
-                return cc.error("Can't remove '%s' because '%s' depends on it.",
+                return cc.errorID(3626,
                     cc.js.getClassName(this), cc.js.getClassName(depend));
             }
         }
@@ -749,12 +749,12 @@ var Component = cc.Class({
         }
     },
 
-    _destruct: Misc.destructIgnoreId,
-
-    _instantiate: function () {
-        var clone = cc.instantiate._clone(this, this);
-        clone.node = null;
-        return clone;
+    _instantiate: function (cloned) {
+        if (!cloned) {
+            cloned = cc.instantiate._clone(this, this);
+        }
+        cloned.node = null;
+        return cloned;
     },
 
 // Scheduler
@@ -782,8 +782,8 @@ var Component = cc.Class({
      * this.schedule(timeCallback, 1);
      */
     schedule: function (callback, interval, repeat, delay) {
-        cc.assert(callback, cc._LogInfos.Node.schedule);
-        cc.assert(interval >= 0, cc._LogInfos.Node.schedule_2);
+        cc.assertID(callback, 1619);
+        cc.assertID(interval >= 0, 1620);
 
         interval = interval || 0;
         repeat = isNaN(repeat) ? cc.macro.REPEAT_FOREVER : repeat;
@@ -892,7 +892,7 @@ Object.defineProperty(Component, '_registerEditorProps', {
                                 cls._playOnFocus = true;
                             }
                             else {
-                                cc.warn('The editor property "playOnFocus" should be used with "executeInEditMode" in class "%s".', name);
+                                cc.warnID(3601, name);
                             }
                         }
                         break;
@@ -922,7 +922,7 @@ Object.defineProperty(Component, '_registerEditorProps', {
                         break;
 
                     default:
-                        cc.warn('Unknown editor property "%s" in class "%s".', key, name);
+                        cc.warnID(3602, key, name);
                         break;
                 }
             }

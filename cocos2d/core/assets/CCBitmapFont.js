@@ -38,20 +38,18 @@ var BitmapFont = cc.Class({
     extends: cc.Font,
 
     properties: {
-        texture: {
-            default: '',
-            url: cc.Texture2D
+        fntDataStr: {
+            default: ''
+        },
+
+        spriteFrame: {
+            default: null,
+            type: cc.SpriteFrame
         },
 
         fontSize: {
             default: -1
         }
-    },
-
-    _preloadRawFiles: function (done) {
-        // preload fnt file. (texture already loaded in properties)
-        var fntUrl = this.rawUrl;
-        cc.loader.load({ id: fntUrl, ignoreMaxConcurrency: true }, done);
     }
 });
 

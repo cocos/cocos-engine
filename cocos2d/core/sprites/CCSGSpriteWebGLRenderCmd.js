@@ -39,7 +39,7 @@ _ccsg.Sprite.WebGLRenderCmd = function (renderable) {
     this._dirty = false;
     this._recursiveDirty = false;
 
-    this._shaderProgram = cc.shaderCache.programForKey(macro.SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST);
+    this._shaderProgram = cc.shaderCache.programForKey(macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
 };
 
 var proto = _ccsg.Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
@@ -67,11 +67,11 @@ proto._setBatchNodeForAddChild = function (child) {
     var node = this._node;
     if (node._batchNode) {
         if (!(child instanceof _ccsg.Sprite)) {
-            cc.log(cc._LogInfos.Sprite.addChild);
+            cc.logID(2612);
             return false;
         }
         if (child.texture._webTextureObj !== node.textureAtlas.texture._webTextureObj)
-            cc.log(cc._LogInfos.Sprite_addChild_2);
+            cc.logID(2613);
 
         //put it in descendants array of batch node
         node._batchNode.appendChild(child);
@@ -210,7 +210,7 @@ proto._setColorDirty = function () {};
 
 proto._updateBlendFunc = function () {
     if (this._batchNode) {
-        cc.log(cc._LogInfos.Sprite__updateBlendFunc);
+        cc.logID(2605);
         return;
     }
 
@@ -232,7 +232,7 @@ proto._setTexture = function (texture) {
     // If batchnode, then texture id should be the same
     if (node._batchNode) {
         if(node._batchNode.texture !== texture){
-            cc.log(cc._LogInfos.Sprite_setTexture);
+            cc.logID(2615);
             return;
         }
     }else{
@@ -261,10 +261,10 @@ proto._checkTextureBoundary = function (texture, rect, rotated) {
             _y = rect.y + rect.height;
         }
         if (_x > texture.width) {
-            cc.error(cc._LogInfos.RectWidth, texture.url);
+            cc.errorID(3300, texture.url);
         }
         if (_y > texture.height) {
-            cc.error(cc._LogInfos.RectHeight, texture.url);
+            cc.errorID(3400, texture.url);
         }
     }
 };

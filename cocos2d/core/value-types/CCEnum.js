@@ -62,7 +62,7 @@ cc.Enum = function (obj) {
         var reverseKey = '' + val;
         if (key !== reverseKey) {
             if (enumType.hasOwnProperty(reverseKey) && CC_EDITOR) {
-                cc.error('%s already defined in Enum.', reverseKey);
+                cc.errorID(7100, reverseKey);
                 continue;
             }
             Object.defineProperty(enumType, reverseKey, {
@@ -113,8 +113,7 @@ if (CC_DEV) {
         THREE: -1
     });
     if (_TestEnum.ZERO !== 0 || _TestEnum.ONE !== 1 || _TestEnum.TWO !== 2 || _TestEnum.THREE !== 3) {
-        cc.error('Sorry, "cc.Enum" not available on this platform, ' +
-                 'please report this error here: https://github.com/fireball-x/fireball/issues/new');
+        cc.errorID(7101);
     }
 }
 

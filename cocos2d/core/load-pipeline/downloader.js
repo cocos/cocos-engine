@@ -42,7 +42,7 @@ else {
 
 function downloadScript (item, callback, isAsync) {
     var url = item.url,
-        d = document, 
+        d = document,
         s = document.createElement('script');
     s.async = isAsync;
     s.src = urlAppendTimestamp(url);
@@ -101,7 +101,9 @@ function downloadImage (item, callback, isCrossOrigin, img) {
             img.removeEventListener('load', loadCallback);
             img.removeEventListener('error', errorCallback);
 
-            if (img.crossOrigin && img.crossOrigin.toLowerCase() === 'anonymous') {
+            // Retry without crossOrigin mark if crossOrigin loading fails
+            // Do not retry if protocol is https, even if the image is loaded, cross origin image isn't renderable.
+            if (window.location.protocol !== 'https:' && img.crossOrigin && img.crossOrigin.toLowerCase() === 'anonymous') {
                 downloadImage(item, callback, false, img);
             }
             else {
@@ -123,8 +125,8 @@ var FONT_TYPE = {
     '.svg' : 'svg'
 };
 function _loadFont (name, srcs, type){
-    var doc = document, 
-        path = cc.path, 
+    var doc = document,
+        path = cc.path,
         fontStyle = document.createElement('style');
     fontStyle.type = 'text/css';
     doc.body.appendChild(fontStyle);
@@ -161,8 +163,8 @@ function _loadFont (name, srcs, type){
 }
 function downloadFont (item, callback) {
     var url = item.url,
-        type = item.type, 
-        name = item.name, 
+        type = item.type,
+        name = item.name,
         srcs = item.srcs;
     if (name && srcs) {
         if (srcs.indexOf(url) === -1) {
@@ -188,7 +190,7 @@ function downloadFont (item, callback) {
 var reusedArray = [];
 
 function downloadUuid (item, callback) {
-    var uuid = item.id;
+    var uuid = item.uuid;
     var self = this;
     cc.AssetLibrary.queryAssetInfo(uuid, function (error, url, isRawAsset) {
         if (error) {
@@ -302,7 +304,7 @@ var ID = 'Downloader';
  *      // This will match all url with `.scene` extension or all url with `scene` type
  *      'scene' : function (url, callback) {}
  *  });
- * 
+ *
  * @method Downloader
  * @param {Object} extMap Custom supported types with corresponded handler
  */

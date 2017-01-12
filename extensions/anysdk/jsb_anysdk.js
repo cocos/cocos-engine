@@ -2634,7 +2634,7 @@ anysdk.AdsType = {
     /**
      * !#en Reward Video Ads
      * !#zh 激励视频
-     * @property {Number} AD_TYPE_REWARDEDVIDEOc
+     * @property {Number} AD_TYPE_REWARDEDVIDEO
      */
     AD_TYPE_REWARDEDVIDEO: 4,
 

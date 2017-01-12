@@ -96,6 +96,9 @@ test('start', function () {
     cc.game.step();
     // run TestComp
     cc.game.step();
+
+    // end test
+    node.active = false;
 });
 
 test('start should only', function () {

@@ -264,15 +264,15 @@ cc.configuration = /** @lends cc.configuration# */{
      * @param {string} url
      */
     loadConfigFile: function( url){
-	    if(!this._inited)
-		    this._init();
+        if(!this._inited)
+            this._init();
         var dict = cc.loader.getRes(url);
         if(!dict) throw new Error("Please load the resource first : " + url);
-        cc.assert(dict, cc._LogInfos.configuration.loadConfigFile_2, url);
+        cc.assertID(dict, 1101, url);
 
         var getDatas = dict["data"];
         if(!getDatas){
-            cc.log(cc._LogInfos.configuration.loadConfigFile, url);
+            cc.logID(1100, url);
             return;
         }
 

@@ -183,7 +183,7 @@ var Label = cc.Class({
         string: {
             default: 'Label',
             multiline: true,
-            tooltip: 'i18n:COMPONENT.label.string',
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.string',
             notify: function () {
                 if (this._sgNode) {
                     if (CC_EDITOR) {
@@ -206,7 +206,7 @@ var Label = cc.Class({
         horizontalAlign: {
             default: HorizontalAlign.LEFT,
             type: HorizontalAlign,
-            tooltip: 'i18n:COMPONENT.label.horizontal_align',
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.horizontal_align',
             notify: function () {
                 if (this._sgNode) {
                     this._sgNode.setHorizontalAlign( this.horizontalAlign );
@@ -223,7 +223,7 @@ var Label = cc.Class({
         verticalAlign: {
             default: VerticalAlign.TOP,
             type: VerticalAlign,
-            tooltip: 'i18n:COMPONENT.label.vertical_align',
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.vertical_align',
             notify: function () {
                 if (this._sgNode) {
                     this._sgNode.setVerticalAlign( this.verticalAlign );
@@ -272,7 +272,7 @@ var Label = cc.Class({
                     this._updateSgNodeFontSize();
                 }
             },
-            tooltip: 'i18n:COMPONENT.label.font_size',
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.font_size',
         },
 
         _lineHeight: 40,
@@ -296,7 +296,7 @@ var Label = cc.Class({
                     this._updateNodeSize();
                 }
             },
-            tooltip: 'i18n:COMPONENT.label.line_height',
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.line_height',
         },
         /**
          * !#en Overflow of label.
@@ -306,7 +306,7 @@ var Label = cc.Class({
         overflow: {
             default: Overflow.NONE,
             type: Overflow,
-            tooltip: 'i18n:COMPONENT.label.overflow',
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.overflow',
             notify: function () {
                 if (this._sgNode) {
                     this._sgNode.setOverflow(this.overflow);
@@ -336,7 +336,7 @@ var Label = cc.Class({
                 }
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.label.wrap',
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.wrap',
         },
 
         // 这个保存了旧项目的 file 数据
@@ -369,14 +369,17 @@ var Label = cc.Class({
                 if (this._sgNode) {
 
                     if ( typeof value === 'string' ) {
-                        cc.warn('Sorry, the cc.Font has been modified from Raw Asset to Asset.' +
-                            'Please load the font asset before using.');
+                        cc.warnID(4000);
                     }
 
                     var isAsset = value instanceof cc.Font;
-                    var fntRawUrl = isAsset ? value.rawUrl : '';
-                    var textureUrl = isAsset ? value.texture : '';
-                    this._sgNode.setFontFileOrFamily(fntRawUrl, textureUrl);
+
+                    if (this.font instanceof cc.BitmapFont) {
+                        this._sgNode.setFontFileOrFamily(this.font.fntDataStr, this.font.spriteFrame);
+                    } else {
+                        var ttfName = isAsset ? value.rawUrl : '';
+                        this._sgNode.setFontFileOrFamily(ttfName);
+                    }
                 }
 
                 if (value instanceof cc.BitmapFont) {
@@ -384,7 +387,7 @@ var Label = cc.Class({
                 }
             },
             type: cc.Font,
-            tooltip: 'i18n:COMPONENT.label.font',
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.font',
             animatable: false
         },
 
@@ -417,7 +420,7 @@ var Label = cc.Class({
 
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.label.system_font',
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.system_font',
         },
 
         _bmFontOriginalSize: {
@@ -459,24 +462,28 @@ var Label = cc.Class({
     _initSgNode: function () {
 
         if ( typeof this.font === 'string' ) {
-            cc.warn('Sorry, the cc.Font has been modified from Raw Asset to Asset.' +
-                'Please load the font asset before using.');
+            cc.warnID(4000);
         }
 
         var isAsset = this.font instanceof cc.Font;
-        var fntRawUrl = isAsset ? this.font.rawUrl : '';
-        var textureUrl = isAsset ? this.font.texture : '';
-        if (this.font instanceof cc.BitmapFont) {
-            this._bmFontOriginalSize = this.font.fontSize;
-        }
 
-        var sgNode = this._sgNode = new _ccsg.Label(this.string, fntRawUrl, textureUrl);
-        sgNode.setVisible(false);
+        var sgNode;
+        if (this.font instanceof cc.BitmapFont) {
+            sgNode = this._sgNode = new _ccsg.Label(this.string, this.font.fntDataStr, this.font.spriteFrame);
+        } else {
+            var ttfName = isAsset ? this.font.rawUrl : '';
+            sgNode = this._sgNode = new _ccsg.Label(this.string, ttfName);
+        }
 
         if (CC_JSB) {
             sgNode.retain();
         }
 
+        if (this.font instanceof cc.BitmapFont) {
+            this._bmFontOriginalSize = this.font.fontSize;
+        }
+
+        sgNode.setVisible(false);
         sgNode.setHorizontalAlign( this.horizontalAlign );
         sgNode.setVerticalAlign( this.verticalAlign );
         sgNode.setFontSize( this._fontSize );

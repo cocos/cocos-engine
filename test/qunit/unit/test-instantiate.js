@@ -1,17 +1,16 @@
-﻿largeModule('Instantiate');
-
-(function () {
-    var match = function (obj, expect, info) {
-        deepEqual(cc.instantiate(obj), expect, info);
-    };
+﻿
+function testInstantiate (module, match, instantiate) {
+    largeModule(module);
 
     test('basic', function () {
         match({}, {}, 'smoke test1');
+        //match([], [], 'smoke test2');
 
         match({ 1: 1, 2: [2, {3: '3'}]}, {1: 1, 2: [2, {3: '3'}]}, 'simple test1');
+        //match([1], [1], 'simple test2');
 
         var obj = {};
-        var clone = cc.instantiate({
+        var clone = instantiate({
             ref1: obj,
             ref2: obj,
         });
@@ -57,7 +56,7 @@
         var expect = new MyAsset();
         expect.dynamicProp = false;
 
-        var clone = cc.instantiate(asset);
+        var clone = instantiate(asset);
 
         strictEqual(asset.constructor, clone.constructor, 'instantiated should has the same type');
         deepEqual(clone, expect, 'can instantiate class');
@@ -69,13 +68,13 @@
         var obj = new cc.Object();
         obj._objFlags = cc.Object.Flags.EditorOnly;
 
-        var clone = cc.instantiate(obj);
+        var clone = instantiate(obj);
 
         strictEqual(clone._objFlags, cc.Object.Flags.EditorOnly, 'can clone obj flags');
 
         //var hashObj = new cc.HashObject();
         //var id = hashObj.id;    // generate id
-        //var clonedHashObj = cc.instantiate(hashObj);
+        //var clonedHashObj = instantiate(hashObj);
         //
         //notEqual(clonedHashObj.id, id, 'should not clone id');
         //notEqual(clonedHashObj.hashCode, hashObj.hashCode, 'should not clone hashCode');
@@ -94,6 +93,7 @@
                     visible: true,
                     serializable: false
                 },
+                'NeedEscape:\'"\\\n\uD83D': 'NeedEscape:\'"\\\n\uD83D'
             }
         });
 
@@ -102,12 +102,13 @@
         sprite.size = new cc.Vec2(32, 2);
         sprite._isValid = false;
 
-        var clone = cc.instantiate(sprite);
+        var clone = instantiate(sprite);
 
         strictEqual(sprite.constructor, clone.constructor, 'instantiated should has the same type');
         deepEqual(clone.size, new cc.Vec2(32, 2), 'can clone variable defined by property');
         strictEqual(clone.image, 'sprite.png', 'should not clone variable which not defined by property');
         strictEqual(clone._isValid, true, 'should not clone non-serialized field');
+        strictEqual(clone['NeedEscape:\'"\\\n\uD83D'], 'NeedEscape:\'"\\\n\uD83D', 'property name and string value should support escaped');
 
         cc.js.unregisterClass(Sprite);
     });
@@ -116,7 +117,7 @@
         var obj = {
             pos: new cc.Vec2(1, 2)
         };
-        var clone = cc.instantiate(obj);
+        var clone = instantiate(obj);
 
         ok(obj.pos !== clone.pos, 'value type should be cloned');
         strictEqual(obj.pos.x, clone.pos.x, 'checking x');
@@ -135,7 +136,7 @@
             this.dict2 = {num: 2, other: this.dict1};
             this.dict1.other = this.dict2;
         }
-        var clone = cc.instantiate(new MyAsset());
+        var clone = instantiate(new MyAsset());
 
         deepEqual(new MyAsset(), clone, 'can instantiate');
         strictEqual(clone.array1[1], clone.array2, 'two arrays can circular reference each other 1');
@@ -148,7 +149,7 @@
         var sprite = {};
         sprite.sprite = new cc.SpriteFrame();
 
-        var clone = cc.instantiate(sprite);
+        var clone = instantiate(sprite);
 
         ok(sprite.sprite === clone.sprite, 'should not clone asset');
     });
@@ -159,7 +160,7 @@
         child.parent = node;
         cc.director.getScene().addChild(node);
 
-        var clone = cc.instantiate(node);
+        var clone = instantiate(node);
 
         ok(clone.parent === null, 'root of cloned node should not have parent');
         ok(clone.children[0].parent === clone, 'cloned child node should have parent');
@@ -174,7 +175,7 @@
         var node = new cc.Node();
         node.addComponent(Script);
 
-        var clone = cc.instantiate(node);
+        var clone = instantiate(node);
 
         strictEqual(!!clone.getComponent(Script), true, 'should be added');
 
@@ -191,15 +192,14 @@
 
         var node = new cc.Node();
         var comp = node.addComponent(Script);
-        var otherComp = node.addComponent(cc.Sprite);
-        comp.compRef = otherComp;
-        otherComp.destroy();
+        comp.compRef = node.addComponent(cc.Sprite);
+        comp.compRef.destroy();
 
         cc.Object._deferredDestroy();
 
-        var clone = cc.instantiate(node);
+        var clone = instantiate(node);
 
-        strictEqual(clone.getComponent(Script).compRef, null, 'deleted object should be nullify');
+        ok(clone.getComponent(Script).compRef === null, 'deleted object should be nullify');
     });
 
     test('redirect reference', function () {
@@ -242,13 +242,13 @@
         childComp.nodeArrayInComp = [parent, other];
         childComp.otherNodeInComp = other;
 
-        var cloneParent = cc.instantiate(parent);
+        var cloneParent = instantiate(parent);
         var cloneChild = cloneParent._children[0];
         var cloneParentComp = cloneParent.getComponent(Script);
         var cloneChildComp = cloneChild.getComponent(Script);
 
         notEqual(child, cloneChild, 'should clone child');
-        strictEqual(cloneChild.parent, cloneParent, 'should redirect parent reference');
+        ok(cloneChild.parent === cloneParent, 'should redirect parent reference');
 
         ok(cloneParentComp.nodeInComp === cloneChild, 'should redirect child reference');
         fastArrayEqual(cloneParentComp.nodeArrayInComp, [cloneChild, other], 'should redirect array of child reference');
@@ -262,4 +262,29 @@
 
         cc.js.unregisterClass(Script);
     });
-})();
+}
+testInstantiate('Instantiate',
+    function (obj, expect, info) {
+        deepEqual(cc.instantiate(obj), expect, info);
+    },
+    cc.instantiate
+);
+testInstantiate('Instantiate-JIT',
+    function (obj, expect, info) {
+        var createCode = new cc._Test.IntantiateJit.compile(obj);
+        var res = createCode();
+        deepEqual(res, expect, info);
+    },
+    function instantiate (obj) {
+        var createCode = new cc._Test.IntantiateJit.compile(obj);
+        cc.game._isCloning = true;
+        var cloned = createCode();
+        if (obj._instantiate) {
+            obj._instantiate(cloned);
+        }
+        cc.game._isCloning = false;
+
+        ok(!('t1' in window), 'should not pollute globals');
+        return cloned;
+    }
+);

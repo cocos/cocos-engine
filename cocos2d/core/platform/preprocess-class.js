@@ -35,11 +35,18 @@ var SerializableAttrs = {
     rawType: {},
 };
 
+var TYPO_TO_CORRECT_DEV = CC_DEV && {
+    extend: 'extends',
+    property: 'properties',
+    static: 'statics',
+    constructor: 'ctor'
+};
+
 // 预处理 notify 等扩展属性
 function parseNotify (val, propName, notify, properties) {
     if (val.get || val.set) {
         if (CC_DEV) {
-            cc.warn('"notify" can\'t work with "get/set" !');
+            cc.warnID(5500);
         }
         return;
     }
@@ -71,7 +78,7 @@ function parseNotify (val, propName, notify, properties) {
         }
     }
     else if (CC_DEV) {
-        cc.warn('"notify" must work with "default" !');
+        cc.warnID(5501);
     }
 }
 
@@ -81,22 +88,21 @@ function checkUrl (val, className, propName, url) {
             url = url[0];
         }
         else if (CC_EDITOR) {
-            return cc.error('Invalid url of %s.%s', className, propName);
+            return cc.errorID(5502, className, propName);
         }
     }
     if (CC_EDITOR) {
         if (url == null) {
-            return cc.warn('The "url" attribute of "%s.%s" is undefined when loading script.', className, propName);
+            return cc.warnID(5503, className, propName);
         }
         if (typeof url !== 'function' || !cc.isChildClassOf(url, cc.RawAsset)) {
-            return cc.error('The "url" type of "%s.%s" must be child class of cc.RawAsset.', className, propName);
+            return cc.errorID(5504, className, propName);
         }
         if (cc.isChildClassOf(url, cc.Asset)) {
-            return cc.error('The "url" type of "%s.%s" must not be child class of cc.Asset, ' +
-                       'otherwise you should use "type: %s" instead.', className, propName, cc.js.getClassName(url));
+            return cc.errorID(5505, className, propName, cc.js.getClassName(url));
         }
         if (val.type) {
-            return cc.warn('Can not specify "type" attribute for "%s.%s", because its "url" is already defined.', className, propName);
+            return cc.warnID(5506, className, propName);
         }
     }
     val.type = url;
@@ -107,29 +113,28 @@ function parseType (val, type, className, propName) {
         if (CC_EDITOR) {
             var isArray = require('./CCClass').isArray;   // require lazily to avoid circular require() calls
             if (!isArray(val.default)) {
-                cc.warn('The "default" attribute of "%s.%s" must be an array', className, propName);
+                cc.warnID(5507, className, propName);
             }
         }
         if (type.length > 0) {
             val.type = type = type[0];
         }
         else {
-            return cc.error('Invalid type of %s.%s', className, propName);
+            return cc.errorID(5508, className, propName);
         }
     }
     if (CC_EDITOR) {
         if (typeof type === 'function') {
             if (cc.RawAsset.isRawAssetType(type)) {
-                cc.warn('The "type" attribute of "%s.%s" must be child class of cc.Asset, ' +
-                          'otherwise you should use "url: %s" instead', className, propName,
+                cc.warnID(5509, className, propName,
                     cc.js.getClassName(type));
             }
         }
         else if (type === 'Number') {
-            cc.warn('The "type" attribute of "%s.%s" can not be "Number", use "Float" or "Integer" instead please.', className, propName);
+            cc.warnID(5510, className, propName);
         }
         else if (type == null) {
-            cc.warn('The "type" attribute of "%s.%s" is undefined when loading script.', className, propName);
+            cc.warnID(5511, className, propName);
         }
     }
 }
@@ -137,7 +142,7 @@ function parseType (val, type, className, propName) {
 function postCheckType (val, type, className, propName) {
     if (CC_EDITOR && typeof type === 'function') {
         if (cc.Class._isCCClass(type) && val.serializable !== false && !cc.js._getClassId(type, false)) {
-            cc.warn('Can not serialize "%s.%s" because the specified type is anonymous, please provide a class name or set the "serializable" attribute of "%s.%s" to "false".', className, propName, className, propName);
+            cc.warnID(5512, className, propName, className, propName);
         }
     }
 }
@@ -155,7 +160,7 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     }
 }
 
-module.exports = function (properties, className, cls) {
+module.exports.preprocessAttrs = function (properties, className, cls) {
     for (var propName in properties) {
         var val = properties[propName];
         var isLiteral = val && val.constructor === Object;
@@ -195,23 +200,24 @@ module.exports = function (properties, className, cls) {
             if (CC_EDITOR) {
                 if ('default' in val) {
                     if (val.get) {
-                        cc.error('The "default" value of "%s.%s" should not be used with a "get" function.',
-                            className, propName);
+                        cc.errorID(5513, className, propName);
                     }
                     else if (val.set) {
-                        cc.error('The "default" value of "%s.%s" should not be used with a "set" function.',
-                            className, propName);
+                        cc.errorID(5514, className, propName);
+                    }
+                    else if (cc.Class._isCCClass(val.default)) {
+                        val.default = null;
+                        cc.errorID(5515, className, propName);
                     }
                 }
                 else if (!val.get && !val.set) {
-                    cc.error('Property "%s.%s" must define at least one of "default", "get" or "set".',
-                        className, propName);
+                    cc.errorID(5516, className, propName);
                 }
             }
             if (CC_DEV && !val.override && cls.__props__.indexOf(propName) !== -1) {
                 // check override
                 var baseClass = cc.js.getClassName(getBaseClassWherePropertyDefined_DEV(propName, cls));
-                cc.warn('"%s.%s" hides inherited property "%s.%s". To make the current property override that implementation, add the `override: true` attribute please.', className, propName, baseClass, propName);
+                cc.warnID(5517, className, propName, baseClass, propName);
             }
             var notify = val.notify;
             if (notify) {
@@ -231,4 +237,41 @@ module.exports = function (properties, className, cls) {
             }
         }
     }
+};
+
+module.exports.validateMethod = function (func, funcName, className, cls, base) {
+    if (CC_DEV && funcName === 'constructor') {
+        cc.errorID(3643, className);
+        return false;
+    }
+    if (typeof func === 'function' || func === null) {
+        if (CC_DEV && cls.__props__ && cls.__props__.indexOf(funcName) >= 0) {
+            // find class that defines this method as a property
+            var baseClassName = cc.js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));
+            cc.errorID(3648, className, funcName, baseClassName);
+            return false;
+        }
+    }
+    else {
+        if (CC_DEV) {
+            if (func === false && base && base.prototype) {
+                // check override
+                var overrided = base.prototype[funcName];
+                if (typeof overrided === 'function') {
+                    var baseFuc = cc.js.getClassName(base) + '.' + funcName;
+                    var subFuc = className + '.' + funcName;
+                    cc.warnID(3624, subFuc, baseFuc, subFuc, subFuc);
+                }
+            }
+            var correct = TYPO_TO_CORRECT_DEV[funcName];
+            if (correct) {
+                cc.warnID(3621, className, funcName, correct);
+            }
+            else if (func) {
+                cc.errorID(3622, className, funcName);
+            }
+        }
+        return false;
+    }
+    return true;
 };

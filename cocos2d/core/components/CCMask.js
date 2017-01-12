@@ -91,7 +91,7 @@ var Mask = cc.Class({
                 this._refreshStencil();
             },
             type: MaskType,
-            tooltip: 'i18n:COMPONENT.mask.type',
+            tooltip: CC_DEV && 'i18n:COMPONENT.mask.type',
         },
 
         /**
@@ -106,7 +106,7 @@ var Mask = cc.Class({
         spriteFrame: {
             default: null,
             type: cc.SpriteFrame,
-            tooltip: 'i18n:COMPONENT.mask.spriteFrame',
+            tooltip: CC_DEV && 'i18n:COMPONENT.mask.spriteFrame',
             notify: function() {
                 this._refreshStencil();
             }
@@ -131,10 +131,10 @@ var Mask = cc.Class({
             type: cc.Float,
             range: [0, 1, 0.1],
             slide: true,
-            tooltip: 'i18n:COMPONENT.mask.alphaThreshold',
+            tooltip: CC_DEV && 'i18n:COMPONENT.mask.alphaThreshold',
             notify: function() {
                 if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-                    cc.warn("The alphaThreshold invalid in Canvas Mode.");
+                    cc.warnID(4201);
                     return;
                 }
                 this._sgNode.setAlphaThreshold(this.alphaThreshold);
@@ -151,10 +151,10 @@ var Mask = cc.Class({
         inverted: {
             default: false,
             type: cc.Boolean,
-            tooltip: 'i18n:COMPONENT.mask.inverted',
+            tooltip: CC_DEV && 'i18n:COMPONENT.mask.inverted',
             notify: function() {
                 if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-                    cc.warn("The inverted invalid in Canvas Mode.");
+                    cc.warnID(4202);
                     return;
                 }
                 this._sgNode.setInverted(this.inverted);
@@ -178,7 +178,7 @@ var Mask = cc.Class({
                 this._refreshStencil();
             },
             type: cc.Integer,
-            tooltip: 'i18n:COMPONENT.mask.segements',
+            tooltip: CC_DEV && 'i18n:COMPONENT.mask.segements',
         },
 
         _resizeToTarget: {
@@ -245,7 +245,7 @@ var Mask = cc.Class({
     onEnable: function () {
         if (this.type === MaskType.IMAGE_STENCIL &&
             cc._renderType !== cc.game.RENDER_TYPE_WEBGL && !CC_JSB) {
-            cc.warn("MaskType: IMAGE_STENCIL only support WebGL mode.");
+            cc.warnID(4200);
             return;
         }
         this._refreshStencil();

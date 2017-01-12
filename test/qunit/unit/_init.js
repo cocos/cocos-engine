@@ -139,7 +139,8 @@ Editor.log = cc.log;
 Editor.warn = cc.warn;
 Editor.error = cc.error;
 Editor.info = cc.info;
-Editor.UuidCache = {};
+Editor.Utils = Editor.Utils || {};
+Editor.Utils.UuidCache = {};
 
 var assetDir = '../test/qunit/assets';
 
@@ -216,6 +217,8 @@ var SetupEngine = {
         cc._Test.SceneGraphUtils.checkMatchCurrentScene();
     }
 };
+
+QUnit.config.testTimeout = 5000;
 
 // force stop to ensure start will only called once
 function asyncEnd () {

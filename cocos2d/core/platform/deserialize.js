@@ -26,6 +26,8 @@
 var JS = require('./js');
 var CCObject = require('./CCObject');
 var Attr = require('./attribute');
+var CCClass = require('./CCClass');
+var cleanEval = require('../utils/misc').cleanEval;
 
 // HELPERS
 
@@ -63,20 +65,6 @@ var Details = function () {
      * @property {String} rawProp
      */
     this.rawProp = '';
-
-    if (CC_DEV) {
-        /**
-         * 用户可以指定一个在反序列化过程中会被触发的回调，该回调会在反序列化之前调用，并且传回反序列化时解析到的字段。
-         * NOTE:
-         * - only available in editor
-         * - 会被传回的字段仅限于非 Asset 类型，并且如果字段值为 null 或 undefined，则可能不会被传回。
-         * @callback visit
-         * @param {Object} obj
-         * @param {String} propName
-         * @private
-         */
-        this.visit = null;
-    }
 };
 /**
  * @method reset
@@ -147,11 +135,13 @@ var _Deserializer = (function () {
             // deserialize
             for (var i = 0; i < refCount; i++) {
                 if (jsonArray[i]) {
-                    var mainTarget;
-                    if (CC_DEV) {
-                        mainTarget = (i === 0 && target);
+                    if (CC_EDITOR || CC_TEST) {
+                        var mainTarget = (i === 0 && target);
+                        this.deserializedList[i] = _deserializeObject(this, jsonArray[i], mainTarget, this.deserializedList, '' + i);
                     }
-                    this.deserializedList[i] = _deserializeObject(this, jsonArray[i], mainTarget);
+                    else {
+                        this.deserializedList[i] = _deserializeObject(this, jsonArray[i]);
+                    }
                 }
             }
             this.deserializedData = refCount > 0 ? this.deserializedList[0] : [];
@@ -165,7 +155,12 @@ var _Deserializer = (function () {
         }
         else {
             this.deserializedList = [null];
-            this.deserializedData = jsonObj ? _deserializeObject(this, jsonObj, target) : null;
+            if (CC_EDITOR || CC_TEST) {
+                this.deserializedData = jsonObj ? _deserializeObject(this, jsonObj, target, this.deserializedList, '0') : null;
+            }
+            else {
+                this.deserializedData = jsonObj ? _deserializeObject(this, jsonObj) : null;
+            }
             this.deserializedList[0] = this.deserializedData;
 
             //// callback
@@ -184,15 +179,29 @@ var _Deserializer = (function () {
         var idPropList = self._idPropList;
         var idList = self._idList;
         var idObjList = self._idObjList;
-        for (var i = 0, len = self._idList.length; i < len; i++) {
-            var propName = idPropList[i];
-            var id = idList[i];
-            idObjList[i][propName] = deserializedList[id];
+        var onDereferenced = self._classFinder && self._classFinder.onDereferenced;
+        var i, propName, id;
+        if (CC_EDITOR && onDereferenced) {
+            for (i = 0; i < idList.length; i++) {
+                propName = idPropList[i];
+                id = idList[i];
+                idObjList[i][propName] = deserializedList[id];
+                onDereferenced(deserializedList, id, idObjList[i], propName);
+            }
+        }
+        else {
+            for (i = 0; i < idList.length; i++) {
+                propName = idPropList[i];
+                id = idList[i];
+                idObjList[i][propName] = deserializedList[id];
+            }
         }
     }
 
+    var prototype = _Deserializer.prototype;
+
     // 和 _deserializeObject 不同的地方在于会判断 id 和 uuid
-    _Deserializer.prototype._deserializeObjField = function (obj, jsonObj, propName, target) {
+    prototype._deserializeObjField = function (obj, jsonObj, propName, target) {
         var id = jsonObj.__id__;
         if (typeof id === 'undefined') {
             var uuid = jsonObj.__uuid__;
@@ -211,14 +220,11 @@ var _Deserializer = (function () {
                 this.result.uuidPropList.push(propName);
             }
             else {
-                if (CC_DEV) {
-                    obj[propName] = _deserializeObject(this, jsonObj, target && target[propName]);
+                if (CC_EDITOR || CC_TEST) {
+                    obj[propName] = _deserializeObject(this, jsonObj, target && target[propName], obj, propName);
                 }
                 else {
                     obj[propName] = _deserializeObject(this, jsonObj);
-                }
-                if (CC_DEV && this.result.visit) {
-                    this.result.visit(obj, propName);
                 }
             }
         }
@@ -232,27 +238,22 @@ var _Deserializer = (function () {
                 this._idObjList.push(obj);
                 this._idPropList.push(propName);
             }
-            if (CC_DEV && this.result.visit) {
-                this.result.visit(obj, propName);
-            }
         }
     };
 
-    function _deserializePrimitiveObject (self, instance, serialized) {
+    prototype._deserializePrimitiveObject = function (instance, serialized) {
+        var self = this;
         for (var propName in serialized) {
             if (serialized.hasOwnProperty(propName)) {
                 var prop = serialized[propName];
                 if (typeof prop !== 'object') {
                     if (propName !== '__type__'/* && k != '__id__'*/) {
                         instance[propName] = prop;
-                        if (CC_DEV && self.result.visit) {
-                            self.result.visit(instance, propName);
-                        }
                     }
                 }
                 else {
                     if (prop) {
-                        if (CC_DEV) {
+                        if (CC_EDITOR || CC_TEST) {
                             self._deserializeObjField(instance, prop, propName, self._target && instance);
                         }
                         else {
@@ -266,101 +267,189 @@ var _Deserializer = (function () {
 
             }
         }
-    }
+    };
 
-    function _deserializeTypedObject (self, instance, serialized) {
-        //++self.stackCounter;
-        //if (self.stackCounter === 100) {
-        //    debugger;
-        //}
-        for (var propName in instance) {    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
+    function _deserializeTypedObject (self, instance, serialized, klass) {
+        var fastDefinedProps = klass.__props__;
+        if (!fastDefinedProps) {
+            fastDefinedProps = Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
+        }
+        for (var i = 0; i < fastDefinedProps.length; i++) {
+            var propName = fastDefinedProps[i];
             var prop = serialized[propName];
             if (typeof prop !== 'undefined' && serialized.hasOwnProperty(propName)) {
                 if (typeof prop !== 'object') {
                     instance[propName] = prop;
                 }
-                else {
-                    if (prop) {
-                        if (CC_DEV) {
-                            self._deserializeObjField(instance, prop, propName, self._target && instance);
-                        }
-                        else {
-                            self._deserializeObjField(instance, prop, propName);
-                        }
+                else if (prop) {
+                    if (CC_EDITOR || CC_TEST) {
+                        self._deserializeObjField(instance, prop, propName, self._target && instance);
                     }
                     else {
-                        instance[propName] = null;
+                        self._deserializeObjField(instance, prop, propName);
                     }
+                }
+                else {
+                    instance[propName] = null;
                 }
             }
         }
-        //--self.stackCounter;
     }
 
-    var RAW_TYPE = Attr.DELIMETER + 'rawType';
-    var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
-    var SERIALIZABLE = Attr.DELIMETER + 'serializable';
-
-    function _deserializeFireClass(self, obj, serialized, klass, target) {
-        var props = klass.__props__;
+    // function _deserializeFireClass(self, obj, serialized, klass, target) {
+    //     var RAW_TYPE = Attr.DELIMETER + 'rawType';
+    //     var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
+    //     var SERIALIZABLE = Attr.DELIMETER + 'serializable';
+    //     var props = klass.__props__;
+    //     var attrs = Attr.getClassAttrs(klass);
+    //     for (var p = 0; p < props.length; p++) {
+    //         var propName = props[p];
+    //         var rawType = attrs[propName + RAW_TYPE];
+    //         if (!rawType) {
+    //             if (((CC_EDITOR && self._ignoreEditorOnly) || (!CC_EDITOR && CC_DEV && !CC_TEST))
+    //                 && attrs[propName + EDITOR_ONLY]) {
+    //                 var mayUsedInPersistRoot = (obj instanceof cc.Node && propName === '_id');
+    //                 if ( !mayUsedInPersistRoot ) {
+    //                     continue;   // skip editor only if in preview
+    //                 }
+    //             }
+    //             if (attrs[propName + SERIALIZABLE] === false) {
+    //                 continue;   // skip nonSerialized
+    //             }
+    //             var prop = serialized[propName];
+    //             if (typeof prop === 'undefined') {
+    //                 continue;
+    //             }
+    //             if (typeof prop !== 'object') {
+    //                 obj[propName] = prop;
+    //             }
+    //             else {
+    //                 if (prop) {
+    //                     if (CC_EDITOR || CC_TEST) {
+    //                         self._deserializeObjField(obj, prop, propName, target && obj);
+    //                     }
+    //                     else {
+    //                         self._deserializeObjField(obj, prop, propName);
+    //                     }
+    //                 }
+    //                 else {
+    //                     obj[propName] = null;
+    //                 }
+    //             }
+    //         }
+    //         else {
+    //             // always load raw objects even if property not serialized
+    //             if (self.result.rawProp) {
+    //                 cc.error('not support multi raw object in a file');
+    //                 // 这里假定每个asset都有uuid，每个json只能包含一个asset，只能包含一个rawProp
+    //             }
+    //             self.result.rawProp = propName;
+    //         }
+    //     }
+    //     if (props[props.length - 1] === '_$erialized') {
+    //         // deep copy original serialized data
+    //         obj._$erialized = JSON.parse(JSON.stringify(serialized));
+    //         // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
+    //         self._deserializePrimitiveObject(obj._$erialized, serialized);
+    //     }
+    // }
+    function compileDeserialize (self, klass) {
+        var RAW_TYPE = Attr.DELIMETER + 'rawType';
+        var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
+        var SERIALIZABLE = Attr.DELIMETER + 'serializable';
         var attrs = Attr.getClassAttrs(klass);
+
+        var props = klass.__props__;
+        // self, obj, serializedData, klass, target
+        var sources = [
+            '(function(s,o,d,k,t){',
+                'var prop;'
+        ];
+        // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
         for (var p = 0; p < props.length; p++) {
             var propName = props[p];
+            var propNameLiteral;
             var rawType = attrs[propName + RAW_TYPE];
             if (!rawType) {
                 if (((CC_EDITOR && self._ignoreEditorOnly) || (!CC_EDITOR && CC_DEV && !CC_TEST))
                     && attrs[propName + EDITOR_ONLY]) {
-                    var mayUsedInPersistRoot = (obj instanceof cc.Node && propName === '_id');
-                    if ( !mayUsedInPersistRoot ) {
+                    var mayUsedInPersistRoot = (propName === '_id' && cc.isChildClassOf(klass, cc.Node));
+                    if (!mayUsedInPersistRoot) {
                         continue;   // skip editor only if in preview
                     }
                 }
                 if (attrs[propName + SERIALIZABLE] === false) {
                     continue;   // skip nonSerialized
                 }
-                var prop = serialized[propName];
-                if (typeof prop === 'undefined') {
-                    continue;
-                }
-                if (typeof prop !== 'object') {
-                    obj[propName] = prop;
+
+                var accessor;
+                if (CCClass.VAR_REG.test(propName)) {
+                    propNameLiteral = '"' + propName + '"';
+                    accessor = '.' + propName;
                 }
                 else {
-                    if (prop) {
-                        if (CC_DEV) {
-                            self._deserializeObjField(obj, prop, propName, target && obj);
-                        }
-                        else {
-                            self._deserializeObjField(obj, prop, propName);
-                        }
-                    }
-                    else {
-                        obj[propName] = null;
-                    }
+                    propNameLiteral = CCClass.escapeForJS(propName);
+                    accessor = '[' + propNameLiteral + ']';
                 }
+                sources.push('prop=d' + accessor + ';');
+                sources.push('if(typeof prop!=="undefined"){');
+                sources.push(   'if(typeof prop!=="object"){' +
+                                    'o' + accessor + '=prop;');
+                sources.push(   '}else{' +
+                                    'if(prop)');
+                if (CC_EDITOR || CC_TEST) {
+                    sources.push(       's._deserializeObjField(o,prop,' + propNameLiteral + ',t&&o);');
+                }
+                else {
+                    sources.push(       's._deserializeObjField(o,prop,' + propNameLiteral + ');');
+                }
+                sources.push(       'else o' + accessor + '=null;' +
+                                '}' +
+                            '}');
             }
             else {
-                // always load raw objects even if property not serialized
-                if (self.result.rawProp) {
-                    cc.error('not support multi raw object in a file');
-                    // 这里假定每个asset都有uuid，每个json只能包含一个asset，只能包含一个rawProp
+                if (CCClass.VAR_REG.test(propName)) {
+                    propNameLiteral = '"' + propName + '"';
                 }
-                self.result.rawProp = propName;
+                else {
+                    propNameLiteral = CCClass.escapeForJS(propName);
+                }
+                // always load raw objects even if property not serialized
+                // 这里假定每个asset都有uuid，每个json只能包含一个asset，只能包含一个rawProp
+                sources.push('if(s.result.rawProp)\n' +
+                                'cc.error("not support multi raw object in a file");');
+                sources.push('s.result.rawProp=' + propNameLiteral + ';');
             }
         }
         if (props[props.length - 1] === '_$erialized') {
             // deep copy original serialized data
-            obj._$erialized = JSON.parse(JSON.stringify(serialized));
+            sources.push('o._$erialized=JSON.parse(JSON.stringify(d));');
             // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
-            _deserializePrimitiveObject(self, obj._$erialized, serialized);
+            sources.push('s._deserializePrimitiveObject(o._$erialized,d);');
         }
+        sources.push('})');
+        return cleanEval(sources.join(''));
+    }
+
+    function _deserializeFireClass (self, obj, serialized, klass, target) {
+        var deserialize = klass.__deserialize__;
+        if (!deserialize) {
+            deserialize = compileDeserialize(self, klass);
+            // if (CC_TEST && !isPhantomJS) {
+            //     cc.log(deserialize);
+            // }
+            Object.defineProperty(klass, '__deserialize__', { value: deserialize, writable: true });
+        }
+        deserialize(self, obj, serialized, klass, target);
     }
 
     ///**
     // * @param {Object} serialized - The obj to deserialize, must be non-nil
-    // * @param {Object} [target=null]
+    // * @param {Object} [target=null] - editor only
+    // * @param {Object} [owner] - debug only
+    // * @param {String} [propName] - debug only
     // */
-    function _deserializeObject (self, serialized, target) {
+    function _deserializeObject (self, serialized, target, owner, propName) {
         var prop;
         var obj = null;     // the obj to return
         var klass = null;
@@ -369,20 +458,19 @@ var _Deserializer = (function () {
             // Type Object (including CCClass)
 
             var type = serialized.__type__;
-            klass = self._classFinder(type, serialized);
+            klass = self._classFinder(type, serialized, owner, propName);
             if (!klass) {
-                var noLog = self._classFinder === JS._getClassById;
-                if (noLog) {
+                var notReported = self._classFinder === JS._getClassById;
+                if (notReported) {
                     cc.deserialize.reportMissingClass(type);
                 }
                 return null;
             }
 
-            if (CC_DEV && target) {
+            if ((CC_EDITOR || CC_TEST) && target) {
                 // use target
                 if ( !(target instanceof klass) ) {
-                    cc.warn('Type of target to deserialize not matched with data: target is %s, data is %s',
-                        JS.getClassName(target), klass);
+                    cc.warnID(5300, JS.getClassName(target), klass);
                 }
                 obj = target;
             }
@@ -399,25 +487,35 @@ var _Deserializer = (function () {
                 obj._deserialize(serialized.content, self);
                 return obj;
             }
-            if ( cc.Class._isCCClass(klass) ) {
+            if (cc.Class._isCCClass(klass)) {
                 _deserializeFireClass(self, obj, serialized, klass, target);
             }
+            else if (type === 'cc.Vec2') {
+                obj.x = serialized.x || 0;
+                obj.y = serialized.y || 0;
+            }
+            else if (type === 'cc.Color') {
+                obj.r = serialized.r || 0;
+                obj.g = serialized.g || 0;
+                obj.b = serialized.b || 0;
+                obj.a = serialized.a || 255;
+            }
             else {
-                _deserializeTypedObject(self, obj, serialized);
+                _deserializeTypedObject(self, obj, serialized, klass);
             }
         }
         else if ( !Array.isArray(serialized) ) {
 
             // embedded primitive javascript object
 
-            obj = (CC_DEV && target) || {};
-            _deserializePrimitiveObject(self, obj, serialized);
+            obj = ((CC_EDITOR || CC_TEST) && target) || {};
+            self._deserializePrimitiveObject(obj, serialized);
         }
         else {
 
             // Array
 
-            if (CC_DEV && target) {
+            if ((CC_EDITOR || CC_TEST) && target) {
                 target.length = serialized.length;
                 obj = target;
             }
@@ -428,7 +526,7 @@ var _Deserializer = (function () {
             for (var i = 0; i < serialized.length; i++) {
                 prop = serialized[i];
                 if (typeof prop === 'object' && prop) {
-                    if (CC_DEV) {
+                    if (CC_EDITOR || CC_TEST) {
                         self._deserializeObjField(obj, prop, '' + i, target && obj);
                     }
                     else {
@@ -437,9 +535,6 @@ var _Deserializer = (function () {
                 }
                 else {
                     obj[i] = prop;
-                    if (CC_DEV && self.result.visit) {
-                        self.result.visit(obj, '' + i);
-                    }
                 }
             }
         }
@@ -471,7 +566,7 @@ cc.deserialize = function (data, result, options) {
     var classFinder = options.classFinder || JS._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
     var createAssetRefs = options.createAssetRefs || cc.sys.platform === cc.sys.EDITOR_CORE;
-    var target = CC_DEV && options.target;
+    var target = (CC_EDITOR || CC_TEST) && options.target;
     var customEnv = options.customEnv;
     var ignoreEditorOnly = options.ignoreEditorOnly;
 
@@ -506,11 +601,11 @@ cc.deserialize = function (data, result, options) {
 
 cc.deserialize.Details = Details;
 cc.deserialize.reportMissingClass = function (id) {
-    if (CC_EDITOR && Editor.UuidUtils.isUuid(id)) {
-        id = Editor.UuidUtils.decompressUuid(id);
-        cc.warn('Can not find script "%s"', id);
+    if (CC_EDITOR && Editor.Utils.UuidUtils.isUuid(id)) {
+        id = Editor.Utils.UuidUtils.decompressUuid(id);
+        cc.warnID(5301, id);
     }
     else {
-        cc.warn('Can not find class "%s"', id);
+        cc.warnID(5302, id);
     }
 };

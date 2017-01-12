@@ -23,9 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var misc = {};
+// should not use long variable name because eval breaks uglify's mangle operation in this file
+var m = {};
 
-misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
+m.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
     function define (np, propName, getter, setter) {
         var pd = Object.getOwnPropertyDescriptor(np, propName);
         if (pd) {
@@ -38,7 +39,7 @@ misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
                 var clsName = (cc.Class._isCCClass(ctor) && cc.js.getClassName(ctor)) ||
                               ctor.name ||
                               '(anonymous class)';
-                cc.warn('no %s or %s on %s', propName, getter, clsName);
+                cc.warnID(5700, propName, getter, clsName);
             }
             else {
                 cc.js.getset(np, propName, getterFunc, np[setter]);
@@ -62,7 +63,7 @@ misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
  * @return {Number}
  * Constructor
  */
-misc.NextPOT = function (x) {
+m.NextPOT = function (x) {
     x = x - 1;
     x = x | (x >> 1);
     x = x | (x >> 2);
@@ -72,7 +73,7 @@ misc.NextPOT = function (x) {
     return x + 1;
 };
 
-//var DirtyFlags = misc.DirtyFlags = {
+//var DirtyFlags = m.DirtyFlags = {
 //    TRANSFORM: 1 << 0,
 //    SIZE: 1 << 1,
 //    //Visible:
@@ -87,21 +88,20 @@ misc.NextPOT = function (x) {
 //
 //DirtyFlags.WIDGET = DirtyFlags.TRANSFORM | DirtyFlags.SIZE;
 
-misc.destructIgnoreId = function () {
-    // The same as Object._destruct but dont reset _id when destroyed
-    for (var key in this) {
-        if (this.hasOwnProperty(key) && key !== '_id') {
-            switch (typeof this[key]) {
-                case 'string':
-                    this[key] = '';
-                    break;
-                case 'object':
-                case 'function':
-                    this[key] = null;
-                    break;
-            }
-        }
-    }
-};
+// wrap a new scope to enalbe minify
 
-module.exports = misc;
+// jshint evil: true
+m.cleanEval = function (code) {
+    return eval(code);
+};
+m.cleanEval_F = function (code, F) {
+    return eval(code);
+};
+m.cleanEval_fireClass = function (code) {
+    var fireClass = eval(code);
+    return fireClass;
+};
+// jshint evil: false
+
+
+module.exports = m;

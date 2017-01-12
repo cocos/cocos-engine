@@ -58,7 +58,7 @@ proto.initStencilBits = function(){
     if (cc.ClippingNode.WebGLRenderCmd._init_once) {
         cc.ClippingNode.stencilBits = cc._renderContext.getParameter(cc._renderContext.STENCIL_BITS);
         if (cc.ClippingNode.stencilBits <= 0)
-            cc.log("Stencil buffer is not enabled.");
+            cc.logID(6301);
         cc.ClippingNode.WebGLRenderCmd._init_once = false;
     }
 };
@@ -97,7 +97,7 @@ proto.visit = function(parentCmd){
     if (cc.ClippingNode.WebGLRenderCmd._layer + 1 === cc.ClippingNode.stencilBits) {
         cc.ClippingNode.WebGLRenderCmd._visit_once = true;
         if (cc.ClippingNode.WebGLRenderCmd._visit_once) {
-            cc.log("Nesting more than " + cc.ClippingNode.stencilBits + "stencils is not supported. Everything will be drawn without stencil for this node and its children.");
+            cc.logID(6302, cc.ClippingNode.stencilBits);
             cc.ClippingNode.WebGLRenderCmd._visit_once = false;
         }
         // draw everything, as if there were no stencil

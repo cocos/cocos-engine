@@ -162,6 +162,43 @@ cc.HtmlTextParser.prototype = {
             }
         }
 
+        header = attribute.match(/^(outline(\s)*[^>]*)/);
+        if (header) {
+            attribute = header[0].substring("outline".length).trim();
+            var defaultOutlineObject = {color: "#ffffff", width: 1};
+            if (attribute) {
+                var outlineAttrReg = /(\s)*color(\s)*=|(\s)*width(\s)*=|(\s)*click(\s)*=/;
+                header = attribute.match(outlineAttrReg);
+                var tagValue;
+                while (header) {
+                    //skip the invalid tags at first
+                    attribute = attribute.substring(attribute.indexOf(header[0]));
+                    tagName = attribute.substr(0, header[0].length);
+                    //remove space and = character
+                    remainingArgument = attribute.substring(tagName.length).trim();
+                    nextSpace = remainingArgument.indexOf(' ');
+                    if (nextSpace > -1) {
+                        tagValue = remainingArgument.substr(0, nextSpace);
+                    } else {
+                        tagValue = remainingArgument;
+                    }
+                    tagName = tagName.replace(/[^a-zA-Z]/g, "").trim();
+                    tagName = tagName.toLocaleLowerCase();
+
+                    attribute = remainingArgument.substring(nextSpace).trim();
+                    if (tagName === "click") {
+                        obj.event = this._processEventHandler(tagName + "=" + tagValue);
+                    } else if (tagName === "color") {
+                        defaultOutlineObject.color = tagValue;
+                    } else if (tagName === "width") {
+                        defaultOutlineObject.width = parseInt(tagValue);
+                    }
+                    header = attribute.match(outlineAttrReg);
+                }
+            }
+            obj.outline = defaultOutlineObject;
+        }
+
         header = attribute.match(/^(on|u|b|i)(\s)*/);
         if(header && header[0].length > 0) {
             tagName = header[0];

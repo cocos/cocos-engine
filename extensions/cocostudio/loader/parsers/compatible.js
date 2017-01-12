@@ -48,7 +48,7 @@
             var version = json["Version"] || json["version"];
             var versionNum = ccs.uiReader.getVersionInteger(version);
             if(!version || versionNum >= 1700){
-                cc.warn("Not supported file types, Please try use the ccs.load");
+                cc.warnID(6100);
                 return null;
             }
             return ccs._load(file, "ccui");

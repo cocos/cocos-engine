@@ -53,7 +53,7 @@ cc.js.get(dirtyFlags, 'all', function () {
     return (1 << count) - 1;
 }, false);
 _ccsg.Node._requestDirtyFlag = function (key) {
-    cc.assert(!dirtyFlags[key], cc._LogInfos.Node._requestDirtyFlag, key);
+    cc.assertID(!dirtyFlags[key], 1622, key);
 
     var count = dirtyFlags.COUNT;
     var value = 1 << count;
@@ -101,6 +101,7 @@ _ccsg.Node.RenderCmd = function(renderable){
     this._worldTransform = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
     this._inverse = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
 
+    this._transformUpdated = false;
     this._displayedOpacity = 255;
     this._displayedColor = cc.color(255, 255, 255, 255);
     this._cascadeColorEnabledDirty = false;
@@ -168,112 +169,98 @@ _ccsg.Node.RenderCmd.prototype = {
             t = this._transform,
             wt = this._worldTransform;         //get the world transform
 
-        var hasRotation = node._rotationX || node._rotationY;
-        var hasSkew = node._skewX || node._skewY;
-        var sx = node._scaleX, sy = node._scaleY;
-        var appX = this._anchorPointInPoints.x, appY = this._anchorPointInPoints.y;
-        var a = 1, b = 0, c = 0, d = 1;
-        if (hasRotation || hasSkew) {
-            // position 
-            t.tx = node._position.x;
-            t.ty = node._position.y;
+        if (!this._transformUpdated) {
+            var hasRotation = node._rotationX || node._rotationY;
+            var hasSkew = node._skewX || node._skewY;
+            var sx = node._scaleX, sy = node._scaleY;
+            var appX = this._anchorPointInPoints.x, appY = this._anchorPointInPoints.y;
+            var a = 1, b = 0, c = 0, d = 1;
+            if (hasRotation || hasSkew) {
+                // position
+                t.tx = node._position.x;
+                t.ty = node._position.y;
 
-            // rotation
-            if (hasRotation) {
-                var rotationRadiansX = node._rotationX * ONE_DEGREE;
-                c = Math.sin(rotationRadiansX);
-                d = Math.cos(rotationRadiansX);
-                if (node._rotationY === node._rotationX) {
-                    a = d;
-                    b = -c;
+                // rotation
+                if (hasRotation) {
+                    var rotationRadiansX = node._rotationX * ONE_DEGREE;
+                    c = Math.sin(rotationRadiansX);
+                    d = Math.cos(rotationRadiansX);
+                    if (node._rotationY === node._rotationX) {
+                        a = d;
+                        b = -c;
+                    }
+                    else {
+                        var rotationRadiansY = node._rotationY * ONE_DEGREE;
+                        a = Math.cos(rotationRadiansY);
+                        b = -Math.sin(rotationRadiansY);
+                    }
                 }
-                else {
-                    var rotationRadiansY = node._rotationY * ONE_DEGREE;
-                    a = Math.cos(rotationRadiansY);
-                    b = -Math.sin(rotationRadiansY);
+
+                // scale
+                t.a = a *= sx;
+                t.b = b *= sx;
+                t.c = c *= sy;
+                t.d = d *= sy;
+
+                // skew
+                if (hasSkew) {
+                    var skx = Math.tan(node._skewX * ONE_DEGREE);
+                    var sky = Math.tan(node._skewY * ONE_DEGREE);
+                    if (skx === Infinity)
+                        skx = 99999999;
+                    if (sky === Infinity)
+                        sky = 99999999;
+                    t.a = a + c * sky;
+                    t.b = b + d * sky;
+                    t.c = c + a * skx;
+                    t.d = d + b * skx;
+                }
+
+                if (appX || appY) {
+                    t.tx -= t.a * appX + t.c * appY;
+                    t.ty -= t.b * appX + t.d * appY;
+                    // adjust anchorPoint
+                    if (node._ignoreAnchorPointForPosition) {
+                        t.tx += appX;
+                        t.ty += appY;
+                    }
                 }
             }
+            else {
+                t.a = sx;
+                t.b = 0;
+                t.c = 0;
+                t.d = sy;
+                t.tx = node._position.x;
+                t.ty = node._position.y;
 
-            // scale
-            t.a = a *= sx;
-            t.b = b *= sx;
-            t.c = c *= sy;
-            t.d = d *= sy;
-
-            // skew
-            if (hasSkew) {
-                var skx = Math.tan(node._skewX * ONE_DEGREE);
-                var sky = Math.tan(node._skewY * ONE_DEGREE);
-                if (skx === Infinity)
-                    skx = 99999999;
-                if (sky === Infinity)
-                    sky = 99999999;
-                t.a = a + c * sky;
-                t.b = b + d * sky;
-                t.c = c + a * skx;
-                t.d = d + b * skx;
-            }
-
-            if (appX || appY) {
-                t.tx -= t.a * appX + t.c * appY;
-                t.ty -= t.b * appX + t.d * appY;
-                // adjust anchorPoint
-                if (node._ignoreAnchorPointForPosition) {
-                    t.tx += appX;
-                    t.ty += appY;
+                if (appX || appY) {
+                    t.tx -= t.a * appX;
+                    t.ty -= t.d * appY;
+                    // adjust anchorPoint
+                    if (node._ignoreAnchorPointForPosition) {
+                        t.tx += appX;
+                        t.ty += appY;
+                    }
                 }
-            }
-
-            if (pt) {
-                // cc.AffineTransformConcat is incorrect at get world transform
-                wt.a = t.a * pt.a + t.b * pt.c;                               //a
-                wt.b = t.a * pt.b + t.b * pt.d;                               //b
-                wt.c = t.c * pt.a + t.d * pt.c;                               //c
-                wt.d = t.c * pt.b + t.d * pt.d;                               //d
-                wt.tx = pt.a * t.tx + pt.c * t.ty + pt.tx;
-                wt.ty = pt.d * t.ty + pt.ty + pt.b * t.tx;
-            } else {
-                wt.a = t.a;
-                wt.b = t.b;
-                wt.c = t.c;
-                wt.d = t.d;
-                wt.tx = t.tx;
-                wt.ty = t.ty;
             }
         }
-        else {
-            t.a = sx;
-            t.b = 0;
-            t.c = 0;
-            t.d = sy;
-            t.tx = node._position.x;
-            t.ty = node._position.y;
 
-            if (appX || appY) {
-                t.tx -= t.a * appX;
-                t.ty -= t.d * appY;
-                // adjust anchorPoint
-                if (node._ignoreAnchorPointForPosition) {
-                    t.tx += appX;
-                    t.ty += appY;
-                }
-            }
-
-            if (pt) {
-                wt.a  = t.a  * pt.a + t.b  * pt.c;
-                wt.b  = t.a  * pt.b + t.b  * pt.d;
-                wt.c  = t.c  * pt.a + t.d  * pt.c;
-                wt.d  = t.c  * pt.b + t.d  * pt.d;
-                wt.tx = t.tx * pt.a + t.ty * pt.c + pt.tx;
-                wt.ty = t.tx * pt.b + t.ty * pt.d + pt.ty;
-            } else {
-                wt.a = t.a;
-                wt.b = t.b;
-                wt.c = t.c;
-                wt.d = t.d;
-                wt.tx = t.tx;
-                wt.ty = t.ty;
-            }
+        // update world transform
+        if (pt) {
+            wt.a  = t.a  * pt.a + t.b  * pt.c;
+            wt.b  = t.a  * pt.b + t.b  * pt.d;
+            wt.c  = t.c  * pt.a + t.d  * pt.c;
+            wt.d  = t.c  * pt.b + t.d  * pt.d;
+            wt.tx = t.tx * pt.a + t.ty * pt.c + pt.tx;
+            wt.ty = t.tx * pt.b + t.ty * pt.d + pt.ty;
+        } else {
+            wt.a = t.a;
+            wt.b = t.b;
+            wt.c = t.c;
+            wt.d = t.d;
+            wt.tx = t.tx;
+            wt.ty = t.ty;
         }
 
         if (this._currentRegion) {
@@ -293,6 +280,18 @@ _ccsg.Node.RenderCmd.prototype = {
             this.transform();
         }
         return this._transform;
+    },
+
+    setNodeToParentTransform: function(transform) {
+        if (transform) {
+            // use specified transform
+            this._transform = transform;
+            this._transformUpdated = true;
+        } else {
+            // not use the specified transform
+            this._transformUpdated = false;
+        }
+        this.setDirtyFlag(1);
     },
 
     _propagateFlagsDown: function(parentCmd) {

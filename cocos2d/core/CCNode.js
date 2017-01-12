@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2015 Chukong Technologies Inc.
+ Copyright (c) 2013-2017 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -24,7 +24,6 @@
 
 'use strict';
 
-var EventTarget = require('./event/event-target');
 var PrefabHelper = require('./utils/prefab-helper');
 
 var JS = cc.js;
@@ -257,7 +256,7 @@ var _searchMaskParent = function (node) {
 
 function getConstructor (typeOrClassName) {
     if ( !typeOrClassName ) {
-        cc.error('getComponent: Type must be non-nil');
+        cc.errorID(3804);
         return null;
     }
     if (typeof typeOrClassName === 'string') {
@@ -327,7 +326,6 @@ function findChildComponents (children, constructor, components) {
 var Node = cc.Class({
     name: 'cc.Node',
     extends: require('./utils/base-node'),
-    mixins: [EventTarget],
 
     properties: {
         /**
@@ -457,8 +455,7 @@ var Node = cc.Class({
         }
     },
 
-    ctor: function () {
-        var name = arguments[0];
+    ctor: function (name) {
         this._name = typeof name !== 'undefined' ? name : 'New Node';
         this._activeInHierarchy = false;
 
@@ -660,15 +657,13 @@ var Node = cc.Class({
     },
 
     _checkMultipleComp: CC_EDITOR && function (ctor) {
-        var err, existing = this.getComponent(ctor._disallowMultiple);
+        var existing = this.getComponent(ctor._disallowMultiple);
         if (existing) {
             if (existing.constructor === ctor) {
-                err = 'Can\'t add component "%s" because %s already contains the same component.';
-                cc.error(err, JS.getClassName(ctor), this._name);
+                cc.errorID(3805, JS.getClassName(ctor), this._name);
             }
             else {
-                err = 'Can\'t add component "%s" to %s because it conflicts with the existing "%s" derived component.';
-                cc.error(err, JS.getClassName(ctor), this._name, JS.getClassName(existing));
+                cc.errorID(3806, JS.getClassName(ctor), this._name, JS.getClassName(existing));
             }
             return false;
         }
@@ -698,16 +693,16 @@ var Node = cc.Class({
         if (typeof typeOrClassName === 'string') {
             constructor = JS.getClassByName(typeOrClassName);
             if ( !constructor ) {
-                cc.error('addComponent: Failed to get class "%s"', typeOrClassName);
-                if (cc._RFpeek()) {
-                    cc.error('addComponent: Should not add component ("%s") when the scripts are still loading.', typeOrClassName);
+                cc.errorID(3807, typeOrClassName);
+                if (cc._RF.peek()) {
+                    cc.errorID(3808, typeOrClassName);
                 }
                 return null;
             }
         }
         else {
             if ( !typeOrClassName ) {
-                cc.error('addComponent: Type must be non-nil');
+                cc.errorID(3804);
                 return null;
             }
             constructor = typeOrClassName;
@@ -716,11 +711,11 @@ var Node = cc.Class({
         // check component
 
         if (typeof constructor !== 'function') {
-            cc.error('addComponent: The component to add must be a constructor');
+            cc.errorID(3809);
             return null;
         }
         if (!cc.isChildClassOf(constructor, cc.Component)) {
-            cc.error('addComponent: The component to add must be child class of cc.Component');
+            cc.errorID(3810);
             return null;
         }
 
@@ -776,10 +771,10 @@ var Node = cc.Class({
             return cc.error('isDestroying');
         }
         if ( !(comp instanceof cc.Component) ) {
-            return cc.error('_addComponentAt: The component to add must be a constructor');
+            return cc.errorID(3811);
         }
         if (index > this._components.length) {
-            return cc.error('_addComponentAt: Index out of range');
+            return cc.errorID(3812);
         }
 
         // recheck attributes because script may changed
@@ -832,7 +827,7 @@ var Node = cc.Class({
      */
     removeComponent: function (component) {
         if ( !component ) {
-            cc.error('removeComponent: Component must be non-nil');
+            cc.errorID(3813);
             return;
         }
         if (typeof component !== 'object') {
@@ -865,7 +860,7 @@ var Node = cc.Class({
     // do remove component, only used internally
     _removeComponent: function (component) {
         if (!component) {
-            cc.error('Argument must be non-nil');
+            cc.errorID(3814);
             return;
         }
 
@@ -875,7 +870,7 @@ var Node = cc.Class({
                 this._components.splice(i, 1);
             }
             else if (component.node !== this) {
-                cc.error('Component not owned by this entity');
+                cc.errorID(3815);
             }
         }
     },
@@ -933,7 +928,7 @@ var Node = cc.Class({
         var cancelActivation = false;
         if (this._objFlags & Activating) {
             if (newActive) {
-                cc.error('Node "%s" is already activating', this.name);
+                cc.errorID(3816, this.name);
                 return;
             }
             else {
@@ -961,8 +956,7 @@ var Node = cc.Class({
             }
             else {
                 if (CC_DEV) {
-                    cc.error('Sorry, the component of "%s" which with an index of %s is corrupted! It has been removed.',
-                             this.name, c);
+                    cc.errorID(3817, this.name, c);
                     console.log('Corrupted component value:', component);
                 }
                 if (component) {
@@ -1028,7 +1022,7 @@ var Node = cc.Class({
         if (this._persistNode && !(newParent instanceof cc.Scene)) {
             cc.game.removePersistRootNode(this);
             if (CC_EDITOR) {
-                cc.warn('Set "%s" to normal node (not persist root node).');
+                cc.warnID(1623);
             }
         }
         var activeInHierarchyBefore = this._active && !!(oldParent && oldParent._activeInHierarchy);
@@ -1055,8 +1049,10 @@ var Node = cc.Class({
             var myPrefabInfo = this._prefab;
             if (myPrefabInfo) {
                 if (newPrefabRoot) {
-                    // change prefab
-                    _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                    if (myPrefabInfo.root !== newPrefabRoot) {
+                        // change prefab
+                        _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                    }
                 }
                 else if (myPrefabInfo.root !== this) {
                     // detach from prefab
@@ -1089,27 +1085,34 @@ var Node = cc.Class({
         }
     },
 
-    _instantiate: function () {
-        var clone = cc.instantiate._clone(this, this);
-        clone._parent = null;
+    _instantiate: function (cloned) {
+        if (!cloned) {
+            cloned = cc.instantiate._clone(this, this);
+        }
 
         var thisPrefabInfo = this._prefab;
+        if (CC_EDITOR && thisPrefabInfo) {
+            if (this !== thisPrefabInfo.root) {
+                _Scene.PrefabUtils.initClonedChildOfPrefab(cloned);
+            }
+        }
         var syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
         if (syncing) {
             // copy non-serialized property
-            clone._prefab._synced = thisPrefabInfo._synced;
+            cloned._prefab._synced = thisPrefabInfo._synced;
             //if (thisPrefabInfo._synced) {
             //    return clone;
             //}
         }
         else if (CC_EDITOR && cc.engine._isPlaying) {
-            this._name += ' (Clone)';
+            cloned._name += ' (Clone)';
         }
 
-        // init
-        clone._onBatchCreated();
+        // reset and init
+        cloned._parent = null;
+        cloned._onBatchCreated();
 
-        return clone;
+        return cloned;
     },
 
 // EVENTS
@@ -1239,10 +1242,20 @@ var Node = cc.Class({
     },
 
     _checkTouchListeners: function () {
-        if (!(this._objFlags & Destroying) && this._bubblingListeners && this._touchListener) {
-            for (var i = 0; i < _touchEvents.length; ++i) {
-                if (this._bubblingListeners.has(_touchEvents[i])) {
-                    return;
+        if (!(this._objFlags & Destroying) && this._touchListener) {
+            var i = 0;
+            if (this._bubblingListeners) {
+                for (; i < _touchEvents.length; ++i) {
+                    if (this._bubblingListeners.has(_touchEvents[i])) {
+                        return;
+                    }
+                }
+            }
+            if (this._capturingListeners) {
+                for (; i < _touchEvents.length; ++i) {
+                    if (this._capturingListeners.has(_touchEvents[i])) {
+                        return;
+                    }
                 }
             }
 
@@ -1251,10 +1264,20 @@ var Node = cc.Class({
         }
     },
     _checkMouseListeners: function () {
-        if (!(this._objFlags & Destroying) && this._bubblingListeners && this._mouseListener) {
-            for (var i = 0; i < _mouseEvents.length; ++i) {
-                if (this._bubblingListeners.has(_mouseEvents[i])) {
-                    return;
+        if (!(this._objFlags & Destroying) && this._mouseListener) {
+            var i = 0;
+            if (this._bubblingListeners) {
+                for (; i < _mouseEvents.length; ++i) {
+                    if (this._bubblingListeners.has(_mouseEvents[i])) {
+                        return;
+                    }
+                }
+            }
+            if (this._capturingListeners) {
+                for (; i < _mouseEvents.length; ++i) {
+                    if (this._capturingListeners.has(_mouseEvents[i])) {
+                        return;
+                    }
                 }
             }
 
@@ -1353,7 +1376,7 @@ var Node = cc.Class({
     runAction: function (action) {
         if (!this.active)
             return;
-        cc.assert(action, cc._LogInfos.Node.runAction);
+        cc.assertID(action, 1618);
 
         if (CC_JSB) {
             this._retainAction(action);
@@ -1397,7 +1420,7 @@ var Node = cc.Class({
      */
     stopActionByTag: function (tag) {
         if (tag === cc.Action.TAG_INVALID) {
-            cc.log(cc._LogInfos.Node.stopActionByTag);
+            cc.logID(1612);
             return;
         }
         cc.director.getActionManager().removeActionByTag(tag, this);
@@ -1415,7 +1438,7 @@ var Node = cc.Class({
      */
     getActionByTag: function (tag) {
         if (tag === cc.Action.TAG_INVALID) {
-            cc.log(cc._LogInfos.Node.getActionByTag);
+            cc.logID(1613);
             return null;
         }
         return cc.director.getActionManager().getActionByTag(tag, this);

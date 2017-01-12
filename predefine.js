@@ -47,6 +47,9 @@ if (CC_DEV) {
 // output all info before initialized
 require('./CCDebugger');
 cc._initDebugSetting(cc.DebugMode.INFO);
+if (CC_DEV) {
+    require('./DebugInfos');
+}
 
 // polyfills
 /* require('./polyfill/bind'); */

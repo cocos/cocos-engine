@@ -725,7 +725,7 @@ cc.EaseElastic = cc.ActionEase.extend({
     },
 
     reverse:function () {
-        cc.log("cc.EaseElastic.reverse(): it should be overridden in subclass.");
+        cc.logID(1009);
         return null;
     },
 

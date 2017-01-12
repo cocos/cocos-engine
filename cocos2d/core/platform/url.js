@@ -70,7 +70,7 @@ cc.url = {
      */
     raw: function (url) {
         if (CC_EDITOR && !this._rawAssets) {
-            cc.error('Failed to init asset\'s raw path.');
+            cc.errorID(7000);
             return '';
         }
 
@@ -78,11 +78,10 @@ cc.url = {
 
         if ( !url.startsWith('resources/') ) {
             if (CC_EDITOR) {
-                cc.error('Should not load "%s" from script dynamically, ' +
-                         'unless it is placed in the "resources" folder.', url);
+                cc.errorID(7001, url);
             }
             else {
-                cc.error('Sorry can not load "%s" because it is not placed in the "resources" folder.', url);
+                cc.errorID(7002, url);
             }
         }
         
@@ -98,7 +97,7 @@ cc.url = {
      */
     builtinRaw: CC_EDITOR && function (url) {
         if ( !this._builtinRawAssets ) {
-            cc.error('Failed to init builtin asset\'s raw path.');
+            cc.errorID(7003);
             return '';
         }
         url = this.normalize(url);

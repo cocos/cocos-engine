@@ -63,8 +63,6 @@ var AssetLibrary = {
      * @param {Boolean} options.readMainCache - Default is true. If false, the asset and all its depends assets will reload and create new instances from library.
      * @param {Boolean} options.writeMainCache - Default is true. If true, the result will cache to AssetLibrary, and MUST be unload by user manually.
      * @param {Asset} options.existingAsset - load to existing asset, this argument is only available in editor
-     * @param {deserialize.Details} options.deserializeInfo - specified a DeserializeInfo object if you want,
-     *                                                        this parameter is only available in editor.
      * @private
      */
     loadAsset: function (uuid, callback, options) {
@@ -74,12 +72,9 @@ var AssetLibrary = {
         // var readMainCache = typeof (options && options.readMainCache) !== 'undefined' ? readMainCache : true;
         // var writeMainCache = typeof (options && options.writeMainCache) !== 'undefined' ? writeMainCache : true;
         var item = {
-            id: uuid,
+            uuid: uuid,
             type: 'uuid'
         };
-        if (options && options.deserializeInfo) {
-            item.deserializeInfo = options.deserializeInfo;
-        }
         if (options && options.existingAsset) {
             item.existingAsset = options.existingAsset;
         }
@@ -93,11 +88,13 @@ var AssetLibrary = {
                         Editor.error('Sorry, the scene data of "%s" is corrupted!', uuid);
                     }
                     else {
+                        // We know scene is not a raw asset, so we can pass uuid to this API directly
                         asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(uuid);
                     }
                 }
                 if (CC_EDITOR || isScene(asset)) {
-                    Loader.removeItem(uuid);
+                    var id = cc.AssetLibrary._getAssetInfoInRuntime(uuid).url;
+                    Loader.removeItem(id);
                 }
             }
             if (callback) {
@@ -114,7 +111,7 @@ var AssetLibrary = {
         if (CC_EDITOR) {
             Editor.Ipc.sendToMain('scene:query-asset-info-by-uuid', uuid, function (err, info) {
                 if (info) {
-                    Editor.UuidCache.cache(info.url, uuid);
+                    Editor.Utils.UuidCache.cache(info.url, uuid);
                     var ctor = Editor.assets[info.type];
                     if (ctor) {
                         var isRawAsset = !cc.isChildClassOf(ctor, Asset);
@@ -125,27 +122,35 @@ var AssetLibrary = {
                     }
                 }
                 else {
-                    callback(new Error('Can not get asset url by uuid "' + uuid + '", the asset may be deleted.'));
+                    var error = new Error('Can not get asset url by uuid "' + uuid + '", the asset may be deleted.');
+                    error.errorCode = 'db.NOTFOUND';
+                    callback(error);
                 }
             });
         }
     },
 
-    _getAssetInfoInRuntime: function (uuid) {
+    _getAssetInfoInRuntime: function (uuid, result) {
+        if (!result) {
+            result = {url: null, raw: false};
+        }
         var info = _uuidToRawAsset[uuid];
         if (info && !cc.isChildClassOf(info.type, cc.Asset)) {
-            return {
-                url: _rawAssetsBase + info.url,
-                raw: true,
-            };
+            result.url = _rawAssetsBase + info.url;
+            result.raw = true;
         }
         else {
-            var url = this.getImportedDir(uuid) + '/' + uuid + '.json';
-            return {
-                url: url,
-                raw: false,
-            };
+            result.url = this.getImportedDir(uuid) + '/' + uuid + '.json';
         }
+        return result;
+    },
+
+    _getAssetUrl: function (uuid) {
+        var info = _uuidToRawAsset[uuid];
+        if (info) {
+            return _rawAssetsBase + info.url;
+        }
+        return null;
     },
 
     /**
@@ -204,7 +209,7 @@ var AssetLibrary = {
     loadJson: function (json, callback) {
         var randomUuid = '' + ((new Date()).getTime() + Math.random());
         var item = {
-            id: randomUuid,
+            uuid: randomUuid,
             type: 'uuid',
             content: json,
             skips: [ Loader.downloader.id ]
@@ -215,10 +220,12 @@ var AssetLibrary = {
             }
             else {
                 if (asset.constructor === cc.SceneAsset) {
+                    // We know scene is not a raw asset, so we can pass uuid to this API directly
                     asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(randomUuid);
                 }
                 if (CC_EDITOR || isScene(asset)) {
-                    Loader.removeItem(randomUuid);
+                    var id = cc.AssetLibrary._getAssetInfoInRuntime(randomUuid).url;
+                    Loader.removeItem(id);
                 }
             }
             asset._uuid = '';
@@ -253,7 +260,7 @@ var AssetLibrary = {
      */
     init: function (options) {
         if (CC_EDITOR && _libraryBase) {
-            cc.error('AssetLibrary has already been initialized!');
+            cc.errorID(6402);
             return;
         }
 
@@ -356,4 +363,4 @@ AssetLibrary._uuidToAsset = {};
 //    }
 //};
 
-cc.AssetLibrary = AssetLibrary;
+module.exports = cc.AssetLibrary = AssetLibrary;

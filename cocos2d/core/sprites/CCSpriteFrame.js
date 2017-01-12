@@ -444,10 +444,10 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             maxY += rect.height;
         }
         if (maxX > texture.getPixelWidth()) {
-            cc.error(cc._LogInfos.RectWidth, texture.url + '/' + this.name);
+            cc.errorID(3300, texture.url + '/' + this.name);
         }
         if (maxY > texture.getPixelHeight()) {
-            cc.error(cc._LogInfos.RectHeight, texture.url + '/' + this.name);
+            cc.errorID(3400, texture.url + '/' + this.name);
         }
     },
 
@@ -464,7 +464,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                 uuid = url._uuid;
             }
             else {
-                uuid = Editor.UuidCache.urlToUuid(url);
+                uuid = Editor.Utils.UuidCache.urlToUuid(url);
             }
         }
         var capInsets;

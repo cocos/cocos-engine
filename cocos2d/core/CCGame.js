@@ -384,13 +384,13 @@ var game = {
                 cc.loader.load(jsList, function (err) {
                     if (err) throw new Error(JSON.stringify(err));
                     self._prepared = true;
-                    self.emit(self.EVENT_GAME_INITED);
                     if (cb) cb();
+                    self.emit(self.EVENT_GAME_INITED);
                 });
             }
             else {
-                self.emit(self.EVENT_GAME_INITED);
                 if (cb) cb();
+                self.emit(self.EVENT_GAME_INITED);
             }
 
             return;
@@ -444,7 +444,7 @@ var game = {
      */
     addPersistRootNode: function (node) {
         if (!(node instanceof cc.Node) || !node.uuid) {
-            cc.warn('The target can not be made persist because it\'s not a cc.Node or it doesn\'t have _id property.');
+            cc.warnID(3800);
             return;
         }
         var id = node.uuid;
@@ -455,11 +455,11 @@ var game = {
                     node.parent = scene;
                 }
                 else if ( !(node.parent instanceof cc.Scene) ) {
-                    cc.warn('The node can not be made persist because it\'s not under root node.');
+                    cc.warnID(3801);
                     return;
                 }
                 else if (node.parent !== scene) {
-                    cc.warn('The node can not be made persist because it\'s not in current scene.');
+                    cc.warnID(3802);
                     return;
                 }
                 this._persistRootNodes[id] = node;
@@ -594,7 +594,7 @@ var game = {
                 }
                 data = JSON.parse(txt);
             } catch (e) {
-                cc.log("Failed to read or parse project.json");
+                cc.logID(3818);
             }
             this._initConfig(data || {});
         }
@@ -662,7 +662,7 @@ var game = {
         } else {
             //we must make a new canvas and place into this element
             if (element.tagName !== "DIV") {
-                cc.log("Warning: target element is not a DIV or CANVAS");
+                cc.warnID(3819);
             }
             width = width || element.clientWidth;
             height = height || element.clientHeight;

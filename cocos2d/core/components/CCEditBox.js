@@ -178,7 +178,7 @@ var EditBox = cc.Class({
          * @property {String} string
          */
         string: {
-            tooltip: 'i18n:COMPONENT.editbox.string',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.string',
             get: function () {
                 return this._sgNode.string;
             },
@@ -190,10 +190,10 @@ var EditBox = cc.Class({
         /**
          * !#en The background image of EditBox.
          * !#zh 输入框的背景图片
-         * @property {SpriteFrame} backGroundImage
+         * @property {SpriteFrame} backgroundImage
          */
         backgroundImage: {
-            tooltip: 'i18n:COMPONENT.editbox.backgroundImage',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.backgroundImage',
             default: null,
             type: cc.SpriteFrame,
             notify: function() {
@@ -221,7 +221,7 @@ var EditBox = cc.Class({
          */
         returnType: {
             default: KeyboardReturnType.DEFAULT,
-            tooltip: 'i18n:COMPONENT.editbox.returnType',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.returnType',
             displayName: 'KeyboardReturnType',
             type: KeyboardReturnType,
             notify: function() {
@@ -236,7 +236,7 @@ var EditBox = cc.Class({
          * @default InputFlag.DEFAULT
          */
         inputFlag: {
-            tooltip: 'i18n:COMPONENT.editbox.input_flag',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.input_flag',
             default: InputFlag.DEFAULT,
             type: InputFlag,
             notify: function() {
@@ -253,7 +253,7 @@ var EditBox = cc.Class({
          * @default InputMode.ANY
          */
         inputMode: {
-            tooltip: 'i18n:COMPONENT.editbox.input_mode',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.input_mode',
             default: InputMode.ANY,
             type: InputMode,
             notify: function() {
@@ -267,7 +267,7 @@ var EditBox = cc.Class({
          * @property {Number} fontSize
          */
         fontSize: {
-            tooltip: 'i18n:COMPONENT.editbox.font_size',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.font_size',
             default: 20,
             notify: function() {
                 this._sgNode.fontSize = this.fontSize;
@@ -280,7 +280,7 @@ var EditBox = cc.Class({
          * @property {Number} lineHeight
          */
         lineHeight: {
-            tooltip: 'i18n:COMPONENT.editbox.line_height',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.line_height',
             default: 40,
             notify: function() {
                 this._sgNode.setLineHeight(this.lineHeight);
@@ -293,7 +293,7 @@ var EditBox = cc.Class({
          * @property {Color} fontColor
          */
         fontColor: {
-            tooltip: 'i18n:COMPONENT.editbox.font_color',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.font_color',
             default: cc.Color.WHITE,
             notify: function() {
                 this._sgNode.fontColor = this.fontColor;
@@ -306,7 +306,7 @@ var EditBox = cc.Class({
          * @property {String} placeholder
          */
         placeholder: {
-            tooltip: 'i18n:COMPONENT.editbox.placeholder',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder',
             default: 'Enter text here...',
             notify: function() {
                 this._sgNode.placeholder = this.placeholder;
@@ -319,7 +319,7 @@ var EditBox = cc.Class({
          * @property {Number} placeholderFontSize
          */
         placeholderFontSize: {
-            tooltip: 'i18n:COMPONENT.editbox.placeholder_font_size',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder_font_size',
             default: 20,
             notify: function() {
                 this._sgNode.placeholderFontSize = this.placeholderFontSize;
@@ -332,7 +332,7 @@ var EditBox = cc.Class({
          * @property {Color} placeholderFontColor
          */
         placeholderFontColor: {
-            tooltip: 'i18n:COMPONENT.editbox.placeholder_font_color',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder_font_color',
             default: cc.Color.GRAY,
             notify: function() {
                 this._sgNode.placeholderFontColor = this.placeholderFontColor;
@@ -349,7 +349,7 @@ var EditBox = cc.Class({
          * @property {Number} maxLength
          */
         maxLength: {
-            tooltip: 'i18n:COMPONENT.editbox.max_length',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.max_length',
             default: 20,
             notify: function() {
                 this._sgNode.maxLength = this.maxLength;
@@ -363,7 +363,7 @@ var EditBox = cc.Class({
          * @property {Boolean} stayOnTop
          */
         stayOnTop: {
-            tooltip: 'i18n:COMPONENT.editbox.stay_on_top',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.stay_on_top',
             default: false,
             notify: function () {
                 if(!CC_JSB) {
@@ -382,7 +382,7 @@ var EditBox = cc.Class({
          * @property {Number} tabIndex
          */
         tabIndex: {
-            tooltip: 'i18n:COMPONENT.editbox.tab_index',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.tab_index',
             get: function () {
                 return this._tabIndex;
             },

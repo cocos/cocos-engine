@@ -107,13 +107,13 @@ cc.js.mixin(cc.game, {
                 cc.loader.load(jsList, function (err) {
                     if (err) throw new Error(JSON.stringify(err));
                     self._prepared = true;
-                    self.emit(self.EVENT_GAME_INITED);
                     if (cb) cb();
+                    self.emit(self.EVENT_GAME_INITED);
                 });
             }
             else {
-                self.emit(self.EVENT_GAME_INITED);
                 if (cb) cb();
+                self.emit(self.EVENT_GAME_INITED);
             }
 
             return;
@@ -159,7 +159,7 @@ cc.js.mixin(cc.game, {
      */
     addPersistRootNode: function (node) {
         if (!(node instanceof cc.Node) || !node.uuid) {
-            cc.warn('The target can not be made persist because it\'s not a cc.Node or it doesn\'t have _id property.');
+            cc.warnID(3803);
             return;
         }
         var id = node.uuid;
@@ -170,11 +170,11 @@ cc.js.mixin(cc.game, {
                     node.parent = scene;
                 }
                 else if ( !(node.parent instanceof cc.Scene) ) {
-                    cc.warn('The node can not be made persist because it\'s not under root node.');
+                    cc.warnID(3801);
                     return;
                 }
                 else if (node.parent !== scene) {
-                    cc.warn('The node can not be made persist because it\'s not in current scene.');
+                    cc.warnID(3802);
                     return;
                 }
                 this._persistRootNodes[id] = node;

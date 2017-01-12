@@ -204,7 +204,7 @@ cc.js.mixin(cc.director, {
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      */
     runScene: function (scene, onBeforeLoadScene, onLaunched) {
-        cc.assert(scene, cc._LogInfos.Director.pushScene);
+        cc.assertID(scene, 1205);
         if (scene instanceof cc.Scene) {
             // ensure scene initialized
             scene._load();
@@ -240,11 +240,11 @@ cc.js.mixin(cc.director, {
                 return scenes[key];
             }
             else {
-                cc.error('loadScene: The scene index to load (%s) is out of range.', key);
+                cc.errorID(1211, key);
             }
         }
         else {
-            cc.error('loadScene: Unknown name type to load: "%s"', key);
+            cc.errorID(1212, key);
         }
         return null;
     },
@@ -265,7 +265,7 @@ cc.js.mixin(cc.director, {
      */
     loadScene: function (sceneName, onLaunched, _onUnloaded) {
         if (this._loadingScene) {
-            cc.error('loadScene: Failed to load scene "%s" because "%s" is already loading', sceneName, this._loadingScene);
+            cc.errorID(1213, sceneName, this._loadingScene);
             return false;
         }
         var info = this._getSceneUuid(sceneName);
@@ -297,7 +297,7 @@ cc.js.mixin(cc.director, {
             return true;
         }
         else {
-            cc.error('loadScene: Can not load the scene "%s" because it was not in the build settings before playing.', sceneName);
+            cc.errorID(1214, sceneName);
             return false;
         }
     },
@@ -306,9 +306,9 @@ cc.js.mixin(cc.director, {
         var info = this._getSceneUuid(sceneName);
         if (info) {
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
-            cc.loader.load({ id: info.uuid, type: 'uuid' }, function (error, asset) {
+            cc.loader.load({ uuid: info.uuid, type: 'uuid' }, function (error, asset) {
                 if (error) {
-                    cc.error('Failed to preload "%s", %s', sceneName, error.message);
+                    cc.errorID(1215, sceneName, error.message);
                 }
                 if (onLoaded) {
                     onLoaded(error, asset);

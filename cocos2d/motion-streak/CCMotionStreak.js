@@ -250,7 +250,7 @@ var MotionStreak = cc.Class({
 
     __preload: function () {
         if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL && !CC_JSB) {
-            cc.warn("MotionStreak only support WebGL mode.");
+            cc.warnID(5900);
             return;
         }
         this._root = new _ccsg.Node();

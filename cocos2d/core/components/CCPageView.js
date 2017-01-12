@@ -113,7 +113,7 @@ var PageView = cc.Class({
         sizeMode: {
             default: SizeMode.Unified,
             type: SizeMode,
-            tooltip: 'i18n:COMPONENT.pageview.sizeMode',
+            tooltip: CC_DEV && 'i18n:COMPONENT.pageview.sizeMode',
             notify: function() {
                 this._syncSizeMode();
             }
@@ -127,7 +127,7 @@ var PageView = cc.Class({
         direction: {
             default: Direction.Horizontal,
             type: Direction,
-            tooltip: 'i18n:COMPONENT.pageview.direction',
+            tooltip: CC_DEV && 'i18n:COMPONENT.pageview.direction',
             notify: function() {
                 this._syncScrollDirection();
             }
@@ -145,7 +145,7 @@ var PageView = cc.Class({
             type: cc.Float,
             slide: true,
             range: [0, 1, 0.01],
-            tooltip: 'i18n:COMPONENT.pageview.scrollThreshold'
+            tooltip: CC_DEV && 'i18n:COMPONENT.pageview.scrollThreshold'
         },
 
         /**
@@ -162,7 +162,7 @@ var PageView = cc.Class({
         autoPageTurningThreshold: {
             default: 100,
             type: cc.Float,
-            tooltip: 'i18n:COMPONENT.pageview.autoPageTurningThreshold'
+            tooltip: CC_DEV && 'i18n:COMPONENT.pageview.autoPageTurningThreshold'
         },
 
         /**
@@ -174,7 +174,7 @@ var PageView = cc.Class({
             default: 0.1,
             type: cc.Float,
             range: [0, 1, 0.01],
-            tooltip: 'i18n:COMPONENT.pageview.pageTurningEventTiming'
+            tooltip: CC_DEV && 'i18n:COMPONENT.pageview.pageTurningEventTiming'
         },
 
         /**
@@ -185,7 +185,7 @@ var PageView = cc.Class({
         indicator: {
             default: null,
             type: cc.PageViewIndicator,
-            tooltip: 'i18n:COMPONENT.pageview.indicator',
+            tooltip: CC_DEV && 'i18n:COMPONENT.pageview.indicator',
             notify:  function() {
                 if (this.indicator) {
                     this.indicator.setPageView(this);
@@ -201,7 +201,7 @@ var PageView = cc.Class({
         pageEvents: {
             default: [],
             type: cc.Component.EventHandler,
-            tooltip: 'i18n:COMPONENT.pageview.pageEvents'
+            tooltip: CC_DEV && 'i18n:COMPONENT.pageview.pageEvents'
         }
     },
 
@@ -316,7 +316,7 @@ var PageView = cc.Class({
         if (!page || !this.content) return;
         var index = this._pages.indexOf(page);
         if (index === -1) {
-            cc.warn('can not found the %s page.', page.name);
+            cc.warnID(4300, page.name);
             return;
         }
         this.removePageAtIndex(index);

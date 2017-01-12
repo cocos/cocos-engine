@@ -25,17 +25,14 @@
  ****************************************************************************/
 
 function _getPropertyDescriptor (obj, name) {
-    var pd = Object.getOwnPropertyDescriptor(obj, name);
-    if (pd) {
-        return pd;
+    while (obj) {
+        var pd = Object.getOwnPropertyDescriptor(obj, name);
+        if (pd) {
+            return pd;
+        }
+        obj = Object.getPrototypeOf(obj);
     }
-    var p = Object.getPrototypeOf(obj);
-    if (p) {
-        return _getPropertyDescriptor(p, name);
-    }
-    else {
-        return null;
-    }
+    return null;
 }
 
 function _copyprop(name, source, target) {
@@ -91,7 +88,7 @@ var js = {
             var source = arguments[i];
             if (source) {
                 if (typeof source !== 'object') {
-                    cc.error('cc.js.addon called on non-object:', source);
+                    cc.errorID(5402, source);
                     continue;
                 }
                 for ( var name in source) {
@@ -118,7 +115,7 @@ var js = {
             var source = arguments[i];
             if (source) {
                 if (typeof source !== 'object') {
-                    cc.error('cc.js.mixin: arguments must be type object:', source);
+                    cc.errorID(5403, source);
                     continue;
                 }
                 for ( var name in source) {
@@ -142,15 +139,15 @@ var js = {
     extend: function (cls, base) {
         if (CC_DEV) {
             if (!base) {
-                cc.error('The base class to extend from must be non-nil');
+                cc.errorID(5404);
                 return;
             }
             if (!cls) {
-                cc.error('The class to extend must be non-nil');
+                cc.errorID(5405);
                 return;
             }
             if (Object.keys(cls.prototype).length > 0) {
-                cc.error('Class should be extended before assigning any prototype members.');
+                cc.errorID(5406);
             }
         }
         for (var p in base) if (base.hasOwnProperty(p)) cls[p] = base[p];
@@ -469,7 +466,7 @@ js.obsolete = function (obj, obsoleted, newPropName, writable) {
     var oldName = obsoleted.split('.').slice(-1);
     function get () {
         if (CC_DEV) {
-            cc.warn('"%s" is deprecated, use "%s" instead please.', obsoleted, newPropName);
+            cc.warnID(5400, obsoleted, newPropName);
         }
         return this[newPropName];
     }
@@ -478,7 +475,7 @@ js.obsolete = function (obj, obsoleted, newPropName, writable) {
             get,
             function (value) {
                 if (CC_DEV) {
-                    cc.warn('"%s" is deprecated, use "%s" instead please.', obsoleted, newPropName);
+                    cc.warnID(5401, obsoleted, newPropName);
                 }
                 this[newPropName] = value;
             }
@@ -620,7 +617,7 @@ function verifyType (array, type) {
     if (array && array.length > 0) {
         for (var i = 0; i < array.length; i++) {
             if (!(array[i] instanceof  type)) {
-                cc.log(cc._LogInfos.Array.verifyType);
+                cc.logID(1300);
                 return false;
             }
         }
