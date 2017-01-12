@@ -196,7 +196,7 @@ Object.defineProperty(proto, 'yMax', {
 
 /**
  * @property center
- * @type {Number}
+ * @type {Vec2}
  */
 Object.defineProperty(proto, 'center', {
     get: function () {
@@ -222,7 +222,8 @@ Object.defineProperty(proto, 'size', {
     }
 });
 /**
- * @property {Size} origin
+ * @property origin
+ * @property {Vec2} origin
  */
 Object.defineProperty(proto, 'origin', {
     get: function () {
