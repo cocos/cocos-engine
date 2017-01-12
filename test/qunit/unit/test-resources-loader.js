@@ -1,21 +1,25 @@
 (function () {
 
+    var Assets;
+
     module('load resources', {
         setup: function () {
             _resetGame();
-            AssetLibrary.init({
+            Assets = {
+                '0000001': ['resources/grossini/grossini.png', cc.js._getClassId(cc.Texture2D)],
+                '123201':  ['resources/grossini/grossini', cc.js._getClassId(TestSprite), 1],
+                '0000000': ['resources/grossini.png', cc.js._getClassId(cc.Texture2D)],
+                '1232218': ['resources/grossini', cc.js._getClassId(TestSprite), 1],   // sprite in texture
+                '123200':  ['resources/grossini', cc.js._getClassId(TestSprite), 1],   // sprite in plist
+            };
+            var options = {
                 libraryPath: assetDir + '/library',
                 rawAssetsBase: cc.path.dirname(cc.path._setEndWithSep(assetDir, false) + '.dummyExtForDirname') + '/',
                 rawAssets: {
-                    assets: {
-                        '0000001': ['resources/grossini/grossini.png', cc.js._getClassId(cc.Texture2D)],
-                        '123201':  ['resources/grossini/grossini', cc.js._getClassId(TestSprite), 1],
-                        '0000000': ['resources/grossini.png', cc.js._getClassId(cc.Texture2D)],
-                        '1232218': ['resources/grossini', cc.js._getClassId(TestSprite), 1],   // sprite in texture
-                        '123200':  ['resources/grossini', cc.js._getClassId(TestSprite), 1],   // sprite in plist
-                    }
+                    assets: Assets
                 }
-            });
+            };
+            AssetLibrary.init(options);
             cc.loader.releaseAll();
         },
     });
@@ -42,15 +46,9 @@
 
             cc.loader.loadRes('grossini/grossini', function (err, texture) {
                 ok(texture instanceof cc.Texture2D, 'should be able to load texture without file extname');
-                clearTimeout(timeoutId);
                 start();
             });
         //});
-
-        var timeoutId = setTimeout(function () {
-            ok(false, 'time out!');
-            start();
-        }, 5000);
     });
 
     asyncTest('load single by type', function () {
@@ -59,18 +57,12 @@
 
             cc.loader.loadRes('grossini', cc.Texture2D, function (err, texture) {
                 ok(texture instanceof cc.Texture2D, 'should be able to load asset by type');
-                clearTimeout(timeoutId);
                 start();
             });
         });
-
-        var timeoutId = setTimeout(function () {
-            ok(false, 'time out!');
-            start();
-        }, 5000);
     });
 
-    asyncTest('load main asset and sub asset by loadAll', function () {
+    asyncTest('load main asset and sub asset by loadResDir', function () {
         cc.loader.loadResDir('grossini', function (err, results) {
             ok(Array.isArray(results), 'result should be an array');
             ['123200', '1232218', '123201'].forEach(function (uuid) {
@@ -83,14 +75,8 @@
                     return item.url && item.url.endsWith(url);
                 }), 'checking url ' + url);
             });
-            clearTimeout(timeoutId);
             start();
         });
-
-        var timeoutId = setTimeout(function () {
-            ok(false, 'time out!');
-            start();
-        }, 5000);
     });
 
     asyncTest('loadResDir by type', function () {
@@ -99,13 +85,17 @@
             var sprite = results[0];
             ok(sprite instanceof TestSprite, 'should be able to load test sprite');
 
-            clearTimeout(timeoutId);
             start();
         });
+    });
 
-        var timeoutId = setTimeout(function () {
-            ok(false, 'time out!');
+    asyncTest('load all resources by loadResDir', function () {
+        cc.loader.loadResDir('', function (err, results) {
+            ok(Array.isArray(results), 'result should be an array');
+            var expectCount = Object.keys(Assets).length;
+            strictEqual(results.length, expectCount, 'should load ' + expectCount + ' assets');
+
             start();
-        }, 5000);
+        });
     });
 })();
