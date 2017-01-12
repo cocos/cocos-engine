@@ -61,7 +61,7 @@ var idGenerater = new IdGenerater('Node');
  * @extends Object
  * @private
  */
-var BaseNode = cc.Class(/** @lends cc.Node# */{
+var BaseNode = cc.Class({
     name: 'cc._BaseNode',
     extends: cc.Object,
     mixins: [cc.EventTarget],
