@@ -199,7 +199,13 @@ void AssetsManagerEx::loadLocalManifest(const std::string& /*manifestUrl*/)
     }
     
     // Load local manifest in app package
+    std::vector<std::string> searchPaths = _fileUtils->getSearchPaths();
+    // Ensure no search path is used to load this manifest
+    std::vector<std::string> emptyPaths = {""};
+    _fileUtils->setSearchPaths(emptyPaths);
     _localManifest->parse(_manifestUrl);
+    // Restore search paths
+    _fileUtils->setSearchPaths(searchPaths);
     if (_localManifest->isLoaded())
     {
         // Compare with cached manifest to determine which one to use
