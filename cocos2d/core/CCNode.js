@@ -1071,14 +1071,16 @@ var Node = cc.Class({
 
     _deactivateChildComponents: function () {
         // 和 _activeRecursively 类似但不修改 this._activeInHierarchy
-        var originCount = this._components.length;
-        for (var c = 0; c < originCount; ++c) {
-            var component = this._components[c];
+        var i, originCount = this._components.length;
+        for (i = 0; i < originCount; ++i) {
+            var component = this._components[i];
             component.__onNodeActivated(false);
         }
         // deactivate children recursively
-        for (var i = 0, len = this.childrenCount; i < len; ++i) {
-            var entity = this._children[i];
+        var children = this._children;
+        originCount = children.length;
+        for (i = 0; i < originCount; ++i) {
+            var entity = children[i];
             if (entity._active) {
                 entity._deactivateChildComponents();
             }
