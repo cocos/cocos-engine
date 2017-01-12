@@ -245,13 +245,12 @@ var _mouseWheelHandler = function (event) {
     }
 };
 
-var _searchMaskParent = function (node) {
-    if (cc.Mask) {
+function _searchMaskParent (node) {
+    var Mask = cc.Mask;
+    if (Mask) {
         var index = 0;
-        var mask = null;
-        for (var curr = node; curr && curr instanceof cc.Node; curr = curr.parent, ++index) {
-            mask = curr.getComponent(cc.Mask);
-            if (mask) {
+        for (var curr = node; curr && cc.Node.isNode(curr); curr = curr._parent, ++index) {
+            if (curr.getComponent(Mask)) {
                 return {
                     index: index,
                     node: curr
@@ -261,14 +260,14 @@ var _searchMaskParent = function (node) {
     }
 
     return null;
-};
+}
 
 function updateOrder (node) {
     node._parent._delaySort();
     if (!CC_JSB) {
         cc.eventManager._setDirtyForNode(node);
     }
-};
+}
 
 /**
  * !#en
@@ -895,9 +894,12 @@ var Node = cc.Class({
         }
     },
 
-    //statics: {
-    //    _DirtyFlags: require('./utils/misc').DirtyFlags
-    //},
+    statics: {
+        // is node but not scene
+        isNode: function (obj) {
+            return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
+        }
+    },
 
     // OVERRIDES
 
@@ -2262,7 +2264,7 @@ var Node = cc.Class({
             name = "";
         }
 
-        if (CC_DEV && !(child instanceof cc.Node)) {
+        if (CC_DEV && !cc.Node.isNode(child)) {
             return cc.errorID(1634, cc.js.getClassName(child));
         }
         cc.assertID(child, 1606);
