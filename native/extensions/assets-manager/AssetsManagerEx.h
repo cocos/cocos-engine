@@ -119,7 +119,7 @@ public:
     /** @brief Set the handle function for comparing manifests versions
      * @param handle    The compare function
      */
-    void setVersionCompareHandle(const std::function<bool(const std::string& versionA, const std::string& versionB)>& handle) {_versionCompareHandle = handle;};
+    void setVersionCompareHandle(const std::function<int(const std::string& versionA, const std::string& versionB)>& handle) {_versionCompareHandle = handle;};
     
     /** @brief Set the verification function for checking whether downloaded asset is correct, e.g. using md5 verification
      * @param callback  The verify callback function
@@ -309,7 +309,7 @@ private:
     int _totalWaitToDownload;
     
     //! Handle function to compare versions between different manifests
-    std::function<bool(const std::string& versionA, const std::string& versionB)> _versionCompareHandle;
+    std::function<int(const std::string& versionA, const std::string& versionB)> _versionCompareHandle;
     
     //! Callback function to verify the downloaded assets
     std::function<bool(const std::string& path, Manifest::Asset asset)> _verifyCallback;
