@@ -31,14 +31,8 @@ asyncTest('Load', function () {
         loader.releaseAll();
         strictEqual(Object.keys(loader._cache).length, 0, 'should clear loading items after releaseAll called');
 
-        clearTimeout(timeoutId);
         start();
     });
-
-    var timeoutId = setTimeout(function () {
-        ok(false, 'time out!');
-        start();
-    }, 5000);
 });
 
 asyncTest('Load single file', function () {
@@ -56,14 +50,8 @@ asyncTest('Load single file', function () {
         ok(texture instanceof cc.Texture2D, 'the single result should be Texture2D');
 
         loader.releaseAll();
-        clearTimeout(timeoutId);
         start();
     });
-
-    var timeoutId = setTimeout(function () {
-        ok(false, 'time out!');
-        start();
-    }, 5000);
 });
 
 asyncTest('Load with dependencies', function () {
@@ -134,14 +122,8 @@ asyncTest('Load with dependencies', function () {
         progressCallback.expect(total, 'should call ' + total + ' times progress callback for ' + total + ' resources');
         loader.releaseAll();
         
-        clearTimeout(timeoutId);
         start();
     });
-
-    var timeoutId = setTimeout(function () {
-        ok(false, 'time out!');
-        start();
-    }, 5000);
 });
 
 asyncTest('Loading font', function () {
@@ -174,12 +156,6 @@ asyncTest('Loading font', function () {
         ok(items.isCompleted(), 'be able to load all resources');
         progressCallback.expect(total, 'should call ' + total + ' times progress callback for ' + total + ' resources');
 
-        clearTimeout(timeoutId);
         start();
     });
-
-    var timeoutId = setTimeout(function () {
-        ok(false, 'time out!');
-        start();
-    }, 5000);
 });

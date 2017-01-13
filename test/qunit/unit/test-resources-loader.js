@@ -112,4 +112,36 @@
             start();
         });
     });
+
+    test('parse loadRes arguments', function () {
+        var args;
+        function onProgress () {}
+        function onComplete () {}
+
+        function assert (args, type, onProgress, onComplete, testName) {
+            strictEqual(args.type, type, 'type of ' + testName + ' should be correct');
+            equal(args.onProgress, onProgress, 'progress of ' + testName + ' should be correct');
+            equal(args.onComplete, onComplete, 'complete of ' + testName + ' should be correct');
+        }
+
+        args = cc.loader._parseLoadResArgs(TestSprite, onProgress, onComplete);
+        assert(args, TestSprite, onProgress, onComplete, 'case 1');
+        args = cc.loader._parseLoadResArgs(TestSprite, onProgress, null);
+        assert(args, TestSprite, onProgress, null, 'case 2');
+        args = cc.loader._parseLoadResArgs(TestSprite, null, onComplete);
+        assert(args, TestSprite, null, onComplete, 'case 3');
+        args = cc.loader._parseLoadResArgs(TestSprite, onComplete);
+        assert(args, TestSprite, null, onComplete, 'case 4');
+        args = cc.loader._parseLoadResArgs(TestSprite);
+        assert(args, TestSprite, null, null, 'case 5');
+        args = cc.loader._parseLoadResArgs(onProgress, onComplete);
+        assert(args, null, onProgress, onComplete, 'case 6');
+        args = cc.loader._parseLoadResArgs(null, onComplete);
+        assert(args, null, null, onComplete, 'case 7');
+        args = cc.loader._parseLoadResArgs(onProgress, null);
+        assert(args, null, onProgress, null, 'case 8');
+        args = cc.loader._parseLoadResArgs(onComplete);
+        assert(args, null, null, onComplete, 'case 9');
+    });
+
 })();
