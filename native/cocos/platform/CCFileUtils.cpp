@@ -33,6 +33,8 @@ THE SOFTWARE.
 #include "platform/CCSAXParser.h"
 
 #include "tinyxml2/tinyxml2.h"
+#include "tinydir/tinydir.h"
+
 #ifdef MINIZIP_FROM_SYSTEM
 #include <minizip/unzip.h>
 #else // from our embedded sources
@@ -1026,6 +1028,86 @@ bool FileUtils::isDirectoryExist(const std::string& dirPath) const
         }
     }
     return false;
+}
+
+std::vector<std::string> FileUtils::listFiles(const std::string& dirPath) const
+{
+    std::string fullpath = fullPathForFilename(dirPath);
+    std::vector<std::string> files;
+    if (isDirectoryExist(fullpath))
+    {
+        tinydir_dir dir;
+        if (tinydir_open(&dir, fullpath.c_str()) != -1)
+        {
+            while (dir.has_next)
+            {
+                tinydir_file file;
+                if (tinydir_readfile(&dir, &file) == -1)
+                {
+                    // Error getting file
+                    break;
+                }
+                
+                std::string filepath = file.name;
+                if (file.is_dir)
+                {
+                    filepath.append("/");
+                }
+                files.push_back(file.name);
+                
+                if (tinydir_next(&dir) == -1)
+                {
+                    // Error getting next file
+                    break;
+                }
+            }
+        }
+        tinydir_close(&dir);
+    }
+    return files;
+}
+
+void FileUtils::listFilesRecursively(const std::string& dirPath, std::vector<std::string> *files) const
+{
+    std::string fullpath = fullPathForFilename(dirPath);
+    if (isDirectoryExist(fullpath))
+    {
+        tinydir_dir dir;
+        if (tinydir_open(&dir, fullpath.c_str()) != -1)
+        {
+            while (dir.has_next)
+            {
+                tinydir_file file;
+                if (tinydir_readfile(&dir, &file) == -1)
+                {
+                    // Error getting file
+                    break;
+                }
+                
+                std::string filepath = file.path;
+                if (file.name[0] != '.')
+                {
+                    if (file.is_dir)
+                    {
+                        filepath.append("/");
+                        files->push_back(filepath);
+                        listFilesRecursively(filepath, files);
+                    }
+                    else
+                    {
+                        files->push_back(filepath);
+                    }
+                }
+                
+                if (tinydir_next(&dir) == -1)
+                {
+                    // Error getting next file
+                    break;
+                }
+            }
+        }
+        tinydir_close(&dir);
+    }
 }
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)

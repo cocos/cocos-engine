@@ -1255,6 +1255,8 @@
 		BA68D7BF1D62F71700B7A3F9 /* CCFrameBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = BA68D7BB1D62F71700B7A3F9 /* CCFrameBuffer.h */; };
 		BA8122AB1D77C4150010BEE9 /* CCLabelTTF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA8122AA1D77C4150010BEE9 /* CCLabelTTF.cpp */; };
 		BA8122AC1D77C4160010BEE9 /* CCLabelTTF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA8122AA1D77C4150010BEE9 /* CCLabelTTF.cpp */; };
+		BAEA45551E279D5C00FA219F /* tinydir.h in Headers */ = {isa = PBXBuildFile; fileRef = BAEA45541E279D5C00FA219F /* tinydir.h */; };
+		BAEA45561E279D5C00FA219F /* tinydir.h in Headers */ = {isa = PBXBuildFile; fileRef = BAEA45541E279D5C00FA219F /* tinydir.h */; };
 		BAFF7C721D59E0DA0051B92F /* CCActionFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAFF7C321D59E0DA0051B92F /* CCActionFrame.cpp */; };
 		BAFF7C731D59E0DA0051B92F /* CCActionFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAFF7C321D59E0DA0051B92F /* CCActionFrame.cpp */; };
 		BAFF7C741D59E0DA0051B92F /* CCActionFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = BAFF7C331D59E0DA0051B92F /* CCActionFrame.h */; };
@@ -2410,6 +2412,9 @@
 		BA68D7BA1D62F71700B7A3F9 /* CCFrameBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCFrameBuffer.cpp; sourceTree = "<group>"; };
 		BA68D7BB1D62F71700B7A3F9 /* CCFrameBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCFrameBuffer.h; sourceTree = "<group>"; };
 		BA8122AA1D77C4150010BEE9 /* CCLabelTTF.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCLabelTTF.cpp; sourceTree = "<group>"; };
+		BAEA45521E279D5C00FA219F /* COPYING */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = COPYING; sourceTree = "<group>"; };
+		BAEA45531E279D5C00FA219F /* package.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
+		BAEA45541E279D5C00FA219F /* tinydir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tinydir.h; sourceTree = "<group>"; };
 		BAFF7C321D59E0DA0051B92F /* CCActionFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCActionFrame.cpp; sourceTree = "<group>"; };
 		BAFF7C331D59E0DA0051B92F /* CCActionFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCActionFrame.h; sourceTree = "<group>"; };
 		BAFF7C341D59E0DA0051B92F /* CCActionFrameEasing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCActionFrameEasing.cpp; sourceTree = "<group>"; };
@@ -3094,6 +3099,7 @@
 		1A57033E180BD0490088DEC7 /* external */ = {
 			isa = PBXGroup;
 			children = (
+				BAEA45511E279D5C00FA219F /* tinydir */,
 				BA68D7951D62F4B600B7A3F9 /* clipper */,
 				BA68D76E1D62F4A500B7A3F9 /* poly2tri */,
 				ED3057951BEC779A0083C3ED /* ConvertUTF */,
@@ -4090,6 +4096,17 @@
 			path = ../external/sources/clipper;
 			sourceTree = "<group>";
 		};
+		BAEA45511E279D5C00FA219F /* tinydir */ = {
+			isa = PBXGroup;
+			children = (
+				BAEA45521E279D5C00FA219F /* COPYING */,
+				BAEA45531E279D5C00FA219F /* package.json */,
+				BAEA45541E279D5C00FA219F /* tinydir.h */,
+			);
+			name = tinydir;
+			path = ../external/sources/tinydir;
+			sourceTree = "<group>";
+		};
 		C50306621B60B56C001E6D43 /* Skeleton */ = {
 			isa = PBXGroup;
 			children = (
@@ -4420,6 +4437,7 @@
 				50CB247D19D9C5A100687767 /* AudioPlayer.h in Headers */,
 				1A570114180BC8EE0088DEC7 /* CCDrawNode.h in Headers */,
 				15AE188319AAD33D00C27E9E /* CCBSelectorResolver.h in Headers */,
+				BAEA45551E279D5C00FA219F /* tinydir.h in Headers */,
 				15AE1B5819AADA9900C27E9E /* UISlider.h in Headers */,
 				1A57011D180BC90D0088DEC7 /* CCGrabber.h in Headers */,
 				15AE1B6819AADA9900C27E9E /* UIScale9Sprite.h in Headers */,
@@ -5029,6 +5047,7 @@
 				5034CA4A191D591100CE6051 /* ccShader_Label_df.frag in Headers */,
 				4D2E690A1CC543B40032DD5C /* CCGraphicsNode.h in Headers */,
 				BA68D7901D62F4A500B7A3F9 /* sweep.h in Headers */,
+				BAEA45561E279D5C00FA219F /* tinydir.h in Headers */,
 				BAFF7CCB1D59E0DB0051B92F /* CCDisplayManager.h in Headers */,
 				2980F0221BA9A5550059E678 /* CCUIEditBoxIOS.h in Headers */,
 				FA6F1B941D80F858007DD223 /* AnimationData.h in Headers */,
