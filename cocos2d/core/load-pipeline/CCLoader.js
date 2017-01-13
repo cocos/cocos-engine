@@ -438,7 +438,7 @@ JS.mixin(CCLoader.prototype, {
         }
     },
 
-    _loadResUuids: function (uuids, progressCallback, completeCallback) {
+    _loadResUuids: function (uuids, progressCallback, completeCallback, uuidToUrl) {
         if (uuids.length > 0) {
             var self = this;
             var res = uuids.map(function (uuid) {
@@ -448,28 +448,42 @@ JS.mixin(CCLoader.prototype, {
                 }
             });
             this.load(res, progressCallback, function (errors, items) {
-                var results = [];
-                for (var i = 0; i < res.length; ++i) {
-                    var uuid = res[i].uuid;
-                    var id = this._getReferenceKey(uuid);
-                    var item = items.getContent(id);
-                    if (item) {
-                        // should not release these assets, even if they are static referenced in the scene.
-                        self.setAutoReleaseRecursively(uuid, false);
-                        results.push(item);
-                    }
-                }
                 if (completeCallback) {
-                    completeCallback(errors, results);
+                    var results = [];
+                    var urls = uuidToUrl && {};
+                    for (var i = 0; i < res.length; ++i) {
+                        var uuid = res[i].uuid;
+                        var id = this._getReferenceKey(uuid);
+                        var item = items.getContent(id);
+                        if (item) {
+                            // should not release these assets, even if they are static referenced in the scene.
+                            self.setAutoReleaseRecursively(uuid, false);
+                            results.push(item);
+                            if (urls) {
+                                urls[uuidToUrl[uuid]] = item;
+                            }
+                        }
+                    }
+                    if (uuidToUrl) {
+                        completeCallback(errors, results, urls);
+                    }
+                    else {
+                        completeCallback(errors, results);
+                    }
                 }
             });
         }
         else {
-            callInNextTick(function () {
-                if (completeCallback) {
-                    completeCallback(null, []);
-                }
-            });
+            if (completeCallback) {
+                callInNextTick(function () {
+                    if (uuidToUrl) {
+                        completeCallback(null, [], {});
+                    }
+                    else {
+                        completeCallback(null, []);
+                    }
+                });
+            }
         }
     },
 
@@ -532,6 +546,7 @@ JS.mixin(CCLoader.prototype, {
      * @param {Function} completeCallback - A callback which is called when all assets have been loaded, or an error occurs.
      * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called with the error. If all assets are loaded successfully, error will be null.
      * @param {Object[]} completeCallback.assets - An array of all loaded assets. If nothing to load, assets will be an empty array.
+     * @param {Object} completeCallback.urls - A dictionary which keys are url, values are asset.
      *
      * @example
      *
@@ -561,8 +576,9 @@ JS.mixin(CCLoader.prototype, {
         progressCallback = args.onProgress;
         completeCallback = args.onComplete;
 
-        var uuids = resources.getUuidArray(url, type);
-        this._loadResUuids(uuids, progressCallback, completeCallback);
+        var uuidToUrl = {};
+        var uuids = resources.getUuidArray(url, type, uuidToUrl);
+        this._loadResUuids(uuids, progressCallback, completeCallback, uuidToUrl);
     },
 
     /**

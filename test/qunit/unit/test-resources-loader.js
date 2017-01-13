@@ -99,6 +99,19 @@
         });
     });
 
+    asyncTest('url dict of loadResDir', function () {
+        cc.loader.loadResDir('', cc.Texture2D, function (err, results, urlToRes) {
+            var urls = Object.keys(urlToRes);
+            strictEqual(results.length, urls.length, 'url dict should contains the same count with array');
+
+            var url = urls[0];
+            cc.loader.loadRes(url, cc.Texture2D, function (err, result) {
+                strictEqual(result, urlToRes[url], 'url is correct');
+                start();
+            });
+        });
+    });
+
     asyncTest('loadResArray', function () {
         var urls = [
             'grossini/grossini',
