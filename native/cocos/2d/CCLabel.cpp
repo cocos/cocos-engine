@@ -1235,6 +1235,7 @@ void Label::disableEffect(LabelEffect effect)
                     setTTFConfig(_fontConfig);
                 }
                 _currLabelEffect = LabelEffect::NORMAL;
+                _outlineSize = 0;
                 _contentDirty = true;
             }
             break;
