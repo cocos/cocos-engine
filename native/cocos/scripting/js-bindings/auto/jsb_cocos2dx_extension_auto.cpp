@@ -512,8 +512,10 @@ bool js_cocos2dx_extension_AssetsManagerEx_setVerifyCallback(JSContext *cx, uint
 		            if (!succeed && JS_IsExceptionPending(cx)) {
 		                JS_ReportPendingException(cx);
 		            }
+		            bool ok = true;
 		            bool ret;
 		            ret = JS::ToBoolean(rval);
+		            JSB_PRECONDITION2(ok, cx, false, "lambda function : Error processing return value with type bool");
 		            return ret;
 		        };
 		        arg0 = lambda;
@@ -592,8 +594,10 @@ bool js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle(JSContext *cx
 		            if (!succeed && JS_IsExceptionPending(cx)) {
 		                JS_ReportPendingException(cx);
 		            }
+		            bool ok = true;
 		            int ret;
 		            ok &= jsval_to_int32(cx, rval, (int32_t *)&ret);
+		            JSB_PRECONDITION2(ok, cx, false, "lambda function : Error processing return value with type int");
 		            return ret;
 		        };
 		        arg0 = lambda;
