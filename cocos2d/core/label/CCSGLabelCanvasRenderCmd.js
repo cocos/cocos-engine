@@ -46,7 +46,7 @@
             this._dirtyFlag &= ~dirtyFlags.contentDirty;
         }
 
-        if (colorDirty || opacityDirty || (locFlag & flags.textDirty)) {
+        if (colorDirty || (locFlag & flags.textDirty)) {
             this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
             this._rebuildLabelSkin();
         }

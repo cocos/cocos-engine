@@ -61,11 +61,6 @@ cc.js.mixin(proto, _ccsg.Label.TTFLabelBaker.prototype);
 
 proto.constructor = _ccsg.Label.WebGLRenderCmd;
 
-proto._updateDisplayOpacity = function (parentOpacity) {
-    _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
-    this._rebuildLabelSkin();
-};
-
 proto.transform = function (parentCmd, recursive) {
     this.originTransform(parentCmd, recursive);
 
