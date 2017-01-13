@@ -239,6 +239,8 @@ void ActionManager::removeAllActionsFromTarget(Node *target)
             element->currentActionSalvaged = true;
         }
         
+        ccArrayRemoveAllObjects(element->actions);
+        
 #if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
         if (sEngine)
@@ -247,11 +249,14 @@ void ActionManager::removeAllActionsFromTarget(Node *target)
             for (int i = 0; i < limit; ++i)
             {
                 Action *action = (Action*)element->actions->arr[i];
-                sEngine->releaseScriptObject(this, action);
+                if (element->currentActionSalvaged && element->currentAction == action)
+                {
+                    sEngine->releaseScriptObject(this, action);
+                }
             }
         }
 #endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
-        ccArrayRemoveAllObjects(element->actions);
+        
         if (_currentTarget == element)
         {
             _currentTargetSalvaged = true;
@@ -454,6 +459,13 @@ void ActionManager::update(float dt)
                     // accidentally deallocating itself before finishing its step, we retained
                     // it. Now that step is done, it's safe to release it.
                     _currentTarget->currentAction->release();
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+                    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+                    if (sEngine)
+                    {
+                        sEngine->releaseScriptObject(this, _currentTarget->currentAction);
+                    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
                 } else
                 if (_currentTarget->currentAction->isDone())
                 {
