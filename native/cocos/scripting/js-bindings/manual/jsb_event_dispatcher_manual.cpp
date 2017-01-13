@@ -304,14 +304,12 @@ bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, jsv
     if (argc == 2) {
         std::string arg0;
         std::function<void (cocos2d::EventCustom *)> arg1;
-        JSFunctionWrapper *wrapper = nullptr;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
         do {
             if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1)));
-                wrapper = func.get();
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
                 auto lambda = [=](cocos2d::EventCustom* event) -> void {
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                     jsval largv[1];
@@ -340,11 +338,6 @@ bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, jsv
         JS::RootedValue jsret(cx);
         if (ret) {
             jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerCustom>(cx, ret));
-            ScriptingCore::getInstance()->retainScriptObject(cobj, ret);
-            if (wrapper)
-            {
-                wrapper->setOwner(cx, jsret);
-            }
             args.rval().set(jsret);
         } else {
             jsret = JSVAL_NULL;

@@ -565,6 +565,22 @@ public:
      *  @return True if the directory exists, false if not.
      */
     virtual bool isDirectoryExist(const std::string& dirPath) const;
+    
+    /**
+     *  List all files in a directory.
+     *
+     *  @param dirPath The path of the directory, it could be a relative or an absolute path.
+     *  @return File paths in a string vector
+     */
+    virtual std::vector<std::string> listFiles(const std::string& dirPath) const;
+    
+    /**
+     *  List all files recursively in a directory.
+     *
+     *  @param dirPath The path of the directory, it could be a relative or an absolute path.
+     *  @return File paths in a string vector
+     */
+    virtual void listFilesRecursively(const std::string& dirPath, std::vector<std::string> *files) const;
 
     /**
      *  Creates a directory.
