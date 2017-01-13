@@ -1117,7 +1117,7 @@ void Label::enableOutline(const Color4B& outlineColor,int outlineSize /* = -1 */
                 setTTFConfig(_fontConfig);
             }
         }
-        else if (_effectColorF != outlineColor || _outlineSize != outlineSize)
+        else if (_effectColorF != outlineColor || _outlineSize != outlineSize || _currLabelEffect != LabelEffect::OUTLINE)
         {
             _effectColorF.r = outlineColor.r / 255.f;
             _effectColorF.g = outlineColor.g / 255.f;
