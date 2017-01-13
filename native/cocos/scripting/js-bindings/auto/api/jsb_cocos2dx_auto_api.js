@@ -3964,6 +3964,18 @@ str
 },
 
 /**
+ * @method listFiles
+ * @param {String} arg0
+ * @return {Array}
+ */
+listFiles : function (
+str 
+)
+{
+    return new Array();
+},
+
+/**
  * @method getValueMapFromFile
  * @param {String} arg0
  * @return {map_object}
@@ -4219,6 +4231,18 @@ str
 )
 {
     return false;
+},
+
+/**
+ * @method listFilesRecursively
+ * @param {String} arg0
+ * @param {Array} arg1
+ */
+listFilesRecursively : function (
+str, 
+array 
+)
+{
 },
 
 /**

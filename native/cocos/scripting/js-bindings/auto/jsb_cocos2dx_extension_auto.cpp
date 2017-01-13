@@ -576,13 +576,13 @@ bool js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle(JSContext *cx
     cocos2d::extension::AssetsManagerEx* cobj = (cocos2d::extension::AssetsManagerEx *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle : Invalid Native Object");
     if (argc == 1) {
-        std::function<bool (const std::basic_string<char> &, const std::basic_string<char> &)> arg0;
+        std::function<int (const std::basic_string<char> &, const std::basic_string<char> &)> arg0;
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
 		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
-		        auto lambda = [=](const std::basic_string<char> & larg0, const std::basic_string<char> & larg1) -> bool {
+		        auto lambda = [=](const std::basic_string<char> & larg0, const std::basic_string<char> & larg1) -> int {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            jsval largv[2];
 		            largv[0] = std_string_to_jsval(cx, larg0);
@@ -592,8 +592,8 @@ bool js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle(JSContext *cx
 		            if (!succeed && JS_IsExceptionPending(cx)) {
 		                JS_ReportPendingException(cx);
 		            }
-		            bool ret;
-		            ret = JS::ToBoolean(rval);
+		            int ret;
+		            ok &= jsval_to_int32(cx, rval, (int32_t *)&ret);
 		            return ret;
 		        };
 		        arg0 = lambda;
