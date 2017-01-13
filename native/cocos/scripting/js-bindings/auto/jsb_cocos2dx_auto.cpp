@@ -4667,8 +4667,10 @@ bool js_cocos2dx_Node_enumerateChildren(JSContext *cx, uint32_t argc, jsval *vp)
 		            if (!succeed && JS_IsExceptionPending(cx)) {
 		                JS_ReportPendingException(cx);
 		            }
+		            bool ok = true;
 		            bool ret;
 		            ret = JS::ToBoolean(rval);
+		            JSB_PRECONDITION2(ok, cx, false, "lambda function : Error processing return value with type bool");
 		            return ret;
 		        };
 		        arg1 = lambda;
