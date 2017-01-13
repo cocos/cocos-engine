@@ -98,4 +98,18 @@
             start();
         });
     });
+
+    asyncTest('loadResArray', function () {
+        var urls = [
+            'grossini/grossini',
+            'grossini'
+        ];
+        cc.loader.loadResArray(urls, TestSprite, function (err, results) {
+            ok(Array.isArray(results), 'result should be an array');
+            var expectCount = urls.length;
+            strictEqual(results.length, expectCount, 'should load ' + expectCount + ' assets');
+
+            start();
+        });
+    });
 })();
