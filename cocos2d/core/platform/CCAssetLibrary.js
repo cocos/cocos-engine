@@ -41,6 +41,7 @@ var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
 var _libraryBase = '';
 var _rawAssetsBase = '';     // The base dir for raw assets in runtime
 var _uuidToRawAsset = {};
+var _urlToUuid = {};
 
 function isScene (asset) {
     return asset && (asset.constructor === cc.SceneAsset || asset instanceof cc.Scene);
@@ -146,6 +147,11 @@ var AssetLibrary = {
                 raw: false,
             };
         }
+    },
+
+    _getAssetUuidInCache: function (url) {
+        var assertUrl = url.replace(_rawAssetsBase, '');
+        return _urlToUuid[assertUrl] || '';
     },
 
     /**
@@ -283,10 +289,13 @@ var AssetLibrary = {
                         cc.error('Cannot get', typeId);
                         continue;
                     }
+                    var finalUrl = mountPoint + '/' + url;
                     _uuidToRawAsset[uuid] = {
-                        url: mountPoint + '/' + url,
+                        url: finalUrl,
                         type: type,
                     };
+                    _urlToUuid[finalUrl] = uuid;
+
                     // init resources
                     if (mountPoint === 'assets' && url.startsWith(RES_DIR)) {
                         if (cc.isChildClassOf(type, Asset)) {

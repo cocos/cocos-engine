@@ -87,13 +87,14 @@ Audio.State = {
     proto.preload = function () {
         var src = this._src,
             audio = this;
-        var item = cc.loader.getItem(src);
+        var uuid = cc.AssetLibrary._getAssetUuidInCache(src);
+        var item = cc.loader.getItem(uuid || src);
 
         // If the resource does not exist
         if (!item) {
             return cc.loader.load(src, function (error) {
                 if (!error) {
-                    var item = cc.loader.getItem(src);
+                    var item = cc.loader.getItem(uuid || src);
                     audio.mount(item.element || item.buffer);
                     audio.emit('load');
                 }
