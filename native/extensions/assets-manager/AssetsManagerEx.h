@@ -236,11 +236,14 @@ private:
     //! The reference to the local assets
     const std::unordered_map<std::string, Manifest::Asset> *_assets;
     
-    //! The path to store downloaded resources.
+    //! The path to store successfully downloaded version.
     std::string _storagePath;
     
-    //! The local path of cached version file
-    std::string _cacheVersionPath;
+    //! The path to store downloading version.
+    std::string _tempStoragePath;
+    
+    //! The local path of cached temporary version file
+    std::string _tempVersionPath;
     
     //! The local path of cached manifest file
     std::string _cacheManifestPath;

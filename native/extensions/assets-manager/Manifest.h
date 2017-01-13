@@ -157,10 +157,6 @@ protected:
      */
     void genResumeAssetsList(DownloadUnits *units) const;
     
-    /** @brief Cleanup assets that is in downloading state for resuming
-     */
-    void cleanupDownloadingAssets() const;
-    
     /** @brief Prepend all search paths to the FileUtils.
      */
     void prependSearchPaths();
@@ -199,6 +195,8 @@ protected:
      * @param state The current download state of the asset
      */
     void setAssetDownloadState(const std::string &key, const DownloadState &state);
+    
+    void setManifestRoot(const std::string &root) {_manifestRoot = root;};
     
 private:
     
