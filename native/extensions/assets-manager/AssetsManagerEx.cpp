@@ -47,6 +47,8 @@ NS_CC_EXT_BEGIN
 
 #define DEFAULT_CONNECTION_TIMEOUT 16
 
+#define SAVE_POINT_INTERVAL 0.1
+
 const std::string AssetsManagerEx::VERSION_ID = "@version";
 const std::string AssetsManagerEx::MANIFEST_ID = "@manifest";
 
@@ -68,6 +70,7 @@ AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::stri
 , _percentByFile(0)
 , _totalToDownload(0)
 , _totalWaitToDownload(0)
+, _nextSavePoint(SAVE_POINT_INTERVAL)
 , _maxConcurrentTask(32)
 , _currConcurrentTask(0)
 , _versionCompareHandle(nullptr)
@@ -651,6 +654,7 @@ void AssetsManagerEx::startUpdate()
     _failedUnits.clear();
     _downloadUnits.clear();
     _totalWaitToDownload = _totalToDownload = 0;
+    _nextSavePoint = SAVE_POINT_INTERVAL;
     _percent = _percentByFile = _sizeCollected = _totalSize = 0;
     _downloadedSize.clear();
     _totalEnabled = false;
@@ -908,6 +912,7 @@ void AssetsManagerEx::updateAssets(const DownloadUnits& assets)
         _downloadedSize.clear();
         _percent = _percentByFile = _sizeCollected = _totalSize = 0;
         _totalWaitToDownload = _totalToDownload = (int)assets.size();
+        _nextSavePoint = SAVE_POINT_INTERVAL;
         _totalEnabled = false;
         if (_totalToDownload > 0)
         {
@@ -1155,10 +1160,11 @@ void AssetsManagerEx::queueDowload()
         _tempManifest->setAssetDownloadState(key, Manifest::DownloadState::DOWNLOADING);
         taskCreated = true;
     }
-    if (taskCreated)
+    if (taskCreated && _percentByFile / 100 > _nextSavePoint)
     {
         // Save current download manifest information for resuming
         _tempManifest->saveToFile(_tempManifestPath);
+        _nextSavePoint += SAVE_POINT_INTERVAL;
     }
 }
 
