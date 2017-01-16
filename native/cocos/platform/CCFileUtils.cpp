@@ -1037,23 +1037,46 @@ std::vector<std::string> FileUtils::listFiles(const std::string& dirPath) const
     if (isDirectoryExist(fullpath))
     {
         tinydir_dir dir;
-        if (tinydir_open(&dir, fullpath.c_str()) != -1)
+#ifdef UNICODE
+		unsigned int length = MultiByteToWideChar(CP_UTF8, 0, fullpath.c_str(), fullpath.size(), NULL, 0);
+		if (length != fullpath.size())
+		{
+			return files;
+		}
+		TCHAR* fullpathstr = new TCHAR[length];
+		MultiByteToWideChar(CP_UTF8, 0, fullpath.c_str(), fullpath.size(), fullpathstr, length);
+
+		std::vector<char> buffer;
+#else
+		TCHAR* fullpathstr = fullpath.c_str();
+#endif
+		if (tinydir_open(&dir, fullpathstr) != -1)
         {
-            while (dir.has_next)
-            {
-                tinydir_file file;
-                if (tinydir_readfile(&dir, &file) == -1)
-                {
-                    // Error getting file
-                    break;
-                }
-                
-                std::string filepath = file.name;
+			while (dir.has_next)
+			{
+				tinydir_file file;
+				if (tinydir_readfile(&dir, &file) == -1)
+				{
+					// Error getting file
+					break;
+				}
+
+#ifdef UNICODE
+				length = WideCharToMultiByte(CP_UTF8, 0, file.path, -1, NULL, 0, NULL, NULL);
+				if (length > 0)
+				{
+					buffer.resize(length);
+					WideCharToMultiByte(CP_UTF8, 0, file.path, -1, &buffer[0], length, NULL, NULL);
+				}
+				std::string filepath(&buffer[0]);
+#else
+				std::string filepath = file.path;
+#endif
                 if (file.is_dir)
                 {
                     filepath.append("/");
                 }
-                files.push_back(file.name);
+				files.push_back(filepath);
                 
                 if (tinydir_next(&dir) == -1)
                 {
@@ -1062,7 +1085,10 @@ std::vector<std::string> FileUtils::listFiles(const std::string& dirPath) const
                 }
             }
         }
-        tinydir_close(&dir);
+		tinydir_close(&dir);
+#ifdef UNICODE
+		delete[] fullpathstr;
+#endif
     }
     return files;
 }
@@ -1072,8 +1098,21 @@ void FileUtils::listFilesRecursively(const std::string& dirPath, std::vector<std
     std::string fullpath = fullPathForFilename(dirPath);
     if (isDirectoryExist(fullpath))
     {
-        tinydir_dir dir;
-        if (tinydir_open(&dir, fullpath.c_str()) != -1)
+		tinydir_dir dir;
+#ifdef UNICODE
+		unsigned int length = MultiByteToWideChar(CP_UTF8, 0, fullpath.c_str(), fullpath.size(), NULL, 0);
+		if (length != fullpath.size())
+		{
+			return;
+		}
+		TCHAR* fullpathstr = new TCHAR[length];
+		MultiByteToWideChar(CP_UTF8, 0, fullpath.c_str(), fullpath.size(), fullpathstr, length);
+
+		std::vector<char> buffer;
+#else
+		TCHAR* fullpathstr = fullpath.c_str();
+#endif
+		if (tinydir_open(&dir, fullpathstr) != -1)
         {
             while (dir.has_next)
             {
@@ -1083,8 +1122,18 @@ void FileUtils::listFilesRecursively(const std::string& dirPath, std::vector<std
                     // Error getting file
                     break;
                 }
-                
-                std::string filepath = file.path;
+
+#ifdef UNICODE
+				length = WideCharToMultiByte(CP_UTF8, 0, file.path, -1, NULL, 0, NULL, NULL);
+				if (length > 0)
+				{
+					buffer.resize(length);
+					WideCharToMultiByte(CP_UTF8, 0, file.path, -1, &buffer[0], length, NULL, NULL);
+				}
+				std::string filepath(&buffer[0]);
+#else
+				std::string filepath = file.path;
+#endif
                 if (file.name[0] != '.')
                 {
                     if (file.is_dir)
@@ -1106,7 +1155,10 @@ void FileUtils::listFilesRecursively(const std::string& dirPath, std::vector<std
                 }
             }
         }
-        tinydir_close(&dir);
+		tinydir_close(&dir);
+#ifdef UNICODE
+		delete[] fullpathstr;
+#endif
     }
 }
 
