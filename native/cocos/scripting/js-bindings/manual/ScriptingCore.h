@@ -634,6 +634,11 @@ void jsb_ref_autoreleased_init(JSContext* cx, JS::Heap<JSObject*> *obj, cocos2d:
 void jsb_ref_rebind(JSContext* cx, JS::HandleObject jsobj, js_proxy_t *js2native_proxy, cocos2d::Ref* oldRef, cocos2d::Ref* newRef, const char* debug);
 
 /**
+ * Generic initialization function for non Ref classes
+ */
+void jsb_non_ref_init(JSContext* cx, JS::Heap<JSObject*> *obj, void* native, const char* debug);
+
+/**
  * Creates a new JSObject of a certain type (typeClass) and creates a proxy associated with and the Ref
  */
 JSObject* jsb_ref_create_jsobject(JSContext *cx, cocos2d::Ref *ref, js_type_class_t *typeClass, const char* debug);

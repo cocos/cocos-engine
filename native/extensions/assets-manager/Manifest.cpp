@@ -128,7 +128,7 @@ void Manifest::parse(const std::string& manifestUrl)
 {
     loadJson(manifestUrl);
 	
-    if (_json.IsObject())
+    if (!_json.HasParseError() && _json.IsObject())
     {
         // Register the local manifest root
         size_t found = manifestUrl.find_last_of("/\\");
