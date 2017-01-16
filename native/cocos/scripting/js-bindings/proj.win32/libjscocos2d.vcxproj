@@ -16,6 +16,7 @@
     <ClCompile Include="..\auto\jsb_cocos2dx_builder_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_dragonbones_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_extension_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_cocos2dx_network_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_spine_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_studio_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_ui_auto.cpp" />
@@ -43,6 +44,7 @@
     <ClCompile Include="..\manual\localstorage\js_bindings_system_registration.cpp" />
     <ClCompile Include="..\manual\network\jsb_socketio.cpp" />
     <ClCompile Include="..\manual\network\jsb_websocket.cpp" />
+    <ClCompile Include="..\manual\network\js_network_manual.cpp" />
     <ClCompile Include="..\manual\network\XMLHTTPRequest.cpp" />
     <ClCompile Include="..\manual\ScriptingCore.cpp" />
     <ClCompile Include="..\manual\spine\jsb_cocos2dx_spine_manual.cpp" />
@@ -54,6 +56,7 @@
     <ClInclude Include="..\auto\jsb_cocos2dx_builder_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_dragonbones_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_extension_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_cocos2dx_network_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_spine_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_studio_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_ui_auto.hpp" />
@@ -87,6 +90,7 @@
     <ClInclude Include="..\manual\localstorage\js_bindings_system_registration.h" />
     <ClInclude Include="..\manual\network\jsb_socketio.h" />
     <ClInclude Include="..\manual\network\jsb_websocket.h" />
+    <ClInclude Include="..\manual\network\js_network_manual.h" />
     <ClInclude Include="..\manual\network\XMLHTTPRequest.h" />
     <ClInclude Include="..\manual\ScriptingCore.h" />
     <ClInclude Include="..\manual\spidermonkey_specifics.h" />

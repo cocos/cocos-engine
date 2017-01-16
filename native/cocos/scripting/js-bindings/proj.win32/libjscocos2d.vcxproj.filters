@@ -146,6 +146,12 @@
     <ClCompile Include="..\manual\dragonbones\jsb_cocos2dx_dragonbones_manual.cpp">
       <Filter>manual\dragonbones</Filter>
     </ClCompile>
+    <ClCompile Include="..\manual\network\js_network_manual.cpp">
+      <Filter>manual\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\auto\jsb_cocos2dx_network_auto.cpp">
+      <Filter>auto</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\auto\jsb_cocos2dx_auto.hpp">
@@ -276,6 +282,12 @@
     </ClInclude>
     <ClInclude Include="..\manual\dragonbones\jsb_cocos2dx_dragonbones_manual.h">
       <Filter>manual\dragonbones</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\network\js_network_manual.h">
+      <Filter>manual\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\auto\jsb_cocos2dx_network_auto.hpp">
+      <Filter>auto</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
