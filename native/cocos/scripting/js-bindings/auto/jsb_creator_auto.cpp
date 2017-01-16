@@ -775,8 +775,8 @@ static bool js_creator_Scale9SpriteV2_ctor(JSContext *cx, uint32_t argc, jsval *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     creator::Scale9SpriteV2 *nobj = new (std::nothrow) creator::Scale9SpriteV2();
-    auto newproxy = jsb_new_proxy(nobj, obj);
-    jsb_ref_init(cx, &newproxy->obj, nobj, "creator::Scale9SpriteV2");
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "creator::Scale9SpriteV2");
     bool isFound = false;
     if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
@@ -1565,8 +1565,8 @@ static bool js_creator_GraphicsNode_ctor(JSContext *cx, uint32_t argc, jsval *vp
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     creator::GraphicsNode *nobj = new (std::nothrow) creator::GraphicsNode();
-    auto newproxy = jsb_new_proxy(nobj, obj);
-    jsb_ref_init(cx, &newproxy->obj, nobj, "creator::GraphicsNode");
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "creator::GraphicsNode");
     bool isFound = false;
     if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
