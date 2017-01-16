@@ -114,6 +114,7 @@ var AudioSource = cc.Class({
                 return this._volume;
             },
             set: function (value) {
+                value = cc.clamp01(value);
                 this._volume = value;
                 var audio = this.audio;
                 if (audio && !this._mute) {

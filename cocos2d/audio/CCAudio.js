@@ -269,6 +269,12 @@ var WebAudioElement = function (buffer, audio) {
     this.playedLength = 0;
 
     this._currextTimer = null;
+
+    this._endCallback = function () {
+        if (this.onended) {
+            this.onended(this);
+        }
+    }.bind(this);
 };
 
 (function (proto) {
@@ -313,11 +319,7 @@ var WebAudioElement = function (buffer, audio) {
 
         this._currentSource = audio;
 
-        audio.onended = function () {
-            if (this.onended) {
-                this.onended(this);
-            }
-        }.bind(this);
+        audio.onended = this._endCallback;
 
         // If the current audio context time stamp is 0
         // There may be a need to touch events before you can actually start playing audio
@@ -374,8 +376,9 @@ var WebAudioElement = function (buffer, audio) {
     proto.__defineGetter__('volume', function () { return this._volume['gain'].value; });
     proto.__defineSetter__('volume', function (num) {
         this._volume['gain'].value = num;
-        if (cc.sys.os === cc.sys.OS_IOS && !this.paused) {
+        if (cc.sys.os === cc.sys.OS_IOS && !this.paused && this._currentSource) {
             // IOS must be stop webAudio
+            this._currentSource.onended = null;
             this.pause();
             this.play();
         }
