@@ -1048,7 +1048,7 @@ std::vector<std::string> FileUtils::listFiles(const std::string& dirPath) const
 
 		std::vector<char> buffer;
 #else
-		TCHAR* fullpathstr = fullpath.c_str();
+		const char* fullpathstr = fullpath.c_str();
 #endif
 		if (tinydir_open(&dir, fullpathstr) != -1)
         {
@@ -1110,7 +1110,7 @@ void FileUtils::listFilesRecursively(const std::string& dirPath, std::vector<std
 
 		std::vector<char> buffer;
 #else
-		TCHAR* fullpathstr = fullpath.c_str();
+		const char* fullpathstr = fullpath.c_str();
 #endif
 		if (tinydir_open(&dir, fullpathstr) != -1)
         {
