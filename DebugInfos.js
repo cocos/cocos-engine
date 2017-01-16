@@ -266,10 +266,9 @@ if (CC_DEV) {
         "3611": "Can not indicate the '%s' attribute for %s, which its default value is type of %s.", //getTypeChecker_8
         "3612": "%s Just set the default value to 'new %s()' and it will be handled properly.", //getTypeChecker_9
         "3613": "'No need to use 'serializable: false' or 'editorOnly: true' for the getter of '%s.%s', every getter is actually non-serialized.", //defineGetSet
-        "3614": "Should not define constructor for cc.Component %s.", //define
         "3615": "Each script can have at most one Component.", //define_2
         "3616": "Should not specify class name %s for Component which defines in project.", //define_3
-        "3617": "Can not instantiate CCClass '%s' with arguments.", //_createCtor
+        "3617": "ctor of CCClass '%s' should not accept any arguments.", //_createCtor
         "3618": "ctor of '%s' can not be another CCClass", //_createCtor_2
         "3619": "ctor of '%s' must be function type", //_createCtor_3
         "3620": "this._super declared in '%s.%s' but no super method defined", //boundSuperCalls

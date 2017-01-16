@@ -317,9 +317,6 @@ function define (className, baseClass, mixins, constructor, options) {
     var frame = cc._RF.peek();
     if (frame && cc.isChildClassOf(baseClass, Component)) {
         // project component
-        if (CC_DEV && constructor) {
-            cc.warnID(3614, className);
-        }
         if (cc.isChildClassOf(frame.cls, Component)) {
             cc.errorID(3615);
             return null;
