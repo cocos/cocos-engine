@@ -2306,8 +2306,8 @@ JSObject* jsb_create_weak_jsobject(JSContext *cx, void *native, js_type_class_t 
 #if ! CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     JS::AddNamedObjectRoot(cx, &proxy->obj, debug);
 #else
-#if COCOS2D_DEBUG > 1
     CC_UNUSED_PARAM(proxy);
+#if COCOS2D_DEBUG > 1
     if (debug != nullptr)
     {
         CCLOG("++++++WEAK_REF++++++ Cpp(%s): %p - JS: %p", debug, native, jsObj.get());
@@ -2446,6 +2446,19 @@ void jsb_ref_rebind(JSContext* cx, JS::HandleObject jsobj, js_proxy_t *proxy, co
     CC_UNUSED_PARAM(newProxy);
 #else
     JS::AddNamedObjectRoot(cx, &newProxy->obj, debug);
+#endif
+}
+
+void jsb_non_ref_init(JSContext* cx, JS::Heap<JSObject*> *obj, void* native, const char* debug)
+{
+//    CCLOG("jsb_non_ref_init: JSObject address =  %p. %s", obj->get(), debug);
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    JS::RootedObject jsObj(cx, *obj);
+    js_add_FinalizeHook(cx, jsObj, false);
+    // don't retain it, already retained
+#if COCOS2D_DEBUG > 1
+    CCLOG("++++++RETAINED++++++ Cpp(%s): %p - JS: %p", debug, native, jsObj.get());
+#endif // COCOS2D_DEBUG
 #endif
 }
 
