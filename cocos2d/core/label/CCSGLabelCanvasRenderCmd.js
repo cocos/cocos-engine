@@ -36,10 +36,14 @@
         var colorDirty = locFlag & flags.colorDirty,
             opacityDirty = locFlag & flags.opacityDirty;
 
-        if (colorDirty) 
+        if (colorDirty) {
             this._updateDisplayColor();
-        if (opacityDirty)
+        }
+
+        if (opacityDirty) {
             this._updateDisplayOpacity();
+            this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
+        }
 
         if(locFlag & dirtyFlags.contentDirty) {
             this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
