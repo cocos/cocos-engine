@@ -320,7 +320,7 @@ function define (className, baseClass, mixins, constructor, options) {
         if (CC_DEV && constructor) {
             cc.warnID(3614, className);
         }
-        if (frame.cls instanceof Component) {
+        if (cc.isChildClassOf(frame.cls, Component)) {
             cc.errorID(3615);
             return null;
         }
@@ -344,7 +344,7 @@ function define (className, baseClass, mixins, constructor, options) {
             }
             frame.cls = cls;
         }
-        else if (!(frame.cls instanceof Component)) {
+        else if (!cc.isChildClassOf(frame.cls, Component)) {
             frame.cls = cls;
         }
     }
