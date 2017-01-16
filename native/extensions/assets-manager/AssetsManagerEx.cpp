@@ -473,6 +473,8 @@ void AssetsManagerEx::decompressDownloadedZip(const std::string &customId, const
         else
         {
             std::string errorMsg = "Unable to decompress file " + dataInner->zipFile;
+            // Ensure zip file deletion (if decompress failure cause task thread exit anormally)
+            _fileUtils->removeFile(dataInner->zipFile);
             dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ERROR_DECOMPRESS, "", errorMsg);
             fileError(dataInner->customId, errorMsg);
         }
