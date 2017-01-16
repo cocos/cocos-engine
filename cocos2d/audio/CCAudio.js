@@ -381,7 +381,6 @@ var WebAudioElement = function (buffer, audio) {
             this._currentSource.onended = null;
             this.pause();
             this.play();
-            this._currentSource.onended = this._endCallback;
         }
         return num;
     });
