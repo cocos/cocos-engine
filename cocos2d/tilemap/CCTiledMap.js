@@ -760,8 +760,7 @@ var TiledMap = cc.Class({
                 sgLayerNames.push(child.getLayerName());
                 sgLayers.push(child);
             }
-
-            if (child instanceof _ccsg.TMXObjectGroup) {
+            else if (child instanceof _ccsg.TMXObjectGroup) {
                 sgLayerNames.push(child.getGroupName());
                 sgLayers.push(child);
             }
