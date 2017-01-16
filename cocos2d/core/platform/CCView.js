@@ -66,6 +66,7 @@ switch(__BrowserGetter.adaptationType){
         __BrowserGetter.__defineGetter__("target-densitydpi", function(){
             return cc.view._targetDensityDPI;
         });
+        break;
     case cc.sys.BROWSER_TYPE_SOUGOU:
     case cc.sys.BROWSER_TYPE_UC:
         __BrowserGetter.availWidth = function(frame){
@@ -524,7 +525,7 @@ var View = cc._Class.extend({
      */
     setFrameZoomFactor: function (zoomFactor) {
         this._frameZoomFactor = zoomFactor;
-        this.centerWindow();
+        // this.centerWindow();
         cc.director.setProjection(cc.director.getProjection());
     },
 
