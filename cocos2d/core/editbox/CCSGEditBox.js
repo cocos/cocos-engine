@@ -30,6 +30,7 @@
 var SCROLLY = 40;
 var TIMER_NAME = 400;
 var LEFT_PADDING = 2;
+var Utils = require('../cocos2d/core/platform/utils');
 
 function adjustEditBoxPosition (editBox) {
     var worldPos = editBox.convertToWorldSpace(cc.p(0,0));
@@ -591,17 +592,10 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         var editBox = this._edTxt;
         if (node.visible) {
             editBox.style.visibility = 'visible';
-            cc.game.container.appendChild(editBox);
+            this._addDomInputControl();
         } else {
             editBox.style.visibility = 'hidden';
-            var hasChild = false;
-            if('contains' in cc.game.container) {
-                hasChild = cc.game.container.contains(editBox);
-            }else {
-                hasChild = cc.game.container.compareDocumentPosition(editBox) % 16;
-            }
-            if(hasChild)
-                cc.game.container.removeChild(editBox);
+            this._removeDomInputControl();
         }
     };
 
@@ -1176,14 +1170,10 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     proto._removeDomInputControl = function () {
         var editBox = this._edTxt;
         if(editBox){
-            var hasChild = false;
-            if('contains' in cc.game.container) {
-                hasChild = cc.game.container.contains(editBox);
-            }else {
-                hasChild = cc.game.container.compareDocumentPosition(editBox) % 16;
-            }
-            if(hasChild)
+            var hasChild = Utils.contains(cc.game.container, editBox);
+            if(hasChild) {
                 cc.game.container.removeChild(editBox);
+            }
         }
         this._edTxt = null;
     };
