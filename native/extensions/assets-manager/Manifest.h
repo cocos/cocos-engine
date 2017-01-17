@@ -72,7 +72,8 @@ public:
     enum DownloadState {
         UNSTARTED,
         DOWNLOADING,
-        SUCCESSED
+        SUCCESSED,
+        UNMARKED
     };
     
     //! Asset object

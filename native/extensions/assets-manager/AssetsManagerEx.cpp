@@ -699,17 +699,6 @@ void AssetsManagerEx::startUpdate()
         {
             // Generate download units for all assets that need to be updated or added
             std::string packageUrl = _remoteManifest->getPackageUrl();
-            // Set other assets' downloadState to SUCCEED
-            auto &assets = _remoteManifest->getAssets();
-            for (auto it = assets.cbegin(); it != assets.cend(); ++it)
-            {
-                const std::string &key = it->first;
-                auto diffIt = diff_map.find(key);
-                if (diffIt == diff_map.end())
-                {
-                    _tempManifest->setAssetDownloadState(key, Manifest::DownloadState::SUCCESSED);
-                }
-            }
             // Save current download manifest information for resuming
             _tempManifest->saveToFile(_tempManifestPath);
             // Preprocessing local files in previous version and creating download folders
@@ -725,6 +714,7 @@ void AssetsManagerEx::startUpdate()
                     unit.storagePath = _tempStoragePath + path;
                     unit.size = diff.asset.size;
                     _downloadUnits.emplace(unit.customId, unit);
+                    _tempManifest->setAssetDownloadState(it->first, Manifest::DownloadState::UNSTARTED);
                 }
             }
             
