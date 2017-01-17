@@ -34,7 +34,7 @@ var preprocess = require('./preprocess-class');
 var Misc = require('../utils/misc');
 require('./requiring-frame');
 
-var BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', 'properties', 'statics', 'editor'];
+var BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', '__ctor__', 'properties', 'statics', 'editor'];
 
 var INVALID_STATICS_DEV = CC_DEV && ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller',
                        'length', 'prototype'];
@@ -267,8 +267,30 @@ function getDefault (defaultVal) {
     return defaultVal;
 }
 
-function doDefine (className, baseClass, mixins, constructor, options) {
-    var fireClass = _createCtor(constructor, baseClass, mixins, className, options);
+
+function doDefine (className, baseClass, mixins, options) {
+    var fireClass;
+    if (CC_DEV && options) {
+        // check ctor
+        var ctor = options.__ctor__ || options.ctor;
+        if (ctor) {
+            if (CCClass._isCCClass(ctor)) {
+                cc.errorID(3618, className);
+            }
+            else if (typeof ctor !== 'function') {
+                cc.errorID(3619, className);
+            }
+        }
+        if (options.ctor && options.__ctor__) {
+            cc.errorID(3649, className);
+        }
+    }
+    if (options && options.__ctor__) {
+        fireClass = _doCreateCtor([options.__ctor__], baseClass, className, options);
+    }
+    else {
+        fireClass = _createCtor(baseClass, mixins, className, options);
+    }
 
     // extend - (NON-INHERITED) Create a new Class that inherits from this Class
     Object.defineProperty(fireClass, 'extend', {
@@ -312,7 +334,7 @@ function doDefine (className, baseClass, mixins, constructor, options) {
     return fireClass;
 }
 
-function define (className, baseClass, mixins, constructor, options) {
+function define (className, baseClass, mixins, options) {
     var Component = cc.Component;
     var frame = cc._RF.peek();
     if (frame && cc.isChildClassOf(baseClass, Component)) {
@@ -327,7 +349,7 @@ function define (className, baseClass, mixins, constructor, options) {
         className = className || frame.script;
     }
 
-    var cls = doDefine(className, baseClass, mixins, constructor, options);
+    var cls = doDefine(className, baseClass, mixins, options);
 
     if (frame) {
         if (cc.isChildClassOf(baseClass, Component)) {
@@ -491,37 +513,92 @@ function compileProps (actualClass) {
     this.__initProps__();
 }
 
-function _createCtor (ctor, baseClass, mixins, className, options) {
-    var useTryCatch = ! (className && className.startsWith('cc.'));
-    var shouldAddProtoCtor;
-    if (CC_EDITOR && ctor && baseClass) {
-        // check super call in constructor
-        var originCtor = ctor;
-        if (SuperCallReg.test(ctor)) {
-            cc.warnID(3600, className);
-            // suppresss super call
-            ctor = function () {
-                this._super = function () {};
-                var ret = originCtor.apply(this, arguments);
-                this._super = null;
-                return ret;
-            };
-        }
-        if (/\bprototype.ctor\b/.test(originCtor)) {
-            cc.warnID(3600, className);
-            shouldAddProtoCtor = true;
-        }
-    }
+function _doCreateCtor (ctors, baseClass, className, options) {
     var superCallBounded = options && baseClass && boundSuperCalls(baseClass, options, className);
 
+    // create class constructor
+    var body;
+    if (CC_DEV) {
+        body = '(function ' + normalizeClassName(className) + '(){\n';
+    }
+    else {
+        body = '(function(){\n';
+    }
+
+    if (superCallBounded) {
+        body += 'this._super=null;\n';
+    }
+
+    // instantiate props
+    body += 'this.__initProps__(fireClass);\n';
+
+    // call user constructors
+    if (ctors.length > 0) {
+        var useTryCatch = ! (className && className.startsWith('cc.'));
+        if (useTryCatch) {
+            body += 'try{\n';
+        }
+        var SNIPPET = ']).apply(this,arguments);\n';
+        if (ctors.length === 1) {
+            body += '(fireClass.__ctors__[0' + SNIPPET;
+        }
+        else {
+            body += 'var cs=fireClass.__ctors__;\n';
+            if (ctors.length <= 5) {
+                for (var i = 0; i < ctors.length; i++) {
+                    body += '(cs[' + i + SNIPPET;
+                }
+            }
+            else {
+                body += 'for(var i=0,l=cs.length;i<l;++i){\n' +
+                            '(cs[i' + SNIPPET +
+                        '}\n';
+            }
+        }
+        if (useTryCatch) {
+            body += '}catch(e){\n' +
+                        'cc._throw(e);\n' +
+                    '}\n';
+        }
+    }
+    body += '})';
+
+    var fireClass = Misc.cleanEval_fireClass(body);
+
+    Object.defineProperty(fireClass, '__ctors__', {
+        value: ctors.length > 0 ? ctors : null,
+        // writable should be false,
+        // enumerable should be false
+    });
+
+    return fireClass;
+}
+
+function _createCtor (baseClass, mixins, className, options) {
+    var ctor = options && options.ctor;
+    var shouldAddProtoCtor;
+
     if (CC_DEV && ctor) {
+        if (CC_EDITOR && baseClass) {
+            // check super call in constructor
+            var originCtor = ctor;
+            if (SuperCallReg.test(ctor)) {
+                cc.warnID(3600, className);
+                // suppresss super call
+                ctor = function () {
+                    this._super = function () {};
+                    var ret = originCtor.apply(this, arguments);
+                    this._super = null;
+                    return ret;
+                };
+            }
+            if (/\bprototype.ctor\b/.test(originCtor)) {
+                cc.warnID(3600, className);
+                shouldAddProtoCtor = true;
+            }
+        }
+
         // check ctor
-        if (CCClass._isCCClass(ctor)) {
-            cc.errorID(3618, className);
-        }
-        if (typeof ctor !== 'function') {
-            cc.errorID(3619, className);
-        }
         if (ctor.length > 0 && !className.startsWith('cc.')) {
             // fireball-x/dev#138: To make a unified CCClass serialization process,
             // we don't allow parameters for constructor when creating instances of CCClass.
@@ -529,6 +606,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
             cc.warnID(3617, className);
         }
     }
+
     // get base user constructors
     var ctors = [];
     var baseOrMixins = [baseClass].concat(mixins);
@@ -558,54 +636,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
         ctors.push(ctor);
     }
 
-    // create class constructor
-    var body;
-    if (CC_DEV) {
-        body = '(function ' + normalizeClassName(className) + '(){\n';
-    }
-    else {
-        body = '(function(){\n';
-    }
-    if (superCallBounded) {
-        body += 'this._super=null;\n';
-    }
-
-    // instantiate props
-    body += 'this.__initProps__(fireClass);\n';
-
-    // call user constructors
-    if (ctors.length > 0) {
-        body += 'var cs=fireClass.__ctors__;\n';
-
-        if (useTryCatch) {
-            body += 'try{\n';
-        }
-
-        if (ctors.length <= 5) {
-            for (var i = 0; i < ctors.length; i++) {
-                body += '(cs[' + i + ']).apply(this,arguments);\n';
-            }
-        }
-        else {
-            body += 'for(var i=0,l=cs.length;i<l;++i){\n';
-            body += '(cs[i]).apply(this,arguments);\n}\n';
-        }
-
-        if (useTryCatch) {
-            body += '}catch(e){\ncc._throw(e);\n}\n';
-        }
-    }
-    body += '})';
-
-    // jshint evil: true
-    var fireClass = Misc.cleanEval_fireClass(body);
-    // jshint evil: false
-
-    Object.defineProperty(fireClass, '__ctors__', {
-        value: ctors.length > 0 ? ctors : null,
-        // writable should be false,
-        // enumerable should be false
-    });
+    var fireClass = _doCreateCtor(ctors, baseClass, className, options);
 
     if (CC_EDITOR && shouldAddProtoCtor) {
         fireClass.prototype.ctor = function () {};
@@ -699,8 +730,8 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  */
 
 /**
- * !#en Defines a CCClass using the given specification, please see [Class](/en/scripting/class/) for details.
- * !#zh 定义一个 CCClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/zh/scripting/class/)。
+ * !#en Defines a CCClass using the given specification, please see [Class](/docs/editors_and_tools/creator-chapters/scripting/class/) for details.
+ * !#zh 定义一个 CCClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/docs/creator/scripting/class/)。
  *
  * @method Class
  *
@@ -708,6 +739,7 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  * @param {String} [options.name] - The class name used for serialization.
  * @param {Function} [options.extends] - The base class.
  * @param {Function} [options.ctor] - The constructor.
+ * @param {Function} [options.__ctor__] - The same as ctor, but less encapsulated.
  * @param {Object} [options.properties] - The property definitions.
  * @param {Object} [options.statics] - The static members.
  * @param {Function[]} [options.mixins]
@@ -743,44 +775,45 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
 
  // define sub class
  var Sprite = cc.Class({
-        name: 'Sprite',
-        extends: Node,
-        ctor: function () {
-            this.url = "";
-            this.id = 0;
-        },
+     name: 'Sprite',
+     extends: Node,
+     ctor: function () {
+         this.url = "";
+         this.id = 0;
+     },
 
-        properties {
-            width: {
-                default: 128,
-                type: 'Integer',
-                tooltip: 'The width of sprite'
-            },
-            height: 128,
-            size: {
-                get: function () {
-                    return cc.v2(this.width, this.height);
-                }
-            }
-        },
+     statics: {
+         // define static members
+         count: 0,
+         getBounds: function (spriteList) {
+             // compute bounds...
+         }
+     },
 
-        load: function () {
-            // load this.url
-        };
-    });
+     properties {
+         width: {
+             default: 128,
+             type: 'Integer',
+             tooltip: 'The width of sprite'
+         },
+         height: 128,
+         size: {
+             get: function () {
+                 return cc.v2(this.width, this.height);
+             }
+         }
+     },
+
+     load: function () {
+         // load this.url...
+     };
+ });
 
  // instantiate
 
  var obj = new Sprite();
  obj.url = 'sprite.png';
  obj.load();
-
- // define static member
-
- Sprite.count = 0;
- Sprite.getBounds = function (spriteList) {
-        // ...
-    };
  */
 function CCClass (options) {
     if (!options) {
@@ -793,7 +826,7 @@ function CCClass (options) {
 
     // create constructor
     var cls;
-    cls = define(name, base, mixins, options.ctor, options);
+    cls = define(name, base, mixins, options);
     if (!name) {
         name = cc.js.getClassName(cls);
     }

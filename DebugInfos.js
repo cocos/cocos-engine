@@ -300,6 +300,7 @@ if (CC_DEV) {
         "3646": "Unknown 'type' parameter of %s.%s：%s", //parseAttributes_3                
         "3647": "The length of range array must be equal or greater than 2", //parseAttributes_4
         "3648": "Can not declare %s.%s method, it is already defined in the properties of %s.",
+        "3649": "CCClass %s have conflict between its ctor and __ctor__.",
         //Prefab: 3700
         "3700": "internal error: _prefab is undefined", //_doInstantiate
         "3701": "Failed to load prefab asset for node '%s'", //syncWithPrefab
