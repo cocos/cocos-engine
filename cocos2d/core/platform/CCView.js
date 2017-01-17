@@ -525,7 +525,6 @@ var View = cc._Class.extend({
      */
     setFrameZoomFactor: function (zoomFactor) {
         this._frameZoomFactor = zoomFactor;
-        // this.centerWindow();
         cc.director.setProjection(cc.director.getProjection());
     },
 
@@ -605,7 +604,6 @@ var View = cc._Class.extend({
         this._frameSize.height = height;
         cc.game.frame.style.width = width + "px";
         cc.game.frame.style.height = height + "px";
-        //this.centerWindow();
         this._resizeEvent();
         cc.director.setProjection(cc.director.getProjection());
     },
