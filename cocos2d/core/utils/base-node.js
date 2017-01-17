@@ -1076,6 +1076,24 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
+    /**
+     * !#en
+     * Destroy all children from the node, and release all their own references to other objects.<br/>
+     * Actual destruct operation will delayed until before rendering.
+     * !#zh
+     * 销毁所有子节点，并释放所有它们对其它对象的引用。<br/>
+     * 实际销毁操作会延迟到当前帧渲染前执行。
+     * @method destroyAllChildren
+     * @example
+     * node.destroyAllChildren();
+     */
+    destroyAllChildren: function () {
+        var children = this._children;
+        for (var i = 0; i < children.length; ++i) {
+            children[i].destroy();
+        }
+    },
+
     _onHierarchyChanged: function (oldParent) {
         var newParent = this._parent;
         if (this._persistNode && !(newParent instanceof cc.Scene)) {
