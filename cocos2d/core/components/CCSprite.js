@@ -197,9 +197,7 @@ var Sprite = cc.Class({
             },
             set: function (value) {
                 this._type = value;
-                this._sgNode.setRenderingType(this._type);
-                // manual settings inset top, bttom, right, left.
-                this._applyCapInset();
+                this._sgNode.setRenderingType(value);
             },
             type: SpriteType,
             animatable: false,
@@ -512,14 +510,13 @@ var Sprite = cc.Class({
         }
     },
 
-    _applyCapInset: function () {
-        if (this._type === SpriteType.SLICED && this._spriteFrame) {
-            var sgNode = this._sgNode;
-            sgNode.setInsetTop(this._spriteFrame.insetTop);
-            sgNode.setInsetBottom(this._spriteFrame.insetBottom);
-            sgNode.setInsetRight(this._spriteFrame.insetRight);
-            sgNode.setInsetLeft(this._spriteFrame.insetLeft);
-        }
+    _applySpriteFrameInsets: function () {
+        var spriteFrame = this._spriteFrame;
+        var sgNode = this._sgNode;
+        sgNode.setInsetTop(spriteFrame.insetTop);
+        sgNode.setInsetBottom(spriteFrame.insetBottom);
+        sgNode.setInsetRight(spriteFrame.insetRight);
+        sgNode.setInsetLeft(spriteFrame.insetLeft);
     },
 
     _applySpriteSize: function () {
@@ -536,33 +533,35 @@ var Sprite = cc.Class({
         }
     },
 
-    _onSpriteFrameLoaded: function (event) {
+    _onTextureLoaded: function (event) {
         var self = this;
         if (!self.isValid) {
             return;
         }
         var sgNode = self._sgNode;
         sgNode.setSpriteFrame(self._spriteFrame);
-        self._applyCapInset();
         self._applySpriteSize();
         if (self.enabledInHierarchy && !sgNode.isVisible()) {
             sgNode.setVisible(true);
         }
     },
 
-    _applySpriteFrame: function (oldFrame) {
+    _applySpriteFrame: function (oldFrame, keepInsets) {
         var sgNode = this._sgNode;
         if (oldFrame && oldFrame.off) {
-            oldFrame.off('load', this._onSpriteFrameLoaded, this);
+            oldFrame.off('load', this._onTextureLoaded, this);
         }
 
         var spriteFrame = this._spriteFrame;
         if (spriteFrame) {
+            if (!keepInsets) {
+                this._applySpriteFrameInsets();
+            }
             if (spriteFrame.textureLoaded()) {
-                this._onSpriteFrameLoaded(null);
+                this._onTextureLoaded(null);
             }
             else {
-                spriteFrame.once('load', this._onSpriteFrameLoaded, this);
+                spriteFrame.once('load', this._onTextureLoaded, this);
                 spriteFrame.ensureLoadTexture();
             }
         }
@@ -581,8 +580,10 @@ var Sprite = cc.Class({
     },
 
     _initSgNode: function () {
-        this._applySpriteFrame(null);
         var sgNode = this._sgNode;
+        var insetsChangedViaAPI = sgNode._insetLeft !== 0 || sgNode._insetRight !== 0 ||
+                                  sgNode._insetTop !== 0 || sgNode._insetBottom !== 0;
+        this._applySpriteFrame(null, insetsChangedViaAPI);
 
         // should keep the size of the sg node the same as entity,
         // otherwise setContentSize may not take effect
