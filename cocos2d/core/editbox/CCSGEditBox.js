@@ -49,12 +49,6 @@ function adjustEditBoxPosition (editBox) {
     }, TIMER_NAME);
 }
 
-function scrollWindowUp(editBox) {
-    if (cc.sys.os === cc.sys.OS_IOS && cc.sys.osMainVersion === 9) {
-        adjustEditBoxPosition(editBox);
-    }
-}
-
 var capitalize = function(string) {
     return string.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
 };
@@ -653,7 +647,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         this.__autoResize = cc.view.__resizeWithBrowserSize;
         cc.view.resizeWithBrowserSize(false);
 
-        scrollWindowUp(editBox);
+        adjustEditBoxPosition(editBox);
     };
 
     proto._endEditingOnMobile = function () {
