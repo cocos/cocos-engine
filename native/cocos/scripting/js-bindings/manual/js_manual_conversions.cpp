@@ -101,7 +101,7 @@ const char* JSStringWrapper::get()
 
 // JSFunctionWrapper
 JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval)
-: _cppRelated(false)
+: _cppOwner(nullptr)
 , _cx(cx)
 {
     _jsthis = jsthis;
@@ -109,7 +109,7 @@ JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS:
     _owner = JS::NullValue();
 }
 JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval, JS::HandleValue owner)
-: _cppRelated(false)
+: _cppOwner(nullptr)
 , _cx(cx)
 {
     _jsthis = jsthis;
@@ -128,12 +128,12 @@ JSFunctionWrapper::~JSFunctionWrapper()
     {
         return;
     }
-    if (_cppRelated)
+    if (_cppOwner != nullptr)
     {
         JS::RootedObject ownerObj(cx, ownerVal.toObjectOrNull());
         js_proxy *t = jsb_get_js_proxy(ownerObj);
-        // Cpp object already released, no need to do the following release anymore, gc will take care of everything
-        if (t == nullptr)
+        // JS object already released, no need to do the following release anymore, gc will take care of everything
+        if (t == nullptr || _cppOwner != t->ptr)
         {
             return;
         }
@@ -162,7 +162,7 @@ void JSFunctionWrapper::setOwner(JSContext* cx, JS::HandleValue owner)
         JS::RootedObject ownerObj(cx, owner.toObjectOrNull());
         js_proxy *t = jsb_get_js_proxy(ownerObj);
         if (t) {
-            _cppRelated = true;
+            _cppOwner = t->ptr;
         }
         
         JS::RootedValue thisVal(cx, OBJECT_TO_JSVAL(_jsthis));
@@ -180,11 +180,7 @@ void JSFunctionWrapper::setOwner(JSContext* cx, JS::HandleValue owner)
 
 bool JSFunctionWrapper::invoke(unsigned int argc, jsval *argv, JS::MutableHandleValue rval)
 {
-    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-
-    JS::RootedObject thisObj(_cx, _jsthis);
-    JS::RootedValue fval(_cx, _fval);
-    return JS_CallFunctionValue(_cx, thisObj, fval, JS::HandleValueArray::fromMarkedLocation(argc, argv), rval);
+    return invoke(JS::HandleValueArray::fromMarkedLocation(argc, argv), rval);
 }
 
 bool JSFunctionWrapper::invoke(JS::HandleValueArray args, JS::MutableHandleValue rval)

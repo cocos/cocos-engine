@@ -87,7 +87,7 @@ private:
     JS::Heap<JSObject*> _jsthis;
     JS::Heap<JS::Value> _fval;
     JS::Heap<JS::Value> _owner;
-    bool _cppRelated;
+    void* _cppOwner;
 
     CC_DISALLOW_COPY_AND_ASSIGN(JSFunctionWrapper);
 };

@@ -715,7 +715,7 @@ void js_remove_object_root(JS::HandleValue target)
 }
 
 JSCallbackWrapper::JSCallbackWrapper()
-: _cppRelated(false)
+: _cppOwner(nullptr)
 {
     JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
     _jsCallback = JS::NullValue();
@@ -729,7 +729,7 @@ JSCallbackWrapper::JSCallbackWrapper()
 }
 
 JSCallbackWrapper::JSCallbackWrapper(JS::HandleValue owner)
-: _cppRelated(false)
+: _cppOwner(nullptr)
 {
     _owner = owner;
     _jsCallback = JS::NullValue();
@@ -739,7 +739,7 @@ JSCallbackWrapper::JSCallbackWrapper(JS::HandleValue owner)
     JS::RootedObject ownerObj(ScriptingCore::getInstance()->getGlobalContext(), owner.toObjectOrNull());
     js_proxy *t = jsb_get_js_proxy(ownerObj);
     if (t) {
-        _cppRelated = true;
+        _cppOwner = t->ptr;
     }
 }
 
@@ -754,12 +754,13 @@ JSCallbackWrapper::~JSCallbackWrapper()
     {
         return;
     }
-    if (_cppRelated)
+    js_proxy *t;
+    if (_cppOwner != nullptr)
     {
         JS::RootedObject ownerObj(cx, ownerVal.toObjectOrNull());
-        js_proxy *t = jsb_get_js_proxy(ownerObj);
-        // Cpp object already released, no need to do the following release anymore, gc will take care of everything
-        if (t == nullptr)
+        t = jsb_get_js_proxy(ownerObj);
+        // Owner already released, no need to do the following release anymore, gc will take care of everything
+        if (t == nullptr || _cppOwner != t->ptr)
         {
             return;
         }
@@ -789,6 +790,7 @@ void JSCallbackWrapper::setJSCallbackFunc(JS::HandleValue func) {
         JS::RootedValue ownerVal(cx, _owner);
         if (!ownerVal.isNullOrUndefined())
         {
+            JSAutoCompartment(cx, &ownerVal.toObject());
             JS::RootedValue target(cx, _jsCallback);
             if (!target.isNullOrUndefined())
             {
@@ -807,6 +809,7 @@ void JSCallbackWrapper::setJSCallbackThis(JS::HandleValue thisObj) {
         JS::RootedValue ownerVal(cx, _owner);
         if (!ownerVal.isNullOrUndefined())
         {
+            JSAutoCompartment(cx, &ownerVal.toObject());
             JS::RootedValue target(cx, _jsThisObj);
             if (!target.isNullOrUndefined())
             {
@@ -825,6 +828,7 @@ void JSCallbackWrapper::setJSExtraData(JS::HandleValue data) {
         JS::RootedValue ownerVal(cx, _owner);
         if (!ownerVal.isNullOrUndefined())
         {
+            JSAutoCompartment(cx, &ownerVal.toObject());
             JS::RootedValue target(cx, _extraData);
             if (!target.isNullOrUndefined())
             {

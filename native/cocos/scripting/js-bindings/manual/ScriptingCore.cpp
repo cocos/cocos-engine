@@ -1593,7 +1593,6 @@ bool ScriptingCore::executeFunctionWithOwner(jsval owner, const char *name, cons
             }
 
             bRet = JS_CallFunctionName(cx, obj, name, args, retVal);
-
         }
     }while(0);
     return bRet;
@@ -2426,6 +2425,9 @@ void jsb_ref_autoreleased_init(JSContext* cx, JS::Heap<JSObject*> *obj, Ref* ref
     ref->retain();
     JS::RootedObject jsObj(cx, *obj);
     js_add_FinalizeHook(cx, jsObj, true);
+#if COCOS2D_DEBUG > 1
+    CCLOG("++++++RETAINED++++++ Cpp(%s): %p - JS: %p", debug, ref, jsObj.get());
+#endif // COCOS2D_DEBUG
 #else
     // don't autorelease it, since it is already autoreleased
     JS::AddNamedObjectRoot(cx, obj, debug);
