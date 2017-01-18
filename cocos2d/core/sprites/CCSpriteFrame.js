@@ -409,11 +409,11 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * !#en If a loading scene is marked as `asyncLoadAssets`, all the textures of the SpriteFrame which
+     * !#en If a loading scene (or prefab) is marked as `asyncLoadAssets`, all the textures of the SpriteFrame which
      * associated by user's custom Components in the scene, will not preload automatically.
      * These textures will be load when Sprite component is going to render the SpriteFrames.
      * You can call this method if you want to load the texture early.
-     * !#zh 当加载中的场景被标记为 `asyncLoadAssets` 时，用户在场景中由自定义组件关联到的所有 SpriteFrame 的贴图都不会被提前加载。
+     * !#zh 当加载中的场景或 Prefab 被标记为 `asyncLoadAssets` 时，用户在场景中由自定义组件关联到的所有 SpriteFrame 的贴图都不会被提前加载。
      * 只有当 Sprite 组件要渲染这些 SpriteFrame 时，才会检查贴图是否加载。如果你希望加载过程提前，你可以手工调用这个方法。
      *
      * @method ensureLoadTexture
