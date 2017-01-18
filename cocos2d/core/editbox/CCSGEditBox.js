@@ -604,7 +604,6 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             this._createLabels();
             this._edTxt.style.display = 'none';
             this._showLabels();
-            this._updateLabelStringStyle();
         }
     };
 
