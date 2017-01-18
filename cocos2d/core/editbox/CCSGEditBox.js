@@ -283,7 +283,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
 
     createDomElementIfNeeded: function () {
         if(!this._renderCmd._edTxt) {
-            this._renderCmd.createNativeControl();
+            this._renderCmd.createDomTextArea();
         }
     },
 
@@ -325,7 +325,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
     cleanup: function () {
         this._super();
 
-        this._renderCmd._removeDomInputControl();
+        this._renderCmd._removeDomFromGameContainer();
     },
 
     _onTouchBegan: function (touch) {
@@ -592,10 +592,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         var editBox = this._edTxt;
         if (node.visible) {
             editBox.style.visibility = 'visible';
-            this._addDomInputControl();
         } else {
             editBox.style.visibility = 'hidden';
-            this._removeDomInputControl();
         }
     };
 
@@ -672,7 +670,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
 
     proto._createDomInput = function () {
-        this._removeDomInputControl();
+        this._removeDomFromGameContainer();
+
         var thisPointer = this;
         var tmpEdTxt = this._edTxt = document.createElement('input');
         tmpEdTxt.type = 'text';
@@ -764,11 +763,15 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             }
             thisPointer.hidden();
         });
+
+        this._addDomToGameContainer();
+
         return tmpEdTxt;
     };
 
     proto._createDomTextArea = function () {
-        this._removeDomInputControl();
+        this._removeDomFromGameContainer();
+
         var thisPointer = this;
         var tmpEdTxt = this._edTxt = document.createElement('textarea');
         tmpEdTxt.type = 'text';
@@ -853,6 +856,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             thisPointer.hidden();
         });
 
+        this._addDomToGameContainer();
         return tmpEdTxt;
     };
 
@@ -1089,14 +1093,12 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto.setInputMode = function (inputMode) {
-        this._removeDomInputControl();
         if (inputMode === InputMode.ANY) {
             this._createDomTextArea();
         }
         else {
             this._createDomInput();
         }
-        this._addDomInputControl();
 
         this._updateInputType();
         var contentSize = this._node.getContentSize();
@@ -1158,16 +1160,11 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         this._updateLabelPosition(cc.size(newWidth, newHeight));
     };
 
-    proto.createNativeControl = function() {
-        this._createDomTextArea();
-        this._addDomInputControl();
-    };
-
-    proto._addDomInputControl = function () {
+    proto._addDomToGameContainer = function () {
         cc.game.container.appendChild(this._edTxt);
     };
 
-    proto._removeDomInputControl = function () {
+    proto._removeDomFromGameContainer = function () {
         var editBox = this._edTxt;
         if(editBox){
             var hasChild = Utils.contains(cc.game.container, editBox);
