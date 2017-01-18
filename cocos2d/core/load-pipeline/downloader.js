@@ -252,7 +252,6 @@ var defaultMap = {
     'mp3' : downloadAudio,
     'ogg' : downloadAudio,
     'wav' : downloadAudio,
-    'mp4' : downloadAudio,
     'm4a' : downloadAudio,
 
     // Txt
