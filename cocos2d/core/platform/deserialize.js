@@ -308,7 +308,7 @@ var _Deserializer = (function () {
     //         if (!rawType) {
     //             if (((CC_EDITOR && self._ignoreEditorOnly) || (!CC_EDITOR && CC_DEV && !CC_TEST))
     //                 && attrs[propName + EDITOR_ONLY]) {
-    //                 var mayUsedInPersistRoot = (obj instanceof cc.Node && propName === '_id');
+    //                 var mayUsedInPersistRoot = (cc.Node.isNode(obj) && propName === '_id');
     //                 if ( !mayUsedInPersistRoot ) {
     //                     continue;   // skip editor only if in preview
     //                 }

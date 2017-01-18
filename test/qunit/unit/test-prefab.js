@@ -84,7 +84,7 @@
 
     test('saved prefab node', function () {
         var nodeToSave = prefab.data;
-        ok(nodeToSave instanceof cc.Node, 'Checking prefab data');
+        ok(cc.Node.isNode(nodeToSave), 'Checking prefab data');
         ok(!nodeToSave._id, 'The id in prefab data should be cleared');
         strictEqual(nodeToSave.scaleX, 123, 'Checking prefab data');
         strictEqual(nodeToSave.scaleY, 432, 'Checking prefab data');
@@ -119,7 +119,7 @@
         ok(prefabInfo.asset === prefab, "should reference to origin prefab asset in prefab info");
         notEqual(newNode, newNode2, 'The new nodes should be different');
 
-        ok(newNode instanceof cc.Node, 'Checking instance');
+        ok(cc.Node.isNode(newNode), 'Checking instance');
         notEqual(newNode.uuid, newNode2.uuid, 'The id of instances should be different');
         ok(newNode.scaleX === 123, 'Checking instance');
         ok(newNode.scaleY === 432, 'Checking instance');
