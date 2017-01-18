@@ -283,7 +283,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
 
     createDomElementIfNeeded: function () {
         if(!this._renderCmd._edTxt) {
-            this._renderCmd.createDomTextArea();
+            this._renderCmd._createDomTextArea();
         }
     },
 
@@ -588,12 +588,10 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     proto.updateVisibility = function () {
         if (!this._edTxt) return;
 
-        var node = this._node;
-        var editBox = this._edTxt;
-        if (node.visible) {
-            editBox.style.visibility = 'visible';
+        if (this._node.visible) {
+            this._edTxt.style.visibility = 'visible';
         } else {
-            editBox.style.visibility = 'hidden';
+            this._edTxt.style.visibility = 'hidden';
         }
     };
 
