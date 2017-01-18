@@ -87,31 +87,35 @@ using namespace cocos2d::experimental::ui;
 -(void) cleanup
 {
     if (self.moviePlayer != nullptr) {
-        [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                        name:MPMoviePlayerPlaybackDidFinishNotification
-                                                      object:self.moviePlayer];
-        [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                        name:MPMoviePlayerPlaybackStateDidChangeNotification
-                                                      object:self.moviePlayer];
-
-        [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                        name:MPMovieDurationAvailableNotification
-                                                      object:nil];
-
-        [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                        name:MPMoviePlayerLoadStateDidChangeNotification
-                                                      object:nil];
+        [self removeRegisteredObservers];
 
         [self.moviePlayer stop];
         [self.moviePlayer.view removeFromSuperview];
         self.moviePlayer = nullptr;
-        _videoPlayer = nullptr;
     }
+}
+
+-(void) removeRegisteredObservers {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:MPMoviePlayerPlaybackDidFinishNotification
+                                                  object:self.moviePlayer];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:MPMoviePlayerPlaybackStateDidChangeNotification
+                                                  object:self.moviePlayer];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:MPMovieDurationAvailableNotification
+                                                  object:nil];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:MPMoviePlayerLoadStateDidChangeNotification
+                                                  object:nil];
 }
 
 -(void) dealloc
 {
     [self cleanup];
+    _videoPlayer = nullptr;
     [super dealloc];
 }
 
@@ -533,7 +537,9 @@ void VideoPlayer::onEnter()
 void VideoPlayer::onExit()
 {
     Widget::onExit();
+
     [((UIVideoViewWrapperIos*)_videoView) setVisible: NO];
+    [((UIVideoViewWrapperIos*)_videoView) removeRegisteredObservers];
 }
 
 void VideoPlayer::addEventListener(const VideoPlayer::ccVideoPlayerCallback& callback)
