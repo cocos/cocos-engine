@@ -249,7 +249,7 @@ void ActionManager::removeAllActionsFromTarget(Node *target)
             for (int i = 0; i < limit; ++i)
             {
                 Action *action = (Action*)element->actions->arr[i];
-                if (element->currentActionSalvaged && element->currentAction == action)
+                if (!element->currentActionSalvaged || element->currentAction != action)
                 {
                     sEngine->releaseScriptObject(this, action);
                 }

@@ -263,7 +263,15 @@ bool Sequence::init(const Vector<FiniteTimeAction*>& arrayOfActions)
     auto prev = arrayOfActions.at(0);
     for (int i = 1; i < count-1; ++i)
     {
-        prev = createWithTwoActions(prev, arrayOfActions.at(i));
+        FiniteTimeAction *action = arrayOfActions.at(i);
+        prev = createWithTwoActions(prev, action);
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            sEngine->retainScriptObject(this, action);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     }
 
     return initWithTwoActions(prev, arrayOfActions.at(count-1));
@@ -745,7 +753,15 @@ bool Spawn::init(const Vector<FiniteTimeAction*>& arrayOfActions)
     auto prev = arrayOfActions.at(0);
     for (int i = 1; i < count-1; ++i)
     {
-        prev = createWithTwoActions(prev, arrayOfActions.at(i));
+        FiniteTimeAction* action = arrayOfActions.at(i);
+        prev = createWithTwoActions(prev, action);
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            sEngine->retainScriptObject(this, action);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     }
 
     return initWithTwoActions(prev, arrayOfActions.at(count-1));
