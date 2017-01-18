@@ -88,12 +88,12 @@ var AssetLibrary = {
                         Editor.error('Sorry, the scene data of "%s" is corrupted!', uuid);
                     }
                     else {
-                        // We know scene is not a raw asset, so we can pass uuid to this API directly
-                        asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(uuid);
+                        var key = cc.loader._getReferenceKey(uuid);
+                        asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(key);
                     }
                 }
                 if (CC_EDITOR || isScene(asset)) {
-                    var id = cc.AssetLibrary._getAssetInfoInRuntime(uuid).url;
+                    var id = cc.loader._getReferenceKey(uuid);
                     Loader.removeItem(id);
                 }
             }
@@ -220,11 +220,11 @@ var AssetLibrary = {
             }
             else {
                 if (asset.constructor === cc.SceneAsset) {
-                    // We know scene is not a raw asset, so we can pass uuid to this API directly
-                    asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(randomUuid);
+                    var key = cc.loader._getReferenceKey(randomUuid);
+                    asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(key);
                 }
                 if (CC_EDITOR || isScene(asset)) {
-                    var id = cc.AssetLibrary._getAssetInfoInRuntime(randomUuid).url;
+                    var id = cc.loader._getReferenceKey(randomUuid);
                     Loader.removeItem(id);
                 }
             }

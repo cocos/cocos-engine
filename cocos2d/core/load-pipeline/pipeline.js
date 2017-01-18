@@ -372,11 +372,11 @@ JS.mixin(Pipeline.prototype, {
     },
 
     /**
-     * !#en Removes an item in pipeline, no matter it's in progress or completed.
+     * !#en Removes an completed item in pipeline.
      * It will only remove the cache in the pipeline or loader, its dependencies won't be released.
      * cc.loader provided another method to completely cleanup the resource and its dependencies,
      * please refer to {{#crossLink "loader/release:method"}}cc.loader.release{{/crossLink}}
-     * !#zh 移除指定 item，无论是进行时还是已完成。
+     * !#zh 移除指定的已完成 item。
      * 这将仅仅从 pipeline 或者 loader 中删除其缓存，并不会释放它所依赖的资源。
      * cc.loader 中提供了另一种删除资源及其依赖的清理方法，请参考 {{#crossLink "loader/release:method"}}cc.loader.release{{/crossLink}}
      * @method removeItem
@@ -385,10 +385,8 @@ JS.mixin(Pipeline.prototype, {
      */
     removeItem: function (id) {
         var removed = this._cache[id];
-        delete this._cache[id];
-        if (removed && !removed.complete) {
-            removed.error = new Error('Canceled manually');
-            this.flowOut(removed);
+        if (removed && removed.complete) {
+            delete this._cache[id];
         }
         return removed;
     },
