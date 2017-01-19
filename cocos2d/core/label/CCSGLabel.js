@@ -1263,10 +1263,8 @@ cc.BMFontHelper = {
                 var createLabelSprites = function () {
                     var texture = spriteFrame.getTexture();
                     self._textureLoaded = texture.isLoaded();
-                    if (!self._spriteBatchNode) {
-                        self._createSpriteBatchNode(texture);
-                        self.emit("load");
-                    }
+                    self._createSpriteBatchNode(texture);
+                    self.emit("load");
                 };
 
                 if (spriteFrame.textureLoaded()) {
