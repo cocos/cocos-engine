@@ -31,23 +31,27 @@ var SCROLLY = 40;
 var TIMER_NAME = 400;
 var LEFT_PADDING = 2;
 
+function adjustEditBoxPosition (editBox) {
+    var worldPos = editBox.convertToWorldSpace(cc.p(0,0));
+    var windowHeight = cc.visibleRect.height;
+    var windowWidth = cc.visibleRect.width;
+    var factor = 0.5;
+    if(windowWidth > windowHeight) {
+        factor = 0.7;
+    }
+    setTimeout(function() {
+        if(window.scrollY < SCROLLY && worldPos.y < windowHeight * factor) {
+            var scrollOffset = windowHeight * factor - worldPos.y - window.scrollY;
+            if (scrollOffset < 35) scrollOffset = 35;
+            if (scrollOffset > 320) scrollOffset = 320;
+            window.scrollTo(scrollOffset, scrollOffset);
+        }
+    }, TIMER_NAME);
+}
+
 function scrollWindowUp(editBox) {
     if (cc.sys.os === cc.sys.OS_IOS && cc.sys.osMainVersion === 9) {
-        var worldPos = editBox.convertToWorldSpace(cc.p(0,0));
-        var windowHeight = cc.visibleRect.height;
-        var windowWidth = cc.visibleRect.width;
-        var factor = 0.5;
-        if(windowWidth > windowHeight) {
-            factor = 0.7;
-        }
-        setTimeout(function() {
-            if(window.scrollY < SCROLLY && worldPos.y < windowHeight * factor) {
-                var scrollOffset = windowHeight * factor - worldPos.y - window.scrollY;
-                if (scrollOffset < 35) scrollOffset = 35;
-                if (scrollOffset > 320) scrollOffset = 320;
-                window.scrollTo(0, scrollOffset);
-            }
-        }, TIMER_NAME);
+        adjustEditBoxPosition(editBox);
     }
 }
 
@@ -618,6 +622,65 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         }
     };
 
+    proto._beginEditingOnMobile = function (editBox) {
+        if (cc.view._isRotated) {
+            cc.container.style['-webkit-transform'] = 'rotate(0deg)';
+            cc.container.style.transform = 'rotate(0deg)';
+            cc.view._isRotated = false;
+            var policy = cc.view.getResolutionPolicy();
+            policy.apply(cc.view, cc.view.getDesignResolutionSize());
+            cc.view._isRotated = true;
+            //use window scrollTo to adjust the input area
+            window.scrollTo(35, 35);
+            this.__rotateScreen = true;
+        } else {
+            this.__rotateScreen = false;
+        }
+
+        this.__orientationChanged = function () {
+            adjustEditBoxPosition(editBox);
+        };
+
+        window.addEventListener('orientationchange', this.__orientationChanged);
+
+        if(cc.view.isAutoFullScreenEnabled()) {
+            this.__fullscreen = true;
+            cc.view.enableAutoFullScreen(false);
+            cc.screen.exitFullScreen();
+        } else {
+            this.__fullscreen = false;
+        }
+        this.__autoResize = cc.view.__resizeWithBrowserSize;
+        cc.view.resizeWithBrowserSize(false);
+
+        scrollWindowUp(editBox);
+    };
+
+    proto._endEditingOnMobile = function () {
+        if (this.__rotateScreen) {
+            cc.container.style['-webkit-transform'] = 'rotate(90deg)';
+            cc.container.style.transform = 'rotate(90deg)';
+
+            var view = cc.view;
+            var width = view._originalDesignResolutionSize.width;
+            var height = view._originalDesignResolutionSize.height;
+            if (width > 0) {
+                view.setDesignResolutionSize(width, height, view._resolutionPolicy);
+            }
+            this.__rotateScreen = false;
+        }
+
+        window.removeEventListener('orientationchange', this.__orientationChanged);
+
+        window.scrollY = 0;
+        if(this.__fullscreen) {
+            cc.view.enableAutoFullScreen(true);
+        }
+        if (this.__autoResize) {
+            cc.view.resizeWithBrowserSize(true);
+        }
+    };
+
 
 
     proto._createDomInput = function () {
@@ -684,17 +747,10 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             this.style.color = cc.colorToHex(editBox._textColor);
             thisPointer._hiddenLabels();
 
-            if(cc.view.isAutoFullScreenEnabled()) {
-                thisPointer.__fullscreen = true;
-                cc.view.enableAutoFullScreen(false);
-                cc.screen.exitFullScreen();
-            } else {
-                thisPointer.__fullscreen = false;
+            if (cc.sys.isMobile) {
+                thisPointer._beginEditingOnMobile(editBox);
             }
-            thisPointer.__autoResize = cc.view.__resizeWithBrowserSize;
-            cc.view.resizeWithBrowserSize(false);
 
-            scrollWindowUp(editBox);
 
             if (editBox._delegate && editBox._delegate.editBoxEditingDidBegan) {
                 editBox._delegate.editBoxEditingDidBegan(editBox);
@@ -704,13 +760,12 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             var editBox = thisPointer._editBox;
             editBox._text = this.value;
             thisPointer._updateEditBoxContentStyle();
-            if(thisPointer.__fullscreen) {
-                cc.view.enableAutoFullScreen(true);
+
+            if (cc.sys.isMobile) {
+                thisPointer._endEditingOnMobile();
             }
-            if (thisPointer.__autoResize) {
-                cc.view.resizeWithBrowserSize(true);
-            }
-            window.scrollY = 0;
+
+
             if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded) {
                 editBox._delegate.editBoxEditingDidEnded(editBox);
             }
@@ -768,17 +823,10 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
             this.style.fontSize = thisPointer._edFontSize + 'px';
             this.style.color = cc.colorToHex(editBox._textColor);
-            if(cc.view.isAutoFullScreenEnabled()) {
-                thisPointer.__fullscreen = true;
-                cc.view.enableAutoFullScreen(false);
-                cc.screen.exitFullScreen();
-            } else {
-                thisPointer.__fullscreen = false;
-            }
-            thisPointer.__autoResize = cc.view.__resizeWithBrowserSize;
-            cc.view.resizeWithBrowserSize(false);
 
-            scrollWindowUp(editBox);
+            if (cc.sys.isMobile) {
+                thisPointer._beginEditingOnMobile(editBox);
+            }
 
             if (editBox._delegate && editBox._delegate.editBoxEditingDidBegan) {
                 editBox._delegate.editBoxEditingDidBegan(editBox);
@@ -800,12 +848,9 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             var editBox = thisPointer._editBox;
             editBox._text = this.value;
             thisPointer._updateEditBoxContentStyle();
-            window.scrollY = 0;
-            if(thisPointer.__fullscreen) {
-                cc.view.enableAutoFullScreen(true);
-            }
-            if (thisPointer.__autoResize) {
-                cc.view.resizeWithBrowserSize(true);
+
+            if (cc.sys.isMobile) {
+                thisPointer._endEditingOnMobile();
             }
 
             if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded) {

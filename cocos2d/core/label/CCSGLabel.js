@@ -1258,26 +1258,20 @@ cc.BMFontHelper = {
 
                 self._config = FntLoader.parseFnt(fntDataStr);
                 self._createFontChars();
-                var texture = spriteFrame.getTexture();
                 self._spriteFrame = spriteFrame;
 
-                var locIsLoaded = texture.isLoaded();
-                self._textureLoaded = locIsLoaded;
-                if (!locIsLoaded) {
-                    texture.once("load", function() {
-                        var self = this;
+                var createLabelSprites = function () {
+                    var texture = spriteFrame.getTexture();
+                    self._textureLoaded = texture.isLoaded();
+                    self._createSpriteBatchNode(texture);
+                    self.emit("load");
+                };
 
-                        if (!self._spriteBatchNode) {
-                            self._createSpriteBatchNode(texture);
-                        }
-                        self._textureLoaded = true;
-                        self.emit("load");
-                    }, self);
+                if (spriteFrame.textureLoaded()) {
+                    createLabelSprites();
                 } else {
-                    if (!self._spriteBatchNode) {
-                        self._createSpriteBatchNode(texture);
-                        self.emit("load");
-                    }
+                    spriteFrame.once('load', createLabelSprites);
+                    spriteFrame.ensureLoadTexture();
                 }
             }
         }

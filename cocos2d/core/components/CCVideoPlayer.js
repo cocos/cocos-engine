@@ -253,13 +253,15 @@ var VideoPlayer = cc.Class({
             sgNode.setContentSize(this.node.getContentSize());
             this.pause();
 
-            sgNode.setEventListener(EventType.PLAYING, this.onPlaying.bind(this));
-            sgNode.setEventListener(EventType.PAUSED, this.onPasued.bind(this));
-            sgNode.setEventListener(EventType.STOPPED, this.onStopped.bind(this));
-            sgNode.setEventListener(EventType.COMPLETED, this.onCompleted.bind(this));
-            sgNode.setEventListener(EventType.META_LOADED, this.onMetaLoaded.bind(this));
-            sgNode.setEventListener(EventType.CLICKED, this.onClicked.bind(this));
-            sgNode.setEventListener(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
+            if (!CC_EDITOR) {
+                sgNode.setEventListener(EventType.PLAYING, this.onPlaying.bind(this));
+                sgNode.setEventListener(EventType.PAUSED, this.onPasued.bind(this));
+                sgNode.setEventListener(EventType.STOPPED, this.onStopped.bind(this));
+                sgNode.setEventListener(EventType.COMPLETED, this.onCompleted.bind(this));
+                sgNode.setEventListener(EventType.META_LOADED, this.onMetaLoaded.bind(this));
+                sgNode.setEventListener(EventType.CLICKED, this.onClicked.bind(this));
+                sgNode.setEventListener(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
+            }
         }
     },
 
