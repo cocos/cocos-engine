@@ -73,46 +73,34 @@ cc.js.mixin(AssetTable.prototype, {
         return '';
     },
 
-    getUuidArray: function (path, type) {
+    getUuidArray: function (path, type, out_uuidToUrl) {
         path = cc.url.normalize(path);
         if (path[path.length - 1] === '/') {
             path = path.slice(0, -1);
         }
         var path2uuid = this._pathToUuid;
         var uuids = [];
-        var p, i;
-        if (type) {
-            var isChildClassOf = cc.isChildClassOf;
-            for (p in path2uuid) {
-                if (p.startsWith(path) && isMatchByWord(p, path)) {
-                    var item = path2uuid[p];
-                    if (Array.isArray(item)) {
-                        for (i = 0; i < item.length; i++) {
-                            var entry = item[i];
-                            if (isChildClassOf(entry.type, type)) {
-                                uuids.push(entry.uuid);
+        var isChildClassOf = cc.isChildClassOf;
+        for (var p in path2uuid) {
+            if ((p.startsWith(path) && isMatchByWord(p, path)) || !path) {
+                var item = path2uuid[p];
+                if (Array.isArray(item)) {
+                    for (var i = 0; i < item.length; i++) {
+                        var entry = item[i];
+                        if (!type || isChildClassOf(entry.type, type)) {
+                            uuids.push(entry.uuid);
+                            if (out_uuidToUrl) {
+                                out_uuidToUrl[entry.uuid] = p;
                             }
                         }
                     }
-                    else {
-                        if (isChildClassOf(item.type, type)) {
-                            uuids.push(item.uuid);
-                        }
-                    }
                 }
-            }
-        }
-        else {
-            for (p in path2uuid) {
-                if (p.startsWith(path) && isMatchByWord(p, path)) {
-                    var item = path2uuid[p];
-                    if (Array.isArray(item)) {
-                        for (i = 0; i < item.length; i++) {
-                            uuids.push(item[i].uuid);
-                        }
-                    }
-                    else {
+                else {
+                    if (!type || isChildClassOf(item.type, type)) {
                         uuids.push(item.uuid);
+                        if (out_uuidToUrl) {
+                            out_uuidToUrl[item.uuid] = p;
+                        }
                     }
                 }
             }

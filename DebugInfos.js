@@ -370,7 +370,6 @@ if (CC_DEV) {
         //AutoReleaseUtils: 4800
         "4800": "unknown asset type %s", //getKey
         //Loader: 4900
-        "4900": "Sorry, the 'resources://' protocol is obsoleted, use cc.loader.loadRes instead please.", //load
         "4901": "loadRes: should not specify the extname in %s %s", //_getResUuid
         "4902": "No need to release non-cached asset.", //setAutoRelease
         "4903": "Can not get class '%s'", //uuid-loader.loadUuid

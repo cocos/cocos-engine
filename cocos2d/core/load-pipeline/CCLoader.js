@@ -182,14 +182,6 @@ JS.mixin(CCLoader.prototype, {
      * @param {Function} completeCallback - Callback invoked when all resources loaded
      */
     load: function(resources, progressCallback, completeCallback) {
-
-        // COMPATIBLE WITH 0.X
-        if (CC_DEV && typeof resources === 'string' && resources.startsWith('resources://')) {
-            cc.warnID(4900);
-            this.loadRes(resources.slice('resources://'.length), progressCallback, completeCallback);
-            return;
-        }
-
         if (completeCallback === undefined) {
             completeCallback = progressCallback;
             progressCallback = this.onProgress || null;
@@ -332,6 +324,56 @@ JS.mixin(CCLoader.prototype, {
         return key;
     },
 
+    _urlNotFound: function (url, type, completeCallback) {
+        callInNextTick(function () {
+            var info;
+            if (type) {
+                info = JS.getClassName(type) + ' in "' + url + '" does not exist.';
+            }
+            else {
+                info = 'Resources url "' + url + '" does not exist.';
+            }
+            if (completeCallback) {
+                completeCallback(new Error(info), []);
+            }
+        });
+    },
+
+    /**
+     * @param {Function} [type]
+     * @param {Function} [onProgress]
+     * @param {Function} onComplete
+     * @returns {Object} arguments
+     * @returns {Function} arguments.type
+     * @returns {Function} arguments.onProgress
+     * @returns {Function} arguments.onComplete
+     */
+    _parseLoadResArgs: function (type, onProgress, onComplete) {
+        if (onComplete === undefined) {
+            var isValidType = cc.isChildClassOf(type, cc.RawAsset);
+            if (onProgress) {
+                onComplete = onProgress;
+                if (isValidType) {
+                    onProgress = this.onProgress || null;
+                }
+            }
+            else if (onProgress === undefined && !isValidType) {
+                onComplete = type;
+                onProgress = this.onProgress || null;
+                type = null;
+            }
+            if (onProgress !== undefined && !isValidType) {
+                onProgress = type;
+                type = null;
+            }
+        }
+        return {
+            type: type,
+            onProgress: onProgress,
+            onComplete: onComplete,
+        };
+    },
+
     /**
      * Load resources from the "resources" folder inside the "assets" folder of your project.<br>
      * <br>
@@ -341,6 +383,7 @@ JS.mixin(CCLoader.prototype, {
      * @param {String} url - Url of the target resource.
      *                       The url is relative to the "resources" folder, extensions must be omitted.
      * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
+     * @param {Function} [progressCallback] - Callback invoked when progression change.
      * @param {Function} completeCallback - Callback invoked when the resource loaded.
      * @param {Error} completeCallback.error - The error info or null if loaded successfully.
      * @param {Object} completeCallback.resource - The loaded resource if it can be found otherwise returns null.
@@ -365,11 +408,11 @@ JS.mixin(CCLoader.prototype, {
      *     cc.log('Result should be a sprite frame: ' + (spriteFrame instanceof cc.SpriteFrame));
      * });
      */
-    loadRes: function (url, type, completeCallback) {
-        if (!completeCallback && type && !cc.isChildClassOf(type, cc.RawAsset)) {
-            completeCallback = type;
-            type = null;
-        }
+    loadRes: function (url, type, progressCallback, completeCallback) {
+        var args = this._parseLoadResArgs(type, progressCallback, completeCallback);
+        type = args.type;
+        progressCallback = args.onProgress;
+        completeCallback = args.onComplete;
         var self = this;
         var uuid = self._getResUuid(url, type);
         if (uuid) {
@@ -378,6 +421,7 @@ JS.mixin(CCLoader.prototype, {
                     type: 'uuid',
                     uuid: uuid
                 },
+                progressCallback,
                 function (err, asset) {
                     if (asset) {
                         // should not release these assets, even if they are static referenced in the scene.
@@ -390,19 +434,103 @@ JS.mixin(CCLoader.prototype, {
             );
         }
         else {
-            callInNextTick(function () {
-                var info;
-                if (type) {
-                    info = JS.getClassName(type) + ' in "' + url + '" does not exist.';
+            self._urlNotFound(url, type, completeCallback);
+        }
+    },
+
+    _loadResUuids: function (uuids, progressCallback, completeCallback, uuidToUrl) {
+        if (uuids.length > 0) {
+            var self = this;
+            var res = uuids.map(function (uuid) {
+                return {
+                    type: 'uuid',
+                    uuid: uuid
                 }
-                else {
-                    info = 'Resources url "' + url + '" does not exist.';
-                }
+            });
+            this.load(res, progressCallback, function (errors, items) {
                 if (completeCallback) {
-                    completeCallback(new Error(info), null);
+                    var results = [];
+                    var urls = uuidToUrl && {};
+                    for (var i = 0; i < res.length; ++i) {
+                        var uuid = res[i].uuid;
+                        var id = this._getReferenceKey(uuid);
+                        var item = items.getContent(id);
+                        if (item) {
+                            // should not release these assets, even if they are static referenced in the scene.
+                            self.setAutoReleaseRecursively(uuid, false);
+                            results.push(item);
+                            if (urls) {
+                                urls[uuidToUrl[uuid]] = item;
+                            }
+                        }
+                    }
+                    if (uuidToUrl) {
+                        completeCallback(errors, results, urls);
+                    }
+                    else {
+                        completeCallback(errors, results);
+                    }
                 }
             });
         }
+        else {
+            if (completeCallback) {
+                callInNextTick(function () {
+                    if (uuidToUrl) {
+                        completeCallback(null, [], {});
+                    }
+                    else {
+                        completeCallback(null, []);
+                    }
+                });
+            }
+        }
+    },
+
+    /**
+     * This method is like {{#crossLink "loader/loadRes:method"}}{{/crossLink}} except that it accepts array of url.
+     *
+     * @method loadResArray
+     * @param {String[]} urls - Array of urls of the target resource.
+     *                          The url is relative to the "resources" folder, extensions must be omitted.
+     * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
+     * @param {Function} [progressCallback] - Callback invoked when progression change.
+     * @param {Function} completeCallback - A callback which is called when all assets have been loaded, or an error occurs.
+     * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called with the error. If all assets are loaded successfully, error will be null.
+     * @param {Array} completeCallback.assets - An array of all loaded assets. If nothing to load, assets will be an empty array.
+     * @example
+     *
+     * // load the SpriteFrames from resources folder
+     * var spriteFrames;
+     * var urls = ['misc/characters/character_01', 'misc/weapons/weapons_01'];
+     * cc.loader.loadResArray(urls, cc.SpriteFrame, function (err, assets) {
+     *     if (err) {
+     *         cc.error(err);
+     *         return;
+     *     }
+     *     spriteFrames = assets;
+     *     // ...
+     * });
+     */
+    loadResArray: function (urls, type, progressCallback, completeCallback) {
+        var args = this._parseLoadResArgs(type, progressCallback, completeCallback);
+        type = args.type;
+        progressCallback = args.onProgress;
+        completeCallback = args.onComplete;
+
+        var uuids = [];
+        for (var i = 0; i < urls.length; i++) {
+            var url = urls[i];
+            var uuid = this._getResUuid(url, type);
+            if (uuid) {
+                uuids.push(uuid);
+            }
+            else {
+                this._urlNotFound(url, type, completeCallback);
+                return;
+            }
+        }
+        this._loadResUuids(uuids, progressCallback, completeCallback);
     },
 
     /**
@@ -414,9 +542,11 @@ JS.mixin(CCLoader.prototype, {
      * @param {String} url - Url of the target folder.
      *                       The url is relative to the "resources" folder, extensions must be omitted.
      * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
+     * @param {Function} [progressCallback] - Callback invoked when progression change.
      * @param {Function} completeCallback - A callback which is called when all assets have been loaded, or an error occurs.
      * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called with the error. If all assets are loaded successfully, error will be null.
-     * @param {Object[]} completeCallback.assets - An array of all loaded assets. If nothing to load, assets will be an empty array. If error occurs, assets will be null.
+     * @param {Object[]} completeCallback.assets - An array of all loaded assets. If nothing to load, assets will be an empty array.
+     * @param {Object} completeCallback.urls - A dictionary which keys are url, values are asset.
      *
      * @example
      *
@@ -440,47 +570,15 @@ JS.mixin(CCLoader.prototype, {
      *     var texture2 = textures[1];
      * });
      */
-    loadResDir: function (url, type, completeCallback) {
-        if (!completeCallback && type && !cc.isChildClassOf(type, cc.RawAsset)) {
-            completeCallback = type;
-            type = null;
-        }
-        var self = this;
-        var uuids = resources.getUuidArray(url, type);
-        var remain = uuids.length;
-        if (remain > 0) {
-            var res = [];
-            for (var i = 0, len = remain; i < len; ++i) {
-                var uuid = uuids[i];
-                res.push({
-                    type: 'uuid',
-                    uuid: uuid
-                });
-            }
-            this.load(res, function (errors, items) {
-                var results = [];
-                for (var i = 0; i < res.length; ++i) {
-                    var uuid = res[i].uuid;
-                    var id = this._getReferenceKey(uuid);
-                    var item = items.getContent(id);
-                    if (item) {
-                        // should not release these assets, even if they are static referenced in the scene.
-                        self.setAutoReleaseRecursively(uuid, false);
-                        results.push(item);
-                    }
-                }
-                if (completeCallback) {
-                    completeCallback(errors, results);
-                }
-            });
-        }
-        else {
-            callInNextTick(function () {
-                if (completeCallback) {
-                    completeCallback(null, []);
-                }
-            });
-        }
+    loadResDir: function (url, type, progressCallback, completeCallback) {
+        var args = this._parseLoadResArgs(type, progressCallback, completeCallback);
+        type = args.type;
+        progressCallback = args.onProgress;
+        completeCallback = args.onComplete;
+
+        var uuidToUrl = {};
+        var uuids = resources.getUuidArray(url, type, uuidToUrl);
+        this._loadResUuids(uuids, progressCallback, completeCallback, uuidToUrl);
     },
 
     /**

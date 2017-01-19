@@ -1308,10 +1308,6 @@ The dom control is not created!
 
 unknown asset type
 
-### 4900
-
-Sorry, the 'resources://' protocol is obsoleted, use cc.loader.loadRes instead please.
-
 ### 4901
 
 loadRes: should not specify the extname in %s %s
