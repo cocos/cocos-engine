@@ -52,14 +52,14 @@ bool AudioDecoderOgg::decodeToPcm()
     char* pvPCMBuffer = (char*)malloc(bufferSize);
     memset(pvPCMBuffer, 0, bufferSize);
 
-    int current_section = 0;
-    int uiCurrPos = 0;
-    long iRead = 0;
+    int currentSection = 0;
+    long curPos = 0;
+    long readBytes = 0;
     // decode
     do {
-        iRead = ov_read(&vf, pvPCMBuffer + uiCurrPos, 4096, &current_section);
-        uiCurrPos += (unsigned int) iRead;
-    } while (iRead != 0);
+        readBytes = ov_read(&vf, pvPCMBuffer + curPos, 4096, &currentSection);
+        curPos += readBytes;
+    } while (readBytes > 0);
 
     _result.pcmBuffer->insert(_result.pcmBuffer->end(), pvPCMBuffer, pvPCMBuffer + bufferSize);
     _result.numChannels = vi->channels;
