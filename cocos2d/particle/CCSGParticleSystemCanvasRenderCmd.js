@@ -35,7 +35,7 @@ _ccsg.ParticleSystem.CanvasRenderCmd = function(renderable){
     this._pointRect = cc.rect(0, 0, 0, 0);
     //region for local bb
     this._localRegion = new cc.Region();
-    this._tintCache = document.createElement("canvas");
+    this._tintCache = null;
 };
 var proto = _ccsg.ParticleSystem.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
 proto.constructor = _ccsg.ParticleSystem.CanvasRenderCmd;
@@ -174,7 +174,10 @@ proto.rendering = function (ctx, scaleX, scaleY) {
     cc.g_NumberOfDraws++;
 };
 
-proto._changeTextureColor = function(texture, color, rect){
+proto._changeTextureColor = function (texture, color, rect) {
+    if (!this._tintCache) {
+        this._tintCache = document.createElement("canvas");
+    }
     var tintCache = this._tintCache;
     var textureContentSize = texture.getContentSize();
     tintCache.width = textureContentSize.width;

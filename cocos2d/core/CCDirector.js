@@ -1355,7 +1355,10 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
             this.emit(cc.Director.EVENT_AFTER_UPDATE);
         }
 
-        this.visit();
+        this.emit(cc.Director.EVENT_BEFORE_VISIT);
+        // update the scene
+        this._visitScene();
+        this.emit(cc.Director.EVENT_AFTER_VISIT);
 
         // Render
         cc.g_NumberOfDraws = 0;
@@ -1396,7 +1399,10 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
                 this.setNextScene();
             }
 
-            this.visit(this._deltaTime);
+            this.emit(cc.Director.EVENT_BEFORE_VISIT);
+            // update the scene
+            this._visitScene();
+            this.emit(cc.Director.EVENT_AFTER_VISIT);
 
             // Render
             cc.g_NumberOfDraws = 0;
