@@ -759,9 +759,7 @@ else {
                       _supportWebGL = false;
                     }
                     break;
-                case sys.BROWSER_TYPE_UNKNOWN:
                 case sys.BROWSER_TYPE_360:
-                case sys.BROWSER_TYPE_MIUI:
                 case sys.BROWSER_TYPE_UC:
                     _supportWebGL = false;
                 }

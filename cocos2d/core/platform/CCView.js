@@ -488,7 +488,10 @@ var View = cc._Class.extend({
      * @param {Boolean} enabled - Enable or disable auto full screen on mobile devices
      */
     enableAutoFullScreen: function(enabled) {
-        if (enabled && enabled !== this._autoFullScreen && cc.sys.isMobile && cc.game.frame === document.documentElement) {
+        if (enabled && 
+            enabled !== this._autoFullScreen && 
+            cc.sys.isMobile && 
+            cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT) {
             // Automatically full screen when user touches on mobile version
             this._autoFullScreen = true;
             cc.screen.autoFullScreen(cc.game.frame);
