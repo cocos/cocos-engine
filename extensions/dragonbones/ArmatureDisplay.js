@@ -391,6 +391,13 @@ dragonBones.ArmatureDisplay = cc.Class({
 
             if (listenersBefore) {
                 sgNode._bubblingListeners = listenersBefore; // using the listeners added before
+                if (CC_JSB && !sgNode.hasEventCallback()) {
+                    // In JSB, should set event callback of the new sgNode
+                    // to make the listeners work well.
+                    sgNode.setEventCallback(function (eventObject) {
+                        sgNode.emit(eventObject.type, eventObject);
+                    });
+                }
             }
 
             self._initSgNode();
