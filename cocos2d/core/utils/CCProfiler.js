@@ -29,10 +29,10 @@
 cc.profiler = (function () {
     var _inited = false, _showFPS = false;
     var _frames = 0, _frameRate = 0, _lastSPF = 0, _accumDt = 0;
-    var _afterVisitListener = null,
-        _FPSLabel = null,
+    var _FPSLabel = null,
         _SPFLabel = null,
         _drawsLabel = null,
+        _ModeLabel = null,
         _fps = null;
     var LEVEL_DET_FACTOR = 0.6, _levelDetCycle = 10;
     var LEVELS = [0, 10, 20, 30];
@@ -43,6 +43,7 @@ cc.profiler = (function () {
         _FPSLabel = document.createElement('div');
         _SPFLabel = document.createElement('div');
         _drawsLabel = document.createElement('div');
+        _ModeLabel = document.createElement('div');
         _fps = document.createElement('div');
 
         _fps.id = 'fps';
@@ -53,10 +54,10 @@ cc.profiler = (function () {
         _fps.style.bottom = cc.macro.DIRECTOR_STATS_POSITION.y + '0px';
         _fps.style.left = cc.macro.DIRECTOR_STATS_POSITION.x + 'px';
         _fps.style.width = '45px';
-        _fps.style.height = '60px';
+        _fps.style.height = '80px';
 
-        var labels = [_drawsLabel, _SPFLabel, _FPSLabel];
-        for (var i = 0; i < 3; ++i) {
+        var labels = [_drawsLabel, _SPFLabel, _FPSLabel, _ModeLabel];
+        for (var i = 0; i < labels.length; ++i) {
             var style = labels[i].style;
             style.color = 'rgb(0, 255, 255)';
             style.font = 'bold 12px Helvetica, Arial';
@@ -123,6 +124,7 @@ cc.profiler = (function () {
                 _SPFLabel.innerText = _lastSPF.toFixed(3);
                 _FPSLabel.innerText = _frameRate.toFixed(1);
                 _drawsLabel.innerText = (0 | cc.g_NumberOfDraws).toString();
+                _ModeLabel.innerText = (cc._renderType === cc.game.RENDER_TYPE_CANVAS) ? 'Canvas' : 'WebGL';
             }
         }
     };
