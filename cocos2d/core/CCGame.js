@@ -673,7 +673,7 @@ var game = {
              = cc.create3DContext(localCanvas, {
                 'stencil': true,
                 'alpha': true,
-                'preserveDrawingBuffer': false
+                'antialias': cc.sys.isMobile
             });
         }
         // WebGL context created successfully
@@ -681,7 +681,6 @@ var game = {
             cc.renderer = cc.rendererWebGL;
             win.gl = this._renderContext; // global variable declared in CCMacro.js
             cc.renderer.init();
-            cc.shaderCache._init();
             cc._drawingUtil = new cc.DrawingPrimitiveWebGL(this._renderContext);
             cc.textureCache._initializingRenderer();
             cc.glExt = {};
@@ -724,6 +723,10 @@ var game = {
         } else if (typeof document.webkitHidden !== 'undefined') {
             hidden = "webkitHidden";
             visibilityChange = "webkitvisibilitychange";
+        }
+
+        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_QQ || cc.sys.browserType === cc.sys.BROWSER_TYPE_MOBILE_QQ) {
+            visibilityChange = "qbrowserVisibilityChange"
         }
 
         var onHidden = function () {

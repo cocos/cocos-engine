@@ -550,8 +550,11 @@ else {
         iOS = true;
         osVersion = uaResult[2] || '';
         osMainVersion = parseInt(osVersion) || 0;
-    } else if (/(iPhone|iPad|iPod)/.exec(nav.platform)) {
+    } 
+    else if (/(iPhone|iPad|iPod)/.exec(nav.platform)) {
         iOS = true;
+        osVersion = '';
+        osMainVersion = 0;
     }
 
     var osName = sys.OS_UNKNOWN;
@@ -592,10 +595,10 @@ else {
         var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
         if (browserType === 'micromessenger')
             browserType = sys.BROWSER_TYPE_WECHAT;
-        else if (browserType === "safari"  || browserType === "qq") {
-            if (ua.match(/android.*applewebkit/i)) 
-                browserType = sys.BROWSER_TYPE_ANDROID;
-        }
+        else if (browserType === "safari" && isAndroid)
+            browserType = sys.BROWSER_TYPE_ANDROID;
+        else if (browserType === "qq" && ua.match(/android.*applewebkit/i))
+            brwoserType = sys.BROWSER_TYPE_ANDROID;
         else if (browserType === "trident")
             browserType = sys.BROWSER_TYPE_IE;
         else if (browserType === "360 aphone")
@@ -660,13 +663,12 @@ else {
 
     //Whether or not the Canvas BlendModes are supported.
     sys._supportCanvasNewBlendModes = (function(){
-        var data1, data2;
         var canvas = _tmpCanvas1;
         canvas.width = 1;
         canvas.height = 1;
         var context = canvas.getContext('2d');
         context.fillStyle = '#000';
-        context.fillRect(0,0,1,1);
+        context.fillRect(0, 0, 1, 1);
         context.globalCompositeOperation = 'multiply';
 
         var canvas2 = _tmpCanvas2;
@@ -674,30 +676,10 @@ else {
         canvas2.height = 1;
         var context2 = canvas2.getContext('2d');
         context2.fillStyle = '#fff';
-        context2.fillRect(0,0,1,1);
+        context2.fillRect(0, 0, 1, 1);
         context.drawImage(canvas2, 0, 0, 1, 1);
 
-        data1 = context.getImageData(0,0,1,1).data[0];
-
-        canvas = _tmpCanvas1;
-        canvas.width = 1;
-        canvas.height = 1;
-        var context = canvas.getContext('2d');
-        context.fillStyle = '#fff';
-        context.fillRect(0,0,1,1);
-        context.globalCompositeOperation = 'destination-atop';
-
-        canvas2 = _tmpCanvas2;
-        canvas2.width = 1;
-        canvas2.height = 1;
-        var context2 = canvas2.getContext('2d');
-        context2.fillStyle = '#000';
-        context2.fillRect(0,0,1,1);
-        context.drawImage(canvas2, 0, 0, 1, 1);
-
-        data2 = context.getImageData(0,0,1,1).data[0];
-
-        return (data1 === 0) && (data2 === 0);
+        return context.getImageData(0, 0, 1, 1).data[0] === 0;
     })();
 
     // Adjust mobile css settings
@@ -737,7 +719,7 @@ else {
     if (win.WebGLRenderingContext) {
         var tmpCanvas = document.createElement("CANVAS");
         try{
-            var context = cc.create3DContext(tmpCanvas, {'stencil': true});
+            var context = cc.create3DContext(tmpCanvas);
             if (context && context.getShaderPrecisionFormat) {
                 _supportWebGL = true;
             }
