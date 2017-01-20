@@ -35,7 +35,6 @@ _ccsg.Sprite.WebGLRenderCmd = function (renderable) {
         {x: 0, y: 0, u: 0, v: 0}, // tr
         {x: 0, y: 0, u: 0, v: 0}  // br
     ];
-    this._color = new Uint32Array(1);
     this._dirty = false;
     this._recursiveDirty = false;
 
@@ -300,16 +299,17 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
 
     // Fill in vertex data with quad information (4 vertices for sprite)
     var opacity = this._displayedOpacity;
-    var r = this._displayedColor.r,
-        g = this._displayedColor.g,
-        b = this._displayedColor.b;
+    var color, colorVal = this._displayedColor._val;
     if (node._opacityModifyRGB) {
-        var a = opacity / 255;
-        r *= a;
-        g *= a;
-        b *= a;
+        var a = opacity / 255,
+            r = this._displayedColor.r * a,
+            g = this._displayedColor.g * a,
+            b = this._displayedColor.b * a;
+        color = ((opacity<<24) >>> 0) + (b<<16) + (g<<8) + r;
     }
-    this._color[0] = ((opacity<<24) | (b<<16) | (g<<8) | r);
+    else {
+        color = ((opacity<<24) >>> 0) + ((colorVal&0xff00)<<8) + ((colorVal&0xff0000)>>8) + (colorVal>>24);
+    }
     var z = node._vertexZ;
 
     var vertices = this._vertices;
@@ -319,7 +319,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         f32buffer[offset] = vertex.x;
         f32buffer[offset + 1] = vertex.y;
         f32buffer[offset + 2] = z;
-        ui32buffer[offset + 3] = this._color[0];
+        ui32buffer[offset + 3] = color;
         f32buffer[offset + 4] = vertex.u;
         f32buffer[offset + 5] = vertex.v;
         offset += 6;
