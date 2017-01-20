@@ -1981,7 +1981,16 @@ cc.macro = {
      * 你可以修改这个值来获得你需要的效果，默认值是 5000 毫秒。
      * @property {Number} TOUCH_TIMEOUT
      */
-    TOUCH_TIMEOUT: 5000
+    TOUCH_TIMEOUT: 5000,
+
+    /**
+     * !#en 
+     * The maximum vertex count for a single batched draw call.
+     * !#zh
+     * 最大可以被单次批处理渲染的顶点数量。
+     * @property {Number} BATCH_VERTEX_COUNT
+     */
+    BATCH_VERTEX_COUNT: 2000
 };
 
 /**

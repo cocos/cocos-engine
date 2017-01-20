@@ -24,8 +24,6 @@
 
 // Internal variables
 
-var BATCH_QUAD_COUNT = 2000;
-
     // Batching general informations
 var _batchedInfo = {
         // The batched texture, all batching element should have the same texture
@@ -62,14 +60,15 @@ var _batchedInfo = {
 
 // Inspired from @Heishe's gotta-batch-them-all branch
 // https://github.com/Talisca/cocos2d-html5/commit/de731f16414eb9bcaa20480006897ca6576d362c
-function updateBuffer (numQuads) {
+function updateBuffer (numVertex) {
     var gl = cc._renderContext;
     // Update index buffer size
     if (_indexBuffer) {
+        var indexCount = Math.ceil(numVertex / 4) * 6;
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _indexBuffer);
-        _indexData = new Uint16Array(numQuads * 6);
+        _indexData = new Uint16Array(indexCount);
         var currentQuad = 0;
-        for (var i = 0, len = numQuads * 6; i < len; i += 6) {
+        for (var i = 0, len = indexCount; i < len; i += 6) {
             _indexData[i] = currentQuad + 0;
             _indexData[i + 1] = currentQuad + 1;
             _indexData[i + 2] = currentQuad + 2;
@@ -82,7 +81,7 @@ function updateBuffer (numQuads) {
     }
     // Update vertex buffer size
     if (_vertexBuffer) {
-        _vertexDataSize = numQuads * 4 * _sizePerVertex;
+        _vertexDataSize = numVertex * _sizePerVertex;
         var byteLength = _vertexDataSize * 4;
         _vertexData = new ArrayBuffer(byteLength);
         _vertexDataF32 = new Float32Array(_vertexData);
@@ -91,20 +90,20 @@ function updateBuffer (numQuads) {
         gl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, _vertexDataF32, gl.DYNAMIC_DRAW);
     }
-    // Downsize by 100 to avoid vertex data overflow
-    _maxVertexSize = (numQuads - 100) * 4;
+    // Downsize by 200 to avoid vertex data overflow
+    _maxVertexSize = numVertex - 200;
 }
 
 // Inspired from @Heishe's gotta-batch-them-all branch
 // https://github.com/Talisca/cocos2d-html5/commit/de731f16414eb9bcaa20480006897ca6576d362c
-function initQuadBuffer (numQuads) {
+function initQuadBuffer (numVertex) {
     var gl = cc._renderContext;
     if (_indexBuffer === null) {
         // TODO do user need to release the memory ?
         _vertexBuffer = gl.createBuffer();
         _indexBuffer = gl.createBuffer();
     }
-    updateBuffer(numQuads);
+    updateBuffer(numVertex);
 }
 
 var VertexType = cc.Enum({
@@ -138,7 +137,7 @@ cc.rendererWebGL = {
 
         this.mat4Identity = new cc.math.Matrix4();
         this.mat4Identity.identity();
-        initQuadBuffer(BATCH_QUAD_COUNT);
+        initQuadBuffer(cc.macro.BATCH_VERTEX_COUNT);
         if (cc.sys.os === cc.sys.OS_IOS) {
             _IS_IOS = true;
         }
@@ -340,8 +339,8 @@ cc.rendererWebGL = {
         // Check batching
         var node = cmd._node;
         var texture = cmd._texture || node._texture || (node._spriteFrame && node._spriteFrame._texture);
-        var blendSrc = cmd._node._blendFunc.src;
-        var blendDst = cmd._node._blendFunc.dst;
+        var blendSrc = node._blendFunc.src;
+        var blendDst = node._blendFunc.dst;
         var shader = cmd._shaderProgram;
         if (_batchBroken ||
             _batchedInfo.texture !== texture ||
