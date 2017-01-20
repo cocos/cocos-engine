@@ -92,7 +92,7 @@ switch(__BrowserGetter.adaptationType){
         break;
 }
 
-var _scissorRect = cc.rect();
+var _scissorRect = null;
 
 /**
  * cc.view is the singleton object which represents the game window.<br/>
@@ -715,19 +715,22 @@ var View = cc._Class.extend({
 
         this.setResolutionPolicy(resolutionPolicy);
         var policy = this._resolutionPolicy;
-        if (!policy){
-            cc.logID(2201);
-            return;
+        if (policy) {
+            policy.preApply(this);
         }
-        policy.preApply(this);
 
         // Reinit frame size
-        if(cc.sys.isMobile)
+        if (cc.sys.isMobile)
             this._adjustViewportMeta();
 
         // Permit to re-detect the orientation of device.
         this._orientationChanging = true;
         this._initFrameSize();
+
+        if (!policy) {
+            cc.logID(2201);
+            return;
+        }
 
         this._originalDesignResolutionSize.width = this._designResolutionSize.width = width;
         this._originalDesignResolutionSize.height = this._designResolutionSize.height = height;
@@ -774,9 +777,6 @@ var View = cc._Class.extend({
 
         this._originalScaleX = this._scaleX;
         this._originalScaleY = this._scaleY;
-        // For editbox
-        if (cc.DOM)
-            cc.DOM._resetEGLViewDiv();
         cc.visibleRect && cc.visibleRect.init(this._visibleRect);
     },
 
@@ -810,6 +810,7 @@ var View = cc._Class.extend({
         this._setViewportMeta({"width": width}, true);
 
         // Set body width to the exact pixel resolution
+        document.documentElement.style.width = width + "px";
         document.body.style.width = width + "px";
         document.body.style.left = "0px";
         document.body.style.top = "0px";
@@ -844,14 +845,23 @@ var View = cc._Class.extend({
      */
     setScissorInPoints: function (x, y, w, h) {
         var zoomFactor = this._frameZoomFactor, scaleX = this._scaleX, scaleY = this._scaleY;
-        _scissorRect.x = x;
-        _scissorRect.y = y;
-        _scissorRect.width = w;
-        _scissorRect.height = h;
-        cc._renderContext.scissor(x * scaleX * zoomFactor + this._viewPortRect.x * zoomFactor,
-                                  y * scaleY * zoomFactor + this._viewPortRect.y * zoomFactor,
-                                  w * scaleX * zoomFactor,
-                                  h * scaleY * zoomFactor);
+        var sx = Math.ceil(x * scaleX * zoomFactor + this._viewPortRect.x * zoomFactor);
+        var sy = Math.ceil(y * scaleY * zoomFactor + this._viewPortRect.y * zoomFactor);
+        var sw = Math.ceil(w * scaleX * zoomFactor);
+        var sh = Math.ceil(h * scaleY * zoomFactor);
+
+        if (!_scissorRect) {
+            var boxArr = gl.getParameter(gl.SCISSOR_BOX);
+            _scissorRect = cc.rect(boxArr[0], boxArr[1], boxArr[2], boxArr[3]);
+        }
+
+        if (_scissorRect.x !== sx || _scissorRect.y !== sy || _scissorRect.width !== sw || _scissorRect.height !== sh) {
+            _scissorRect.x = sx;
+            _scissorRect.y = sy;
+            _scissorRect.width = sw;
+            _scissorRect.height = sh;
+            cc._renderContext.scissor(sx, sy, sw, sh);
+        }
     },
 
     /**
@@ -869,7 +879,18 @@ var View = cc._Class.extend({
      * @return {Rect}
      */
     getScissorRect: function () {
-        return cc.rect(_scissorRect);
+        if (!_scissorRect) {
+            var boxArr = gl.getParameter(gl.SCISSOR_BOX);
+            _scissorRect = cc.rect(boxArr[0], boxArr[1], boxArr[2], boxArr[3]);
+        }
+        var scaleX = this._scaleX;
+        var scaleY = this._scaleY;
+        return cc.rect(
+            (_scissorRect.x - this._viewPortRect.x) / scaleX,
+            (_scissorRect.y - this._viewPortRect.y) / scaleY,
+            _scissorRect.width / scaleX,
+            _scissorRect.height / scaleY
+        );
     },
 
     /**
@@ -957,7 +978,7 @@ var View = cc._Class.extend({
     _convertTouchesWithScale: function (touches) {
         var viewport = this._viewPortRect, scaleX = this._scaleX, scaleY = this._scaleY,
             selTouch, selPoint, selPrePoint;
-        for( var i = 0; i < touches.length; i++){
+        for (var i = 0; i < touches.length; i++) {
             selTouch = touches[i];
             selPoint = selTouch._point;
             selPrePoint = selTouch._prevPoint;
@@ -1045,7 +1066,9 @@ cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
         bs.height = window.innerHeight + "px";
         bs.overflow = "hidden";
         // Body size solution doesn't work on all mobile browser so this is the aleternative: fixed container
-        cc.container.style.position = "fixed";
+        var contStyle = cc.container.style;
+        contStyle.position = "fixed";
+        contStyle.left = contStyle.top = "0px";
         // Reposition body
         document.body.scrollTop = 0;
     }
