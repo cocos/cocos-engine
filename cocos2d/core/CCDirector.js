@@ -1463,6 +1463,7 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
             this._totalFrames++;
 
             this.emit(cc.Director.EVENT_AFTER_DRAW);
+            cc.eventManager.frameUpdateListeners();
 
             this._calculateMPF();
         }
