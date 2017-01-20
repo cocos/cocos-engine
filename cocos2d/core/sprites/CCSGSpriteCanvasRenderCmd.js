@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 _ccsg.Sprite.CanvasRenderCmd = function (renderable) {
-    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     this._needDraw = true;
     this._textureCoord = {
         renderX: 0,                             //the x of texture coordinate for render, when texture tinted, its value doesn't equal x.

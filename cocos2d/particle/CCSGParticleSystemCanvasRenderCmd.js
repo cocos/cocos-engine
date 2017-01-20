@@ -26,7 +26,7 @@
  * ParticleSystem's canvas render command
  */
 _ccsg.ParticleSystem.CanvasRenderCmd = function(renderable){
-    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     this._needDraw = true;
 
     this._drawMode = _ccsg.ParticleSystem.TEXTURE_MODE;

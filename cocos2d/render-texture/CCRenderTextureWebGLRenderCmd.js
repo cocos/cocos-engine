@@ -25,7 +25,7 @@
 var misc = require('../cocos2d/core/utils/misc');
 
 cc.RenderTexture.WebGLRenderCmd = function(renderableObject){
-    _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
+    this._rootCtor(renderableObject);
     this._needDraw = true;
 
     this._fBO = null;

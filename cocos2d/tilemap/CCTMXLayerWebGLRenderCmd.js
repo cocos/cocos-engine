@@ -29,7 +29,7 @@ var StaggerAxis = null;
 var StaggerIndex = null;
 
 _ccsg.TMXLayer.WebGLRenderCmd = function(renderableObject){
-    _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
+    this._rootCtor(renderableObject);
     this._needDraw = true;
     this._vertices = [
         {x:0, y:0},

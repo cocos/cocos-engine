@@ -26,7 +26,7 @@
  * cc.ParticleBatchNode's rendering objects of WebGL
  */
 cc.ParticleBatchNode.WebGLRenderCmd = function(renderable){
-    _ccsg.Node.WebGLRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     this._needDraw = true;
     this._matrix = new cc.math.Matrix4();
     this._matrix.identity();

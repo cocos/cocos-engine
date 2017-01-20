@@ -35,7 +35,7 @@ function setProgram (node, program) {
 }
 
 cc.ClippingNode.WebGLRenderCmd = function(renderable){
-    _ccsg.Node.WebGLRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
 
     this._beforeVisitCmd = new cc.CustomRenderCmd(this, this._onBeforeVisit);
     this._afterDrawStencilCmd = new cc.CustomRenderCmd(this, this._onAfterDrawStencil);

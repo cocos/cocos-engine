@@ -24,7 +24,7 @@
 
 //-------------------------- ClippingNode's canvas render cmd --------------------------------
 cc.ClippingNode.CanvasRenderCmd = function(renderable){
-    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
 
     this._rendererClipCmd = new cc.CustomRenderCmd(this, this._drawStencilCommand);
     this._rendererRestoreCmd = new cc.CustomRenderCmd(this, this._restoreCmdCallback);
@@ -90,14 +90,14 @@ proto.visit = function(parentCmd){
     if(this._node._stencil) {
         cc.renderer.pushRenderCommand(this._rendererClipCmd);
     }
-        var i, children = node._children;
+    var i, children = node._children;
 
-        var len = children.length;
-        if (len > 0) {
-            node.sortAllChildren();
-            for (i = 0; i < len; i++)
-                children[i]._renderCmd.visit(this);
-        }
+    var len = children.length;
+    if (len > 0) {
+        node.sortAllChildren();
+        for (i = 0; i < len; i++)
+            children[i]._renderCmd.visit(this);
+    }
 
     if(this._node._stencil) {
         cc.renderer.pushRenderCommand(this._rendererRestoreCmd);

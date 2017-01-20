@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 cc.RenderTexture.CanvasRenderCmd = function(renderableObject){
-    _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
+    this._rootCtor(renderableObject);
     this._needDraw = true;
     this._clearColorStr = "rgba(255,255,255,1)";
 

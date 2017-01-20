@@ -25,7 +25,7 @@
 var spine = sp.spine;
 
 sp._SGSkeleton.CanvasRenderCmd = function(renderableObject){
-    _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
+    this._rootCtor(renderableObject);
     this._needDraw = true;
 };
 

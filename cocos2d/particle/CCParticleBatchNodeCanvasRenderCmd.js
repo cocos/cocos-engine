@@ -26,8 +26,7 @@
  * cc.ParticleBatchNode's rendering objects of Canvas
  */
 cc.ParticleBatchNode.CanvasRenderCmd = function(renderable){
-    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
-    this._needDraw = false;
+    this._rootCtor(renderable);
 };
 
 var proto = cc.ParticleBatchNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);

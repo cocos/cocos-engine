@@ -27,12 +27,11 @@ cc.CustomRenderCmd = function (target, func) {
     this._needDraw = true;
     this._target = target;
     this._callback = func;
-
-    this.rendering = function (ctx, scaleX, scaleY) {
-        if (!this._callback)
-            return;
-        this._callback.call(this._target, ctx, scaleX, scaleY);
-    };
+};
+cc.CustomRenderCmd.prototype.rendering = function (ctx, scaleX, scaleY) {
+    if (!this._callback)
+        return;
+    this._callback.call(this._target, ctx, scaleX, scaleY);
 };
 
 var dirtyFlags = _ccsg.Node._dirtyFlags = {
@@ -89,29 +88,31 @@ function transformChildTree (root) {
 }
 
 //-------------------------Base -------------------------
-_ccsg.Node.RenderCmd = function(renderable){
-    this._dirtyFlag = 1;                           //need update the transform at first.
-    cc.renderer.pushDirtyNode(this);
-
+_ccsg.Node.RenderCmd = function (renderable) {
     this._node = renderable;
+    this._anchorPointInPoints = new cc.Vec2(0, 0);
+
     this._needDraw = false;
-    this._anchorPointInPoints = new cc.Vec2(0,0);
+    this._dirtyFlag = 1;
+    this._curLevel = -1;
+
+    this._displayedColor = new cc.Color(255, 255, 255, 255);
+    this._displayedOpacity = 255;
+    this._cascadeColorEnabledDirty = false;
+    this._cascadeOpacityEnabledDirty = false;
 
     this._transform = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
     this._worldTransform = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
     this._inverse = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
-
     this._transformUpdated = false;
-    this._displayedOpacity = 255;
-    this._displayedColor = cc.color(255, 255, 255, 255);
-    this._cascadeColorEnabledDirty = false;
-    this._cascadeOpacityEnabledDirty = false;
-    this._curLevel = -1;
-
+    
+    cc.renderer.pushDirtyNode(this);
 };
 
 _ccsg.Node.RenderCmd.prototype = {
     constructor: _ccsg.Node.RenderCmd,
+
+    _ctor: _ccsg.Node.RenderCmd,
 
     getAnchorPointInPoints: function(){
         return cc.p(this._anchorPointInPoints);
@@ -137,8 +138,9 @@ _ccsg.Node.RenderCmd.prototype = {
     },
 
     getParentToNodeTransform: function(){
-        if(this._dirtyFlag & dirtyFlags.transformDirty)
-            this._inverse = cc.affineTransformInvert(this.getNodeToParentTransform());
+        if (this._dirtyFlag & dirtyFlags.transformDirty) {
+            cc.affineTransformInvertOut(this.getNodeToParentTransform(), this._inverse);
+        }
         return this._inverse;
     },
 
@@ -271,8 +273,6 @@ _ccsg.Node.RenderCmd.prototype = {
         if (recursive) {
             transformChildTree(node);
         }
-
-        this._cacheDirty = true;
     },
 
     getNodeToParentTransform: function () {
@@ -291,7 +291,7 @@ _ccsg.Node.RenderCmd.prototype = {
             // not use the specified transform
             this._transformUpdated = false;
         }
-        this.setDirtyFlag(1);
+        this.setDirtyFlag(dirtyFlags.transformDirty);
     },
 
     _propagateFlagsDown: function(parentCmd) {
@@ -529,9 +529,8 @@ _ccsg.Node.RenderCmd.prototype.originTransform = _ccsg.Node.RenderCmd.prototype.
 
 //The _ccsg.Node's render command for Canvas
 _ccsg.Node.CanvasRenderCmd = function (renderable) {
-    _ccsg.Node.RenderCmd.call(this, renderable);
-    this._cachedParent = null;
-    this._cacheDirty = false;
+    this._ctor(renderable);
+
     this._currentRegion = new cc.Region();
     this._oldRegion = new cc.Region();
     this._regionFlag = 0;
@@ -545,6 +544,7 @@ _ccsg.Node.CanvasRenderCmd.RegionStatus = {
 
 var proto = _ccsg.Node.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.RenderCmd.prototype);
 proto.constructor = _ccsg.Node.CanvasRenderCmd;
+proto._rootCtor = _ccsg.Node.CanvasRenderCmd;
 proto._notifyRegionStatus = function(status) {
     if (this._needDraw && this._regionFlag < status) {
         this._regionFlag = status;
@@ -555,8 +555,8 @@ var localBB = new cc.Rect();
 proto.getLocalBB = function() {
     var node = this._node;
     localBB.x = localBB.y = 0;
-    localBB.width = node._getWidth();
-    localBB.height = node._getHeight();
+    localBB.width = node._contentSize.width;
+    localBB.height = node._contentSize.height;
     return localBB;
 };
 
@@ -571,33 +571,7 @@ proto._updateCurrentRegions = function() {
     this._currentRegion.updateRegion(this.getLocalBB(), this._worldTransform);
 };
 
-proto.setDirtyFlag = function (dirtyFlag, child) {
-    _ccsg.Node.RenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag, child);
-    this._setCacheDirty(child);                  //TODO it should remove from here.
-    if(this._cachedParent)
-        this._cachedParent.setDirtyFlag(dirtyFlag, true);
-};
-
-proto._setCacheDirty = function () {
-    if (this._cacheDirty === false) {
-        this._cacheDirty = true;
-        var cachedP = this._cachedParent;
-        cachedP && cachedP !== this && cachedP._setNodeDirtyForCache && cachedP._setNodeDirtyForCache();
-    }
-};
-
-proto._setCachedParent = function (cachedParent) {
-    if (this._cachedParent === cachedParent)
-        return;
-
-    this._cachedParent = cachedParent;
-    var children = this._node._children;
-    for (var i = 0, len = children.length; i < len; i++)
-        children[i]._renderCmd._setCachedParent(cachedParent);
-};
-
 proto.detachFromParent = function () {
-    this._cachedParent = null;
     var selChildren = this._node._children, item;
     for (var i = 0, len = selChildren.length; i < len; i++) {
         item = selChildren[i];

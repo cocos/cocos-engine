@@ -29,7 +29,7 @@ var StaggerAxis = null;
 var StaggerIndex = null;
 
 _ccsg.TMXLayer.CanvasRenderCmd = function(renderable){
-    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     this._needDraw = true;
 
     if (!Orientation) {

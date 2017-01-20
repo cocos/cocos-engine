@@ -25,7 +25,7 @@
 var ccgl = cc.gl;
 
 cc.Scale9Sprite.WebGLRenderCmd = function (renderable) {
-    _ccsg.Node.WebGLRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     if (this._node.loaded()) {
         this._needDraw = true;
     }
