@@ -90,6 +90,7 @@ var game = {
         height: "height",
         engineDir: "engineDir",
         debugMode: "debugMode",
+        exposeClassName: "exposeClassName",
         showFPS: "showFPS",
         frameRate: "frameRate",
         id: "id",
@@ -153,16 +154,18 @@ var game = {
      *      6 - cc.error, cc.assert will print on canvas, available only on web.                 <br/>
      * 2. showFPS<br/>
      *      Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.<br/>
-     * 3. frameRate<br/>
+     * 3. exposeClassName<br/>
+     *      Expose class name to chrome debug tools, the class intantiate performance is a little bit slower when exposed.<br/>
+     * 4. frameRate<br/>
      *      "frameRate" set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.<br/>
-     * 4. id<br/>
+     * 5. id<br/>
      *      "gameCanvas" sets the id of your canvas element on the web page, it's useful only on web.<br/>
-     * 5. renderMode<br/>
+     * 6. renderMode<br/>
      *      "renderMode" sets the renderer type, only useful on web :<br/>
      *      0 - Automatically chosen by engine<br/>
      *      1 - Forced to use canvas renderer<br/>
      *      2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers<br/>
-     * 6. scenes<br/>
+     * 7. scenes<br/>
      *      "scenes" include available scenes in the current bundle.<br/>
      *<br/>
      * Please DO NOT modify this object directly, it won't have any effect.<br/>
@@ -179,16 +182,18 @@ var game = {
      *          6 - cc.error，cc.assert 将打印在 canvas 中（仅适用于 web 端）。                  <br/>
      * 2. showFPS（显示 FPS）                                                            <br/>
      *      当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。              <br/>
-     * 3. frameRate (帧率)                                                              <br/>
+     * 3. exposeClassName                                                           <br/>
+     *      暴露类名让 Chrome DevTools 可以识别，如果开启会稍稍降低类对象的构造性能。           <br/>
+     * 4. frameRate (帧率)                                                              <br/>
      *      “frameRate” 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。      <br/>
-     * 4. id                                                                            <br/>
+     * 5. id                                                                            <br/>
      *      "gameCanvas" Web 页面上的 Canvas Element ID，仅适用于 web 端。                         <br/>
-     * 5. renderMode（渲染模式）                                                         <br/>
+     * 6. renderMode（渲染模式）                                                         <br/>
      *      “renderMode” 设置渲染器类型，仅适用于 web 端：                              <br/>
      *          0 - 通过引擎自动选择。                                                     <br/>
      *          1 - 强制使用 canvas 渲染。
      *          2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。     <br/>
-     * 6. scenes                                                                         <br/>
+     * 7. scenes                                                                         <br/>
      *      “scenes” 当前包中可用场景。                                                   <br/>
      * <br/>
      * 注意：请不要直接修改这个对象，它不会有任何效果。
@@ -595,6 +600,7 @@ var game = {
         if (typeof config[CONFIG_KEY.debugMode] !== 'number') {
             config[CONFIG_KEY.debugMode] = 0;
         }
+        config[CONFIG_KEY.exposeClassName] = !!config[CONFIG_KEY.exposeClassName];
         if (typeof config[CONFIG_KEY.frameRate] !== 'number') {
             config[CONFIG_KEY.frameRate] = 60;
         }
