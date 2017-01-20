@@ -117,7 +117,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     _lastUpdate: null,
     _nextScene: null,
-    _notificationNode: null,
     _openGLView: null,
     _scenesStack: null,
     _projectionDelegate: null,
@@ -280,28 +279,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
     },
 
-    visit: function (deltaTime) {
-        this.emit(cc.Director.EVENT_BEFORE_VISIT, this);
-
-        if (this._beforeVisitScene)
-            this._beforeVisitScene();
-
-        // update the scene
-        this._visitScene();
-
-        // visit the notifications node
-        if (this._notificationNode)
-            this._notificationNode.visit();
-
-        this.emit(cc.Director.EVENT_AFTER_VISIT, this);
-
-        if (this._afterVisitScene)
-            this._afterVisitScene();
-    },
-
-    _beforeVisitScene: null,
-    _afterVisitScene: null,
-
     /**
      * End the life of director in the next frame
      */
@@ -319,22 +296,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     getContentScaleFactor: function () {
         return this._contentScaleFactor;
-    },
-
-    /*
-     * !#en
-     * This object will be visited after the main scene is visited.<br/>
-     * This object MUST implement the "visit" selector.<br/>
-     * Useful to hook a notification object.
-     * !#zh
-     * 这个对象将会在主场景渲染完后渲染。 <br/>
-     * 这个对象必须实现 “visit” 功能。 <br/>
-     * 对于 hook 一个通知节点很有用。
-     * @method getNotificationNode
-     * @return {Node}
-     */
-    getNotificationNode: function () {
-        return this._notificationNode;
     },
 
     /**
@@ -948,24 +909,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             this._runningScene.onEnter();
             this._runningScene.onEnterTransitionDidFinish();
         }
-    },
-
-    /**
-     * Sets Notification Node
-     * @param {Node} node
-     */
-    setNotificationNode: function (node) {
-        cc.renderer.childrenOrderDirty = true;
-        if(this._notificationNode){
-            this._notificationNode.onExitTransitionDidStart();
-            this._notificationNode.onExit();
-            this._notificationNode.cleanup();
-        }
-        this._notificationNode = node;
-        if(!node)
-            return;
-        this._notificationNode.onEnter();
-        this._notificationNode.onEnterTransitionDidFinish();
     },
 
     /**
