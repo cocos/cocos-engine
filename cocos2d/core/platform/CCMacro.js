@@ -1990,7 +1990,20 @@ cc.macro = {
      * 最大可以被单次批处理渲染的顶点数量。
      * @property {Number} BATCH_VERTEX_COUNT
      */
-    BATCH_VERTEX_COUNT: 2000
+    BATCH_VERTEX_COUNT: 2000,
+
+    /**
+     * !#en 
+     * JSB only, using JS object life cycle to control C++ object or inversely, 
+     * it indicates two different memory model controled by the native macro CC_ENABLE_GC_FOR_NATIVE_OBJECTS.
+     * Modify the JS macro value won't have any effect.
+     * !#zh
+     * 仅限 JSB 有意义，使用 JS 对象生命周期来控制 C++ 对象，或是相反，这标示了两种不同的内存模型，
+     * 它的值被 native 宏 CC_ENABLE_GC_FOR_NATIVE_OBJECTS 所控制，修改 JS 宏的值不会产生任何效果。
+     * @property {Number} ENABLE_GC_FOR_NATIVE_OBJECTS
+     * @readonly
+     */
+    ENABLE_GC_FOR_NATIVE_OBJECTS: true
 };
 
 /**

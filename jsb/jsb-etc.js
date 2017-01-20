@@ -214,3 +214,8 @@ cc.formatStr = cc.js.formatStr;
 if (cc.Image && cc.Image.setPNGPremultipliedAlphaEnabled) {
     cc.Image.setPNGPremultipliedAlphaEnabled(false);
 }
+
+// Mark memory model
+if (window.__ENABLE_GC_FOR_NATIVE_OBJECTS__ !== undefined) {
+    cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS = window.__ENABLE_GC_FOR_NATIVE_OBJECTS__;
+}
