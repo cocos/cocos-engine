@@ -116,14 +116,16 @@ var simpleQuadGenerator = {
         }
         // bl, br, tl, tr
         if (webgl) {
-            vertices[0] = l * wt.a + b * wt.c + wt.tx;
-            vertices[1] = l * wt.b + b * wt.d + wt.ty;
-            vertices[2] = r * wt.a + b * wt.c + wt.tx;
-            vertices[3] = r * wt.b + b * wt.d + wt.ty;
-            vertices[4] = l * wt.a + t * wt.c + wt.tx;
-            vertices[5] = l * wt.b + t * wt.d + wt.ty;
-            vertices[6] = r * wt.a + t * wt.c + wt.tx;
-            vertices[7] = r * wt.b + t * wt.d + wt.ty;
+            var la = l * wt.a, lb = l * wt.b, ra = r * wt.a, rb = r * wt.b,
+                tc = t * wt.c, td = t * wt.d, bc = b * wt.c, bd = b * wt.d;
+            vertices[0] = la + bc + wt.tx;
+            vertices[1] = lb + bd + wt.ty;
+            vertices[2] = ra + bc + wt.tx;
+            vertices[3] = rb + bd + wt.ty;
+            vertices[4] = la + tc + wt.tx;
+            vertices[5] = lb + td + wt.ty;
+            vertices[6] = ra + tc + wt.tx;
+            vertices[7] = rb + td + wt.ty;
         }
         else {
             vertices[0] = l;
@@ -391,14 +393,16 @@ var tiledQuadGenerator = {
                 t = rectHeight * Math.min(vindex + 1, vRepeat);
                 // bl.x, bl.y, br.x, br.y, tl.x, tl.y, tr.x, tr.y
                 if (webgl) {
-                    vertices[offset] = l * wt.a + b * wt.c + wt.tx;
-                    vertices[offset + 1] = l * wt.b + b * wt.d + wt.ty;
-                    vertices[offset + 2] = r * wt.a + b * wt.c + wt.tx;
-                    vertices[offset + 3] = r * wt.b + b * wt.d + wt.ty;
-                    vertices[offset + 4] = l * wt.a + t * wt.c + wt.tx;
-                    vertices[offset + 5] = l * wt.b + t * wt.d + wt.ty;
-                    vertices[offset + 6] = r * wt.a + t * wt.c + wt.tx;
-                    vertices[offset + 7] = r * wt.b + t * wt.d + wt.ty;
+                    var la = l * wt.a, lb = l * wt.b, ra = r * wt.a, rb = r * wt.b,
+                        tc = t * wt.c, td = t * wt.d, bc = b * wt.c, bd = b * wt.d;
+                    vertices[offset] = la + bc + wt.tx;
+                    vertices[offset + 1] = lb + bd + wt.ty;
+                    vertices[offset + 2] = ra + bc + wt.tx;
+                    vertices[offset + 3] = rb + bd + wt.ty;
+                    vertices[offset + 4] = la + tc + wt.tx;
+                    vertices[offset + 5] = lb + td + wt.ty;
+                    vertices[offset + 6] = ra + tc + wt.tx;
+                    vertices[offset + 7] = rb + td + wt.ty;
                 }
                 else {
                     vertices[offset] = l;
@@ -549,14 +553,16 @@ var fillQuadGeneratorBar = {
 
         //build vertices
         if (webgl) {
-            vertices[0] = l * wt.a + b * wt.c + wt.tx;
-            vertices[1] = l * wt.b + b * wt.d + wt.ty;
-            vertices[2] = r * wt.a + b * wt.c + wt.tx;
-            vertices[3] = r * wt.b + b * wt.d + wt.ty;
-            vertices[4] = l * wt.a + t * wt.c + wt.tx;
-            vertices[5] = l * wt.b + t * wt.d + wt.ty;
-            vertices[6] = r * wt.a + t * wt.c + wt.tx;
-            vertices[7] = r * wt.b + t * wt.d + wt.ty;
+            var la = l * wt.a, lb = l * wt.b, ra = r * wt.a, rb = r * wt.b,
+                tc = t * wt.c, td = t * wt.d, bc = b * wt.c, bd = b * wt.d;
+            vertices[0] = la + bc + wt.tx;
+            vertices[1] = lb + bd + wt.ty;
+            vertices[2] = ra + bc + wt.tx;
+            vertices[3] = rb + bd + wt.ty;
+            vertices[4] = la + tc + wt.tx;
+            vertices[5] = lb + td + wt.ty;
+            vertices[6] = ra + tc + wt.tx;
+            vertices[7] = rb + td + wt.ty;
         } else{
             vertices[0] = l;
             vertices[1] = b;
