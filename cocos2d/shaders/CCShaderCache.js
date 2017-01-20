@@ -116,67 +116,67 @@ cc.shaderCache = /** @lends cc.shaderCache# */{
 
     _loadDefaultShader: function (program, type) {
         switch (type) {
-            case this.TYPE_POSITION_TEXTURECOLOR:
+            case macro.SHADER_POSITION_TEXTURECOLOR:
                 program.initWithVertexShaderByteArray(shaders.POSITION_TEXTURE_COLOR_VERT, shaders.POSITION_TEXTURE_COLOR_FRAG);
 
                 program.addAttribute(macro.ATTRIBUTE_NAME_POSITION, macro.VERTEX_ATTRIB_POSITION);
                 program.addAttribute(macro.ATTRIBUTE_NAME_COLOR, macro.VERTEX_ATTRIB_COLOR);
                 program.addAttribute(macro.ATTRIBUTE_NAME_TEX_COORD, macro.VERTEX_ATTRIB_TEX_COORDS);
                 break;
-            case this.TYPE_SPRITE_POSITION_TEXTURECOLOR:
+            case macro.SHADER_SPRITE_POSITION_TEXTURECOLOR:
                 program.initWithVertexShaderByteArray(shaders.SPRITE_POSITION_TEXTURE_COLOR_VERT, shaders.POSITION_TEXTURE_COLOR_FRAG);
                 program.addAttribute(macro.ATTRIBUTE_NAME_POSITION, macro.VERTEX_ATTRIB_POSITION);
                 program.addAttribute(macro.ATTRIBUTE_NAME_COLOR, macro.VERTEX_ATTRIB_COLOR);
                 program.addAttribute(macro.ATTRIBUTE_NAME_TEX_COORD, macro.VERTEX_ATTRIB_TEX_COORDS);
                 break;
-            case this.TYPE_POSITION_TEXTURECOLOR_ALPHATEST:
+            case macro.SHADER_POSITION_TEXTURECOLORALPHATEST:
                 program.initWithVertexShaderByteArray(shaders.POSITION_TEXTURE_COLOR_VERT, shaders.POSITION_TEXTURE_COLOR_ALPHATEST_FRAG);
 
                 program.addAttribute(macro.ATTRIBUTE_NAME_POSITION, macro.VERTEX_ATTRIB_POSITION);
                 program.addAttribute(macro.ATTRIBUTE_NAME_COLOR, macro.VERTEX_ATTRIB_COLOR);
                 program.addAttribute(macro.ATTRIBUTE_NAME_TEX_COORD, macro.VERTEX_ATTRIB_TEX_COORDS);
                 break;
-            case this.TYPE_SPRITE_POSITION_TEXTURECOLOR_ALPHATEST:
+            case macro.SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST:
                 program.initWithVertexShaderByteArray(shaders.SPRITE_POSITION_TEXTURE_COLOR_VERT, shaders.POSITION_TEXTURE_COLOR_ALPHATEST_FRAG);
                 program.addAttribute(macro.ATTRIBUTE_NAME_POSITION, macro.VERTEX_ATTRIB_POSITION);
                 program.addAttribute(macro.ATTRIBUTE_NAME_COLOR, macro.VERTEX_ATTRIB_COLOR);
                 program.addAttribute(macro.ATTRIBUTE_NAME_TEX_COORD, macro.VERTEX_ATTRIB_TEX_COORDS);
                 break;
-            case this.TYPE_POSITION_COLOR:
+            case macro.SHADER_POSITION_COLOR:
                 program.initWithVertexShaderByteArray(shaders.POSITION_COLOR_VERT, shaders.POSITION_COLOR_FRAG);
 
                 program.addAttribute(macro.ATTRIBUTE_NAME_POSITION, macro.VERTEX_ATTRIB_POSITION);
                 program.addAttribute(macro.ATTRIBUTE_NAME_COLOR, macro.VERTEX_ATTRIB_COLOR);
                 break;
-            case this.TYPE_SPRITE_POSITION_COLOR:
+            case macro.SHADER_SPRITE_POSITION_COLOR:
                 program.initWithVertexShaderByteArray(shaders.SPRITE_POSITION_COLOR_VERT, shaders.POSITION_COLOR_FRAG);
                 program.addAttribute(macro.ATTRIBUTE_NAME_POSITION, macro.VERTEX_ATTRIB_POSITION);
                 program.addAttribute(macro.ATTRIBUTE_NAME_COLOR, macro.VERTEX_ATTRIB_COLOR);
                 break;
-            case this.TYPE_POSITION_TEXTURE:
+            case macro.SHADER_POSITION_TEXTURE:
                 program.initWithVertexShaderByteArray(shaders.POSITION_TEXTURE_VERT, shaders.POSITION_TEXTURE_FRAG);
 
                 program.addAttribute(macro.ATTRIBUTE_NAME_POSITION, macro.VERTEX_ATTRIB_POSITION);
                 program.addAttribute(macro.ATTRIBUTE_NAME_TEX_COORD, macro.VERTEX_ATTRIB_TEX_COORDS);
                 break;
-            case this.TYPE_POSITION_TEXTURE_UCOLOR:
+            case macro.SHADER_POSITION_TEXTURE_UCOLOR:
                 program.initWithVertexShaderByteArray(shaders.POSITION_TEXTURE_UCOLOR_VERT, shaders.POSITION_TEXTURE_UCOLOR_FRAG);
 
                 program.addAttribute(macro.ATTRIBUTE_NAME_POSITION, macro.VERTEX_ATTRIB_POSITION);
                 program.addAttribute(macro.ATTRIBUTE_NAME_TEX_COORD, macro.VERTEX_ATTRIB_TEX_COORDS);
                 break;
-            case this.TYPE_POSITION_TEXTURE_A8COLOR:
+            case macro.SHADER_POSITION_TEXTUREA8COLOR:
                 program.initWithVertexShaderByteArray(shaders.POSITION_TEXTURE_A8COLOR_VERT, shaders.POSITION_TEXTURE_A8COLOR_FRAG);
 
                 program.addAttribute(macro.ATTRIBUTE_NAME_POSITION, macro.VERTEX_ATTRIB_POSITION);
                 program.addAttribute(macro.ATTRIBUTE_NAME_COLOR, macro.VERTEX_ATTRIB_COLOR);
                 program.addAttribute(macro.ATTRIBUTE_NAME_TEX_COORD, macro.VERTEX_ATTRIB_TEX_COORDS);
                 break;
-            case this.TYPE_POSITION_UCOLOR:
+            case macro.SHADER_POSITION_UCOLOR:
                 program.initWithVertexShaderByteArray(shaders.POSITION_UCOLOR_VERT, shaders.POSITION_UCOLOR_FRAG);
                 program.addAttribute("aVertex", macro.VERTEX_ATTRIB_POSITION);
                 break;
-            case this.TYPE_POSITION_LENGTH_TEXTURECOLOR:
+            case macro.SHADER_POSITION_LENGTHTEXTURECOLOR:
                 program.initWithVertexShaderByteArray(shaders.POSITION_COLOR_LENGTH_TEXTURE_VERT, shaders.POSITION_COLOR_LENGTH_TEXTURE_FRAG);
 
                 program.addAttribute(macro.ATTRIBUTE_NAME_POSITION, macro.VERTEX_ATTRIB_POSITION);
@@ -194,151 +194,49 @@ cc.shaderCache = /** @lends cc.shaderCache# */{
         //cc.checkGLErrorDebug();
     },
 
+    _reloadShader: function (type) {
+        var program = this.programForKey(type);
+        program.reset();
+        this._loadDefaultShader(program, type);
+    },
+
     /**
      * loads the default shaders
      */
     loadDefaultShaders: function () {
-        // Position Texture Color shader
-        var program = new cc.GLProgram();
-        this._loadDefaultShader(program, this.TYPE_POSITION_TEXTURECOLOR);
-        this._programs[macro.SHADER_POSITION_TEXTURECOLOR] = program;
-        this._programs["ShaderPositionTextureColor"] = program;
-
-        // Position Texture Color shader with position precalculated
-        program = new cc.GLProgram();
-        this._loadDefaultShader(program, this.TYPE_SPRITE_POSITION_TEXTURECOLOR);
-        this._programs[macro.SHADER_SPRITE_POSITION_TEXTURECOLOR] = program;
-        this._programs["ShaderSpritePositionTextureColor"] = program;
-
-        // Position Texture Color alpha test
-        program = new cc.GLProgram();
-        this._loadDefaultShader(program, this.TYPE_POSITION_TEXTURECOLOR_ALPHATEST);
-        this._programs[macro.SHADER_POSITION_TEXTURECOLORALPHATEST] = program;
-        this._programs["ShaderPositionTextureColorAlphaTest"] = program;
-
-        // Position Texture Color alpha with position precalculated
-        program = new cc.GLProgram();
-        this._loadDefaultShader(program, this.TYPE_SPRITE_POSITION_TEXTURECOLOR_ALPHATEST);
-        this._programs[macro.SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST] = program;
-        this._programs["ShaderSpritePositionTextureColorAlphaTest"] = program;
-
-        //
-        // Position, Color shader
-        //
-        program = new cc.GLProgram();
-        this._loadDefaultShader(program, this.TYPE_POSITION_COLOR);
-        this._programs[macro.SHADER_POSITION_COLOR] = program;
-        this._programs["ShaderPositionColor"] = program;
-
-        //
-        // Position, Color shader with position precalculated
-        //
-        program = new cc.GLProgram();
-        this._loadDefaultShader(program, this.TYPE_SPRITE_POSITION_COLOR);
-        this._programs[macro.SHADER_SPRITE_POSITION_COLOR] = program;
-        this._programs["ShaderSpritePositionColor"] = program;
-
-        //
-        // Position Texture shader
-        //
-        program = new cc.GLProgram();
-        this._loadDefaultShader(program, this.TYPE_POSITION_TEXTURE);
-        this._programs[macro.SHADER_POSITION_TEXTURE] = program;
-        this._programs["ShaderPositionTexture"] = program;
-
-        //
-        // Position, Texture attribs, 1 Color as uniform shader
-        //
-        program = new cc.GLProgram();
-        this._loadDefaultShader(program, this.TYPE_POSITION_TEXTURE_UCOLOR);
-        this._programs[macro.SHADER_POSITION_TEXTURE_UCOLOR] = program;
-        this._programs["ShaderPositionTextureUColor"] = program;
-
-        //
-        // Position Texture A8 Color shader
-        //
-        program = new cc.GLProgram();
-        this._loadDefaultShader(program, this.TYPE_POSITION_TEXTURE_A8COLOR);
-        this._programs[macro.SHADER_POSITION_TEXTUREA8COLOR] = program;
-        this._programs["ShaderPositionTextureA8Color"] = program;
-
-        //
-        // Position and 1 color passed as a uniform (to similate glColor4ub )
-        //
-        program = new cc.GLProgram();
-        this._loadDefaultShader(program, this.TYPE_POSITION_UCOLOR);
-        this._programs[macro.SHADER_POSITION_UCOLOR] = program;
-        this._programs["ShaderPositionUColor"] = program;
-
-        //
-        // Position, Legth(TexCoords, Color (used by Draw Node basically )
-        //
-        program = new cc.GLProgram();
-        this._loadDefaultShader(program, this.TYPE_POSITION_LENGTH_TEXTURECOLOR);
-        this._programs[macro.SHADER_POSITION_LENGTHTEXTURECOLOR] = program;
-        this._programs["ShaderPositionLengthTextureColor"] = program;
     },
 
     /**
      * reload the default shaders
      */
     reloadDefaultShaders: function () {
-        // reset all programs and reload them
-
+        // reset all default programs and reload them
         // Position Texture Color shader
-        var program = this.programForKey(macro.SHADER_POSITION_TEXTURECOLOR);
-        program.reset();
-        this._loadDefaultShader(program, this.TYPE_POSITION_TEXTURECOLOR);
+        this._reloadShader(macro.SHADER_POSITION_TEXTURECOLOR);
 
         // Sprite Position Texture Color shader
-        program = this.programForKey(macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
-        program.reset();
-        this._loadDefaultShader(program, this.TYPE_SPRITE_POSITION_TEXTURECOLOR);
+        this._reloadShader(macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
 
         // Position Texture Color alpha test
-        program = this.programForKey(macro.SHADER_POSITION_TEXTURECOLORALPHATEST);
-        program.reset();
-        this._loadDefaultShader(program, this.TYPE_POSITION_TEXTURECOLOR_ALPHATEST);
+        this._reloadShader(macro.SHADER_POSITION_TEXTURECOLORALPHATEST);
 
         // Sprite Position Texture Color alpha shader
-        program = this.programForKey(macro.SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST);
-        program.reset();
-        this._loadDefaultShader(program, this.TYPE_SPRITE_POSITION_TEXTURECOLOR_ALPHATEST);
+        this._reloadShader(macro.SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST);
 
-        //
         // Position, Color shader
-        //
-        program = this.programForKey(macro.SHADER_POSITION_COLOR);
-        program.reset();
-        this._loadDefaultShader(program, this.TYPE_POSITION_COLOR);
+        this._reloadShader(macro.SHADER_POSITION_COLOR);
 
-        //
         // Position Texture shader
-        //
-        program = this.programForKey(macro.SHADER_POSITION_TEXTURE);
-        program.reset();
-        this._loadDefaultShader(program, this.TYPE_POSITION_TEXTURE);
+        this._reloadShader(macro.SHADER_POSITION_TEXTURE);
 
-        //
         // Position, Texture attribs, 1 Color as uniform shader
-        //
-        program = this.programForKey(macro.SHADER_POSITION_TEXTURE_UCOLOR);
-        program.reset();
-        this._loadDefaultShader(program, this.TYPE_POSITION_TEXTURE_UCOLOR);
+        this._reloadShader(macro.SHADER_POSITION_TEXTURE_UCOLOR);
 
-        //
         // Position Texture A8 Color shader
-        //
-        program = this.programForKey(macro.SHADER_POSITION_TEXTUREA8COLOR);
-        program.reset();
-        this._loadDefaultShader(program, this.TYPE_POSITION_TEXTURE_A8COLOR);
+        this._reloadShader(macro.SHADER_POSITION_TEXTUREA8COLOR);
 
-        //
         // Position and 1 color passed as a uniform (to similate glColor4ub )
-        //
-        program = this.programForKey(macro.SHADER_POSITION_UCOLOR);
-        program.reset();
-        this._loadDefaultShader(program, this.TYPE_POSITION_UCOLOR);
+        this._reloadShader(macro.SHADER_POSITION_UCOLOR);
     },
 
     /**
@@ -346,6 +244,12 @@ cc.shaderCache = /** @lends cc.shaderCache# */{
      * @param {String} key
      */
     programForKey: function (key) {
+        if (!this._programs[key]) {
+            var program = new cc.GLProgram();
+            this._loadDefaultShader(program, key);
+            this._programs[key] = program;
+        }
+
         return this._programs[key];
     },
 
@@ -355,7 +259,7 @@ cc.shaderCache = /** @lends cc.shaderCache# */{
      * @return {cc.GLProgram}
      */
     getProgram: function (shaderName) {
-        return this._programs[shaderName];
+        return this.programForKey(shaderName);
     },
 
     /**
