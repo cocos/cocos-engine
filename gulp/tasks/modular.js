@@ -33,12 +33,6 @@ const concat = require('gulp-concat');
 const es = require('event-stream');
 const sourcemaps = require('gulp-sourcemaps');
 
-//'./cocos2d/parallax/CCParallaxNode.js',
-//'./cocos2d/parallax/CCParallaxNodeRenderCmd.js',
-//'./cocos2d/physics/CCPhysicsDebugNode.js',
-//'./cocos2d/physics/CCPhysicsDebugNodeCanvasRenderCmd.js',
-//'./cocos2d/physics/CCPhysicsDebugNodeWebGLRenderCmd.js',
-
 var modules = {
     'Core': [
         './cocos2d/core/base-nodes/BaseNodesPropertyDefine.js',
@@ -46,10 +40,6 @@ var modules = {
         './cocos2d/core/base-nodes/CCSGNodeCanvasRenderCmd.js',
         './cocos2d/core/base-nodes/CCSGNodeWebGLRenderCmd.js',
         './cocos2d/core/scenes/CCSGScene.js',
-        './cocos2d/core/scenes/CCLoaderScene.js',
-        './cocos2d/core/layers/CCLayer.js',
-        './cocos2d/core/layers/CCLayerCanvasRenderCmd.js',
-        './cocos2d/core/layers/CCLayerWebGLRenderCmd.js',
         './cocos2d/core/CCConfiguration.js',
         './cocos2d/core/CCDrawingPrimitivesCanvas.js',
         './cocos2d/core/CCDrawingPrimitivesWebGL.js'
@@ -60,10 +50,6 @@ var modules = {
         './cocos2d/core/sprites/CCSGSprite.js',
         './cocos2d/core/sprites/CCSGSpriteCanvasRenderCmd.js',
         './cocos2d/core/sprites/CCSGSpriteWebGLRenderCmd.js',
-        './cocos2d/core/sprites/CCBakeSprite.js',
-        './cocos2d/core/sprites/CCSpriteBatchNode.js',
-        './cocos2d/core/sprites/CCSpriteBatchNodeCanvasRenderCmd.js',
-        './cocos2d/core/sprites/CCSpriteBatchNodeWebGLRenderCmd.js',
         './cocos2d/core/sprites/CCScale9Sprite.js',
         './cocos2d/core/sprites/CCScale9SpriteCanvasRenderCmd.js',
         './cocos2d/core/sprites/CCScale9SpriteWebGLRenderCmd.js'
@@ -105,8 +91,7 @@ var modules = {
     ],
 
     'EditorBox': [
-        './cocos2d/core/editbox/CCSGEditBox.js',
-        './cocos2d/core/editBox/CCdomNode.js'
+        './cocos2d/core/editbox/CCSGEditBox.js'
     ],
 
     'VideoPlayer': [
