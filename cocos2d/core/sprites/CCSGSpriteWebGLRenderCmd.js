@@ -62,24 +62,6 @@ proto.setDirtyRecursively = function (value) {
     }
 };
 
-proto._setBatchNodeForAddChild = function (child) {
-    var node = this._node;
-    if (node._batchNode) {
-        if (!(child instanceof _ccsg.Sprite)) {
-            cc.logID(2612);
-            return false;
-        }
-        if (child.texture._webTextureObj !== node.textureAtlas.texture._webTextureObj)
-            cc.logID(2613);
-
-        //put it in descendants array of batch node
-        node._batchNode.appendChild(child);
-        if (!node._reorderChildDirty)
-            node._setReorderChildDirtyRecursively();
-    }
-    return true;
-};
-
 proto._handleTextureForRotatedTexture = function (texture) {
     return texture;
 };
@@ -115,9 +97,6 @@ proto._textureLoadedCallback = function (event) {
     node.texture = sender;
     node.setTextureRect(locRect, node._rectRotated);
 
-    // by default use "Self Render".
-    // if the sprite is added to a batchnode, then it will automatically switch to "batchnode Render"
-    node.setBatchNode(node._batchNode);
     node.emit("load");
 
     // Force refresh the render command list
@@ -127,7 +106,7 @@ proto._textureLoadedCallback = function (event) {
 proto._setTextureCoords = function (rect) {
     var node = this._node;
 
-    var tex = node._batchNode ? node.textureAtlas.texture : node._texture;
+    var tex = node._texture;
     var uvs = this._vertices;
     if (!tex)
         return;
@@ -208,11 +187,6 @@ proto._setTextureCoords = function (rect) {
 proto._setColorDirty = function () {};
 
 proto._updateBlendFunc = function () {
-    if (this._batchNode) {
-        cc.logID(2605);
-        return;
-    }
-
     // it's possible to have an untextured sprite
     var node = this._node;
     if (!node._texture || !node._texture.hasPremultipliedAlpha()) {
@@ -228,25 +202,17 @@ proto._updateBlendFunc = function () {
 
 proto._setTexture = function (texture) {
     var node = this._node;
-    // If batchnode, then texture id should be the same
-    if (node._batchNode) {
-        if(node._batchNode.texture !== texture){
-            cc.logID(2615);
-            return;
-        }
-    }else{
-        if(node._texture !== texture){
-            node._textureLoaded = texture ? texture._textureLoaded : false;
-            node._texture = texture;
-            this._updateBlendFunc();
 
-            if (node._textureLoaded) {
-                // Force refresh the render command list
-                cc.renderer.childrenOrderDirty = true;
-            }
+    if(node._texture !== texture){
+        node._textureLoaded = texture ? texture._textureLoaded : false;
+        node._texture = texture;
+        this._updateBlendFunc();
+
+        if (node._textureLoaded) {
+            // Force refresh the render command list
+            cc.renderer.childrenOrderDirty = true;
         }
     }
-
 };
 
 proto._checkTextureBoundary = function (texture, rect, rotated) {
