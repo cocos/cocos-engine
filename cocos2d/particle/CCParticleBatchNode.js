@@ -469,8 +469,8 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
         child._setLocalZOrder(z);
         child.parent = this;
         if (this._running) {
-            child.onEnter();
-            child.onEnterTransitionDidFinish();
+            child.performRecursive(_ccsg.Node.performType.onEnter);
+            child.performRecursive(_ccsg.Node.performType.onEnterTransitionDidFinish);
         }
         return pos;
     },

@@ -62,11 +62,17 @@ _ccsg.Node._requestDirtyFlag = function (key) {
 };
 
 var ONE_DEGREE = Math.PI / 180;
-var stack = new Array(50);
 
 function transformChildTree (root) {
     var index = 1;
     var children, child, curr, parentCmd, i, len;
+    var stack = _ccsg.Node._performStacks[_ccsg.Node._performing];
+    if (!stack) {
+        stack = [];
+        _ccsg.Node._performStacks.push(stack);
+    }
+    stack.length = 0;
+    _ccsg.Node._performing++;
     stack[0] = root;
     while (index) {
         index--;
@@ -85,6 +91,7 @@ function transformChildTree (root) {
             }
         }
     }
+    _ccsg.Node._performing--;
 }
 
 //-------------------------Base -------------------------

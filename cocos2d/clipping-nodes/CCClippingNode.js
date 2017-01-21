@@ -88,7 +88,8 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
      */
     onEnter: function () {
         _ccsg.Node.prototype.onEnter.call(this);
-        this._stencil.onEnter();
+        if (this._stencil)
+            this._stencil.performRecursive(_ccsg.Node.performType.onEnter);
     },
 
     /**
@@ -101,7 +102,8 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
      */
     onEnterTransitionDidFinish: function () {
         _ccsg.Node.prototype.onEnterTransitionDidFinish.call(this);
-        this._stencil.onEnterTransitionDidFinish();
+        if (this._stencil)
+            this._stencil.performRecursive(_ccsg.Node.performType.onEnterTransitionDidFinish);
     },
 
     /**
@@ -113,7 +115,7 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
      * @function
      */
     onExitTransitionDidStart: function () {
-        this._stencil.onExitTransitionDidStart();
+        this._stencil.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
         _ccsg.Node.prototype.onExitTransitionDidStart.call(this);
     },
 
@@ -127,7 +129,7 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
      * @function
      */
     onExit: function () {
-        this._stencil.onExit();
+        this._stencil.performRecursive(_ccsg.Node.performType.onExit);
         _ccsg.Node.prototype.onExit.call(this);
     },
 

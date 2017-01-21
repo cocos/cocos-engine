@@ -175,68 +175,6 @@ _ccsg.Node = cc.Class({
         return true;
     },
 
-    _arrayMakeObjectsPerformSelector: function (array, callbackType) {
-        if (!array || array.length === 0)
-            return;
-
-        var i, len = array.length, node;
-        var nodeCallbackType = _ccsg.Node._stateCallbackType;
-        switch (callbackType) {
-            case nodeCallbackType.onEnter:
-                for (i = 0; i < len; i++) {
-                    node = array[i];
-                    if (node)
-                        node.onEnter();
-                }
-                break;
-            case nodeCallbackType.onExit:
-                for (i = 0; i < len; i++) {
-                    node = array[i];
-                    if (node)
-                        node.onExit();
-                }
-                break;
-            case nodeCallbackType.onEnterTransitionDidFinish:
-                for (i = 0; i < len; i++) {
-                    node = array[i];
-                    if (node)
-                        node.onEnterTransitionDidFinish();
-                }
-                break;
-            case nodeCallbackType.cleanup:
-                for (i = 0; i < len; i++) {
-                    node = array[i];
-                    if (node)
-                        node.cleanup();
-                }
-                break;
-            case nodeCallbackType.updateTransform:
-                for (i = 0; i < len; i++) {
-                    node = array[i];
-                    if (node)
-                        node.updateTransform();
-                }
-                break;
-            case nodeCallbackType.onExitTransitionDidStart:
-                for (i = 0; i < len; i++) {
-                    node = array[i];
-                    if (node)
-                        node.onExitTransitionDidStart();
-                }
-                break;
-            case nodeCallbackType.sortAllChildren:
-                for (i = 0; i < len; i++) {
-                    node = array[i];
-                    if (node)
-                        node.sortAllChildren();
-                }
-                break;
-            default :
-                cc.assertID(0, 1616);
-                break;
-        }
-    },
-
     /**
      * <p>Properties configuration function </br>
      * All properties in attrs will be set to the node, </br>
@@ -1047,9 +985,6 @@ _ccsg.Node = cc.Class({
 
         // event
         cc.eventManager.removeListeners(this);
-
-        // timers
-        this._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.cleanup);
     },
 
     // composition: GET
@@ -1077,16 +1012,16 @@ _ccsg.Node = cc.Class({
      * @param {String} name A name to find the child node.
      * @return {_ccsg.Node} a CCNode object whose name equals to the input parameter
      */
-    getChildByName: function(name){
-        if(!name){
+    getChildByName: function (name) {
+        if (!name) {
             cc.log("Invalid name");
             return null;
         }
 
         var locChildren = this._children;
-        for(var i = 0, len = locChildren.length; i < len; i++){
-           if(locChildren[i]._name === name)
-            return locChildren[i];
+        for (var i = 0, len = locChildren.length; i < len; i++) {
+            if (locChildren[i]._name === name)
+                return locChildren[i];
         }
         return null;
     },
@@ -1133,11 +1068,11 @@ _ccsg.Node = cc.Class({
         child.setParent(this);
         child.updateOrderOfArrival();
 
-        if( this._running ){
-            child.onEnter();
+        if (this._running) {
+            child.performRecursive(_ccsg.Node.performType.onEnter);
             // prevent onEnterTransitionDidFinish to be called twice when a node is added in onEnter
             if (this._isTransitionFinished)
-                child.onEnterTransitionDidFinish();
+                child.performRecursive(_ccsg.Node.performType.onEnterTransitionDidFinish);
         }
         child._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
         if (this._cascadeColorEnabled)
@@ -1240,13 +1175,13 @@ _ccsg.Node = cc.Class({
                 var node = __children[i];
                 if (node) {
                     if (this._running) {
-                        node.onExitTransitionDidStart();
-                        node.onExit();
+                        node.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
+                        node.performRecursive(_ccsg.Node.performType.onExit);
                     }
 
                     // If you don't do cleanup, the node's actions will not get removed and the
                     if (cleanup)
-                        node.cleanup();
+                        node.performRecursive(_ccsg.Node.performType.cleanup);
 
                     // set parent nil at the end
                     node.parent = null;
@@ -1263,13 +1198,13 @@ _ccsg.Node = cc.Class({
         //  -1st do onExit
         //  -2nd cleanup
         if (this._running) {
-            child.onExitTransitionDidStart();
-            child.onExit();
+            child.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
+            child.performRecursive(_ccsg.Node.performType.onExit);
         }
 
         // If you don't do cleanup, the child's actions will not get removed and the
         if (doCleanup)
-            child.cleanup();
+            child.performRecursive(_ccsg.Node.performType.cleanup);
 
         // set parent nil at the end
         child.parent = null;
@@ -1283,7 +1218,7 @@ _ccsg.Node = cc.Class({
         child._setLocalZOrder(z);
     },
 
-    setNodeDirty: function(){
+    setNodeDirty: function () {
         this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
@@ -1315,22 +1250,22 @@ _ccsg.Node = cc.Class({
 
             // insertion sort
             var len = _children.length, i, j, tmp;
-            for(i=1; i<len; i++){
+            for (i = 1; i < len; i++) {
                 tmp = _children[i];
                 j = i - 1;
 
                 //continue moving element downwards while zOrder is smaller or when zOrder is the same but mutatedIndex is smaller
-                while(j >= 0){
-                    if(tmp._localZOrder < _children[j]._localZOrder){
-                        _children[j+1] = _children[j];
-                    }else if(tmp._localZOrder === _children[j]._localZOrder && tmp._arrivalOrder < _children[j]._arrivalOrder){
-                        _children[j+1] = _children[j];
-                    }else{
+                while (j >= 0) {
+                    if (tmp._localZOrder < _children[j]._localZOrder) {
+                        _children[j + 1] = _children[j];
+                    } else if (tmp._localZOrder === _children[j]._localZOrder && tmp._arrivalOrder < _children[j]._arrivalOrder) {
+                        _children[j + 1] = _children[j];
+                    } else {
                         break;
                     }
                     j--;
                 }
-                _children[j+1] = tmp;
+                _children[j + 1] = tmp;
             }
 
             //don't need to check children recursively, that's done in visit of each child
@@ -1370,8 +1305,70 @@ _ccsg.Node = cc.Class({
     onEnter: function () {
         this._isTransitionFinished = false;
         this._running = true;//should be running before resumeSchedule
-        this._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.onEnter);
         this.resume();
+    },
+
+    performRecursive: function (callbackType) {
+        var nodeCallbackType = _ccsg.Node.performType;
+        if (callbackType >= nodeCallbackType.max) {
+            return;
+        }
+
+        var index = 0;
+        var children, child, curr, i, len;
+        var stack = _ccsg.Node._performStacks[_ccsg.Node._performing];
+        if (!stack) {
+            stack = [];
+            _ccsg.Node._performStacks.push(stack);
+        }
+        stack.length = 0;
+        _ccsg.Node._performing++;
+        curr = stack[0] = this;
+        while (curr) {
+            // Walk through children
+            children = curr._children;
+            if (children && children.length > 0) {
+                for (i = 0, len = children.length; i < len; ++i) {
+                    child = children[i];
+                    stack.push(child);
+                }
+            }
+            children = curr._protectedChildren;
+            if (children && children.length > 0) {
+                for (i = 0, len = children.length; i < len; ++i) {
+                    child = children[i];
+                    stack.push(child);
+                }
+            }
+
+            index++;
+            curr = stack[index];
+        }
+        for (i = stack.length - 1; i >= 0; --i) {
+            curr = stack[i];
+            stack[i] = null;
+            if (!curr) continue;
+
+            // Perform actual action
+            switch (callbackType) {
+            case nodeCallbackType.onEnter:
+                curr.onEnter();
+                break;
+            case nodeCallbackType.onExit:
+                curr.onExit();
+                break;
+            case nodeCallbackType.onEnterTransitionDidFinish:
+                curr.onEnterTransitionDidFinish();
+                break;
+            case nodeCallbackType.cleanup:
+                curr.cleanup();
+                break;
+            case nodeCallbackType.onExitTransitionDidStart:
+                curr.onExitTransitionDidStart();
+                break;
+            }
+        }
+        _ccsg.Node._performing--;
     },
 
     /**
@@ -1384,7 +1381,6 @@ _ccsg.Node = cc.Class({
      */
     onEnterTransitionDidFinish: function () {
         this._isTransitionFinished = true;
-        this._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.onEnterTransitionDidFinish);
     },
 
     /**
@@ -1394,7 +1390,6 @@ _ccsg.Node = cc.Class({
      * @function
      */
     onExitTransitionDidStart: function () {
-        this._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.onExitTransitionDidStart);
     },
 
     /**
@@ -1409,7 +1404,6 @@ _ccsg.Node = cc.Class({
     onExit: function () {
         this._running = false;
         this.pause();
-        this._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.onExit);
     },
 
     // actions
@@ -1532,49 +1526,49 @@ _ccsg.Node = cc.Class({
      */
     schedule: function (callback, interval, repeat, delay, key) {
         var len = arguments.length;
-        if(typeof callback === "function"){
+        if (typeof callback === "function") {
             //callback, interval, repeat, delay, key
-            if(len === 1){
+            if (len === 1) {
                 //callback
                 interval = 0;
                 repeat = cc.macro.REPEAT_FOREVER;
                 delay = 0;
                 key = this.__instanceId;
-            }else if(len === 2){
-                if(typeof interval === "number"){
+            } else if (len === 2) {
+                if (typeof interval === "number") {
                     //callback, interval
                     repeat = cc.macro.REPEAT_FOREVER;
                     delay = 0;
                     key = this.__instanceId;
-                }else{
+                } else {
                     //callback, key
                     key = interval;
                     interval = 0;
                     repeat = cc.macro.REPEAT_FOREVER;
                     delay = 0;
                 }
-            }else if(len === 3){
-                if(typeof repeat === "string"){
+            } else if (len === 3) {
+                if (typeof repeat === "string") {
                     //callback, interval, key
                     key = repeat;
                     repeat = cc.macro.REPEAT_FOREVER;
-                }else{
+                } else {
                     //callback, interval, repeat
                     key = this.__instanceId;
                 }
                 delay = 0;
-            }else if(len === 4){
+            } else if (len === 4) {
                 key = this.__instanceId;
             }
-        }else{
+        } else {
             //selector
             //selector, interval
             //selector, interval, repeat, delay
-            if(len === 1){
+            if (len === 1) {
                 interval = 0;
                 repeat = cc.macro.REPEAT_FOREVER;
                 delay = 0;
-            }else if(len === 2){
+            } else if (len === 2) {
                 repeat = cc.macro.REPEAT_FOREVER;
                 delay = 0;
             }
@@ -1601,7 +1595,7 @@ _ccsg.Node = cc.Class({
     scheduleOnce: function (callback, delay, key) {
         //selector, delay
         //callback, delay, key
-        if(key === undefined)
+        if (key === undefined)
             key = this.__instanceId;
         this.schedule(callback, 0, 0, delay, key);
     },
@@ -1707,7 +1701,7 @@ _ccsg.Node = cc.Class({
      * @function
      * @deprecated since v3.0, please use getNodeToWorldTransform instead
      */
-    nodeToWorldTransform: function(){
+    nodeToWorldTransform: function () {
         return this.getNodeToWorldTransform();
     },
 
@@ -2136,8 +2130,8 @@ _ccsg.Node = cc.Class({
         return false;
     },
 
-    _createRenderCmd: function(){
-        if(cc._renderType === cc.game.RENDER_TYPE_CANVAS)
+    _createRenderCmd: function () {
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS)
             return new _ccsg.Node.CanvasRenderCmd(this);
         else
             return new _ccsg.Node.WebGLRenderCmd(this);
@@ -2149,7 +2143,16 @@ _ccsg.Node.extend = cc._Class.extend;
 // to support calling this._super in sub class
 _ccsg.Node.prototype.ctor = _ccsg.Node;
 
-_ccsg.Node._stateCallbackType = {onEnter: 1, onExit: 2, cleanup: 3, onEnterTransitionDidFinish: 4, updateTransform: 5, onExitTransitionDidStart: 6, sortAllChildren: 7};
+_ccsg.Node.performType = {
+    onEnter: 1,
+    onExit: 2,
+    cleanup: 3,
+    onEnterTransitionDidFinish: 4,
+    onExitTransitionDidStart: 5,
+    max: 6
+};
+_ccsg.Node._performStacks = [[]];
+_ccsg.Node._performing = 0;
 
 cc.assertID(typeof cc._tmp.PrototypeCCNode === 'function', 3200, "BaseNodesPropertyDefine.js");
 cc._tmp.PrototypeCCNode();

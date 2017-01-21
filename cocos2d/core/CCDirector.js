@@ -416,9 +416,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         // They are needed in case the director is run again
 
         if (this._runningScene) {
-            this._runningScene.onExitTransitionDidStart();
-            this._runningScene.onExit();
-            this._runningScene.cleanup();
+            this._runningScene.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
+            this._runningScene.performRecursive(_ccsg.Node.performType.onExit);
+            this._runningScene.performRecursive(_ccsg.Node.performType.cleanup);
 
             cc.renderer.clearRenderCommands();
         }
@@ -891,14 +891,14 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         if (!newIsTransition) {
             var locRunningScene = this._runningScene;
             if (locRunningScene) {
-                locRunningScene.onExitTransitionDidStart();
-                locRunningScene.onExit();
+                locRunningScene.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
+                locRunningScene.performRecursive(_ccsg.Node.performType.onExit);
             }
 
             // issue #709. the root node (scene) should receive the cleanup message too
             // otherwise it might be leaked.
             if (this._sendCleanupToScene && locRunningScene)
-                locRunningScene.cleanup();
+                locRunningScene.performRecursive(_ccsg.Node.performType.cleanup);
         }
 
         this._runningScene = this._nextScene;
@@ -906,8 +906,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
         this._nextScene = null;
         if ((!runningIsTransition) && (this._runningScene !== null)) {
-            this._runningScene.onEnter();
-            this._runningScene.onEnterTransitionDidFinish();
+            this._runningScene.performRecursive(_ccsg.Node.performType.onEnter);
+            this._runningScene.performRecursive(_ccsg.Node.performType.onEnterTransitionDidFinish);
         }
     },
 
@@ -1135,14 +1135,14 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         while (c > level) {
             var current = locScenesStack.pop();
             if (current.running) {
-                current.onExitTransitionDidStart();
-                current.onExit();
+                current.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
+                current.performRecursive(_ccsg.Node.performType.onExit);
             }
-            current.cleanup();
+            current.performRecursive(_ccsg.Node.performType.cleanup);
             c--;
         }
         this._nextScene = locScenesStack[locScenesStack.length - 1];
-        this._sendCleanupToScene = false;
+        this._sendCleanupToScene = true;
     },
 
     /**
