@@ -713,22 +713,21 @@ var game = {
 
         if (typeof document.hidden !== 'undefined') {
             hidden = "hidden";
-            visibilityChange = "visibilitychange";
         } else if (typeof document.mozHidden !== 'undefined') {
             hidden = "mozHidden";
-            visibilityChange = "mozvisibilitychange";
         } else if (typeof document.msHidden !== 'undefined') {
             hidden = "msHidden";
-            visibilityChange = "msvisibilitychange";
         } else if (typeof document.webkitHidden !== 'undefined') {
             hidden = "webkitHidden";
-            visibilityChange = "webkitvisibilitychange";
         }
 
-        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_QQ || cc.sys.browserType === cc.sys.BROWSER_TYPE_MOBILE_QQ) {
-            visibilityChange = "qbrowserVisibilityChange"
-        }
-
+        var changeList = [
+            "visibilitychange",
+            "mozvisibilitychange",
+            "msvisibilitychange",
+            "webkitvisibilitychange",
+            "qbrowserVisibilityChange"
+        ];
         var onHidden = function () {
             game.emit(game.EVENT_HIDE, game);
         };
@@ -737,10 +736,15 @@ var game = {
         };
 
         if (hidden) {
-            document.addEventListener(visibilityChange, function () {
-                if (document[hidden]) onHidden();
-                else onShow();
-            }, false);
+            for (var i = 0; i < changeList.length; i++) {
+                document.addEventListener(changeList[i], function (event) {
+                    var visible = document[hidden];
+                    // QQ App
+                    visible = visible || event["hidden"];
+                    if (visible) onHidden();
+                    else onShow();
+                }, false);
+            }
         } else {
             win.addEventListener("blur", onHidden, false);
             win.addEventListener("focus", onShow, false);

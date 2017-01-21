@@ -2606,7 +2606,7 @@ cc.Animate = cc.ActionInterval.extend({
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
         if (this._animation.getRestoreOriginalFrame())
-            this._origFrame = target.displayFrame();
+            this._origFrame = target.getSpriteFrame();
         this._nextFrame = 0;
         this._executedLoops = 0;
     },

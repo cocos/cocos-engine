@@ -1230,6 +1230,13 @@ _ccsg.Node = cc.Class({
      */
     reorderChild: function (child, zOrder) {
         cc.assertID(child, 1617);
+        if (this._children.indexOf(child) === -1) {
+            cc.logID(1635);
+            return;
+        }
+        if (zOrder === child.zIndex) {
+            return;
+        }
         cc.renderer.childrenOrderDirty = this._reorderChildDirty = true;
         child.updateOrderOfArrival();
         child._setLocalZOrder(zOrder);

@@ -173,10 +173,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this._scheduler = new cc.Scheduler();
 
         // Action manager
-        if(cc.ActionManager){
+        if (cc.ActionManager) {
             this._actionManager = new cc.ActionManager();
             this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
-        }else{
+        } else {
             this._actionManager = null;
         }
 
@@ -242,7 +242,16 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @param {Vec2} uiPoint
      * @return {Vec2}
      */
-    convertToGL: null,
+    convertToGL: function (uiPoint) {
+        var docElem = document.documentElement;
+        var view = cc.view;
+        var box = element.getBoundingClientRect();
+        box.left += window.pageXOffset - docElem.clientLeft;
+        box.top += window.pageYOffset - docElem.clientTop;
+        var x = view._devicePixelRatio * (uiPoint.x - box.left);
+        var y = view._devicePixelRatio * (box.top + box.height - uiPoint.y);
+        return view._isRotated ? {x: view._viewPortRect.width - y, y: x} : {x: x, y: y};
+    },
 
     /**
      * !#en
@@ -254,11 +263,22 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @param {Vec2} glPoint
      * @return {Vec2}
      */
-    convertToUI: null,
-
-    engineUpdate: function (deltaTime) {
-        //tick before glClear: issue #533
-        this._scheduler.update(deltaTime);
+    convertToUI: function (glPoint) {
+        var docElem = document.documentElement;
+        var view = cc.view;
+        var box = element.getBoundingClientRect();
+        box.left += window.pageXOffset - docElem.clientLeft;
+        box.top += window.pageYOffset - docElem.clientTop;
+        var uiPoint = {x: 0, y: 0};
+        if (view._isRotated) {
+            uiPoint.x = box.left + glPoint.y / view._devicePixelRatio;
+            uiPoint.y = box.top + box.height - (view._viewPortRect.width - glPoint.x) / view._devicePixelRatio;
+        }
+        else {
+            uiPoint.x = box.left + glPoint.x / view._devicePixelRatio;
+            uiPoint.y = box.top + box.height - glPoint.y / view._devicePixelRatio;
+        }
+        return uiPoint;
     },
 
     _visitScene: function () {
@@ -378,7 +398,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * ONLY call it if there is a running scene.
      */
     popScene: function () {
-
         cc.assertID(this._runningScene, 1204);
 
         this._scenesStack.pop();
@@ -448,7 +467,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             cc.eventManager.setEnabled(true);
 
         // Action manager
-        if(this._actionManager){
+        if (this._actionManager){
             this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
 
@@ -610,30 +629,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         });
     },
-
-    //_replaceScene: CC_EDITOR && function (scene) {
-    //    if (this._scene) {
-    //        this._scene._activate(false);
-    //    }
-    //    if (this._runningScene) {
-    //        this._runningScene.onExit();
-    //    }
-    //
-    //    this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
-    //
-    //    // ensure scene initialized
-    //    scene._load();
-    //
-    //    // replace scene
-    //    this._scene = scene;
-    //    this._runningScene = scene._sgNode;
-    //
-    //    // Activate
-    //    cc.renderer.childrenOrderDirty = true;
-    //    scene._sgNode.onEnter();
-    //    scene._activate();
-    //    this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
-    //},
 
     //  @Scene loading section
 
@@ -1348,7 +1343,7 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
             this.emit(cc.Director.EVENT_COMPONENT_UPDATE, deltaTime);
 
             if (updateAnimate) {
-                cc.director.engineUpdate(deltaTime);
+                this._scheduler.update(deltaTime);
             }
 
             this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, deltaTime);
@@ -1384,7 +1379,7 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
                 // Update for components
                 this.emit(cc.Director.EVENT_COMPONENT_UPDATE, this._deltaTime);
                 // Engine update with scheduler
-                this.engineUpdate(this._deltaTime);
+                this._scheduler.update(this._deltaTime);
                 // Late update for components
                 this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, this._deltaTime);
                 // User can use this event to do things after update

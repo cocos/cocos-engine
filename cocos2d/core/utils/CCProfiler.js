@@ -121,10 +121,10 @@ cc.profiler = (function () {
             }
 
             if (_showFPS) {
-                _SPFLabel.innerText = _lastSPF.toFixed(3);
-                _FPSLabel.innerText = _frameRate.toFixed(1);
-                _drawsLabel.innerText = (0 | cc.g_NumberOfDraws).toString();
-                _ModeLabel.innerText = (cc._renderType === cc.game.RENDER_TYPE_CANVAS) ? 'Canvas' : 'WebGL';
+                _SPFLabel.innerHTML = _lastSPF.toFixed(3);
+                _FPSLabel.innerHTML = _frameRate.toFixed(1);
+                _drawsLabel.innerHTML = (0 | cc.g_NumberOfDraws).toString();
+                _ModeLabel.innerHTML = (cc._renderType === cc.game.RENDER_TYPE_CANVAS) ? 'Canvas' : 'WebGL';
             }
         }
     };
