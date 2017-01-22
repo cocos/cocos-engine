@@ -720,7 +720,7 @@ else {
         var tmpCanvas = document.createElement("CANVAS");
         try{
             var context = cc.create3DContext(tmpCanvas);
-            if (context && context.getShaderPrecisionFormat) {
+            if (context) {
                 _supportWebGL = true;
             }
 

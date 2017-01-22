@@ -52,7 +52,8 @@ var modules = {
         './cocos2d/core/sprites/CCSGSpriteWebGLRenderCmd.js',
         './cocos2d/core/sprites/CCScale9Sprite.js',
         './cocos2d/core/sprites/CCScale9SpriteCanvasRenderCmd.js',
-        './cocos2d/core/sprites/CCScale9SpriteWebGLRenderCmd.js'
+        './cocos2d/core/sprites/CCScale9SpriteWebGLRenderCmd.js',
+        './cocos2d/core/sprites/CCSpriteBatchNode.js'
     ],
 
     'Label': [
