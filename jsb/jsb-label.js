@@ -163,7 +163,7 @@ jsbLabel.prototype.setFontFileOrFamily = function (fontHandle, spriteFrame) {
             if(!this._ttfConfig) {
                 this._ttfConfig = {
                     fontFilePath: fontHandle,
-                    fontSize: 40,
+                    fontSize: this._fontSize,
                     outlineSize: 0,
                     glyphs: 0,
                     customGlyphs: "",
@@ -229,18 +229,19 @@ cc.Label = function (string, fontHandle, spriteFrame) {
     var extName = cc.path.extname(fontHandle);
 
     var type = _ccsg.Label.Type.TTF;
+    this._fontSize = 40;
 
     var label;
     if (extName === ".ttf") {
         var ttfConfig = {
             fontFilePath: fontHandle,
-            fontSize: 40,
+            fontSize: this._fontSize,
             outlineSize: 0,
             glyphs: 0,
             customGlyphs: "",
             distanceFieldEnable: false
         };
-        label = jsbLabel.createWithTTF(ttfConfig, string, 40);
+        label = jsbLabel.createWithTTF(ttfConfig, string, this._fontSize);
         label._ttfConfig = ttfConfig;
     }
     else if (spriteFrame) {
@@ -248,7 +249,7 @@ cc.Label = function (string, fontHandle, spriteFrame) {
         type = _ccsg.Label.Type.BMFont;
     }
     else {
-        label = jsbLabel.createWithSystemFont(string || '', fontHandle, 40);
+        label = jsbLabel.createWithSystemFont(string || '', fontHandle, this._fontSize);
         type = _ccsg.Label.Type.SystemFont;
         label._isSystemFontUsed = true;
     }
