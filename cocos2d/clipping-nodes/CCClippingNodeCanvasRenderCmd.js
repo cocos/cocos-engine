@@ -43,7 +43,7 @@ proto.setStencil = function(stencil){
 
     this._node._stencil = stencil;
 
-    if (!stencil instanceof cc.DrawNode) {
+    if (!(stencil instanceof cc.DrawNode)) {
         cc.errorID(6300);
     }
 };

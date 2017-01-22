@@ -886,13 +886,13 @@ var View = cc._Class.extend({
             var boxArr = gl.getParameter(gl.SCISSOR_BOX);
             _scissorRect = cc.rect(boxArr[0], boxArr[1], boxArr[2], boxArr[3]);
         }
-        var scaleX = this._scaleX;
-        var scaleY = this._scaleY;
+        var scaleXFactor = 1 / this._scaleX;
+        var scaleYFactor = 1 / this._scaleY;
         return cc.rect(
-            (_scissorRect.x - this._viewPortRect.x) / scaleX,
-            (_scissorRect.y - this._viewPortRect.y) / scaleY,
-            _scissorRect.width / scaleX,
-            _scissorRect.height / scaleY
+            (_scissorRect.x - this._viewPortRect.x) * scaleXFactor,
+            (_scissorRect.y - this._viewPortRect.y) * scaleYFactor,
+            _scissorRect.width * scaleXFactor,
+            _scissorRect.height * scaleYFactor
         );
     },
 
