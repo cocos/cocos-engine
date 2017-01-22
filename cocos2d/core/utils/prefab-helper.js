@@ -23,15 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// 保存编辑器下用到的 prefab 相关信息
 cc._PrefabInfo = cc.Class({
     name: 'cc.PrefabInfo',
     properties: {
-        //// the serialized version
-        //VER: {
-        //    default: 1
-        //},
-
         // the most top node of this prefab in the scene
         root: null,
 
