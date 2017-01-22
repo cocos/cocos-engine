@@ -31,7 +31,7 @@
  ****************************************************************************/
 
 _ccsg.Label.WebGLRenderCmd = function(renderableObject){
-    _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
+    this._rootCtor(renderableObject);
     this._needDraw = true;
 
     this._texture = new cc.Texture2D();

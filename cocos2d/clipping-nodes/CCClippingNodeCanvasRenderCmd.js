@@ -24,13 +24,16 @@
 
 //-------------------------- ClippingNode's canvas render cmd --------------------------------
 cc.ClippingNode.CanvasRenderCmd = function(renderable){
-    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
+    this._needDraw = false;
 
     this._rendererClipCmd = new cc.CustomRenderCmd(this, this._drawStencilCommand);
     this._rendererRestoreCmd = new cc.CustomRenderCmd(this, this._restoreCmdCallback);
 };
 var proto = cc.ClippingNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
 proto.constructor = cc.ClippingNode.CanvasRenderCmd;
+
+proto.resetProgramByStencil = function () {};
 
 proto.initStencilBits = function(){};
 
@@ -40,15 +43,10 @@ proto.setStencil = function(stencil){
 
     this._node._stencil = stencil;
 
-    if (stencil instanceof cc.DrawNode) {
-
-    }else{
+    if (!stencil instanceof cc.DrawNode) {
         cc.errorID(6300);
     }
 };
-
-// should reset program used by _stencil
-proto.resetProgramByStencil = function () { };
 
 proto._restoreCmdCallback = function (ctx) {
     var wrapper = ctx || cc._renderContext;
@@ -75,31 +73,31 @@ proto._drawStencilCommand = function (ctx, scaleX, scaleY) {
     context.clip();
 };
 
-proto.visit = function(parentCmd){
+proto.clippingVisit = function (parentCmd) {
     var node = this._node;
+    parentCmd = parentCmd || this.getParentRenderCmd();
     this._propagateFlagsDown(parentCmd);
     // quick return if not visible
     if (!node._visible)
         return;
 
-    parentCmd = parentCmd || this.getParentRenderCmd();
-    if( parentCmd)
+    if (parentCmd)
         this._curLevel = parentCmd._curLevel + 1;
 
     this._syncStatus(parentCmd);
-    if(this._node._stencil) {
+    if (node._stencil) {
         cc.renderer.pushRenderCommand(this._rendererClipCmd);
     }
-        var i, children = node._children;
+    var children = node._children;
 
-        var len = children.length;
-        if (len > 0) {
-            node.sortAllChildren();
-            for (i = 0; i < len; i++)
-                children[i]._renderCmd.visit(this);
-        }
+    var i, len = children.length;
+    if (len > 0) {
+        node.sortAllChildren();
+        for (i = 0; i < len; i++)
+            children[i].visit(node);
+    }
 
-    if(this._node._stencil) {
+    if (node._stencil) {
         cc.renderer.pushRenderCommand(this._rendererRestoreCmd);
     }
     this._dirtyFlag = 0;

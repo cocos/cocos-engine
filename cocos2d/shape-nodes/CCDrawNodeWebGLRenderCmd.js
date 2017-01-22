@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 cc.DrawNode.WebGLRenderCmd = function (renderableObject) {
-    _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
+    this._rootCtor(renderableObject);
     this._needDraw = true;
     this._matrix = new cc.math.Matrix4();
     this._matrix.identity();

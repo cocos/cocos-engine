@@ -26,7 +26,7 @@
  * cc.ParticleBatchNode's rendering objects of Canvas
  */
 cc.ParticleBatchNode.CanvasRenderCmd = function(renderable){
-    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     this._needDraw = false;
 };
 

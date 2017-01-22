@@ -319,8 +319,9 @@ JS.mixin(CCLoader.prototype, {
         else if (typeof assetOrUrlOrUuid === 'string') {
             key = this._getResUuid(assetOrUrlOrUuid) || assetOrUrlOrUuid;
         }
-        else if (CC_DEV) {
+        if (CC_DEV && !key) {
             cc.warnID(4800, assetOrUrlOrUuid);
+            return key;
         }
         _info.url = null;
         _info.raw = false;

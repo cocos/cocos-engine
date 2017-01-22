@@ -718,15 +718,11 @@ var BaseNode = cc.Class({
          */
         color: {
             get: function () {
-                var color = this._color;
-                return new cc.Color(color.r, color.g, color.b, color.a);
+                return this._color.clone();
             },
             set: function (value) {
                 if ( !this._color.equals(value) ) {
-                    var color = this._color;
-                    color.r = value.r;
-                    color.g = value.g;
-                    color.b = value.b;
+                    this._color.fromColor(value);
                     if (CC_DEV && value.a !== 255) {
                         cc.warnID(1626);
                     }

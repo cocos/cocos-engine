@@ -24,12 +24,13 @@
 // ------------------------------ The ccsg.Node's render command for WebGL ----------------------------------
 
 _ccsg.Node.WebGLRenderCmd = function (renderable) {
-    _ccsg.Node.RenderCmd.call(this, renderable);
+    this._ctor(renderable);
     this._shaderProgram = null;
 };
 
 var proto = _ccsg.Node.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.RenderCmd.prototype);
 proto.constructor = _ccsg.Node.WebGLRenderCmd;
+proto._rootCtor = _ccsg.Node.WebGLRenderCmd;
 
 proto._updateColor = function(){};
 

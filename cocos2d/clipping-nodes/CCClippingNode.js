@@ -57,24 +57,13 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
     ctor: function (stencil) {
         stencil = stencil || null;
         _ccsg.Node.prototype.ctor.call(this);
-        this.init(stencil);
-    },
-
-    /**
-     * Initialization of the node, please do not call this function by yourself, you should pass the parameters to constructor to initialize it.
-     * @function
-     * @param {_ccsg.Node} [stencil=null]
-     */
-    init: function (stencil) {
         this._stencil = stencil;
         if (stencil) {
             this._originStencilProgram = stencil.getShaderProgram();
         }
-        this.inverted = false;
         this.alphaThreshold = 1;
+        this.inverted = false;
         this._renderCmd.initStencilBits();
-
-        return true;
     },
 
     /**
@@ -88,7 +77,8 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
      */
     onEnter: function () {
         _ccsg.Node.prototype.onEnter.call(this);
-        this._stencil.onEnter();
+        if (this._stencil)
+            this._stencil.performRecursive(_ccsg.Node.performType.onEnter);
     },
 
     /**
@@ -101,7 +91,8 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
      */
     onEnterTransitionDidFinish: function () {
         _ccsg.Node.prototype.onEnterTransitionDidFinish.call(this);
-        this._stencil.onEnterTransitionDidFinish();
+        if (this._stencil)
+            this._stencil.performRecursive(_ccsg.Node.performType.onEnterTransitionDidFinish);
     },
 
     /**
@@ -113,7 +104,7 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
      * @function
      */
     onExitTransitionDidStart: function () {
-        this._stencil.onExitTransitionDidStart();
+        this._stencil.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
         _ccsg.Node.prototype.onExitTransitionDidStart.call(this);
     },
 
@@ -127,8 +118,26 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
      * @function
      */
     onExit: function () {
-        this._stencil.onExit();
+        this._stencil.performRecursive(_ccsg.Node.performType.onExit);
         _ccsg.Node.prototype.onExit.call(this);
+    },
+
+    visit: function (parent) {
+        this._renderCmd.clippingVisit(parent && parent._renderCmd);
+    },
+
+    _visitChildren: function () {
+        if (this._reorderChildDirty) {
+            this.sortAllChildren();
+        }
+        var children = this._children, child;
+        for (var i = 0, len = children.length; i < len; i++) {
+            child = children[i];
+            if (child && child._visible) {
+                child.visit(this);
+            }
+        }
+        this._renderCmd._dirtyFlag = 0;
     },
 
     /**

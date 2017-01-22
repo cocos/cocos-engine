@@ -170,8 +170,6 @@
       "./cocos2d/core/collider/index.js"
     ]
   },
-
-
   {
     "name": "Action",
     "entries": [
@@ -194,6 +192,12 @@
     "name": "DragonBones",
     "entries": [
       "./extensions/dragonbones/index.js"
+    ]
+  },
+  {
+    "name": "StudioComponent",
+    "entries": [
+      "./cocos2d/core/components/CCStudioComponent.js"
     ]
   }
 ]

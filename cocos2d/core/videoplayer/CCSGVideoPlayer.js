@@ -253,7 +253,7 @@ _ccsg.VideoPlayer.EventType = {
 (function (polyfill) {
 
     _ccsg.VideoPlayer.RenderCmd = function (node) {
-        _ccsg.Node.CanvasRenderCmd.call(this, node);
+        this._rootCtor(node);
 
         this._video = null;
         this._url = '';

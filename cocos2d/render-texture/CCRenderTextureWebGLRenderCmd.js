@@ -25,7 +25,7 @@
 var misc = require('../cocos2d/core/utils/misc');
 
 cc.RenderTexture.WebGLRenderCmd = function(renderableObject){
-    _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
+    this._rootCtor(renderableObject);
     this._needDraw = true;
 
     this._fBO = null;
@@ -101,7 +101,7 @@ proto.rendering = function (ctx) {
         for (var i = 0; i < locChildren.length; i++) {
             var getChild = locChildren[i];
             if (getChild !== node.sprite){
-                getChild._renderCmd.visit(node.sprite._renderCmd);    //TODO it's very Strange
+                getChild.visit(node.sprite);    //TODO it's very Strange
             }
         }
         node.end();
@@ -362,30 +362,4 @@ proto.clearDepth = function(depthValue){
     // restore clear color
     gl.clearDepth(depthClearValue);
     node.end();
-};
-
-proto.visit = function(parentCmd){
-    var node = this._node;
-    if (!node._visible)
-        return;
-    cc.kmGLPushMatrix();
-
-    //TODO using GridNode
-    /*        var locGrid = this.grid;
-     if (locGrid && locGrid.isActive()) {
-     locGrid.beforeDraw();
-     this.transformAncestors();
-     }*/
-
-    this._syncStatus(parentCmd);
-    //this.toRenderer();
-    cc.renderer.pushRenderCommand(this);
-    node.sprite.visit(this);
-
-    //TODO GridNode
-    /*        if (locGrid && locGrid.isActive())
-     locGrid.afterDraw(this);*/
-
-    this._dirtyFlag = 0;
-    cc.math.glPopMatrix();
 };

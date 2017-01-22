@@ -452,7 +452,7 @@
 
 (function () {
     _ccsg.Label.CanvasRenderCmd = function (renderableObject) {
-        _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
+        this._rootCtor(renderableObject);
         this._needDraw = true;
         this._texture = new cc.Texture2D();
         this._labelCanvas = document.createElement('canvas');

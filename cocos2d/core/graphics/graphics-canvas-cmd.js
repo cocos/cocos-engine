@@ -30,7 +30,7 @@ var LineJoin    = require('./types').LineJoin;
 var Helper = require('./helper');
 
 var CanvasRenderCmd = function (renderable) {
-    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     this._needDraw = true;
     this.cmds = [];
 
@@ -153,22 +153,21 @@ Js.mixin(_p, {
     },
     
     moveTo: function (x, y) {
-        this.cmds.push(['moveTo', arguments]);
+        this.cmds.push(['moveTo', [x, y]]);
     },
 
-    lineTo: function () {
-        this.cmds.push(['lineTo', arguments]);
+    lineTo: function (x, y) {
+        this.cmds.push(['lineTo', [x, y]]);
     },
 
-    bezierCurveTo: function () {
-        this.cmds.push(['bezierCurveTo', arguments]);
+    bezierCurveTo: function (c1x, c1y, c2x, c2y, x, y) {
+        this.cmds.push(['bezierCurveTo', [c1x, c1y, c2x, c2y, x, y]]);
     },
 
-    quadraticCurveTo: function () {
-        this.cmds.push(['quadraticCurveTo', arguments]);
+    quadraticCurveTo: function (cx, cy, x, y) {
+        this.cmds.push(['quadraticCurveTo', [cx, cy, x, y]]);
     },
 
-    //
     arc: function (cx, cy, r, startAngle, endAngle, counterclockwise) {
         Helper.arc(this, cx, cy, r, startAngle, endAngle, counterclockwise);
     },
@@ -194,21 +193,21 @@ Js.mixin(_p, {
     },
 
     fillRect: function (x, y, w, h) {
-        this.cmds.push(['fillRect', arguments]);
+        this.cmds.push(['fillRect', [x, y, w, h]]);
         this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
 
     close: function () {
-        this.cmds.push(['closePath', arguments]);
+        this.cmds.push(['closePath', []]);
     },
 
     stroke: function () {
-        this.cmds.push(['stroke', arguments]);
+        this.cmds.push(['stroke', []]);
         this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
 
     fill: function () {
-        this.cmds.push(['fill', arguments]);
+        this.cmds.push(['fill', []]);
         this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
 

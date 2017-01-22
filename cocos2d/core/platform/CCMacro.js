@@ -1762,7 +1762,7 @@ cc.macro = {
      * @property {Number} FIX_ARTIFACTS_BY_STRECHING_TEXEL
      * @readonly
      */
-    FIX_ARTIFACTS_BY_STRECHING_TEXEL: 1,
+    FIX_ARTIFACTS_BY_STRECHING_TEXEL: 0,
 
     /**
      * Position of the FPS (Default: 0,0 (bottom-left corner))<br/>
@@ -1981,7 +1981,29 @@ cc.macro = {
      * 你可以修改这个值来获得你需要的效果，默认值是 5000 毫秒。
      * @property {Number} TOUCH_TIMEOUT
      */
-    TOUCH_TIMEOUT: 5000
+    TOUCH_TIMEOUT: 5000,
+
+    /**
+     * !#en 
+     * The maximum vertex count for a single batched draw call.
+     * !#zh
+     * 最大可以被单次批处理渲染的顶点数量。
+     * @property {Number} BATCH_VERTEX_COUNT
+     */
+    BATCH_VERTEX_COUNT: 2000,
+
+    /**
+     * !#en 
+     * JSB only, using JS object life cycle to control C++ object or inversely, 
+     * it indicates two different memory model controled by the native macro CC_ENABLE_GC_FOR_NATIVE_OBJECTS.
+     * Modify the JS macro value won't have any effect.
+     * !#zh
+     * 仅限 JSB 有意义，使用 JS 对象生命周期来控制 C++ 对象，或是相反，这标示了两种不同的内存模型，
+     * 它的值被 native 宏 CC_ENABLE_GC_FOR_NATIVE_OBJECTS 所控制，修改 JS 宏的值不会产生任何效果。
+     * @property {Number} ENABLE_GC_FOR_NATIVE_OBJECTS
+     * @readonly
+     */
+    ENABLE_GC_FOR_NATIVE_OBJECTS: true
 };
 
 /**

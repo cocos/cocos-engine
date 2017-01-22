@@ -42,6 +42,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
     _uniforms: null,
     _hashForUniforms: null,
     _usesTime: false,
+    _projectionUpdated: -1,
 
     // Uniform cache
     _updateUniformLocation: function (location) {
@@ -109,18 +110,18 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         return ( status === true );
     },
 
-	/**
-	 * Create a cc.GLProgram object
-	 * @param {String} vShaderFileName
-	 * @param {String} fShaderFileName
-	 * @returns {cc.GLProgram}
-	 */
+    /**
+     * Create a cc.GLProgram object
+     * @param {String} vShaderFileName
+     * @param {String} fShaderFileName
+     * @returns {cc.GLProgram}
+     */
     ctor: function (vShaderFileName, fShaderFileName, glContext) {
         this._uniforms = {};
         this._hashForUniforms = {};
         this._glContext = glContext || cc._renderContext;
 
-		vShaderFileName && fShaderFileName && this.init(vShaderFileName, fShaderFileName);
+        vShaderFileName && fShaderFileName && this.init(vShaderFileName, fShaderFileName);
     },
 
     /**
@@ -197,9 +198,9 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      */
     initWithVertexShaderFilename: function (vShaderFilename, fShaderFileName) {
         var vertexSource = cc.loader.getRes(vShaderFilename);
-        if(!vertexSource) throw new Error("Please load the resource firset : " + vShaderFilename);
+        if (!vertexSource) throw new Error("Please load the resource firset : " + vShaderFilename);
         var fragmentSource = cc.loader.getRes(fShaderFileName);
-        if(!fragmentSource) throw new Error("Please load the resource firset : " + fShaderFileName);
+        if (!fragmentSource) throw new Error("Please load the resource firset : " + fShaderFileName);
         return this.initWithVertexShaderByteArray(vertexSource, fragmentSource);
     },
 
@@ -559,6 +560,16 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
     },
 
     /**
+     * calls glUniformMatrix3fv only if the values are different than the previous call for this same shader
+     * @param {WebGLUniformLocation} location
+     * @param {Float32Array} matrixArray
+     */
+    setUniformLocationWithMatrix3fv: function (location, matrixArray) {
+        var locObj = typeof location === 'string' ? this.getUniformLocationForName(location) : location;
+        this._glContext.uniformMatrix3fv(locObj, false, matrixArray);
+    },
+
+    /**
      * calls glUniformMatrix4fv only if the values are different than the previous call for this same shader program.
      * @param {WebGLUniformLocation} location
      * @param {Float32Array} matrixArray
@@ -679,8 +690,13 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         this._glContext.uniformMatrix4fv(this._uniforms[macro.UNIFORM_PMATRIX], false, math.projection_matrix_stack.top.mat);
     },
 
-    _updateProjectionUniform: function(){
-        this._glContext.uniformMatrix4fv(this._uniforms[macro.UNIFORM_PMATRIX], false, math.projection_matrix_stack.top.mat);  
+    _updateProjectionUniform: function () {
+        var stack = math.projection_matrix_stack;
+
+        if (stack.lastUpdated !== this._projectionUpdated) {
+            this._glContext.uniformMatrix4fv(this._uniforms[macro.UNIFORM_PMATRIX], false, stack.top.mat);
+            this._projectionUpdated = stack.lastUpdated;
+        }
     },
 
     /**
@@ -773,9 +789,9 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
 
 cc.GLProgram._highpSupported = null;
 
-cc.GLProgram._isHighpSupported = function(){
-    if(cc.GLProgram._highpSupported == null){
-        var ctx = cc._renderContext;
+cc.GLProgram._isHighpSupported = function () {
+    var ctx = cc._renderContext;
+    if (ctx.getShaderPrecisionFormat && cc.GLProgram._highpSupported == null) {
         var highp = ctx.getShaderPrecisionFormat(ctx.FRAGMENT_SHADER, ctx.HIGH_FLOAT);
         cc.GLProgram._highpSupported = highp.precision !== 0;
     }

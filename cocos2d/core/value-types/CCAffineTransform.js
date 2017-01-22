@@ -357,3 +357,21 @@ cc.affineTransformInvert = function (t) {
     return {a: determinant * t.d, b: -determinant * t.b, c: -determinant * t.c, d: determinant * t.a,
         tx: determinant * (t.c * t.ty - t.d * t.tx), ty: determinant * (t.b * t.tx - t.a * t.ty)};
 };
+
+/**
+ * !#en Put the invert transform of an AffineTransform object into the out AffineTransform object.
+ * !#zh 求逆矩阵并存入用户传入的矩阵对象参数。
+ * @method affineTransformInvert
+ * @param {AffineTransform} t
+ * @param {AffineTransform} out
+ */
+cc.affineTransformInvertOut = function (t, out) {
+    var a = t.a, b = t.b, c = t.c, d = t.d;
+    var determinant = 1 / (a * d - b * c);
+    out.a = determinant * d;
+    out.b = -determinant * b;
+    out.c = -determinant * c;
+    out.d = determinant * a;
+    out.tx = determinant * (c * t.ty - d * t.tx);
+    out.ty = determinant * (b * t.tx - a * t.ty);
+};
