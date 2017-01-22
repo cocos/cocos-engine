@@ -208,6 +208,8 @@ public:
      *  @return State the state value could be State::CONNECTING, State::OPEN, State::CLOSING or State::CLOSED
      */
     State getReadyState();
+    
+    Delegate* getDelegate() const {return _delegate;};
 
 private:
     void onSubThreadStarted();
