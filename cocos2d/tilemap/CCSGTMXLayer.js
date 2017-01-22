@@ -246,6 +246,52 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
         return true;
     },
 
+    visit: function (parent) {
+        // quick return if not visible
+        if (!this._visible)
+            return;
+
+        var renderer = cc.renderer, cmd = this._renderCmd;
+        cmd.visit(parent && parent._renderCmd);
+
+        var i, children = this._children, len = children.length, child,
+            isCanvas = cc._renderType === cc.game.RENDER_TYPE_CANVAS, spTiles = this._spriteTiles;
+        if (len > 0) {
+            if (this._reorderChildDirty) {
+                this.sortAllChildren();
+            }
+            // draw children zOrder < 0
+            for (i = 0; i < len; i++) {
+                child = children[i];
+                if (child._localZOrder < 0) {
+                    child.visit(this);
+                }
+                else {
+                    break;
+                }
+            }
+
+            renderer.pushRenderCommand(cmd);
+            for (; i < len; i++) {
+                child = children[i];
+                if (isCanvas &&
+                    child._localZOrder === 0 && 
+                    spTiles[child.tag]) {
+                    if (isNaN(child._customZ)) {
+                        child._vertexZ = renderer.assignedZ;
+                        renderer.assignedZ += renderer.assignedZStep;
+                    }
+                    child._renderCmd.updateStatus();
+                    continue;
+                }
+                child.visit(this);
+            }
+        } else {
+            renderer.pushRenderCommand(cmd);
+        }
+        cmd._dirtyFlag = 0;
+    },
+
     /**
      * Gets layer size.
      * @return {Size}

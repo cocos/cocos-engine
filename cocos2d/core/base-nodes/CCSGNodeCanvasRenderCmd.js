@@ -333,17 +333,12 @@ _ccsg.Node.RenderCmd.prototype = {
         }
         this._propagateFlagsDown(parentCmd);
 
-        // quick return if not visible
-        if (!node._visible)
-            return;
-
         if (isNaN(node._customZ)) {
             node._vertexZ = renderer.assignedZ;
             renderer.assignedZ += renderer.assignedZStep;
         }
 
         this._syncStatus(parentCmd);
-        this.visitChildren();
     },
 
     _updateDisplayColor: function (parentColor) {
@@ -498,39 +493,12 @@ _ccsg.Node.RenderCmd.prototype = {
         if (locFlag & dirtyFlags.transformDirty)
             //update the transform
             this.transform(parentCmd);
-    },
-
-    visitChildren: function(){
-        var renderer = cc.renderer;
-        var node = this._node;
-        var i, children = node._children, child;
-        var len = children.length;
-        if (len > 0) {
-            node.sortAllChildren();
-            // draw children zOrder < 0
-            for (i = 0; i < len; i++) {
-                child = children[i];
-                if (child._localZOrder < 0) {
-                    child._renderCmd.visit(this);
-                }
-                else {
-                    break;
-                }
-            }
-
-            renderer.pushRenderCommand(this);
-            for (; i < len; i++) {
-                children[i]._renderCmd.visit(this);
-            }
-        } else {
-            renderer.pushRenderCommand(this);
-        }
-        this._dirtyFlag = 0;
     }
 };
 
-_ccsg.Node.RenderCmd.prototype.originVisit = _ccsg.Node.RenderCmd.prototype.visit;
 _ccsg.Node.RenderCmd.prototype.originTransform = _ccsg.Node.RenderCmd.prototype.transform;
+_ccsg.Node.RenderCmd.prototype.originUpdateStatus = _ccsg.Node.RenderCmd.prototype.updateStatus;
+_ccsg.Node.RenderCmd.prototype._originSyncStatus = _ccsg.Node.RenderCmd.prototype._syncStatus;
 
 //-----------------------Canvas ---------------------------
 

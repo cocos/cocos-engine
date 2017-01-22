@@ -289,7 +289,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                 renderer.clearRenderCommands();
                 cc.renderer.assignedZ = 0;
                 this._runningScene._renderCmd._curLevel = 0; //level start from 0;
-                this._runningScene._renderCmd.visit();
+                this._runningScene.visit();
                 renderer.resetFlag();
             }
             else if (renderer.transformDirty()) {

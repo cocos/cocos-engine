@@ -129,6 +129,7 @@ _ccsg.Node = cc.Class({
         _arrivalOrder: 0,
         _reorderChildDirty: false,
         _vertexZ: 0.0,
+        _customZ: undefined,
 
         _rotationX: 0,
         _rotationY: 0.0,
@@ -163,6 +164,7 @@ _ccsg.Node = cc.Class({
     },
 
     ctor: function() {
+        this.__instanceId = cc.ClassManager.getNewInstanceId();
         this._renderCmd = this._createRenderCmd();
     },
 
@@ -371,7 +373,7 @@ _ccsg.Node = cc.Class({
      * @param {Number} Var
      */
     setVertexZ: function (Var) {
-        this._vertexZ = Var;
+        this._customZ = this._vertexZ = Var;
     },
 
     /**
@@ -1855,8 +1857,38 @@ _ccsg.Node = cc.Class({
      * @function
      * @param {_ccsg.Node.RenderCmd} parentCmd
      */
-    visit: function(parentCmd){
-        this._renderCmd.visit(parentCmd);
+    visit: function (parent) {
+        // quick return if not visible
+        if (!this._visible)
+            return;
+
+        var renderer = cc.renderer, cmd = this._renderCmd;
+        cmd.visit(parent && parent._renderCmd);
+
+        var i, children = this._children, len = children.length, child;
+        if (len > 0) {
+            if (this._reorderChildDirty) {
+                this.sortAllChildren();
+            }
+            // draw children zOrder < 0
+            for (i = 0; i < len; i++) {
+                child = children[i];
+                if (child._localZOrder < 0) {
+                    child.visit(this);
+                }
+                else {
+                    break;
+                }
+            }
+
+            renderer.pushRenderCommand(cmd);
+            for (; i < len; i++) {
+                children[i].visit(this);
+            }
+        } else {
+            renderer.pushRenderCommand(cmd);
+        }
+        cmd._dirtyFlag = 0;
     },
 
     /**

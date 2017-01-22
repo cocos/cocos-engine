@@ -57,24 +57,13 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
     ctor: function (stencil) {
         stencil = stencil || null;
         _ccsg.Node.prototype.ctor.call(this);
-        this.init(stencil);
-    },
-
-    /**
-     * Initialization of the node, please do not call this function by yourself, you should pass the parameters to constructor to initialize it.
-     * @function
-     * @param {_ccsg.Node} [stencil=null]
-     */
-    init: function (stencil) {
         this._stencil = stencil;
         if (stencil) {
             this._originStencilProgram = stencil.getShaderProgram();
         }
-        this.inverted = false;
         this.alphaThreshold = 1;
+        this.inverted = false;
         this._renderCmd.initStencilBits();
-
-        return true;
     },
 
     /**
@@ -131,6 +120,24 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
     onExit: function () {
         this._stencil.performRecursive(_ccsg.Node.performType.onExit);
         _ccsg.Node.prototype.onExit.call(this);
+    },
+
+    visit: function (parent) {
+        this._renderCmd.clippingVisit(parent && parent._renderCmd);
+    },
+
+    _visitChildren: function () {
+        if (this._reorderChildDirty) {
+            this.sortAllChildren();
+        }
+        var children = this._children, child;
+        for (var i = 0, len = children.length; i < len; i++) {
+            child = children[i];
+            if (child && child._visible) {
+                child.visit(this);
+            }
+        }
+        this._renderCmd._dirtyFlag = 0;
     },
 
     /**

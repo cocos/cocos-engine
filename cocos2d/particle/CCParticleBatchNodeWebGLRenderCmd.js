@@ -57,25 +57,3 @@ proto.rendering = function (ctx) {
 proto._initWithTexture = function(){
     this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR);
 };
-
-proto.visit = function(parentCmd){
-    var node = this._node;
-    // CAREFUL:
-    // This visit is almost identical to _ccsg.Node#visit
-    // with the exception that it doesn't call visit on it's children
-    //
-    // The alternative is to have a void _ccsg.Sprite#visit, but
-    // although this is less mantainable, is faster
-    //
-    if (!node._visible)
-        return;
-
-    parentCmd = parentCmd || this.getParentRenderCmd();
-    if (parentCmd)
-        this._curLevel = parentCmd._curLevel + 1;
-    this._syncStatus(parentCmd);
-
-    cc.renderer.pushRenderCommand(this);
-
-    this._dirtyFlag = 0;
-};
