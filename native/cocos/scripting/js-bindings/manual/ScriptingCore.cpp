@@ -419,6 +419,14 @@ void registerDefaultClasses(JSContext* cx, JS::HandleObject global) {
     jscVal = OBJECT_TO_JSVAL(jsc);
     JS_SetProperty(cx, global, "__jsc__", jscVal);
 
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    JS::RootedValue trueVal(cx, JSVAL_TRUE);
+    JS_SetProperty(cx, global, "__ENABLE_GC_FOR_NATIVE_OBJECTS__", trueVal);
+#else
+    JS::RootedValue falseVal(cx, JSVAL_FALSE);
+    JS_SetProperty(cx, global, "__ENABLE_GC_FOR_NATIVE_OBJECTS__", falseVal);
+#endif
+
     JS_DefineFunction(cx, jsc, "garbageCollect", ScriptingCore::forceGC, 0, JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_ENUMERATE );
     JS_DefineFunction(cx, jsc, "dumpRoot", ScriptingCore::dumpRoot, 0, JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_ENUMERATE );
     JS_DefineFunction(cx, jsc, "executeScript", ScriptingCore::executeScript, 1, JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_ENUMERATE );
