@@ -183,7 +183,7 @@ var game = {
      * 2. showFPS（显示 FPS）                                                            <br/>
      *      当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。              <br/>
      * 3. exposeClassName                                                           <br/>
-     *      暴露类名让 Chrome DevTools 可以识别，如果开启会稍稍降低类对象的构造性能。           <br/>
+     *      暴露类名让 Chrome DevTools 可以识别，如果开启会稍稍降低类的创建过程的性能，但对对象构造没有影响。 <br/>
      * 4. frameRate (帧率)                                                              <br/>
      *      “frameRate” 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。      <br/>
      * 5. id                                                                            <br/>
