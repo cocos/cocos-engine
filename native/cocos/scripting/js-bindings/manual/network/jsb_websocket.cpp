@@ -172,6 +172,8 @@ public:
         
         // Delete WebSocket instance
         CC_SAFE_DELETE(ws);
+        // Delete self at last while websocket was closed.
+        delete this;
 #else
         }
 #endif
@@ -219,6 +221,8 @@ void js_cocos2dx_WebSocket_finalize(JSFreeOp *fop, JSObject *obj) {
     {
         WebSocket *ws = (WebSocket *)(p->ptr);
         jsb_remove_proxy(p);
+        // Delete delegate
+        delete ws->getDelegate();
         // Delete WebSocket instance
         CC_SAFE_DELETE(ws);
     }
@@ -374,6 +378,7 @@ bool js_cocos2dx_extension_WebSocket_constructor(JSContext *cx, uint32_t argc, j
 
         // link the native object with the javascript object
         js_proxy_t *p = jsb_new_proxy(cobj, obj);
+        CC_UNUSED_PARAM(p);
 #if not CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         JS::AddNamedObjectRoot(cx, &p->obj, "WebSocket");
 #endif
