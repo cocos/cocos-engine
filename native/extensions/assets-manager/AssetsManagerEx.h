@@ -311,7 +311,7 @@ private:
     //! Total number of assets still waiting to be downloaded
     int _totalWaitToDownload;
     //! Next target percent for saving the manifest file
-    int _nextSavePoint;
+    float _nextSavePoint;
     
     //! Handle function to compare versions between different manifests
     std::function<int(const std::string& versionA, const std::string& versionB)> _versionCompareHandle;
