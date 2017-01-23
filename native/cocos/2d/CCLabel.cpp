@@ -1963,6 +1963,9 @@ void Label::updateDisplayedOpacity(GLubyte parentOpacity)
     {
         it.second->updateDisplayedOpacity(_displayedOpacity);;
     }
+    if (_underlineNode) {
+        _underlineNode->updateDisplayedOpacity(_displayedOpacity);
+    }
 }
 
 void Label::setTextColor(const Color4B &color)

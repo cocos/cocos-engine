@@ -327,6 +327,8 @@ void DrawNode::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
 void DrawNode::onDraw(const Mat4 &transform, uint32_t flags)
 {
     getGLProgramState()->apply(transform);
+    auto glProgram = this->getGLProgram();
+    glProgram->setUniformLocationWith1f(glProgram->getUniformLocation("u_alpha"), _displayedOpacity / 255.0);
 
     GL::blendFunc(_blendFunc.src, _blendFunc.dst);
 
@@ -366,11 +368,13 @@ void DrawNode::onDraw(const Mat4 &transform, uint32_t flags)
     CHECK_GL_ERROR_DEBUG();
 }
 
+
 void DrawNode::onDrawGLLine(const Mat4 &transform, uint32_t flags)
 {
     auto glProgram = GLProgramCache::getInstance()->getGLProgram(GLProgram::SHADER_NAME_POSITION_LENGTH_TEXTURE_COLOR);
     glProgram->use();
     glProgram->setUniformsForBuiltins(transform);
+    glProgram->setUniformLocationWith1f(glProgram->getUniformLocation("u_alpha"), _displayedOpacity / 255.0);
 
     GL::blendFunc(_blendFunc.src, _blendFunc.dst);
 
@@ -414,6 +418,7 @@ void DrawNode::onDrawGLPoint(const Mat4 &transform, uint32_t flags)
     auto glProgram = GLProgramCache::getInstance()->getGLProgram(GLProgram::SHADER_NAME_POSITION_COLOR_TEXASPOINTSIZE);
     glProgram->use();
     glProgram->setUniformsForBuiltins(transform);
+    glProgram->setUniformLocationWith1f(glProgram->getUniformLocation("u_alpha"), _displayedOpacity / 255.0);
 
     GL::blendFunc(_blendFunc.src, _blendFunc.dst);
 
