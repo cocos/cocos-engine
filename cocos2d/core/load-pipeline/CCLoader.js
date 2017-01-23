@@ -269,7 +269,7 @@ JS.mixin(CCLoader.prototype, {
             }
         }
 
-        var queue = LoadingItems.create(this, owner ? function () {
+        var queue = LoadingItems.create(this, owner ? function (completedCount, totalCount, item) {
             if (this._ownerQueue && this._ownerQueue.onProgress) {
                 this._ownerQueue._childOnProgress(item);
             }

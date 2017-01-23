@@ -131,6 +131,7 @@ test('pipeline flow', function () {
 
 test('flow empty array', function () {
     var onComplete = new Callback(function (error, items) {
+        onProgress.expect(0, 'shouldn\'t call onProgress after flowIn empty array');
         strictEqual(error, null, 'shouldn\'t return error after flowIn empty array');
         strictEqual(items.totalCount, 0, 'should contains zero item in items');
         strictEqual(items.completedCount, 0, 'should contains zero completed item');
@@ -138,9 +139,6 @@ test('flow empty array', function () {
     var onProgress = new Callback().enable();
 
     var items = cc.LoadingItems.create(pipeline, [], onProgress, onComplete);
-
-    onComplete.expect(1, 'should call onComplete after flowIn empty array');
-    onProgress.expect(0, 'shouldn\'t call onProgress after flowIn empty array');
 });
 
 asyncTest('content manipulation', function () {
