@@ -70,7 +70,7 @@ AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::stri
 , _percentByFile(0)
 , _totalToDownload(0)
 , _totalWaitToDownload(0)
-, _nextSavePoint(0)
+, _nextSavePoint(0.0)
 , _maxConcurrentTask(32)
 , _currConcurrentTask(0)
 , _versionCompareHandle(nullptr)
@@ -1136,8 +1136,6 @@ void AssetsManagerEx::queueDowload()
         this->onDownloadUnitsFinished();
         return;
     }
-    
-    bool taskCreated = false;
         
     while (_currConcurrentTask < _maxConcurrentTask && _queue.size() > 0)
     {
@@ -1150,9 +1148,8 @@ void AssetsManagerEx::queueDowload()
         _downloader->createDownloadFileTask(unit.srcUrl, unit.storagePath, unit.customId);
         
         _tempManifest->setAssetDownloadState(key, Manifest::DownloadState::DOWNLOADING);
-        taskCreated = true;
     }
-    if (taskCreated && _percentByFile / 100 > _nextSavePoint)
+    if (_percentByFile / 100 > _nextSavePoint)
     {
         // Save current download manifest information for resuming
         _tempManifest->saveToFile(_tempManifestPath);
