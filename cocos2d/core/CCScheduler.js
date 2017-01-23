@@ -71,16 +71,10 @@ ListEntry.get = function (prev, next, callback, target, priority, paused, marked
     return result;
 };
 ListEntry.put = function (entry) {
-    entry.prev = null;
-    entry.next = null;
-    entry.callback = null;
-    entry.target = null;
-    entry.priority = 0;
-    entry.paused = false;
-    entry.markedForDeletion = false;
-    entry.isUpdate = false;
-    if (_listEntries.length < MAX_POOL_SIZE)
+    if (_listEntries.length < MAX_POOL_SIZE) {
+        entry.prev = entry.next = entry.callback = entry.target = null;
         _listEntries.push(entry);
+    }
 };
 
 /*
@@ -112,12 +106,10 @@ HashUpdateEntry.get = function (list, entry, target, callback) {
     return result;
 };
 HashUpdateEntry.put = function (entry) {
-    entry.list = null;
-    entry.entry = null;
-    entry.target = null;
-    entry.callback = null;
-    if (_hashUpdateEntries.length < MAX_POOL_SIZE)
+    if (_hashUpdateEntries.length < MAX_POOL_SIZE) {
+        entry.list = entry.entry = entry.target = entry.callback = null;
         _hashUpdateEntries.push(entry);
+    }
 };
 
 //
@@ -157,14 +149,10 @@ HashTimerEntry.get = function (timers, target, timerIndex, currentTimer, current
     return result;
 };
 HashTimerEntry.put = function (entry) {
-    entry.timers = null;
-    entry.target = null;
-    entry.timerIndex = 0;
-    entry.currentTimer = null;
-    entry.currentTimerSalvaged = false;
-    entry.paused = false;
-    if (_hashTimerEntries.length < MAX_POOL_SIZE)
+    if (_hashTimerEntries.length < MAX_POOL_SIZE) {
+        entry.timers = entry.target = entry.currentTimer = null;
         _hashTimerEntries.push(entry);
+    }
 };
 
 /*
@@ -267,18 +255,10 @@ CallbackTimer.get = function () {
     return _timers.pop() || new CallbackTimer();
 };
 CallbackTimer.put = function (timer) {
-    timer._scheduler = null;
-    timer._elapsed = -1;
-    timer._runForever = false;
-    timer._useDelay = false;
-    timer._timesExecuted = 0;
-    timer._repeat = 0;
-    timer._delay = 0;
-    timer._interval = 0;
-    timer._target = null;
-    timer._callback = null;
-    if (_timers.length < MAX_POOL_SIZE)
+    if (_timers.length < MAX_POOL_SIZE) {
+        timer._scheduler = timer._target = timer._callback = null;
         _timers.push(timer);
+    }
 };
 
 var getTargetId = function (target) {
@@ -388,7 +368,8 @@ cc.Scheduler = cc._Class.extend({
     },
 
     _removeUpdateFromHash:function (entry) {
-        var self = this, element = self._hashForUpdates[getTargetId(entry.target)];
+        var targetId = getTargetId(entry.target);
+        var self = this, element = self._hashForUpdates[targetId];
         if (element) {
             // Remove list entry from list
             var list = element.list, listEntry = element.entry;
@@ -399,7 +380,7 @@ cc.Scheduler = cc._Class.extend({
                 }
             }
 
-            delete self._hashForUpdates[getTargetId(element.target)];
+            delete self._hashForUpdates[targetId];
             ListEntry.put(listEntry);
             HashUpdateEntry.put(element);
         }
@@ -524,8 +505,10 @@ cc.Scheduler = cc._Class.extend({
             //elt = elt.hh.next;
 
             // only delete currentTarget if no actions were scheduled during the cycle (issue #481)
-            if (this._currentTargetSalvaged && this._currentTarget.timers.length === 0)
+            if (this._currentTargetSalvaged && this._currentTarget.timers.length === 0) {
                 this._removeHashElement(this._currentTarget);
+                --i;
+            }
         }
 
         // delete all updates that are marked for deletion
@@ -1167,7 +1150,7 @@ cc.Scheduler = cc._Class.extend({
  * @type {Number}
  * @static
  */
-cc.Scheduler.PRIORITY_SYSTEM = (-2147483647 - 1);
+cc.Scheduler.PRIORITY_SYSTEM = 1 << 31;
 
 /**
  * !#en Minimum priority level for user scheduling.
