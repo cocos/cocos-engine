@@ -141,8 +141,7 @@ if (CC_DEV) {
         "2604": "setDisplayFrame is deprecated, please use setSpriteFrame instead.", //setDisplayFrame
         "2605": "cc.Sprite._updateBlendFunc(): _updateBlendFunc doesn't work when the sprite is rendered using a cc.CCSpriteBatchNode", //_updateBlendFunc
         "2606": "cc.Sprite.initWithSpriteFrame(): spriteFrame should be non-null", //initWithSpriteFrame
-        "2607": "cc.Sprite.initWithSpriteFrameName(): spriteFrameName should be non-null", //initWithSpriteFrameName
-        "2608": "%s is null, please check.", //initWithSpriteFrameName1
+        "2608": "initWithSpriteFrameName is deprecated and can not provide correct functionality", //initWithSpriteFrameName1
         "2609": "cc.Sprite.initWithFile(): filename should be non-null", //initWithFile
         "2610": "cc.Sprite.setDisplayFrameWithAnimationName(): animationName must be non-null", //setDisplayFrameWithAnimationName_3
         "2611": "cc.Sprite.reorderChild(): child should be non-null", //reorderChild_2

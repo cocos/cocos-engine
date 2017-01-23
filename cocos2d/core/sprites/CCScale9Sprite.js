@@ -117,15 +117,16 @@ var simpleQuadGenerator = {
         // bl, br, tl, tr
         if (webgl) {
             var la = l * wt.a, lb = l * wt.b, ra = r * wt.a, rb = r * wt.b,
-                tc = t * wt.c, td = t * wt.d, bc = b * wt.c, bd = b * wt.d;
-            vertices[0] = la + bc + wt.tx;
-            vertices[1] = lb + bd + wt.ty;
-            vertices[2] = ra + bc + wt.tx;
-            vertices[3] = rb + bd + wt.ty;
-            vertices[4] = la + tc + wt.tx;
-            vertices[5] = lb + td + wt.ty;
-            vertices[6] = ra + tc + wt.tx;
-            vertices[7] = rb + td + wt.ty;
+                tcx = t * wt.c + wt.tx, tdy = t * wt.d + wt.ty, 
+                bcx = b * wt.c + wt.tx, bdy = b * wt.d + wt.ty;
+            vertices[0] = la + bcx;
+            vertices[1] = lb + bdy;
+            vertices[2] = ra + bcx;
+            vertices[3] = rb + bdy;
+            vertices[4] = la + tcx;
+            vertices[5] = lb + tdy;
+            vertices[6] = ra + tcx;
+            vertices[7] = rb + tdy;
         }
         else {
             vertices[0] = l;
@@ -394,15 +395,16 @@ var tiledQuadGenerator = {
                 // bl.x, bl.y, br.x, br.y, tl.x, tl.y, tr.x, tr.y
                 if (webgl) {
                     var la = l * wt.a, lb = l * wt.b, ra = r * wt.a, rb = r * wt.b,
-                        tc = t * wt.c, td = t * wt.d, bc = b * wt.c, bd = b * wt.d;
-                    vertices[offset] = la + bc + wt.tx;
-                    vertices[offset + 1] = lb + bd + wt.ty;
-                    vertices[offset + 2] = ra + bc + wt.tx;
-                    vertices[offset + 3] = rb + bd + wt.ty;
-                    vertices[offset + 4] = la + tc + wt.tx;
-                    vertices[offset + 5] = lb + td + wt.ty;
-                    vertices[offset + 6] = ra + tc + wt.tx;
-                    vertices[offset + 7] = rb + td + wt.ty;
+                        tcx = t * wt.c + wt.tx, tdy = t * wt.d + wt.ty, 
+                        bcx = b * wt.c + wt.tx, bdy = b * wt.d + wt.ty;
+                    vertices[offset] = la + bcx;
+                    vertices[offset + 1] = lb + bdy;
+                    vertices[offset + 2] = ra + bcx;
+                    vertices[offset + 3] = rb + bdy;
+                    vertices[offset + 4] = la + tcx;
+                    vertices[offset + 5] = lb + tdy;
+                    vertices[offset + 6] = ra + tcx;
+                    vertices[offset + 7] = rb + tdy;
                 }
                 else {
                     vertices[offset] = l;
@@ -554,15 +556,16 @@ var fillQuadGeneratorBar = {
         //build vertices
         if (webgl) {
             var la = l * wt.a, lb = l * wt.b, ra = r * wt.a, rb = r * wt.b,
-                tc = t * wt.c, td = t * wt.d, bc = b * wt.c, bd = b * wt.d;
-            vertices[0] = la + bc + wt.tx;
-            vertices[1] = lb + bd + wt.ty;
-            vertices[2] = ra + bc + wt.tx;
-            vertices[3] = rb + bd + wt.ty;
-            vertices[4] = la + tc + wt.tx;
-            vertices[5] = lb + td + wt.ty;
-            vertices[6] = ra + tc + wt.tx;
-            vertices[7] = rb + td + wt.ty;
+                tcx = t * wt.c + wt.tx, tdy = t * wt.d + wt.ty, 
+                bcx = b * wt.c + wt.tx, bdy = b * wt.d + wt.ty;
+            vertices[0] = la + bcx;
+            vertices[1] = lb + bdy;
+            vertices[2] = ra + bcx;
+            vertices[3] = rb + bdy;
+            vertices[4] = la + tcx;
+            vertices[5] = lb + tdy;
+            vertices[6] = ra + tcx;
+            vertices[7] = rb + tdy;
         } else{
             vertices[0] = l;
             vertices[1] = b;
@@ -1038,18 +1041,11 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         this._vertices = dataPool.get(8) || new Float32Array(8);
         this._uvs = dataPool.get(8) || new Float32Array(8);
         // Init sprite frame
-        if (typeof textureOrSpriteFrame === 'string') {
-            var frame = cc.spriteFrameCache.getSpriteFrame(textureOrSpriteFrame);
-            if (frame) {
-                this.initWithSpriteFrame(frame);
-            } else {
-                this.initWithTexture(textureOrSpriteFrame);
-            }
-        } else if (textureOrSpriteFrame instanceof cc.SpriteFrame) {
-            this.initWithSpriteFrame(textureOrSpriteFrame);
-        }
-        else if (textureOrSpriteFrame instanceof cc.Texture2D) {
+        if (typeof textureOrSpriteFrame === 'string' || textureOrSpriteFrame instanceof cc.Texture2D) {
             this.initWithTexture(textureOrSpriteFrame);
+        }
+        else if (textureOrSpriteFrame instanceof cc.SpriteFrame) {
+            this.initWithSpriteFrame(textureOrSpriteFrame);
         }
 
         if (webgl === undefined) {
@@ -1099,17 +1095,9 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     /**
      * Change the sprite frame of 9 slice sprite
      *
-     * @param spriteFrameOrSFFileName The name of the texture file.
+     * @param spriteFrame The SpriteFrame object.
      */
-    setSpriteFrame: function (spriteFrameOrSFName) {
-        var spriteFrame;
-        if (spriteFrameOrSFName instanceof cc.SpriteFrame) {
-            spriteFrame = spriteFrameOrSFName;
-        }
-        else {
-            spriteFrame = cc.spriteFrameCache.getSpriteFrame(spriteFrameOrSFName);
-        }
-
+    setSpriteFrame: function (spriteFrame) {
         if (spriteFrame) {
             this._spriteFrame = spriteFrame;
             this._quadsDirty = true;

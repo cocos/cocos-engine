@@ -60,14 +60,10 @@ var EventTarget = require("../cocos2d/core/event/event-target");
  * var sprite1 = new _ccsg.Sprite("res/HelloHTML5World.png");
  * var sprite2 = new _ccsg.Sprite("res/HelloHTML5World.png",cc.rect(0,0,480,320));
  *
- * 2.Create a sprite with a sprite frame name. Must add "#" before frame name.
- * var sprite = new _ccsg.Sprite('#grossini_dance_01.png');
- *
- * 3.Create a sprite with a sprite frame
- * var spriteFrame = cc.spriteFrameCache.getSpriteFrame("grossini_dance_01.png");
+ * 2.Create a sprite with a sprite frame
  * var sprite = new _ccsg.Sprite(spriteFrame);
  *
- * 4.Create a sprite with an existing texture contained in a CCTexture2D object
+ * 3.Create a sprite with an existing texture contained in a CCTexture2D object
  *      After creation, the rect will be the size of the texture, and the offset will be (0,0).
  * var texture = cc.textureCache.addImage("HelloHTML5World.png");
  * var sprite1 = new _ccsg.Sprite(texture);
@@ -270,15 +266,11 @@ _ccsg.Sprite = _ccsg.Node.extend({
      * Please pass parameters to the constructor to initialize the sprite, do not call this function yourself.
      * @param {String} spriteFrameName A key string that can fected a valid cc.SpriteFrame from cc.SpriteFrameCache
      * @return {Boolean} true if the sprite is initialized properly, false otherwise.
-     * @example
-     * var sprite = new _ccsg.Sprite();
-     * sprite.initWithSpriteFrameName("grossini_dance_01.png");
+     * @deprecated
      */
-    initWithSpriteFrameName:function (spriteFrameName) {
-        cc.assertID(spriteFrameName, 2607);
-        var frame = cc.spriteFrameCache.getSpriteFrame(spriteFrameName);
-        cc.assertID(frame, 2608, spriteFrameName);
-        return this.initWithSpriteFrame(frame);
+    initWithSpriteFrameName:function () {
+        cc.warnID(2608);
+        return;
     },
 
     /**
@@ -425,13 +417,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
             _ccsg.Sprite.prototype.init.call(this);
         else if (cc.js.isString(fileName)) {
             if (fileName[0] === "#") {
-                // Init with a sprite frame name
-                var frameName = fileName.substr(1, fileName.length - 1);
-                var spriteFrame = cc.spriteFrameCache.getSpriteFrame(frameName);
-                if (spriteFrame)
-                    this.initWithSpriteFrame(spriteFrame);
-                else
-                    cc.logID(2728, fileName);
+                cc.logID(2728, fileName);
             } else {
                 // Init  with filename and rect
                 _ccsg.Sprite.prototype.init.call(this, fileName, rect);
@@ -634,14 +620,11 @@ _ccsg.Sprite = _ccsg.Node.extend({
     /**
      * Sets a new sprite frame to the sprite.
      * @function
-     * @param {cc.SpriteFrame|String} newFrame
+     * @param {cc.SpriteFrame} newFrame
      */
     setSpriteFrame: function (newFrame) {
         var _t = this;
-        if(cc.js.isString(newFrame)){
-            newFrame = cc.spriteFrameCache.getSpriteFrame(newFrame);
-            cc.assertID(newFrame, 2712);
-        }
+        cc.assertID(newFrame, 2712);
 
         this.setNodeDirty(true);
 

@@ -1342,41 +1342,54 @@ _ccsg.Node = cc.Class({
                     stack.push(child);
                 }
             }
-            children = curr._protectedChildren;
-            if (children && children.length > 0) {
-                for (i = 0, len = children.length; i < len; ++i) {
-                    child = children[i];
-                    stack.push(child);
-                }
-            }
 
             index++;
             curr = stack[index];
         }
-        for (i = stack.length - 1; i >= 0; --i) {
-            curr = stack[i];
-            stack[i] = null;
-            if (!curr) continue;
-
-            // Perform actual action
-            switch (callbackType) {
-            case nodeCallbackType.onEnter:
+        // Perform actual action
+        switch (callbackType) {
+        case nodeCallbackType.onEnter:
+            for (i = stack.length - 1; i >= 0; --i) {
+                curr = stack[i];
+                stack[i] = null;
+                if (!curr) continue;
                 curr.onEnter();
-                break;
-            case nodeCallbackType.onExit:
-                curr.onExit();
-                break;
-            case nodeCallbackType.onEnterTransitionDidFinish:
-                curr.onEnterTransitionDidFinish();
-                break;
-            case nodeCallbackType.cleanup:
-                curr.cleanup();
-                break;
-            case nodeCallbackType.onExitTransitionDidStart:
-                curr.onExitTransitionDidStart();
-                break;
             }
+            break;
+        case nodeCallbackType.onExit:
+            for (i = stack.length - 1; i >= 0; --i) {
+                curr = stack[i];
+                stack[i] = null;
+                if (!curr) continue;
+                curr.onExit();
+            }
+            break;
+        case nodeCallbackType.onEnterTransitionDidFinish:
+            for (i = stack.length - 1; i >= 0; --i) {
+                curr = stack[i];
+                stack[i] = null;
+                if (!curr) continue;
+                curr.onEnterTransitionDidFinish();
+            }
+            break;
+        case nodeCallbackType.cleanup:
+            for (i = stack.length - 1; i >= 0; --i) {
+                curr = stack[i];
+                stack[i] = null;
+                if (!curr) continue;
+                curr.cleanup();
+            }
+            break;
+        case nodeCallbackType.onExitTransitionDidStart:
+            for (i = stack.length - 1; i >= 0; --i) {
+                curr = stack[i];
+                stack[i] = null;
+                if (!curr) continue;
+                curr.onExitTransitionDidStart();
+            }
+            break;
         }
+        
         _ccsg.Node._performing--;
     },
 
