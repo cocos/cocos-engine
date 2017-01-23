@@ -145,7 +145,7 @@ test('DynamicAnimCurve', function () {
         height: 1,
         position: v2(123, 456),
         foo: {
-            bar: color(0.5, 0.5, 0.5, 0.5),
+            bar: color(128, 128, 128, 128),
         }
     };
     anim.target = target;
@@ -167,11 +167,11 @@ test('DynamicAnimCurve', function () {
     anim.target = target;
     anim.prop = 'foo';
     anim.subProps = ['bar', 'a'];
-    anim.values = [0.5, 1.0];
+    anim.values = [128, 256];
     anim.ratios = [0.0, 1.0];
     anim.sample(null, 0.1, null);
 
-    deepEqual(target.foo, { bar: color(0.5, 0.5, 0.5, 0.55) }, 'The composed color should animated');
+    deepEqual(target.foo, { bar: color(128, 128, 128, 140) }, 'The composed color should animated');
 });
 
 test('AnimationNode', function () {

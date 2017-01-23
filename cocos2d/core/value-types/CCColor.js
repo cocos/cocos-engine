@@ -65,7 +65,7 @@ var Color = (function () {
         g = g || 0;
         b = b || 0;
         a = typeof a === 'number' ? a : 255;
-        this._val = ((r << 24) >>> 0) + (g << 16) + (b << 8) + a;
+        this._val = ((~~r << 24) >>> 0) + (~~g << 16) + (~~b << 8) + ~~a;
     }
     JS.extend(Color, ValueType);
     require('../platform/CCClass').fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
@@ -264,7 +264,7 @@ var Color = (function () {
      * color.setR(255); // Color {r: 255, g: 0, b: 0, a: 255}
      */
     proto.setR = function (red) {
-        this._val = (this._val & 0x00ffffff) | ((red << 24) >>> 0);
+        this._val = ((this._val & 0x00ffffff) | ((~~red << 24) >>> 0)) >>> 0;
         return this;
     };
     /**
@@ -287,7 +287,7 @@ var Color = (function () {
      * color.setG(255); // Color {r: 0, g: 255, b: 0, a: 255}
      */
     proto.setG = function (green) {
-        this._val = (this._val & 0xff00ffff) | (green << 16);
+        this._val = ((this._val & 0xff00ffff) | (~~green << 16)) >>> 0;
         return this;
     };
     /**
@@ -310,7 +310,7 @@ var Color = (function () {
      * color.setB(255); // Color {r: 0, g: 0, b: 255, a: 255}
      */
     proto.setB = function (blue) {
-        this._val = (this._val & 0xffff00ff) | (blue << 8);
+        this._val = ((this._val & 0xffff00ff) | (~~blue << 8)) >>> 0;
         return this;
     };
     /**
@@ -333,7 +333,7 @@ var Color = (function () {
      * color.setA(0); // Color {r: 0, g: 0, b: 0, a: 0}
      */
     proto.setA = function (alpha) {
-        this._val = (this._val & 0xffffff00) | alpha;
+        this._val = ((this._val & 0xffffff00) | ~~alpha) >>> 0;
         return this;
     };
 
