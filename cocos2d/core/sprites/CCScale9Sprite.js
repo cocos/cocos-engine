@@ -1038,18 +1038,11 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         this._vertices = dataPool.get(8) || new Float32Array(8);
         this._uvs = dataPool.get(8) || new Float32Array(8);
         // Init sprite frame
-        if (typeof textureOrSpriteFrame === 'string') {
-            var frame = cc.spriteFrameCache.getSpriteFrame(textureOrSpriteFrame);
-            if (frame) {
-                this.initWithSpriteFrame(frame);
-            } else {
-                this.initWithTexture(textureOrSpriteFrame);
-            }
-        } else if (textureOrSpriteFrame instanceof cc.SpriteFrame) {
-            this.initWithSpriteFrame(textureOrSpriteFrame);
-        }
-        else if (textureOrSpriteFrame instanceof cc.Texture2D) {
+        if (typeof textureOrSpriteFrame === 'string' || textureOrSpriteFrame instanceof cc.Texture2D) {
             this.initWithTexture(textureOrSpriteFrame);
+        }
+        else if (textureOrSpriteFrame instanceof cc.SpriteFrame) {
+            this.initWithSpriteFrame(textureOrSpriteFrame);
         }
 
         if (webgl === undefined) {
@@ -1099,17 +1092,9 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     /**
      * Change the sprite frame of 9 slice sprite
      *
-     * @param spriteFrameOrSFFileName The name of the texture file.
+     * @param spriteFrame The SpriteFrame object.
      */
-    setSpriteFrame: function (spriteFrameOrSFName) {
-        var spriteFrame;
-        if (spriteFrameOrSFName instanceof cc.SpriteFrame) {
-            spriteFrame = spriteFrameOrSFName;
-        }
-        else {
-            spriteFrame = cc.spriteFrameCache.getSpriteFrame(spriteFrameOrSFName);
-        }
-
+    setSpriteFrame: function (spriteFrame) {
         if (spriteFrame) {
             this._spriteFrame = spriteFrame;
             this._quadsDirty = true;
