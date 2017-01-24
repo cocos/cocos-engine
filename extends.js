@@ -43,7 +43,7 @@ if (!(CC_EDITOR && Editor.isMainProcess) && !cc.runtime) {
 }
 
 if (!(CC_EDITOR && Editor.isMainProcess)) {
-    require('./extensions/cocostudio/CCStudioComponent');
+    require('./cocos2d/core/components/CCStudioComponent');
 }
 
 require('./extensions/spine');

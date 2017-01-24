@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 cc.Scale9Sprite.CanvasRenderCmd = function (renderable) {
-    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     if (this._node.loaded()) {
         this._needDraw = true;
     }

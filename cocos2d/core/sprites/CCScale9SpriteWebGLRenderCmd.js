@@ -25,7 +25,7 @@
 var ccgl = cc.gl;
 
 cc.Scale9Sprite.WebGLRenderCmd = function (renderable) {
-    _ccsg.Node.WebGLRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     if (this._node.loaded()) {
         this._needDraw = true;
     }
@@ -34,7 +34,6 @@ cc.Scale9Sprite.WebGLRenderCmd = function (renderable) {
     }
 
     this.vertexType = cc.renderer.VertexType.QUAD;
-    this._color = new Uint32Array(1);
     this._dirty = false;
     this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
 };
@@ -52,7 +51,7 @@ proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, 
             f32buffer[offset] = vertices[off];
             f32buffer[offset+1] = vertices[off+1];
             f32buffer[offset+2] = z;
-            ui32buffer[offset+3] = color[0];
+            ui32buffer[offset+3] = color;
             f32buffer[offset+4] = uvs[off];
             f32buffer[offset+5] = uvs[off+1];
             offset += 6;
@@ -60,7 +59,7 @@ proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, 
             f32buffer[offset] = vertices[off+2];
             f32buffer[offset + 1] = vertices[off+3];
             f32buffer[offset + 2] = z;
-            ui32buffer[offset + 3] = color[0];
+            ui32buffer[offset + 3] = color;
             f32buffer[offset + 4] = uvs[off+2];
             f32buffer[offset + 5] = uvs[off+3];
             offset += 6;
@@ -68,7 +67,7 @@ proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, 
             f32buffer[offset] = vertices[off+8];
             f32buffer[offset + 1] = vertices[off+9];
             f32buffer[offset + 2] = z;
-            ui32buffer[offset + 3] = color[0];
+            ui32buffer[offset + 3] = color;
             f32buffer[offset + 4] = uvs[off+8];
             f32buffer[offset + 5] = uvs[off+9];
             offset += 6;
@@ -76,7 +75,7 @@ proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, 
             f32buffer[offset] = vertices[off+10];
             f32buffer[offset + 1] = vertices[off+11];
             f32buffer[offset + 2] = z;
-            ui32buffer[offset + 3] = color[0];
+            ui32buffer[offset + 3] = color;
             f32buffer[offset + 4] = uvs[off+10];
             f32buffer[offset + 5] = uvs[off+11];
             offset += 6;
@@ -115,16 +114,17 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
 
     // Color & z
     var opacity = this._displayedOpacity;
-    var r = this._displayedColor.r,
-        g = this._displayedColor.g,
-        b = this._displayedColor.b;
+    var color, colorVal = this._displayedColor._val;
     if (node._opacityModifyRGB) {
-        var a = opacity / 255;
-        r *= a;
-        g *= a;
-        b *= a;
+        var a = opacity / 255,
+            r = this._displayedColor.r * a,
+            g = this._displayedColor.g * a,
+            b = this._displayedColor.b * a;
+        color = ((opacity<<24) >>> 0) + (b<<16) + (g<<8) + r;
     }
-    this._color[0] = ((opacity<<24) | (b<<16) | (g<<8) | r);
+    else {
+        color = ((opacity<<24) >>> 0) + ((colorVal&0xff00)<<8) + ((colorVal&0xff0000)>>8) + (colorVal>>24);
+    }
     var z = node._vertexZ;
 
     // Upload data
@@ -144,14 +144,14 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
             f32buffer[offset] = vertices[srcOff];
             f32buffer[offset + 1] = vertices[srcOff+1];
             f32buffer[offset + 2] = z;
-            ui32buffer[offset + 3] = this._color[0];
+            ui32buffer[offset + 3] = color;
             f32buffer[offset + 4] = uvs[srcOff];
             f32buffer[offset + 5] = uvs[srcOff+1];
             offset += 6;
         }
         break;
     case types.SLICED:
-        len = this._uploadSliced(vertices, uvs, this._color, z, f32buffer, ui32buffer, offset);
+        len = this._uploadSliced(vertices, uvs, color, z, f32buffer, ui32buffer, offset);
         break;
     }
 

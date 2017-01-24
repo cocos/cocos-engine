@@ -89,8 +89,8 @@ var game = {
         width: "width",
         height: "height",
         engineDir: "engineDir",
-        modules: "modules",
         debugMode: "debugMode",
+        exposeClassName: "exposeClassName",
         showFPS: "showFPS",
         frameRate: "frameRate",
         id: "id",
@@ -102,6 +102,7 @@ var game = {
 
     // states
     _paused: true,//whether the game is paused
+    _configLoaded: false,//whether config loaded
     _isCloning: false,    // deserializing or instantiating
     _prepareCalled: false, //whether the prepare function has been called
     _prepared: false, //whether the engine has prepared
@@ -153,16 +154,18 @@ var game = {
      *      6 - cc.error, cc.assert will print on canvas, available only on web.                 <br/>
      * 2. showFPS<br/>
      *      Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.<br/>
-     * 3. frameRate<br/>
+     * 3. exposeClassName<br/>
+     *      Expose class name to chrome debug tools, the class intantiate performance is a little bit slower when exposed.<br/>
+     * 4. frameRate<br/>
      *      "frameRate" set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.<br/>
-     * 4. id<br/>
+     * 5. id<br/>
      *      "gameCanvas" sets the id of your canvas element on the web page, it's useful only on web.<br/>
-     * 5. renderMode<br/>
+     * 6. renderMode<br/>
      *      "renderMode" sets the renderer type, only useful on web :<br/>
      *      0 - Automatically chosen by engine<br/>
      *      1 - Forced to use canvas renderer<br/>
      *      2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers<br/>
-     * 6. scenes<br/>
+     * 7. scenes<br/>
      *      "scenes" include available scenes in the current bundle.<br/>
      *<br/>
      * Please DO NOT modify this object directly, it won't have any effect.<br/>
@@ -179,16 +182,18 @@ var game = {
      *          6 - cc.error，cc.assert 将打印在 canvas 中（仅适用于 web 端）。                  <br/>
      * 2. showFPS（显示 FPS）                                                            <br/>
      *      当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。              <br/>
-     * 3. frameRate (帧率)                                                              <br/>
+     * 3. exposeClassName                                                           <br/>
+     *      暴露类名让 Chrome DevTools 可以识别，如果开启会稍稍降低类的创建过程的性能，但对对象构造没有影响。 <br/>
+     * 4. frameRate (帧率)                                                              <br/>
      *      “frameRate” 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。      <br/>
-     * 4. id                                                                            <br/>
+     * 5. id                                                                            <br/>
      *      "gameCanvas" Web 页面上的 Canvas Element ID，仅适用于 web 端。                         <br/>
-     * 5. renderMode（渲染模式）                                                         <br/>
+     * 6. renderMode（渲染模式）                                                         <br/>
      *      “renderMode” 设置渲染器类型，仅适用于 web 端：                              <br/>
      *          0 - 通过引擎自动选择。                                                     <br/>
      *          1 - 强制使用 canvas 渲染。
      *          2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。     <br/>
-     * 6. scenes                                                                         <br/>
+     * 7. scenes                                                                         <br/>
      *      “scenes” 当前包中可用场景。                                                   <br/>
      * <br/>
      * 注意：请不要直接修改这个对象，它不会有任何效果。
@@ -325,7 +330,13 @@ var game = {
             config = self.config,
             CONFIG_KEY = self.CONFIG_KEY;
 
-        this._loadConfig();
+        // Config loaded
+        if (!this._configLoaded) {
+            this._loadConfig(function () {
+                self.prepare(cb);
+            });
+            return;
+        }
 
         // Already prepared
         if (this._prepared) {
@@ -557,57 +568,39 @@ var game = {
     },
 
 //  @Game loading section
-    _loadConfig: function () {
+    _loadConfig: function (cb) {
         // Load config
         // Already loaded
         if (this.config) {
             this._initConfig(this.config);
+            cb && cb();
             return;
         }
         // Load from document.ccConfig
         if (document["ccConfig"]) {
             this._initConfig(document["ccConfig"]);
+            cb && cb();
+            return;
         }
         // Load from project.json
-        else {
-            var data = {};
-            try {
-                var cocos_script = document.getElementsByTagName('script');
-                for(var i = 0; i < cocos_script.length; i++){
-                    var _t = cocos_script[i].getAttribute('cocos');
-                    if(_t === '' || _t) {
-                        break;
-                    }
-                }
-                var _src, txt, _resPath;
-                if(i < cocos_script.length){
-                    _src = cocos_script[i].src;
-                    if(_src){
-                        _resPath = /(.*)\//.exec(_src)[0];
-                        cc.loader.resPath = _resPath;
-                        _src = cc.path.join(_resPath, 'project.json');
-                    }
-                    txt = cc.loader._loadTxtSync(_src);
-                }
-                if(!txt){
-                    txt = cc.loader._loadTxtSync("project.json");
-                }
-                data = JSON.parse(txt);
-            } catch (e) {
+        var self = this;
+        cc.loader.load("project.json", function (err, data) {
+            if (err) {
                 cc.logID(3818);
             }
-            this._initConfig(data || {});
-        }
+            self._initConfig(data || {});
+            cb && cb();
+        });
     },
 
     _initConfig: function (config) {
-        var CONFIG_KEY = this.CONFIG_KEY,
-            modules = config[CONFIG_KEY.modules];
+        var CONFIG_KEY = this.CONFIG_KEY;
 
         // Configs adjustment
         if (typeof config[CONFIG_KEY.debugMode] !== 'number') {
             config[CONFIG_KEY.debugMode] = 0;
         }
+        config[CONFIG_KEY.exposeClassName] = !!config[CONFIG_KEY.exposeClassName];
         if (typeof config[CONFIG_KEY.frameRate] !== 'number') {
             config[CONFIG_KEY.frameRate] = 60;
         }
@@ -620,11 +613,6 @@ var game = {
         config[CONFIG_KEY.showFPS] = (CONFIG_KEY.showFPS in config) ? (!!config[CONFIG_KEY.showFPS]) : true;
         config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
 
-
-        // Modules adjustment
-        if (modules && modules.indexOf("core") < 0) modules.splice(0, 0, "core");
-        modules && (config[CONFIG_KEY.modules] = modules);
-
         // Scene parser
         this._sceneInfos = config[CONFIG_KEY.scenes] || [];
 
@@ -635,6 +623,7 @@ var game = {
         cc._initDebugSetting(config[CONFIG_KEY.debugMode]);
 
         this.config = config;
+        this._configLoaded = true;
     },
 
     _initRenderer: function (width, height) {
@@ -684,7 +673,7 @@ var game = {
              = cc.create3DContext(localCanvas, {
                 'stencil': true,
                 'alpha': true,
-                'preserveDrawingBuffer': false
+                'antialias': cc.sys.isMobile
             });
         }
         // WebGL context created successfully
@@ -692,7 +681,6 @@ var game = {
             cc.renderer = cc.rendererWebGL;
             win.gl = this._renderContext; // global variable declared in CCMacro.js
             cc.renderer.init();
-            cc.shaderCache._init();
             cc._drawingUtil = new cc.DrawingPrimitiveWebGL(this._renderContext);
             cc.textureCache._initializingRenderer();
             cc.glExt = {};
@@ -725,18 +713,21 @@ var game = {
 
         if (typeof document.hidden !== 'undefined') {
             hidden = "hidden";
-            visibilityChange = "visibilitychange";
         } else if (typeof document.mozHidden !== 'undefined') {
             hidden = "mozHidden";
-            visibilityChange = "mozvisibilitychange";
         } else if (typeof document.msHidden !== 'undefined') {
             hidden = "msHidden";
-            visibilityChange = "msvisibilitychange";
         } else if (typeof document.webkitHidden !== 'undefined') {
             hidden = "webkitHidden";
-            visibilityChange = "webkitvisibilitychange";
         }
 
+        var changeList = [
+            "visibilitychange",
+            "mozvisibilitychange",
+            "msvisibilitychange",
+            "webkitvisibilitychange",
+            "qbrowserVisibilityChange"
+        ];
         var onHidden = function () {
             game.emit(game.EVENT_HIDE, game);
         };
@@ -745,16 +736,21 @@ var game = {
         };
 
         if (hidden) {
-            document.addEventListener(visibilityChange, function () {
-                if (document[hidden]) onHidden();
-                else onShow();
-            }, false);
+            for (var i = 0; i < changeList.length; i++) {
+                document.addEventListener(changeList[i], function (event) {
+                    var visible = document[hidden];
+                    // QQ App
+                    visible = visible || event["hidden"];
+                    if (visible) onHidden();
+                    else onShow();
+                }, false);
+            }
         } else {
             win.addEventListener("blur", onHidden, false);
             win.addEventListener("focus", onShow, false);
         }
 
-        if(navigator.userAgent.indexOf("MicroMessenger") > -1){
+        if (navigator.userAgent.indexOf("MicroMessenger") > -1) {
             win.onfocus = function(){ onShow() };
         }
 

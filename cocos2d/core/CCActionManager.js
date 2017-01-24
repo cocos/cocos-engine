@@ -38,7 +38,6 @@ var HashElement = cc._Class.extend(/** @lends cc.HashElement# */{
     currentAction:null, //CCAction
     currentActionSalvaged:false,
     paused:false,
-    hh:null, //ut hash handle
     /**
      * Constructor
      * @method HashElement
@@ -50,7 +49,6 @@ var HashElement = cc._Class.extend(/** @lends cc.HashElement# */{
         this.currentAction = null; //CCAction
         this.currentActionSalvaged = false;
         this.paused = false;
-        this.hh = null; //ut hash handle
     }
 });
 
@@ -78,6 +76,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
     _arrayTargets:null,
     _currentTarget:null,
     _currentTargetSalvaged:false,
+    _elementPool: [],
 
     _searchElementByTarget:function (arr, target) {
         for (var k = 0; k < arr.length; k++) {
@@ -92,6 +91,25 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
         this._arrayTargets = [];
         this._currentTarget = null;
         this._currentTargetSalvaged = false;
+    },
+
+    _getElement: function (target, paused) {
+        var element = this._elementPool.pop();
+        if (!element) {
+            element = new HashElement();
+        }
+        element.target = target;
+        element.paused = !!paused;
+        return element;
+    },
+
+    _putElement: function (element) {
+        element.actions.length = 0;
+        element.actionIndex = 0;
+        element.currentAction = null;
+        element.currentActionSalvaged = false;
+        element.paused = false;
+        this._elementPool.push(element);
     },
 
     /**
@@ -119,16 +137,15 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
 
         //check if the action target already exists
         var element = this._hashTargets[target.__instanceId];
-        //if doesnt exists, create a hashelement and push in mpTargets
+        //if doesn't exists, create a hashelement and push in mpTargets
         if (!element) {
-            element = new HashElement();
-            element.paused = paused;
-            element.target = target;
+            element = this._getElement(target, paused);
             this._hashTargets[target.__instanceId] = element;
             this._arrayTargets.push(element);
         }
-        //creates a array for that eleemnt to hold the actions
-        this._actionAllocWithHashElement(element);
+        else if (!element.actions) {
+            element.actions = [];
+        }
 
         element.actions.push(action);
         action.startWithTarget(target);
@@ -391,22 +408,20 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
     _deleteHashElement:function (element) {
         var ret = false;
         if (element) {
-            if(this._hashTargets[element.target.__instanceId]){
+            if (this._hashTargets[element.target.__instanceId]) {
                 delete this._hashTargets[element.target.__instanceId];
-                cc.js.array.remove(this._arrayTargets, element);
+                var targets = this._arrayTargets;
+                for (var i = 0, l = targets.length; i < l; i++) {
+                    if (targets[i] === element) {
+                        targets.splice(i, 1);
+                        break;
+                    }
+                }
+                this._putElement(element);
                 ret = true;
             }
-            element.actions = null;
-            element.target = null;
         }
         return ret;
-    },
-
-    _actionAllocWithHashElement:function (element) {
-        // 4 actions per Node by default
-        if (element.actions == null) {
-            element.actions = [];
-        }
     },
 
     /**

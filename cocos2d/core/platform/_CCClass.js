@@ -67,38 +67,63 @@ Class.extend = function (props) {
     // don't run the init constructor)
     var prototype = Object.create(_super);
 
-    var classId = ClassManager.getNewID();
-    ClassManager[classId] = _super;
-
-    // Copy the properties over onto the new prototype. We keep function
-    // properties non-eumerable as default, this makes typeof === 'function' check
-    // unneccessary in the for...in loop used 1) for generating Class()
+    // Copy the properties over onto the new prototype. We make function
+    // properties non-eumerable as this makes typeof === 'function' check
+    // unnecessary in the for...in loop used 1) for generating Class()
     // 2) for cc.clone and perhaps more. It is also required to make
     // these function properties cacheable in Carakan.
-    var nonEnumerableDesc = { writable: true, configurable: true };
-
-    prototype.__instanceId = null;
+    var desc = {writable: true, enumerable: false, configurable: true};
 
     // The dummy Class constructor
-    function _Class() {
-	    this.__instanceId = ClassManager.getNewInstanceId();
-	    // All construction is actually done in the init method
-	    if (this.ctor)
-		    this.ctor.apply(this, arguments);
+    var TheClass;
+    if (cc.game && cc.game.config && cc.game.config[cc.game.CONFIG_KEY.exposeClassName]) {
+        var constructor = "(function " + (props._className || "Class") + " (arg0, arg1, arg2, arg3, arg4, arg5) {\n";
+        constructor += "    this.__instanceId = ClassManager.getNewInstanceId();\n";
+        constructor += "    if (this.ctor) {\n";
+        constructor += "        switch (arguments.length) {\n";
+        constructor += "        case 0: this.ctor(); break;\n";
+        constructor += "        case 1: this.ctor(arg0); break;\n";
+        constructor += "        case 3: this.ctor(arg0, arg1, arg2); break;\n";
+        constructor += "        case 4: this.ctor(arg0, arg1, arg2, arg3); break;\n";
+        constructor += "        case 5: this.ctor(arg0, arg1, arg2, arg3, arg4); break;\n";
+        constructor += "        default: this.ctor.apply(this, arguments);\n";
+        constructor += "        }\n";
+        constructor += "    }\n";
+        constructor += "})";
+        TheClass = eval(constructor);
+    }
+    else {
+        TheClass = function (arg0, arg1, arg2, arg3, arg4) {
+            this.__instanceId = ClassManager.getNewInstanceId();
+            if (this.ctor) {
+                switch (arguments.length) {
+                case 0: this.ctor(); break;
+                case 1: this.ctor(arg0); break;
+                case 2: this.ctor(arg0, arg1); break;
+                case 3: this.ctor(arg0, arg1, arg2); break;
+                case 4: this.ctor(arg0, arg1, arg2, arg3); break;
+                case 5: this.ctor(arg0, arg1, arg2, arg3, arg4); break;
+                default: this.ctor.apply(this, arguments);
+                }
+            }
+        };
     }
 
-    _Class.id = classId;
-    nonEnumerableDesc.value = classId;
-    Object.defineProperty(prototype, '__cid__', nonEnumerableDesc);
+    desc.value = ClassManager.getNewID();
+    Object.defineProperty(prototype, '__pid', desc);
 
     // Populate our constructed prototype object
-    _Class.prototype = prototype;
+    TheClass.prototype = prototype;
 
     // Enforce the constructor to be what we expect
-    nonEnumerableDesc.value = _Class;
-    Object.defineProperty(_Class.prototype, 'constructor', nonEnumerableDesc);
+    desc.value = TheClass;
+    Object.defineProperty(prototype, 'constructor', desc);
 
-    for(var idx = 0, li = arguments.length; idx < li; ++idx) {
+    // Copy getter/setter
+    this.__getters__ && (TheClass.__getters__ = cc.clone(this.__getters__));
+    this.__setters__ && (TheClass.__setters__ = cc.clone(this.__setters__));
+
+    for (var idx = 0, li = arguments.length; idx < li; ++idx) {
         var prop = arguments[idx];
         for (var name in prop) {
             var isFunc = (typeof prop[name] === "function");
@@ -106,7 +131,7 @@ Class.extend = function (props) {
             var hasSuperCall = fnTest.test(prop[name]);
 
             if (isFunc && override && hasSuperCall) {
-                nonEnumerableDesc.value = (function (name, fn) {
+                desc.value = (function (name, fn) {
                     return function () {
                         var tmp = this._super;
 
@@ -122,26 +147,51 @@ Class.extend = function (props) {
                         return ret;
                     };
                 })(name, prop[name]);
-                Object.defineProperty(prototype, name, nonEnumerableDesc);
+                Object.defineProperty(prototype, name, desc);
             } else if (isFunc) {
-                nonEnumerableDesc.value = prop[name];
-                Object.defineProperty(prototype, name, nonEnumerableDesc);
+                desc.value = prop[name];
+                Object.defineProperty(prototype, name, desc);
             } else {
                 prototype[name] = prop[name];
+            }
+
+            if (isFunc) {
+                // Override registered getter/setter
+                var getter, setter, propertyName;
+                if (this.__getters__ && this.__getters__[name]) {
+                    propertyName = this.__getters__[name];
+                    for (var i in this.__setters__) {
+                        if (this.__setters__[i] === propertyName) {
+                            setter = i;
+                            break;
+                        }
+                    }
+                    cc.defineGetterSetter(prototype, propertyName, prop[name], prop[setter] ? prop[setter] : prototype[setter], name, setter);
+                }
+                if (this.__setters__ && this.__setters__[name]) {
+                    propertyName = this.__setters__[name];
+                    for (var i in this.__getters__) {
+                        if (this.__getters__[i] === propertyName) {
+                            getter = i;
+                            break;
+                        }
+                    }
+                    cc.defineGetterSetter(prototype, propertyName, prop[getter] ? prop[getter] : prototype[getter], prop[name], getter, name);
+                }
             }
         }
     }
 
     // And make this Class extendable
-    _Class.extend = Class.extend;
+    TheClass.extend = Class.extend;
 
     //add implementation method
-    _Class.implement = function (prop) {
+    TheClass.implement = function (prop) {
         for (var name in prop) {
             prototype[name] = prop[name];
         }
     };
-    return _Class;
+    return TheClass;
 };
 
 /**

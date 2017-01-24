@@ -40,8 +40,8 @@ var __t = function (v) {
 cc.DrawNode = _ccsg.Node.extend(/** @lends cc.DrawNode# */{
 //TODO need refactor
 
-    _buffer:null,
-    _blendFunc:null,
+    _buffer: null,
+    _blendFunc: null,
     _lineWidth: 1,
     _drawColor: null,
 
@@ -101,7 +101,7 @@ cc.DrawNode = _ccsg.Node.extend(/** @lends cc.DrawNode# */{
      * @returns {cc.Color}
      */
     getDrawColor: function () {
-        return  cc.color(this._drawColor.r, this._drawColor.g, this._drawColor.b, this._drawColor.a);
+        return cc.color(this._drawColor.r, this._drawColor.g, this._drawColor.b, this._drawColor.a);
     }
 });
 
@@ -126,7 +126,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         };
 
         cc.js.mixin(cc.DrawNode.prototype, /** @lends cc.DrawNode# */{
-            _className:"DrawNodeCanvas",
+            _className: "DrawNodeCanvas",
 
             /**
              * <p>The cc.DrawNodeCanvas's constructor. <br/>

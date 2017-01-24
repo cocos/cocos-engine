@@ -25,7 +25,7 @@
 var spine = sp.spine;
 
 sp._SGSkeleton.CanvasRenderCmd = function(renderableObject){
-    _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
+    this._rootCtor(renderableObject);
     this._needDraw = true;
 };
 
@@ -98,7 +98,7 @@ proto.rendering = function (wrapper, scaleX, scaleY) {
 };
 
 proto.updateStatus = function() {
-    _ccsg.Node.CanvasRenderCmd.prototype.updateStatus.call(this);
+    this.originUpdateStatus();
     this._updateCurrentRegions();
     this._regionFlag = _ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble;
     this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.contentDirty;

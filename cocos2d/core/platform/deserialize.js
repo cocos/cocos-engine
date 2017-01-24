@@ -441,6 +441,21 @@ var _Deserializer = (function () {
             Object.defineProperty(klass, '__deserialize__', { value: deserialize, writable: true });
         }
         deserialize(self, obj, serialized, klass, target);
+
+        // HACK: remove unneeded asset property
+        if (/* preview or build */
+            CC_DEV && (!CC_EDITOR || self._ignoreEditorOnly) &&
+            klass === cc._PrefabInfo && !obj.sync) {
+            var uuid = serialized['asset'] && serialized['asset'].__uuid__;
+            if (uuid) {
+                var index = self.result.uuidList.indexOf(uuid);
+                if (index !== -1) {
+                    JS.array.fastRemoveAt(self.result.uuidList, index);
+                    JS.array.fastRemoveAt(self.result.uuidObjList, index);
+                    JS.array.fastRemoveAt(self.result.uuidPropList, index);
+                }
+            }
+        }
     }
 
     ///**

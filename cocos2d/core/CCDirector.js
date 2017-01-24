@@ -117,7 +117,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     _lastUpdate: null,
     _nextScene: null,
-    _notificationNode: null,
     _openGLView: null,
     _scenesStack: null,
     _projectionDelegate: null,
@@ -174,10 +173,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this._scheduler = new cc.Scheduler();
 
         // Action manager
-        if(cc.ActionManager){
+        if (cc.ActionManager) {
             this._actionManager = new cc.ActionManager();
             this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
-        }else{
+        } else {
             this._actionManager = null;
         }
 
@@ -243,7 +242,16 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @param {Vec2} uiPoint
      * @return {Vec2}
      */
-    convertToGL: null,
+    convertToGL: function (uiPoint) {
+        var docElem = document.documentElement;
+        var view = cc.view;
+        var box = docElem.getBoundingClientRect();
+        box.left += window.pageXOffset - docElem.clientLeft;
+        box.top += window.pageYOffset - docElem.clientTop;
+        var x = view._devicePixelRatio * (uiPoint.x - box.left);
+        var y = view._devicePixelRatio * (box.top + box.height - uiPoint.y);
+        return view._isRotated ? {x: view._viewPortRect.width - y, y: x} : {x: x, y: y};
+    },
 
     /**
      * !#en
@@ -255,11 +263,22 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @param {Vec2} glPoint
      * @return {Vec2}
      */
-    convertToUI: null,
-
-    engineUpdate: function (deltaTime) {
-        //tick before glClear: issue #533
-        this._scheduler.update(deltaTime);
+    convertToUI: function (glPoint) {
+        var docElem = document.documentElement;
+        var view = cc.view;
+        var box = docElem.getBoundingClientRect();
+        box.left += window.pageXOffset - docElem.clientLeft;
+        box.top += window.pageYOffset - docElem.clientTop;
+        var uiPoint = {x: 0, y: 0};
+        if (view._isRotated) {
+            uiPoint.x = box.left + glPoint.y / view._devicePixelRatio;
+            uiPoint.y = box.top + box.height - (view._viewPortRect.width - glPoint.x) / view._devicePixelRatio;
+        }
+        else {
+            uiPoint.x = box.left + glPoint.x / view._devicePixelRatio;
+            uiPoint.y = box.top + box.height - glPoint.y / view._devicePixelRatio;
+        }
+        return uiPoint;
     },
 
     _visitScene: function () {
@@ -270,7 +289,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                 renderer.clearRenderCommands();
                 cc.renderer.assignedZ = 0;
                 this._runningScene._renderCmd._curLevel = 0; //level start from 0;
-                this._runningScene._renderCmd.visit();
+                this._runningScene.visit();
                 renderer.resetFlag();
             }
             else if (renderer.transformDirty()) {
@@ -279,28 +298,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             }
         }
     },
-
-    visit: function (deltaTime) {
-        this.emit(cc.Director.EVENT_BEFORE_VISIT, this);
-
-        if (this._beforeVisitScene)
-            this._beforeVisitScene();
-
-        // update the scene
-        this._visitScene();
-
-        // visit the notifications node
-        if (this._notificationNode)
-            this._notificationNode.visit();
-
-        this.emit(cc.Director.EVENT_AFTER_VISIT, this);
-
-        if (this._afterVisitScene)
-            this._afterVisitScene();
-    },
-
-    _beforeVisitScene: null,
-    _afterVisitScene: null,
 
     /**
      * End the life of director in the next frame
@@ -319,22 +316,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     getContentScaleFactor: function () {
         return this._contentScaleFactor;
-    },
-
-    /*
-     * !#en
-     * This object will be visited after the main scene is visited.<br/>
-     * This object MUST implement the "visit" selector.<br/>
-     * Useful to hook a notification object.
-     * !#zh
-     * 这个对象将会在主场景渲染完后渲染。 <br/>
-     * 这个对象必须实现 “visit” 功能。 <br/>
-     * 对于 hook 一个通知节点很有用。
-     * @method getNotificationNode
-     * @return {Node}
-     */
-    getNotificationNode: function () {
-        return this._notificationNode;
     },
 
     /**
@@ -417,7 +398,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * ONLY call it if there is a running scene.
      */
     popScene: function () {
-
         cc.assertID(this._runningScene, 1204);
 
         this._scenesStack.pop();
@@ -432,11 +412,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Removes cached all cocos2d cached data. It will purge the cc.textureCache, cc.spriteFrameCache, cc.spriteFrameAnimationCache
+     * Removes cached all cocos2d cached data. It will purge the cc.textureCache
      */
     purgeCachedData: function () {
-        // cc.spriteFrameAnimationCache._clear();
-        cc.spriteFrameCache._clear();
         cc.textureCache._clear();
     },
 
@@ -455,9 +433,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         // They are needed in case the director is run again
 
         if (this._runningScene) {
-            this._runningScene.onExitTransitionDidStart();
-            this._runningScene.onExit();
-            this._runningScene.cleanup();
+            this._runningScene.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
+            this._runningScene.performRecursive(_ccsg.Node.performType.onExit);
+            this._runningScene.performRecursive(_ccsg.Node.performType.cleanup);
 
             cc.renderer.clearRenderCommands();
         }
@@ -487,7 +465,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             cc.eventManager.setEnabled(true);
 
         // Action manager
-        if(this._actionManager){
+        if (this._actionManager){
             this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
 
@@ -649,30 +627,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         });
     },
-
-    //_replaceScene: CC_EDITOR && function (scene) {
-    //    if (this._scene) {
-    //        this._scene._activate(false);
-    //    }
-    //    if (this._runningScene) {
-    //        this._runningScene.onExit();
-    //    }
-    //
-    //    this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
-    //
-    //    // ensure scene initialized
-    //    scene._load();
-    //
-    //    // replace scene
-    //    this._scene = scene;
-    //    this._runningScene = scene._sgNode;
-    //
-    //    // Activate
-    //    cc.renderer.childrenOrderDirty = true;
-    //    scene._sgNode.onEnter();
-    //    scene._activate();
-    //    this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
-    //},
 
     //  @Scene loading section
 
@@ -930,14 +884,14 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         if (!newIsTransition) {
             var locRunningScene = this._runningScene;
             if (locRunningScene) {
-                locRunningScene.onExitTransitionDidStart();
-                locRunningScene.onExit();
+                locRunningScene.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
+                locRunningScene.performRecursive(_ccsg.Node.performType.onExit);
             }
 
             // issue #709. the root node (scene) should receive the cleanup message too
             // otherwise it might be leaked.
             if (this._sendCleanupToScene && locRunningScene)
-                locRunningScene.cleanup();
+                locRunningScene.performRecursive(_ccsg.Node.performType.cleanup);
         }
 
         this._runningScene = this._nextScene;
@@ -945,27 +899,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
         this._nextScene = null;
         if ((!runningIsTransition) && (this._runningScene !== null)) {
-            this._runningScene.onEnter();
-            this._runningScene.onEnterTransitionDidFinish();
+            this._runningScene.performRecursive(_ccsg.Node.performType.onEnter);
+            this._runningScene.performRecursive(_ccsg.Node.performType.onEnterTransitionDidFinish);
         }
-    },
-
-    /**
-     * Sets Notification Node
-     * @param {Node} node
-     */
-    setNotificationNode: function (node) {
-        cc.renderer.childrenOrderDirty = true;
-        if(this._notificationNode){
-            this._notificationNode.onExitTransitionDidStart();
-            this._notificationNode.onExit();
-            this._notificationNode.cleanup();
-        }
-        this._notificationNode = node;
-        if(!node)
-            return;
-        this._notificationNode.onEnter();
-        this._notificationNode.onEnterTransitionDidFinish();
     },
 
     /**
@@ -1192,14 +1128,14 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         while (c > level) {
             var current = locScenesStack.pop();
             if (current.running) {
-                current.onExitTransitionDidStart();
-                current.onExit();
+                current.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
+                current.performRecursive(_ccsg.Node.performType.onExit);
             }
-            current.cleanup();
+            current.performRecursive(_ccsg.Node.performType.cleanup);
             c--;
         }
         this._nextScene = locScenesStack[locScenesStack.length - 1];
-        this._sendCleanupToScene = false;
+        this._sendCleanupToScene = true;
     },
 
     /**
@@ -1405,14 +1341,17 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
             this.emit(cc.Director.EVENT_COMPONENT_UPDATE, deltaTime);
 
             if (updateAnimate) {
-                cc.director.engineUpdate(deltaTime);
+                this._scheduler.update(deltaTime);
             }
 
             this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, deltaTime);
             this.emit(cc.Director.EVENT_AFTER_UPDATE);
         }
 
-        this.visit();
+        this.emit(cc.Director.EVENT_BEFORE_VISIT);
+        // update the scene
+        this._visitScene();
+        this.emit(cc.Director.EVENT_AFTER_VISIT);
 
         // Render
         cc.g_NumberOfDraws = 0;
@@ -1438,7 +1377,7 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
                 // Update for components
                 this.emit(cc.Director.EVENT_COMPONENT_UPDATE, this._deltaTime);
                 // Engine update with scheduler
-                this.engineUpdate(this._deltaTime);
+                this._scheduler.update(this._deltaTime);
                 // Late update for components
                 this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, this._deltaTime);
                 // User can use this event to do things after update
@@ -1453,7 +1392,10 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
                 this.setNextScene();
             }
 
-            this.visit(this._deltaTime);
+            this.emit(cc.Director.EVENT_BEFORE_VISIT);
+            // update the scene
+            this._visitScene();
+            this.emit(cc.Director.EVENT_AFTER_VISIT);
 
             // Render
             cc.g_NumberOfDraws = 0;
@@ -1463,6 +1405,7 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
             this._totalFrames++;
 
             this.emit(cc.Director.EVENT_AFTER_DRAW);
+            cc.eventManager.frameUpdateListeners();
 
             this._calculateMPF();
         }

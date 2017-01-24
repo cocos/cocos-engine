@@ -58,6 +58,7 @@ asyncTest('Load with dependencies', function () {
     var dep1 = assetDir + '/button.png';
     var dep2 = assetDir + '/library/12/123200.json';
     var dep3 = assetDir + '/library/65/6545543.png';
+    var depsCount = 3;
 
     function loadWithDeps (item, callback) {
         try {
@@ -71,7 +72,7 @@ asyncTest('Load with dependencies', function () {
             dep2,
             dep3
         ];
-        this.pipeline.flowInDeps(null, resources, function (deps) {
+        this.pipeline.flowInDeps(item, resources, function (deps) {
             callback(null, result);
         });
     }
@@ -82,6 +83,7 @@ asyncTest('Load with dependencies', function () {
 
     var json1 = {
         id: assetDir + '/library/65/6545543',
+        url: assetDir + '/library/65/6545543',
         type: 'deps'
     };
     var json2 = assetDir + '/library/deferred-loading/74/748321.json';
@@ -92,8 +94,9 @@ asyncTest('Load with dependencies', function () {
         audio
     ];
 
-    var total = resources.length;
+    var total = resources.length + depsCount;
 
+    var depsProgression = new Callback().enable();
     var progressCallback = new Callback(function (completedCount, totalCount, item) {
         if (item.id === json1.id) {
             var dep = loader.getRes(dep1);
@@ -112,6 +115,9 @@ asyncTest('Load with dependencies', function () {
             // Test environment doesn't support audio
             ok((item.content instanceof cc.Audio) || true, 'audio url\'s result should be Audio');
         }
+        else if (item.id === dep1 || item.id === dep2 || item.id === dep3) {
+            depsProgression();
+        }
         else {
             ok(false, 'should not load an unknown url: ' + item.id);
         }
@@ -119,6 +125,7 @@ asyncTest('Load with dependencies', function () {
 
     loader.load(resources, progressCallback, function (error, items) {
         ok(items.isCompleted(), 'be able to load all resources');
+        depsProgression.expect(depsCount, 'should call progress callback for all ' + depsCount + ' dependencies');
         progressCallback.expect(total, 'should call ' + total + ' times progress callback for ' + total + ' resources');
         loader.releaseAll();
         
@@ -129,7 +136,7 @@ asyncTest('Load with dependencies', function () {
 asyncTest('Loading font', function () {
     var image = assetDir + '/button.png';
     var font = {
-        id: assetDir + '/Thonburi.ttf',
+        url: assetDir + '/Thonburi.ttf',
         type: 'font',
         name: 'Thonburi',
         srcs: [assetDir + '/Thonburi.eot']
@@ -144,7 +151,7 @@ asyncTest('Loading font', function () {
         if (item.id === image) {
             ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
         }
-        else if (item.id === font.id) {
+        else if (item.id === font.url) {
             strictEqual(item.content, null, 'should set null as content for Font type');
         }
         else {

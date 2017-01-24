@@ -106,7 +106,7 @@ Path.prototype.reset = function () {
 
 // webgl render command
 function WebGLRenderCmd (renderable) {
-    _ccsg.Node.WebGLRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     this._needDraw = true;
 
     var gl = cc._renderContext;

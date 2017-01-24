@@ -261,7 +261,7 @@ JS.mixin(CCLoader.prototype, {
             }
         }
 
-        var queue = LoadingItems.create(this, owner ? function () {
+        var queue = LoadingItems.create(this, owner ? function (completedCount, totalCount, item) {
             if (this._ownerQueue && this._ownerQueue.onProgress) {
                 this._ownerQueue._childOnProgress(item);
             }
@@ -311,8 +311,9 @@ JS.mixin(CCLoader.prototype, {
         else if (typeof assetOrUrlOrUuid === 'string') {
             key = this._getResUuid(assetOrUrlOrUuid) || assetOrUrlOrUuid;
         }
-        else if (CC_DEV) {
+        if (CC_DEV && !key) {
             cc.warnID(4800, assetOrUrlOrUuid);
+            return key;
         }
         _info.url = null;
         _info.raw = false;

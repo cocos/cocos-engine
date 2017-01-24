@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 _ccsg.Sprite.CanvasRenderCmd = function (renderable) {
-    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     this._needDraw = true;
     this._textureCoord = {
         renderX: 0,                             //the x of texture coordinate for render, when texture tinted, its value doesn't equal x.
@@ -48,12 +48,11 @@ proto.setDirtyRecursively = function (value) {};
 proto._setTexture = function (texture) {
     var node = this._node;
     if (node._texture !== texture) {
-        if (texture) {
-            node._textureLoaded = texture._textureLoaded;
-        }else{
-            node._textureLoaded = false;
-        }
+        node._textureLoaded = texture ? texture._textureLoaded : false;
         node._texture = texture;
+        var texSize = texture._contentSize;
+        var rect = cc.rect(0, 0, texSize.width, texSize.height);
+        node.setTextureRect(rect);
         this._updateColor();
     }
 };
@@ -71,10 +70,6 @@ proto.isFrameDisplayed = function (frame) {      //TODO there maybe has a bug
 
 proto.updateBlendFunc = function (blendFunc) {
     this._blendFuncStr = _ccsg.Node.CanvasRenderCmd._getCompositeOperationByBlendFunc(blendFunc);
-};
-
-proto._setBatchNodeForAddChild = function (child) {
-    return true;
 };
 
 proto._handleTextureForRotatedTexture = function (texture, rect, rotated, counterclockwise) {
@@ -211,8 +206,7 @@ proto._textureLoadedCallback = function (event) {
         return;
 
     node._textureLoaded = true;
-    var texture = node._texture,
-        locRect = node._rect;
+    var locRect = node._rect;
     if (!locRect) {
         locRect = cc.rect(0, 0, sender.width, sender.height);
     } else if (cc._rectEqualToZero(locRect)) {
@@ -228,9 +222,6 @@ proto._textureLoadedCallback = function (event) {
     if (locColor.r !== 255 || locColor.g !== 255 || locColor.b !== 255)
         this._updateColor();
 
-    // by default use "Self Render".
-    // if the sprite is added to a batchnode, then it will automatically switch to "batchnode Render"
-    node.setBatchNode(node._batchNode);
     node.emit("load");
 };
 

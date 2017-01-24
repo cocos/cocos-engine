@@ -25,6 +25,8 @@
 
 'use strict';
 
+var macro = require('../cocos2d/core/platform/CCMacro');
+
 cc.sys.now = function () {
     return Date.now();
 };
@@ -213,4 +215,9 @@ cc.formatStr = cc.js.formatStr;
 // disabled premultiplied alpha for png
 if (cc.Image && cc.Image.setPNGPremultipliedAlphaEnabled) {
     cc.Image.setPNGPremultipliedAlphaEnabled(false);
+}
+
+// Mark memory model
+if (window.__ENABLE_GC_FOR_NATIVE_OBJECTS__ !== undefined) {
+    macro.ENABLE_GC_FOR_NATIVE_OBJECTS = window.__ENABLE_GC_FOR_NATIVE_OBJECTS__;
 }

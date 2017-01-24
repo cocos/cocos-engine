@@ -125,6 +125,17 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
             var dependProp = propList[i];
             item = items.map[dependUrl];
             if (item) {
+                var thisOfLoadCallback = {
+                    obj: dependObj,
+                    prop: dependProp
+                };
+                function loadCallback (item) {
+                    var value = item.isRawAsset ? item.url : item.content;
+                    this.obj[this.prop] = value;
+                    if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
+                        dependKeys.push(item.id);
+                    }
+                }
                 if (item.complete || item.content) {
                     if (item.error) {
                         if (CC_EDITOR && item.error.errorCode === 'db.NOTFOUND') {
@@ -139,30 +150,19 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
                         }
                     }
                     else {
-                        var value = item.isRawAsset ? item.url : item.content;
-                        dependObj[dependProp] = value;
-                        dependKeys.push(item.id);
+                        loadCallback.call(thisOfLoadCallback, item);
                     }
                 }
                 else {
                     // item was removed from cache, but ready in pipeline actually
-                    var loadCallback = function (item) {
-                        var value = item.isRawAsset ? item.url : item.content;
-                        this.obj[this.prop] = value;
-                        dependKeys.push(item.id);
-                    };
-                    var target = {
-                        obj: dependObj,
-                        prop: dependProp
-                    };
-                    // Hack to get a better behavior
                     var queue = LoadingItems.getQueue(item);
+                    // Hack to get a better behavior
                     var list = queue._callbackTable[dependSrc];
                     if (list) {
-                        list.unshift(loadCallback, target);
+                        list.unshift(loadCallback, thisOfLoadCallback);
                     }
                     else {
-                        queue.addListener(dependSrc, loadCallback, target);
+                        queue.addListener(dependSrc, loadCallback, thisOfLoadCallback);
                     }
                 }
             }

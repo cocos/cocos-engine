@@ -109,7 +109,8 @@ var MissingScript = cc.Class({
             return null;
         },
         getMissingWrapper: function (id, data) {
-            if (data.node && (CC_EDITOR && Editor.Utils.UuidUtils.isUuid(id))) {
+            if (data.node && /^[0-9a-zA-Z+/]{23}$/.test(id)) {
+                // is component
                 return MissingScript;
             }
             else {

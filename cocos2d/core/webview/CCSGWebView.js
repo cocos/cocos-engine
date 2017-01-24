@@ -236,7 +236,7 @@ _ccsg.WebView.EventType = {
     }
 
     _ccsg.WebView.RenderCmd = function(node){
-        RenderCmd.call(this, node);
+        this._rootCtor(node);
 
         this._parent = null;
         this._div = null;
@@ -259,7 +259,7 @@ _ccsg.WebView.EventType = {
             //update the transform
             this.transform(this.getParentRenderCmd(), true);
             this.updateMatrix();
-            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+            this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.transformDirty;
         }
     };
 

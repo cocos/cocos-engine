@@ -60,14 +60,10 @@ var EventTarget = require("../cocos2d/core/event/event-target");
  * var sprite1 = new _ccsg.Sprite("res/HelloHTML5World.png");
  * var sprite2 = new _ccsg.Sprite("res/HelloHTML5World.png",cc.rect(0,0,480,320));
  *
- * 2.Create a sprite with a sprite frame name. Must add "#" before frame name.
- * var sprite = new _ccsg.Sprite('#grossini_dance_01.png');
- *
- * 3.Create a sprite with a sprite frame
- * var spriteFrame = cc.spriteFrameCache.getSpriteFrame("grossini_dance_01.png");
+ * 2.Create a sprite with a sprite frame
  * var sprite = new _ccsg.Sprite(spriteFrame);
  *
- * 4.Create a sprite with an existing texture contained in a CCTexture2D object
+ * 3.Create a sprite with an existing texture contained in a CCTexture2D object
  *      After creation, the rect will be the size of the texture, and the offset will be (0,0).
  * var texture = cc.textureCache.addImage("HelloHTML5World.png");
  * var sprite1 = new _ccsg.Sprite(texture);
@@ -86,13 +82,11 @@ var EventTarget = require("../cocos2d/core/event/event-target");
  * @property {cc.V3F_C4B_T2F_Quad}  quad                - <@readonly> The quad (tex coords, vertex coords and color) information.
  */
 _ccsg.Sprite = _ccsg.Node.extend({
-        dirty:false,
-        atlasIndex:0,
+    dirty:false,
+    atlasIndex:0,
     textureAtlas:null,
 
-    _batchNode:null,
     _recursiveDirty:null, //Whether all of the sprite's children needs to be updated
-    _hasChildren:null, //Whether the sprite contains children
     _shouldBeHidden:false, //should not be drawn because one of the ancestors is not visible
     _transformToBatch:null,
 
@@ -272,15 +266,11 @@ _ccsg.Sprite = _ccsg.Node.extend({
      * Please pass parameters to the constructor to initialize the sprite, do not call this function yourself.
      * @param {String} spriteFrameName A key string that can fected a valid cc.SpriteFrame from cc.SpriteFrameCache
      * @return {Boolean} true if the sprite is initialized properly, false otherwise.
-     * @example
-     * var sprite = new _ccsg.Sprite();
-     * sprite.initWithSpriteFrameName("grossini_dance_01.png");
+     * @deprecated
      */
-    initWithSpriteFrameName:function (spriteFrameName) {
-        cc.assertID(spriteFrameName, 2607);
-        var frame = cc.spriteFrameCache.getSpriteFrame(spriteFrameName);
-        cc.assertID(frame, 2608, spriteFrameName);
-        return this.initWithSpriteFrame(frame);
+    initWithSpriteFrameName:function () {
+        cc.warnID(2608);
+        return;
     },
 
     /**
@@ -310,103 +300,9 @@ _ccsg.Sprite = _ccsg.Node.extend({
         locRect.height = rect.height;
     },
 
-    /**
-     * Sort all children of this sprite node.
-     * @override
-     */
-    sortAllChildren:function () {
-        if (this._reorderChildDirty) {
-            var _children = this._children;
-
-            _ccsg.Node.prototype.sortAllChildren.call(this);
-
-            if (this._batchNode) {
-                this._arrayMakeObjectsPerformSelector(_children, _ccsg.Node._stateCallbackType.sortAllChildren);
-            }
-
-            //don't need to check children recursively, that's done in visit of each child
-            this._reorderChildDirty = false;
-        }
-
-    },
-
-    /**
-     * Reorders a child according to a new z value.  (override ccsg.Node )
-     * @param {_ccsg.Node} child
-     * @param {Number} zOrder
-     * @override
-     */
-    reorderChild:function (child, zOrder) {
-        cc.assertID(child, 2611);
-        if(this._children.indexOf(child) === -1){
-            cc.logID(2600);
-            return;
-        }
-
-        if (zOrder === child.zIndex)
-            return;
-
-        if (this._batchNode && !this._reorderChildDirty) {
-            this._setReorderChildDirtyRecursively();
-            this._batchNode.reorderBatch(true);
-        }
-        _ccsg.Node.prototype.reorderChild.call(this, child, zOrder);
-    },
-
-    /**
-     * Removes a child from the sprite.
-     * @param child
-     * @param cleanup  whether or not cleanup all running actions
-     * @override
-     */
-    removeChild:function (child, cleanup) {
-        if (this._batchNode)
-            this._batchNode.removeSpriteFromAtlas(child);
-        _ccsg.Node.prototype.removeChild.call(this, child, cleanup);
-    },
-
-    /**
-     * Sets whether the sprite is visible or not.
-     * @param {Boolean} visible
-     * @override
-     */
-    setVisible:function (visible) {
-        _ccsg.Node.prototype.setVisible.call(this, visible);
-        this._renderCmd.setDirtyRecursively(true);
-    },
-
-    /**
-     * Removes all children from the container.
-     * @param cleanup whether or not cleanup all running actions
-     * @override
-     */
-    removeAllChildren:function (cleanup) {
-        var locChildren = this._children, locBatchNode = this._batchNode;
-        if (locBatchNode && locChildren != null) {
-            for (var i = 0, len = locChildren.length; i < len; i++)
-                locBatchNode.removeSpriteFromAtlas(locChildren[i]);
-        }
-
-        _ccsg.Node.prototype.removeAllChildren.call(this, cleanup);
-        this._hasChildren = false;
-    },
-
     //
     // _ccsg.Node property overloads
     //
-
-    /**
-     * Sets whether ignore anchor point for positioning
-     * @param {Boolean} relative
-     * @override
-     */
-    setIgnoreAnchorPointForPosition:function (relative) {
-        if(this._batchNode){
-            cc.logID(2601);
-            return;
-        }
-        _ccsg.Node.prototype.setIgnoreAnchorPointForPosition.call(this, relative);
-    },
 
     /**
      * Sets whether the sprite should be flipped horizontally or not.
@@ -507,26 +403,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
         this.setSpriteFrame(animFrame.getSpriteFrame());
     },
 
-    /**
-     * Returns the batch node object if this sprite is rendered by cc.SpriteBatchNode
-     * @returns {cc.SpriteBatchNode|null} The cc.SpriteBatchNode object if this sprite is rendered by cc.SpriteBatchNode, null if the sprite isn't used batch node.
-     */
-    getBatchNode:function () {
-        return this._batchNode;
-    },
-
-    _setReorderChildDirtyRecursively:function () {
-        //only set parents flag the first time
-        if (!this._reorderChildDirty) {
-            this._reorderChildDirty = true;
-            var pNode = this._parent;
-            while (pNode && pNode !== this._batchNode) {
-                pNode._setReorderChildDirtyRecursively();
-                pNode = pNode.parent;
-            }
-        }
-    },
-
     // CCTextureProtocol
     /**
      * Returns the texture of the sprite node
@@ -541,13 +417,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
             _ccsg.Sprite.prototype.init.call(this);
         else if (cc.js.isString(fileName)) {
             if (fileName[0] === "#") {
-                // Init with a sprite frame name
-                var frameName = fileName.substr(1, fileName.length - 1);
-                var spriteFrame = cc.spriteFrameCache.getSpriteFrame(frameName);
-                if (spriteFrame)
-                    this.initWithSpriteFrame(spriteFrame);
-                else
-                    cc.logID(2728, fileName);
+                cc.logID(2728, fileName);
             } else {
                 // Init  with filename and rect
                 _ccsg.Sprite.prototype.init.call(this, fileName, rect);
@@ -606,7 +476,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
         if (arguments.length > 0)
             return _t.initWithFile(arguments[0], arguments[1]);
 
-        _ccsg.Node.prototype.init.call(_t);
         _t.dirty = _t._recursiveDirty = false;
 
         _t._blendFunc.src = cc.macro.BLEND_SRC;
@@ -622,7 +491,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
         // zwoptex default values
         _t._offsetPosition.x = 0;
         _t._offsetPosition.y = 0;
-        _t._hasChildren = false;
 
         // updated in "useSelfRender"
         // Atlas: TexCoords
@@ -677,10 +545,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
         rotated = rotated || false;
         texture = this._renderCmd._handleTextureForRotatedTexture(texture, rect, rotated, counterclockwise);
 
-        if (!_ccsg.Node.prototype.init.call(_t))
-            return false;
-
-        _t._batchNode = null;
         _t._recursiveDirty = false;
         _t.dirty = false;
         _t._opacityModifyRGB = true;
@@ -696,7 +560,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
         // zwoptex default values
         _t._offsetPosition.x = 0;
         _t._offsetPosition.y = 0;
-        _t._hasChildren = false;
 
         var locTextureLoaded = texture.isLoaded();
         _t._textureLoaded = locTextureLoaded;
@@ -723,10 +586,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
 
         _t.setTexture(texture);
         _t.setTextureRect(rect, rotated);
-
-        // by default use "Self Render".
-        // if the sprite is added to a batchnode, then it will automatically switch to "batchnode Render"
-        _t.setBatchNode(null);
         this.emit("load");
         return true;
     },
@@ -757,43 +616,15 @@ _ccsg.Sprite = _ccsg.Node.extend({
         _t._offsetPosition.y = relativeOffsetY + (_t._contentSize.height - locRect.height) / 2;
     },
 
-    // BatchNode methods
-
-    /**
-     * Add child to sprite (override ccsg.Node)
-     * @function
-     * @param {_ccsg.Sprite} child
-     * @param {Number} localZOrder  child's zOrder
-     * @param {String} [tag] child's tag
-     * @override
-     */
-    addChild: function (child, localZOrder, tag) {
-        cc.assertID(child, 2711);
-
-        if (localZOrder == null)
-            localZOrder = child._localZOrder;
-        if (tag == null)
-            tag = child.tag;
-
-        if(this._renderCmd._setBatchNodeForAddChild(child)){
-            //_ccsg.Node already sets isReorderChildDirty_ so this needs to be after batchNode check
-            _ccsg.Node.prototype.addChild.call(this, child, localZOrder, tag);
-            this._hasChildren = true;
-        }
-    },
-
     // Frames
     /**
      * Sets a new sprite frame to the sprite.
      * @function
-     * @param {cc.SpriteFrame|String} newFrame
+     * @param {cc.SpriteFrame} newFrame
      */
     setSpriteFrame: function (newFrame) {
         var _t = this;
-        if(cc.js.isString(newFrame)){
-            newFrame = cc.spriteFrameCache.getSpriteFrame(newFrame);
-            cc.assertID(newFrame, 2712);
-        }
+        cc.assertID(newFrame, 2712);
 
         this.setNodeDirty(true);
 
@@ -869,33 +700,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
             this._contentSize);
     },
 
-    /**
-     * Sets the batch node to sprite
-     * @function
-     * @param {cc.SpriteBatchNode|null} spriteBatchNode
-     * @example
-     *  var batch = new cc.SpriteBatchNode("Images/grossini_dance_atlas.png", 15);
-     *  var sprite = new _ccsg.Sprite(batch.texture, cc.rect(0, 0, 57, 57));
-     *  batch.addChild(sprite);
-     *  layer.addChild(batch);
-     */
-    setBatchNode:function (spriteBatchNode) {
-        var _t = this;
-        _t._batchNode = spriteBatchNode; // weak reference
-
-        // self render
-        if (!_t._batchNode) {
-            _t.atlasIndex = _ccsg.Sprite.INDEX_NOT_INITIALIZED;
-            _t.textureAtlas = null;
-            _t._recursiveDirty = false;
-            _t.dirty = false;
-        } else {
-            // using batch
-            _t._transformToBatch = cc.affineTransformIdentity();
-            _t.textureAtlas = _t._batchNode.getTextureAtlas(); // weak ref
-        }
-    },
-
     // CCTextureProtocol
     /**
      * Sets the texture of sprite
@@ -950,13 +754,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
             return new _ccsg.Sprite.WebGLRenderCmd(this);
     }
 });
-
-/**
- * _ccsg.Sprite invalid index on the cc.SpriteBatchNode
- * @constant
- * @type {Number}
- */
-_ccsg.Sprite.INDEX_NOT_INITIALIZED = -1;
 
 cc.js.addon(_ccsg.Sprite.prototype, EventTarget.prototype);
 
