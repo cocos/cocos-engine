@@ -101,6 +101,7 @@ bool Triangulate::process(const VecVertex *contour, int offset, int n, std::vect
         if (0 >= (count--))
         {
             //** Triangulate: ERROR - probable bad polygon!
+            delete []V;
             return false;
         }
         

@@ -385,6 +385,11 @@ void GraphicsNode::clear(bool clean)
         
         CC_SAFE_DELETE(_verts);
         CC_SAFE_DELETE(_indices);
+
+        for(auto&& it : _commands) {
+            delete it;
+        }
+        _commands.clear();
     }
     
     _nPoints = 0;
