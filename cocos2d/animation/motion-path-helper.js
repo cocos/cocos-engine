@@ -2,7 +2,7 @@ var DynamicAnimCurve = require('./animation-curves').DynamicAnimCurve;
 var computeRatioByType = require('./animation-curves').computeRatioByType;
 
 var bezier = require('./bezier').bezier;
-var binarySearch = require('./binary-search');
+var binarySearch = require('../core/utils/binary-search').binarySearchEpsilon;
 
 var v2 = cc.v2;
 

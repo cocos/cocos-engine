@@ -1,7 +1,7 @@
 
 var bezierByTime = require('./bezier').bezierByTime;
 
-var binarySearch = require('./binary-search');
+var binarySearch = require('../core/utils/binary-search').binarySearchEpsilon;
 var WrapModeMask = require('./types').WrapModeMask;
 
 /**
