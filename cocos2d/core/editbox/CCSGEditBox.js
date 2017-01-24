@@ -600,12 +600,10 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         if(flag) {
             this._removeLabels();
             this._edTxt.style.display = '';
-            this._editingMode = true;
         } else {
             this._createLabels();
             this._edTxt.style.display = 'none';
             this._showLabels();
-            this._editingMode = false;
         }
     };
 
