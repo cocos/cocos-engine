@@ -1041,7 +1041,7 @@ std::vector<std::string> FileUtils::listFiles(const std::string& dirPath) const
         unsigned int length = MultiByteToWideChar(CP_UTF8, 0, &fullpath[0], (int)fullpath.size(), NULL, 0);
         if (length != fullpath.size())
         {
-            return;
+            return files;
         }
         std::wstring fullpathstr(length, 0);
         MultiByteToWideChar(CP_UTF8, 0, &fullpath[0], (int)fullpath.size(), &fullpathstr[0], length);
