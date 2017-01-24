@@ -752,7 +752,10 @@ void AssetsManagerEx::updateSucceed()
             // Copy file
             else
             {
-                _fileUtils->removeFile(dstPath);
+                if (_fileUtils->isFileExist(dstPath))
+                {
+                    _fileUtils->removeFile(dstPath);
+                }
                 _fileUtils->renameFile(*it, dstPath);
             }
         }
