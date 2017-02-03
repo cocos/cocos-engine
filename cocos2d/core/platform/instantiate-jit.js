@@ -35,7 +35,7 @@ var CCClass = require('./CCClass');
 
 var SERIALIZABLE = Attr.DELIMETER + 'serializable';
 var DEFAULT = Attr.DELIMETER + 'default';
-var VAR_REG = CCClass.VAR_REG;
+var IDENTIFIER_RE = CCClass.IDENTIFIER_RE;
 var escapeForJS = CCClass.escapeForJS;
 
 var VAR = 'var ';
@@ -298,7 +298,7 @@ JS.mixin(Parser.prototype, {
 
     writeObjectField: function (codeArray, obj, key, value) {
         var statement;
-        if (VAR_REG.test(key)) {
+        if (IDENTIFIER_RE.test(key)) {
             statement = LOCAL_OBJ + '.' + key + '=';
         }
         else {

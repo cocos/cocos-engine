@@ -89,8 +89,8 @@ var deferredInitializer = {
 // */
 function appendProp (cls, name/*, isGetter*/) {
     if (CC_DEV) {
-        //var VAR_REG = /^[$A-Za-z_][0-9A-Za-z_$]*$/;
-        //if (!VAR_REG.test(name)) {
+        //var IDENTIFIER_RE = /^[$A-Za-z_][0-9A-Za-z_$]*$/;
+        //if (!IDENTIFIER_RE.test(name)) {
         //    cc.error('The property name "' + name + '" is not compliant with JavaScript naming standards');
         //    return;
         //}
@@ -374,25 +374,24 @@ function normalizeClassName (className) {
     if (CC_DEV) {
         var DefaultName = 'CCClass';
         if (className) {
-            className = className.replace(/\./g, '_');
-            className = className.split('').filter(function (x) { return /^[a-zA-Z0-9_$]/.test(x); }).join('');
-            if (/^[0-9]/.test(className[0])) {
-                className = '_' + className;
-            }
+            className = Array.prototype.map.call(className, function (x) {
+                return /^[a-zA-Z0-9_$]/.test(x) ? x : '_';
+            }).join('');
             try {
                 // validate name
                 eval('function ' + className + '(){}');
+                return className;
             }
             catch (e) {
-                className = 'FireClass_' + className;
-                try {
-                    eval('function ' + className + '(){}');
-                }
-                catch (e) {
-                    return DefaultName;
-                }
+                className = DefaultName + '_' + className;
             }
-            return className;
+            try {
+                eval('function ' + className + '(){}');
+                return className;
+            }
+            catch (e) {
+                ;
+            }
         }
         return DefaultName;
     }
@@ -429,7 +428,7 @@ function getNewValueTypeCode (value) {
     return res + ')';
 }
 
-// TODO - move escapeForJS, VAR_REG, getNewValueTypeCode to misc.js or a new source file
+// TODO - move escapeForJS, IDENTIFIER_RE, getNewValueTypeCode to misc.js or a new source file
 
 // convert a normal string including newlines, quotes and unicode characters into a string literal
 // ready to use in JavaScript source
@@ -441,7 +440,7 @@ function escapeForJS (s) {
 }
 
 // simple test variable name
-var VAR_REG = /^[$A-Za-z_][0-9A-Za-z_$]*$/;
+var IDENTIFIER_RE = /^[$A-Za-z_][0-9A-Za-z_$]*$/;
 function compileProps (actualClass) {
     // init deferred properties
     var attrs = Attr.getClassAttrs(actualClass);
@@ -460,7 +459,7 @@ function compileProps (actualClass) {
         var attrKey = prop + Attr.DELIMETER + 'default';
         if (attrKey in attrs) {  // getter does not have default
             var statement;
-            if (VAR_REG.test(prop)) {
+            if (IDENTIFIER_RE.test(prop)) {
                 statement = 'this.' + prop + '=';
             }
             else {
@@ -1161,7 +1160,7 @@ module.exports = {
     },
     fastDefine: CCClass._fastDefine,
     getNewValueTypeCode: getNewValueTypeCode,
-    VAR_REG: VAR_REG,
+    IDENTIFIER_RE: IDENTIFIER_RE,
     escapeForJS: escapeForJS
 };
 
