@@ -86,7 +86,7 @@ if (!CC_JSB) {
         require('./cocos2d/shaders');
         require('./cocos2d/compression');
 
-        require('./CCBoot.js');
+        require('./CCBoot');
         require('./cocos2d/core/CCGame');
     }
 }
