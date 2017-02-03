@@ -65,7 +65,7 @@ Class.extend = function (props) {
 
     // Instantiate a base Class (but only create the instance,
     // don't run the init constructor)
-    var prototype = Object.create(_super);
+    var proto = Object.create(_super);
 
     // Copy the properties over onto the new prototype. We make function
     // properties non-eumerable as this makes typeof === 'function' check
@@ -75,25 +75,26 @@ Class.extend = function (props) {
     var desc = {writable: true, enumerable: false, configurable: true};
 
     // The dummy Class constructor
-    var TheClass;
+    var TheCls;
     if (cc.game && cc.game.config && cc.game.config[cc.game.CONFIG_KEY.exposeClassName]) {
-        var constructor = "(function " + (props._className || "Class") + " (arg0, arg1, arg2, arg3, arg4, arg5) {\n";
-        constructor += "    this.__instanceId = ClassManager.getNewInstanceId();\n";
-        constructor += "    if (this.ctor) {\n";
-        constructor += "        switch (arguments.length) {\n";
-        constructor += "        case 0: this.ctor(); break;\n";
-        constructor += "        case 1: this.ctor(arg0); break;\n";
-        constructor += "        case 3: this.ctor(arg0, arg1, arg2); break;\n";
-        constructor += "        case 4: this.ctor(arg0, arg1, arg2, arg3); break;\n";
-        constructor += "        case 5: this.ctor(arg0, arg1, arg2, arg3, arg4); break;\n";
-        constructor += "        default: this.ctor.apply(this, arguments);\n";
-        constructor += "        }\n";
-        constructor += "    }\n";
-        constructor += "})";
-        TheClass = eval(constructor);
+        var ctor =
+            "(function " + (props._className || "Class") + "(arg0,arg1,arg2,arg3,arg4,arg5) {\n" +
+                "this.__instanceId = ClassManager.getNewInstanceId();\n" +
+                "if (this.ctor) {\n" +
+                    "switch (arguments.length) {\n" +
+                        "case 0: this.ctor(); break;\n" +
+                        "case 1: this.ctor(arg0); break;\n" +
+                        "case 3: this.ctor(arg0,arg1,arg2); break;\n" +
+                        "case 4: this.ctor(arg0,arg1,arg2,arg3); break;\n" +
+                        "case 5: this.ctor(arg0,arg1,arg2,arg3,arg4); break;\n" +
+                        "default: this.ctor.apply(this, arguments);\n" +
+                    "}\n" +
+                "}\n" +
+            "})";
+        TheCls = eval(ctor);
     }
     else {
-        TheClass = function (arg0, arg1, arg2, arg3, arg4) {
+        TheCls = function (arg0, arg1, arg2, arg3, arg4) {
             this.__instanceId = ClassManager.getNewInstanceId();
             if (this.ctor) {
                 switch (arguments.length) {
@@ -110,18 +111,18 @@ Class.extend = function (props) {
     }
 
     desc.value = ClassManager.getNewID();
-    Object.defineProperty(prototype, '__pid', desc);
+    Object.defineProperty(proto, '__pid', desc);
 
     // Populate our constructed prototype object
-    TheClass.prototype = prototype;
+    TheCls.prototype = proto;
 
     // Enforce the constructor to be what we expect
-    desc.value = TheClass;
-    Object.defineProperty(prototype, 'constructor', desc);
+    desc.value = TheCls;
+    Object.defineProperty(proto, 'constructor', desc);
 
     // Copy getter/setter
-    this.__getters__ && (TheClass.__getters__ = cc.clone(this.__getters__));
-    this.__setters__ && (TheClass.__setters__ = cc.clone(this.__setters__));
+    this.__getters__ && (TheCls.__getters__ = cc.clone(this.__getters__));
+    this.__setters__ && (TheCls.__setters__ = cc.clone(this.__setters__));
 
     for (var idx = 0, li = arguments.length; idx < li; ++idx) {
         var prop = arguments[idx];
@@ -147,51 +148,51 @@ Class.extend = function (props) {
                         return ret;
                     };
                 })(name, prop[name]);
-                Object.defineProperty(prototype, name, desc);
+                Object.defineProperty(proto, name, desc);
             } else if (isFunc) {
                 desc.value = prop[name];
-                Object.defineProperty(prototype, name, desc);
+                Object.defineProperty(proto, name, desc);
             } else {
-                prototype[name] = prop[name];
+                proto[name] = prop[name];
             }
 
             if (isFunc) {
                 // Override registered getter/setter
-                var getter, setter, propertyName;
+                var getter, setter, propName;
                 if (this.__getters__ && this.__getters__[name]) {
-                    propertyName = this.__getters__[name];
+                    propName = this.__getters__[name];
                     for (var i in this.__setters__) {
-                        if (this.__setters__[i] === propertyName) {
+                        if (this.__setters__[i] === propName) {
                             setter = i;
                             break;
                         }
                     }
-                    cc.defineGetterSetter(prototype, propertyName, prop[name], prop[setter] ? prop[setter] : prototype[setter], name, setter);
+                    cc.defineGetterSetter(proto, propName, prop[name], prop[setter] ? prop[setter] : proto[setter], name, setter);
                 }
                 if (this.__setters__ && this.__setters__[name]) {
-                    propertyName = this.__setters__[name];
+                    propName = this.__setters__[name];
                     for (var i in this.__getters__) {
-                        if (this.__getters__[i] === propertyName) {
+                        if (this.__getters__[i] === propName) {
                             getter = i;
                             break;
                         }
                     }
-                    cc.defineGetterSetter(prototype, propertyName, prop[getter] ? prop[getter] : prototype[getter], prop[name], getter, name);
+                    cc.defineGetterSetter(proto, propName, prop[getter] ? prop[getter] : proto[getter], prop[name], getter, name);
                 }
             }
         }
     }
 
     // And make this Class extendable
-    TheClass.extend = Class.extend;
+    TheCls.extend = Class.extend;
 
     //add implementation method
-    TheClass.implement = function (prop) {
+    TheCls.implement = function (prop) {
         for (var name in prop) {
-            prototype[name] = prop[name];
+            proto[name] = prop[name];
         }
     };
-    return TheClass;
+    return TheCls;
 };
 
 /**

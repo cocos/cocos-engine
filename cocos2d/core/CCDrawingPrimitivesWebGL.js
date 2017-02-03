@@ -32,11 +32,10 @@ var macro = cc.macro;
  * @extends cc._Class
  */
 cc.DrawingPrimitiveWebGL = cc._Class.extend(/** @lends cc.DrawingPrimitiveWebGL# */{
-    _renderContext:null,
+
     _initialized:false,
     _shader: null,
     _colorLocation: "u_color",
-    _colorArray: null,
     _pointSizeLocation: "u_pointSize",
     _pointSize:-1,
     /**

@@ -32,19 +32,13 @@
  * var element = new cc.HashElement();
  */
 var HashElement = cc._Class.extend(/** @lends cc.HashElement# */{
-    actions:null,
-    target:null, //ccobject
-    actionIndex:0,
-    currentAction:null, //CCAction
-    currentActionSalvaged:false,
-    paused:false,
     /**
      * Constructor
      * @method HashElement
      */
     ctor:function () {
         this.actions = [];
-        this.target = null;
+        this.target = null; //ccobject
         this.actionIndex = 0;
         this.currentAction = null; //CCAction
         this.currentActionSalvaged = false;
@@ -72,10 +66,7 @@ var HashElement = cc._Class.extend(/** @lends cc.HashElement# */{
  * @example {@link utils/api/engine/docs/cocos2d/core/CCActionManager/ActionManager.js}
  */
 cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
-    _hashTargets:null,
-    _arrayTargets:null,
-    _currentTarget:null,
-    _currentTargetSalvaged:false,
+
     _elementPool: [],
 
     _searchElementByTarget:function (arr, target) {
