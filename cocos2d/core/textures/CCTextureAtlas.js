@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2013-2017 Chukong Technologies Inc.
 
  http://www.cocos.com
 
@@ -41,19 +41,6 @@ var game = require('../CCGame');
  */
 
 var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
-    dirty: false,
-    texture: null,
-
-    _indices: null,
-    //0: vertex  1: indices
-    _buffersVBO: null,
-    _capacity: 0,
-
-    _quads: null,
-    _quadsArrayBuffer: null,
-    _quadsWebBuffer: null,
-    _quadsReader: null,
-
     /**
      * <p>Creates a TextureAtlas with an filename and with an initial capacity for Quads. <br />
      * The TextureAtlas capacity can be increased in runtime. </p>
@@ -64,7 +51,18 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
      * @example {@link utils/api/engine/docs/cocos2d/core/textures/TextureAtlas.js}
      */
     ctor: function (fileName, capacity) {
+        this.dirty = false;
+        this.texture = null;
+
+        this._indices = null;
+        //0: vertex  1: indices
         this._buffersVBO = [];
+        this._capacity = 0;
+
+        this._quads = null;
+        this._quadsArrayBuffer = null;
+        this._quadsWebBuffer = null;
+        this._quadsReader = null;
 
         if (cc.js.isString(fileName)) {
             this.initWithFile(fileName, capacity);
