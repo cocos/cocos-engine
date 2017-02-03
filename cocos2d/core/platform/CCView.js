@@ -109,25 +109,6 @@ var _scissorRect = null;
  * @class View
  */
 var View = cc._Class.extend({
-    _delegate: null,
-
-    _scaleX: 1,
-    _originalScaleX: 1,
-    _scaleY: 1,
-    _originalScaleY: 1,
-
-    _isRotated: false,
-    _orientation: 3,
-
-    _resolutionPolicy: null,
-    _initialized: false,
-
-    _contentTranslateLeftTop: null,
-
-    _frameZoomFactor: 1.0,
-    __resizeWithBrowserSize: false,
-    _isAdjustViewPort: true,
-
     /**
      * Constructor of View
      */
@@ -158,16 +139,33 @@ var View = cc._Class.extend({
         _t._resizeCallback = null;
         _t._orientationChanging = true;
 
+        _t._scaleX = 1;
+        _t._originalScaleX = 1;
+        _t._scaleY = 1;
+        _t._originalScaleY = 1;
+
+        _t._isRotated = false;
+        _t._orientation = 3;
+
         var sys = cc.sys;
         _t.enableRetina(sys.os === sys.OS_IOS || sys.os === sys.OS_OSX);
         cc.visibleRect && cc.visibleRect.init(_t._visibleRect);
 
         // Setup system default resolution policies
+        _t._resolutionPolicy = null;
         _t._rpExactFit = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.EXACT_FIT);
         _t._rpShowAll = new cc.ResolutionPolicy(_strategyer.PROPORTION_TO_FRAME, _strategy.SHOW_ALL);
         _t._rpNoBorder = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.NO_BORDER);
         _t._rpFixedHeight = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_HEIGHT);
         _t._rpFixedWidth = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
+
+        _t._initialized = false;
+
+        _t._contentTranslateLeftTop = null;
+
+        _t._frameZoomFactor = 1.0;
+        _t.__resizeWithBrowserSize = false;
+        _t._isAdjustViewPort = true;
 
         _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
         _t.enableAntiAlias(true);

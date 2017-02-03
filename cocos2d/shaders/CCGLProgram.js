@@ -35,11 +35,6 @@ var math = cc.math;
  * @extends cc._Class
  */
 cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
-    _programObj: null,
-    _vertShader: null,
-    _fragShader: null,
-    _usesTime: false,
-    _projectionUpdated: -1,
 
     // Uniform cache
     _updateUniformLocation: function (location) {
@@ -117,7 +112,11 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         this._uniforms = {};
         this._hashForUniforms = {};
         this._glContext = glContext || cc._renderContext;
-
+        this._programObj = null;
+        this._vertShader = null;
+        this._fragShader = null;
+        this._usesTime = false;
+        this._projectionUpdated = -1;
         vShaderFileName && fShaderFileName && this.init(vShaderFileName, fShaderFileName);
     },
 

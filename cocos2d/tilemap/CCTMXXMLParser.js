@@ -149,26 +149,23 @@ cc.TMXObjectGroupInfo = cc._Class.extend(/** @lends cc.TMXObjectGroupInfo# */{
  */
 cc.TMXTilesetInfo = cc._Class.extend(/** @lends cc.TMXTilesetInfo# */{
 
-    //Tileset name
-    name:"",
-
-    //First grid
-    firstGid:0,
-
-    //Spacing
-    spacing:0,
-
-    //Margin
-    margin:0,
-
-    //Filename containing the tiles (should be sprite sheet / texture atlas)
-    sourceImage:"",
-
     ctor:function () {
-        this._tileSize = cc.size(0, 0);
-        this.tileOffset = cc.p(0, 0);
-        //Size in pixels of the image
+        // Tileset name
+        this.name = "";
+        // First grid
+        this.firstGid = 0;
+        // Spacing
+        this.spacing = 0;
+        // Margin
+        this.margin = 0;
+        // Filename containing the tiles (should be sprite sheet / texture atlas)
+        this.sourceImage = "";
+        // Size in pixels of the image
         this.imageSize = cc.size(0, 0);
+
+        this.tileOffset = cc.p(0, 0);
+
+        this._tileSize = cc.size(0, 0);
     },
 
     /**

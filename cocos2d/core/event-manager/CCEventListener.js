@@ -47,14 +47,6 @@
  * @return {EventListener}
  */
 cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
-    _registered: false,      // Whether the listener has been added to dispatcher.
-
-    _fixedPriority: 0,       // The higher the number, the higher the priority, 0 is for scene graph base priority.
-    _node: null,             // scene graph based priority
-    _target: null,
-    _paused: true,           // Whether the listener is paused
-    _isEnabled: true,        // Whether the listener is enabled
-
     /*
      * Initializes event with type and callback function.
      * @param {Number} type
@@ -62,9 +54,16 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
      * @param {Function} callback
      */
     ctor: function (type, listenerID, callback) {
-        this._onEvent = callback;               // Event callback function
-        this._type = type || 0;                 // Event listener type
+        this._onEvent = callback;   // Event callback function
+        this._type = type || 0;     // Event listener type
         this._listenerID = listenerID || "";    // Event listener ID
+        this._registered = false;   // Whether the listener has been added to dispatcher.
+
+        this._fixedPriority = 0;    // The higher the number, the higher the priority, 0 is for scene graph base priority.
+        this._node = null;          // scene graph based priority
+        this._target = null;
+        this._paused = true;        // Whether the listener is paused
+        this._isEnabled = true;     // Whether the listener is enabled
     },
 
     /*
