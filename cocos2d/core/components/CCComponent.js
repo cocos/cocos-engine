@@ -26,7 +26,6 @@
 require('../platform/CCObject');
 require('../CCNode');
 var idGenerater = new (require('../platform/id-generater'))('Comp');
-var Misc = require('../utils/misc');
 
 var Flags = cc.Object.Flags;
 var IsOnEnableCalled = Flags.IsOnEnableCalled;
@@ -35,8 +34,6 @@ var IsPreloadCalled = Flags.IsPreloadCalled;
 var IsOnLoadStarted = Flags.IsOnLoadStarted;
 var IsOnLoadCalled = Flags.IsOnLoadCalled;
 var IsStartCalled = Flags.IsStartCalled;
-
-// only use eval in editor
 
 var callPreloadInTryCatch;
 var callOnLoadInTryCatch;
@@ -48,13 +45,18 @@ var callOnFocusInTryCatch;
 var callOnLostFocusInTryCatch;
 var callResetInTryCatch;
 
-var callerFunctor;
 if (CC_EDITOR) {
-    callerFunctor = function (funcName) {
-        var TMPL = CC_TEST ?
-            '(function call_FUNC_InTryCatch(c){try{c._FUNC_()}catch(e){cc._throw(e)}})':
-            '(function call_FUNC_InTryCatch (c) { c._FUNC_() })';
-        return eval(TMPL.replace(/_FUNC_/g, funcName));
+    // yes we use assignment expression here to avoid callerFunctor still being hoisted without CC_EDITOR
+    var callerFunctor = function (funcName) {
+        function call_FUNC_InTryCatch (comp) {
+            try {
+                comp._FUNC_();
+            }
+            catch (e) {
+                cc._throw(e);
+            }
+        }
+        return eval(('(' + call_FUNC_InTryCatch + ')').replace(/_FUNC_/g, funcName));
     };
     callPreloadInTryCatch = callerFunctor('__preload');
     callOnLoadInTryCatch = callerFunctor('onLoad');
