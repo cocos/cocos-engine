@@ -337,13 +337,13 @@ cc.Scheduler = cc._Class.extend({
     },
 
     _priorityIn: function (ppList, listElement, priority) {
-        var index2Insert = 0;
-        for(var end = ppList.length; index2Insert < end; index2Insert++){
-            if (priority < ppList[index2Insert].priority) {
-                break;
+        for (var i = 0; i < ppList.length; i++){
+            if (priority < ppList[i].priority) {
+                ppList.splice(i, 0, listElement);
+                return;
             }
         }
-        ppList.splice(index2Insert, 0, listElement);
+        ppList.push(listElement);
     },
 
     _appendIn: function (ppList, listElement) {
