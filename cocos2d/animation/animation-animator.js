@@ -6,7 +6,7 @@ var sampleMotionPaths = require('./motion-path-helper').sampleMotionPaths;
 var EventAnimCurve = require('./animation-curves').EventAnimCurve;
 var EventInfo = require('./animation-curves').EventInfo;
 var WrapModeMask = require('./types').WrapModeMask;
-var binarySearch = require('./binary-search');
+var binarySearch = require('../core/utils/binary-search').binarySearchEpsilon;
 
 // The actual animator for Animation Component
 
