@@ -287,37 +287,20 @@ var getTargetId = function (target) {
  * @class Scheduler
  */
 cc.Scheduler = cc._Class.extend({
-    _timeScale: 1.0,
-
-    //_updates : null, //_updates[0] list of priority < 0, _updates[1] list of priority == 0, _updates[2] list of priority > 0,
-    _updatesNegList: null,
-    _updates0List: null,
-    _updatesPosList: null,
-
-    _hashForTimers: null, //Used for "selectors with interval"
-    _arrayForTimers: null, //Speed up indexing
-    _hashForUpdates: null, // hash used to fetch quickly the list entries for pause,delete,etc
-    //_arrayForUpdates:null, //Speed up indexing
-
-    _currentTarget: null,
-    _currentTargetSalvaged: false,
-    _updateHashLocked: false, //If true unschedule will not remove anything from a hash. Elements will only be marked for deletion.
-
 
     ctor: function () {
         this._timeScale = 1.0;
-        this._updatesNegList = [];
-        this._updates0List = [];
-        this._updatesPosList = [];
-
-        this._hashForUpdates = {};
-        this._hashForTimers = {};
+        this._updatesNegList = [];  // list of priority < 0
+        this._updates0List = [];    // list of priority == 0
+        this._updatesPosList = [];  // list of priority > 0
+        this._hashForUpdates = {};  // hash used to fetch quickly the list entries for pause, delete, etc
+        this._hashForTimers = {};   // Used for "selectors with interval"
         this._currentTarget = null;
         this._currentTargetSalvaged = false;
-        this._updateHashLocked = false;
+        this._updateHashLocked = false; // If true unschedule will not remove anything from a hash. Elements will only be marked for deletion.
 
-        this._arrayForTimers = [];
-        //this._arrayForUpdates = [];
+        this._arrayForTimers = [];  // Speed up indexing
+        //this._arrayForUpdates = [];   // Speed up indexing
     },
 
     //-----------------------private method----------------------
@@ -354,21 +337,13 @@ cc.Scheduler = cc._Class.extend({
     },
 
     _priorityIn: function (ppList, listElement, priority) {
-        // empey list ?
-        if (!ppList) {
-            ppList = [];
-            ppList.push(listElement);
-        }
-        else {
-            var index2Insert = 0;
-            var end = ppList.length - 1;
-            for(; index2Insert <= end; index2Insert++){
-                if (priority < ppList[index2Insert].priority) {
-                    break;
-                }
+        var index2Insert = 0;
+        for(var end = ppList.length; index2Insert < end; index2Insert++){
+            if (priority < ppList[index2Insert].priority) {
+                break;
             }
-            ppList.splice(index2Insert, 0, listElement);
         }
+        ppList.splice(index2Insert, 0, listElement);
     },
 
     _appendIn: function (ppList, listElement) {

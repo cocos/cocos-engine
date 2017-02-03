@@ -29,9 +29,6 @@
  * @class saxParser
  */
 cc.SAXParser = cc._Class.extend(/** @lends cc.saxParser# */{
-    _parser: null,
-    _isSupportDOMParser: null,
-
     /**
      * Constructor of cc.SAXParser
      */
@@ -41,6 +38,7 @@ cc.SAXParser = cc._Class.extend(/** @lends cc.saxParser# */{
             this._parser = new DOMParser();
         } else {
             this._isSupportDOMParser = false;
+            this._parser = null;
         }
     },
 

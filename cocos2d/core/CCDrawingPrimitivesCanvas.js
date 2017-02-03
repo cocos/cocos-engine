@@ -32,7 +32,7 @@
  */
 cc.DrawingPrimitiveCanvas = cc._Class.extend(/** @lends cc.DrawingPrimitiveCanvas# */{
     _cacheArray:[],
-    _renderContext:null,
+
     /**
      * Constructor of cc.DrawingPrimitiveCanvas
      * @param {cc.CanvasContextWrapper} renderContext

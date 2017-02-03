@@ -35,12 +35,9 @@ var math = cc.math;
  * @extends cc._Class
  */
 cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
-    _glContext: null,
     _programObj: null,
     _vertShader: null,
     _fragShader: null,
-    _uniforms: null,
-    _hashForUniforms: null,
     _usesTime: false,
     _projectionUpdated: -1,
 

@@ -110,25 +110,6 @@ var _scissorRect = null;
  */
 var View = cc._Class.extend({
     _delegate: null,
-    // Size of parent node that contains cc.container and cc.game.canvas
-    _frameSize: null,
-    // resolution size, it is the size appropriate for the app resources.
-    _designResolutionSize: null,
-    _originalDesignResolutionSize: null,
-    // Viewport is the container's rect related to content's coordinates in pixel
-    _viewPortRect: null,
-    // The visible rect in content's coordinate in point
-    _visibleRect: null,
-    _retinaEnabled: false,
-    _autoFullScreen: false,
-    // The device's pixel ratio (for retina displays)
-    _devicePixelRatio: 1,
-    // the view name
-    _viewName: "",
-    // Custom callback for resize event
-    _resizeCallback: null,
-
-    _orientationChanging: true,
 
     _scaleX: 1,
     _originalScaleX: 1,
@@ -139,11 +120,6 @@ var View = cc._Class.extend({
     _orientation: 3,
 
     _resolutionPolicy: null,
-    _rpExactFit: null,
-    _rpShowAll: null,
-    _rpNoBorder: null,
-    _rpFixedHeight: null,
-    _rpFixedWidth: null,
     _initialized: false,
 
     _contentTranslateLeftTop: null,
@@ -151,8 +127,6 @@ var View = cc._Class.extend({
     _frameZoomFactor: 1.0,
     __resizeWithBrowserSize: false,
     _isAdjustViewPort: true,
-    _targetDensityDPI: null,
-    _antiAliasEnabled: true,
 
     /**
      * Constructor of View
@@ -162,16 +136,27 @@ var View = cc._Class.extend({
 
         __BrowserGetter.init(this);
 
+        // Size of parent node that contains cc.container and cc.game.canvas
         _t._frameSize = cc.size(0, 0);
         _t._initFrameSize();
 
         var w = cc.game.canvas.width, h = cc.game.canvas.height;
+        // resolution size, it is the size appropriate for the app resources.
         _t._designResolutionSize = cc.size(w, h);
         _t._originalDesignResolutionSize = cc.size(w, h);
+        // Viewport is the container's rect related to content's coordinates in pixel
         _t._viewPortRect = cc.rect(0, 0, w, h);
+        // The visible rect in content's coordinate in point
         _t._visibleRect = cc.rect(0, 0, w, h);
         _t._contentTranslateLeftTop = {left: 0, top: 0};
+        _t._autoFullScreen = false;
+        // The device's pixel ratio (for retina displays)
+        _t._devicePixelRatio = 1;
+        // the view name
         _t._viewName = "Cocos2dHTML5";
+        // Custom callback for resize event
+        _t._resizeCallback = null;
+        _t._orientationChanging = true;
 
         var sys = cc.sys;
         _t.enableRetina(sys.os === sys.OS_IOS || sys.os === sys.OS_OSX);

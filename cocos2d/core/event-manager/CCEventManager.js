@@ -24,8 +24,6 @@
  ****************************************************************************/
 
 var _EventListenerVector = cc._Class.extend({
-    _fixedListeners: null,
-    _sceneGraphListeners: null,
     gt0Index: 0,
 
     ctor: function () {

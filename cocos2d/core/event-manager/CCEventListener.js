@@ -47,9 +47,6 @@
  * @return {EventListener}
  */
 cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
-    _onEvent: null,          // Event callback function
-    _type: 0,                // Event listener type
-    _listenerID: null,       // Event listener ID
     _registered: false,      // Whether the listener has been added to dispatcher.
 
     _fixedPriority: 0,       // The higher the number, the higher the priority, 0 is for scene graph base priority.
@@ -65,9 +62,9 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
      * @param {Function} callback
      */
     ctor: function (type, listenerID, callback) {
-        this._onEvent = callback;
-        this._type = type || 0;
-        this._listenerID = listenerID || "";
+        this._onEvent = callback;               // Event callback function
+        this._type = type || 0;                 // Event listener type
+        this._listenerID = listenerID || "";    // Event listener ID
     },
 
     /*
