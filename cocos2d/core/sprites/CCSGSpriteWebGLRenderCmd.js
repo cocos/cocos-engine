@@ -274,7 +274,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         color = ((opacity<<24) >>> 0) + (b<<16) + (g<<8) + r;
     }
     else {
-        color = ((opacity<<24) >>> 0) + ((colorVal&0xff00)<<8) + ((colorVal&0xff0000)>>8) + (colorVal>>24);
+        color = ((opacity<<24) >>> 0) + ((colorVal&0xff00)<<8) + ((colorVal&0xff0000)>>8) + (colorVal>>>24);
     }
     var z = node._vertexZ;
 
