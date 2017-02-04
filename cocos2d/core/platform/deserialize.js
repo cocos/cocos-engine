@@ -383,7 +383,7 @@ var _Deserializer = (function () {
                 }
 
                 var accessor;
-                if (CCClass.VAR_REG.test(propName)) {
+                if (CCClass.IDENTIFIER_RE.test(propName)) {
                     propNameLiteral = '"' + propName + '"';
                     accessor = '.' + propName;
                 }
@@ -408,7 +408,7 @@ var _Deserializer = (function () {
                             '}');
             }
             else {
-                if (CCClass.VAR_REG.test(propName)) {
+                if (CCClass.IDENTIFIER_RE.test(propName)) {
                     propNameLiteral = '"' + propName + '"';
                 }
                 else {

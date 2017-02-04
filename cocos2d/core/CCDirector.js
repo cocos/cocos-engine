@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2017 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -100,79 +100,70 @@ cc.g_NumberOfDraws = 0;
  * @class Director
  */
 cc.Director = Class.extend(/** @lends cc.Director# */{
-    //Variables
-    _landscape: false,
-    _nextDeltaTimeZero: false,
-    _paused: false,
-    _purgeDirectorInNextLoop: false,
-    _sendCleanupToScene: false,
-    _animationInterval: 0.0,
-    _oldAnimationInterval: 0.0,
-    _projection: 0,
-    _contentScaleFactor: 1.0,
-
-    _deltaTime: 0.0,
-
-    _winSizeInPoints: null,
-
-    _lastUpdate: null,
-    _nextScene: null,
-    _openGLView: null,
-    _scenesStack: null,
-    _projectionDelegate: null,
-
-    _loadingScene: '',
-    _runningScene: null,    // The root of rendering scene graph
-
-    // The entity-component scene
-    _scene: null,
-
-    _totalFrames: 0,
-    _secondsPerFrame: 0,
-
-    _dirtyRegion: null,
-
-    _scheduler: null,
-    _actionManager: null,
-
     ctor: function () {
         var self = this;
-
         EventTarget.call(self);
+
+        self._landscape = false;
+        self._nextDeltaTimeZero = false;
+        // paused?
+        self._paused = false;
+        // purge?
+        self._purgeDirectorInNextLoop = false;
+        self._sendCleanupToScene = false;
+        self._animationInterval = 0.0;
+        self._oldAnimationInterval = 0.0;
+        self._projection = 0;
+        // projection delegate if "Custom" projection is used
+        self._projectionDelegate = null;
+        self._contentScaleFactor = 1.0;
+
+        self._winSizeInPoints = null;
+
+        self._openGLView = null;
+        // scenes
+        self._scenesStack = null;
+        self._nextScene = null;
+        self._loadingScene = '';
+        self._runningScene = null;    // The root of rendering scene graph
+
+        // The entity-component scene
+        self._scene = null;
+
+        // FPS
+        self._totalFrames = 0;
         self._lastUpdate = Date.now();
+        self._secondsPerFrame = 0;
+        self._deltaTime = 0.0;
+
+        self._dirtyRegion = null;
+
+        // Scheduler for user registration update
+        self._scheduler = null;
+        // Action manager
+        self._actionManager = null;
+
         cc.game.on(cc.game.EVENT_SHOW, function () {
             self._lastUpdate = Date.now();
         });
     },
 
     init: function () {
-        // scenes
         this._oldAnimationInterval = this._animationInterval = 1.0 / cc.defaultFPS;
         this._scenesStack = [];
         // Set default projection (3D)
         this._projection = cc.Director.PROJECTION_DEFAULT;
-        // projection delegate if "Custom" projection is used
-        this._projectionDelegate = null;
 
-        // FPS
+        this._projectionDelegate = null;
         this._totalFrames = 0;
         this._lastUpdate = Date.now();
-
-        //Paused?
         this._paused = false;
-
-        //purge?
         this._purgeDirectorInNextLoop = false;
-
         this._winSizeInPoints = cc.size(0, 0);
-
         this._openGLView = null;
         this._contentScaleFactor = 1.0;
-
-        // Scheduler for user registration update
         this._scheduler = new cc.Scheduler();
 
-        // Action manager
         if (cc.ActionManager) {
             this._actionManager = new cc.ActionManager();
             this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
@@ -181,7 +172,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         this.sharedInit();
-
         return true;
     },
 
@@ -246,10 +236,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         var docElem = document.documentElement;
         var view = cc.view;
         var box = docElem.getBoundingClientRect();
-        box.left += window.pageXOffset - docElem.clientLeft;
-        box.top += window.pageYOffset - docElem.clientTop;
-        var x = view._devicePixelRatio * (uiPoint.x - box.left);
-        var y = view._devicePixelRatio * (box.top + box.height - uiPoint.y);
+        var left = box.left + window.pageXOffset - docElem.clientLeft;
+        var top = box.top + window.pageYOffset - docElem.clientTop;
+        var x = view._devicePixelRatio * (uiPoint.x - left);
+        var y = view._devicePixelRatio * (top + box.height - uiPoint.y);
         return view._isRotated ? {x: view._viewPortRect.width - y, y: x} : {x: x, y: y};
     },
 
@@ -267,16 +257,16 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         var docElem = document.documentElement;
         var view = cc.view;
         var box = docElem.getBoundingClientRect();
-        box.left += window.pageXOffset - docElem.clientLeft;
-        box.top += window.pageYOffset - docElem.clientTop;
+        var left = box.left + window.pageXOffset - docElem.clientLeft;
+        var top = box.top + window.pageYOffset - docElem.clientTop;
         var uiPoint = {x: 0, y: 0};
         if (view._isRotated) {
-            uiPoint.x = box.left + glPoint.y / view._devicePixelRatio;
-            uiPoint.y = box.top + box.height - (view._viewPortRect.width - glPoint.x) / view._devicePixelRatio;
+            uiPoint.x = left + glPoint.y / view._devicePixelRatio;
+            uiPoint.y = top + box.height - (view._viewPortRect.width - glPoint.x) / view._devicePixelRatio;
         }
         else {
-            uiPoint.x = box.left + glPoint.x / view._devicePixelRatio;
-            uiPoint.y = box.top + box.height - glPoint.y / view._devicePixelRatio;
+            uiPoint.x = left + glPoint.x / view._devicePixelRatio;
+            uiPoint.y = top + box.height - glPoint.y / view._devicePixelRatio;
         }
         return uiPoint;
     },

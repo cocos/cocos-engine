@@ -347,7 +347,7 @@ function compileDestruct (obj, ctor) {
             continue;
         }
         var statement;
-        if (CCClass.VAR_REG.test(key)) {
+        if (CCClass.IDENTIFIER_RE.test(key)) {
             statement = 'o.' + key + '=';
         }
         else {
