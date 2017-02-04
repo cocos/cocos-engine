@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+// jshint evil: true
+
 // should not use long variable name because eval breaks uglify's mangle operation in this file
 var m = {};
 
@@ -90,18 +92,39 @@ m.NextPOT = function (x) {
 
 // wrap a new scope to enalbe minify
 
-// jshint evil: true
 m.cleanEval = function (code) {
     return eval(code);
 };
+
 m.cleanEval_F = function (code, F) {
     return eval(code);
 };
+
 m.cleanEval_fireClass = function (code) {
     var fireClass = eval(code);
     return fireClass;
 };
-// jshint evil: false
 
+if (CC_EDITOR) {
+    // use anonymous function here to ensure it will not being hoisted without CC_EDITOR
+
+    m.tryCatchFunctor_EDITOR = function (funcName, receivedArgs, usedArgs) {
+        function call_FUNC_InTryCatch (_R_ARGS_) {
+            try {
+                target._FUNC_(_U_ARGS_);
+            }
+            catch (e) {
+                cc._throw(e);
+            }
+        }
+
+        return eval(('(' + call_FUNC_InTryCatch + ')').
+            replace(/_FUNC_/g, funcName).
+            replace(/_R_ARGS_/g, 'target' + (receivedArgs ? ', ' + receivedArgs : '')).
+            replace(/_U_ARGS_/g, usedArgs || ''));
+    };
+}
 
 module.exports = m;
+
+// jshint evil: false

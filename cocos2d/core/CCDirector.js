@@ -27,6 +27,7 @@
 var EventTarget = require('./event/event-target');
 var Class = require('./platform/_CCClass');
 var AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
+var ComponentScheduler = require('./component-scheduler');
 
 cc.g_NumberOfDraws = 0;
 
@@ -140,6 +141,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
         // Scheduler for user registration update
         self._scheduler = null;
+        // Scheduler for life-cycle methods in component
+        self._componentScheduler = null;
         // Action manager
         self._actionManager = null;
 
@@ -180,6 +183,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * All platform independent init process should be occupied here.
      */
     sharedInit: function () {
+        this._componentScheduler = new ComponentScheduler();
+
         // Animation manager
         if (cc.AnimationManager) {
             this._animationManager = new cc.AnimationManager();

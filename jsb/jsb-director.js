@@ -34,6 +34,8 @@ cc.js.mixin(cc.director, {
      * All platform independent init process should be occupied here.
      */
     sharedInit: function () {
+        this._componentScheduler = new cc._ComponentScheduler();
+
         // Animation manager
         if (cc.AnimationManager) {
             this._animationManager = new cc.AnimationManager();
