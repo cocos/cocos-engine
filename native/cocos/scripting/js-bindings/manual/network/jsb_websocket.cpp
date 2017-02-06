@@ -164,9 +164,10 @@ public:
             JS::RootedValue args(cx, OBJECT_TO_JSVAL(jsobj));
             ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(_JSDelegate.ref()), "onclose", 1, args.address());
             
+#if not CC_ENABLE_GC_FOR_NATIVE_OBJECTS
             auto copy = &p->obj;
             JS::RemoveObjectRoot(cx, copy);
-#if not CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+#endif
             jsb_remove_proxy(p);
         }
         
@@ -174,9 +175,6 @@ public:
         CC_SAFE_DELETE(ws);
         // Delete self at last while websocket was closed.
         delete this;
-#else
-        }
-#endif
     }
 
     virtual void onError(WebSocket* ws, const WebSocket::ErrorCode& error)
@@ -214,19 +212,18 @@ JSObject *js_cocos2dx_websocket_prototype;
 void js_cocos2dx_WebSocket_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOG("jsbindings: finalizing JS object %p (WebSocket)", obj);
     
-#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     JS::RootedObject jsobj(ScriptingCore::getInstance()->getGlobalContext(), obj);
     js_proxy_t *p = jsb_get_js_proxy(jsobj);
     if (p)
     {
         WebSocket *ws = (WebSocket *)(p->ptr);
         jsb_remove_proxy(p);
-        // Delete delegate
-        delete ws->getDelegate();
-        // Delete WebSocket instance
-        CC_SAFE_DELETE(ws);
+        // Manually close if web socket is not closed
+        if (ws->getReadyState() != WebSocket::State::CLOSED)
+        {
+            ws->closeAsync();
+        }
     }
-#endif
 }
 
 bool js_cocos2dx_extension_WebSocket_send(JSContext *cx, uint32_t argc, jsval *vp)
