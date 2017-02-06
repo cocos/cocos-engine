@@ -3,6 +3,10 @@ var js = cc.js;
 
 if (CC_DEV) {
 
+    // cc.spriteFrameCache
+    js.get(cc, "spriteFrameCache", function () {
+        cc.errorID(1404);
+    });
 
     // Label
     if (cc.Label) {
@@ -23,7 +27,7 @@ if (CC_DEV) {
         cc.warnID(1401);
         return function (lhs, rhs) {
             return js.mixin(rhs, lhs);
-        }
+        };
     });
 
     /**
