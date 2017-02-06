@@ -1378,7 +1378,7 @@ var Node = cc.Class({
             return;
         cc.assertID(action, 1618);
 
-        if (CC_JSB) {
+        if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
             this._retainAction(action);
             this._sgNode._owner = this;
         }

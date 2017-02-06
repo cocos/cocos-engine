@@ -63,3 +63,10 @@ if (CC_DEV) {
     //Debug Info ID map
     require('../DebugInfos');
 }
+
+// Mark memory model
+var macro = require('../cocos2d/core/platform/CCMacro');
+
+if (window.__ENABLE_GC_FOR_NATIVE_OBJECTS__ !== undefined) {
+    macro.ENABLE_GC_FOR_NATIVE_OBJECTS = window.__ENABLE_GC_FOR_NATIVE_OBJECTS__;
+}
