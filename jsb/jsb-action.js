@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var ENABLE_GC_FOR_NATIVE_OBJECTS = cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS;
+
 // Independent Action from retain/release
 var actionArr = [
     'ActionEase',
@@ -100,15 +102,17 @@ function setAliasReplacer (name, type) {
     };
 }
 
-for (var i = 0; i < actionArr.length; ++i) {
-    var name = actionArr[i];
-    var type = cc[name];
-    if (!type) 
-        continue;
-    var proto = type.prototype;
-    setCtorReplacer(proto);
-    if (name.indexOf('Ease') === -1) {
-        setAliasReplacer(name, type);
+if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
+    for (var i = 0; i < actionArr.length; ++i) {
+        var name = actionArr[i];
+        var type = cc[name];
+        if (!type) 
+            continue;
+        var proto = type.prototype;
+        setCtorReplacer(proto);
+        if (name.indexOf('Ease') === -1) {
+            setAliasReplacer(name, type);
+        }
     }
 }
 
@@ -227,8 +231,10 @@ cc.callFunc = function (selector, selectorTarget, data) {
         selector.call(this, sender, data);
     };
     var action = cc.CallFunc.create(callback, selectorTarget, data);
-    action.retain();
-    action._retained = true;
+    if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
+        action.retain();
+        action._retained = true;
+    }
     return action;
 };
 
@@ -244,8 +250,10 @@ cc.CallFunc.prototype._ctor = function (selector, selectorTarget, data) {
             this.initWithFunction(callback);
         else this.initWithFunction(callback, selectorTarget, data);
     }
-    this.retain();
-    this._retained = true;
+    if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
+        this.retain();
+        this._retained = true;
+    }
 };
 
 function setChainFuncReplacer (proto, name) {
@@ -262,19 +270,21 @@ function setChainFuncReplacer (proto, name) {
     };
 }
 
-setChainFuncReplacer(cc.ActionInterval.prototype, 'repeat');
-setChainFuncReplacer(cc.ActionInterval.prototype, 'repeatForever');
-setChainFuncReplacer(cc.ActionInterval.prototype, 'easing');
+if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
+    setChainFuncReplacer(cc.ActionInterval.prototype, 'repeat');
+    setChainFuncReplacer(cc.ActionInterval.prototype, 'repeatForever');
+    setChainFuncReplacer(cc.ActionInterval.prototype, 'easing');
 
-var jsbRunAction = cc.Node.prototype.runAction;
-cc.Node.prototype.runAction = function (action) {
-    jsbRunAction.call(this, action);
-    if (action._retained) {
-        action.release();
-        action._retained = false;
-    }
-    return action;
-};
+    var jsbRunAction = cc.Node.prototype.runAction;
+    cc.Node.prototype.runAction = function (action) {
+        jsbRunAction.call(this, action);
+        if (action._retained) {
+            action.release();
+            action._retained = false;
+        }
+        return action;
+    };
+}
 
 function getSGTarget (target) {
     if (target instanceof cc.Component) {
@@ -293,7 +303,7 @@ cc.ActionManager.prototype.addAction = function (action, target, paused) {
     target = getSGTarget(target);
     if (target) {
         jsbAddAction.call(this, action, target, paused);
-        if (action._retained) {
+        if (!ENABLE_GC_FOR_NATIVE_OBJECTS && action._retained) {
             action.release();
             action._retained = false;
         }
@@ -304,12 +314,18 @@ function actionMgrFuncReplacer (funcName, targetPos) {
     var proto = cc.ActionManager.prototype;
     var oldFunc = proto[funcName];
     proto[funcName] = function () {
-        arguments[targetPos] = getSGTarget(arguments[targetPos]);
-        if (!arguments[targetPos]) {
+        var args = [];
+        for (var i = 0; i < arguments.length; i++) {
+            if (i === targetPos)
+                args[i] = getSGTarget(arguments[i]);
+            else
+                args[i] = arguments[i];
+        }
+        if (!args[targetPos]) {
             return;
         }
         else {
-            return oldFunc.apply(this, arguments);
+            return oldFunc.apply(this, args);
         }
     };
 }

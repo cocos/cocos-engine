@@ -47,6 +47,7 @@ if (CC_DEV) {
         "1401": "The first argument should be the destination object", //inject
         "1402": "The 'visible' property of %s is deprecated, use 'enabled' instead please.", //visible
         "1403": "Sorry, cc.audioEngine.willPlayMusic is removed.", //willPlayMusicError
+        "1404": "cc.spriteFrameCache is removed, please use cc.loader to load and cache sprite frames of atlas format.",
         //Scheduler: 1500
         "1500": "CCSheduler#scheduleCallback. Callback already scheduled. Updating interval from:%s to %s", //scheduleCallbackForTarget
         "1501": "cc.scheduler.scheduleCallbackForTarget(): callback_fn should be non-null.", //scheduleCallbackForTarget_2
