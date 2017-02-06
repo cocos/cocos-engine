@@ -56,10 +56,10 @@ var Color = (function () {
      */
     function Color( r, g, b, a ) {
         if (typeof r === 'object') {
-            r = r.r;
             g = r.g;
             b = r.b;
             a = r.a;
+            r = r.r;
         }
         r = r || 0;
         g = g || 0;
