@@ -145,6 +145,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
     initWithVertexShaderByteArray: function (vertShaderStr, fragShaderStr) {
         var locGL = this._glContext;
         this._programObj = locGL.createProgram();
+        this._projectionUpdated = -1;
         //cc.checkGLErrorDebug();
 
         this._vertShader = null;
