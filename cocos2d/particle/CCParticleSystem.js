@@ -912,6 +912,7 @@ var ParticleSystem = cc.Class({
                 sgNode.particleCount = 0;
 
                 var active = sgNode.isActive();
+                sgNode._plistFile = file;
                 sgNode.initWithDictionary(content, '');
 
                 // To avoid it export custom particle data textureImageData too large,
