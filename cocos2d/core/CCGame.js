@@ -512,7 +512,8 @@ var game = {
     _setAnimFrame: function () {
         this._lastTime = new Date();
         this._frameTime = 1000 / game.config[game.CONFIG_KEY.frameRate];
-        if((cc.sys.os === cc.sys.OS_IOS && cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT) || game.config[game.CONFIG_KEY.frameRate] !== 60) {
+        var frameRate = game.config[game.CONFIG_KEY.frameRate];
+        if(frameRate !== 60 && frameRate !== 30) {
             window.requestAnimFrame = this._stTime;
             window.cancelAnimationFrame = this._ctTime;
         }
@@ -550,15 +551,21 @@ var game = {
     //Run game.
     _runMainLoop: function () {
         var self = this, callback, config = self.config, CONFIG_KEY = self.CONFIG_KEY,
-            director = cc.director;
+            director = cc.director,
+            skip = true, frameRate = config[CONFIG_KEY.frameRate];
 
         director.setDisplayStats(config[CONFIG_KEY.showFPS]);
 
         callback = function () {
             if (!self._paused) {
+                if (frameRate === 30) {
+                    if (skip = !skip) {
+                        window.requestAnimFrame(callback);
+                        return;
+                    }
+                }
+
                 director.mainLoop();
-                if(self._intervalId)
-                    window.cancelAnimationFrame(self._intervalId);
                 self._intervalId = window.requestAnimFrame(callback);
             }
         };
