@@ -573,13 +573,18 @@ void AssetsManagerEx::parseVersion()
         else
         {
             _updateState = State::NEED_UPDATE;
-            dispatchUpdateEvent(EventAssetsManagerEx::EventCode::NEW_VERSION_FOUND);
 
             // Wait to update so continue the process
             if (_updateEntry == UpdateEntry::DO_UPDATE)
             {
+                // dispatch after checking update entry because event dispatching may modify the update entry
+                dispatchUpdateEvent(EventAssetsManagerEx::EventCode::NEW_VERSION_FOUND);
                 _updateState = State::PREDOWNLOAD_MANIFEST;
                 downloadManifest();
+            }
+            else
+            {
+                dispatchUpdateEvent(EventAssetsManagerEx::EventCode::NEW_VERSION_FOUND);
             }
         }
     }
