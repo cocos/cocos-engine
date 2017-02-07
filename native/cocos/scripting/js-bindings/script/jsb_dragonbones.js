@@ -20,8 +20,8 @@
  * THE SOFTWARE.
  */
 
-var proto = dragonBones.CCArmatureDisplay.prototype;
-proto.animation = proto.getAnimation;
+var _proto = dragonBones.CCArmatureDisplay.prototype;
+_proto.animation = _proto.getAnimation;
 
 var slotProto = dragonBones.Slot.prototype;
 cc.defineGetterSetter(slotProto, 'childArmature', slotProto.getChildArmature, slotProto.setChildArmature);
