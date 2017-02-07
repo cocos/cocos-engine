@@ -1380,6 +1380,8 @@ var Node = cc.Class({
 
         if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
             this._retainAction(action);
+        }
+        if (CC_JSB) {
             this._sgNode._owner = this;
         }
         cc.director.getActionManager().addAction(action, this, false);
