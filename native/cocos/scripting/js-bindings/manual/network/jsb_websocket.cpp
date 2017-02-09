@@ -305,7 +305,7 @@ bool js_cocos2dx_extension_WebSocket_constructor(JSContext *cx, uint32_t argc, j
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
-    if (argc == 1 || argc == 2)
+    if (argc == 1 || argc == 2 || argc == 3)
     {
         std::string url;
 
@@ -318,8 +318,9 @@ bool js_cocos2dx_extension_WebSocket_constructor(JSContext *cx, uint32_t argc, j
         JS::RootedObject obj(cx, JS_NewObject(cx, js_cocos2dx_websocket_class, proto, JS::NullPtr()));
 
         WebSocket* cobj = nullptr;
-        if (argc == 2)
+        if (argc >= 2)
         {
+            std::string caFilePath;
             std::vector<std::string> protocols;
 
             if (args.get(1).isString())
@@ -353,11 +354,19 @@ bool js_cocos2dx_extension_WebSocket_constructor(JSContext *cx, uint32_t argc, j
                     protocols.push_back(protocol);
                 }
             }
+
+            if (argc > 2)
+            {
+                do {
+                    bool ok = jsval_to_std_string(cx, args.get(2), &caFilePath);
+                    JSB_PRECONDITION2( ok, cx, false, "Error processing arguments");
+                } while (0);
+            }
             
             cobj = new (std::nothrow) WebSocket();
             JSB_WebSocketDelegate* delegate = new (std::nothrow) JSB_WebSocketDelegate();
             delegate->setJSDelegate(obj);
-            cobj->init(*delegate, url, &protocols);
+            cobj->init(*delegate, url, &protocols, caFilePath);
         }
         else
         {
