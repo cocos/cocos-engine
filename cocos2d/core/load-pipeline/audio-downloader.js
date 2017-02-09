@@ -55,7 +55,9 @@ function loadDomAudio (item, callback) {
     };
     var failure = function () {
         clearEvent();
-        cc.log('load audio failure - ' + item.url);
+        var message = 'load audio failure - ' + item.url;
+        cc.log(message);
+        callback(message, item.url);
     };
     dom.addEventListener("canplaythrough", success, false);
     dom.addEventListener("error", failure, false);
