@@ -912,7 +912,14 @@ var ParticleSystem = cc.Class({
                 sgNode.particleCount = 0;
 
                 var active = sgNode.isActive();
-                sgNode.initWithDictionary(content, '');
+
+                if (CC_EDITOR) {
+                    sgNode._plistFile = file;
+                    sgNode.initWithDictionary(content, '');
+                }
+                else {
+                    sgNode.initWithFile(file);
+                }
 
                 // To avoid it export custom particle data textureImageData too large,
                 // so use the texutreUuid instead of textureImageData

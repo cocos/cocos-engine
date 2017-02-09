@@ -91,14 +91,16 @@ function loadImage (item, callback) {
         });
     }
     else {
-        cc.textureCache._addImageAsync(url, function (tex){
+        var addImageCallback = function (tex) {
             if (tex instanceof cc.Texture2D) {
                 callback && callback(null, tex);
             }
             else {
                 callback && callback(new Error('Load image failed: ' + url));
             }
-        });
+            jsb.unregisterNativeRef(cc.textureCache, addImageCallback);
+        };
+        cc.textureCache._addImageAsync(url, addImageCallback);
     }
 }
 

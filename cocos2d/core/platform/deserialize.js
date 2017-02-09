@@ -431,6 +431,24 @@ var _Deserializer = (function () {
         return cleanEval(sources.join(''));
     }
 
+    function unlinkUnusedPrefab (self, serialized, obj) {
+        var uuid = serialized['asset'] && serialized['asset'].__uuid__;
+        if (uuid) {
+            var last = self.result.uuidList.length - 1;
+            if (self.result.uuidList[last] === uuid &&
+                self.result.uuidObjList[last] === obj &&
+                self.result.uuidPropList[last] === 'asset') {
+                self.result.uuidList.pop();
+                self.result.uuidObjList.pop();
+                self.result.uuidPropList.pop();
+            }
+            else {
+                var debugEnvOnlyInfo = 'Failed to skip prefab asset while deserializing PrefabInfo';
+                cc.warn(debugEnvOnlyInfo);
+            }
+        }
+    }
+
     function _deserializeFireClass (self, obj, serialized, klass, target) {
         var deserialize = klass.__deserialize__;
         if (!deserialize) {
@@ -441,19 +459,10 @@ var _Deserializer = (function () {
             Object.defineProperty(klass, '__deserialize__', { value: deserialize, writable: true });
         }
         deserialize(self, obj, serialized, klass, target);
-
-        // HACK: remove unneeded asset property
-        if (/* preview or build */
-            CC_DEV && (!CC_EDITOR || self._ignoreEditorOnly) &&
-            klass === cc._PrefabInfo && !obj.sync) {
-            var uuid = serialized['asset'] && serialized['asset'].__uuid__;
-            if (uuid) {
-                var index = self.result.uuidList.indexOf(uuid);
-                if (index !== -1) {
-                    JS.array.fastRemoveAt(self.result.uuidList, index);
-                    JS.array.fastRemoveAt(self.result.uuidObjList, index);
-                    JS.array.fastRemoveAt(self.result.uuidPropList, index);
-                }
+        // if preview or build
+        if (CC_DEV && (!CC_EDITOR || self._ignoreEditorOnly)) {
+            if (klass === cc._PrefabInfo && !obj.sync) {
+                unlinkUnusedPrefab(self, serialized, obj);
             }
         }
     }
