@@ -257,18 +257,6 @@ str
 },
 
 /**
- * @method setTrackEventListener
- * @param {spTrackEntry} arg0
- * @param {function} arg1
- */
-setTrackEventListener : function (
-sptrackentry, 
-func 
-)
-{
-},
-
-/**
  * @method setMix
  * @param {String} arg0
  * @param {String} arg1
@@ -287,40 +275,6 @@ float
  * @param {function} arg0
  */
 setDisposeListener : function (
-func 
-)
-{
-},
-
-/**
- * @method setTrackInterruptListener
- * @param {spTrackEntry} arg0
- * @param {function} arg1
- */
-setTrackInterruptListener : function (
-sptrackentry, 
-func 
-)
-{
-},
-
-/**
- * @method setTrackDisposeListener
- * @param {spTrackEntry} arg0
- * @param {function} arg1
- */
-setTrackDisposeListener : function (
-sptrackentry, 
-func 
-)
-{
-},
-
-/**
- * @method setEventListener
- * @param {function} arg0
- */
-setEventListener : function (
 func 
 )
 {
@@ -357,10 +311,10 @@ func
 },
 
 /**
- * @method setStartListener
+ * @method setEventListener
  * @param {function} arg0
  */
-setStartListener : function (
+setEventListener : function (
 func 
 )
 {
@@ -388,6 +342,16 @@ func
  * @method clearTracks
  */
 clearTracks : function (
+)
+{
+},
+
+/**
+ * @method setStartListener
+ * @param {function} arg0
+ */
+setStartListener : function (
+func 
 )
 {
 },
