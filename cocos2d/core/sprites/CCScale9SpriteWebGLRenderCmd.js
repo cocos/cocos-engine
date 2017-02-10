@@ -102,6 +102,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
     }
 
     if (node._distortionOffset && this._shaderProgram === Scale9Sprite.WebGLRenderCmd._distortionProgram) {
+        this._shaderProgram.use();
         this._shaderProgram.setUniformLocationWith2f(
             Scale9Sprite.WebGLRenderCmd._distortionOffset,
             node._distortionOffset.x, node._distortionOffset.y
