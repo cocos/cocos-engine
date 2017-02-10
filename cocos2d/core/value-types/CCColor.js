@@ -386,8 +386,8 @@ var Color = (function () {
     };
 
     /**
-     * !#en Read hex string and store color data into the current color object
-     * !#zh 读取 16 进制。
+     * !#en Read hex string and store color data into the current color object, the hex string must be formated as rgba or rgb.
+     * !#zh 读取 16 进制颜色。
      * @method fromHEX
      * @param {String} hexString
      * @return {Color}
@@ -397,8 +397,11 @@ var Color = (function () {
      * color.fromHEX("#FFFF33"); // Color {r: 255, g: 255, b: 51, a: 255};
      */
     proto.fromHEX = function (hexString) {
+        if (hexString.length < 8) {
+            hexString += 'FF';
+        }
         var hex = parseInt(((hexString.indexOf('#') > -1) ? hexString.substring(1) : hexString), 16);
-        this._val = (this._val & 0xff000000) | hex;
+        this._val = ((this._val & 0xff000000) | hex) >>> 0;
         return this;
     };
 
