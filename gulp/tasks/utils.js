@@ -1,6 +1,7 @@
 'use strict';
 
 const Path = require('path');
+allowReturnOutsideFunctionInBrowserifyTransform();
 const Browserify = require('browserify');
 
 exports.uglifyOptions = function (minify, global_defs) {
@@ -50,15 +51,79 @@ exports.uglifyOptions = function (minify, global_defs) {
     };
 };
 
-exports.createBundler = function createBundler(entryFiles) {
+
+
+function allowReturnOutsideFunctionInBrowserifyTransform () {
+    var acorn;
+    try {
+        acorn = require('acorn');
+    }
+    catch (e) {
+        console.warn('Can not find acorn to patch');
+        return;
+    }
+    var parse = acorn.parse;
+    if (typeof parse === 'function') {
+        if (acorn.parse.name !== 'monkeyPatchedParse') {
+            acorn.parse = function monkeyPatchedParse(input, options) {
+                options.allowReturnOutsideFunction = true;
+                return parse(input, options);
+            };
+        }
+    }
+    else {
+        console.warn('Can not find acorn.parse to patch');
+    }
+}
+
+exports.createBundler = function createBundler(entryFiles, babelifyOpt) {
     // https://github.com/substack/node-browserify#methods
     var options = {
-        debug: true, //temporarily disable due to an asar packing bug
+        debug: true,
         detectGlobals: false,    // dont insert `process`, `global`, `__filename`, and `__dirname`
-        bundleExternal: false    // dont bundle external modules
+        bundleExternal: false,   // dont bundle external modules
         //standalone: 'engine-framework',
         //basedir: tempScriptDir
     };
+
+    // var presets = [
+    //     [ 'es2015', { loose: true } ],
+    // ];
+
+    var plugins = [
+        // https://babeljs.io/docs/plugins/transform-es2015-shorthand-properties/
+        'babel-plugin-transform-es2015-shorthand-properties',
+        // https://babeljs.io/docs/plugins/transform-es2015-template-literals/
+        'babel-plugin-transform-es2015-template-literals',
+        // http://babeljs.io/docs/plugins/transform-es2015-block-scoping/
+        'babel-plugin-transform-es2015-block-scoping',
+
+        // < 6.16.0
+        [ 'babel-plugin-parser-opts', { allowReturnOutsideFunction: true } ]
+    ];
+
+    var Babelify;
+    try {
+        Babelify = require('babelify');
+    } catch (e) {
+        console.error('Please run "npm install babelify".');
+        throw e;
+    }
     return new Browserify(entryFiles, options)
-        .exclude(Path.join(__dirname, '../../package.json'));
+        .exclude(Path.join(__dirname, '../../package.json'))
+        .transform(Babelify, babelifyOpt || {
+            // presets: presets,
+            plugins: plugins,
+
+            // >= 6.16.0
+            // parserOpts: {
+            //     allowReturnOutsideFunction: true,
+            // },
+
+            ast: false,
+            babelrc: false,
+            highlightCode: false,
+            sourceMaps: true,
+            compact: false
+        });
 };

@@ -48,22 +48,15 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
         .pipe(Gulp.dest(Path.dirname(outputFile)));
 
     if (Fs.existsSync(sourceFileForExtends)) {
-        var Babelify;
-        try {
-            Babelify = require('babelify');
-        } catch (e) {
-            console.error('Please run "npm install babelify".');
-            throw e;
-        }
-        var engineExtends = Utils.createBundler(sourceFileForExtends)
-            .ignore('./bin/modular-cocos2d-cut.js')
-            .transform(Babelify, {
+        var engineExtends = Utils.createBundler(sourceFileForExtends, {
                 presets: ["es2015"],
                 ast: false,
+                babelrc: false,
                 highlightCode: false,
                 sourceMaps: true,
                 compact: false
             })
+            .ignore('./bin/modular-cocos2d-cut.js')
             .bundle()
             .on('error', HandleErrors.handler)
             .pipe(HandleErrors())
