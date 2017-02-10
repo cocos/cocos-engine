@@ -45,7 +45,7 @@ NS_CC_EXT_BEGIN
 #define BUFFER_SIZE    8192
 #define MAX_FILENAME   512
 
-#define DEFAULT_CONNECTION_TIMEOUT 16
+#define DEFAULT_CONNECTION_TIMEOUT 45
 
 #define SAVE_POINT_INTERVAL 0.1
 
@@ -90,7 +90,6 @@ AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::stri
         ".tmp"
     };
     _downloader = std::shared_ptr<network::Downloader>(new network::Downloader(hints));
-//    _downloader->setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
     _downloader->onTaskError = std::bind(&AssetsManagerEx::onError, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
     _downloader->onTaskProgress = [this](const network::DownloadTask& task,
                                          int64_t /*bytesReceived*/,
