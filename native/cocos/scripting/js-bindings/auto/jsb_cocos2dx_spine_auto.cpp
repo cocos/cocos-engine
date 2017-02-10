@@ -515,7 +515,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_getSkeleton(JSContext *cx, uint32_t argc
     if (argc == 0) {
         spSkeleton* ret = cobj->getSkeleton();
         JS::RootedValue jsret(cx);
-        jsret = spskeleton_to_jsval(cx, *ret);
+        jsret = ret == nullptr ? JSVAL_NULL : spskeleton_to_jsval(cx, *ret);
         args.rval().set(jsret);
         return true;
     }
@@ -907,7 +907,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_findAnimation(JSContext *cx, uint32_t a
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonAnimation_findAnimation : Error processing arguments");
         spAnimation* ret = cobj->findAnimation(arg0);
         JS::RootedValue jsret(cx);
-        jsret = spanimation_to_jsval(cx, *ret);
+        jsret = ret == nullptr ? JSVAL_NULL : spanimation_to_jsval(cx, *ret);
         args.rval().set(jsret);
         return true;
     }
@@ -936,8 +936,8 @@ bool js_cocos2dx_spine_SkeletonAnimation_setTrackEventListener(JSContext *cx, ui
 		        auto lambda = [=](spTrackEntry* larg0, spEvent* larg1) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            jsval largv[2];
-		            largv[0] = sptrackentry_to_jsval(cx, *larg0);
-		            largv[1] = spevent_to_jsval(cx, *larg1);
+		            largv[0] = larg0 == nullptr ? JSVAL_NULL : sptrackentry_to_jsval(cx, *larg0);
+		            largv[1] = larg1 == nullptr ? JSVAL_NULL : spevent_to_jsval(cx, *larg1);
 		            JS::RootedValue rval(cx);
 		            bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(2, largv), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -1003,7 +1003,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_setDisposeListener(JSContext *cx, uint3
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            jsval largv[1];
-		            largv[0] = sptrackentry_to_jsval(cx, *larg0);
+		            largv[0] = larg0 == nullptr ? JSVAL_NULL : sptrackentry_to_jsval(cx, *larg0);
 		            JS::RootedValue rval(cx);
 		            bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -1048,7 +1048,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_setTrackInterruptListener(JSContext *cx
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            jsval largv[1];
-		            largv[0] = sptrackentry_to_jsval(cx, *larg0);
+		            largv[0] = larg0 == nullptr ? JSVAL_NULL : sptrackentry_to_jsval(cx, *larg0);
 		            JS::RootedValue rval(cx);
 		            bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -1093,7 +1093,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_setTrackDisposeListener(JSContext *cx, 
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            jsval largv[1];
-		            largv[0] = sptrackentry_to_jsval(cx, *larg0);
+		            largv[0] = larg0 == nullptr ? JSVAL_NULL : sptrackentry_to_jsval(cx, *larg0);
 		            JS::RootedValue rval(cx);
 		            bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -1135,8 +1135,8 @@ bool js_cocos2dx_spine_SkeletonAnimation_setEventListener(JSContext *cx, uint32_
 		        auto lambda = [=](spTrackEntry* larg0, spEvent* larg1) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            jsval largv[2];
-		            largv[0] = sptrackentry_to_jsval(cx, *larg0);
-		            largv[1] = spevent_to_jsval(cx, *larg1);
+		            largv[0] = larg0 == nullptr ? JSVAL_NULL : sptrackentry_to_jsval(cx, *larg0);
+		            largv[1] = larg1 == nullptr ? JSVAL_NULL : spevent_to_jsval(cx, *larg1);
 		            JS::RootedValue rval(cx);
 		            bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(2, largv), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -1178,7 +1178,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_setEndListener(JSContext *cx, uint32_t 
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            jsval largv[1];
-		            largv[0] = sptrackentry_to_jsval(cx, *larg0);
+		            largv[0] = larg0 == nullptr ? JSVAL_NULL : sptrackentry_to_jsval(cx, *larg0);
 		            JS::RootedValue rval(cx);
 		            bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -1212,7 +1212,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_getState(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         spAnimationState* ret = cobj->getState();
         JS::RootedValue jsret(cx);
-        jsret = spanimationstate_to_jsval(cx, *ret);
+        jsret = ret == nullptr ? JSVAL_NULL : spanimationstate_to_jsval(cx, *ret);
         args.rval().set(jsret);
         return true;
     }
@@ -1238,7 +1238,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_setCompleteListener(JSContext *cx, uint
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            jsval largv[1];
-		            largv[0] = sptrackentry_to_jsval(cx, *larg0);
+		            largv[0] = larg0 == nullptr ? JSVAL_NULL : sptrackentry_to_jsval(cx, *larg0);
 		            JS::RootedValue rval(cx);
 		            bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -1280,7 +1280,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_setStartListener(JSContext *cx, uint32_
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            jsval largv[1];
-		            largv[0] = sptrackentry_to_jsval(cx, *larg0);
+		            largv[0] = larg0 == nullptr ? JSVAL_NULL : sptrackentry_to_jsval(cx, *larg0);
 		            JS::RootedValue rval(cx);
 		            bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -1347,7 +1347,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_setInterruptListener(JSContext *cx, uin
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            jsval largv[1];
-		            largv[0] = sptrackentry_to_jsval(cx, *larg0);
+		            largv[0] = larg0 == nullptr ? JSVAL_NULL : sptrackentry_to_jsval(cx, *larg0);
 		            JS::RootedValue rval(cx);
 		            bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
