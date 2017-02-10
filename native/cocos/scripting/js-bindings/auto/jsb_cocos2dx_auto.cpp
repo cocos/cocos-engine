@@ -13487,7 +13487,7 @@ bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc,
 			        } else {
 			            largv[0] = JSVAL_NULL;
 			        };
-			            largv[1] = uniform_to_jsval(cx, larg1);
+			            largv[1] = larg1 == nullptr ? JSVAL_NULL : uniform_to_jsval(cx, larg1);
 			            JS::RootedValue rval(cx);
 			            bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(2, largv), &rval);
 			            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -13529,7 +13529,7 @@ bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc,
 			        } else {
 			            largv[0] = JSVAL_NULL;
 			        };
-			            largv[1] = uniform_to_jsval(cx, larg1);
+			            largv[1] = larg1 == nullptr ? JSVAL_NULL : uniform_to_jsval(cx, larg1);
 			            JS::RootedValue rval(cx);
 			            bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(2, largv), &rval);
 			            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -51835,7 +51835,7 @@ bool js_cocos2dx_GLProgram_getUniform(JSContext *cx, uint32_t argc, jsval *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_getUniform : Error processing arguments");
         cocos2d::Uniform* ret = cobj->getUniform(arg0);
         JS::RootedValue jsret(cx);
-        jsret = uniform_to_jsval(cx, ret);
+        jsret = ret == nullptr ? JSVAL_NULL : uniform_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
     }
