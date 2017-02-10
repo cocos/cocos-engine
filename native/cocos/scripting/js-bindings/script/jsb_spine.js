@@ -22,38 +22,19 @@
 
 sp.ANIMATION_EVENT_TYPE = {
     START: 0,
-    END: 1,
-    COMPLETE: 2,
-    EVENT: 3
+    INTERRUPT: 1,
+    END: 2,
+    DISPOSE: 3,
+    COMPLETE: 4,
+    EVENT: 5
 };
 
 // The methods are added to be compatibility with old versions.
-sp.SkeletonAnimation.prototype.setStartListener = function (listener) {
-    this._startListener = listener;
-    this.setStartListenerNative(function (trackEntry) {
-        this._startListener(trackEntry.trackIndex);
-    });
-};
-
-sp.SkeletonAnimation.prototype.setEndListener = function (listener) {
-    this._endListener = listener;
-    this.setEndListenerNative(function (trackEntry) {
-        this._endListener(trackEntry.trackIndex);
-    });
-};
-
 sp.SkeletonAnimation.prototype.setCompleteListener = function (listener) {
     this._compeleteListener = listener;
     this.setCompleteListenerNative(function (trackEntry) {
         var loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
-        this._compeleteListener(trackEntry.trackIndex, loopCount);
-    });
-};
-
-sp.SkeletonAnimation.prototype.setEventListener = function (listener) {
-    this._eventListener = listener;
-    this.setEventListenerNative(function (trackEntry, event) {
-        this._eventListener(trackEntry.trackIndex, event);
+        this._compeleteListener(trackEntry, loopCount);
     });
 };
 
@@ -62,27 +43,39 @@ sp.SkeletonAnimation.prototype.setAnimationListener = function (target, callback
     this._target = target;
     this._callback = callback;
 
-    this.setStartListener(function (trackIndex) {
+    this.setStartListener(function (trackEntry) {
         if (this._target && this._callback) {
-            this._callback.call(this._target, this, trackIndex, sp.ANIMATION_EVENT_TYPE.START, null, 0);
+            this._callback.call(this._target, this, trackEntry, sp.ANIMATION_EVENT_TYPE.START, null, 0);
         }
     });
 
-    this.setEndListener(function (trackIndex) {
+    this.setInterruptListener(function (trackEntry) {
         if (this._target && this._callback) {
-            this._callback.call(this._target, this, trackIndex, sp.ANIMATION_EVENT_TYPE.END, null, 0);
+            this._callback.call(this._target, this, trackEntry, sp.ANIMATION_EVENT_TYPE.INTERRUPT, null, 0);
         }
     });
 
-    this.setCompleteListener(function (trackIndex, loopCount) {
+    this.setEndListener(function (trackEntry) {
         if (this._target && this._callback) {
-            this._callback.call(this._target, this, trackIndex, sp.ANIMATION_EVENT_TYPE.COMPLETE, null, loopCount);
+            this._callback.call(this._target, this, trackEntry, sp.ANIMATION_EVENT_TYPE.END, null, 0);
         }
     });
 
-    this.setEventListener(function (trackIndex, event) {
+    this.setDisposeListener(function (trackEntry) {
         if (this._target && this._callback) {
-            this._callback.call(this._target, this, trackIndex, sp.ANIMATION_EVENT_TYPE.EVENT, event, 0);
+            this._callback.call(this._target, this, trackEntry, sp.ANIMATION_EVENT_TYPE.DISPOSE, null, 0);
+        }
+    });
+
+    this.setCompleteListener(function (trackEntry, loopCount) {
+        if (this._target && this._callback) {
+            this._callback.call(this._target, this, trackEntry, sp.ANIMATION_EVENT_TYPE.COMPLETE, null, loopCount);
+        }
+    });
+
+    this.setEventListener(function (trackEntry, event) {
+        if (this._target && this._callback) {
+            this._callback.call(this._target, this, trackEntry, sp.ANIMATION_EVENT_TYPE.EVENT, event, 0);
         }
     });
 }
