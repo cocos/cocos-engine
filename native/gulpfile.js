@@ -142,9 +142,9 @@ gulp.task('gen-simulator', function (cb) {
     child.on('close', (code) => {
       if (code !== 0) {
         console.error('Generate simulator failed');
-        cb();
-        return;
       }
+      cb();
+      return;
     });
     child.on('error', function () {
       console.error('Generate simulator failed');
