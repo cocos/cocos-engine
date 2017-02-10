@@ -75,23 +75,33 @@ sp.AnimationEventType = cc.Enum({
      */
     START: 0,
     /**
+     * !#en Another entry has replaced this entry as the current entry. This entry may continue being applied for mixing.
+     * !#zh 当前的 entry 被其他的 entry 替换。当使用 mixing 时，当前的 entry 会继续运行。
+     */
+    INTERRUPT: 1,
+    /**
      * !#en The play spine skeleton animation finish type.
      * !#zh 播放骨骼动画结束。
      * @property {Number} END
      */
-    END: 1,
+    END: 2,
+    /**
+     * !#en The entry will be disposed.
+     * !#zh entry 将被销毁。
+     */
+    DISPOSE: 3,
     /**
      * !#en The play spine skeleton animation complete type.
      * !#zh 播放骨骼动画完成。
      * @property {Number} COMPLETE
      */
-    COMPLETE: 2,
+    COMPLETE: 4,
     /**
      * !#en The spine skeleton animation event type.
      * !#zh 骨骼动画事件。
      * @property {Number} EVENT
      */
-    EVENT: 3
+    EVENT: 5
 });
 
 /**
