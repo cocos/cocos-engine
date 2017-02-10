@@ -400,7 +400,7 @@ jsval sptrackentry_to_jsval(JSContext* cx, spTrackEntry& v)
         ok &= JS_SetProperty(cx, entry, "animationLast", val);
         val.set(DOUBLE_TO_JSVAL(v.nextAnimationLast));
         ok &= JS_SetProperty(cx, entry, "nextAnimationLast", val);
-        val.set(spanimation_to_jsval(cx, *v.animation));
+        val.set(v.animation == nullptr ? JSVAL_NULL : spanimation_to_jsval(cx, *v.animation));
         ok &= JS_SetProperty(cx, entry, "animation", val);
         
         if (ok)
