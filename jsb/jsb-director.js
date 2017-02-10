@@ -398,9 +398,12 @@ cc.Director.EVENT_BEFORE_SCENE_LAUNCH = 'director_before_scene_launch';
 cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
 cc.Director.EVENT_COMPONENT_UPDATE = 'director_component_update';
 cc.Director.EVENT_COMPONENT_LATE_UPDATE = 'director_component_late_update';
+cc.Director._EVENT_NEXT_TICK = '_director_next_tick';
 
 cc.eventManager.addCustomListener(cc.Director.EVENT_BEFORE_UPDATE, function () {
     var dt = cc.director.getDeltaTime();
+    // cocos-creator/fireball#5157
+    cc.director.emit(cc.Director._EVENT_NEXT_TICK);
     // Call start for new added components
     cc.director.emit(cc.Director.EVENT_BEFORE_UPDATE);
     // Update for components
