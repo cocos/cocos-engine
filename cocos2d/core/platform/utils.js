@@ -71,7 +71,7 @@ module.exports = {
             CC_JSB ?
                 function (callback, p1, p2) {
                     if (callback) {
-                        cc.director.once(cc.Director.EVENT_BEFORE_UPDATE, function () {
+                        cc.director.once(cc.Director._EVENT_NEXT_TICK, function () {
                             callback(p1, p2);
                         });
                     }
