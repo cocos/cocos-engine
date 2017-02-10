@@ -331,7 +331,7 @@ var View = cc._Class.extend({
             cc.container.style.transformOrigin = '0px 0px 0px';
             this._isRotated = true;
         }
-        if (cc.view._orientationChanging) {
+        if (this._orientationChanging) {
             setTimeout(function () {
                 cc.view._orientationChanging = false;
             }, 1000);
