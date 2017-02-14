@@ -132,7 +132,7 @@ cc.eventManager = {
         }
         if (node.getChildren) {
             var _children = node.getChildren();
-            for(var i = 0, len = _children.length; i < len; i++)
+            for(var i = 0, len = _children ? _children.length : 0; i < len; i++)
                 this._setDirtyForNode(_children[i]);
         }
     },
@@ -156,7 +156,7 @@ cc.eventManager = {
         }
         if (recursive === true) {
             var locChildren = node.getChildren();
-            for (i = 0, len = locChildren.length; i < len; i++)
+            for (i = 0, len = locChildren ? locChildren.length : 0; i < len; i++)
                 this.pauseTarget(locChildren[i], true);
         }
     },
@@ -181,7 +181,7 @@ cc.eventManager = {
         this._setDirtyForNode(node);
         if (recursive === true && node.getChildren) {
             var locChildren = node.getChildren();
-            for (i = 0, len = locChildren.length; i< len; i++)
+            for (i = 0, len = locChildren ? locChildren.length : 0; i < len; i++)
                 this.resumeTarget(locChildren[i], true);
         }
     },
