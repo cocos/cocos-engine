@@ -56,12 +56,18 @@ exports.uglifyOptions = function (minify, global_defs) {
 function allowReturnOutsideFunctionInBrowserifyTransform () {
     var acorn;
     try {
-        acorn = require('acorn');
+        acorn = require('syntax-error/node_modules/acorn');
     }
     catch (e) {
-        console.warn('Can not find acorn to patch');
-        return;
+        try {
+            acorn = require('acorn');
+        }
+        catch (e) {
+            console.warn('Can not find acorn to patch');
+            return;
+        }
     }
+
     var parse = acorn.parse;
     if (typeof parse === 'function') {
         if (acorn.parse.name !== 'monkeyPatchedParse') {
