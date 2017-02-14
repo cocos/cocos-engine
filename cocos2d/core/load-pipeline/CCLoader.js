@@ -509,7 +509,7 @@ JS.mixin(CCLoader.prototype, {
      * @returns {Number}
      */
     getResCount: function () {
-        return this._cache.length;
+        return Object.keys(this._cache).length;
     },
 
     /**
