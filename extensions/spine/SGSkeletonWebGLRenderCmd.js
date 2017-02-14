@@ -248,16 +248,17 @@ proto._uploadRegionAttachmentData = function(attachment, slot, premultipliedAlph
     //   X4, Y4, C4R, C4G, C4B, C4A, U4, V4     // bottom right
     // ]
     //
+    var nodeColor = this._displayedColor;
     var vertices = attachment.updateWorldVertices(slot, premultipliedAlpha);
     var offset = vertexDataOffset;
     // generate 6 vertices data (two triangles) from the quad vertices
     // using two angles : (0, 1, 2) & (0, 2, 3)
     for (var i = 0; i < 6; i++) {
         var srcIdx = i < 4 ? i % 3 : i - 2;
-        var r = vertices[srcIdx * 8 + 2] * 255,
-            g = vertices[srcIdx * 8 + 3] * 255,
-            b = vertices[srcIdx * 8 + 4] * 255,
-            a = vertices[srcIdx * 8 + 5] * 255;
+        var r = vertices[srcIdx * 8 + 2] * nodeColor.r,
+            g = vertices[srcIdx * 8 + 3] * nodeColor.g,
+            b = vertices[srcIdx * 8 + 4] * nodeColor.b,
+            a = vertices[srcIdx * 8 + 5] * nodeColor.a;
         var color = ((a<<24) | (b<<16) | (g<<8) | r);
         f32buffer[offset] = vertices[srcIdx * 8];
         f32buffer[offset + 1] = vertices[srcIdx * 8 + 1];
@@ -284,11 +285,12 @@ proto._uploadMeshAttachmentData = function(attachment, slot, premultipliedAlpha,
     // get the vertex data
     var vertices = attachment.updateWorldVertices(slot, premultipliedAlpha);
     var offset = vertexDataOffset;
+    var nodeColor = this._displayedColor;
     for (var i = 0, n = vertices.length; i < n; i += 8) {
-        var r = vertices[i + 2] * 255,
-            g = vertices[i + 3] * 255,
-            b = vertices[i + 4] * 255,
-            a = vertices[i + 5] * 255;
+        var r = vertices[i + 2] * nodeColor.r,
+            g = vertices[i + 3] * nodeColor.g,
+            b = vertices[i + 4] * nodeColor.b,
+            a = vertices[i + 5] * nodeColor.a;
         var color = ((a<<24) | (b<<16) | (g<<8) | r);
 
         f32buffer[offset] = vertices[i];
