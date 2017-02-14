@@ -75,26 +75,27 @@ Class.extend = function (props) {
     var desc = {writable: true, enumerable: false, configurable: true};
 
     // The dummy Class constructor
-    var TheCls;
+    var TheClass;
     if (cc.game && cc.game.config && cc.game.config[cc.game.CONFIG_KEY.exposeClassName]) {
         var ctor =
-            "(function " + (props._className || "Class") + "(arg0,arg1,arg2,arg3,arg4,arg5) {\n" +
-                "this.__instanceId = ClassManager.getNewInstanceId();\n" +
+            "return (function " + (props._className || "Class") + "(arg0,arg1,arg2,arg3,arg4) {\n" +
+                "this.__instanceId = cc.ClassManager.getNewInstanceId();\n" +
                 "if (this.ctor) {\n" +
                     "switch (arguments.length) {\n" +
                         "case 0: this.ctor(); break;\n" +
                         "case 1: this.ctor(arg0); break;\n" +
+                        "case 2: this.ctor(arg0,arg1); break;\n" +
                         "case 3: this.ctor(arg0,arg1,arg2); break;\n" +
                         "case 4: this.ctor(arg0,arg1,arg2,arg3); break;\n" +
                         "case 5: this.ctor(arg0,arg1,arg2,arg3,arg4); break;\n" +
                         "default: this.ctor.apply(this, arguments);\n" +
                     "}\n" +
                 "}\n" +
-            "})";
-        TheCls = eval(ctor);
+            "});";
+        TheClass = Function(ctor)();
     }
     else {
-        TheCls = function (arg0, arg1, arg2, arg3, arg4) {
+        TheClass = function (arg0, arg1, arg2, arg3, arg4) {
             this.__instanceId = ClassManager.getNewInstanceId();
             if (this.ctor) {
                 switch (arguments.length) {
@@ -114,15 +115,15 @@ Class.extend = function (props) {
     Object.defineProperty(proto, '__pid', desc);
 
     // Populate our constructed prototype object
-    TheCls.prototype = proto;
+    TheClass.prototype = proto;
 
     // Enforce the constructor to be what we expect
-    desc.value = TheCls;
+    desc.value = TheClass;
     Object.defineProperty(proto, 'constructor', desc);
 
     // Copy getter/setter
-    this.__getters__ && (TheCls.__getters__ = cc.clone(this.__getters__));
-    this.__setters__ && (TheCls.__setters__ = cc.clone(this.__setters__));
+    this.__getters__ && (TheClass.__getters__ = cc.clone(this.__getters__));
+    this.__setters__ && (TheClass.__setters__ = cc.clone(this.__setters__));
 
     for (var idx = 0, li = arguments.length; idx < li; ++idx) {
         var prop = arguments[idx];
@@ -184,15 +185,15 @@ Class.extend = function (props) {
     }
 
     // And make this Class extendable
-    TheCls.extend = Class.extend;
+    TheClass.extend = Class.extend;
 
     //add implementation method
-    TheCls.implement = function (prop) {
+    TheClass.implement = function (prop) {
         for (var name in prop) {
             proto[name] = prop[name];
         }
     };
-    return TheCls;
+    return TheClass;
 };
 
 /**

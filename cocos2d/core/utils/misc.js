@@ -90,11 +90,7 @@ m.NextPOT = function (x) {
 //
 //DirtyFlags.WIDGET = DirtyFlags.TRANSFORM | DirtyFlags.SIZE;
 
-// wrap a new scope to enalbe minify
-
-m.cleanEval = function (code) {
-    return eval(code);
-};
+// wrap a new scope to avoid uglify's mangle process broken by eval in caller's scope
 
 m.cleanEval_F = function (code, F) {
     return eval(code);
@@ -117,11 +113,11 @@ if (CC_EDITOR) {
                 cc._throw(e);
             }
         }
-
-        return eval(('(' + call_FUNC_InTryCatch + ')').
+        // use evaled code to generate named function
+        return Function(('return ' + call_FUNC_InTryCatch).
             replace(/_FUNC_/g, funcName).
             replace(/_R_ARGS_/g, 'target' + (receivedArgs ? ', ' + receivedArgs : '')).
-            replace(/_U_ARGS_/g, usedArgs || ''));
+            replace(/_U_ARGS_/g, usedArgs || ''))();
     };
 }
 
