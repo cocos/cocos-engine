@@ -450,6 +450,7 @@ _ccsg.VideoPlayer.EventType = {
         }
 
         if(_ccsg.VideoPlayer._polyfill.autoplayAfterOperation){
+            var self = this;
             setTimeout(function(){
                 video.play();
                 self._playing = true;
