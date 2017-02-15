@@ -312,58 +312,74 @@ cc._initDebugSetting = function (mode) {
     var errorMapUrl = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
 
     cc.warnID = function (id) { // id in number
+        var argsArr = new Array(arguments.length);
+        argsArr[0] = cc._LogInfos[id];
+        for (var i = 1; i < argsArr.length; ++i) {
+            argsArr[i] = arguments[i];
+        }
         if (CC_DEV) {
-            arguments[0] = cc._LogInfos[id];
-            cc.warn.apply(cc, arguments);
+            cc.warn.apply(cc, argsArr);
         } else {
             var args = '';
             if (arguments.length === 2) {
                 args = 'Arguments: ' + arguments[1];
             } else if (arguments.length > 2) {
                 args = 'Arguments: ' + Array.apply(null, arguments).slice(1).join(', ');
-            }            
+            }
             cc.warn('Warning ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
         }
     };
 
     cc.errorID = function (id) {
+        var argsArr = new Array(arguments.length);
+        argsArr[0] = cc._LogInfos[id];
+        for (var i = 1; i < argsArr.length; ++i) {
+            argsArr[i] = arguments[i];
+        }
         if (CC_DEV) {
-            arguments[0] = cc._LogInfos[id];
-            cc.error.apply(cc, arguments);            
+            cc.error.apply(cc, argsArr);
         } else {
             var args = '';
             if (arguments.length === 2) {
-                args = 'Arguments: ' + arguments[1];
+                args = 'Arguments: ' + argsArr[1];
             } else if (arguments.length > 2) {
-                args = 'Arguments: ' + Array.apply(null, arguments).slice(1).join(', ');
+                args = 'Arguments: ' + argsArr.slice(1).join(', ');
             }
             cc.error('Error ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
         }        
     };
     cc.logID = function (id) {
+        var argsArr = new Array(arguments.length);
+        argsArr[0] = cc._LogInfos[id];
+        for (var i = 1; i < argsArr.length; ++i) {
+            argsArr[i] = arguments[i];
+        }
         if (CC_DEV) {
-            arguments[0] = cc._LogInfos[id];
-            cc.log.apply(cc, arguments);
+            cc.log.apply(cc, argsArr);
         } else {
             var args = '';
             if (arguments.length === 2) {
                 args = 'Arguments: ' + arguments[1];
             } else if (arguments.length > 2) {
-                args = 'Arguments: ' + Array.apply(null, arguments).slice(1).join(', ');
+                args = 'Arguments: ' + argsArr.slice(1).join(', ');
             }
             cc.log('Log ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
         }        
     };
     cc.assertID = function (cond, id) {
+        var argsArr = new Array(arguments.length);
+        for(var i = 0; i < argsArr.length; ++i) {
+            argsArr[i] = arguments[i];
+        }
+        argsArr[1] = cc._LogInfos[id];
         if (CC_DEV) {
-            arguments[1] = cc._LogInfos[id];
-            cc.assert(cond, cc._LogInfos[id], arguments);
+            cc.assert(cond, argsArr[1], argsArr);
         } else {
             var args = '';
             if (arguments.length === 3) {
                 args = 'Arguments: ' + arguments[2];
             } else if (arguments.length > 3) {
-                args = 'Arguments: ' + Array.apply(null, arguments).slice(2).join(', ');
+                args = 'Arguments: ' + argsArr.slice(2).join(', ');
             }
             cc.assert(cond, 'Assert ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
         }
