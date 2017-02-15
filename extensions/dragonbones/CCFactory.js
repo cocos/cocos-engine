@@ -55,7 +55,8 @@ dragonBones.CCFactory = cc.Class({
         armature._skinData = dataPackage.skin;
         armature._animation = BaseObject.borrowObject(dragonBones.Animation);
         armature._display = armatureDisplayContainer;
-
+        armatureDisplayContainer.setCascadeOpacityEnabled(true);
+        armatureDisplayContainer.setCascadeColorEnabled(true);
         armatureDisplayContainer._armature = armature;
         armature._animation._armature = armature;
 
