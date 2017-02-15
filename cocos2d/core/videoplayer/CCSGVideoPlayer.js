@@ -441,7 +441,6 @@ _ccsg.VideoPlayer.EventType = {
 
     // 播放控制
     proto.play = function () {
-        var self = this;
         var video = this._video;
         if (!video || !this._node.isVisible()) return;
 
@@ -451,6 +450,7 @@ _ccsg.VideoPlayer.EventType = {
         }
 
         if(_ccsg.VideoPlayer._polyfill.autoplayAfterOperation){
+            var self = this;
             setTimeout(function(){
                 video.play();
                 self._playing = true;
