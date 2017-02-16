@@ -311,68 +311,41 @@ cc._initDebugSetting = function (mode) {
 
     var errorMapUrl = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
 
-    cc.warnID = function (id) { // id in number
-        var argsArr = new Array(arguments.length);
-        argsArr[0] = cc._LogInfos[id];
-        for (var i = 1; i < argsArr.length; ++i) {
-            argsArr[i] = arguments[i];
-        }
-        if (CC_DEV) {
-            cc.warn.apply(cc, argsArr);
-        } else {
-            var args = '';
-            if (arguments.length === 2) {
-                args = 'Arguments: ' + arguments[1];
-            } else if (arguments.length > 2) {
-                args = 'Arguments: ' + Array.apply(null, arguments).slice(1).join(', ');
+    function genLogFunc (func, type) {
+        return function (id) {
+            if (arguments.length === 1) {
+                CC_DEV ? func(cc._LogInfos[id]) : func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
+                return;
             }
-            cc.warn('Warning ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
-        }
-    };
+            var argsArr = new Array(arguments.length);
+            for (var i = 0; i < argsArr.length; ++i) {
+                argsArr[i] = arguments[i];
+            }
+            if (CC_DEV) {
+                argsArr[0] = cc._LogInfos[id];
+                func.apply(cc, argsArr);
+            } else {
+                var args = '';
+                if (arguments.length === 2) {
+                    args = 'Arguments: ' + arguments[1];
+                } else if (arguments.length > 2) {
+                    args = 'Arguments: ' + argsArr.slice(1).join(', ');
+                }
+                func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
+            }
+        };
+    }
 
-    cc.errorID = function (id) {
-        var argsArr = new Array(arguments.length);
-        argsArr[0] = cc._LogInfos[id];
-        for (var i = 1; i < argsArr.length; ++i) {
-            argsArr[i] = arguments[i];
-        }
-        if (CC_DEV) {
-            cc.error.apply(cc, argsArr);
-        } else {
-            var args = '';
-            if (arguments.length === 2) {
-                args = 'Arguments: ' + argsArr[1];
-            } else if (arguments.length > 2) {
-                args = 'Arguments: ' + argsArr.slice(1).join(', ');
-            }
-            cc.error('Error ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
-        }        
-    };
-    cc.logID = function (id) {
-        var argsArr = new Array(arguments.length);
-        argsArr[0] = cc._LogInfos[id];
-        for (var i = 1; i < argsArr.length; ++i) {
-            argsArr[i] = arguments[i];
-        }
-        if (CC_DEV) {
-            cc.log.apply(cc, argsArr);
-        } else {
-            var args = '';
-            if (arguments.length === 2) {
-                args = 'Arguments: ' + arguments[1];
-            } else if (arguments.length > 2) {
-                args = 'Arguments: ' + argsArr.slice(1).join(', ');
-            }
-            cc.log('Log ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
-        }        
-    };
+    cc.warnID = genLogFunc(cc.warn, 'Warning');
+    cc.errorID = genLogFunc(cc.error, 'Error');
+    cc.logID = genLogFunc(cc.log, 'Log');
     cc.assertID = function (cond, id) {
         var argsArr = new Array(arguments.length);
         for(var i = 0; i < argsArr.length; ++i) {
             argsArr[i] = arguments[i];
         }
-        argsArr[1] = cc._LogInfos[id];
         if (CC_DEV) {
+            argsArr[1] = cc._LogInfos[id];
             cc.assert(cond, argsArr[1], argsArr);
         } else {
             var args = '';
