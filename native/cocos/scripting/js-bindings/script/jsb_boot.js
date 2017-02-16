@@ -708,35 +708,32 @@ cc.defineGetterSetter(cc.loader, "audioPath", function(){
 cc.formatStr = function(){
     var args = arguments;
     var l = args.length;
-    if(l < 1)
-        return "";
+    if (l < 1) return '';
+    var REGEXP_NUM_OR_STR = /(%d)|(%s)/;
 
+    var i = 1;
     var str = args[0];
-    var needToFormat = true;
-    if(typeof str === "object"){
-        needToFormat = false;
+    var hasSubstitution = typeof str === 'string' && REGEXP_NUM_OR_STR.test(str);
+    if (hasSubstitution) {
+        var REGEXP_STR = /%s/;
+        for (; i < l; ++i) {
+            var arg = args[i];
+            var regExpToTest = typeof arg === 'number' ? REGEXP_NUM_OR_STR : REGEXP_STR;
+            if (regExpToTest.test(str))
+                str = str.replace(regExpToTest, arg);
+            else
+                str += ' ' + arg;
+        }
     }
-    for(var i = 1; i < l; ++i){
-        var arg = args[i];
-        if(needToFormat){
-            while(true){
-                var result = null;
-                if(typeof arg === "number"){
-                    result = str.match(/(%d)|(%s)/);
-                    if(result){
-                        str = str.replace(/(%d)|(%s)/, arg);
-                        break;
-                    }
-                }
-                result = str.match(/%s/);
-                if(result)
-                    str = str.replace(/%s/, arg);
-                else
-                    str += "    " + arg;
-                break;
+    else {
+        if (l > 1) {
+            for (; i < l; ++i) {
+                str += ' ' + args[i];
             }
-        }else
-            str += "    " + arg;
+        }
+        else {
+            str = '' + str;
+        }
     }
     return str;
 };
@@ -1091,7 +1088,7 @@ var _initSys = function () {
      * @constant
      * @type {Number}
      */
-    sys.LANGUAGE_UNKNOWN = "unkonwn";
+    sys.LANGUAGE_UNKNOWN = "unknown";
 
     /**
      * @memberof cc.sys
@@ -1483,6 +1480,10 @@ var _initSys = function () {
         sys._application.openURL(url);
     };
 
+    sys.now = function () {
+        return Date.now();
+    };
+
     // JS to Native bridges
     if(window.JavascriptJavaBridge && cc.sys.os == cc.sys.OS_ANDROID){
         jsb.reflection = new JavascriptJavaBridge();
@@ -1776,35 +1777,28 @@ cc.game = {
 
 //+++++++++++++++++++++++++something about CCGame end+++++++++++++++++++++++++++++
 
+// Original bind in Spidermonkey v33 will trigger object life cycle track issue in our memory model and cause crash
+Function.prototype.bind = function (oThis) {
+    if (!cc.isFunction(this)) {
+        // closest thing possible to the ECMAScript 5
+        // internal IsCallable function
+        throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+    }
 
-jsb.urlRegExp = new RegExp(
-    "^" +
-        // protocol identifier
-        "(?:(?:https?|ftp)://)" +
-        // user:pass authentication
-        "(?:\\S+(?::\\S*)?@)?" +
-        "(?:" +
-            // IP address dotted notation octets
-            // excludes loopback network 0.0.0.0
-            // excludes reserved space >= 224.0.0.0
-            // excludes network & broacast addresses
-            // (first & last IP address of each class)
-            "(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])" +
-            "(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}" +
-            "(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))" +
-        "|" +
-            // host name
-            "(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)" +
-            // domain name
-            "(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*" +
-            // TLD identifier
-            "(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))" +
-        "|" +
-            "(?:localhost)" +
-        ")" +
-        // port number
-        "(?::\\d{2,5})?" +
-        // resource path
-        "(?:/\\S*)?" +
-    "$", "i"
-);
+    var aArgs = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP = function () {},
+        fBound = function () {
+            return fToBind.apply(this instanceof fNOP && oThis
+                ? this
+                : oThis,
+                aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+    fNOP.prototype = this.prototype;
+    fBound.prototype = new fNOP();
+
+    return fBound;
+};
+
+jsb.urlRegExp = new RegExp("^(?:https?|ftp)://\\S*$", "i");

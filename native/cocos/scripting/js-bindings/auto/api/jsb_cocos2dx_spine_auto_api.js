@@ -61,9 +61,37 @@ bool
 },
 
 /**
+ * @method initWithJsonFile
+* @param {String|String} str
+* @param {String|spAtlas} str
+* @param {float|float} float
+*/
+initWithJsonFile : function(
+str,
+spatlas,
+float 
+)
+{
+},
+
+/**
  * @method setSlotsToSetupPose
  */
 setSlotsToSetupPose : function (
+)
+{
+},
+
+/**
+ * @method initWithBinaryFile
+* @param {String|String} str
+* @param {String|spAtlas} str
+* @param {float|float} float
+*/
+initWithBinaryFile : function(
+str,
+spatlas,
+float 
 )
 {
 },
@@ -130,20 +158,6 @@ getTimeScale : function (
 )
 {
     return 0;
-},
-
-/**
- * @method initWithFile
-* @param {String|String} str
-* @param {String|spAtlas} str
-* @param {float|float} float
-*/
-initWithFile : function(
-str,
-spatlas,
-float 
-)
-{
 },
 
 /**
@@ -243,18 +257,6 @@ str
 },
 
 /**
- * @method setTrackEventListener
- * @param {spTrackEntry} arg0
- * @param {function} arg1
- */
-setTrackEventListener : function (
-sptrackentry, 
-func 
-)
-{
-},
-
-/**
  * @method setMix
  * @param {String} arg0
  * @param {String} arg1
@@ -264,6 +266,16 @@ setMix : function (
 str, 
 str, 
 float 
+)
+{
+},
+
+/**
+ * @method setDisposeListener
+ * @param {function} arg0
+ */
+setDisposeListener : function (
+func 
 )
 {
 },
@@ -289,11 +301,11 @@ getState : function (
 },
 
 /**
- * @method update
- * @param {float} arg0
+ * @method setCompleteListener
+ * @param {function} arg0
  */
-update : function (
-float 
+setCompleteListener : function (
+func 
 )
 {
 },
@@ -309,16 +321,6 @@ func
 },
 
 /**
- * @method setCompleteListener
- * @param {function} arg0
- */
-setCompleteListener : function (
-func 
-)
-{
-},
-
-/**
  * @method clearTrack
  */
 clearTrack : function (
@@ -327,9 +329,11 @@ clearTrack : function (
 },
 
 /**
- * @method initialize
+ * @method setInterruptListener
+ * @param {function} arg0
  */
-initialize : function (
+setInterruptListener : function (
+func 
 )
 {
 },
@@ -353,15 +357,41 @@ func
 },
 
 /**
- * @method createWithFile
+ * @method createWithBinaryFile
 * @param {String|String} str
-* @param {spAtlas|String} spatlas
+* @param {String|spAtlas} str
 * @param {float|float} float
-* @return {sp.SkeletonAnimation|sp.SkeletonAnimation|sp.SkeletonAnimation}
+* @return {sp.SkeletonAnimation|sp.SkeletonAnimation}
 */
-createWithFile : function(
+createWithBinaryFile : function(
 str,
+spatlas,
+float 
+)
+{
+    return sp.SkeletonAnimation;
+},
+
+/**
+ * @method create
+ * @return {sp.SkeletonAnimation}
+ */
+create : function (
+)
+{
+    return sp.SkeletonAnimation;
+},
+
+/**
+ * @method createWithJsonFile
+* @param {String|String} str
+* @param {String|spAtlas} str
+* @param {float|float} float
+* @return {sp.SkeletonAnimation|sp.SkeletonAnimation}
+*/
+createWithJsonFile : function(
 str,
+spatlas,
 float 
 )
 {

@@ -249,7 +249,6 @@ DebuggerTransport.prototype = {
       // this._output.asyncWait(this, 0, 0, threadManager.currentThread);
       // log('send: ' + this._outgoing);
       _bufferWrite(this._outgoing);
-      log('send: ' + this._outgoing);
     }
   },
 

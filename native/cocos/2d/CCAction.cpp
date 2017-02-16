@@ -132,6 +132,13 @@ bool Speed::initWithAction(ActionInterval *action, float speed)
 
     action->retain();
     _innerAction = action;
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->retainScriptObject(this, _innerAction);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     _speed = speed;
     return true;
 }
@@ -186,6 +193,14 @@ void Speed::setInnerAction(ActionInterval *action)
 {
     if (_innerAction != action)
     {
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            sEngine->releaseScriptObject(this, _innerAction);
+            sEngine->retainScriptObject(this, action);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         CC_SAFE_RELEASE(_innerAction);
         _innerAction = action;
         CC_SAFE_RETAIN(_innerAction);
@@ -243,6 +258,13 @@ bool Follow::initWithTargetAndOffset(Node *followedNode, float xOffset,float yOf
 
     followedNode->retain();
     _followedNode = followedNode;
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->retainScriptObject(this, _followedNode);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     _worldRect = rect;
     _boundarySet = !rect.equals(Rect::ZERO);
     _boundaryFullyCovered = false;

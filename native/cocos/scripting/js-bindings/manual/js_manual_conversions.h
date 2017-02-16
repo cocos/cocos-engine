@@ -46,6 +46,9 @@
 
 NS_CC_BEGIN
 struct CC_DLL ResourceData;
+namespace extension {
+    struct ManifestAsset;
+}
 NS_CC_END
 
 // just a simple utility to avoid mem leaking when using JSString
@@ -76,14 +79,16 @@ public:
     JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval, JS::HandleValue owner);
     ~JSFunctionWrapper();
 
+    void setOwner(JSContext* cx, JS::HandleValue owner);
     bool invoke(unsigned int argc, jsval *argv, JS::MutableHandleValue rval);
+    bool invoke(JS::HandleValueArray args, JS::MutableHandleValue rval);
 private:
     JSContext *_cx;
     JS::Heap<JSObject*> _jsthis;
     JS::Heap<JS::Value> _fval;
     JS::Heap<JS::Value> _owner;
-    bool _rooted;
-private:
+    void* _cppOwner;
+
     CC_DISALLOW_COPY_AND_ASSIGN(JSFunctionWrapper);
 };
 
@@ -281,10 +286,9 @@ jsval ccacceleration_to_jsval(JSContext* cx, const cocos2d::Acceleration& v);
 jsval ccaffinetransform_to_jsval(JSContext* cx, const cocos2d::AffineTransform& t);
 jsval FontDefinition_to_jsval(JSContext* cx, const cocos2d::FontDefinition& t);
 jsval quaternion_to_jsval(JSContext* cx, const cocos2d::Quaternion& q);
-//jsval meshVertexAttrib_to_jsval(JSContext* cx, const cocos2d::MeshVertexAttrib& q);
 jsval uniform_to_jsval(JSContext* cx, const cocos2d::Uniform* uniform);
 jsval resourcedata_to_jsval(JSContext* cx, const cocos2d::ResourceData& v);
-
+jsval asset_to_jsval(JSContext* cx, const cocos2d::extension::ManifestAsset& v);
 
 // forward declaration
 template <class T>

@@ -6,6 +6,7 @@
 #include "scripting/js-bindings/auto/jsb_cocos2dx_builder_auto.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_dragonbones_auto.hpp"
+#include "scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp"
 #include "jsb_creator_auto.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
 #include "scripting/js-bindings/manual/ui/jsb_cocos2dx_ui_manual.h"
@@ -84,6 +85,8 @@ int js_module_register()
     sc->addRegisterCallback(register_jsb_websocket);
     // socket io can be commented out to reduce the package
     sc->addRegisterCallback(register_jsb_socketio);
+    // Downloader
+    sc->addRegisterCallback(register_all_cocos2dx_network);
     
 #if CC_USE_3D_PHYSICS && CC_ENABLE_BULLET_INTEGRATION
     // Physics 3d can be commented out to reduce the package

@@ -188,6 +188,7 @@ storage/local-storage/LocalStorage-android.cpp \
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/platform \
+                    $(LOCAL_PATH)/editor-support \
                     $(LOCAL_PATH)/../external/android/$(TARGET_ARCH_ABI)/include \
                     $(LOCAL_PATH)/../external/sources
 

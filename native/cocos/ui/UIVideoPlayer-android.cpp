@@ -270,7 +270,7 @@ void VideoPlayer::onPlayEvent(int event)
     {
         VideoPlayer::EventType videoEvent = (VideoPlayer::EventType)event;
 
-        if (_eventCallback)
+        if (_eventCallback && this->isRunning())
         {
             _eventCallback(this,videoEvent);
         }

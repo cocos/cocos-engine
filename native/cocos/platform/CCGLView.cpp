@@ -322,6 +322,8 @@ void GLView::handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[], 
     intptr_t id = 0;
     float x = 0.0f;
     float y = 0.0f;
+    float tempX = 0.0f;
+    float tempY = 0.0f;
     float force = 0.0f;
     float maxForce = 0.0f;
     EventTouch touchEvent;
@@ -345,8 +347,15 @@ void GLView::handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[], 
         Touch* touch = g_touches[iter->second];
         if (touch)
         {
-            touch->setTouchInfo(iter->second, (x - _viewPortRect.origin.x) / _scaleX,
-                                (y - _viewPortRect.origin.y) / _scaleY, force, maxForce);
+            tempX = (x - _viewPortRect.origin.x) / _scaleX;
+            tempY = (y - _viewPortRect.origin.y) / _scaleY;
+            if (tempX < 0 || tempX > _designResolutionSize.width ||
+                tempY < 0 || tempY > _designResolutionSize.height)
+            {
+                return;
+            }
+
+            touch->setTouchInfo(iter->second, tempX, tempY, force, maxForce);
 
             touchEvent._touches.push_back(touch);
         }

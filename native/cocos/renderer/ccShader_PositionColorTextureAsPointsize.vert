@@ -35,10 +35,12 @@ varying lowp vec4 v_fragmentColor;
 varying vec4 v_fragmentColor;
 \n#endif\n
 
+uniform float u_alpha;
+
 void main()
 {
     gl_Position = CC_MVPMatrix * a_position;
     gl_PointSize = a_texCoord.x;
-    v_fragmentColor = a_color;
+    v_fragmentColor = vec4(a_color.rgb * a_color.a * u_alpha, a_color.a * u_alpha);
 }
 );

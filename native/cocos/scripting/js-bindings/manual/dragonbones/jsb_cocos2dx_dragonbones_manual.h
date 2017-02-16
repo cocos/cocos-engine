@@ -49,4 +49,9 @@ bool js_cocos2dx_dragonbones_TransformObject_getGlobal(JSContext *cx, JS::Handle
 bool js_cocos2dx_dragonbones_TransformObject_getOrigin(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
 bool js_cocos2dx_dragonbones_TransformObject_getOffset(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
 
+bool js_cocos2dx_dragonbones_Slot_getRawDisplay(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_Slot_getDisplay(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_Slot_getMeshDisplay(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_Slot_setDisplay(JSContext *cx, uint32_t argc, jsval *vp);
+
 #endif /* defined(__jsb_cocos2dx_dragonbones_manual__) */

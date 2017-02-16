@@ -1085,16 +1085,6 @@ Bone : function (
 dragonBones.Slot = {
 
 /**
- * @method getRawDisplay
- * @return {void}
- */
-getRawDisplay : function (
-)
-{
-    return void;
-},
-
-/**
  * @method getChildArmature
  * @return {dragonBones::Armature}
  */
@@ -1102,38 +1092,6 @@ getChildArmature : function (
 )
 {
     return dragonBones::Armature;
-},
-
-/**
- * @method getDisplay
- * @return {void}
- */
-getDisplay : function (
-)
-{
-    return void;
-},
-
-/**
- * @method getMeshDisplay
- * @return {void}
- */
-getMeshDisplay : function (
-)
-{
-    return void;
-},
-
-/**
- * @method setDisplay
- * @param {void} arg0
- * @param {dragonBones::DisplayType} arg1
- */
-setDisplay : function (
-void, 
-displaytype 
-)
-{
 },
 
 /**
@@ -1672,6 +1630,23 @@ create : function (
 )
 {
     return dragonBones::CCArmatureDisplay;
+},
+
+};
+
+/**
+ * @class DBCCSprite
+ */
+dragonBones.DBCCSprite = {
+
+/**
+ * @method create
+ * @return {dragonBones::DBCCSprite}
+ */
+create : function (
+)
+{
+    return dragonBones::DBCCSprite;
 },
 
 };

@@ -44,6 +44,9 @@
 // Vibrate
 #import <AudioToolbox/AudioToolbox.h>
 
+using FontUtils::tImageInfo;
+
+
 static NSAttributedString* __attributedStringWithFontSize(NSMutableAttributedString* attributedString, CGFloat fontSize)
 {
     {
@@ -310,29 +313,7 @@ void Device::setAccelerometerInterval(float interval)
 #endif
 }
 
-typedef struct
-{
-    unsigned int height;
-    unsigned int width;
-    bool         isPremultipliedAlpha;
-    bool         hasShadow;
-    CGSize       shadowOffset;
-    float        shadowBlur;
-    float        shadowOpacity;
-    bool         hasStroke;
-    float        strokeColorR;
-    float        strokeColorG;
-    float        strokeColorB;
-    float        strokeColorA;
-    float        strokeSize;
-    float        tintColorR;
-    float        tintColorG;
-    float        tintColorB;
-    float        tintColorA;
 
-    unsigned char*  data;
-
-} tImageInfo;
 
 static CGSize _calculateStringSize(NSAttributedString *str, id font, CGSize *constrainSize, bool enableWrap, int overflow)
 {
@@ -390,7 +371,13 @@ static id _createSystemFont( const char * fontName, int size, bool enableBold)
     return font;
 }
 
-static bool _initWithString(const char * text, cocos2d::Device::TextAlign align, const char * fontName, int size, tImageInfo* info, bool enableWrap, int overflow, bool enableBold)
+static bool _initWithString(const char * text,
+                            cocos2d::Device::TextAlign align,
+                            const char * fontName,
+                            int size, tImageInfo* info,
+                            bool enableWrap,
+                            int overflow,
+                            bool enableBold)
 {
 
     bool bRet = false;
@@ -578,7 +565,14 @@ Data Device::getTextureDataForText(const char * text, const FontDefinition& text
         info.tintColorB             = textDefinition._fontFillColor.b / 255.0f;
         info.tintColorA             = textDefinition._fontAlpha / 255.0f;
 
-        if (! _initWithString(text, align, textDefinition._fontName.c_str(), textDefinition._fontSize, &info, textDefinition._enableWrap, textDefinition._overflow, textDefinition._enableBold))
+        if (! _initWithString(text,
+                              align,
+                              textDefinition._fontName.c_str(),
+                              textDefinition._fontSize,
+                              &info,
+                              textDefinition._enableWrap,
+                              textDefinition._overflow,
+                              textDefinition._enableBold))
         {
             break;
         }

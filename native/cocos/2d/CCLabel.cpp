@@ -1117,7 +1117,7 @@ void Label::enableOutline(const Color4B& outlineColor,int outlineSize /* = -1 */
                 setTTFConfig(_fontConfig);
             }
         }
-        else if (_effectColorF != outlineColor || _outlineSize != outlineSize)
+        else if (_effectColorF != outlineColor || _outlineSize != outlineSize || _currLabelEffect != LabelEffect::OUTLINE)
         {
             _effectColorF.r = outlineColor.r / 255.f;
             _effectColorF.g = outlineColor.g / 255.f;
@@ -1235,6 +1235,7 @@ void Label::disableEffect(LabelEffect effect)
                     setTTFConfig(_fontConfig);
                 }
                 _currLabelEffect = LabelEffect::NORMAL;
+                _outlineSize = 0;
                 _contentDirty = true;
             }
             break;
@@ -1962,6 +1963,9 @@ void Label::updateDisplayedOpacity(GLubyte parentOpacity)
     {
         it.second->updateDisplayedOpacity(_displayedOpacity);;
     }
+    if (_underlineNode) {
+        _underlineNode->updateDisplayedOpacity(_displayedOpacity);
+    }
 }
 
 void Label::setTextColor(const Color4B &color)
@@ -2107,10 +2111,10 @@ FontDefinition Label::_getFontDefinition() const
         systemFontDef._stroke._strokeEnabled = false;
     }
 
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID) && (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
     if (systemFontDef._stroke._strokeEnabled)
     {
-        CCLOGERROR("Stroke Currently only supported on iOS and Android!");
+        CCLOGERROR("Currently stroke doesn't support win32!");
     }
     systemFontDef._stroke._strokeEnabled = false;
 #endif

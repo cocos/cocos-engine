@@ -411,7 +411,7 @@ bool WebSocket::init(const Delegate& delegate,
     LOGD("[WebSocket::init] _host: %s, _port: %d, _path: %s\n", _host.c_str(), _port, _path.c_str());
 
     size_t protocolCount = 0;
-    if (protocols && !protocols->empty())
+    if (protocols && protocols->size() > 0)
     {
         protocolCount = protocols->size();
     }
@@ -423,16 +423,17 @@ bool WebSocket::init(const Delegate& delegate,
     _wsProtocols = new (std::nothrow) lws_protocols[protocolCount+1];
     memset(_wsProtocols, 0, sizeof(lws_protocols)*(protocolCount+1));
 
-    if (protocols && !protocols->empty())
+    if (protocols && protocols->size() > 0)
     {
         int i = 0;
-        for (std::vector<std::string>::const_iterator iter = protocols->begin(); iter != protocols->end(); ++iter, ++i)
+        for (auto& protocol : *protocols)
         {
-            char* name = new (std::nothrow) char[(*iter).length()+1];
-            strcpy(name, (*iter).c_str());
+            char* name = new (std::nothrow) char[protocol.length()+1];
+            strcpy(name, protocol.c_str());
             _wsProtocols[i].name = name;
             _wsProtocols[i].callback = WebSocketCallbackWrapper::onSocketCallback;
             _wsProtocols[i].rx_buffer_size = WS_RX_BUFFER_SIZE;
+            ++i;
         }
     }
     else

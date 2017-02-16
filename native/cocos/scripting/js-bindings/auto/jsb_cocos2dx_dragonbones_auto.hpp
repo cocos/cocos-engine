@@ -230,11 +230,7 @@ bool js_cocos2dx_dragonbones_Slot_constructor(JSContext *cx, uint32_t argc, jsva
 void js_cocos2dx_dragonbones_Slot_finalize(JSContext *cx, JSObject *obj);
 void js_register_cocos2dx_dragonbones_Slot(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx_dragonbones(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_dragonbones_Slot_getRawDisplay(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_dragonbones_Slot_getChildArmature(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_Slot_getDisplay(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_Slot_getMeshDisplay(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_Slot_setDisplay(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_dragonbones_Slot_invalidUpdate(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_dragonbones_Slot_setDisplayIndex(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_dragonbones_Slot_setChildArmature(JSContext *cx, uint32_t argc, jsval *vp);
@@ -331,6 +327,15 @@ bool js_cocos2dx_dragonbones_CCArmatureDisplay_addEvent(JSContext *cx, uint32_t 
 bool js_cocos2dx_dragonbones_CCArmatureDisplay_hasEvent(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_dragonbones_CCArmatureDisplay_getArmature(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_dragonbones_CCArmatureDisplay_create(JSContext *cx, uint32_t argc, jsval *vp);
+
+extern JSClass  *jsb_dragonBones_DBCCSprite_class;
+extern JSObject *jsb_dragonBones_DBCCSprite_prototype;
+
+bool js_cocos2dx_dragonbones_DBCCSprite_constructor(JSContext *cx, uint32_t argc, jsval *vp);
+void js_cocos2dx_dragonbones_DBCCSprite_finalize(JSContext *cx, JSObject *obj);
+void js_register_cocos2dx_dragonbones_DBCCSprite(JSContext *cx, JS::HandleObject global);
+void register_all_cocos2dx_dragonbones(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_dragonbones_DBCCSprite_create(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_dragonBones_CCSlot_class;
 extern JSObject *jsb_dragonBones_CCSlot_prototype;

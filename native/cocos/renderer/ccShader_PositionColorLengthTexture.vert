@@ -40,9 +40,11 @@ varying vec2 v_texcoord;
 
 \n#endif\n
 
+uniform float u_alpha;
+
 void main()
 {
-    v_color = vec4(a_color.rgb * a_color.a, a_color.a);
+    v_color = vec4(a_color.rgb * a_color.a * u_alpha, a_color.a * u_alpha);
     v_texcoord = a_texcoord;
 
     gl_Position = CC_MVPMatrix * a_position;

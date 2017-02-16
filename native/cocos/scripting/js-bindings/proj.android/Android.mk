@@ -17,6 +17,7 @@ LOCAL_SRC_FILES := ../auto/jsb_cocos2dx_extension_auto.cpp \
                    ../auto/jsb_cocos2dx_studio_auto.cpp \
                    ../auto/jsb_cocos2dx_builder_auto.cpp \
                    ../auto/jsb_cocos2dx_ui_auto.cpp \
+                   ../auto/jsb_cocos2dx_network_auto.cpp \
                    ../auto/jsb_creator_auto.cpp \
                    ../auto/js_bindings_chipmunk_auto_classes.cpp \
                    ../auto/js_bindings_chipmunk_functions.cpp \
@@ -44,6 +45,7 @@ LOCAL_SRC_FILES := ../auto/jsb_cocos2dx_extension_auto.cpp \
                    ../manual/network/jsb_socketio.cpp \
                    ../manual/network/jsb_websocket.cpp \
                    ../manual/network/XMLHTTPRequest.cpp \
+                   ../manual/network/js_network_manual.cpp \
                    ../manual/spine/jsb_cocos2dx_spine_manual.cpp \
                    ../manual/dragonbones/jsb_cocos2dx_dragonbones_manual.cpp \
                    ../manual/ui/jsb_cocos2dx_ui_manual.cpp \

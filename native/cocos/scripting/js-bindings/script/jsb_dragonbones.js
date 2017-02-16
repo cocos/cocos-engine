@@ -20,8 +20,8 @@
  * THE SOFTWARE.
  */
 
-var proto = dragonBones.CCArmatureDisplay.prototype;
-proto.animation = proto.getAnimation;
+var _proto = dragonBones.CCArmatureDisplay.prototype;
+_proto.animation = _proto.getAnimation;
 
 var slotProto = dragonBones.Slot.prototype;
 cc.defineGetterSetter(slotProto, 'childArmature', slotProto.getChildArmature, slotProto.setChildArmature);
@@ -33,6 +33,9 @@ cc.defineGetterSetter(armatureProto, 'name', armatureProto.getName, null);
 
 var animationStateProto = dragonBones.AnimationState.prototype;
 cc.defineGetterSetter(animationStateProto, 'name', animationStateProto.getName);
+
+var slotProto = dragonBones.Slot.prototype;
+cc.defineGetterSetter(slotProto, 'display', slotProto.getDisplay);
 
 dragonBones.EventObject.START = "start";
 dragonBones.EventObject.LOOP_COMPLETE = "loopComplete";

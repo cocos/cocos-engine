@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "audio/android/UrlAudioPlayer.h"
 #include "audio/android/PcmAudioPlayer.h"
 #include "audio/android/AudioDecoder.h"
+#include "audio/android/AudioDecoderProvider.h"
 #include "audio/android/AudioMixerController.h"
 #include "audio/android/PcmAudioService.h"
 #include "audio/android/CCThreadPool.h"
@@ -149,13 +150,15 @@ IAudioPlayer *AudioPlayerProvider::getAudioPlayer(const std::string &audioFilePa
 
                 std::thread::id threadId = std::this_thread::get_id();
 
-                preloadEffect(info, [&info, threadId, pcmData, isSucceed, isReturnFromCache](bool succeed, PcmData data){
+                void* infoPtr = &info;
+                std::string url = info.url;
+                preloadEffect(info, [infoPtr, url, threadId, pcmData, isSucceed, isReturnFromCache](bool succeed, PcmData data){
                     // If the callback is in the same thread as caller's, it means that we found it
                     // in the cache
                     *isReturnFromCache = std::this_thread::get_id() == threadId;
                     *pcmData = data;
                     *isSucceed = succeed;
-                    ALOGV("FileInfo (%p), Set isSucceed flag: %d, path: %s", &info, succeed, info.url.c_str());
+                    ALOGV("FileInfo (%p), Set isSucceed flag: %d, path: %s", infoPtr, succeed, url.c_str());
                 }, true);
 
                 if (!*isReturnFromCache)
@@ -297,11 +300,11 @@ void AudioPlayerProvider::preloadEffect(const AudioFileInfo &info, const Preload
         _threadPool->pushTask([this, audioFilePath, isPreloadInPlay2d](int tid) {
             ALOGV("AudioPlayerProvider::preloadEffect: (%s)", audioFilePath.c_str());
             PcmData d;
-            AudioDecoder decoder(_engineItf, audioFilePath, _bufferSizeInFrames, _deviceSampleRate, _fdGetterCallback);
-            bool ret = decoder.start();
+            AudioDecoder* decoder = AudioDecoderProvider::createAudioDecoder(_engineItf, audioFilePath, _bufferSizeInFrames, _deviceSampleRate, _fdGetterCallback);
+            bool ret = decoder != nullptr && decoder->start();
             if (ret)
             {
-                d = decoder.getResult();
+                d = decoder->getResult();
                 std::lock_guard<std::mutex> lk(_pcmCacheMutex);
                 _pcmCache.insert(std::make_pair(audioFilePath, d));
             }
@@ -310,14 +313,15 @@ void AudioPlayerProvider::preloadEffect(const AudioFileInfo &info, const Preload
                 ALOGE("decode (%s) failed!", audioFilePath.c_str());
             }
 
-            ALOGV("decode succeed.");
+            ALOGV("decode %s", (ret ? "succeed" : "failed"));
+
             std::lock_guard<std::mutex> lk(_preloadCallbackMutex);
             auto&& preloadIter = _preloadCallbackMap.find(audioFilePath);
             if (preloadIter != _preloadCallbackMap.end())
             {
                 auto&& params = preloadIter->second;
-                ALOGV("preload (%s) callback count: %d", audioFilePath.c_str(), params.size());
-                PcmData result = decoder.getResult();
+                ALOGV("preload (%s) callback count: %d", audioFilePath.c_str(), (int)params.size());
+                PcmData result = decoder->getResult();
                 for (auto&& param : params)
                 {
                     param.callback(ret, result);
@@ -329,6 +333,8 @@ void AudioPlayerProvider::preloadEffect(const AudioFileInfo &info, const Preload
                     _preloadWaitCond.notify_one();
                 }
             }
+
+            AudioDecoderProvider::destroyAudioDecoder(&decoder);
         });
     }
     else

@@ -164,8 +164,10 @@ public:
             JS::RootedValue args(cx, OBJECT_TO_JSVAL(jsobj));
             ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(_JSDelegate.ref()), "onclose", 1, args.address());
             
+#if not CC_ENABLE_GC_FOR_NATIVE_OBJECTS
             auto copy = &p->obj;
             JS::RemoveObjectRoot(cx, copy);
+#endif
             jsb_remove_proxy(p);
         }
         
@@ -201,7 +203,7 @@ public:
         _JSDelegate.ref() = pJSDelegate;
     }
 private:
-    mozilla::Maybe<JS::PersistentRootedObject> _JSDelegate;
+    mozilla::Maybe<JS::RootedObject> _JSDelegate;
 };
 
 JSClass  *js_cocos2dx_websocket_class;
@@ -209,6 +211,19 @@ JSObject *js_cocos2dx_websocket_prototype;
 
 void js_cocos2dx_WebSocket_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOG("jsbindings: finalizing JS object %p (WebSocket)", obj);
+    
+    JS::RootedObject jsobj(ScriptingCore::getInstance()->getGlobalContext(), obj);
+    js_proxy_t *p = jsb_get_js_proxy(jsobj);
+    if (p)
+    {
+        WebSocket *ws = (WebSocket *)(p->ptr);
+        jsb_remove_proxy(p);
+        // Manually close if web socket is not closed
+        if (ws->getReadyState() != WebSocket::State::CLOSED)
+        {
+            ws->closeAsync();
+        }
+    }
 }
 
 bool js_cocos2dx_extension_WebSocket_send(JSContext *cx, uint32_t argc, jsval *vp)
@@ -360,8 +375,11 @@ bool js_cocos2dx_extension_WebSocket_constructor(JSContext *cx, uint32_t argc, j
 
         // link the native object with the javascript object
         js_proxy_t *p = jsb_new_proxy(cobj, obj);
+        CC_UNUSED_PARAM(p);
+#if not CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         JS::AddNamedObjectRoot(cx, &p->obj, "WebSocket");
-
+#endif
+        
         args.rval().set(OBJECT_TO_JSVAL(obj));
         return true;
     }

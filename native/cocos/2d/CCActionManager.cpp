@@ -97,7 +97,14 @@ void ActionManager::removeActionAtIndex(ssize_t index, tHashElement *element)
         element->currentAction->retain();
         element->currentActionSalvaged = true;
     }
-
+    
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->releaseScriptObject(this, action);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     ccArrayRemoveObjectAtIndex(element->actions, index, true);
 
     // update actionIndex in case we are in tick. looping over the actions
@@ -187,12 +194,19 @@ void ActionManager::addAction(Action *action, Node *target, bool paused)
         HASH_ADD_PTR(_targets, target, element);
     }
 
-     actionAllocWithHashElement(element);
+    actionAllocWithHashElement(element);
 
-     CCASSERT(! ccArrayContainsObject(element->actions, action), "action already be added!");
-     ccArrayAppendObject(element->actions, action);
+    CCASSERT(! ccArrayContainsObject(element->actions, action), "action already be added!");
+    ccArrayAppendObject(element->actions, action);
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->retainScriptObject(this, action);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
 
-     action->startWithTarget(target);
+    action->startWithTarget(target);
 }
 
 // remove
@@ -224,8 +238,25 @@ void ActionManager::removeAllActionsFromTarget(Node *target)
             element->currentAction->retain();
             element->currentActionSalvaged = true;
         }
-
+        
         ccArrayRemoveAllObjects(element->actions);
+        
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            auto limit = element->actions->num;
+            for (int i = 0; i < limit; ++i)
+            {
+                Action *action = (Action*)element->actions->arr[i];
+                if (!element->currentActionSalvaged || element->currentAction != action)
+                {
+                    sEngine->releaseScriptObject(this, action);
+                }
+            }
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        
         if (_currentTarget == element)
         {
             _currentTargetSalvaged = true;
@@ -428,6 +459,13 @@ void ActionManager::update(float dt)
                     // accidentally deallocating itself before finishing its step, we retained
                     // it. Now that step is done, it's safe to release it.
                     _currentTarget->currentAction->release();
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+                    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+                    if (sEngine)
+                    {
+                        sEngine->releaseScriptObject(this, _currentTarget->currentAction);
+                    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
                 } else
                 if (_currentTarget->currentAction->isDone())
                 {
