@@ -51,38 +51,27 @@ EventListeners.prototype.invoke = function (event, captureListeners) {
         }
         else {
             endIndex = list.length - 1;
-            if (key === cc.Director.EVENT_COMPONENT_UPDATE) {
-                var dt = event.detail;
-                for (i = 1; i <= endIndex; i += 2) {
-                    target = list[i];
-                    if (target !== REMOVE_PLACEHOLDER) {
-                        target.update(dt);
+            for (i = 0; i <= endIndex;) {
+                callingFunc = list[i];
+                var increment = 1;
+                // cheap detection for function
+                if (callingFunc !== REMOVE_PLACEHOLDER) {
+                    target = list[i+1];
+                    hasTarget = target && typeof target === 'object';
+                    if (hasTarget) {
+                        callingFunc.call(target, event, captureListeners);
+                        increment = 2;
                     }
-                }
-            }
-            else {
-                for (i = 0; i <= endIndex;) {
-                    callingFunc = list[i];
-                    var increment = 1;
-                    // cheap detection for function
-                    if (callingFunc !== REMOVE_PLACEHOLDER) {
-                        target = list[i+1];
-                        hasTarget = target && typeof target === 'object';
-                        if (hasTarget) {
-                            callingFunc.call(target, event, captureListeners);
-                            increment = 2;
-                        }
-                        else {
-                            callingFunc.call(event.currentTarget, event, captureListeners);
-                        }
-
-                        if (event._propagationImmediateStopped || i + increment > endIndex) {
-                            break;
-                        }
+                    else {
+                        callingFunc.call(event.currentTarget, event, captureListeners);
                     }
 
-                    i += increment;
+                    if (event._propagationImmediateStopped || i + increment > endIndex) {
+                        break;
+                    }
                 }
+
+                i += increment;
             }
         }
     }

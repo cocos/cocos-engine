@@ -116,8 +116,8 @@ if (CC_EDITOR) {
         // use evaled code to generate named function
         return Function(('return ' + call_FUNC_InTryCatch).
             replace(/_FUNC_/g, funcName).
-            replace(/_R_ARGS_/g, 'target' + (receivedArgs ? ', ' + receivedArgs : '')).
-            replace(/_U_ARGS_/g, usedArgs || ''))();
+            replace('_R_ARGS_', 'target' + (receivedArgs ? ', ' + receivedArgs : '')).
+            replace('_U_ARGS_', usedArgs || ''))();
     };
 }
 

@@ -26,120 +26,8 @@
 var CCObject = require('../platform/CCObject');
 var idGenerater = new (require('../platform/id-generater'))('Comp');
 
-var Flags = CCObject.Flags;
-var IsOnEnableCalled = Flags.IsOnEnableCalled;
-var IsEditorOnEnableCalled = Flags.IsEditorOnEnableCalled;
-var IsPreloadCalled = Flags.IsPreloadCalled;
-var IsOnLoadStarted = Flags.IsOnLoadStarted;
-var IsOnLoadCalled = Flags.IsOnLoadCalled;
-
-var callPreloadInTryCatch;
-var callOnLoadInTryCatch;
-var callOnEnableInTryCatch;
-var callOnDisableInTryCatch;
-var callOnDestroyInTryCatch;
-var callOnFocusInTryCatch;
-var callOnLostFocusInTryCatch;
-var callResetInTryCatch;
-
-if (CC_EDITOR) {
-    var callerFunctor = require('../utils/misc').tryCatchFunctor_EDITOR;
-    callPreloadInTryCatch = callerFunctor('__preload');
-    callOnLoadInTryCatch = callerFunctor('onLoad');
-    callOnEnableInTryCatch = callerFunctor('onEnable');
-    callOnDisableInTryCatch = callerFunctor('onDisable');
-    callOnDestroyInTryCatch = callerFunctor('onDestroy');
-    callOnFocusInTryCatch = callerFunctor('onFocusInEditor');
-    callOnLostFocusInTryCatch = callerFunctor('onLostFocusInEditor');
-    callResetInTryCatch = callerFunctor('resetInEditor');
-}
-
-function callOnEnable (self, enable) {
-    
-    if (!CC_EDITOR || (cc.engine.isPlaying || self.constructor._executeInEditMode) ) {
-        var enableCalled = self._objFlags & IsOnEnableCalled;
-        if (enable) {
-            if (!enableCalled) {
-                if (self.onEnable) {
-                    if (CC_EDITOR) {
-                        callOnEnableInTryCatch(self);
-                    }
-                    else {
-                        self.onEnable();
-                    }
-                }
-
-                var deactivatedDuringOnEnable = !self.node._activeInHierarchy;
-                if (deactivatedDuringOnEnable) {
-                    return;
-                }
-
-                cc.director.getScheduler().resumeTarget(self);
-                cc.director._componentScheduler.schedule(self);
-
-                self._objFlags |= IsOnEnableCalled;
-            }
-        }
-        else if (enableCalled) {
-            if (self.onDisable) {
-                if (CC_EDITOR) {
-                    callOnDisableInTryCatch(self);
-                }
-                else {
-                    self.onDisable();
-                }
-            }
-
-            cc.director.getScheduler().pauseTarget(self);
-            cc.director._componentScheduler.unschedule(self);
-
-            self._objFlags &= ~IsOnEnableCalled;
-        }
-    }
-
-    if (CC_EDITOR) {
-        if (enable) {
-            if ( !(self._objFlags & IsEditorOnEnableCalled) ) {
-                cc.engine.emit('component-enabled', self.uuid);
-                self._objFlags |= IsEditorOnEnableCalled;
-            }
-        }
-        else {
-            if (self._objFlags & IsEditorOnEnableCalled) {
-                cc.engine.emit('component-disabled', self.uuid);
-                self._objFlags &= ~IsEditorOnEnableCalled;
-            }
-        }
-    }
-}
-
-function _callPreloadOnNode (node) {
-    // set _activeInHierarchy to true before invoking onLoad
-    // to allow preload triggered on nodes which created in parent's onLoad dynamically.
-    node._activeInHierarchy = true;
-
-    var comps = node._components;
-    var i = 0, len = comps.length;
-    for (; i < len; ++i) {
-        var component = comps[i];
-        if (component && !(component._objFlags & IsPreloadCalled) && typeof component.__preload === 'function') {
-            if (CC_EDITOR) {
-                callPreloadInTryCatch(component);
-            }
-            else {
-                component.__preload();
-            }
-            component._objFlags |= IsPreloadCalled;
-        }
-    }
-    var children = node._children;
-    for (i = 0, len = children.length; i < len; ++i) {
-        var child = children[i];
-        if (child._active) {
-            _callPreloadOnNode(child);
-        }
-    }
-}
+var IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
+var IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 
 /**
  * !#en
@@ -289,7 +177,12 @@ var Component = cc.Class({
                 if (this._enabled !== value) {
                     this._enabled = value;
                     if (this.node._activeInHierarchy) {
-                        callOnEnable(this, value);
+                        if (value) {
+                            cc.director._compScheduler.enableComp(this);
+                        }
+                        else {
+                            cc.director._compScheduler.disableComp(this);
+                        }
                     }
                 }
             },
@@ -561,74 +454,18 @@ var Component = cc.Class({
         }
         if (this._super()) {
             if (this._enabled && this.node._activeInHierarchy) {
-                callOnEnable(this, false);
+                cc.director._compScheduler.disableComp(this);
             }
-        }
-    },
-
-    __onNodeActivated: CC_EDITOR ? function (active) {
-        if (active && !(this._objFlags & IsOnLoadStarted) &&
-            (cc.engine._isPlaying || this.constructor._executeInEditMode)) {
-            this._objFlags |= IsOnLoadStarted;
-
-            if (this.onLoad) {
-                callOnLoadInTryCatch(this);
-            }
-
-            this._objFlags |= IsOnLoadCalled;
-
-            if (this.onLoad && !cc.engine._isPlaying) {
-                var focused = Editor.Selection.curActivate('node') === this.node.uuid;
-                if (focused && this.onFocusInEditor) {
-                    callOnFocusInTryCatch(this);
-                }
-                else if (this.onLostFocusInEditor) {
-                    callOnLostFocusInTryCatch(this);
-                }
-            }
-            if ( !CC_TEST ) {
-                _Scene.AssetsWatcher.start(this);
-            }
-        }
-        if (this._enabled) {
-            if (active) {
-                var deactivatedOnLoading = !this.node._activeInHierarchy;
-                if (deactivatedOnLoading) {
-                    return;
-                }
-            }
-            callOnEnable(this, active);
-        }
-    } : function (active) {
-        if (active && !(this._objFlags & IsOnLoadStarted)) {
-            this._objFlags |= IsOnLoadStarted;
-            if (this.onLoad) {
-                this.onLoad();
-            }
-            this._objFlags |= IsOnLoadCalled;
-        }
-        if (this._enabled) {
-            if (active) {
-                var deactivatedOnLoading = !this.node._activeInHierarchy;
-                if (deactivatedOnLoading) {
-                    return;
-                }
-            }
-            callOnEnable(this, active);
         }
     },
 
     _onPreDestroy: function () {
-        var i, l, target;
-        // ensure onDisable called
-        callOnEnable(this, false);
-
         // Schedules
         this.unscheduleAllCallbacks();
 
         // Remove all listeners
-        for (i = 0, l = this.__eventTargets.length; i < l; ++i) {
-            target = this.__eventTargets[i];
+        for (var i = 0, l = this.__eventTargets.length; i < l; ++i) {
+            var target = this.__eventTargets[i];
             target && target.targetOff(this);
         }
         this.__eventTargets.length = 0;
@@ -639,16 +476,7 @@ var Component = cc.Class({
         }
 
         // onDestroy
-        if (this.onDestroy && (this._objFlags & IsOnLoadCalled)) {
-            if (CC_EDITOR) {
-                if (cc.engine._isPlaying || this.constructor._executeInEditMode) {
-                    callOnDestroyInTryCatch(this);
-                }
-            }
-            else {
-                this.onDestroy();
-            }
-        }
+        cc.director._compScheduler.destroyComp(this);
 
         // do remove component
         this.node._removeComponent(this);
@@ -834,30 +662,6 @@ Object.defineProperty(Component, '_registerEditorProps', {
                         cc.warnID(3602, key, name);
                         break;
                 }
-            }
-        }
-    }
-});
-
-Object.defineProperties(Component, {
-    _callPreloadOnNode: {
-        value: _callPreloadOnNode
-    },
-    _callPreloadOnComponent: {
-        value: function (component) {
-            if (CC_EDITOR) {
-                callPreloadInTryCatch(component);
-            }
-            else {
-                component.__preload();
-            }
-            component._objFlags |= IsPreloadCalled;
-        }
-    },
-    _callResetOnComponent: {
-        value: CC_EDITOR && function (comp) {
-            if (typeof comp.resetInEditor === 'function') {
-                callResetInTryCatch(comp);
             }
         }
     }

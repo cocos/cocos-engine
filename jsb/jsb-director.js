@@ -26,6 +26,9 @@
 'use strict';
 
 var AutoReleaseUtils = require('../cocos2d/core/load-pipeline/auto-release-utils');
+var ComponentScheduler = require('../cocos2d/core/component-scheduler');
+
+cc.director._purgeDirector = cc.director.purgeDirector;
 
 // cc.director
 cc.js.mixin(cc.director, {
@@ -34,7 +37,7 @@ cc.js.mixin(cc.director, {
      * All platform independent init process should be occupied here.
      */
     sharedInit: function () {
-        this._componentScheduler = new cc._ComponentScheduler();
+        this._compScheduler = new ComponentScheduler();
 
         // Animation manager
         if (cc.AnimationManager) {
@@ -56,6 +59,11 @@ cc.js.mixin(cc.director, {
 
         // WidgetManager
         cc._widgetManager.init(this);
+    },
+
+    purgeDirector: function () {
+        this._compScheduler.unscheduleAll();
+        this._purgeDirector();
     },
 
     /**
@@ -398,20 +406,19 @@ cc.Director.EVENT_AFTER_UPDATE = 'director_after_update';
 cc.Director.EVENT_BEFORE_SCENE_LOADING = "director_before_scene_loading";
 cc.Director.EVENT_BEFORE_SCENE_LAUNCH = 'director_before_scene_launch';
 cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
-cc.Director.EVENT_COMPONENT_UPDATE = 'director_component_update';
-cc.Director.EVENT_COMPONENT_LATE_UPDATE = 'director_component_late_update';
 
 cc.eventManager.addCustomListener(cc.Director.EVENT_BEFORE_UPDATE, function () {
-    var dt = cc.director.getDeltaTime();
-    // Call start for new added components
     cc.director.emit(cc.Director.EVENT_BEFORE_UPDATE);
+    // Call start for new added components
+    cc.director._compScheduler.startPhase();
     // Update for components
-    cc.director.emit(cc.Director.EVENT_COMPONENT_UPDATE, dt);
+    var dt = cc.director.getDeltaTime();
+    cc.director._compScheduler.updatePhase(dt);
 });
 cc.eventManager.addCustomListener(cc.Director.EVENT_AFTER_UPDATE, function () {
-    var dt = cc.director.getDeltaTime();
     // Late update for components
-    cc.director.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, dt);
+    var dt = cc.director.getDeltaTime();
+    cc.director._compScheduler.lateUpdatePhase(dt);
     // User can use this event to do things after update
     cc.director.emit(cc.Director.EVENT_AFTER_UPDATE);
     // Destroy entities that have been removed recently

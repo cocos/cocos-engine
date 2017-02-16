@@ -582,7 +582,7 @@ function fastRemoveAt (array, index) {
  */
 function remove (array, value) {
     var index = array.indexOf(value);
-    if (index !== -1) {
+    if (index >= 0) {
         removeAt(array, index);
         return true;
     }
@@ -600,7 +600,7 @@ function remove (array, value) {
  */
 function fastRemove (array, value) {
     var index = array.indexOf(value);
-    if (index !== -1) {
+    if (index >= 0) {
         array[index] = array[array.length - 1];
         --array.length;
     }
@@ -676,7 +676,7 @@ var indexOf = Array.prototype.indexOf;
  * @return {Boolean}
  */
 function contains (array, value) {
-    return indexOf.call(array, value) !== -1;
+    return indexOf.call(array, value) >= 0;
 }
 
 /**

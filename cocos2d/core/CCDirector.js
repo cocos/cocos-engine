@@ -142,7 +142,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         // Scheduler for user registration update
         self._scheduler = null;
         // Scheduler for life-cycle methods in component
-        self._componentScheduler = null;
+        self._compScheduler = null;
         // Action manager
         self._actionManager = null;
 
@@ -183,7 +183,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * All platform independent init process should be occupied here.
      */
     sharedInit: function () {
-        this._componentScheduler = new ComponentScheduler();
+        this._compScheduler = new ComponentScheduler();
 
         // Animation manager
         if (cc.AnimationManager) {
@@ -419,6 +419,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     purgeDirector: function () {
         //cleanup scheduler
         this.getScheduler().unscheduleAll();
+        this._compScheduler.unscheduleAll();
 
         // Disable event dispatching
         if (cc.eventManager)
@@ -1262,24 +1263,6 @@ cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
 cc.Director.EVENT_BEFORE_UPDATE = "director_before_update";
 
 /**
- * !#en The event which will be triggered after components update.
- * !#zh 组件 “update” 时所触发的事件。
- * @event cc.Director.EVENT_COMPONENT_UPDATE
- * @param {Event} event
- * @param {Vec2} event.detail - The delta time from last frame
- */
-cc.Director.EVENT_COMPONENT_UPDATE = "director_component_update";
-
-/**
- * !#en The event which will be triggered after components late update.
- * !#zh 组件 “late update” 时所触发的事件。
- * @event cc.Director.EVENT_COMPONENT_LATE_UPDATE
- * @param {Event} event
- * @param {Vec2} event.detail - The delta time from last frame
- */
-cc.Director.EVENT_COMPONENT_LATE_UPDATE = "director_component_late_update";
-
-/**
  * !#en The event which will be triggered after engine and components update logic.
  * !#zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
  * @event cc.Director.EVENT_AFTER_UPDATE
@@ -1333,13 +1316,16 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
     mainLoop: CC_EDITOR ? function (deltaTime, updateAnimate) {
         if (!this._paused) {
             this.emit(cc.Director.EVENT_BEFORE_UPDATE);
-            this.emit(cc.Director.EVENT_COMPONENT_UPDATE, deltaTime);
+
+            this._compScheduler.startPhase();
+            this._compScheduler.updatePhase(deltaTime);
 
             if (updateAnimate) {
                 this._scheduler.update(deltaTime);
             }
 
-            this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, deltaTime);
+            this._compScheduler.lateUpdatePhase(deltaTime);
+
             this.emit(cc.Director.EVENT_AFTER_UPDATE);
         }
 
@@ -1367,14 +1353,15 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
             this.calculateDeltaTime();
 
             if (!this._paused) {
-                // Call start for new added components
                 this.emit(cc.Director.EVENT_BEFORE_UPDATE);
+                // Call start for new added components
+                this._compScheduler.startPhase();
                 // Update for components
-                this.emit(cc.Director.EVENT_COMPONENT_UPDATE, this._deltaTime);
+                this._compScheduler.updatePhase(this._deltaTime);
                 // Engine update with scheduler
                 this._scheduler.update(this._deltaTime);
                 // Late update for components
-                this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, this._deltaTime);
+                this._compScheduler.lateUpdatePhase(this._deltaTime);
                 // User can use this event to do things after update
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
                 // Destroy entities that have been removed recently

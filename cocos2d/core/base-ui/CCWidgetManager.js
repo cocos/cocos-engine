@@ -444,10 +444,7 @@ var widgetManager = cc._widgetManager = module.exports = {
     },
     remove: function (widget) {
         widget.node._widget = null;
-        var index = activeWidgets.indexOf(widget);
-        if (index > -1) {
-            this._activeWidgetsIterator.removeAt(index);
-        }
+        this._activeWidgetsIterator.remove(widget);
         if (CC_EDITOR && !cc.engine.isPlaying) {
             widget.node.off('position-changed', adjustWidgetToAllowMovingInEditor, widget);
             widget.node.off('size-changed', adjustWidgetToAllowResizingInEditor, widget);

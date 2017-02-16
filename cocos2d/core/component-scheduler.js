@@ -24,98 +24,350 @@
  ****************************************************************************/
 
 require('./platform/CCClass');
-var Object = require('./platform/CCObject');
+var CCObject = require('./platform/CCObject');
+var JsArray = require('./platform/js').array;
 
-var Flags = Object.Flags;
+var Flags = CCObject.Flags;
 var IsStartCalled = Flags.IsStartCalled;
+var IsOnEnableCalled = Flags.IsOnEnableCalled;
+var IsEditorOnEnableCalled = Flags.IsEditorOnEnableCalled;
+var IsPreloadCalled = Flags.IsPreloadCalled;
+var IsOnLoadStarted = Flags.IsOnLoadStarted;
+var IsOnLoadCalled = Flags.IsOnLoadCalled;
 
-var callStartInTryCatch;
-var callUpdate;
-var callLateUpdate;
-
+var callerFunctor;
 if (CC_EDITOR) {
-    var callerFunctor = require('./utils/misc').tryCatchFunctor_EDITOR;
-    callStartInTryCatch = callerFunctor('start');
-    // TODO: 不用事件的 target 机制
-    var localCallUpdate = callerFunctor('update', 'event', 'event.detail');
-    callUpdate = function (event) {
-        localCallUpdate(this, event);
-    };
-    var localCallLateUpdate = callerFunctor('lateUpdate', 'event', 'event.detail');
-    callLateUpdate = function (event) {
-        localCallLateUpdate(this, event);
-    };
+    callerFunctor = require('./utils/misc').tryCatchFunctor_EDITOR;
 }
-else {
-    callUpdate = function (event) {
-        this.update(event.detail);
-    };
-    callLateUpdate = function (event) {
-        this.lateUpdate(event.detail);
-    };
-}
+var callPreloadInTryCatch = CC_EDITOR && callerFunctor('__preload');
+var callOnLoadInTryCatch = CC_EDITOR && callerFunctor('onLoad');
+var callOnEnableInTryCatch = CC_EDITOR && callerFunctor('onEnable');
+var callStartInTryCatch = CC_EDITOR && callerFunctor('start');
+var callUpdateInTryCatch = CC_EDITOR && callerFunctor('update', 'dt', 'dt');
+var callLateUpdateInTryCatch = CC_EDITOR && callerFunctor('lateUpdate', 'dt', 'dt');
+var callOnDisableInTryCatch = CC_EDITOR && callerFunctor('onDisable');
+var callOnDestroyInTryCatch = CC_EDITOR && callerFunctor('onDestroy');
+var callResetInTryCatch = CC_EDITOR && callerFunctor('resetInEditor');
+var callOnFocusInTryCatch = CC_EDITOR && callerFunctor('onFocusInEditor');
+var callOnLostFocusInTryCatch = CC_EDITOR && callerFunctor('onLostFocusInEditor');
 
-function registerUpdateEvent () {
-    var eventTargets = this.__eventTargets;
-    var director = cc.director;
-    var Director = cc.Director;
-    director.__fastOff(Director.EVENT_BEFORE_UPDATE, registerUpdateEvent, this, eventTargets);
-    if (this.update) {
-        director.__fastOn(Director.EVENT_COMPONENT_UPDATE, callUpdate, this, eventTargets);
+
+function preloadNode (node) {
+    // set _activeInHierarchy to true before invoking onLoad
+    // to allow preload triggered on nodes which created in parent's onLoad dynamically.
+    node._activeInHierarchy = true;
+
+    var comps = node._components;
+    var i = 0, len = comps.length;
+    for (; i < len; ++i) {
+        var comp = comps[i];
+        if (comp && !(comp._objFlags & IsPreloadCalled) && typeof comp.__preload === 'function') {
+            if (CC_EDITOR) {
+                callPreloadInTryCatch(comp);
+            }
+            else {
+                comp.__preload();
+            }
+            comp._objFlags |= IsPreloadCalled;
+        }
     }
-    if (this.lateUpdate) {
-        director.__fastOn(Director.EVENT_COMPONENT_LATE_UPDATE, callLateUpdate, this, eventTargets);
+    var children = node._children;
+    for (i = 0, len = children.length; i < len; ++i) {
+        var child = children[i];
+        if (child._active) {
+            preloadNode(child);
+        }
     }
 }
 
-var callStart = CC_EDITOR ? function () {
-    cc.director.__fastOff(cc.Director.EVENT_BEFORE_UPDATE, callStart, this, this.__eventTargets);
-    callStartInTryCatch(this);
-    this._objFlags |= IsStartCalled;
-} : function () {
-    cc.director.__fastOff(cc.Director.EVENT_BEFORE_UPDATE, callStart, this, this.__eventTargets);
-    this.start();
-    this._objFlags |= IsStartCalled;
-};
+function ctor () {
+    // during a loop
+    this._updating = false;
 
+    // component lists
+    this.startsZero = new JsArray.MutableForwardIterator([]);   // components which priority === 0 (default)
+    // this.startsPos = [];    // components which priority > 0
+    // this.startsNeg = [];    // components which priority < 0
 
+    this.updatesZero = new JsArray.MutableForwardIterator([]);
+    this.lateUpdatesZero = new JsArray.MutableForwardIterator([]);
+
+    this.scheduleInNextFrame = []; // components deferred to next frame
+}
+
+/**
+ * The Manager for Component's life-cycle methods.
+ */
 var ComponentScheduler = cc.Class({
-    ctor: function () {
+    ctor: ctor,
+    unscheduleAll: ctor,
 
-    },
-    // TODO: 不借助 director 的事件派发独立实现
-    schedule: function (comp) {
-        if (CC_EDITOR && !(comp.constructor._executeInEditMode || cc.engine._isPlaying)) {
-            return;
-        }
-        var Director = cc.Director;
-        if (comp.start && !(comp._objFlags & IsStartCalled)) {
-            cc.director.__fastOn(Director.EVENT_BEFORE_UPDATE, callStart, comp, comp.__eventTargets);
-        }
-        if (comp.update || comp.lateUpdate) {
-            cc.director.__fastOn(Director.EVENT_BEFORE_UPDATE, registerUpdateEvent, comp, comp.__eventTargets);
-        }
-    },
-    unschedule: function (comp) {
-        if (CC_EDITOR && !(comp.constructor._executeInEditMode || cc.engine._isPlaying)) {
-            return;
-        }
-        var Director = cc.Director;
-        if (comp.start && !(comp._objFlags & IsStartCalled)) {
-            cc.director.__fastOff(Director.EVENT_BEFORE_UPDATE, callStart, comp, comp.__eventTargets);
-        }
-        var hasUpdate = comp.update;
-        var hasLateUpdate = comp.lateUpdate;
-        if (hasUpdate || hasLateUpdate) {
-            cc.director.__fastOff(Director.EVENT_BEFORE_UPDATE, registerUpdateEvent, comp, comp.__eventTargets);
-            if (hasUpdate) {
-                cc.director.__fastOff(Director.EVENT_COMPONENT_UPDATE, callUpdate, comp, comp.__eventTargets);
-            }
-            if (hasLateUpdate) {
-                cc.director.__fastOff(Director.EVENT_COMPONENT_LATE_UPDATE, callLateUpdate, comp, comp.__eventTargets);
+    enableComp: CC_EDITOR ? function (comp) {
+        if (cc.engine.isPlaying || comp.constructor._executeInEditMode) {
+            if (!(comp._objFlags & IsOnEnableCalled)) {
+                if (comp.onEnable) {
+                    callOnEnableInTryCatch(comp);
+
+                    var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
+                    if (deactivatedDuringOnEnable) {
+                        return;
+                    }
+                }
+
+                cc.director.getScheduler().resumeTarget(comp);
+                this.schedule(comp);
+
+                comp._objFlags |= IsOnEnableCalled;
             }
         }
+
+        if (!(comp._objFlags & IsEditorOnEnableCalled)) {
+            cc.engine.emit('component-enabled', comp.uuid);
+            comp._objFlags |= IsEditorOnEnableCalled;
+        }
+    } : function (comp) {
+        if (!(comp._objFlags & IsOnEnableCalled)) {
+            if (comp.onEnable) {
+                comp.onEnable();
+
+                var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
+                if (deactivatedDuringOnEnable) {
+                    return;
+                }
+            }
+
+            cc.director.getScheduler().resumeTarget(comp);
+            this.schedule(comp);
+
+            comp._objFlags |= IsOnEnableCalled;
+        }
     },
+
+    disableComp: CC_EDITOR ? function (comp) {
+        if (cc.engine.isPlaying || comp.constructor._executeInEditMode) {
+            if (comp._objFlags & IsOnEnableCalled) {
+                if (comp.onDisable) {
+                    callOnDisableInTryCatch(comp);
+                }
+
+                cc.director.getScheduler().pauseTarget(comp);
+                this.unschedule(comp);
+
+                comp._objFlags &= ~IsOnEnableCalled;
+            }
+        }
+        if (comp._objFlags & IsEditorOnEnableCalled) {
+            cc.engine.emit('component-disabled', comp.uuid);
+            comp._objFlags &= ~IsEditorOnEnableCalled;
+        }
+    } : function (comp) {
+        if (comp._objFlags & IsOnEnableCalled) {
+            if (comp.onDisable) {
+                comp.onDisable();
+            }
+
+            cc.director.getScheduler().pauseTarget(comp);
+            this.unschedule(comp);
+
+            comp._objFlags &= ~IsOnEnableCalled;
+        }
+    },
+
+    preloadNode: preloadNode,
+
+    doPreloadComp: CC_EDITOR ? function (comp) {
+        callPreloadInTryCatch(comp);
+        comp._objFlags |= IsPreloadCalled;
+    } : function (comp) {
+        comp.__preload();
+        comp._objFlags |= IsPreloadCalled;
+    },
+
+    activateComp: CC_EDITOR ? function (comp) {
+        if (!(comp._objFlags & IsOnLoadStarted) &&
+            (cc.engine._isPlaying || comp.constructor._executeInEditMode)) {
+            comp._objFlags |= IsOnLoadStarted;
+
+            if (comp.onLoad) {
+                callOnLoadInTryCatch(comp);
+            }
+
+            comp._objFlags |= IsOnLoadCalled;
+
+            if (comp.onLoad && !cc.engine._isPlaying) {
+                var focused = Editor.Selection.curActivate('node') === comp.node.uuid;
+                if (focused && comp.onFocusInEditor) {
+                    callOnFocusInTryCatch(comp);
+                }
+                else if (comp.onLostFocusInEditor) {
+                    callOnLostFocusInTryCatch(comp);
+                }
+            }
+            if ( !CC_TEST ) {
+                _Scene.AssetsWatcher.start(comp);
+            }
+        }
+        if (comp._enabled) {
+            var deactivatedOnLoading = !comp.node._activeInHierarchy;
+            if (deactivatedOnLoading) {
+                return;
+            }
+            this.enableComp(comp);
+        }
+    } : function (comp) {
+        if (!(comp._objFlags & IsOnLoadStarted)) {
+            comp._objFlags |= IsOnLoadStarted;
+            if (comp.onLoad) {
+                comp.onLoad();
+            }
+            comp._objFlags |= IsOnLoadCalled;
+        }
+        if (comp._enabled) {
+            var deactivatedOnLoading = !comp.node._activeInHierarchy;
+            if (deactivatedOnLoading) {
+                return;
+            }
+            this.enableComp(comp);
+        }
+    },
+
+    destroyComp: CC_EDITOR ? function (comp) {
+        // ensure onDisable called
+        this.disableComp(comp);
+
+        if (comp.onDestroy && (comp._objFlags & IsOnLoadCalled)) {
+            if (cc.engine._isPlaying || comp.constructor._executeInEditMode) {
+                callOnDestroyInTryCatch(comp);
+            }
+        }
+    } : function (comp) {
+        // ensure onDisable called
+        this.disableComp(comp);
+
+        if (comp.onDestroy && (comp._objFlags & IsOnLoadCalled)) {
+            comp.onDestroy();
+        }
+    },
+
+    resetComp: CC_EDITOR && function (comp) {
+        if (typeof comp.resetInEditor === 'function') {
+            callResetInTryCatch(comp);
+        }
+    },
+
+    schedule (comp) {
+        if (this._updating) {
+            this.scheduleInNextFrame.push(comp);
+            return;
+        }
+        this._scheduleImmediate(comp);
+    },
+    unschedule (comp) {
+        // cancel schedule task
+        var index = this.scheduleInNextFrame.indexOf(comp);
+        if (index >= 0) {
+            JsArray.fastRemoveAt(this.scheduleInNextFrame, index);
+            return;
+        }
+        // unschedule
+        if (comp.start && !(comp._objFlags & IsStartCalled)) {
+            this.startsZero.fastRemove(comp);
+        }
+        if (comp.update) {
+            this.updatesZero.fastRemove(comp);
+        }
+        if (comp.lateUpdate) {
+            this.lateUpdatesZero.fastRemove(comp);
+        }
+    },
+
+    _scheduleImmediate (comp) {
+        if (comp.start && !(comp._objFlags & IsStartCalled)) {
+            this.startsZero.array.push(comp);
+        }
+        if (comp.update) {
+            this.updatesZero.array.push(comp);
+        }
+        if (comp.lateUpdate) {
+            this.lateUpdatesZero.array.push(comp);
+        }
+    },
+
+    _deferredSchedule () {
+        var comps = this.scheduleInNextFrame;
+        for (var i = 0, len = comps.length; i < len; i++) {
+            var comp = comps[i];
+            this._scheduleImmediate(comp);
+        }
+        comps.length = 0;
+    },
+
+    startPhase () {
+        // Start of this frame
+        this._updating = true;
+
+        if (this.scheduleInNextFrame.length > 0) {
+            this._deferredSchedule();
+        }
+
+        // call start
+        var iterator = this.startsZero;
+        var array = iterator.array;
+        if (CC_EDITOR) {
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                callStartInTryCatch(comp);
+                comp._objFlags |= IsStartCalled;
+            }
+        }
+        else {
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                comp.start();
+                comp._objFlags |= IsStartCalled;
+            }
+        }
+        array.length = 0;
+    },
+
+    updatePhase (dt) {
+        // call update
+        var iterator = this.updatesZero;
+        var array = iterator.array;
+        if (CC_EDITOR) {
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                callUpdateInTryCatch(comp, dt);
+            }
+        }
+        else {
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                comp.update(dt);
+            }
+        }
+    },
+
+    lateUpdatePhase (dt) {
+        // call lateUpdate
+        var iterator = this.lateUpdatesZero;
+        var array = iterator.array;
+        if (CC_EDITOR) {
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                callLateUpdateInTryCatch(comp, dt);
+            }
+        }
+        else {
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                comp.lateUpdate(dt);
+            }
+        }
+
+        // End of this frame
+        this._updating = false;
+    }
 });
 
 module.exports = ComponentScheduler;

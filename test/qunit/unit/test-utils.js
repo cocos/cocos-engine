@@ -41,24 +41,31 @@ test('enum', function () {
         "Can define enum name as index value" );
 });
 
-test('foreach mutable array', function () {
-    var array = [0, 1, 2, 3, 4];
-    var iterator = new cc.js.array.MutableForwardIterator(array);
+(function () {
+    function testRemove (title, removeOperation) {
+        test(title, function () {
+            var array = [0, 1, 2, 3, 4];
+            var iterator = new cc.js.array.MutableForwardIterator(array);
 
-    function removeOperation (index) {
+            iterator.i = 0;
+            removeOperation(iterator, 0);
+            strictEqual(iterator.i, 0 - 1, 'should decrease the index if remove current item, otherwise iterator will out of sync');
+
+            iterator.i = 1;
+            removeOperation(iterator, 0);
+            strictEqual(iterator.i, 1 - 1, 'should decrease the index if remove previous item');
+
+            iterator.i = 0;
+            removeOperation(iterator, 1);
+            strictEqual(iterator.i, 0, 'should not decrease the index if remove subsequent item');
+        });
+    }
+    testRemove('foreach mutable array - removeAt', function (iterator, index) {
         // can not directly change loop index outside loop scope
         iterator.removeAt(index);
-    }
-
-    iterator.i = 0;
-    removeOperation(0);
-    strictEqual(iterator.i, 0 - 1, 'should decrease the index if remove current item, otherwise iterator will out of sync');
-
-    iterator.i = 1;
-    removeOperation(0);
-    strictEqual(iterator.i, 1 - 1, 'should decrease the index if remove previous item');
-
-    iterator.i = 0;
-    removeOperation(1);
-    strictEqual(iterator.i, 0, 'should not decrease the index if remove subsequent item');
-});
+    });
+    testRemove('foreach mutable array - fastRemoveAt', function (iterator, index) {
+        // can not directly change loop index outside loop scope
+        iterator.fastRemoveAt(index);
+    });
+})();
