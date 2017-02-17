@@ -56,15 +56,20 @@ exports.uglifyOptions = function (minify, global_defs) {
 function allowReturnOutsideFunctionInBrowserifyTransform () {
     var acorn;
     try {
-        acorn = require('syntax-error/node_modules/acorn');
+        acorn = require('browserify/node_modules/syntax-error/node_modules/acorn');
     }
     catch (e) {
         try {
-            acorn = require('acorn');
+            acorn = require('syntax-error/node_modules/acorn');
         }
         catch (e) {
-            console.warn('Can not find acorn to patch');
-            return;
+            try {
+                acorn = require('acorn');
+            }
+            catch (e) {
+                console.error('Can not find acorn to patch');
+                return;
+            }
         }
     }
 
@@ -78,7 +83,7 @@ function allowReturnOutsideFunctionInBrowserifyTransform () {
         }
     }
     else {
-        console.warn('Can not find acorn.parse to patch');
+        console.error('Can not find acorn.parse to patch');
     }
 }
 
