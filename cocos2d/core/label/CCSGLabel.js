@@ -266,7 +266,7 @@ _ccsg.Label = _ccsg.Node.extend({
         this._tailoredTopY =  0;
         this._tailoredBottomY =  0;
         this._bmfontScale =  1.0;
-        this._additionalKerning =  0;
+        this._spacingX =  0;
         this._horizontalKernings =  [];
         this._lineBreakWithoutSpaces =  false;
 
@@ -499,6 +499,7 @@ _ccsg.Label = _ccsg.Node.extend({
     setSpacingX: function(spacing) {
         if (this._spacingX === spacing) return;
         this._spacingX = spacing;
+        this._notifyLabelSkinDirty();
     },
 
     setLineHeight: function(lineHeight) {
@@ -948,7 +949,7 @@ cc.BMFontHelper = {
                     nextLetterX += this._horizontalKernings[letterIndex + 1];
                 }
 
-                nextLetterX += letterDef._xAdvance * this._bmfontScale + this._additionalKerning;
+                nextLetterX += letterDef._xAdvance * this._bmfontScale + this._spacingX;
 
                 tokenRight = letterPosition.x + letterDef._width * this._bmfontScale;
 
@@ -1167,12 +1168,15 @@ cc.BMFontHelper = {
         }
 
         var len = 1;
-        var nextLetterX = 0;
+        letterDef = this._fontAtlas.getLetterDefinitionForChar(character);
+        if (!letterDef) {
+            return len;
+        }
+        var nextLetterX = letterDef._xAdvance * this._bmfontScale + this._spacingX;
         var letterDef;
         var letterX;
         for (var index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
-            //calculate the word boundary
 
             letterDef = this._fontAtlas.getLetterDefinitionForChar(character);
             if (!letterDef) {
@@ -1183,11 +1187,9 @@ cc.BMFontHelper = {
             if(letterX + letterDef._width * this._bmfontScale > this._maxLineWidth
                && !cc.TextUtils.isUnicodeSpace(character)
                && this._maxLineWidth > 0) {
-                if(len >= 2) {
-                    return len - 1;
-                }
+                return len;
             }
-            nextLetterX += letterDef._xAdvance * this._bmfontScale + this._additionalKerning;
+            nextLetterX += letterDef._xAdvance * this._bmfontScale + this._spacingX;
             if (character === "\n"
                 || cc.TextUtils.isUnicodeSpace(character)
                 || cc.TextUtils.isUnicodeCJK(character)) {
