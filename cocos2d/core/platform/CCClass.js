@@ -528,7 +528,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
         if (typeof ctor !== 'function') {
             cc.errorID(3619, className);
         }
-        if (ctor.length > 0 && !className.startsWith('cc.')) {
+        if (ctor.length > 0 && (!className || !className.startsWith('cc.'))) {
             // fireball-x/dev#138: To make a unified CCClass serialization process,
             // we don't allow parameters for constructor when creating instances of CCClass.
             // For advance user, construct arguments can still get from 'arguments'.
