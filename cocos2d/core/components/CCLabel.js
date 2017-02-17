@@ -435,6 +435,16 @@ var Label = cc.Class({
             readonly: true,
             visible: true,
             animatable: false
+        },
+
+        spacingX: {
+            default: 0,
+            notify: function() {
+                if (this._sgNode) {
+                    this._sgNode.setSpacingX(this.spacingX);
+                    this._updateNodeSize();
+                }
+            }
         }
 
     },
