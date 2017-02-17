@@ -253,7 +253,7 @@ if (CC_DEV) {
 
     function deprecateEnum (obj, oldPath, newPath, hasTypePrefixBefore) {
         hasTypePrefixBefore = hasTypePrefixBefore !== false;
-        var enumDef = eval(newPath);
+        var enumDef = Function('return ' + newPath)();
         var entries = cc.Enum.getList(enumDef);
         var delimiter = hasTypePrefixBefore ? '_' : '.';
         for (var i = 0; i < entries.length; i++) {

@@ -853,10 +853,10 @@ var BaseNode = cc.Class({
 
         if (this._activeInHierarchy) {
             if (typeof component.__preload === 'function') {
-                cc.Component._callPreloadOnComponent(component);
+                cc.director._compScheduler.doPreloadComp(component);
             }
             // call onLoad/onEnable
-            component.__onNodeActivated(true);
+            cc.director._compScheduler.activateComp(component);
         }
 
         return component;
@@ -906,10 +906,10 @@ var BaseNode = cc.Class({
         if (this._activeInHierarchy) {
             if (typeof comp.__preload === 'function' &&
                 !(comp._objFlags & cc.Object.Flags.IsPreloadCalled)) {
-                cc.Component._callPreloadOnComponent(comp);
+                cc.director._compScheduler.doPreloadComp(comp);
             }
             // call onLoad/onEnable
-            comp.__onNodeActivated(true);
+            cc.director._compScheduler.activateComp(comp);
         }
     },
 
@@ -980,7 +980,7 @@ var BaseNode = cc.Class({
 
     _onActivatedInHierarchy: function (newActive) {
         if (newActive) {
-            cc.Component._callPreloadOnNode(this);
+            cc.director._compScheduler.preloadNode(this);
         }
         this._activeRecursively(newActive);
     },
@@ -1008,11 +1008,16 @@ var BaseNode = cc.Class({
         for (var c = 0; c < originCount; ++c) {
             var component = this._components[c];
             if (component instanceof cc.Component) {
-                component.__onNodeActivated(newActive);
-                if (newActive && !this._activeInHierarchy) {
-                    // deactivated during activating
-                    this._objFlags &= ~Activating;
-                    return;
+                if (newActive) {
+                    cc.director._compScheduler.activateComp(component);
+                    if (!this._activeInHierarchy) {
+                        // deactivated during activating
+                        this._objFlags &= ~Activating;
+                        return;
+                    }
+                }
+                else if (component._enabled) {
+                     cc.director._compScheduler.disableComp(component);
                 }
             }
             else {
@@ -1056,7 +1061,9 @@ var BaseNode = cc.Class({
         var originCount = this._components.length;
         for (var c = 0; c < originCount; ++c) {
             var component = this._components[c];
-            component.__onNodeActivated(false);
+            if (component._enabled) {
+                 cc.director._compScheduler.disableComp(component);
+            }
         }
         // deactivate children recursively
         for (var i = 0, len = this._children.length; i < len; ++i) {

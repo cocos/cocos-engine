@@ -379,14 +379,14 @@ function normalizeClassName (className) {
             }).join('');
             try {
                 // validate name
-                eval('function ' + className + '(){}');
+                Function('function ' + className + '(){}')();
                 return className;
             }
             catch (e) {
                 className = DefaultName + '_' + className;
             }
             try {
-                eval('function ' + className + '(){}');
+                Function('function ' + className + '(){}')();
                 return className;
             }
             catch (e) {
@@ -505,7 +505,8 @@ function compileProps (actualClass) {
     //     console.log(func);
     // }
 
-    // overwite __initProps__ to avoid compile again
+    // Overwite __initProps__ to avoid compile again.
+    // Use eval to bind scoped variable just in one function, so that we don't have to bind this.
     actualClass.prototype.__initProps__ = Misc.cleanEval_F(func, F);
 
     // call instantiateProps immediately, no need to pass actualClass into it anymore

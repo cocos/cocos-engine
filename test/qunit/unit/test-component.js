@@ -91,6 +91,11 @@ test('start', function () {
         test.addComponent(TestComp);
         this.node.addChild(test);
     };
+    comp.update = function () {
+        var test = new cc.Node();
+        test.addComponent(TestComp);
+        this.node.addChild(test);
+    };
     cc.director.getScene().addChild(node);
     // run comp
     cc.game.step();

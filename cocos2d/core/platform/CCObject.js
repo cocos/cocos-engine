@@ -1,6 +1,5 @@
 var JS = require('./js');
 var CCClass = require('./CCClass');
-var cleanEval = require('../utils/misc').cleanEval;
 
 // definitions for CCObject.Flags
 
@@ -341,7 +340,7 @@ function compileDestruct (obj, ctor) {
     }
     // compile code
     var skipId = obj instanceof cc._BaseNode || obj instanceof cc.Component;
-    var func = '(function(o){\n';
+    var func = '';
     for (key in propsToReset) {
         if (skipId && key === '_id') {
             continue;
@@ -359,9 +358,7 @@ function compileDestruct (obj, ctor) {
         }
         func += (statement + val + ';\n');
     }
-    func += '})';
-
-    return cleanEval(func);
+    return Function('o', func);
 }
 
 /**

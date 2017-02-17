@@ -27,8 +27,8 @@
 
 // if "global_defs" not preprocessed by uglify, just declare them globally,
 // this may happened in release version's preview page.
-eval(
-    /* use EVAL to prevent the uglify from renaming symbols */
+Function(
+    /* use evaled code to prevent the uglify from renaming symbols */
     'if(typeof CC_TEST=="undefined")' +
         'CC_TEST=typeof tap=="object"||typeof QUnit=="object";' +
     'if(typeof CC_EDITOR=="undefined")' +
@@ -37,7 +37,7 @@ eval(
         'CC_DEV=CC_EDITOR||CC_TEST;' + /* CC_DEV contains CC_TEST and CC_EDITOR */
     'if(typeof CC_JSB=="undefined")' +
         'CC_JSB=false;'
-);
+)();
 
 // PREDEFINE
 

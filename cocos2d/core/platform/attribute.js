@@ -33,7 +33,7 @@ function createAttrsSingle (owner, ownerCtor, superAttrs) {
         if (owner !== ownerCtor) {
             ctorName += '_INSTANCE';
         }
-        AttrsCtor = eval('(function ' + ctorName + '(){})');
+        AttrsCtor = Function('return (function ' + ctorName + '(){});')();
     }
     else {
         AttrsCtor = function () {};

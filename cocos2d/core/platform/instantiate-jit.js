@@ -30,7 +30,6 @@ var Destroyed = CCObject.Flags.Destroyed;
 var PersistentMask = CCObject.Flags.PersistentMask;
 var Attr = require('./attribute');
 var JS = require('./js');
-var cleanEval = require('../utils/misc').cleanEval;
 var CCClass = require('./CCClass');
 
 var SERIALIZABLE = Attr.DELIMETER + 'serializable';
@@ -158,13 +157,12 @@ function Parser (obj, parent) {
     if (this.globalVariables.length > 0) {
         globalVariablesDeclaration = VAR + this.globalVariables.join(',') + ';';
     }
-    var code = flattenCodeArray(['(function(O,F,R){',
-                                     globalVariablesDeclaration || [],
-                                     this.codeArray,
-                                 'return o;})'], CC_DEV ? '\n' : '');
+    var code = flattenCodeArray([globalVariablesDeclaration || [],
+                                 this.codeArray,
+                                 'return o;'], CC_DEV ? '\n' : '');
 
     // generate method and bind with objs
-    var createFunction = cleanEval(code);
+    var createFunction = Function('O', 'F', 'R', code);
     this.result = createFunction.bind(null, this.objs, this.funcs);
 
     if (CC_TEST && !isPhantomJS) {
@@ -186,7 +184,7 @@ JS.mixin(Parser.prototype, {
         if (clsNameIsModule) {
             try {
                 // ensure is module
-                clsNameIsModule = (func === cleanEval(clsName));
+                clsNameIsModule = (func === Function('return ' + clsName)());
                 if (clsNameIsModule) {
                     return clsName;
                 }
