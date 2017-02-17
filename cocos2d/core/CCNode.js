@@ -900,78 +900,39 @@ var Node = cc.Class({
     // OVERRIDES
 
     _onPreDestroy: function () {
-        var i, len;
+        var destroyByParent = this._onPreDestroyBase();
 
-        // marked as destroying
-        this._objFlags |= Destroying;
-
-        // detach self and children from editor
-        var parent = this._parent;
-        var destroyByParent = parent && (parent._objFlags & Destroying);
-        if (!destroyByParent) {
-            if (CC_EDITOR || CC_TEST) {
-                this._registerIfAttached(false);
-            }
-        }
-
-        // destroy children
-        var children = this._children;
-        for (i = 0, len = children.length; i < len; ++i) {
-            // destroy immediate so its _onPreDestroy can be called
-            children[i]._destroyImmediate();
-        }
-
-        // destroy self components
-        for (i = 0, len = this._components.length; i < len; ++i) {
-            var component = this._components[i];
-            // destroy immediate so its _onPreDestroy can be called
-            component._destroyImmediate();
-        }
-
-        // Actions
         cc.director.getActionManager().removeAllActionsFromTarget(this);
-        this._releaseAllActions();
 
         // Remove Node.currentHovered
         if (_currentHovered === this) {
             _currentHovered = null;
         }
 
-        // Remove all listeners
-        if (CC_JSB && this._touchListener) {
-            this._touchListener.release();
-            this._touchListener.owner = null;
-            this._touchListener.mask = null;
-            this._touchListener = null;
+        if (CC_JSB) {
+            this._releaseAllActions();
+            if (this._touchListener) {
+                this._touchListener.release();
+                this._touchListener.owner = null;
+                this._touchListener.mask = null;
+                this._touchListener = null;
+            }
+            if (this._mouseListener) {
+                this._mouseListener.release();
+                this._mouseListener.owner = null;
+                this._mouseListener.mask = null;
+                this._mouseListener = null;
+            }
         }
-        if (CC_JSB && this._mouseListener) {
-            this._mouseListener.release();
-            this._mouseListener.owner = null;
-            this._mouseListener.mask = null;
-            this._mouseListener = null;
-        }
-        cc.eventManager.removeListeners(this);
-        for (i = 0, len = this.__eventTargets.length; i < len; ++i) {
-            var target = this.__eventTargets[i];
-            target && target.targetOff(this);
-        }
-        this.__eventTargets.length = 0;
 
-        // remove from persist
-        if (this._persistNode) {
-            cc.game.removePersistRootNode(this);
+        if (this._reorderChildDirty) {
+            cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
         }
+
+        cc.eventManager.removeListeners(this);
 
         if (!destroyByParent) {
-            // remove from parent
-            if (parent) {
-                var childIndex = parent._children.indexOf(this);
-                parent._children.splice(childIndex, 1);
-                parent.emit('child-removed', this);
-            }
-
             this._removeSgNode();
-
             // simulate some destruct logic to make undo system work correctly
             if (CC_EDITOR) {
                 // ensure this node can reattach to scene by undo system
@@ -2334,14 +2295,14 @@ var Node = cc.Class({
                 }
                 this.emit(CHILD_REORDER);
             }
-            cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this, this.__eventTargets);
+            cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
         }
     },
 
     _delaySort: function () {
         if (!this._reorderChildDirty) {
             this._reorderChildDirty = true;
-            cc.director.__fastOn(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this, this.__eventTargets);
+            cc.director.__fastOn(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
         }
     },
 

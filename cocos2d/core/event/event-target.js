@@ -201,13 +201,12 @@ JS.mixin(EventTarget.prototype, {
         return callback;
     },
 
-    __fastOn: function (type, callback, target, eventTargets) {
+    __fastOn: function (type, callback, target) {
         var listeners = this._bubblingListeners;
         if (!listeners) {
             listeners = this._bubblingListeners = new EventListeners();
         }
         listeners.add(type, callback, target);
-        eventTargets.push(this);
     },
 
     /**
@@ -253,11 +252,10 @@ JS.mixin(EventTarget.prototype, {
         }
     },
 
-    __fastOff: function (type, callback, target, eventTargets) {
+    __fastOff: function (type, callback, target) {
         var listeners = this._bubblingListeners;
         if (listeners) {
             listeners.remove(type, callback, target);
-            fastRemove(eventTargets, this);
         }
     },
 

@@ -464,11 +464,12 @@ var Component = cc.Class({
         this.unscheduleAllCallbacks();
 
         // Remove all listeners
-        for (var i = 0, l = this.__eventTargets.length; i < l; ++i) {
-            var target = this.__eventTargets[i];
+        var eventTargets = this.__eventTargets;
+        for (var i = 0, l = eventTargets.length; i < l; ++i) {
+            var target = eventTargets[i];
             target && target.targetOff(this);
         }
-        this.__eventTargets.length = 0;
+        eventTargets.length = 0;
 
         //
         if (CC_EDITOR && !CC_TEST) {

@@ -1213,7 +1213,7 @@ var BaseNode = cc.Class({
         }
     },
 
-    _onPreDestroy: function () {
+    _onPreDestroy () {
         var i, len;
 
         // marked as destroying
@@ -1222,10 +1222,8 @@ var BaseNode = cc.Class({
         // detach self and children from editor
         var parent = this._parent;
         var destroyByParent = parent && (parent._objFlags & Destroying);
-        if (!destroyByParent) {
-            if (CC_EDITOR || CC_TEST) {
-                this._registerIfAttached(false);
-            }
+        if (!destroyByParent && (CC_EDITOR || CC_TEST)) {
+            this._registerIfAttached(false);
         }
 
         // destroy children
@@ -1242,12 +1240,12 @@ var BaseNode = cc.Class({
             component._destroyImmediate();
         }
 
-
-        for (i = 0, len = this.__eventTargets.length; i < len; ++i) {
-            var target = this.__eventTargets[i];
+        var eventTargets = this.__eventTargets;
+        for (i = 0, len = eventTargets.length; i < len; ++i) {
+            var target = eventTargets[i];
             target && target.targetOff(this);
         }
-        this.__eventTargets.length = 0;
+        eventTargets.length = 0;
 
         // remove from persist
         if (this._persistNode) {
@@ -1260,12 +1258,6 @@ var BaseNode = cc.Class({
                 var childIndex = parent._children.indexOf(this);
                 parent._children.splice(childIndex, 1);
                 parent.emit('child-removed', this);
-            }
-
-            // simulate some destruct logic to make undo system work correctly
-            if (CC_EDITOR) {
-                // ensure this node can reattach to scene by undo system
-                this._parent = null;
             }
         }
     },
@@ -1280,6 +1272,28 @@ var BaseNode = cc.Class({
     },
 });
 
+BaseNode.prototype._onPreDestroyBase = BaseNode.prototype._onPreDestroy;
+if (CC_EDITOR) {
+    BaseNode.prototype._onPreDestroy = function () {
+       var destroyByParent = this._onPreDestroyBase();
+       if (!destroyByParent) {
+           // ensure this node can reattach to scene by undo system
+           // (simulate some destruct logic to make undo system work correctly)
+           this._parent = null;
+       }
+   };
+}
+
+BaseNode.prototype._onHierarchyChangedBase = BaseNode.prototype._onHierarchyChanged;
+
+if(CC_EDITOR) {
+    BaseNode.prototype._onRestoreBase = BaseNode.prototype.onRestore;
+}
+
+// Define public getter and setter methods to ensure api compatibility.
+var SameNameGetSets = ['name', 'children', 'childrenCount',];
+Misc.propertyDefine(BaseNode, SameNameGetSets, {});
+
 /**
  * !#en
  * Note: This event is only emitted from the top most node whose active value did changed,
@@ -1290,12 +1304,4 @@ var BaseNode = cc.Class({
  * @param {Event} event
  */
 
-// Define public getter and setter methods to ensure api compatibility.
-
-var SameNameGetSets = ['name', 'children', 'childrenCount',];
-Misc.propertyDefine(BaseNode, SameNameGetSets, {});
-BaseNode.prototype._onHierarchyChangedBase = BaseNode.prototype._onHierarchyChanged;
-if(CC_EDITOR) {
-    BaseNode.prototype._onRestoreBase = BaseNode.prototype.onRestore;
-}
 cc._BaseNode = module.exports = BaseNode;
