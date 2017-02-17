@@ -82,7 +82,7 @@ var Component = cc.Class({
         },
 
         name: {
-            get: function () {
+            get () {
                 if (this._name) {
                     return this._name;
                 }
@@ -93,7 +93,7 @@ var Component = cc.Class({
                 }
                 return this.node.name + '<' + className + '>';
             },
-            set: function (value) {
+            set (value) {
                 this._name = value;
             },
             visible: false
@@ -114,7 +114,7 @@ var Component = cc.Class({
          * cc.log(comp.uuid);
          */
         uuid: {
-            get: function () {
+            get () {
                 var id = this._id;
                 if ( !id ) {
                     id = this._id = idGenerater.getNewId();
@@ -128,8 +128,8 @@ var Component = cc.Class({
         },
 
         __scriptAsset: CC_EDITOR && {
-            get: function () {},
-            //set: function (value) {
+            get () {},
+            //set (value) {
             //    if (this.__scriptUuid !== value) {
             //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
             //            var classId = Editor.Utils.UuidUtils.compressUuid(value._uuid);
@@ -170,10 +170,10 @@ var Component = cc.Class({
          * cc.log(comp.enabled);
          */
         enabled: {
-            get: function () {
+            get () {
                 return this._enabled;
             },
-            set: function (value) {
+            set (value) {
                 if (this._enabled !== value) {
                     this._enabled = value;
                     if (this.node._activeInHierarchy) {
@@ -199,7 +199,7 @@ var Component = cc.Class({
          * cc.log(comp.enabledInHierarchy);
          */
         enabledInHierarchy: {
-            get: function () {
+            get () {
                 return (this._objFlags & IsOnEnableCalled) > 0;
             },
             visible: false
@@ -215,7 +215,7 @@ var Component = cc.Class({
          * cc.log(_isOnLoadCalled > 0);
          */
         _isOnLoadCalled: {
-            get: function () {
+            get () {
                 return this._objFlags & IsOnLoadCalled;
             }
         },
@@ -314,7 +314,7 @@ var Component = cc.Class({
      * var sprite = node.addComponent(cc.Sprite);
      * var test = node.addComponent("Test");
      */
-    addComponent: function (typeOrTypename) {
+    addComponent (typeOrTypename) {
         return this.node.addComponent(typeOrTypename);
     },
 
@@ -335,7 +335,7 @@ var Component = cc.Class({
      * // get custom test calss.
      * var test = node.getComponent("Test");
      */
-    getComponent: function (typeOrClassName) {
+    getComponent (typeOrClassName) {
         return this.node.getComponent(typeOrClassName);
     },
 
@@ -350,7 +350,7 @@ var Component = cc.Class({
      * var sprites = node.getComponents(cc.Sprite);
      * var tests = node.getComponents("Test");
      */
-    getComponents: function (typeOrClassName) {
+    getComponents (typeOrClassName) {
         return this.node.getComponents(typeOrClassName);
     },
 
@@ -365,7 +365,7 @@ var Component = cc.Class({
      * var sprite = node.getComponentInChildren(cc.Sprite);
      * var Test = node.getComponentInChildren("Test");
      */
-    getComponentInChildren: function (typeOrClassName) {
+    getComponentInChildren (typeOrClassName) {
         return this.node.getComponentInChildren(typeOrClassName);
     },
 
@@ -380,7 +380,7 @@ var Component = cc.Class({
      * var sprites = node.getComponentsInChildren(cc.Sprite);
      * var tests = node.getComponentsInChildren("Test");
      */
-    getComponentsInChildren: function (typeOrClassName) {
+    getComponentsInChildren (typeOrClassName) {
         return this.node.getComponentsInChildren(typeOrClassName);
     },
 
@@ -444,7 +444,7 @@ var Component = cc.Class({
 
     // OVERRIDE
 
-    destroy: function () {
+    destroy () {
         if (CC_EDITOR) {
             var depend = this.node._getDependComponent(this);
             if (depend) {
@@ -459,7 +459,7 @@ var Component = cc.Class({
         }
     },
 
-    _onPreDestroy: function () {
+    _onPreDestroy () {
         // Schedules
         this.unscheduleAllCallbacks();
 
@@ -487,7 +487,7 @@ var Component = cc.Class({
         }
     },
 
-    _instantiate: function (cloned) {
+    _instantiate (cloned) {
         if (!cloned) {
             cloned = cc.instantiate._clone(this, this);
         }
@@ -497,7 +497,7 @@ var Component = cc.Class({
 
 // Scheduler
 
-    isRunning: function () {
+    isRunning () {
         return this.enabledInHierarchy;
     },
 
@@ -519,7 +519,7 @@ var Component = cc.Class({
      * }
      * this.schedule(timeCallback, 1);
      */
-    schedule: function (callback, interval, repeat, delay) {
+    schedule (callback, interval, repeat, delay) {
         cc.assertID(callback, 1619);
         cc.assertID(interval >= 0, 1620);
 
@@ -543,7 +543,7 @@ var Component = cc.Class({
      * }
      * this.scheduleOnce(timeCallback, 2);
      */
-    scheduleOnce: function (callback, delay) {
+    scheduleOnce (callback, delay) {
         this.schedule(callback, 0, 0, delay);
     },
 
@@ -556,7 +556,7 @@ var Component = cc.Class({
      * @example
      * this.unschedule(_callback);
      */
-    unschedule: function (callback_fn) {
+    unschedule (callback_fn) {
         if (!callback_fn)
             return;
 
@@ -572,7 +572,7 @@ var Component = cc.Class({
      * @example
      * this.unscheduleAllCallbacks();
      */
-    unscheduleAllCallbacks: function () {
+    unscheduleAllCallbacks () {
         cc.director.getScheduler().unscheduleAllForTarget(this);
     },
 });
@@ -608,7 +608,7 @@ if (CC_EDITOR || CC_TEST) {
 
 // use defineProperty to prevent inherited by sub classes
 Object.defineProperty(Component, '_registerEditorProps', {
-    value: function (cls, props) {
+    value (cls, props) {
         var reqComp = props.requireComponent;
         if (reqComp) {
             cls._requireComponent = reqComp;

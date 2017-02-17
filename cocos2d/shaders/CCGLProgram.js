@@ -576,22 +576,23 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         this._glContext.uniformMatrix4fv(locObj, false, matrixArray);
     },
 
-    setUniformLocationF32: function () {
-        if (arguments.length < 2)
-            return;
-
+    setUniformLocationF32: function (p1, p2, p3, p4, p5) {
+        'use strict';
         switch (arguments.length) {
+            case 0:
+            case 1:
+                return;
             case 2:
-                this.setUniformLocationWith1f(arguments[0], arguments[1]);
+                this.setUniformLocationWith1f(p1, p2);
                 break;
             case 3:
-                this.setUniformLocationWith2f(arguments[0], arguments[1], arguments[2]);
+                this.setUniformLocationWith2f(p1, p2, p3);
                 break;
             case 4:
-                this.setUniformLocationWith3f(arguments[0], arguments[1], arguments[2], arguments[3]);
+                this.setUniformLocationWith3f(p1, p2, p3, p4);
                 break;
             case 5:
-                this.setUniformLocationWith4f(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);
+                this.setUniformLocationWith4f(p1, p2, p3, p4, p5);
                 break;
         }
     },

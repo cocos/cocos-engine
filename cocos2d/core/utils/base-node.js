@@ -150,10 +150,10 @@ var BaseNode = cc.Class({
          * @private
          */
         _persistNode: {
-            get: function () {
+            get () {
                 return (this._objFlags & DontDestroy) > 0;
             },
-            set: function (value) {
+            set (value) {
                 if (value) {
                     this._objFlags |= DontDestroy;
                 }
@@ -175,10 +175,10 @@ var BaseNode = cc.Class({
          * cc.log("Node Name: " + node.name);
          */
         name: {
-            get: function () {
+            get () {
                 return this._name;
             },
-            set: function (value) {
+            set (value) {
                 if (CC_DEV && value.indexOf('/') !== -1) {
                     cc.errorID(1632);
                     return;
@@ -212,7 +212,7 @@ var BaseNode = cc.Class({
          * cc.log("Node Uuid: " + node.uuid);
          */
         uuid: {
-            get: function () {
+            get () {
                 var id = this._id;
                 if (!id) {
                     id = this._id = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : idGenerater.getNewId();
@@ -234,7 +234,7 @@ var BaseNode = cc.Class({
          * }
          */
         children: {
-            get: function () {
+            get () {
                 return this._children;
             }
         },
@@ -250,7 +250,7 @@ var BaseNode = cc.Class({
          * cc.log("Node Children Count: " + count);
          */
         childrenCount: {
-            get: function () {
+            get () {
                 return this._children.length;
             }
         },
@@ -271,10 +271,10 @@ var BaseNode = cc.Class({
          * node.active = false;
          */
         active: {
-            get: function () {
+            get () {
                 return this._active;
             },
-            set: function (value) {
+            set (value) {
                 value = !!value;
                 if (this._active !== value) {
                     this._active = value;
@@ -296,7 +296,7 @@ var BaseNode = cc.Class({
          * cc.log("activeInHierarchy: " + node.activeInHierarchy);
          */
         activeInHierarchy: {
-            get: function () {
+            get () {
                 return this._activeInHierarchy;
             }
         },
@@ -312,7 +312,7 @@ var BaseNode = cc.Class({
 
     },
 
-    ctor: function (name) {
+    ctor (name) {
 
         this._name = typeof name !== 'undefined' ? name : 'New Node';
 
@@ -330,19 +330,19 @@ var BaseNode = cc.Class({
         this.__eventTargets = [];
     },
 
-    getTag: function () {
+    getTag () {
         return this._tag;
     },
 
-    setTag: function (tag) {
+    setTag (tag) {
         this._tag = tag;
     },
 
-    getParent: function () {
+    getParent () {
         return this._parent;
     },
 
-    setParent: function (value) {
+    setParent (value) {
         if (this._parent === value) {
             return;
         }
@@ -387,7 +387,7 @@ var BaseNode = cc.Class({
      * @returns {Boolean} Whether the initialization was successful.
      * @deprecated, no need anymore
      */
-    init: function () {
+    init () {
         return true;
     },
 
@@ -404,7 +404,7 @@ var BaseNode = cc.Class({
      * var attrs = { key: 0, num: 100 };
      * node.attr(attrs);
      */
-    attr: function (attrs) {
+    attr (attrs) {
         for (var key in attrs) {
             this[key] = attrs[key];
         }
@@ -421,7 +421,7 @@ var BaseNode = cc.Class({
      * @example
      * var child = node.getChildByTag(1001);
      */
-    getChildByTag: function (aTag) {
+    getChildByTag (aTag) {
         var children = this._children;
         if (children !== null) {
             for (var i = 0; i < children.length; i++) {
@@ -442,7 +442,7 @@ var BaseNode = cc.Class({
      * @example
      * var child = node.getChildByUuid(uuid);
      */
-    getChildByUuid: function (uuid) {
+    getChildByUuid (uuid) {
         if (!uuid) {
             cc.log("Invalid uuid");
             return null;
@@ -465,7 +465,7 @@ var BaseNode = cc.Class({
      * @example
      * var child = node.getChildByName("Test Node");
      */
-    getChildByName: function (name) {
+    getChildByName (name) {
         if (!name) {
             cc.log("Invalid name");
             return null;
@@ -480,7 +480,7 @@ var BaseNode = cc.Class({
     },
 
     // composition: ADD
-    addChild: function (child) {
+    addChild (child) {
 
         if (CC_DEV && !(child instanceof cc._BaseNode)) {
             return cc.errorID(1634, cc.js.getClassName(child));
@@ -503,7 +503,7 @@ var BaseNode = cc.Class({
      * @example
      * var index = node.getSiblingIndex();
      */
-    getSiblingIndex: function () {
+    getSiblingIndex () {
         if (this._parent) {
             return this._parent._children.indexOf(this);
         }
@@ -520,7 +520,7 @@ var BaseNode = cc.Class({
      * @example
      * node.setSiblingIndex(1);
      */
-    setSiblingIndex: function (index) {
+    setSiblingIndex (index) {
         if (!this._parent) {
             return;
         }
@@ -539,7 +539,7 @@ var BaseNode = cc.Class({
         }
     },
 
-    cleanup: function () {
+    cleanup () {
 
     },
 
@@ -559,7 +559,7 @@ var BaseNode = cc.Class({
      * node.removeFromParent();
      * node.removeFromParent(false);
      */
-    removeFromParent: function (cleanup) {
+    removeFromParent (cleanup) {
         if (this._parent) {
             if (cleanup === undefined)
                 cleanup = true;
@@ -584,7 +584,7 @@ var BaseNode = cc.Class({
      * node.removeChild(newNode);
      * node.removeChild(newNode, false);
      */
-    removeChild: function (child, cleanup) {
+    removeChild (child, cleanup) {
         if (this._children.indexOf(child) > -1) {
             // If you don't do cleanup, the child's actions will not get removed and the
             if (cleanup || cleanup === undefined) {
@@ -610,7 +610,7 @@ var BaseNode = cc.Class({
      * node.removeChildByTag(1001);
      * node.removeChildByTag(1001, false);
      */
-    removeChildByTag: function (tag, cleanup) {
+    removeChildByTag (tag, cleanup) {
         if (tag === cc.macro.NODE_TAG_INVALID)
             cc.logID(1609);
 
@@ -634,7 +634,7 @@ var BaseNode = cc.Class({
      * node.removeAllChildren();
      * node.removeAllChildren(false);
      */
-    removeAllChildren: function (cleanup) {
+    removeAllChildren (cleanup) {
         // not using detachChild improves speed here
         var children = this._children;
         if (cleanup === undefined)
@@ -666,7 +666,7 @@ var BaseNode = cc.Class({
      * @example
      * node.isChildOf(newNode);
      */
-    isChildOf: function (parent) {
+    isChildOf (parent) {
         var child = this;
         do {
             if (child === parent) {
@@ -696,7 +696,7 @@ var BaseNode = cc.Class({
      * // get custom test calss.
      * var test = node.getComponent("Test");
      */
-    getComponent: function (typeOrClassName) {
+    getComponent (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName);
         if (constructor) {
             return findComponent(this, constructor);
@@ -714,7 +714,7 @@ var BaseNode = cc.Class({
      * var sprites = node.getComponents(cc.Sprite);
      * var tests = node.getComponents("Test");
      */
-    getComponents: function (typeOrClassName) {
+    getComponents (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName), components = [];
         if (constructor) {
             findComponents(this, constructor, components);
@@ -732,7 +732,7 @@ var BaseNode = cc.Class({
      * var sprite = node.getComponentInChildren(cc.Sprite);
      * var Test = node.getComponentInChildren("Test");
      */
-    getComponentInChildren: function (typeOrClassName) {
+    getComponentInChildren (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName);
         if (constructor) {
             return findChildComponent(this._children, constructor);
@@ -750,7 +750,7 @@ var BaseNode = cc.Class({
      * var sprites = node.getComponentsInChildren(cc.Sprite);
      * var tests = node.getComponentsInChildren("Test");
      */
-    getComponentsInChildren: function (typeOrClassName) {
+    getComponentsInChildren (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName), components = [];
         if (constructor) {
             findComponents(this, constructor, components);
@@ -783,7 +783,7 @@ var BaseNode = cc.Class({
      * var sprite = node.addComponent(cc.Sprite);
      * var test = node.addComponent("Test");
      */
-    addComponent: function (typeOrClassName) {
+    addComponent (typeOrClassName) {
 
         if (CC_EDITOR && (this._objFlags & Destroying)) {
             cc.error('isDestroying');
@@ -928,7 +928,7 @@ var BaseNode = cc.Class({
      * var Test = require("Test");
      * node.removeComponent(Test);
      */
-    removeComponent: function (component) {
+    removeComponent (component) {
         if (!component) {
             cc.errorID(3813);
             return;
@@ -961,7 +961,7 @@ var BaseNode = cc.Class({
     },
 
     // do remove component, only used internally
-    _removeComponent: function (component) {
+    _removeComponent (component) {
         if (!component) {
             cc.errorID(3814);
             return;
@@ -978,14 +978,14 @@ var BaseNode = cc.Class({
         }
     },
 
-    _onActivatedInHierarchy: function (newActive) {
+    _onActivatedInHierarchy (newActive) {
         if (newActive) {
             cc.director._compScheduler.preloadNode(this);
         }
         this._activeRecursively(newActive);
     },
 
-    _activeRecursively: function (newActive) {
+    _activeRecursively (newActive) {
         var cancelActivation = false;
         if (this._objFlags & Activating) {
             if (newActive) {
@@ -1056,7 +1056,7 @@ var BaseNode = cc.Class({
         }
     },
 
-    _deactivateChildComponents: function () {
+    _deactivateChildComponents () {
         // 和 _activeRecursively 类似但不修改 this._activeInHierarchy
         var originCount = this._components.length;
         for (var c = 0; c < originCount; ++c) {
@@ -1074,7 +1074,7 @@ var BaseNode = cc.Class({
         }
     },
 
-    destroy: function () {
+    destroy () {
         if (cc.Object.prototype.destroy.call(this)) {
             // disable hierarchy
             if (this._activeInHierarchy) {
@@ -1094,14 +1094,14 @@ var BaseNode = cc.Class({
      * @example
      * node.destroyAllChildren();
      */
-    destroyAllChildren: function () {
+    destroyAllChildren () {
         var children = this._children;
         for (var i = 0; i < children.length; ++i) {
             children[i].destroy();
         }
     },
 
-    _onHierarchyChanged: function (oldParent) {
+    _onHierarchyChanged (oldParent) {
         var newParent = this._parent;
         if (this._persistNode && !(newParent instanceof cc.Scene)) {
             cc.game.removePersistRootNode(this);
@@ -1151,7 +1151,7 @@ var BaseNode = cc.Class({
 
     },
 
-    _onBatchCreated: function () {
+    _onBatchCreated () {
         var prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && !prefabInfo._synced) {
             // checks to ensure no recursion, recursion will caused only on old data.
@@ -1166,7 +1166,7 @@ var BaseNode = cc.Class({
         }
     },
 
-    _instantiate: function (cloned) {
+    _instantiate (cloned) {
         if (!cloned) {
             cloned = cc.instantiate._clone(this, this);
         }
