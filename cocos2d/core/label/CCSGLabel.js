@@ -221,6 +221,7 @@ _ccsg.Label = _ccsg.Node.extend({
     _gradientEnabled: false,
     _gradientStartColor: cc.color(255, 255, 255, 255),
     _gradientEndColor: cc.color(255, 255, 255, 255),
+    _gradientDirection: 0,
     _className: "Label",
     //used for left and right margin
     _margin : 0,
@@ -420,6 +421,15 @@ _ccsg.Label = _ccsg.Node.extend({
 
     getGradientEndColor: function () {
         return this._gradientEndColor;
+    },
+
+    setFillColorGradientDirection: function (direction) {
+        this._gradientDirection = direction;
+        this._notifyLabelSkinDirty();
+    },
+
+    getFillColorGradientDirection: function () {
+        return this._gradientDirection;
     },
 
     getOutlineColor: function() {
