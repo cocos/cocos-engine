@@ -379,14 +379,14 @@ function normalizeClassName (className) {
             }).join('');
             try {
                 // validate name
-                Function('function ' + clsName + '(){}')();
+                Function('function ' + className + '(){}')();
                 return className;
             }
             catch (e) {
                 className = DefaultName + '_' + className;
             }
             try {
-                Function('function ' + clsName + '(){}')();
+                Function('function ' + className + '(){}')();
                 return className;
             }
             catch (e) {
