@@ -218,6 +218,9 @@ _ccsg.Label = _ccsg.Node.extend({
     _outlined: false,
     _outlineColor: null,
     _outlineWidth: 1,
+    _gradientEnabled: false,
+    _gradientStartColor: cc.color(255, 255, 255, 255),
+    _gradientEndColor: cc.color(255, 255, 255, 255),
     _className: "Label",
     //used for left and right margin
     _margin : 0,
@@ -387,6 +390,36 @@ _ccsg.Label = _ccsg.Node.extend({
 
         this._outlined = !!value;
         this._notifyLabelSkinDirty();
+    },
+
+    setFillColorGradientEnabled: function(value) {
+        if(this._gradientEnabled === value) return;
+
+        this._gradientEnabled = !!value;
+        this._notifyLabelSkinDirty();
+    },
+    getFillColorGradientEnabled: function () {
+        return this._gradientEnabled;
+    },
+
+    setGradientStartColor: function (value) {
+        if(this._gradientStartColor === value) return;
+        this._gradientStartColor = value;
+        this._notifyLabelSkinDirty();
+    },
+
+    getGradientStartColor: function () {
+        return this._gradientStartColor;
+    },
+
+    setGradientEndColor: function (value) {
+        if(this._gradientEndColor === value) return;
+        this._gradientEndColor = value;
+        this._notifyLabelSkinDirty();
+    },
+
+    getGradientEndColor: function () {
+        return this._gradientEndColor;
     },
 
     getOutlineColor: function() {
