@@ -1090,6 +1090,7 @@
         "extensions/anysdk/js-bindings/manualanysdkbindings.cpp", 
         "extensions/anysdk/js-bindings/manualanysdkbindings.hpp", 
         "extensions/anysdk/platform/android/libs/libPluginProtocol.jar", 
+        "extensions/anysdk/platform/android/libs/mipmap-libPluginProtocol.jar",
         "extensions/anysdk/platform/android/res/drawable/plugin_btn_close.png", 
         "extensions/anysdk/platform/android/res/drawable/plugin_ui_ad.png", 
         "extensions/anysdk/platform/android/res/layout/plugin_ads.xml", 
