@@ -1,6 +1,8 @@
 {
     "common": [
         "README.md", 
+        "auto-build-src.bat", 
+        "auto-build.bat", 
         "build/cocos2d-win32.sln", 
         "build/cocos2d_libs.xcodeproj/project.pbxproj", 
         "cocos/2d/CCAction.cpp", 
