@@ -581,8 +581,8 @@ var Sprite = cc.Class({
 
     _initSgNode: function () {
         var sgNode = this._sgNode;
-        var insetsChangedViaAPI = sgNode._insetLeft !== 0 || sgNode._insetRight !== 0 ||
-                                  sgNode._insetTop !== 0 || sgNode._insetBottom !== 0;
+        var insetsChangedViaAPI = sgNode.getInsetLeft() !== 0 || sgNode.getInsetRight() !== 0 ||
+                                  sgNode.getInsetTop() !== 0 || sgNode.getInsetBottom() !== 0;
         this._applySpriteFrame(null, insetsChangedViaAPI);
 
         // should keep the size of the sg node the same as entity,
