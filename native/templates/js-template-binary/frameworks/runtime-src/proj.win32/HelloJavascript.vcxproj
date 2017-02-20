@@ -112,7 +112,7 @@ xcopy /Y /Q "$(COCOS_X_ROOT)\prebuilt\win32\*.*" "$(OutDir)"
 </Command>
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>libcurl_imp.lib;mozjs-33.lib;ws2_32.lib;sqlite3.lib;websockets.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mozjs-33.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -183,7 +183,7 @@ xcopy /Y /Q "$(COCOS_X_ROOT)\prebuilt\win32\*.*" "$(OutDir)"
 </Command>
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>libcurl_imp.lib;mozjs-33.lib;ws2_32.lib;sqlite3.lib;websockets.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mozjs-33.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
       <SubSystem>Windows</SubSystem>

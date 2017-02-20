@@ -570,6 +570,8 @@
 		1ABA68AF1888D700007D1BB4 /* CCFontCharMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1ABA68AC1888D700007D1BB4 /* CCFontCharMap.cpp */; };
 		1ABA68B01888D700007D1BB4 /* CCFontCharMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 1ABA68AD1888D700007D1BB4 /* CCFontCharMap.h */; };
 		1ABA68B11888D700007D1BB4 /* CCFontCharMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 1ABA68AD1888D700007D1BB4 /* CCFontCharMap.h */; };
+		1ACF6A3C1E4AFDC80033C137 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ACF6A3A1E4AFDC80033C137 /* libcrypto.a */; };
+		1ACF6A3D1E4AFDC80033C137 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ACF6A3B1E4AFDC80033C137 /* libssl.a */; };
 		291901431B05895600F8B4BA /* CCNinePatchImageParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 291901411B05895600F8B4BA /* CCNinePatchImageParser.h */; };
 		291901441B05895600F8B4BA /* CCNinePatchImageParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 291901411B05895600F8B4BA /* CCNinePatchImageParser.h */; };
 		291901451B05895600F8B4BA /* CCNinePatchImageParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 291901421B05895600F8B4BA /* CCNinePatchImageParser.cpp */; };
@@ -1854,6 +1856,8 @@
 		1AAF584D180E40B9000584C8 /* LocalStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalStorage.h; sourceTree = "<group>"; };
 		1ABA68AC1888D700007D1BB4 /* CCFontCharMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCFontCharMap.cpp; sourceTree = "<group>"; };
 		1ABA68AD1888D700007D1BB4 /* CCFontCharMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCFontCharMap.h; sourceTree = "<group>"; };
+		1ACF6A3A1E4AFDC80033C137 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = ../external/ios/libs/libcrypto.a; sourceTree = "<group>"; };
+		1ACF6A3B1E4AFDC80033C137 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = ../external/ios/libs/libssl.a; sourceTree = "<group>"; };
 		1AD71CFA180E26E600808F54 /* CCBAnimationManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCBAnimationManager.cpp; sourceTree = "<group>"; };
 		1AD71CFB180E26E600808F54 /* CCBAnimationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCBAnimationManager.h; sourceTree = "<group>"; };
 		1AD71CFC180E26E600808F54 /* CCBFileLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCBFileLoader.cpp; sourceTree = "<group>"; };
@@ -2683,6 +2687,8 @@
 			files = (
 				A60A9D661C200E5A0070800A /* libchipmunk.a in Frameworks */,
 				EDE5DFF81C0D6B3F0014147A /* libwebsockets.a in Frameworks */,
+				1ACF6A3C1E4AFDC80033C137 /* libcrypto.a in Frameworks */,
+				1ACF6A3D1E4AFDC80033C137 /* libssl.a in Frameworks */,
 				B291B51D1D4A106A00BBB345 /* libtiff.a in Frameworks */,
 				ED6822341BECB14500ED75EA /* libfreetype.a in Frameworks */,
 				B291B51B1D4A106A00BBB345 /* libjpeg.a in Frameworks */,
@@ -2747,6 +2753,8 @@
 		1551A341158F2AB200E66CFE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1ACF6A3A1E4AFDC80033C137 /* libcrypto.a */,
+				1ACF6A3B1E4AFDC80033C137 /* libssl.a */,
 				B291B5161D4A0FEA00BBB345 /* ios */,
 				B291B5151D4A0FE300BBB345 /* mac */,
 				B21770461977ED34009EE11B /* QuartzCore.framework */,
