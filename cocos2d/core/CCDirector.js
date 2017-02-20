@@ -1411,7 +1411,22 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
             this.stopAnimation();
             this.startAnimation();
         }
-    }
+    },
+
+    __fastOn: function (type, callback, target) {
+        var listeners = this._bubblingListeners;
+        if (!listeners) {
+            listeners = this._bubblingListeners = new EventListeners();
+        }
+        listeners.add(type, callback, target);
+    },
+
+    __fastOff: function (type, callback, target) {
+        var listeners = this._bubblingListeners;
+        if (listeners) {
+            listeners.remove(type, callback, target);
+        }
+    },
 });
 
 cc.Director.sharedDirector = null;
