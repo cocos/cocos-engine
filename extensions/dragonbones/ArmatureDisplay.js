@@ -23,6 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * @module dragonBones
+ */
+
 var DefaultArmaturesEnum = cc.Enum({ 'default': -1 });
 var DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
 
@@ -572,8 +576,3 @@ dragonBones.ArmatureDisplay = cc.Class({
         return null;
     }
 });
-
-/**
- * module that contains all Dragon Bones runtime API
- * @module dragonBones
- */
