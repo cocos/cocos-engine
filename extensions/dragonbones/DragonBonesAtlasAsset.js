@@ -23,6 +23,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * @module dragonBones
+ */
+
+/**
+ * !#en The skeleton atlas data of dragonBones.
+ * !#zh dragonBones 的骨骼纹理数据。
+ * @class DragonBonesAtlasAsset
+ * @extends Asset
+ */
 var DragonBonesAtlasAsset = cc.Class({
     name: 'dragonBones.DragonBonesAtlasAsset',
     extends: cc.Asset,
