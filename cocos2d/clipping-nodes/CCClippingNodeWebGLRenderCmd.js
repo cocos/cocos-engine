@@ -34,6 +34,11 @@ function setProgram (node, program) {
         setProgram(children[i], program);
 }
 
+var StateStack = [{
+    stencilEnabled: false,
+    depthWriteMask: true
+}];
+
 cc.ClippingNode.WebGLRenderCmd = function(renderable){
     this._rootCtor(renderable);
     this._needDraw = false;
@@ -42,16 +47,15 @@ cc.ClippingNode.WebGLRenderCmd = function(renderable){
     this._afterDrawStencilCmd = new cc.CustomRenderCmd(this, this._onAfterDrawStencil);
     this._afterVisitCmd = new cc.CustomRenderCmd(this, this._onAfterVisit);
 
-    this._currentStencilFunc = null;
-    this._currentStencilRef = null;
-    this._currentStencilValueMask = null;
-    this._currentStencilFail = null;
-    this._currentStencilPassDepthFail = null;
-    this._currentStencilPassDepthPass = null;
-    this._currentStencilWriteMask = null;
-    this._currentStencilEnabled = null;
-    this._currentDepthWriteMask = null;
-    this._mask_layer_le = null;
+    this._previousState = null;
+    this._state = {
+        stencilEnabled: true,
+        stencilWriteMask: 0,
+        depthWriteMask: false,
+        stencilFunc: 0,
+        stencilRef: 0,
+        stencilValueMask: 0
+    };
 };
 
 var proto = cc.ClippingNode.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
@@ -176,21 +180,13 @@ proto._onBeforeVisit = function(ctx){
     // mask of all layers less than the current (ie: for layer 3: 00000011)
     var mask_layer_l = mask_layer - 1;
     // mask of all layers less than or equal to the current (ie: for layer 3: 00000111)
-    this._mask_layer_le = mask_layer | mask_layer_l;
+    var mask_layer_le = mask_layer | mask_layer_l;
     // manually save the stencil state
-    this._currentStencilEnabled = gl.isEnabled(gl.STENCIL_TEST);
-    this._currentStencilWriteMask = gl.getParameter(gl.STENCIL_WRITEMASK);
-    this._currentStencilFunc = gl.getParameter(gl.STENCIL_FUNC);
-    this._currentStencilRef = gl.getParameter(gl.STENCIL_REF);
-    this._currentStencilValueMask = gl.getParameter(gl.STENCIL_VALUE_MASK);
-    this._currentStencilFail = gl.getParameter(gl.STENCIL_FAIL);
-    this._currentStencilPassDepthFail = gl.getParameter(gl.STENCIL_PASS_DEPTH_FAIL);
-    this._currentStencilPassDepthPass = gl.getParameter(gl.STENCIL_PASS_DEPTH_PASS);
+    this._previousState = StateStack[StateStack.length-1];
 
     // enable stencil use
     gl.enable(gl.STENCIL_TEST);
     gl.stencilMask(mask_layer);
-    this._currentDepthWriteMask = gl.getParameter(gl.DEPTH_WRITEMASK);
 
     gl.depthMask(false);
 
@@ -210,27 +206,41 @@ proto._onBeforeVisit = function(ctx){
         program.setUniformLocationWithMatrix4fv(cc.macro.UNIFORM_MVMATRIX_S, cc.renderer.mat4Identity.mat);
         setProgram(node._stencil, program);
     }
+
+    // Save the current stencil states
+    this._state.stencilWriteMask = mask_layer;
+    this._state.stencilRef = this._state.stencilValueMask = mask_layer_le;
+    this._state.stencilFunc = gl.NEVER;
+
+    StateStack.push(this._state);
 };
 
 proto._onAfterDrawStencil = function (ctx) {
     var gl = ctx || cc._renderContext;
-    gl.depthMask(this._currentDepthWriteMask);
+    gl.depthMask(this._previousState.depthWriteMask);
 
-    gl.stencilFunc(gl.EQUAL, this._mask_layer_le, this._mask_layer_le);
+    gl.stencilFunc(gl.EQUAL, this._state.stencilRef, this._state.stencilValueMask);
     gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+
+    this._state.stencilFunc = gl.EQUAL;
 };
 
 proto._onAfterVisit = function (ctx) {
     var gl = ctx || cc._renderContext;
 
-    if (!this._currentStencilEnabled) {
+    var state = this._previousState;
+    if (!state.stencilEnabled) {
         gl.disable(gl.STENCIL_TEST);
     }
     else {
-        gl.stencilFunc(this._currentStencilFunc, this._currentStencilRef, this._currentStencilValueMask);
-        gl.stencilOp(this._currentStencilFail, this._currentStencilPassDepthFail, this._currentStencilPassDepthPass);
-        gl.stencilMask(this._currentStencilWriteMask);
+        gl.stencilFunc(state.stencilFunc, state.stencilRef, state.stencilValueMask);
+        gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+        gl.stencilMask(state.stencilWriteMask);
     }
+
+    this._previousState = null;
+    // pop self state out of the stack, so it won't affect other nodes any longer
+    StateStack.pop();
 
     // we are done using this layer, decrement
     cc.ClippingNode.WebGLRenderCmd._layer--;
