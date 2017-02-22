@@ -933,7 +933,7 @@ var BaseNode = cc.Class({
             cc.errorID(3813);
             return;
         }
-        if (typeof component !== 'object') {
+        if (!(component instanceof cc.Component)) {
             component = this.getComponent(component);
         }
         if (component) {
@@ -982,10 +982,10 @@ var BaseNode = cc.Class({
         if (newActive) {
             cc.director._compScheduler.preloadNode(this);
         }
-        this._activeRecursively(newActive);
+        this._activateRecursively(newActive);
     },
 
-    _activeRecursively (newActive) {
+    _activateRecursively (newActive) {
         var cancelActivation = false;
         if (this._objFlags & Activating) {
             if (newActive) {
@@ -1040,7 +1040,7 @@ var BaseNode = cc.Class({
         for (var i = 0, len = this._children.length; i < len; ++i) {
             var child = this._children[i];
             if (child._active) {
-                child._activeRecursively(newActive);
+                child._activateRecursively(newActive);
                 if (newActive && !this._activeInHierarchy) {
                     // deactivated during activating
                     this._objFlags &= ~Activating;
@@ -1051,25 +1051,27 @@ var BaseNode = cc.Class({
 
         this._objFlags &= ~Activating;
 
-        if (!cancelActivation && this._onActive_EventsActions) {
-            this._onActive_EventsActions(newActive);
+        if (!cancelActivation && this._onPostActivated) {
+            this._onPostActivated(newActive);
         }
     },
 
-    _deactivateChildComponents () {
-        // 和 _activeRecursively 类似但不修改 this._activeInHierarchy
-        var originCount = this._components.length;
-        for (var c = 0; c < originCount; ++c) {
-            var component = this._components[c];
+    _onPostActivated: null,
+
+    _disableChildComps () {
+        // The same as _activateRecursively but leave this._activeInHierarchy unmodified
+        var i, len = this._components.length;
+        for (i = 0; i < len; ++i) {
+            var component = this._components[i];
             if (component._enabled) {
                  cc.director._compScheduler.disableComp(component);
             }
         }
         // deactivate children recursively
-        for (var i = 0, len = this._children.length; i < len; ++i) {
-            var entity = this._children[i];
-            if (entity._active) {
-                entity._deactivateChildComponents();
+        for (i = 0, len = this._children.length; i < len; ++i) {
+            var node = this._children[i];
+            if (node._active) {
+                node._disableChildComps();
             }
         }
     },
@@ -1078,7 +1080,7 @@ var BaseNode = cc.Class({
         if (cc.Object.prototype.destroy.call(this)) {
             // disable hierarchy
             if (this._activeInHierarchy) {
-                this._deactivateChildComponents();
+                this._disableChildComps();
             }
         }
     },
