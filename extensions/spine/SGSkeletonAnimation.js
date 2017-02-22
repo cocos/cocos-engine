@@ -70,61 +70,62 @@ sp.TrackEntryListeners = function(startListener, endListener, completeListener, 
     this.callback = null;
     this.callbackTarget = null;
     this.skeletonNode = null;
+};
 
-    this.start = function(trackEntry) {
-        if (this.startListener) {
-            this.startListener(trackEntry);
-        }
-        if (this.callback && this.callbackTarget) {
-            this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.START, null, 0);
-        }
-    };
+var proto = sp.TrackEntryListeners.prototype;
+proto.start = function(trackEntry) {
+    if (this.startListener) {
+        this.startListener(trackEntry);
+    }
+    if (this.callback) {
+        this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.START, null, 0);
+    }
+};
 
-    this.interrupt = function(trackEntry) {
-        if (this.interruptListener) {
-            this.interruptListener(trackEntry);
-        }
-        if (this.callback && this.callbackTarget) {
-            this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.INTERRUPT, null, 0);
-        }
-    };
+proto.interrupt = function(trackEntry) {
+    if (this.interruptListener) {
+        this.interruptListener(trackEntry);
+    }
+    if (this.callback) {
+        this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.INTERRUPT, null, 0);
+    }
+};
 
-    this.end = function (trackEntry) {
-        if (this.endListener) {
-            this.endListener(trackEntry);
-        }
-        if (this.callback && this.callbackTarget) {
-            this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.END, null, 0);
-        }
-    };
+proto.end = function (trackEntry) {
+    if (this.endListener) {
+        this.endListener(trackEntry);
+    }
+    if (this.callback) {
+        this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.END, null, 0);
+    }
+};
 
-    this.dispose = function (trackEntry) {
-        if (this.disposeListener) {
-            this.disposeListener(trackEntry);
-        }
-        if (this.callback && this.callbackTarget) {
-            this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.DISPOSE, null, 0);
-        }
-    };
+proto.dispose = function (trackEntry) {
+    if (this.disposeListener) {
+        this.disposeListener(trackEntry);
+    }
+    if (this.callback) {
+        this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.DISPOSE, null, 0);
+    }
+};
 
-    this.complete = function (trackEntry) {
-        var loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
-        if (this.completeListener) {
-            this.completeListener(trackEntry, loopCount);
-        }
-        if (this.callback && this.callbackTarget) {
-            this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.COMPLETE, null, loopCount);
-        }
-    };
+proto.complete = function (trackEntry) {
+    var loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
+    if (this.completeListener) {
+        this.completeListener(trackEntry, loopCount);
+    }
+    if (this.callback) {
+        this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.COMPLETE, null, loopCount);
+    }
+};
 
-    this.event = function (trackEntry, event) {
-        if (this.eventListener) {
-            this.eventListener(trackEntry, event);
-        }
-        if (this.callback && this.callbackTarget) {
-            this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.EVENT, event, 0);
-        }
-    };
+proto.event = function (trackEntry, event) {
+    if (this.eventListener) {
+        this.eventListener(trackEntry, event);
+    }
+    if (this.callback) {
+        this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.EVENT, event, 0);
+    }
 };
 
 sp.TrackEntryListeners.getListeners = function(entry){
