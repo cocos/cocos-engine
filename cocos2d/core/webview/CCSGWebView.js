@@ -359,6 +359,7 @@ _ccsg.WebView.EventType = {
         this._div.style.overflow = "scroll";
         this._div.style.border = "none";
         cc.game.container.appendChild(this._div);
+        this.updateVisibility();
     };
 
     proto.createNativeControl = function () {
