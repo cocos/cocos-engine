@@ -66,6 +66,9 @@ function getResWithUrl (res) {
         result.type = null;
         result.isRawAsset = true;
     }
+    else if (!isUuid) {
+        result.isRawAsset = true;
+    }
     return result;
 }
 
