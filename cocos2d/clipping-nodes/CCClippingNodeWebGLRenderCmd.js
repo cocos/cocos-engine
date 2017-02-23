@@ -34,10 +34,10 @@ function setProgram (node, program) {
         setProgram(children[i], program);
 }
 
-var StateStack = [{
+var _currentState = {
     stencilEnabled: false,
     depthWriteMask: true
-}];
+};
 
 cc.ClippingNode.WebGLRenderCmd = function(renderable){
     this._rootCtor(renderable);
@@ -182,7 +182,7 @@ proto._onBeforeVisit = function(ctx){
     // mask of all layers less than or equal to the current (ie: for layer 3: 00000111)
     var mask_layer_le = mask_layer | mask_layer_l;
     // manually save the stencil state
-    this._previousState = StateStack[StateStack.length-1];
+    this._previousState = _currentState;
 
     // enable stencil use
     gl.enable(gl.STENCIL_TEST);
@@ -212,7 +212,7 @@ proto._onBeforeVisit = function(ctx){
     this._state.stencilRef = this._state.stencilValueMask = mask_layer_le;
     this._state.stencilFunc = gl.NEVER;
 
-    StateStack.push(this._state);
+    _currentState = this._state;
 };
 
 proto._onAfterDrawStencil = function (ctx) {
@@ -238,9 +238,9 @@ proto._onAfterVisit = function (ctx) {
         gl.stencilMask(state.stencilWriteMask);
     }
 
+    // restore _currentState, so self states won't affect other nodes any longer
+    _currentState = this._previousState;
     this._previousState = null;
-    // pop self state out of the stack, so it won't affect other nodes any longer
-    StateStack.pop();
 
     // we are done using this layer, decrement
     cc.ClippingNode.WebGLRenderCmd._layer--;
