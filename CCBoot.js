@@ -58,7 +58,7 @@ _p = null;
  * @name cc.ENGINE_VERSION
  */
 var engineVersion;
-engineVersion = '1.4.0-mahjong';
+engineVersion = '1.4.1-beta.1';
 window['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
 
 /**
