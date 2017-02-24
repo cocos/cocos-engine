@@ -218,6 +218,10 @@ _ccsg.Label = _ccsg.Node.extend({
     _outlined: false,
     _outlineColor: null,
     _outlineWidth: 1,
+    _gradientEnabled: false,
+    _gradientStartColor: cc.color(255, 255, 255, 255),
+    _gradientEndColor: cc.color(255, 255, 255, 255),
+    _gradientDirection: 0,
     _className: "Label",
     //used for left and right margin
     _margin : 0,
@@ -262,7 +266,7 @@ _ccsg.Label = _ccsg.Node.extend({
         this._tailoredTopY =  0;
         this._tailoredBottomY =  0;
         this._bmfontScale =  1.0;
-        this._additionalKerning =  0;
+        this._spacingX =  0;
         this._horizontalKernings =  [];
         this._lineBreakWithoutSpaces =  false;
 
@@ -389,6 +393,45 @@ _ccsg.Label = _ccsg.Node.extend({
         this._notifyLabelSkinDirty();
     },
 
+    setFillColorGradientEnabled: function(value) {
+        if(this._gradientEnabled === value) return;
+
+        this._gradientEnabled = !!value;
+        this._notifyLabelSkinDirty();
+    },
+    getFillColorGradientEnabled: function () {
+        return this._gradientEnabled;
+    },
+
+    setGradientStartColor: function (value) {
+        if(this._gradientStartColor === value) return;
+        this._gradientStartColor = value;
+        this._notifyLabelSkinDirty();
+    },
+
+    getGradientStartColor: function () {
+        return this._gradientStartColor;
+    },
+
+    setGradientEndColor: function (value) {
+        if(this._gradientEndColor === value) return;
+        this._gradientEndColor = value;
+        this._notifyLabelSkinDirty();
+    },
+
+    getGradientEndColor: function () {
+        return this._gradientEndColor;
+    },
+
+    setFillColorGradientDirection: function (direction) {
+        this._gradientDirection = direction;
+        this._notifyLabelSkinDirty();
+    },
+
+    getFillColorGradientDirection: function () {
+        return this._gradientDirection;
+    },
+
     getOutlineColor: function() {
         return this._outlineColor;
     },
@@ -456,6 +499,7 @@ _ccsg.Label = _ccsg.Node.extend({
     setSpacingX: function(spacing) {
         if (this._spacingX === spacing) return;
         this._spacingX = spacing;
+        this._notifyLabelSkinDirty();
     },
 
     setLineHeight: function(lineHeight) {
@@ -905,7 +949,7 @@ cc.BMFontHelper = {
                     nextLetterX += this._horizontalKernings[letterIndex + 1];
                 }
 
-                nextLetterX += letterDef._xAdvance * this._bmfontScale + this._additionalKerning;
+                nextLetterX += letterDef._xAdvance * this._bmfontScale + this._spacingX;
 
                 tokenRight = letterPosition.x + letterDef._width * this._bmfontScale;
 
@@ -1124,12 +1168,15 @@ cc.BMFontHelper = {
         }
 
         var len = 1;
-        var nextLetterX = 0;
+        letterDef = this._fontAtlas.getLetterDefinitionForChar(character);
+        if (!letterDef) {
+            return len;
+        }
+        var nextLetterX = letterDef._xAdvance * this._bmfontScale + this._spacingX;
         var letterDef;
         var letterX;
         for (var index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
-            //calculate the word boundary
 
             letterDef = this._fontAtlas.getLetterDefinitionForChar(character);
             if (!letterDef) {
@@ -1140,11 +1187,9 @@ cc.BMFontHelper = {
             if(letterX + letterDef._width * this._bmfontScale > this._maxLineWidth
                && !cc.TextUtils.isUnicodeSpace(character)
                && this._maxLineWidth > 0) {
-                if(len >= 2) {
-                    return len - 1;
-                }
+                return len;
             }
-            nextLetterX += letterDef._xAdvance * this._bmfontScale + this._additionalKerning;
+            nextLetterX += letterDef._xAdvance * this._bmfontScale + this._spacingX;
             if (character === "\n"
                 || cc.TextUtils.isUnicodeSpace(character)
                 || cc.TextUtils.isUnicodeCJK(character)) {
