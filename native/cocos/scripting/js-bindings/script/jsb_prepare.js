@@ -31,12 +31,6 @@ var cc = cc || {};
 var jsb = jsb || {};
 
 /**
- * The element contains the game canvas
- * @type {HTMLDivElement}
- */
-cc.container = null;
-
-/**
  * Iterate over an object or an array, executing a function for each matched element.
  * @param {object|array} obj
  * @param {function} iterator
@@ -78,69 +72,6 @@ cc.extend = function(target) {
 };
 
 /**
- * Check the obj whether is function or not
- * @param {*} obj
- * @returns {boolean}
- */
-cc.isFunction = function(obj) {
-    return typeof obj == 'function';
-};
-
-/**
- * Check the obj whether is number or not
- * @param {*} obj
- * @returns {boolean}
- */
-cc.isNumber = function(obj) {
-    return typeof obj == 'number' || Object.prototype.toString.call(obj) == '[object Number]';
-};
-
-/**
- * Check the obj whether is string or not
- * @param {*} obj
- * @returns {boolean}
- */
-cc.isString = function(obj) {
-    return typeof obj == 'string' || Object.prototype.toString.call(obj) == '[object String]';
-};
-
-/**
- * Check the obj whether is array or not
- * @param {*} obj
- * @returns {boolean}
- */
-cc.isArray = function(obj) {
-    return Array.isArray(obj) ||
-        (typeof obj === 'object' && Object.prototype.toString.call(obj) === '[object Array]');
-};
-
-/**
- * Check the obj whether is undefined or not
- * @param {*} obj
- * @returns {boolean}
- */
-cc.isUndefined = function(obj) {
-    return typeof obj === 'undefined';
-};
-/**
- * Check the obj whether is object or not
- * @param {*} obj
- * @returns {boolean}
- */
-cc.isObject = function(obj) {
-    return ( obj !== null && typeof obj === "object" );
-};
-
-/**
- * Check the url whether cross origin
- * @param {String} url
- * @returns {boolean}
- */
-cc.isCrossOrigin = function (url) {
-    return false;
-};
-
-/**
  * Common getter setter configuration function
  * @function
  * @param {Object}   proto      A class prototype or an object to config
@@ -154,14 +85,6 @@ cc.defineGetterSetter = function (proto, prop, getter, setter){
     setter && (desc.set = setter);
     Object.defineProperty(proto, prop, desc);
 };
-
-/**
- * Associates a base class with a native superclass
- * @function
- * @param {object} jsobj subclass
- * @param {object} klass superclass
- */
-cc.associateWithNative = function( jsobj, superclass_or_instance ) {};
 
 //
 // JSB supports 2 official ways to create subclasses
