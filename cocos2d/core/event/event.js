@@ -265,6 +265,8 @@ var EventCustom = function (type, bubbles) {
 
 JS.extend(EventCustom, cc.Event);
 JS.mixin(EventCustom.prototype, {
+    reset: EventCustom,
+
     /**
      * !#en Sets user data
      * !#zh 设置用户数据
@@ -293,6 +295,24 @@ JS.mixin(EventCustom.prototype, {
      */
     getEventName: cc.Event.prototype.getType
 });
+
+var _eventPool = [];
+var MAX_POOL_SIZE = 10;
+EventCustom.put = function (event) {
+    if (_eventPool.length < MAX_POOL_SIZE) {
+        _eventPool.push(event);
+    }
+};
+EventCustom.get = function (type, bubbles) {
+    var event = _eventPool.pop();
+    if (event) {
+        event.reset(type, bubbles);
+    }
+    else {
+        event = new EventCustom(type, bubbles);
+    }
+    return event;
+};
 
 cc.Event.EventCustom = EventCustom;
 
