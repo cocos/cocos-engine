@@ -888,6 +888,8 @@ void ScriptingCore::cleanup()
     localStorageFree();
     removeAllRoots(_cx);
     garbageCollect();
+    
+    PoolManager::getInstance()->getCurrentPool()->clear();
 
     if (_js_log_buf) {
         free(_js_log_buf);
@@ -1730,6 +1732,15 @@ int ScriptingCore::executeCustomTouchEvent(EventTouch::EventCode eventType,
     removeJSObject(this->_cx, touch);
 
     return 1;
+}
+
+int ScriptingCore::executeGlobalFunction(const char* functionName)
+{
+    JSAutoCompartment ac(_cx, _global->get())
+    
+    std::string evalStr = functionName;
+    JS::RootedValue globalVal(_cx, OBJECT_TO_JSVAL(_global->get()));
+    return executeFunctionWithOwner(globalVal, functionName, 0, NULL);
 }
 
 int ScriptingCore::sendEvent(ScriptEvent* evt)
