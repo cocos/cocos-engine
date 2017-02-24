@@ -128,7 +128,7 @@ cc.rendererWebGL = {
     _cacheToBufferCmds: {},                              // an array saves the renderer commands need for cache to other canvas
     _cacheInstanceIds: [],
     _currentID: 0,
-    _clearColor: cc.color(),                            //background color,default BLACK
+    _clearColor: {r: 0, g: 0, b: 0, a: 255},              //background color,default BLACK
 
     init: function () {
         var gl = cc._renderContext;
