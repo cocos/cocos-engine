@@ -798,6 +798,10 @@ public:
      It tells the Garbage Collector that the associated Scripting object can be collected
      */
     virtual void unrootObject(Ref* obj) {}
+    
+    /** Remove proxy for a native object
+     */
+    virtual void removeObjectProxy(Ref* obj) {}
 
     /** Triggers the garbage collector */
     virtual void garbageCollect() {}
