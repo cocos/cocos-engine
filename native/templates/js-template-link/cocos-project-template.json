@@ -56,7 +56,8 @@
                "to":"frameworks/runtime-src/proj.android",
                "exclude": [
                   "res/mipmap",
-                  "res/mipmap-layout/"
+                  "res/mipmap-layout/",
+                  "libs/mipmap-libPluginProtocol.jar"
                ]
              },
              {
@@ -64,7 +65,8 @@
                "to":"frameworks/runtime-src/proj.android-studio/app",
                "exclude": [
                   "res/drawable",
-                  "res/mipmap-layout/"
+                  "res/mipmap-layout/",
+                  "libs/libPluginProtocol.jar"
                ]
              },
              {
