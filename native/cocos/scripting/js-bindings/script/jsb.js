@@ -25,45 +25,18 @@
 //
 
 // DO NOT ALTER THE ORDER
-require('script/jsb_cocos2d_constants.js');
 require('script/jsb_cocos2d.js');
 require('script/jsb_common.js');
 require('script/jsb_property_impls.js');
 require('script/jsb_property_apis.js');
 require('script/jsb_create_apis.js');
-
-if (window.ccs) {
-    require('script/studio/jsb_studio_boot.js');
-    require('script/studio/jsb_cocos2d_studio.js');
-    require('script/studio/jsb_studio_property_apis.js');
-    require('script/studio/jsb_studio_create_apis.js');
-
-    require('script/studio/jsb_studio_load.js');
-    require('script/studio/parsers/action-1.x.js');
-    require('script/studio/parsers/action-2.x.js');
-    require('script/studio/parsers/scene-1.x.js');
-    require('script/studio/parsers/timelineParser-1.x.js');
-    require('script/studio/parsers/timelineParser-2.x.js');
-    require('script/studio/parsers/uiParser-1.x.js');
-    require('script/studio/parsers/compatible.js');
-}
+require('script/extension/jsb_cocos2d_extension.js');
 
 if (window.ccui) {
     require('script/ccui/jsb_cocos2d_ui.js');
     require('script/ccui/jsb_ccui_property_impls.js');
     require('script/ccui/jsb_ccui_property_apis.js');
     require('script/ccui/jsb_ccui_create_apis.js');
-    require('script/ccui/jsb_ccui_deprecated.js');
-}
-
-if (cc.ControlButton) {
-    require('script/extension/jsb_cocos2d_extension.js');
-    require('script/extension/jsb_ext_property_apis.js');
-    require('script/extension/jsb_ext_create_apis.js');
-}
-
-if (cc.PhysicsSprite) {
-    require('script/physicsSprite/jsb_physicsSprite.js');
 }
 
 if (window.cp) {
@@ -75,31 +48,8 @@ if (window.cp) {
 require('script/jsb_opengl_constants.js');
 require('script/jsb_opengl.js');
 
-if (cc.BuilderAnimationManager) {
-    require('script/jsb_cocosbuilder.js');
-}
-
-if (jsb.fileUtils.isFileExist('jsb_pluginx.js') || jsb.fileUtils.isFileExist('jsb_pluginx.jsc')) {
-    if (cc.sys.os == cc.sys.OS_IOS || cc.sys.os == cc.sys.OS_ANDROID) {
-        require('jsb_pluginx.js');
-    }
-}
-
 if (window.sp) {
     require('script/jsb_spine.js');
 }
 
-if (window.dragonBones) {
-    require('script/jsb_dragonbones.js');
-}
-
 require("script/jsb_audioengine.js");
-
-require('script/jsb_loaders.js');
-require('script/jsb_pool.js');
-require('script/jsb_deprecated.js');
-
-if (typeof runtime !== 'undefined') {
-    require('script/runtime/jsb_runtime.js');
-    require('script/runtime/jsb_runtime_md5.js');
-}
