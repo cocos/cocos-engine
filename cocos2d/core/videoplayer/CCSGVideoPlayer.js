@@ -441,6 +441,7 @@ _ccsg.VideoPlayer.EventType = {
 
     // 播放控制
     proto.play = function () {
+        var self = this;
         var video = this._video;
         if (!video || !this._node.isVisible()) return;
 
