@@ -322,8 +322,8 @@ if (CC_DEV) {
         "3813": "removeComponent: Component must be non-nil", //removeComponent
         "3814": "Argument must be non-nil", //_removeComponent
         "3815": "Component not owned by this entity", //_removeComponent_2        
-        "3816": "Node '%s' is already activating", //_activateRecursively
-        "3817": "Sorry, the component of '%s' which with an index of %s is corrupted! It has been removed.", //_activateRecursive_2
+        "3816": "Node '%s' is already activating",
+        "3817": "Sorry, the component of '%s' which with an index of %s is corrupted! It has been removed.",
         "3818": "Failed to read or parse project.json", //_loadConfig
         "3819": "Warning: target element is not a DIV or CANVAS", //_initRenderer
         //Animation: 3900

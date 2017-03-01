@@ -349,6 +349,17 @@ test('activation logic for component in hierarchy', function () {
             this.onDisable.enable();
         }).enable();
         comp.onDisable = new Callback().disable('onDisable should called after onEnable');
+        comp.start = new Callback().disable('all start should not be called (deactivated)');
+        comp.update = new Callback().disable('all update should not be called (deactivated)');
+        return comp;
+    }
+
+    function createOnlyOnLoadComp (node, name) {
+        var comp = node.addComponent(cc.Component);
+        comp.onLoad = new Callback().enable();
+        comp.onEnable = new Callback().disable('onEnable of ' + name + ' component should not be called (deactivated)');
+        comp.onDisable = new Callback().disable('onDisable of ' + name + ' component should not be called (deactivated)');
+        comp.start = new Callback().disable('all start should not be called (deactivated)');
         comp.update = new Callback().disable('all update should not be called (deactivated)');
         return comp;
     }
@@ -357,6 +368,7 @@ test('activation logic for component in hierarchy', function () {
         var comp = node.addComponent(cc.Component);
         comp.onLoad = new Callback().disable('onLoad of ' + name + ' component should not be called (deactivated)');
         comp.onEnable = new Callback().disable('onEnable of ' + name + ' component should not be called (deactivated)');
+        comp.start = new Callback().disable('start of ' + name + ' component should not be called (deactivated)');
         comp.update = new Callback().disable('update of ' + name + ' component should not be called (deactivated)');
         return comp;
     }
@@ -370,24 +382,16 @@ test('activation logic for component in hierarchy', function () {
     test('could deactivate self node in onLoad', function () {
         var node = new cc.Node();
 
-        var previousComp = createNormalComp(node);
+        var previousComp = createOnlyOnLoadComp(node, 'previous');
 
         var testComp = node.addComponent(cc.Component);
         testComp.onLoad = function () {
             this.node.active = false;
         };
-        if (StillInvokeOnEnableOnSameComp) {
-            testComp.onEnable = new Callback(function () {
-                this.onDisable.enable();
-            }).enable();
-            testComp.onDisable = new Callback().disable('onDisable should called after onEnable');
-        }
-        else {
-            testComp.onEnable = new Callback().disable(
-                'onEnable of testing component should not be called (deactivated)');
-            testComp.onDisable = new Callback().disable(
-                'onDisable of testing component should not be called (deactivated)');
-        }
+        testComp.onEnable = new Callback().disable(
+            'onEnable of testing component should not be called (deactivated)');
+        testComp.onDisable = new Callback().disable(
+            'onDisable of testing component should not be called (deactivated)');
         testComp.update = new Callback().disable('update of testing component should not be called (deactivated)');
 
         var restComp;
@@ -398,15 +402,12 @@ test('activation logic for component in hierarchy', function () {
             restComp = createDisabledComp(node, 'rest');
         }
 
+        node.runAction(cc.delayTime(0));
         cc.director.getScene().addChild(node);
 
         strictEqual(node.active, false, 'node should be deactivated');
-        compShouldBeActivated(previousComp, 'previous');
-
-        if (StillInvokeOnEnableOnSameComp) {
-            testComp.onEnable.once('onEnable of test component should still be called').disable();
-            testComp.onDisable.once('onDisable of test component should still be called').disable();
-        }
+        strictEqual(cc.director.getActionManager().isTargetPaused_TEST(node), true, 'action should be paused');
+        previousComp.onLoad.once('onLoad of previous component should be called').disable();
 
         if (StillInvokeRestCompsOnSameNode) {
             compShouldBeActivated(restComp, 'rest');
@@ -417,7 +418,6 @@ test('activation logic for component in hierarchy', function () {
 
     test('could deactivate parent in onLoad if activate from parent to child', function () {
         strictEqual(StillInvokeRestCompsOnSameNode, false, 'test cases not implemented if "StillInvokeRestCompsOnSameNode"');
-        strictEqual(StillInvokeOnEnableOnSameComp, false, 'test cases not implemented if "StillInvokeOnEnableOnSameComp"');
 
         var nodes = createNodes({
             prevNode: {},
@@ -434,33 +434,25 @@ test('activation logic for component in hierarchy', function () {
         var child = nodes.child;
 
         // init parent
-        var compOfParent = createNormalComp(parentToDeactivate);
+        var compOfParent = createOnlyOnLoadComp(parentToDeactivate, 'parent');
 
         // init prevNode
-        var compOfPrevNode = createNormalComp(prevNode);
+        var compOfPrevNode = createOnlyOnLoadComp(prevNode, 'previous node\'s');
 
         // init nextNode
         createDisabledComp(nextNode, 'next node\'s');
 
         // init node
-        var previousComp = createNormalComp(testerNode);
+        var previousComp = createOnlyOnLoadComp(testerNode, 'previous');
         var testComp = testerNode.addComponent(cc.Component);
         testComp.onLoad = function () {
             // deactivate parent
             parentToDeactivate.active = false;
         };
-        if (StillInvokeOnEnableOnSameComp) {
-            testComp.onEnable = new Callback(function () {
-                this.onDisable.enable();
-            }).enable();
-            testComp.onDisable = new Callback().disable('onDisable should called after onEnable');
-        }
-        else {
-            testComp.onEnable = new Callback().disable(
-                'onEnable of testing component should not be called (deactivated)');
-            testComp.onDisable = new Callback().disable(
-                'onDisable of testing component should not be called (deactivated)');
-        }
+        testComp.onEnable = new Callback().disable(
+            'onEnable of testing component should not be called (deactivated)');
+        testComp.onDisable = new Callback().disable(
+            'onDisable of testing component should not be called (deactivated)');
         testComp.update = new Callback().disable('update of testing component should not be called (deactivated)');
 
         var restComp;
@@ -475,20 +467,20 @@ test('activation logic for component in hierarchy', function () {
         createDisabledComp(child, 'child');
 
         // ACTIVATE
+        parentToDeactivate.runAction(cc.delayTime(0));
+        testerNode.runAction(cc.delayTime(0));
         cc.director.getScene().addChild(parentToDeactivate);
 
         // test
 
         strictEqual(parentToDeactivate.active, false, 'parent should be deactivated');
-        strictEqual(testerNode.active, true, 'node should be deactivated');
-        compShouldBeActivated(compOfParent, 'parent node\'s');
-        compShouldBeActivated(compOfPrevNode, 'previous node\'s');
-        compShouldBeActivated(previousComp, 'previous');
-
-        if (StillInvokeOnEnableOnSameComp) {
-            testComp.onEnable.once('onEnable of test component should still be called').disable();
-            testComp.onDisable.once('onDisable of test component should still be called').disable();
-        }
+        strictEqual(cc.director.getActionManager().isTargetPaused_TEST(parentToDeactivate), true, 'parent\'s action should be paused');
+        strictEqual(testerNode.active, true, 'node should active by self');
+        strictEqual(testerNode.activeInHierarchy, false, 'node should not active in hierarchy');
+        strictEqual(cc.director.getActionManager().isTargetPaused_TEST(testerNode), true, 'node\'s action should be paused');
+        compOfParent.onLoad.once('onLoad of parent node\'s component should be called').disable();
+        compOfPrevNode.onLoad.once('onLoad of previous node\'s component should be called').disable();
+        previousComp.onLoad.once('onLoad of previous component should be called').disable();
 
         if (StillInvokeRestCompsOnSameNode) {
             compShouldBeActivated(restComp, 'rest');
@@ -581,7 +573,7 @@ test('activation logic for component in hierarchy', function () {
 
     test('could deactivate self node in onEnable', function () {
         var node = new cc.Node();
-
+        //////
         var previousComp = createNormalComp(node);
 
         var testComp = node.addComponent(cc.Component);
@@ -596,18 +588,19 @@ test('activation logic for component in hierarchy', function () {
             restComp = createNormalComp(node);
         }
         else {
-            restComp = createDisabledComp(node, 'rest');
+            restComp = createOnlyOnLoadComp(node, 'rest');
         }
 
         var child = new cc.Node();
-        createDisabledComp(child, 'child');
+        createOnlyOnLoadComp(child, 'child');
+        child.parent = node;
 
         cc.director.getScene().addChild(node);
 
         strictEqual(node.active, false, 'node should be deactivated');
         compShouldBeActivated(previousComp, 'previous');
 
-        testComp.onEnable.once('onEnable of test component should still be called').disable();
+        testComp.onEnable.once('onEnable of test component should be called').disable();
 
         if (StillInvokeRestCompsOnSameNode) {
             compShouldBeActivated(restComp, 'rest');
@@ -713,6 +706,26 @@ test('The onLoad of dynamic created parent component', function () {
 
     node.parent = parent;
     parent.parent = cc.director.getScene();
+});
+
+test('deactivate child directly in parent\'s onDisable', function () {
+    var parent = new cc.Node();
+    var child = new cc.Node();
+
+    child.parent = parent;
+    var childComp = child.addComponent(cc.Component);
+    childComp.onDisable = new Callback().enable();
+
+    var parentComp = parent.addComponent(cc.Component);
+    parentComp.onDisable = function () {
+        child.active = false;
+    };
+
+    parent.parent = cc.director.getScene();
+
+    parent.active = false;
+
+    childComp.onDisable.once('child onDisable should be called');
 });
 
 test('destroy', function () {

@@ -17,7 +17,6 @@ var Activating = 1 << 8;
 
 var IsOnEnableCalled = 1 << 11;
 var IsEditorOnEnableCalled = 1 << 12;
-var IsPreloadCalled = 1 << 13;
 var IsOnLoadCalled = 1 << 14;
 var IsOnLoadStarted = 1 << 15;
 var IsStartCalled = 1 << 16;
@@ -31,7 +30,7 @@ var IsPositionLocked = 1 << 21;
 //var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
 var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Activating |
-                       IsPreloadCalled | IsOnLoadStarted | IsOnLoadCalled | IsStartCalled |
+                       IsOnLoadStarted | IsOnLoadCalled | IsStartCalled |
                        IsOnEnableCalled | IsEditorOnEnableCalled |
                        IsRotationLocked | IsScaleLocked | IsAnchorLocked | IsSizeLocked | IsPositionLocked
                        /*RegisteredInEditor*/);
@@ -146,7 +145,6 @@ defineNotInheritable(CCObject, 'Flags', {
 
     // FLAGS FOR COMPONENT
 
-    IsPreloadCalled: IsPreloadCalled,
     IsOnLoadCalled: IsOnLoadCalled,
     IsOnLoadStarted: IsOnLoadStarted,
     IsOnEnableCalled: IsOnEnableCalled,

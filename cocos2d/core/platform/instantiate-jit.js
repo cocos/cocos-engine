@@ -165,9 +165,9 @@ function Parser (obj, parent) {
     var createFunction = Function('O', 'F', 'R', code);
     this.result = createFunction.bind(null, this.objs, this.funcs);
 
-    if (CC_TEST && !isPhantomJS) {
-        console.log(code);
-    }
+    // if (CC_TEST && !isPhantomJS) {
+    //     console.log(code);
+    // }
 
     // cleanup
     for (var i = 0, len = this.objsToClear_iN$t.length; i < len; ++i) {

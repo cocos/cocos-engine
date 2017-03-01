@@ -578,6 +578,7 @@ var Component = cc.Class({
 });
 
 Component._requireComponent = null;
+Component._executionOrder = 0;
 
 if (CC_EDITOR || CC_TEST) {
 
@@ -618,6 +619,9 @@ Object.defineProperty(Component, '_registerEditorProps', {
             for (var key in props) {
                 var val = props[key];
                 switch (key) {
+                    case 'executionOrder':
+                        cls._executionOrder = (typeof val === 'number' ? val : 0);
+                        break;
 
                     case 'executeInEditMode':
                         cls._executeInEditMode = !!val;

@@ -745,10 +745,11 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  *
  * @param {Object} [options.editor] - attributes for Component listed below.
  * @param {Component} [options.editor.requireComponent] - Automatically add required component as a dependency.
- * @param {Component} [options.editor.disallowMultiple] - If specified to a type, prevents Component of the same type (or subtype) to be added more than once to a Node.
+ * @param {Component} [options.editor.disallowMultiple=false] - If specified to a type, prevents Component of the same type (or subtype) to be added more than once to a Node.
  * @param {String} [options.editor.menu] - The menu path to register a component to the editors "Component" menu. Eg. "Rendering/Camera".
- * @param {Boolean} [options.editor.executeInEditMode] - Makes a component execute in edit mode. By default, all components are only executed in play mode, which means they will not have their callback functions executed while the Editor is in edit mode.
- * @param {Boolean} [options.editor.playOnFocus] - This property is only available if executeInEditMode is true. If specified, the editor's scene view will keep updating this node in 60 fps when it is selected, otherwise, it will update only if necessary.
+ * @param {Boolean} [options.editor.executionOrder=0] - The execution order of lifecycle methods for Component. Those less than 0 will execute before while those greater than 0 will execute after. The order will only affect onLoad - onEnable, start, update and lateUpdate while onDisable and onDestroy will not be affected.
+ * @param {Boolean} [options.editor.executeInEditMode=false] - Makes a component execute in edit mode. By default, all components are only executed in play mode, which means they will not have their callback functions executed while the Editor is in edit mode.
+ * @param {Boolean} [options.editor.playOnFocus=false] - This property is only available if executeInEditMode is true. If specified, the editor's scene view will keep updating this node in 60 fps when it is selected, otherwise, it will update only if necessary.
  * @param {String} [options.editor.inspector] - Specifying the url of the custom html to draw the component in inspector.
  * @param {String} [options.editor.icon] - Specifying the url of the icon to display in inspector.
  * @param {String} [options.editor.help] - The custom documentation UR
