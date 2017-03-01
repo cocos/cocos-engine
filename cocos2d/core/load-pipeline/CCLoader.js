@@ -311,7 +311,7 @@ JS.mixin(CCLoader.prototype, {
         else if (typeof assetOrUrlOrUuid === 'string') {
             key = this._getResUuid(assetOrUrlOrUuid) || assetOrUrlOrUuid;
         }
-        if (CC_DEV && !key) {
+        if (!key) {
             cc.warnID(4800, assetOrUrlOrUuid);
             return key;
         }

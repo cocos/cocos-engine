@@ -27,6 +27,7 @@
 
 var AutoReleaseUtils = require('../cocos2d/core/load-pipeline/auto-release-utils');
 var ComponentScheduler = require('../cocos2d/core/component-scheduler');
+var EventListeners = require('../cocos2d/core/event/event-listeners');
 
 cc.director._purgeDirector = cc.director.purgeDirector;
 
@@ -391,7 +392,22 @@ cc.js.mixin(cc.director, {
                 onLaunched(error);
             }
         });
-    }
+    },
+
+    __fastOn: function (type, callback, target) {
+        var listeners = this._bubblingListeners;
+        if (!listeners) {
+            listeners = this._bubblingListeners = new EventListeners();
+        }
+        listeners.add(type, callback, target);
+    },
+
+    __fastOff: function (type, callback, target) {
+        var listeners = this._bubblingListeners;
+        if (listeners) {
+            listeners.remove(type, callback, target);
+        }
+    },
 });
 
 cc.EventTarget.call(cc.director);
