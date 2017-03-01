@@ -107,6 +107,13 @@ defineNotInheritable(CCObject, 'Flags', {
     // FLAGS FOR ENGINE
 
     Destroying: Destroying,
+
+    /**
+     * !#en The node is activating or deactivating.
+     * !#zh 节点正在激活或反激活的过程中。
+     * @property Activating
+     * @private
+     */
     Activating: Activating,
 
     ///**

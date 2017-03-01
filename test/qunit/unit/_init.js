@@ -245,16 +245,12 @@ function fastArrayEqual (actual, expected, message) {
 
 function createNodes (data) {
     var nodes = {};
-    function createNode (data) {
+    function createNode (data, name) {
         var node = new cc.Node();
+        node.name = name;
         for (var key in data) {
             var value = data[key];
-            if (typeof value === 'object') {
-                var child = createNode(value);
-                child.parent = node;
-                nodes[key] = child;
-            }
-            else if (key === 'comps') {
+            if (key === 'comps') {
                 if (Array.isArray(value)) {
                     for (var i = 0; i < value.length; i++) {
                         node.addComponent(value[i]);
@@ -263,12 +259,17 @@ function createNodes (data) {
                 else {
                     node.addComponent(value);
                 }
-                nodes[key + 'Comps'] = node._components.slice();
+                nodes[name + 'Comps'] = node._components.slice();
+            }
+            else if (typeof value === 'object') {
+                var child = createNode(value, key);
+                child.parent = node;
             }
         }
+        nodes[name] = node;
         return node;
     }
-    nodes.root = createNode(data);
+    createNode(data, 'root');
     return nodes;
 }
 

@@ -69,7 +69,7 @@ cc.Scene = cc.Class({
     destroy: function () {
         var children = this._children;
         var DontDestroy = cc.Object.Flags.DontDestroy;
-
+        // TODO: destroyed twice?
         for (var i = 0, len = children.length; i < len; ++i) {
             var child = children[i];
             if (child.isValid) {

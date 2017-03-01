@@ -54,6 +54,7 @@ var callOnLostFocusInTryCatch = CC_EDITOR && callerFunctor('onLostFocusInEditor'
 // This class contains some queues used to invoke life-cycle methods by script execution order
 var LifeCycleInvoker = cc.Class({
     __ctor__ (invokeFunc) {
+        // TODO: remove in the end of this frame so we can just use array here?
         // components which priority === 0 (default)
         this.compsZero = new JsArray.MutableForwardIterator([]);
         // components which priority > 0
@@ -78,15 +79,15 @@ var LifeCycleInvoker = cc.Class({
     // }
 });
 
-function stableRemoveChildOf (iterator, node) {
+function stableRemoveInactive (iterator) {
     var array = iterator.array;
     for (var i = 0; i < array.length;) {
         var comp = array[i];
-        if (comp.node.isChildOf(node)) {
-            iterator.removeAt(i);
+        if (comp._enabled && comp.node._activeInHierarchy) {
+            ++i;
         }
         else {
-            ++i;
+            iterator.removeAt(i);
         }
     }
 }
@@ -118,10 +119,10 @@ var OneOffInvoker = cc.Class({
             this.compsPos.fastRemove(comp);
         }
     },
-    cancelInvokeChildOf (node) {
-        stableRemoveChildOf(this.compsZero, node);
-        stableRemoveChildOf(this.compsNeg, node);
-        stableRemoveChildOf(this.compsPos, node);
+    cancelInactive () {
+        stableRemoveInactive(this.compsZero);
+        stableRemoveInactive(this.compsNeg);
+        stableRemoveInactive(this.compsPos);
     },
     invoke () {
         var compsNeg = this.compsNeg;
@@ -228,9 +229,8 @@ function enableInEditor (comp) {
 //                               '})', param);
 // }
 
-function ActivatingContext (node, active, preload, onLoad, onEnable) {
+function ActivatingContext (node, preload, onLoad, onEnable) {
     this.node = node;
-    this.active = active;
     // invokers if active
     this.preload = preload;
     this.onLoad = onLoad;
@@ -334,49 +334,48 @@ var ComponentScheduler = cc.Class({
     unscheduleAll: ctor,
 
     // get invoker temporary
-    pushActivatingContext: function (node, active) {
-        var context;
-        if (active) {
-            var preload = CC_EDITOR ? new OneOffInvoker(function (iterator) {
-                var array = iterator.array;
-                for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                    let comp = array[iterator.i];
-                    callPreloadInTryCatch(comp);
+    getActivatingContext: function (node) {
+        var preload = CC_EDITOR ? new OneOffInvoker(function (iterator) {
+            var array = iterator.array;
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                callPreloadInTryCatch(comp);
+            }
+        }) : new OneOffInvoker(function (iterator) {
+            var array = iterator.array;
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                comp.__preload();
+            }
+        });
+        var onLoad = CC_EDITOR ? new OneOffInvoker(function (iterator) {
+            var array = iterator.array;
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                callOnLoadInTryCatch(comp);
+                if (!comp.node._activeInHierarchy) {
+                    // deactivated during onLoad
+                    break;
                 }
-            }) : new OneOffInvoker(function (iterator) {
-                var array = iterator.array;
-                for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                    let comp = array[iterator.i];
-                    comp.__preload();
+            }
+        }) : new OneOffInvoker(function (iterator) {
+            var array = iterator.array;
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                comp.onLoad();
+                if (!comp.node._activeInHierarchy) {
+                    // deactivated during onLoad
+                    break;
                 }
-            });
-            var onLoad = CC_EDITOR ? new OneOffInvoker(function (iterator) {
-                var array = iterator.array;
-                for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                    let comp = array[iterator.i];
-                    callOnLoadInTryCatch(comp);
-                    if (!comp.node._activeInHierarchy) {
-                        // deactivated during onLoad
-                        break;
-                    }
-                }
-            }) : new OneOffInvoker(function (iterator) {
-                var array = iterator.array;
-                for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                    let comp = array[iterator.i];
-                    comp.onLoad();
-                    if (!comp.node._activeInHierarchy) {
-                        // deactivated during onLoad
-                        break;
-                    }
-                }
-            });
-            var onEnable = CC_EDITOR ? new OneOffInvoker(function (iterator) {
-                var scheduler = cc.director.getScheduler();
-                var compScheduler = cc.director._compScheduler;
-                var array = iterator.array;
-                for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                    let comp = array[iterator.i];
+            }
+        });
+        var onEnable = CC_EDITOR ? new OneOffInvoker(function (iterator) {
+            var scheduler = cc.director.getScheduler();
+            var compScheduler = cc.director._compScheduler;
+            var array = iterator.array;
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                if (comp._enabled) {
                     callOnEnableInTryCatch(comp);
 
                     var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
@@ -386,12 +385,14 @@ var ComponentScheduler = cc.Class({
                         comp._objFlags |= IsOnEnableCalled;
                     }
                 }
-            }) : new OneOffInvoker(function (iterator) {
-                var scheduler = cc.director.getScheduler();
-                var compScheduler = cc.director._compScheduler;
-                var array = iterator.array;
-                for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                    let comp = array[iterator.i];
+            }
+        }) : new OneOffInvoker(function (iterator) {
+            var scheduler = cc.director.getScheduler();
+            var compScheduler = cc.director._compScheduler;
+            var array = iterator.array;
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                if (comp._enabled) {
                     comp.onEnable();
                     var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
                     if (!deactivatedDuringOnEnable) {
@@ -400,18 +401,14 @@ var ComponentScheduler = cc.Class({
                         comp._objFlags |= IsOnEnableCalled;
                     }
                 }
-            });
-            context = new ActivatingContext(node, active, preload, onLoad, onEnable);
-        }
-        else {
-            context = new ActivatingContext(node, active);
-        }
-        this._activatingStack.push(context);
-        return context;
+            }
+        });
+
+        return new ActivatingContext(node, preload, onLoad, onEnable);
     },
 
     // release invoker temporary
-    popActivatingContext: function (context) {
+    putActivatingContext: function (context) {
         if (CC_EDITOR && context !== this._activatingStack[this._activatingStack.length - 1]) {
             cc.error('unknown state');
         }
@@ -499,45 +496,47 @@ var ComponentScheduler = cc.Class({
     },
 
     _activateNodeRecursively (node, newActive, preloadInvoker, onLoadInvoker, onEnableInvoker) {
-        // var cancelActivation = false;
         if (node._objFlags & Activating) {
-            if (newActive) {
-                // abort endless loop
-                cc.errorID(3816, node.name);
-                return;
-            }
-            // else {
-            //     cancelActivation = true;
-            // }
+            // Forbid reactive the same node during its deactivating procedure
+            // to avoid endless loop and simplify the implementation.
+            cc.errorID(3816, node.name);
+            return;
         }
-        else if (newActive) {
-            node._objFlags |= Activating;
+
+        node._objFlags |= Activating;
+
+        if (CC_TEST) {
+            // ensures _activeInHierarchy is always changing when Activating flagged, so we can know the last state.
+            var stateWillChange = node._activeInHierarchy !== newActive;
+            cc.assert(stateWillChange, 'node already activated(deactivated)');
         }
 
         node._activeInHierarchy = newActive;
 
+        // TODO - split one loop into two
         // component maybe added during onEnable, and the onEnable of new component is already called
         // so we should record the origin length
         var originCount = node._components.length;
         for (var c = 0; c < originCount; ++c) {
             var component = node._components[c];
-            if (component instanceof cc.Component) {
-                if (newActive) {
+            if (newActive) {
+                if (component instanceof cc.Component) {
                     this.activateComp(component, preloadInvoker, onLoadInvoker, onEnableInvoker);
                 }
-                else if (component._enabled) {
-                    this.disableComp(component);
-
-                    if (node._activeInHierarchy) {
-                        // reactivated from root
-                        return;
-                    }
+                else {
+                    _componentCorrupted(node, component, c);
+                    --c;
+                    --originCount;
                 }
             }
-            else {
-                _componentCorrupted(node, component, c);
-                --c;
-                --originCount;
+            else if (component._enabled) {
+                this.disableComp(component);
+
+                if (node._activeInHierarchy) {
+                    // reactivated from root
+                    node._objFlags &= ~Activating;
+                    return;
+                }
             }
         }
 
@@ -549,44 +548,43 @@ var ComponentScheduler = cc.Class({
 
                 if (!newActive && node._activeInHierarchy) {
                     // reactivated from root
+                    node._objFlags &= ~Activating;
                     return;
                 }
             }
         }
 
-        node._objFlags &= ~Activating;
-
         if (/*!cancelActivation &&*/ node._onPostActivated) {
             node._onPostActivated(newActive);
         }
+
+        node._objFlags &= ~Activating;
     },
 
     activateNode (node, active) {
-        var context = this.pushActivatingContext(node, active);
-
         if (active) {
+            var context = this.getActivatingContext(node);
+            this._activatingStack.push(context);
             this._activateNodeRecursively(node, active, context.preload, context.onLoad, context.onEnable);
             context.preload.invoke();
             context.onLoad.invoke();
             context.onEnable.invoke();
+            this.putActivatingContext(context);
         }
         else {
             this._activateNodeRecursively(node, active);
+            // remove children of this node from previous activating tasks to debounce
+            // (this is an inefficient operation but it ensures general case could be implemented in a efficient way)
+            var stack = this._activatingStack;
+            for (var i = 0; i < stack.length; i++) {
+                var runningContext = stack[i];
+                // can not just check runningContext.node because hierarchy may change during activating
+                runningContext.preload.cancelInactive(node);
+                runningContext.onLoad.cancelInactive(node);
+                runningContext.onEnable.cancelInactive(node);
+            }
         }
         node.emit('active-in-hierarchy-changed', node);
-
-        this.popActivatingContext(context);
-
-        // remove child of this node from previous activating tasks to debounce
-        // (this is not an efficient operation but it ensures general case could be implemented in a efficient way)
-        var stack = this._activatingStack;
-        for (var i = 0; i < stack.length; i++) {
-            var runningContext = stack[i];
-            // can not just check runningContext.node because hierarchy may change during activating
-            runningContext.preload.cancelInvokeChildOf(node);
-            runningContext.onLoad.cancelInvokeChildOf(node);
-            runningContext.onEnable.cancelInvokeChildOf(node);
-        }
     },
 
     activateComp: CC_EDITOR ? function (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {

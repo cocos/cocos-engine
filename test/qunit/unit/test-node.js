@@ -334,7 +334,57 @@ test('activation logic for component in hierarchy', function () {
     comp.stopTest();
 });
 
+test('disable component during onLoad', function () {
+    var nodes = createNodes({
+        comps: cc.Component,
+        // child: {
+        //     comps: cc.Component,
+        // },
+    });
+    var parent = nodes.root;
+    var parentComp = nodes.rootComps[0];
+    // var child = nodes.child;
+    // var childComp = nodes.childComps[0];
+
+    parentComp.onEnable = new Callback().disable('should not enable self component if disabled in onLoad');
+    // childComp.onEnable = new Callback().disable('should not enable child component if disabled in onLoad');
+
+    parentComp.onLoad = function () {
+        parentComp.enabled = false;
+        // childComp.enabled = false;
+    };
+
+    parent.parent = cc.director.getScene();
+
+    expect(0);
+});
+
+test('disable component during onEnable', function () {
+    var nodes = createNodes({
+        comps: cc.Component,
+        child: {
+            comps: cc.Component,
+        },
+    });
+    var parent = nodes.root;
+    var parentComp = nodes.rootComps[0];
+    var child = nodes.child;
+    var childComp = nodes.childComps[0];
+
+    childComp.onEnable = new Callback().disable('should not enable child component if disabled in onEnable');
+
+    parentComp.onEnable = function () {
+        childComp.enabled = false;
+    };
+
+    parent.parent = cc.director.getScene();
+
+    expect(0);
+});
+
 (function () {
+
+    // Test deactivate during activating or conversely
 
     var StillInvokeRestCompsOnSameNode = false;
     var StillInvokeOnEnableOnSameComp = false;
@@ -414,6 +464,31 @@ test('activation logic for component in hierarchy', function () {
         }
 
         cc.game.step();
+    });
+
+    test('could activate next sibling node in onLoad', function () {
+        var nodes = createNodes({
+            test: {
+                comps: cc.Component,
+            },
+            next: {
+                comps: cc.Component,
+            }
+        });
+        var parent = nodes.root;
+        var testComp = nodes.testComps[0];
+        var next = nodes.next;
+        var nextComp = nodes.nextComps[0];
+        next.active = false;
+
+        testComp.onLoad = function () {
+            next.active = true;
+        };
+        nextComp.onLoad = new Callback().enable();
+
+        cc.director.getScene().addChild(parent);
+
+        nextComp.onLoad.once('onLoad of next sibling node should be called').disable();
     });
 
     test('could deactivate parent in onLoad if activate from parent to child', function () {
@@ -608,6 +683,66 @@ test('activation logic for component in hierarchy', function () {
 
         cc.game.step();
     });
+
+    function testActivateChildDirectly (title, childActivedByDefault) {
+        test('activate ' + title + ' child directly in parent\'s onLoad', function () {
+            var nodes = createNodes({
+                comps: cc.Component,
+                child: {
+                    comps: cc.Component
+                },
+            });
+            var parent = nodes.root;
+            var child = nodes.child;
+            child.active = childActivedByDefault;
+
+            var childComp = nodes.childComps[0];
+            var parentComp = nodes.rootComps[0];
+
+            childComp.onLoad = new Callback().enable();
+            parentComp.onLoad = function () {
+                child.active = true;
+            };
+
+            parent.parent = cc.director.getScene();
+
+            childComp.onLoad.once('child onLoad should be called').disable();
+        });
+    }
+    testActivateChildDirectly('active', true);
+    testActivateChildDirectly('inactive', false);
+
+    test('deactivate child directly in parent\'s onDisable', function () {
+        var nodes = createNodes({
+            comps: cc.Component,
+            child: {
+                comps: cc.Component,
+                descendent: {
+                    comps: cc.Component,
+                }
+            },
+        });
+        var parent = nodes.root;
+        var child = nodes.child;
+        var descendent = nodes.descendent;
+        var childComp = nodes.childComps[0];
+        var parentComp = nodes.rootComps[0];
+        var descendentComp = nodes.descendentComps[0];
+
+        childComp.onDisable = new Callback().enable();
+        descendentComp.onDisable = new Callback().enable();
+        parentComp.onDisable = function () {
+            descendent.active = false;
+            child.active = false;
+        };
+
+        parent.parent = cc.director.getScene();
+
+        parent.active = false;
+
+        childComp.onDisable.once('child onDisable should be called').disable();
+        descendentComp.onDisable.once('child onDisable should be called').disable();
+    });
 })();
 
 test('life-cycle order between parent and children', function () {
@@ -706,26 +841,6 @@ test('The onLoad of dynamic created parent component', function () {
 
     node.parent = parent;
     parent.parent = cc.director.getScene();
-});
-
-test('deactivate child directly in parent\'s onDisable', function () {
-    var parent = new cc.Node();
-    var child = new cc.Node();
-
-    child.parent = parent;
-    var childComp = child.addComponent(cc.Component);
-    childComp.onDisable = new Callback().enable();
-
-    var parentComp = parent.addComponent(cc.Component);
-    parentComp.onDisable = function () {
-        child.active = false;
-    };
-
-    parent.parent = cc.director.getScene();
-
-    parent.active = false;
-
-    childComp.onDisable.once('child onDisable should be called');
 });
 
 test('destroy', function () {

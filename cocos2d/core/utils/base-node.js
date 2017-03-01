@@ -30,6 +30,7 @@ var IdGenerater = require('../platform/id-generater');
 var JS = cc.js;
 var Destroying = Flags.Destroying;
 var DontDestroy = Flags.DontDestroy;
+var Activating = Flags.Activating;
 
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
@@ -277,9 +278,16 @@ var BaseNode = cc.Class({
                 value = !!value;
                 if (this._active !== value) {
                     this._active = value;
-                    var couldActiveInHierarchy = (this._parent && this._parent._activeInHierarchy);
-                    if (couldActiveInHierarchy) {
-                        cc.director._compScheduler.activateNode(this, value);
+                    var parent = this._parent;
+                    if (parent) {
+                        var couldActiveInScene = parent._activeInHierarchy;
+                        if (parent._objFlags & Activating) {
+                            // _activeInHierarchy of parent is changing
+                            couldActiveInScene = !couldActiveInScene;
+                        }
+                        if (couldActiveInScene) {
+                            cc.director._compScheduler.activateNode(this, value);
+                        }
                     }
                 }
             }
@@ -311,7 +319,6 @@ var BaseNode = cc.Class({
     },
 
     ctor (name) {
-
         this._name = typeof name !== 'undefined' ? name : 'New Node';
 
         this._activeInHierarchy = false;
@@ -340,7 +347,7 @@ var BaseNode = cc.Class({
         return this._parent;
     },
 
-    setParent (value) {
+    setParent (value) { // TODO merge with child
         if (this._parent === value) {
             return;
         }
