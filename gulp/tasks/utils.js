@@ -51,39 +51,39 @@ exports.uglifyOptions = function (minify, global_defs) {
     };
 };
 
-
-
 function allowReturnOutsideFunctionInBrowserifyTransform () {
-    var acorn;
-    try {
-        acorn = require('browserify/node_modules/syntax-error/node_modules/acorn');
+    var paths = [
+        'browserify/node_modules/syntax-error/node_modules/acorn',
+        'syntax-error/node_modules/acorn',
+        'acorn'
+    ];
+    function patch (path) {
+        var acorn = require(path);
+        var parse = acorn.parse;
+        if (typeof parse === 'function') {
+            if (acorn.parse.name !== 'monkeyPatchedParse') {
+                acorn.parse = function monkeyPatchedParse(input, options) {
+                    options.allowReturnOutsideFunction = true;
+                    return parse(input, options);
+                };
+            }
+        }
+        else {
+            console.error('Can not find acorn.parse to patch');
+        }
     }
-    catch (e) {
+
+    var patched = false;
+    for (var i = 0; i < paths.length; i++) {
         try {
-            acorn = require('syntax-error/node_modules/acorn');
+            patch(paths[i]);
+            patched = true;
         }
         catch (e) {
-            try {
-                acorn = require('acorn');
-            }
-            catch (e) {
-                console.error('Can not find acorn to patch');
-                return;
-            }
         }
     }
-
-    var parse = acorn.parse;
-    if (typeof parse === 'function') {
-        if (acorn.parse.name !== 'monkeyPatchedParse') {
-            acorn.parse = function monkeyPatchedParse(input, options) {
-                options.allowReturnOutsideFunction = true;
-                return parse(input, options);
-            };
-        }
-    }
-    else {
-        console.error('Can not find acorn.parse to patch');
+    if (!patched) {
+        console.error('Can not find acorn to patch');
     }
 }
 

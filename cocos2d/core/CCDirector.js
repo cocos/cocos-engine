@@ -28,6 +28,7 @@ var EventTarget = require('./event/event-target');
 var Class = require('./platform/_CCClass');
 var AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
 var ComponentScheduler = require('./component-scheduler');
+var EventListeners = require('./event/event-listeners');
 
 cc.g_NumberOfDraws = 0;
 
