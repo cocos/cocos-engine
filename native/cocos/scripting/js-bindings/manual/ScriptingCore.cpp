@@ -1471,6 +1471,8 @@ bool ScriptingCore::handleTouchesEvent(void* nativeObj, cocos2d::EventTouch::Eve
         dataVal[0] = OBJECT_TO_JSVAL(jsretArr);
         dataVal[1] = OBJECT_TO_JSVAL(jsb_get_or_create_weak_jsobject(_cx, event, typeClassEvent));
         ret = executeFunctionWithOwner(OBJECT_TO_JSVAL(p->obj), funcName.c_str(), 2, dataVal, jsvalRet);
+        // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
+        removeJSObject(_cx, event);
     }
 
     return ret;
@@ -1500,6 +1502,8 @@ bool ScriptingCore::handleTouchEvent(void* nativeObj, cocos2d::EventTouch::Event
         dataVal[1] = OBJECT_TO_JSVAL(jsb_get_or_create_weak_jsobject(_cx, event, typeClassEvent));
 
         ret = executeFunctionWithOwner(OBJECT_TO_JSVAL(p->obj), funcName.c_str(), 2, dataVal, jsvalRet);
+        // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
+        removeJSObject(_cx, event);
     }
 
     return ret;
@@ -1524,6 +1528,8 @@ bool ScriptingCore::handleMouseEvent(void* nativeObj, cocos2d::EventMouse::Mouse
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventMouse>((cocos2d::EventMouse*)event);
         jsval dataVal = OBJECT_TO_JSVAL(jsb_get_or_create_weak_jsobject(_cx, event, typeClass));
         ret = executeFunctionWithOwner(OBJECT_TO_JSVAL(p->obj), funcName.c_str(), 1, &dataVal, jsvalRet);
+        // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
+        removeJSObject(_cx, event);
     }
     else CCLOG("ScriptingCore::handleMouseEvent native proxy NOT found");
 
@@ -1627,7 +1633,9 @@ bool ScriptingCore::handleKeyboardEvent(void* nativeObj, cocos2d::EventKeyboard:
     {
         ret = executeFunctionWithOwner(OBJECT_TO_JSVAL(p->obj), "_onKeyReleased", 2, args);
     }
-
+    
+    // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
+    removeJSObject(_cx, event);
     return ret;
 }
 
