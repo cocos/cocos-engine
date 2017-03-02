@@ -174,6 +174,63 @@ jsval spattachment_to_jsval(JSContext* cx, spAttachment& v)
     return JSVAL_NULL;
 }
 
+jsval spregionattachment_to_jsval(JSContext* cx, spRegionAttachment& v)
+{
+    JS::RootedObject tmp(cx, JS_NewObject(cx, nullptr, JS::NullPtr(), JS::NullPtr()));
+    if (!tmp) return JSVAL_NULL;
+
+    JS::RootedValue jsname(cx, c_string_to_jsval(cx, v.super.name));
+    bool ok = JS_DefineProperty(cx, tmp, "name", jsname, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "type", v.super.type, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "x", v.x, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "y", v.y, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "scaleX", v.scaleX, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "scaleY", v.scaleY, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "rotation", v.rotation, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "width", v.width, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "height", v.height, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "r", v.r, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "g", v.g, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "b", v.b, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "a", v.a, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+
+    if (ok)
+    {
+        return OBJECT_TO_JSVAL(tmp);
+    }
+
+    return JSVAL_NULL;
+}
+
+jsval spmeshattachment_to_jsval(JSContext* cx, spMeshAttachment& v)
+{
+    JS::RootedObject tmp(cx, JS_NewObject(cx, nullptr, JS::NullPtr(), JS::NullPtr()));
+    if (!tmp) return JSVAL_NULL;
+
+    JS::RootedValue jsname(cx, c_string_to_jsval(cx, v.super.super.name));
+    bool ok = JS_DefineProperty(cx, tmp, "name", jsname, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "type", v.super.super.type, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "regionOffsetX", v.regionOffsetX, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "regionOffsetY", v.regionOffsetY, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "regionWidth", v.regionWidth, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "regionHeight", v.regionHeight, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "regionOriginalWidth", v.regionOriginalWidth, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "regionOriginalHeight", v.regionOriginalHeight, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "width", v.width, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "height", v.height, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "r", v.r, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "g", v.g, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "b", v.b, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "a", v.a, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+
+    if (ok)
+    {
+        return OBJECT_TO_JSVAL(tmp);
+    }
+
+    return JSVAL_NULL;
+}
+
 jsval spslotdata_to_jsval(JSContext* cx, spSlotData& v)
 {
     JS::RootedObject tmp(cx, JS_NewObject(cx, nullptr, JS::NullPtr(), JS::NullPtr()));
@@ -531,7 +588,16 @@ bool jsb_cocos2dx_spine_getAttachment(JSContext *cx, uint32_t argc, jsval *vp)
         do {
             if (ret)
             {
-                jsret = spattachment_to_jsval(cx, *ret);
+                if (ret->type == spAttachmentType::SP_ATTACHMENT_REGION) {
+                    jsret = spregionattachment_to_jsval(cx, *((spRegionAttachment*)ret));
+                }
+                else if (ret->type == spAttachmentType::SP_ATTACHMENT_MESH ||
+                         ret->type == spAttachmentType::SP_ATTACHMENT_LINKED_MESH) {
+                    jsret = spmeshattachment_to_jsval(cx, *((spMeshAttachment*)ret));
+                }
+                else {
+                    jsret = spattachment_to_jsval(cx, *ret);
+                }
             }
         } while(0);
 
