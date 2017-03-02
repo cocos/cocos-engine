@@ -1161,7 +1161,9 @@ module.exports = {
     fastDefine: CCClass._fastDefine,
     getNewValueTypeCode: getNewValueTypeCode,
     IDENTIFIER_RE: IDENTIFIER_RE,
-    escapeForJS: escapeForJS
+    escapeForJS: escapeForJS,
+    define,
+    declareProperties
 };
 
 if (CC_EDITOR) {
