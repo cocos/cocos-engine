@@ -166,16 +166,15 @@ var Animation = cc.Class({
         }
     },
 
-    onEnable: function () {
+    start: function () {
         if (!CC_EDITOR && this.playOnLoad && this._defaultClip) {
-            this.playOnLoad = false;
-
             var state = this.getAnimationState(this._defaultClip.name);
             this._animator.playState(state);
         }
-        else {
-            this.resume();
-        }
+    },
+
+    onEnable: function () {
+        this.resume();
     },
 
     onDisable: function () {
