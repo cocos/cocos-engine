@@ -351,6 +351,7 @@ if (CC_DEV) {
         "4008": "cc.LabelBMFont.initWithString(): Impossible to create font. Please check file", //
         "4009": "cocos2d: LabelBMFont: character not found %s", //BMFont.createFontChars
         "4010": "cc.LabelBMFont.setFntFile() : Impossible to create font. Please check file", //BMFont.setFntFile
+        "4011": "Property spriteFrame of BitmapFont '%s' is invalid. Using system font instead.", // BMFont spriteFrame is invalid.
         //Layout: 4100
         "4100": "Property padding is deprecated, please use paddingLeft, paddingRight, paddingTop and paddingBottom instead", //padding
         //Mask: 4200

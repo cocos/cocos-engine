@@ -422,29 +422,54 @@ cc.Director.EVENT_AFTER_UPDATE = 'director_after_update';
 cc.Director.EVENT_BEFORE_SCENE_LOADING = "director_before_scene_loading";
 cc.Director.EVENT_BEFORE_SCENE_LAUNCH = 'director_before_scene_launch';
 cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
+cc.Director._EVENT_NEXT_TICK = '_director_next_tick';
 
-cc.eventManager.addCustomListener(cc.Director.EVENT_BEFORE_UPDATE, function () {
-    cc.director.emit(cc.Director.EVENT_BEFORE_UPDATE);
-    // Call start for new added components
-    cc.director._compScheduler.startPhase();
-    // Update for components
-    var dt = cc.director.getDeltaTime();
-    cc.director._compScheduler.updatePhase(dt);
-});
-cc.eventManager.addCustomListener(cc.Director.EVENT_AFTER_UPDATE, function () {
-    // Late update for components
-    var dt = cc.director.getDeltaTime();
-    cc.director._compScheduler.lateUpdatePhase(dt);
-    // User can use this event to do things after update
-    cc.director.emit(cc.Director.EVENT_AFTER_UPDATE);
-    // Destroy entities that have been removed recently
-    cc.Object._deferredDestroy();
-    
-    cc.director.emit(cc.Director.EVENT_BEFORE_VISIT, this);
-});
-cc.eventManager.addCustomListener(cc.Director.EVENT_AFTER_VISIT, function () {
-    cc.director.emit(cc.Director.EVENT_AFTER_VISIT, this);
-});
-cc.eventManager.addCustomListener(cc.Director.EVENT_AFTER_DRAW, function () {
-    cc.director.emit(cc.Director.EVENT_AFTER_DRAW, this);
-});
+// Register listener objects in cc.Director to avoid possible crash caused by cc.eventManager.addCustomListener.
+// For reasons that we don't understand yet, JSFunctionWrapper couldn't very well hold function reference in cc.eventManager.
+cc.Director._beforeUpdateListener = {
+    event: cc.EventListener.CUSTOM,
+    eventName: cc.Director.EVENT_BEFORE_UPDATE,
+    callback: function () {
+        // cocos-creator/fireball#5157
+        cc.director.emit(cc.Director._EVENT_NEXT_TICK);
+        // Call start for new added components
+        cc.director._compScheduler.startPhase();
+        // Update for components
+        var dt = cc.director.getDeltaTime();
+        cc.director._compScheduler.updatePhase(dt);
+    }
+};
+cc.Director._afterUpdateListener = {
+    event: cc.EventListener.CUSTOM,
+    eventName: cc.Director.EVENT_AFTER_UPDATE,
+    callback: function () {
+        // Late update for components
+        var dt = cc.director.getDeltaTime();
+        cc.director._compScheduler.lateUpdatePhase(dt);
+        // User can use this event to do things after update
+        cc.director.emit(cc.Director.EVENT_AFTER_UPDATE);
+        // Destroy entities that have been removed recently
+        cc.Object._deferredDestroy();
+
+        cc.director.emit(cc.Director.EVENT_BEFORE_VISIT, this);
+    }
+};
+cc.Director._afterVisitListener = {
+    event: cc.EventListener.CUSTOM,
+    eventName: cc.Director.EVENT_AFTER_VISIT,
+    callback: function () {
+        cc.director.emit(cc.Director.EVENT_AFTER_VISIT, this);
+    }
+};
+cc.Director._afterDrawListener = {
+    event: cc.EventListener.CUSTOM,
+    eventName: cc.Director.EVENT_AFTER_DRAW,
+    callback: function () {
+        cc.director.emit(cc.Director.EVENT_AFTER_DRAW, this);
+    }
+};
+
+cc.eventManager.addEventListenerWithFixedPriority(cc.EventListener.create(cc.Director._beforeUpdateListener), 1);
+cc.eventManager.addEventListenerWithFixedPriority(cc.EventListener.create(cc.Director._afterUpdateListener), 1);
+cc.eventManager.addEventListenerWithFixedPriority(cc.EventListener.create(cc.Director._afterVisitListener), 1);
+cc.eventManager.addEventListenerWithFixedPriority(cc.EventListener.create(cc.Director._afterDrawListener), 1);

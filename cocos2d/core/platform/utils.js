@@ -67,13 +67,24 @@ module.exports = {
             }
         }
         :
-        function (callback, p1, p2) {
-            if (callback) {
-                setTimeout(function () {
-                    callback(p1, p2);
-                }, 0);
-            }
-        }
+        (
+            CC_JSB ?
+                function (callback, p1, p2) {
+                    if (callback) {
+                        cc.director.once(cc.Director._EVENT_NEXT_TICK, function () {
+                            callback(p1, p2);
+                        });
+                    }
+                }
+                :
+                function (callback, p1, p2) {
+                    if (callback) {
+                        setTimeout(function () {
+                            callback(p1, p2);
+                        }, 0);
+                    }
+                }
+        )
 };
 
 if (CC_DEV) {

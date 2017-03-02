@@ -327,7 +327,7 @@ JS.mixin(EventTarget.prototype, {
             return;
         }
 
-        var event = new cc.Event.EventCustom(message);
+        var event = cc.Event.EventCustom.get(message);
         event.detail = detail;
 
         // Event.AT_TARGET
@@ -339,6 +339,7 @@ JS.mixin(EventTarget.prototype, {
         if (bublisteners && !event._propagationImmediateStopped) {
             this._bubblingListeners.invoke(event);
         }
+        cc.Event.EventCustom.put(event);
     },
 
     /*

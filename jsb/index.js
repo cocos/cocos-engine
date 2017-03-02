@@ -39,31 +39,7 @@ var _engineNumberVersion = (function () {
     }
 })();
 
-// Version polyfills
-if (_engineNumberVersion) {
-    if (_engineNumberVersion.major === 3) {
-        if (_engineNumberVersion.minor < 6) {
-            require('./versions/jsb-polyfill-v3.5');
-        }
-        if (_engineNumberVersion.minor < 9) {
-            require('./versions/jsb-polyfill-v3.8');
-        }
-        if (_engineNumberVersion.minor < 10) {
-            require('./versions/jsb-polyfill-v3.9');
-        }
-    }
-}
-
 var originLog = console.log;
-
-// cc.initEngine
-cc.initEngine = function (config, cb) {
-    require('script/jsb.js');
-    cc._renderType = cc.game.RENDER_TYPE_OPENGL;
-    cc._engineLoaded = true;
-    originLog(cc.ENGINE_VERSION);
-    if (cb) cb();
-};
 
 // overwrite original console.log
 try {
@@ -88,8 +64,8 @@ Function(
 )();
 
 require('./jsb-predefine');
-require('./jsb-loader');
 require('./jsb-game');
+require('./jsb-loader');
 require('./jsb-director');
 require('./jsb-tex-sprite-frame');
 require('./jsb-scale9sprite');

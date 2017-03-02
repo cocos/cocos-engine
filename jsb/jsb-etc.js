@@ -201,7 +201,7 @@ window._ccsg = {
 };
 
 // __errorHandler
-window.__errorHandler = function (err) {
+window.__errorHandler = function (filename, lineno, message) {
 };
 
 // rename cc.Class to cc._Class

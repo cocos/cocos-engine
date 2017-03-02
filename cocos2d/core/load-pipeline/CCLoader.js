@@ -66,6 +66,9 @@ function getResWithUrl (res) {
         result.type = null;
         result.isRawAsset = true;
     }
+    else if (!isUuid) {
+        result.isRawAsset = true;
+    }
     return result;
 }
 
@@ -283,7 +286,7 @@ JS.mixin(CCLoader.prototype, {
     },
 
     _resources: resources,
-    _getResUuid: function (url, type) {
+    _getResUuid: function (url, type, quiet) {
         // Ignore parameter
         var index = url.indexOf('?');
         if (index !== -1)
@@ -295,7 +298,7 @@ JS.mixin(CCLoader.prototype, {
                 // strip extname
                 url = url.slice(0, - extname.length);
                 uuid = resources.getUuid(url, type);
-                if (uuid) {
+                if (uuid && !quiet) {
                     cc.warnID(4901, url, extname);
                 }
             }
@@ -309,7 +312,7 @@ JS.mixin(CCLoader.prototype, {
             key = assetOrUrlOrUuid._uuid || null;
         }
         else if (typeof assetOrUrlOrUuid === 'string') {
-            key = this._getResUuid(assetOrUrlOrUuid) || assetOrUrlOrUuid;
+            key = this._getResUuid(assetOrUrlOrUuid, null, true) || assetOrUrlOrUuid;
         }
         if (!key) {
             cc.warnID(4800, assetOrUrlOrUuid);
@@ -591,10 +594,15 @@ JS.mixin(CCLoader.prototype, {
      */
     getRes: function (url, type) {
         var item = this._cache[url];
-        if (!item) {
-            var uuid = this._getResUuid(url, type);
-            var ref = this._getReferenceKey(uuid);
-            item = this._cache[ref];
+        if (!item && type) {
+            var uuid = this._getResUuid(url, type, true);
+            if (uuid) {
+                var ref = this._getReferenceKey(uuid);
+                item = this._cache[ref];
+            }
+            else {
+                return null;
+            }
         }
         if (item && item.alias) {
             item = this._cache[item.alias];
@@ -607,7 +615,7 @@ JS.mixin(CCLoader.prototype, {
      * @returns {Number}
      */
     getResCount: function () {
-        return this._cache.length;
+        return Object.keys(this._cache).length;
     },
 
     /**

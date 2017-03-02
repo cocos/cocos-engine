@@ -60,51 +60,72 @@ sp._atlasLoader = {
 };
 
 
-sp.TrackEntryListeners = function(startListener, endListener, completeListener, eventListener){
+sp.TrackEntryListeners = function(startListener, endListener, completeListener, eventListener, interruptListener, disposeListener){
     this.startListener = startListener || null;
     this.endListener = endListener || null;
     this.completeListener = completeListener || null;
     this.eventListener = eventListener || null;
+    this.interruptListener = interruptListener || null;
+    this.disposeListener = disposeListener || null;
     this.callback = null;
     this.callbackTarget = null;
     this.skeletonNode = null;
+};
 
-    this.start = function(trackEntry) {
-        if (this.startListener) {
-            this.startListener(trackEntry.trackIndex);
-        }
-        if (this.callback && this.callbackTarget) {
-            this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry.trackIndex, animEventType.START, null, 0);
-        }
-    };
+var proto = sp.TrackEntryListeners.prototype;
+proto.start = function(trackEntry) {
+    if (this.startListener) {
+        this.startListener(trackEntry);
+    }
+    if (this.callback) {
+        this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.START, null, 0);
+    }
+};
 
-    this.end = function (trackEntry) {
-        if (this.endListener) {
-            this.endListener(trackEntry.trackIndex);
-        }
-        if (this.callback && this.callbackTarget) {
-            this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry.trackIndex, animEventType.END, null, 0);
-        }
-    };
+proto.interrupt = function(trackEntry) {
+    if (this.interruptListener) {
+        this.interruptListener(trackEntry);
+    }
+    if (this.callback) {
+        this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.INTERRUPT, null, 0);
+    }
+};
 
-    this.complete = function (trackEntry) {
-        var loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
-        if (this.completeListener) {
-            this.completeListener(trackEntry.trackIndex, loopCount);
-        }
-        if (this.callback && this.callbackTarget) {
-            this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry.trackIndex, animEventType.COMPLETE, null, loopCount);
-        }
-    };
+proto.end = function (trackEntry) {
+    if (this.endListener) {
+        this.endListener(trackEntry);
+    }
+    if (this.callback) {
+        this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.END, null, 0);
+    }
+};
 
-    this.event = function (trackEntry, event) {
-        if (this.eventListener) {
-            this.eventListener(trackEntry.trackIndex, event);
-        }
-        if (this.callback && this.callbackTarget) {
-            this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry.trackIndex, animEventType.EVENT, event, 0);
-        }
-    };
+proto.dispose = function (trackEntry) {
+    if (this.disposeListener) {
+        this.disposeListener(trackEntry);
+    }
+    if (this.callback) {
+        this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.DISPOSE, null, 0);
+    }
+};
+
+proto.complete = function (trackEntry) {
+    var loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
+    if (this.completeListener) {
+        this.completeListener(trackEntry, loopCount);
+    }
+    if (this.callback) {
+        this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.COMPLETE, null, loopCount);
+    }
+};
+
+proto.event = function (trackEntry, event) {
+    if (this.eventListener) {
+        this.eventListener(trackEntry, event);
+    }
+    if (this.callback) {
+        this.callback.call(this.callbackTarget, this.skeletonNode, trackEntry, animEventType.EVENT, event, 0);
+    }
 };
 
 sp.TrackEntryListeners.getListeners = function(entry){
@@ -198,6 +219,15 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
     },
 
     /**
+     * Find animation with specified name
+     * @param {String} name
+     * @returns {sp.spine.Animation|null}
+     */
+    findAnimation: function (name) {
+        return this._skeleton.data.findAnimation(name);
+    },
+
+    /**
      * Returns track entry by trackIndex.
      * @param trackIndex
      * @returns {sp.spine.TrackEntry|null}
@@ -246,11 +276,27 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
     },
 
     /**
+     * Set the interrupt listener
+     * @param {function} listener
+     */
+    setInterruptListener: function(listener) {
+        this._listener.interruptListener = listener;
+    },
+
+    /**
      * Set the end event listener.
      * @param {function} listener
      */
     setEndListener: function(listener) {
         this._listener.endListener = listener;
+    },
+
+    /**
+     * Set the dispose listener
+     * @param {function} listener
+     */
+    setDisposeListener: function(listener) {
+        this._listener.disposeListener = listener;
     },
 
     setCompleteListener: function(listener) {
@@ -265,8 +311,16 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
         sp.TrackEntryListeners.getListeners(entry).startListener = listener;
     },
 
+    setTrackInterruptListener: function(entry, listener){
+        sp.TrackEntryListeners.getListeners(entry).interruptListener = listener;
+    },
+
     setTrackEndListener: function(entry, listener){
         sp.TrackEntryListeners.getListeners(entry).endListener = listener;
+    },
+
+    setTrackDisposeListener: function(entry, listener){
+        sp.TrackEntryListeners.getListeners(entry).disposeListener = listener;
     },
 
     setTrackCompleteListener: function(entry, listener){

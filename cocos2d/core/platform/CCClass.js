@@ -270,6 +270,7 @@ function getDefault (defaultVal) {
 
 function doDefine (className, baseClass, mixins, options) {
     var fireClass;
+    var shouldAddProtoCtor;
     if (CC_DEV && options) {
         // check ctor
         var ctor = options.__ctor__ || options.ctor;
@@ -279,6 +280,12 @@ function doDefine (className, baseClass, mixins, options) {
             }
             else if (typeof ctor !== 'function') {
                 cc.errorID(3619, className);
+            }
+            else {
+                if (baseClass && /\bprototype.ctor\b/.test(ctor)) {
+                    cc.warnID(3600, className || "");
+                    shouldAddProtoCtor = true;
+                }
             }
         }
         if (options.ctor && options.__ctor__) {
@@ -305,6 +312,9 @@ function doDefine (className, baseClass, mixins, options) {
     if (baseClass) {
         JS.extend(fireClass, baseClass);    // 这里会把父类的 __props__ 复制给子类
         fireClass.$super = baseClass;
+        if (CC_DEV && shouldAddProtoCtor) {
+            fireClass.prototype.ctor = function () {};
+        }
     }
 
     if (mixins) {
@@ -576,8 +586,6 @@ function _doCreateCtor (ctors, baseClass, className, options) {
 
 function _createCtor (baseClass, mixins, className, options) {
     var ctor = options && options.ctor;
-    var shouldAddProtoCtor;
-
     if (CC_DEV && ctor) {
         if (CC_EDITOR && baseClass) {
             // check super call in constructor
@@ -591,10 +599,6 @@ function _createCtor (baseClass, mixins, className, options) {
                     this._super = null;
                     return ret;
                 };
-            }
-            if (/\bprototype.ctor\b/.test(originCtor)) {
-                cc.warnID(3600, className);
-                shouldAddProtoCtor = true;
             }
         }
 
@@ -636,12 +640,7 @@ function _createCtor (baseClass, mixins, className, options) {
         ctors.push(ctor);
     }
 
-    var fireClass = _doCreateCtor(ctors, baseClass, className, options);
-
-    if (CC_EDITOR && shouldAddProtoCtor) {
-        fireClass.prototype.ctor = function () {};
-    }
-    return fireClass;
+    return _doCreateCtor(ctors, baseClass, className, options);
 }
 
 var SuperCallReg = /xyz/.test(function(){xyz}) ? /\b_super\b/ : /.*/;
