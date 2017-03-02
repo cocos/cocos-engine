@@ -78,8 +78,6 @@ var Animation = cc.Class({
         this._currentClip = null;
 
         this._listeners = [];
-
-        this._playedOnLoad = false;
     },
 
     properties: {
@@ -168,16 +166,15 @@ var Animation = cc.Class({
         }
     },
 
-    onEnable: function () {
-        if (!CC_EDITOR && this.playOnLoad && !this._playedOnLoad && this._defaultClip) {
-            this._playedOnLoad = true;
-
+    start: function () {
+        if (!CC_EDITOR && this.playOnLoad && this._defaultClip) {
             var state = this.getAnimationState(this._defaultClip.name);
             this._animator.playState(state);
         }
-        else {
-            this.resume();
-        }
+    },
+
+    onEnable: function () {
+        this.resume();
     },
 
     onDisable: function () {
