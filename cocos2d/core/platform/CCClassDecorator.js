@@ -119,4 +119,15 @@ function CCMixins() {
 }
 exports.CCMixins = CCMixins;
 
+
+if (CC_EDITOR) {
+    exports.reset = function () {
+        currentProperties = {};
+        currentMixins = {};
+        currentEditor = {};
+        defined = {};
+        definedClass = {};
+    };
+}
+
 cc.Class.decorator = exports;
