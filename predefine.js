@@ -56,6 +56,10 @@ if (CC_DEV) {
 require('./polyfill/string');
 require('./polyfill/math');
 require('./polyfill/array');
+if (!(CC_EDITOR && Editor.isMainProcess)) {
+    require('./polyfill/babel');
+}
+
 
 // predefine some modules for cocos
 require('./cocos2d/core/platform/js');
