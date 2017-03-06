@@ -420,7 +420,7 @@ bool js_cocos2dx_dragonbones_Slot_setDisplay(JSContext *cx, uint32_t argc, jsval
     dragonBones::Slot* cobj = (dragonBones::Slot *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Slot_setDisplay : Invalid Native Object");
     if (argc == 2) {
-        ok = false;
+        ok = true;
         js_proxy_t *jsProxy;
         JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
         jsProxy = jsb_get_js_proxy(tmpObj);
