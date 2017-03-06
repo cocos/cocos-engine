@@ -154,9 +154,8 @@ JS.mixin(EventTarget.prototype, {
     /**
      * !#en
      * Register an callback of a specific event type on the EventTarget.
-     * This method is merely an alias to addEventListener.
      * !#zh
-     * 注册事件目标的特定事件类型回调，仅仅是 addEventListener 的别名。
+     * 注册事件目标的特定事件类型回调。
      *
      * @method on
      * @param {String} type - A string representing the event type to listen for.
@@ -213,9 +212,8 @@ JS.mixin(EventTarget.prototype, {
     /**
      * !#en
      * Removes the callback previously registered with the same type, callback, target and or useCapture.
-     * This method is merely an alias to removeEventListener.
      * !#zh
-     * 删除之前与同类型，回调，目标或 useCapture 注册的回调，仅仅是 removeEventListener 的别名。
+     * 删除之前与同类型，回调，目标或 useCapture 注册的回调。
      *
      * @method off
      * @param {String} type - A string representing the event type being removed.
