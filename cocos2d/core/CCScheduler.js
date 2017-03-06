@@ -183,7 +183,7 @@ cc.js.mixin(CallbackTimer.prototype, {
         this._delay = delay;
         this._useDelay = (this._delay > 0);
         this._repeat = repeat;
-        this._runForever = (this._repeat === cc.REPEAT_FOREVER);
+        this._runForever = (this._repeat === cc.macro.REPEAT_FOREVER);
         return true;
     },
     /**

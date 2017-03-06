@@ -148,7 +148,7 @@ window.setInterval = function (code, delay) {
     var target = new WindowTimeFun(code);
     if (arguments.length > 2)
         target._args = Array.prototype.slice.call(arguments, 2);
-    cc.director.getScheduler()._schedule(target.fun, target, delay / 1000, cc.REPEAT_FOREVER, 0, false, target._intervalId+'');
+    cc.director.getScheduler()._schedule(target.fun, target, delay / 1000, cc.macro.REPEAT_FOREVER, 0, false, target._intervalId+'');
     _windowTimeFunHash[target._intervalId] = target;
     return target._intervalId;
 };
