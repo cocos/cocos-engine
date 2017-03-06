@@ -30,7 +30,6 @@ var IdGenerater = require('../platform/id-generater');
 var JS = cc.js;
 var Destroying = Flags.Destroying;
 var DontDestroy = Flags.DontDestroy;
-var Activating = Flags.Activating;
 
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
@@ -281,10 +280,6 @@ var BaseNode = cc.Class({
                     var parent = this._parent;
                     if (parent) {
                         var couldActiveInScene = parent._activeInHierarchy;
-                        if (parent._objFlags & Activating) {
-                            // _activeInHierarchy of parent is changing
-                            couldActiveInScene = !couldActiveInScene;
-                        }
                         if (couldActiveInScene) {
                             cc.director._compScheduler.activateNode(this, value);
                         }
@@ -974,7 +969,7 @@ var BaseNode = cc.Class({
         }
     },
 
-    _onPostActivated: null,
+    _onPostActivated () {},
 
     _disableChildComps () {
         // leave this._activeInHierarchy unmodified
@@ -1029,9 +1024,8 @@ var BaseNode = cc.Class({
                 cc.warnID(1623);
             }
         }
-        var activeInHierarchyBefore = this._active && !!(oldParent && oldParent._activeInHierarchy);
         var shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);
-        if (activeInHierarchyBefore !== shouldActiveNow) {
+        if (this._activeInHierarchy !== shouldActiveNow) {
             cc.director._compScheduler.activateNode(this, shouldActiveNow);
         }
         if (CC_EDITOR || CC_TEST) {
@@ -1185,7 +1179,7 @@ var BaseNode = cc.Class({
     onRestore: CC_EDITOR && function () {
         // check activity state
         var shouldActiveInHierarchy = (this._parent && this._parent._activeInHierarchy && this._active);
-        if (shouldActiveInHierarchy !== this._activeInHierarchy) {
+        if (this._activeInHierarchy !== shouldActiveInHierarchy) {
             cc.director._compScheduler.activateNode(this, shouldActiveInHierarchy);
         }
     },

@@ -491,6 +491,39 @@ test('disable component during onEnable', function () {
         nextComp.onLoad.once('onLoad of next sibling node should be called').disable();
     });
 
+    test('re-activate child manually in parent\'s onDisable', function () {
+        var nodes = createNodes({
+            comps: cc.Component,
+            child: {
+                comps: cc.Component,
+                descendent: {
+                    comps: cc.Component,
+                }
+            },
+        });
+        var parent = nodes.root;
+        var child = nodes.child;
+        child.active = false;
+        var descendent = nodes.descendent;
+        descendent.active = false;
+        var childComp = nodes.childComps[0];
+        var parentComp = nodes.rootComps[0];
+        var descendentComp = nodes.descendentComps[0];
+
+        childComp.onEnable = new Callback().disable('should not enable child');
+        descendentComp.onEnable = new Callback().disable('should not enable descendent');
+        parentComp.onDisable = function () {
+            descendent.active = true;
+            child.active = true;
+        };
+
+        parent.parent = cc.director.getScene();
+
+        parent.active = false;
+
+        expect(0);
+    });
+
     test('could deactivate parent in onLoad if activate from parent to child', function () {
         strictEqual(StillInvokeRestCompsOnSameNode, false, 'test cases not implemented if "StillInvokeRestCompsOnSameNode"');
 
@@ -648,7 +681,7 @@ test('disable component during onEnable', function () {
 
     test('could deactivate self node in onEnable', function () {
         var node = new cc.Node();
-        //////
+        
         var previousComp = createNormalComp(node);
 
         var testComp = node.addComponent(cc.Component);
@@ -684,8 +717,8 @@ test('disable component during onEnable', function () {
         cc.game.step();
     });
 
-    function testActivateChildDirectly (title, childActivedByDefault) {
-        test('activate ' + title + ' child directly in parent\'s onLoad', function () {
+    function testActivateChildManually (title, childActivedByDefault) {
+        test('activate ' + title + ' child manually in parent\'s onLoad', function () {
             var nodes = createNodes({
                 comps: cc.Component,
                 child: {
@@ -709,10 +742,10 @@ test('disable component during onEnable', function () {
             childComp.onLoad.once('child onLoad should be called').disable();
         });
     }
-    testActivateChildDirectly('active', true);
-    testActivateChildDirectly('inactive', false);
+    testActivateChildManually('active', true);
+    testActivateChildManually('inactive', false);
 
-    test('deactivate child directly in parent\'s onDisable', function () {
+    test('deactivate child manually in parent\'s onDisable', function () {
         var nodes = createNodes({
             comps: cc.Component,
             child: {
@@ -741,7 +774,7 @@ test('disable component during onEnable', function () {
         parent.active = false;
 
         childComp.onDisable.once('child onDisable should be called').disable();
-        descendentComp.onDisable.once('child onDisable should be called').disable();
+        descendentComp.onDisable.once('descendent onDisable should be called').disable();
     });
 })();
 

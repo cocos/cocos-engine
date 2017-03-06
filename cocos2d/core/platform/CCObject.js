@@ -11,7 +11,7 @@ var EditorOnly = 1 << 4;
 var Dirty = 1 << 5;
 var DontDestroy = 1 << 6;
 var Destroying = 1 << 7;
-var Activating = 1 << 8;
+var Deactivating = 1 << 8;
 //var HideInGame = 1 << 9;
 //var HideInEditor = 1 << 10;
 
@@ -29,7 +29,7 @@ var IsPositionLocked = 1 << 21;
 
 //var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
-var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Activating |
+var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactivating |
                        IsOnLoadStarted | IsOnLoadCalled | IsStartCalled |
                        IsOnEnableCalled | IsEditorOnEnableCalled |
                        IsRotationLocked | IsScaleLocked | IsAnchorLocked | IsSizeLocked | IsPositionLocked
@@ -109,12 +109,12 @@ defineNotInheritable(CCObject, 'Flags', {
     Destroying: Destroying,
 
     /**
-     * !#en The node is activating or deactivating.
-     * !#zh 节点正在激活或反激活的过程中。
-     * @property Activating
+     * !#en The node is deactivating.
+     * !#zh 节点正在反激活的过程中。
+     * @property Deactivating
      * @private
      */
-    Activating: Activating,
+    Deactivating: Deactivating,
 
     ///**
     // * !#en
