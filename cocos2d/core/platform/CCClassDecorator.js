@@ -21,7 +21,7 @@ function getScriptName() {
  export class ComponentName extends cc.Component {}
  --------------------------
  */
-function CCComponent(constructor) {
+function component(constructor) {
     if (constructor.length > 0) {
         cc.warn("Please do not define parameters for a component constructor in " + getScriptName() + "!");
     }
@@ -42,7 +42,7 @@ function CCComponent(constructor) {
     definedClass[uuid] = cls;
     return cls;
 }
-exports.CCComponent = CCComponent;
+exports.component = component;
 /*
  Decorator of a property in cc.Component.
  @CCProperty must be used with @CCComponent. Usage:
@@ -59,7 +59,7 @@ exports.CCComponent = CCComponent;
  }
  --------------------------
  */
-function CCProperty(option) {
+function property(option) {
     return function (constructor, propertyName) {
         var uuid = getUUID();
         if (!currentProperties.hasOwnProperty(uuid))
@@ -67,7 +67,7 @@ function CCProperty(option) {
         currentProperties[uuid][propertyName] = option;
     };
 }
-exports.CCProperty = CCProperty;
+exports.property = property;
 /*
  Decorator of editor properties.
  @CCEditor must be used with @CCComponent. Usage:
@@ -79,7 +79,7 @@ exports.CCProperty = CCProperty;
  export class ComponentName extends cc.Component {}
  --------------------------
  */
-function CCEditor(editor) {
+function editor(editor) {
     return function (constructor) {
         if (CC_EDITOR) {
             var uuid = getUUID();
@@ -93,7 +93,7 @@ function CCEditor(editor) {
         return constructor;
     };
 }
-exports.CCEditor = CCEditor;
+exports.editor = editor;
 /*
  Decorator of mixins.
  @CCMixins must be used before @CCComponent. Usage:
@@ -103,7 +103,7 @@ exports.CCEditor = CCEditor;
  export class ComponentName extends cc.Component {}
  --------------------------
  */
-function CCMixins() {
+function mixins() {
     var args = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         args[_i] = arguments[_i];
@@ -117,7 +117,7 @@ function CCMixins() {
         return cls;
     };
 }
-exports.CCMixins = CCMixins;
+exports.mixins = mixins;
 
 
 if (CC_EDITOR) {
