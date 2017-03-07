@@ -256,13 +256,91 @@ function enableInEditor (comp) {
 //                               '})', param);
 // }
 
-function ActivateTask (preload, onLoad, onEnable) {
-    this.preload = preload;
-    this.onLoad = onLoad;
-    this.onEnable = onEnable;
+function createActivateTask () {
+    var preload = CC_EDITOR ? new UnsortedInvoker(function (iterator) {
+        var array = iterator.array;
+        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+            let comp = array[iterator.i];
+            callPreloadInTryCatch(comp);
+        }
+    }) : new UnsortedInvoker(function (iterator) {
+        var array = iterator.array;
+        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+            let comp = array[iterator.i];
+            comp.__preload();
+        }
+    });
+    var onLoad = CC_EDITOR ? new OneOffInvoker(function (iterator) {
+        var array = iterator.array;
+        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+            let comp = array[iterator.i];
+            callOnLoadInTryCatch(comp);
+            if (!comp.node._activeInHierarchy) {
+                // deactivated during onLoad
+                break;
+            }
+        }
+    }) : new OneOffInvoker(function (iterator) {
+        var array = iterator.array;
+        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+            let comp = array[iterator.i];
+            comp.onLoad();
+            if (!comp.node._activeInHierarchy) {
+                // deactivated during onLoad
+                break;
+            }
+        }
+    });
+    var onEnable = CC_EDITOR ? new OneOffInvoker(function (iterator) {
+        var scheduler = cc.director.getScheduler();
+        var compScheduler = cc.director._compScheduler;
+        var array = iterator.array;
+        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+            let comp = array[iterator.i];
+            if (comp._enabled) {
+                callOnEnableInTryCatch(comp);
+
+                var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
+                if (!deactivatedDuringOnEnable) {
+                    scheduler.resumeTarget(comp);
+                    compScheduler.schedule(comp);
+                    comp._objFlags |= IsOnEnableCalled;
+                }
+            }
+        }
+    }) : new OneOffInvoker(function (iterator) {
+        var scheduler = cc.director.getScheduler();
+        var compScheduler = cc.director._compScheduler;
+        var array = iterator.array;
+        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+            let comp = array[iterator.i];
+            if (comp._enabled) {
+                comp.onEnable();
+                var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
+                if (!deactivatedDuringOnEnable) {
+                    scheduler.resumeTarget(comp);
+                    compScheduler.schedule(comp);
+                    comp._objFlags |= IsOnEnableCalled;
+                }
+            }
+        }
+    });
+
+    return { preload, onLoad, onEnable };
 }
 
-
+var MAX_POOL_SIZE = 4;
+var activateTasksPool = [];
+// get invoker temporary
+function getActivateTask () {
+    return activateTasksPool.pop() || createActivateTask();
+}
+// release invoker temporary
+function putActivateTask (task) {
+    if (activateTasksPool.length < MAX_POOL_SIZE) {
+        activateTasksPool.push(task);
+    }
+}
 
 function ctor () {
     // during a loop
@@ -334,8 +412,8 @@ function ctor () {
     // components deferred to next frame
     this.scheduleInNextFrame = [];
 
-    // a stack of ActivateTask to save node's activating tasks
-    this._activatingStack =[];
+    // a stack of node's activating tasks
+    this._activatingStack = [];
 }
 
 function _componentCorrupted (node, comp, index) {
@@ -436,89 +514,6 @@ var ComponentScheduler = cc.Class({
         }
     },
 
-    // get invoker temporary
-    getActivateTask: function (node) {
-        var preload = CC_EDITOR ? new UnsortedInvoker(function (iterator) {
-            var array = iterator.array;
-            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                let comp = array[iterator.i];
-                callPreloadInTryCatch(comp);
-            }
-        }) : new UnsortedInvoker(function (iterator) {
-            var array = iterator.array;
-            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                let comp = array[iterator.i];
-                comp.__preload();
-            }
-        });
-        var onLoad = CC_EDITOR ? new OneOffInvoker(function (iterator) {
-            var array = iterator.array;
-            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                let comp = array[iterator.i];
-                callOnLoadInTryCatch(comp);
-                if (!comp.node._activeInHierarchy) {
-                    // deactivated during onLoad
-                    break;
-                }
-            }
-        }) : new OneOffInvoker(function (iterator) {
-            var array = iterator.array;
-            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                let comp = array[iterator.i];
-                comp.onLoad();
-                if (!comp.node._activeInHierarchy) {
-                    // deactivated during onLoad
-                    break;
-                }
-            }
-        });
-        var onEnable = CC_EDITOR ? new OneOffInvoker(function (iterator) {
-            var scheduler = cc.director.getScheduler();
-            var compScheduler = cc.director._compScheduler;
-            var array = iterator.array;
-            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                let comp = array[iterator.i];
-                if (comp._enabled) {
-                    callOnEnableInTryCatch(comp);
-
-                    var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
-                    if (!deactivatedDuringOnEnable) {
-                        scheduler.resumeTarget(comp);
-                        compScheduler.schedule(comp);
-                        comp._objFlags |= IsOnEnableCalled;
-                    }
-                }
-            }
-        }) : new OneOffInvoker(function (iterator) {
-            var scheduler = cc.director.getScheduler();
-            var compScheduler = cc.director._compScheduler;
-            var array = iterator.array;
-            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                let comp = array[iterator.i];
-                if (comp._enabled) {
-                    comp.onEnable();
-                    var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
-                    if (!deactivatedDuringOnEnable) {
-                        scheduler.resumeTarget(comp);
-                        compScheduler.schedule(comp);
-                        comp._objFlags |= IsOnEnableCalled;
-                    }
-                }
-            }
-        });
-
-        return new ActivateTask(preload, onLoad, onEnable);
-    },
-
-    // release invoker temporary
-    putActivateTask: function (task) {
-        if (CC_EDITOR && task !== this._activatingStack[this._activatingStack.length - 1]) {
-            cc.error('unknown state');
-        }
-        this._activatingStack.pop();
-        // TODO: push task to pool
-    },
-
     _activateNodeRecursively (node, preloadInvoker, onLoadInvoker, onEnableInvoker) {
         if (node._objFlags & Deactivating) {
             // en:
@@ -602,15 +597,16 @@ var ComponentScheduler = cc.Class({
 
     activateNode (node, active) {
         if (active) {
-            var task = this.getActivateTask(node);
+            var task = getActivateTask(node);
             this._activatingStack.push(task);
 
             this._activateNodeRecursively(node, task.preload, task.onLoad, task.onEnable);
-
             task.preload.invoke();
             task.onLoad.invoke();
             task.onEnable.invoke();
-            this.putActivateTask(task);
+
+            this._activatingStack.pop();
+            putActivateTask(task);
         }
         else {
             this._deactivateNodeRecursively(node);
