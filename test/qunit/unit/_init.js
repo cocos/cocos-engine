@@ -244,7 +244,11 @@ function fastArrayEqual (actual, expected, message) {
 }
 
 function createNodes (data) {
-    var nodes = {};
+    var nodes = {
+        attachToScene: function () {
+            this.root.parent = cc.director.getScene();
+        }
+    };
     function createNode (data, name) {
         var node = new cc.Node();
         node.name = name;
