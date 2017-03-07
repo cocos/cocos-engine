@@ -86,11 +86,12 @@ function sortedIndex (array, comp) {
 var LifeCycleInvoker = cc.Class({
     __ctor__ (invokeFunc) {
         // components which priority === 0 (default)
-        this.compsZero = new JsArray.MutableForwardIterator([]);
+        var Iterator = JsArray.MutableForwardIterator;
+        this._zero = new Iterator([]);
         // components which priority > 0
-        this.compsPos = new JsArray.MutableForwardIterator([]);
+        this._pos = new Iterator([]);
         // components which priority < 0
-        this.compsNeg = new JsArray.MutableForwardIterator([]);
+        this._neg = new Iterator([]);
 
         this._invoke = invokeFunc;
     },
@@ -122,45 +123,29 @@ var OneOffInvoker = cc.Class({
     extends: LifeCycleInvoker,
     add (comp) {
         var order = comp.constructor._executionOrder;
-        if (order === 0) {
-            this.compsZero.array.push(comp);
-        }
-        else if (order < 0) {
-            this.compsNeg.array.push(comp);
-        }
-        else {
-            this.compsPos.array.push(comp);
-        }
+        (order === 0 ? this._zero : (order < 0 ? this._neg : this._pos)).array.push(comp);
     },
     remove (comp) {
         var order = comp.constructor._executionOrder;
-        if (order === 0) {
-            this.compsZero.fastRemove(comp);
-        }
-        else if (order < 0) {
-            this.compsNeg.fastRemove(comp);
-        }
-        else {
-            this.compsPos.fastRemove(comp);
-        }
+        (order === 0 ? this._zero : (order < 0 ? this._neg : this._pos)).fastRemove(comp);
     },
     cancelInactive () {
-        stableRemoveInactive(this.compsZero);
-        stableRemoveInactive(this.compsNeg);
-        stableRemoveInactive(this.compsPos);
+        stableRemoveInactive(this._zero);
+        stableRemoveInactive(this._neg);
+        stableRemoveInactive(this._pos);
     },
     invoke () {
-        var compsNeg = this.compsNeg;
+        var compsNeg = this._neg;
         if (compsNeg.array.length > 0) {
             this.sort(compsNeg);
             this._invoke(compsNeg);
             compsNeg.array.length = 0;
         }
 
-        this._invoke(this.compsZero);
-        this.compsZero.array.length = 0;
+        this._invoke(this._zero);
+        this._zero.array.length = 0;
 
-        var compsPos = this.compsPos;
+        var compsPos = this._pos;
         if (compsPos.array.length > 0) {
             this.sort(compsPos);
             this._invoke(compsPos);
@@ -175,10 +160,10 @@ var ReusableInvoker = cc.Class({
     add (comp) {
         var order = comp.constructor._executionOrder;
         if (order === 0) {
-            this.compsZero.array.push(comp);
+            this._zero.array.push(comp);
         }
         else {
-            var array = order < 0 ? this.compsNeg.array : this.compsPos.array;
+            var array = order < 0 ? this._neg.array : this._pos.array;
             var i = sortedIndex(array, comp);
             if (i < 0) {
                 array.splice(~i, 0, comp);
@@ -191,10 +176,10 @@ var ReusableInvoker = cc.Class({
     remove (comp) {
         var order = comp.constructor._executionOrder;
         if (order === 0) {
-            this.compsZero.fastRemove(comp);
+            this._zero.fastRemove(comp);
         }
         else {
-            var iterator = order < 0 ? this.compsNeg : this.compsPos;
+            var iterator = order < 0 ? this._neg : this._pos;
             var i = sortedIndex(iterator.array, comp);
             if (i >= 0) {
                 iterator.removeAt(i);
@@ -202,14 +187,14 @@ var ReusableInvoker = cc.Class({
         }
     },
     invoke (dt) {
-        if (this.compsNeg.array.length > 0) {
-            this._invoke(this.compsNeg, dt);
+        if (this._neg.array.length > 0) {
+            this._invoke(this._neg, dt);
         }
 
-        this._invoke(this.compsZero, dt);
+        this._invoke(this._zero, dt);
 
-        if (this.compsPos.array.length > 0) {
-            this._invoke(this.compsPos, dt);
+        if (this._pos.array.length > 0) {
+            this._invoke(this._pos, dt);
         }
     },
 });
@@ -218,17 +203,17 @@ var ReusableInvoker = cc.Class({
 var UnsortedInvoker = cc.Class({
     extends: LifeCycleInvoker,
     add (comp) {
-        this.compsZero.array.push(comp);
+        this._zero.array.push(comp);
     },
     remove (comp) {
-        this.compsZero.fastRemove(comp);
+        this._zero.fastRemove(comp);
     },
     cancelInactive () {
-        stableRemoveInactive(this.compsZero);
+        stableRemoveInactive(this._zero);
     },
     invoke () {
-        this._invoke(this.compsZero);
-        this.compsZero.array.length = 0;
+        this._invoke(this._zero);
+        this._zero.array.length = 0;
     },
 });
 
@@ -239,38 +224,32 @@ function enableInEditor (comp) {
     }
 }
 
-// function getInvokeImpl (code, param) {
-//     // function (it) {
-//     //     var a = it.array;
-//     //     for (it.i = 0; it.i < a.length; ++it.i) {
-//     //         let comp = a[it.i];
-//     //         // ...
-//     //     }
-//     // }
-//     return Misc.cleanEval_1P('(function(it){' +
-//                                   'var a=it.array;' +
-//                                   'for(it.i=0;it.i<a.length;++it.i){' +
-//                                       'var comp=a[it.i];' +
-//                                       code +
-//                                   '}' +
-//                               '})', param);
-// }
+function getInvokeImpl (code, useDt) {
+    // function (it) {
+    //     var a = it.array;
+    //     for (it.i = 0; it.i < a.length; ++it.i) {
+    //         let comp = a[it.i];
+    //         // ...
+    //     }
+    // }
+    var body = 'var a=it.array;' +
+               'for(it.i=0;it.i<a.length;++it.i){' +
+                   'var c=a[it.i];' +
+                    code +
+               '}';
+    return useDt ? new Function('it', 'dt', body) : new Function('it', body);
+}
 
 function createActivateTask () {
-    var preload = CC_EDITOR ? new UnsortedInvoker(function (iterator) {
+    var preload = new UnsortedInvoker(CC_EDITOR ? function (iterator) {
         var array = iterator.array;
         for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
             let comp = array[iterator.i];
             callPreloadInTryCatch(comp);
         }
-    }) : new UnsortedInvoker(function (iterator) {
-        var array = iterator.array;
-        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-            let comp = array[iterator.i];
-            comp.__preload();
-        }
-    });
-    var onLoad = CC_EDITOR ? new OneOffInvoker(function (iterator) {
+    } : getInvokeImpl('c.__preload();'));
+
+    var onLoad = new OneOffInvoker(CC_EDITOR ? function (iterator) {
         var array = iterator.array;
         for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
             let comp = array[iterator.i];
@@ -280,18 +259,9 @@ function createActivateTask () {
                 break;
             }
         }
-    }) : new OneOffInvoker(function (iterator) {
-        var array = iterator.array;
-        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-            let comp = array[iterator.i];
-            comp.onLoad();
-            if (!comp.node._activeInHierarchy) {
-                // deactivated during onLoad
-                break;
-            }
-        }
-    });
-    var onEnable = CC_EDITOR ? new OneOffInvoker(function (iterator) {
+    } : getInvokeImpl('c.onLoad();if(!c.node._activeInHierarchy)break;'));
+
+    var onEnable = new OneOffInvoker(CC_EDITOR ? function (iterator) {
         var scheduler = cc.director.getScheduler();
         var compScheduler = cc.director._compScheduler;
         var array = iterator.array;
@@ -308,7 +278,7 @@ function createActivateTask () {
                 }
             }
         }
-    }) : new OneOffInvoker(function (iterator) {
+    } : function (iterator) {
         var scheduler = cc.director.getScheduler();
         var compScheduler = cc.director._compScheduler;
         var array = iterator.array;
@@ -355,14 +325,7 @@ function ctor () {
             callStartInTryCatch(comp);
             comp._objFlags |= IsStartCalled;
         }
-    } : function (iterator) {
-        var array = iterator.array;
-        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-            let comp = array[iterator.i];
-            comp.start();
-            comp._objFlags |= IsStartCalled;
-        }
-    });
+    } : getInvokeImpl('c.start();c._objFlags|=IsStartCalled;'));
 
     // var invokeImpl;
     // if (CC_EDITOR) {
@@ -387,13 +350,7 @@ function ctor () {
             let comp = array[iterator.i];
             callUpdateInTryCatch(comp, dt);
         }
-    } : function (iterator, dt) {
-        var array = iterator.array;
-        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-            let comp = array[iterator.i];
-            comp.update(dt);
-        }
-    });
+    } : getInvokeImpl('c.update(dt)'));
 
     this.lateUpdateInvoker = new ReusableInvoker(CC_EDITOR ? function (iterator, dt) {
         var array = iterator.array;
@@ -401,13 +358,7 @@ function ctor () {
             let comp = array[iterator.i];
             callLateUpdateInTryCatch(comp, dt);
         }
-    } : function (iterator, dt) {
-        var array = iterator.array;
-        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-            let comp = array[iterator.i];
-            comp.lateUpdate(dt);
-        }
-    });
+    } : getInvokeImpl('c.lateUpdate(dt)'));
 
     // components deferred to next frame
     this.scheduleInNextFrame = [];
