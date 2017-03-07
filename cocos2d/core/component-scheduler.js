@@ -51,6 +51,37 @@ var callResetInTryCatch = CC_EDITOR && callerFunctor('resetInEditor');
 var callOnFocusInTryCatch = CC_EDITOR && callerFunctor('onFocusInEditor');
 var callOnLostFocusInTryCatch = CC_EDITOR && callerFunctor('onLostFocusInEditor');
 
+function sortedIndex (array, comp) {
+    var order = comp.constructor._executionOrder;
+    var id = comp.__instanceId;
+    for (var l = 0, h = array.length - 1, m = h >>> 1;
+         l <= h;
+         m = (l + h) >>> 1
+    ) {
+        var test = array[m];
+        var testOrder = test.constructor._executionOrder;
+        if (testOrder > order) {
+            h = m - 1;
+        }
+        else if (testOrder < order) {
+            l = m + 1;
+        }
+        else {
+            var testId = test.__instanceId;
+            if (testId > id) {
+                h = m - 1;
+            }
+            else if (testId < id) {
+                l = m + 1;
+            }
+            else {
+                return m;
+            }
+        }
+    }
+    return ~l;
+}
+
 // This class contains some queues used to invoke life-cycle methods by script execution order
 var LifeCycleInvoker = cc.Class({
     __ctor__ (invokeFunc) {
@@ -146,15 +177,15 @@ var ReusableInvoker = cc.Class({
         if (order === 0) {
             this.compsZero.array.push(comp);
         }
-        else if (order < 0) {
-            // TODO - binary insert
-            this.compsNeg.array.push(comp);
-            this.sort(this.compsNeg);
-        }
         else {
-            // TODO - binary insert
-            this.compsPos.array.push(comp);
-            this.sort(this.compsPos);
+            var array = order < 0 ? this.compsNeg.array : this.compsPos.array;
+            var i = sortedIndex(array, comp);
+            if (i < 0) {
+                array.splice(~i, 0, comp);
+            }
+            else if (CC_DEV) {
+                cc.error('component already added');
+            }
         }
     },
     remove (comp) {
@@ -162,13 +193,12 @@ var ReusableInvoker = cc.Class({
         if (order === 0) {
             this.compsZero.fastRemove(comp);
         }
-        else if (order < 0) {
-            // TODO - binary search
-            this.compsNeg.remove(comp);
-        }
         else {
-            // TODO - binary insert
-            this.compsPos.remove(comp);
+            var iterator = order < 0 ? this.compsNeg : this.compsPos;
+            var i = sortedIndex(iterator.array, comp);
+            if (i >= 0) {
+                iterator.removeAt(i);
+            }
         }
     },
     invoke (dt) {
