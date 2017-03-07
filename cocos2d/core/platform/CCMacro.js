@@ -1647,15 +1647,13 @@ cc.macro = {
      *  The same for bottom and top.                                                   <br/>
      *                                                                                 <br/>
      *  This formula prevents artifacts by using 99% of the texture.                   <br/>
-     *  The "correct" way to prevent artifacts is by using the spritesheet-artifact-fixer.py or a similar tool.<br/>
+     *  The "correct" way to prevent artifacts is by expand the texture's border with the same color by 1 pixel<br/>
      *                                                                                  <br/>
      *  Affected nodes:                                                                 <br/>
-     *      - _ccsg.Sprite / cc.SpriteBatchNode and subclasses: cc.LabelBMFont, _ccsg.TMXTiledMap <br/>
-     *      - cc.LabelAtlas                                                              <br/>
-     *      - cc.QuadParticleSystem                                                      <br/>
-     *      - cc.TileMap                                                                 <br/>
+     *      - _ccsg.Sprite                                                              <br/>
+     *      - _ccsg.TMXTiledMap                                                         <br/>
      *                                                                                  <br/>
-     *  To enabled set it to 1. Disabled by default.<br/>
+     *  Enabled by default. To disabled set it to 0. <br/>
      *  To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
      * </p>
      *
