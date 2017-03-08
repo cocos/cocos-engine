@@ -42,7 +42,7 @@ if (CC_EDITOR) {
 var callPreloadInTryCatch = CC_EDITOR && callerFunctor('__preload');
 var callOnLoadInTryCatch = CC_EDITOR && callerFunctor('onLoad');
 var callOnEnableInTryCatch = CC_EDITOR && callerFunctor('onEnable');
-var callStartInTryCatch = CC_EDITOR && callerFunctor('start');
+var callStartInTryCatch = CC_EDITOR && callerFunctor('start', null, null, 'target._objFlags |= ' + IsStartCalled);
 var callUpdateInTryCatch = CC_EDITOR && callerFunctor('update', 'dt', 'dt');
 var callLateUpdateInTryCatch = CC_EDITOR && callerFunctor('lateUpdate', 'dt', 'dt');
 var callOnDisableInTryCatch = CC_EDITOR && callerFunctor('onDisable');
@@ -85,13 +85,13 @@ function sortedIndex (array, comp) {
 // This class contains some queues used to invoke life-cycle methods by script execution order
 var LifeCycleInvoker = cc.Class({
     __ctor__ (invokeFunc) {
-        // components which priority === 0 (default)
         var Iterator = JsArray.MutableForwardIterator;
+        // components which priority === 0 (default)
         this._zero = new Iterator([]);
-        // components which priority > 0
-        this._pos = new Iterator([]);
         // components which priority < 0
         this._neg = new Iterator([]);
+        // components which priority > 0
+        this._pos = new Iterator([]);
 
         this._invoke = invokeFunc;
     },
@@ -225,29 +225,51 @@ function enableInEditor (comp) {
 }
 
 function getInvokeImpl (code, useDt) {
-    // function (it) {
-    //     var a = it.array;
-    //     for (it.i = 0; it.i < a.length; ++it.i) {
-    //         let comp = a[it.i];
-    //         // ...
-    //     }
-    // }
-    var body = 'var a=it.array;' +
-               'for(it.i=0;it.i<a.length;++it.i){' +
-                   'var c=a[it.i];' +
-                    code +
-               '}';
-    return useDt ? new Function('it', 'dt', body) : new Function('it', body);
+    if (CC_EDITOR) {
+        if (useDt) {
+            return function (iterator) {
+                var array = iterator.array;
+                for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                    var comp = array[iterator.i];
+                    code(comp);
+                }
+            };
+        }
+        else {
+            return function (iterator, dt) {
+                var array = iterator.array;
+                for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                    var comp = array[iterator.i];
+                    code(comp, dt);
+                }
+            };
+        }
+    }
+    else {
+        // function (it) {
+        //     var a = it.array;
+        //     for (it.i = 0; it.i < a.length; ++it.i) {
+        //         var comp = a[it.i];
+        //         // ...
+        //     }
+        // }
+        var body = 'var a=it.array;' +
+                   'for(it.i=0;it.i<a.length;++it.i){' +
+                       'var c=a[it.i];' +
+                        code +
+                   '}';
+        if (useDt) {
+            return new Function('it', 'dt', body);
+        }
+        else {
+            return new Function('it', body);
+        }
+    }
 }
 
 function createActivateTask () {
-    var preload = new UnsortedInvoker(CC_EDITOR ? function (iterator) {
-        var array = iterator.array;
-        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-            let comp = array[iterator.i];
-            callPreloadInTryCatch(comp);
-        }
-    } : getInvokeImpl('c.__preload();'));
+    var preload = new UnsortedInvoker(getInvokeImpl(
+        CC_EDITOR ? callPreloadInTryCatch : 'c.__preload();'));
 
     var onLoad = new OneOffInvoker(CC_EDITOR ? function (iterator) {
         var array = iterator.array;
@@ -269,7 +291,6 @@ function createActivateTask () {
             let comp = array[iterator.i];
             if (comp._enabled) {
                 callOnEnableInTryCatch(comp);
-
                 var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
                 if (!deactivatedDuringOnEnable) {
                     scheduler.resumeTarget(comp);
@@ -313,58 +334,22 @@ function putActivateTask (task) {
 }
 
 function ctor () {
-    // during a loop
-    this._updating = false;
-
     // invokers
-
-    this.startInvoker = new OneOffInvoker(CC_EDITOR ? function (iterator) {
-        var array = iterator.array;
-        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-            let comp = array[iterator.i];
-            callStartInTryCatch(comp);
-            comp._objFlags |= IsStartCalled;
-        }
-    } : getInvokeImpl('c.start();c._objFlags|=IsStartCalled;'));
-
-    // var invokeImpl;
-    // if (CC_EDITOR) {
-    //     invokeImpl = getInvokeImpl(
-    //         'P1(comp);' +
-    //         'comp._objFlags |= P2;',
-    //         callStartInTryCatch, IsStartCalled
-    //     );
-    // }
-    // else {
-    //     invokeImpl = getInvokeImpl(
-    //         'comp.start();' +
-    //         'comp._objFlags |= P1;',
-    //         IsStartCalled
-    //     );
-    // }
-    // this.startInvoker = new OneOffInvoker(invokeImpl);
-
-    this.updateInvoker = new ReusableInvoker(CC_EDITOR ? function (iterator, dt) {
-        var array = iterator.array;
-        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-            let comp = array[iterator.i];
-            callUpdateInTryCatch(comp, dt);
-        }
-    } : getInvokeImpl('c.update(dt)'));
-
-    this.lateUpdateInvoker = new ReusableInvoker(CC_EDITOR ? function (iterator, dt) {
-        var array = iterator.array;
-        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-            let comp = array[iterator.i];
-            callLateUpdateInTryCatch(comp, dt);
-        }
-    } : getInvokeImpl('c.lateUpdate(dt)'));
+    this.startInvoker = new OneOffInvoker(getInvokeImpl(
+        CC_EDITOR ? callStartInTryCatch : 'c.start();c._objFlags|=' + IsStartCalled));
+    this.updateInvoker = new ReusableInvoker(getInvokeImpl(
+        CC_EDITOR ? callUpdateInTryCatch : 'c.update(dt)', true));
+    this.lateUpdateInvoker = new ReusableInvoker(getInvokeImpl(
+        CC_EDITOR ? callLateUpdateInTryCatch : 'c.lateUpdate(dt)', true));
 
     // components deferred to next frame
     this.scheduleInNextFrame = [];
 
     // a stack of node's activating tasks
     this._activatingStack = [];
+
+    // during a loop
+    this._updating = false;
 }
 
 function _componentCorrupted (node, comp, index) {

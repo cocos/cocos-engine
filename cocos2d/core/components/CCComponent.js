@@ -177,11 +177,12 @@ var Component = cc.Class({
                 if (this._enabled !== value) {
                     this._enabled = value;
                     if (this.node._activeInHierarchy) {
+                        var compScheduler = cc.director._compScheduler;
                         if (value) {
-                            cc.director._compScheduler.enableComp(this);
+                            compScheduler.enableComp(this);
                         }
                         else {
-                            cc.director._compScheduler.disableComp(this);
+                            compScheduler.disableComp(this);
                         }
                     }
                 }

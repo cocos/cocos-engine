@@ -63,7 +63,6 @@ var EventType = cc.Enum({
      * !#zh 当手指在屏幕上目标节点区域内移动时。
      * @property TOUCH_MOVE
      * @type {String}
-     * @value 1
      * @static
      */
     TOUCH_MOVE: 'touchmove',

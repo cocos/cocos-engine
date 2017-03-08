@@ -1174,6 +1174,8 @@ var BaseNode = cc.Class({
                 parent.emit('child-removed', this);
             }
         }
+
+        return destroyByParent;
     },
 
     onRestore: CC_EDITOR && function () {
@@ -1194,6 +1196,7 @@ if (CC_EDITOR) {
            // (simulate some destruct logic to make undo system work correctly)
            this._parent = null;
        }
+       return destroyByParent;
    };
 }
 

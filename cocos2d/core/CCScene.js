@@ -67,18 +67,6 @@ cc.Scene = cc.Class({
     },
 
     destroy: function () {
-        var children = this._children;
-        var DontDestroy = cc.Object.Flags.DontDestroy;
-        // TODO: destroyed twice?
-        for (var i = 0, len = children.length; i < len; ++i) {
-            var child = children[i];
-            if (child.isValid) {
-                if (!(child._objFlags & DontDestroy)) {
-                    child.destroy();
-                }
-            }
-        }
-
         this._super();
         this._activeInHierarchy = false;
     },
@@ -88,8 +76,8 @@ cc.Scene = cc.Class({
 
     _load: function () {
         if (!this._inited) {
-            if (this._activeInHierarchy) {
-                cc.error('Should deactivate ActionManager and EventManager by default');
+            if (CC_TEST) {
+                cc.assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
             }
             this._onBatchCreated();
             this._inited = true;
