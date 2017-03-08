@@ -509,6 +509,20 @@ float
 },
 
 /**
+ * @method draw
+ * @param {cc.Renderer} arg0
+ * @param {mat4_object} arg1
+ * @param {unsigned int} arg2
+ */
+draw : function (
+renderer, 
+mat4, 
+int 
+)
+{
+},
+
+/**
  * @method bezierCurveTo
  * @param {float} arg0
  * @param {float} arg1
@@ -721,6 +735,196 @@ create : function (
  * @constructor
  */
 GraphicsNode : function (
+)
+{
+},
+
+};
+
+/**
+ * @class PhysicsDebugDraw
+ */
+cc.PhysicsDebugDraw = {
+
+/**
+ * @method ClearDraw
+ */
+ClearDraw : function (
+)
+{
+},
+
+/**
+ * @method AddDrawerToNode
+ * @param {cc.Node} arg0
+ */
+AddDrawerToNode : function (
+node 
+)
+{
+},
+
+/**
+ * @method PhysicsDebugDraw
+ * @constructor
+ */
+PhysicsDebugDraw : function (
+)
+{
+},
+
+};
+
+/**
+ * @class PhysicsUtils
+ */
+cc.PhysicsUtils = {
+
+/**
+ * @method addB2Body
+ * @param {b2Body} arg0
+ */
+addB2Body : function (
+b2body 
+)
+{
+},
+
+/**
+ * @method syncNode
+ */
+syncNode : function (
+)
+{
+},
+
+/**
+ * @method removeB2Body
+ * @param {b2Body} arg0
+ */
+removeB2Body : function (
+b2body 
+)
+{
+},
+
+/**
+ * @method PhysicsUtils
+ * @constructor
+ */
+PhysicsUtils : function (
+)
+{
+},
+
+};
+
+/**
+ * @class PhysicsContactListener
+ */
+cc.PhysicsContactListener = {
+
+/**
+ * @method unregisterContactFixture
+ * @param {b2Fixture} arg0
+ */
+unregisterContactFixture : function (
+b2fixture 
+)
+{
+},
+
+/**
+ * @method setEndContact
+ * @param {function} arg0
+ */
+setEndContact : function (
+func 
+)
+{
+},
+
+/**
+ * @method setBeginContact
+ * @param {function} arg0
+ */
+setBeginContact : function (
+func 
+)
+{
+},
+
+/**
+ * @method registerContactFixture
+ * @param {b2Fixture} arg0
+ */
+registerContactFixture : function (
+b2fixture 
+)
+{
+},
+
+/**
+ * @method PhysicsContactListener
+ * @constructor
+ */
+PhysicsContactListener : function (
+)
+{
+},
+
+};
+
+/**
+ * @class PhysicsAABBQueryCallback
+ */
+cc.PhysicsAABBQueryCallback = {
+
+/**
+ * @method getFixture
+ * @return {b2Fixture}
+ */
+getFixture : function (
+)
+{
+    return b2Fixture;
+},
+
+/**
+ * @method PhysicsAABBQueryCallback
+ * @constructor
+* @param {b2Vec2} b2vec2
+*/
+PhysicsAABBQueryCallback : function(
+b2vec2 
+)
+{
+},
+
+};
+
+/**
+ * @class PhysicsRayCastCallback
+ */
+cc.PhysicsRayCastCallback = {
+
+/**
+ * @method getType
+ * @return {int}
+ */
+getType : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method PhysicsRayCastCallback
+ * @constructor
+ * @param {int} arg0
+ */
+PhysicsRayCastCallback : function (
+int 
 )
 {
 },

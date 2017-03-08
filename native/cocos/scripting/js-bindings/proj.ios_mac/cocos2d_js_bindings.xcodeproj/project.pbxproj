@@ -122,7 +122,19 @@
 		4BE089E41ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BE089E01ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.cpp */; };
 		4BE089E51ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4BE089E11ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.hpp */; };
 		4BE089EC1ADF967400D65D4B /* jsb_cocos2dx_experimental_webView_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BE089EA1ADF967400D65D4B /* jsb_cocos2dx_experimental_webView_manual.h */; };
+		4D0F1D791E695F8600ADBF80 /* js_bindings_creator_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D11DCCD1E486C9400DB6838 /* js_bindings_creator_manual.h */; };
+		4D0F1D7A1E695F8800ADBF80 /* js_bindings_creator_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D11DCCC1E486C9400DB6838 /* js_bindings_creator_manual.cpp */; };
+		4D11DCCE1E486C9400DB6838 /* js_bindings_creator_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D11DCCC1E486C9400DB6838 /* js_bindings_creator_manual.cpp */; };
+		4D11DCCF1E486C9400DB6838 /* js_bindings_creator_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D11DCCD1E486C9400DB6838 /* js_bindings_creator_manual.h */; };
 		4D697C001CBDF37500A5AF29 /* libjs_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED0F39451BEC3E8E00E70AD4 /* libjs_static.a */; };
+		4D6E0D5F1E0384CC00DA5DB6 /* jsb_box2d_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4D9BB1F71DFAB8B300B58565 /* jsb_box2d_auto.hpp */; };
+		4D6E0D601E0384CF00DA5DB6 /* jsb_box2d_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D9BB1F61DFAB8B300B58565 /* jsb_box2d_auto.cpp */; };
+		4D6E0D611E0384E200DA5DB6 /* js_bindings_box2d_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D9BB2C01DFE4E2600B58565 /* js_bindings_box2d_manual.cpp */; };
+		4D6E0D621E0384E500DA5DB6 /* js_bindings_box2d_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D9BB2C11DFE4E2600B58565 /* js_bindings_box2d_manual.h */; };
+		4D9BB1F81DFAB8B300B58565 /* jsb_box2d_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D9BB1F61DFAB8B300B58565 /* jsb_box2d_auto.cpp */; };
+		4D9BB1F91DFAB8B300B58565 /* jsb_box2d_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4D9BB1F71DFAB8B300B58565 /* jsb_box2d_auto.hpp */; };
+		4D9BB2C21DFE4E2600B58565 /* js_bindings_box2d_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D9BB2C01DFE4E2600B58565 /* js_bindings_box2d_manual.cpp */; };
+		4D9BB2C31DFE4E2600B58565 /* js_bindings_box2d_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D9BB2C11DFE4E2600B58565 /* js_bindings_box2d_manual.h */; };
 		4DFA4C011CBCBC4E00E3B736 /* js_module_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DFA4BFE1CBCBC4E00E3B736 /* js_module_register.cpp */; };
 		4DFA4C021CBCBC4E00E3B736 /* js_module_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DFA4BFE1CBCBC4E00E3B736 /* js_module_register.cpp */; };
 		4DFA4C031CBCBC4E00E3B736 /* js_module_register.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DFA4BFF1CBCBC4E00E3B736 /* js_module_register.h */; };
@@ -254,6 +266,12 @@
 		4BE089E01ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_experimental_webView_auto.cpp; sourceTree = "<group>"; };
 		4BE089E11ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_experimental_webView_auto.hpp; sourceTree = "<group>"; };
 		4BE089EA1ADF967400D65D4B /* jsb_cocos2dx_experimental_webView_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsb_cocos2dx_experimental_webView_manual.h; sourceTree = "<group>"; };
+		4D11DCCC1E486C9400DB6838 /* js_bindings_creator_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_bindings_creator_manual.cpp; sourceTree = "<group>"; };
+		4D11DCCD1E486C9400DB6838 /* js_bindings_creator_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_bindings_creator_manual.h; sourceTree = "<group>"; };
+		4D9BB1F61DFAB8B300B58565 /* jsb_box2d_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_box2d_auto.cpp; sourceTree = "<group>"; };
+		4D9BB1F71DFAB8B300B58565 /* jsb_box2d_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_box2d_auto.hpp; sourceTree = "<group>"; };
+		4D9BB2C01DFE4E2600B58565 /* js_bindings_box2d_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_bindings_box2d_manual.cpp; sourceTree = "<group>"; };
+		4D9BB2C11DFE4E2600B58565 /* js_bindings_box2d_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_bindings_box2d_manual.h; sourceTree = "<group>"; };
 		4DFA4BFE1CBCBC4E00E3B736 /* js_module_register.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_module_register.cpp; sourceTree = "<group>"; };
 		4DFA4BFF1CBCBC4E00E3B736 /* js_module_register.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_module_register.h; sourceTree = "<group>"; };
 		4DFA4C001CBCBC4E00E3B736 /* js-BindingsExport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "js-BindingsExport.h"; sourceTree = "<group>"; };
@@ -344,6 +362,8 @@
 		1A119E2E18BDF19200352BAA /* auto */ = {
 			isa = PBXGroup;
 			children = (
+				4D9BB1F61DFAB8B300B58565 /* jsb_box2d_auto.cpp */,
+				4D9BB1F71DFAB8B300B58565 /* jsb_box2d_auto.hpp */,
 				FA6F1BB11D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.cpp */,
 				FA6F1BB21D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.hpp */,
 				BA127E611D791E21002C5B50 /* js_bindings_chipmunk_auto_classes_registration.h */,
@@ -388,6 +408,8 @@
 		1A119E4118BDF19200352BAA /* manual */ = {
 			isa = PBXGroup;
 			children = (
+				4D11DCCB1E486C9400DB6838 /* creator */,
+				4D9BB2BF1DFE4E2600B58565 /* box2d */,
 				FA6F1BB71D816265007DD223 /* dragonbones */,
 				4DFA4BFE1CBCBC4E00E3B736 /* js_module_register.cpp */,
 				4DFA4BFF1CBCBC4E00E3B736 /* js_module_register.h */,
@@ -516,6 +538,24 @@
 			name = experimental;
 			sourceTree = "<group>";
 		};
+		4D11DCCB1E486C9400DB6838 /* creator */ = {
+			isa = PBXGroup;
+			children = (
+				4D11DCCC1E486C9400DB6838 /* js_bindings_creator_manual.cpp */,
+				4D11DCCD1E486C9400DB6838 /* js_bindings_creator_manual.h */,
+			);
+			path = creator;
+			sourceTree = "<group>";
+		};
+		4D9BB2BF1DFE4E2600B58565 /* box2d */ = {
+			isa = PBXGroup;
+			children = (
+				4D9BB2C01DFE4E2600B58565 /* js_bindings_box2d_manual.cpp */,
+				4D9BB2C11DFE4E2600B58565 /* js_bindings_box2d_manual.h */,
+			);
+			path = box2d;
+			sourceTree = "<group>";
+		};
 		A60A9D391C2008DE0070800A /* chipmunk */ = {
 			isa = PBXGroup;
 			children = (
@@ -575,6 +615,7 @@
 				BA4F59861E28DCD3003F5096 /* jsb_cocos2dx_network_auto.hpp in Headers */,
 				1A119F0318BDF19200352BAA /* spidermonkey_specifics.h in Headers */,
 				1A119EE718BDF19200352BAA /* jsb_opengl_manual.h in Headers */,
+				4D9BB1F91DFAB8B300B58565 /* jsb_box2d_auto.hpp in Headers */,
 				1A119ED518BDF19200352BAA /* js_bindings_core.h in Headers */,
 				1A119EC318BDF19200352BAA /* js_bindings_ccbreader.h in Headers */,
 				1A119EDF18BDF19200352BAA /* jsb_helper.h in Headers */,
@@ -582,6 +623,7 @@
 				1A119EEF18BDF19200352BAA /* js_bindings_system_functions.h in Headers */,
 				A60A9D4B1C2008F60070800A /* js_bindings_chipmunk_manual.h in Headers */,
 				1A119EDD18BDF19200352BAA /* js_manual_conversions.h in Headers */,
+				4D11DCCF1E486C9400DB6838 /* js_bindings_creator_manual.h in Headers */,
 				1A119EFD18BDF19200352BAA /* XMLHTTPRequest.h in Headers */,
 				1AB5E63518D05BF30088DAA4 /* jsb_cocos2dx_ui_manual.h in Headers */,
 				1A119EE318BDF19200352BAA /* jsb_opengl_functions.h in Headers */,
@@ -591,6 +633,7 @@
 				1AB5E62D18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */,
 				1A119ED918BDF19200352BAA /* js_bindings_opengl.h in Headers */,
 				FA6F1BB51D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.hpp in Headers */,
+				4D9BB2C31DFE4E2600B58565 /* js_bindings_box2d_manual.h in Headers */,
 				BA4095C41A6F730A005E53F6 /* jsb_cocos2dx_studio_conversions.h in Headers */,
 				1A119EC718BDF19200352BAA /* jsb_cocos2dx_studio_manual.h in Headers */,
 				4DFA4C051CBCBC4E00E3B736 /* js-BindingsExport.h in Headers */,
@@ -608,6 +651,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A119EA418BDF19200352BAA /* jsb_cocos2dx_studio_auto.hpp in Headers */,
+				4D6E0D621E0384E500DA5DB6 /* js_bindings_box2d_manual.h in Headers */,
 				FA6F1BB61D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.hpp in Headers */,
 				B38AD56B1B1D384A0057DD7F /* jsb_cocos2dx_experimental_video_manual.h in Headers */,
 				1A119F0218BDF19200352BAA /* ScriptingCore.h in Headers */,
@@ -620,7 +664,9 @@
 				BA4095C51A6F730A005E53F6 /* jsb_cocos2dx_studio_conversions.h in Headers */,
 				1A119EC018BDF19200352BAA /* cocosbuilder_specifics.hpp in Headers */,
 				1A119ED218BDF19200352BAA /* js_bindings_config.h in Headers */,
+				4D6E0D5F1E0384CC00DA5DB6 /* jsb_box2d_auto.hpp in Headers */,
 				1A119EFA18BDF19200352BAA /* jsb_websocket.h in Headers */,
+				4D0F1D791E695F8600ADBF80 /* js_bindings_creator_manual.h in Headers */,
 				BA127E6E1D791E21002C5B50 /* js_bindings_chipmunk_functions_registration.h in Headers */,
 				BA4F598E1E28DE4A003F5096 /* js_network_manual.h in Headers */,
 				BA127E681D791E21002C5B50 /* js_bindings_chipmunk_auto_classes_registration.h in Headers */,
@@ -753,10 +799,13 @@
 				1A119F0518BDF19200352BAA /* jsb_cocos2dx_spine_manual.cpp in Sources */,
 				BA4095C21A6F730A005E53F6 /* jsb_cocos2dx_studio_conversions.cpp in Sources */,
 				FA6F1BBA1D816265007DD223 /* jsb_cocos2dx_dragonbones_manual.cpp in Sources */,
+				4D9BB1F81DFAB8B300B58565 /* jsb_box2d_auto.cpp in Sources */,
+				4D11DCCE1E486C9400DB6838 /* js_bindings_creator_manual.cpp in Sources */,
 				4DFA4C011CBCBC4E00E3B736 /* js_module_register.cpp in Sources */,
 				1A119E8318BDF19200352BAA /* jsb_cocos2dx_auto.cpp in Sources */,
 				4DFA4C101CBCC49000E3B736 /* jsb_creator_auto.cpp in Sources */,
 				A60A9D4A1C2008F60070800A /* js_bindings_chipmunk_manual.cpp in Sources */,
+				4D9BB2C21DFE4E2600B58565 /* js_bindings_box2d_manual.cpp in Sources */,
 				BA9FD5D21BAC0A7600996C85 /* CCComponentJS.cpp in Sources */,
 				1AB5E63318D05BF30088DAA4 /* jsb_cocos2dx_ui_manual.cpp in Sources */,
 				1A119EC918BDF19200352BAA /* jsb_cocos2dx_extension_manual.cpp in Sources */,
@@ -800,12 +849,14 @@
 				BAFF7DEB1D6196D40051B92F /* js_bindings_chipmunk_auto_classes.cpp in Sources */,
 				1A119EF418BDF19200352BAA /* js_bindings_system_registration.cpp in Sources */,
 				B38AD56E1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.cpp in Sources */,
+				4D6E0D601E0384CF00DA5DB6 /* jsb_box2d_auto.cpp in Sources */,
 				1A119EBC18BDF19200352BAA /* cocos2d_specifics.cpp in Sources */,
 				1A119EE618BDF19200352BAA /* jsb_opengl_manual.cpp in Sources */,
 				1A119F0618BDF19200352BAA /* jsb_cocos2dx_spine_manual.cpp in Sources */,
 				1A119E8418BDF19200352BAA /* jsb_cocos2dx_auto.cpp in Sources */,
 				1AB5E63418D05BF30088DAA4 /* jsb_cocos2dx_ui_manual.cpp in Sources */,
 				1A119ECA18BDF19200352BAA /* jsb_cocos2dx_extension_manual.cpp in Sources */,
+				4D6E0D611E0384E200DA5DB6 /* js_bindings_box2d_manual.cpp in Sources */,
 				4B22F4AA1B159A7A0044C14E /* jsb_cocos2dx_experimental_webView_manual.cpp in Sources */,
 				1A119EA218BDF19200352BAA /* jsb_cocos2dx_studio_auto.cpp in Sources */,
 				FA6F1BBB1D816265007DD223 /* jsb_cocos2dx_dragonbones_manual.cpp in Sources */,
@@ -817,6 +868,7 @@
 				A60A9D561C200D520070800A /* js_bindings_chipmunk_manual.cpp in Sources */,
 				B38AD56A1B1D384A0057DD7F /* jsb_cocos2dx_experimental_video_manual.cpp in Sources */,
 				1A1D3B7918C44FD000922D3C /* jsb_event_dispatcher_manual.cpp in Sources */,
+				4D0F1D7A1E695F8800ADBF80 /* js_bindings_creator_manual.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
