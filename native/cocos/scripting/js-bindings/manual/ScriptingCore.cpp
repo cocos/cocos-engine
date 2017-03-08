@@ -888,6 +888,8 @@ void ScriptingCore::cleanup()
     localStorageFree();
     removeAllRoots(_cx);
     garbageCollect();
+    
+    PoolManager::getInstance()->getCurrentPool()->clear();
 
     if (_js_log_buf) {
         free(_js_log_buf);
@@ -1469,13 +1471,9 @@ bool ScriptingCore::handleTouchesEvent(void* nativeObj, cocos2d::EventTouch::Eve
         dataVal[0] = OBJECT_TO_JSVAL(jsretArr);
         dataVal[1] = OBJECT_TO_JSVAL(jsb_get_or_create_weak_jsobject(_cx, event, typeClassEvent));
         ret = executeFunctionWithOwner(OBJECT_TO_JSVAL(p->obj), funcName.c_str(), 2, dataVal, jsvalRet);
+        // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
+        removeJSObject(_cx, event);
     }
-
-    for (auto& touch : touches)
-    {
-        removeJSObject(_cx, touch);
-    }
-    removeJSObject(_cx, event);
 
     return ret;
 }
@@ -1504,10 +1502,9 @@ bool ScriptingCore::handleTouchEvent(void* nativeObj, cocos2d::EventTouch::Event
         dataVal[1] = OBJECT_TO_JSVAL(jsb_get_or_create_weak_jsobject(_cx, event, typeClassEvent));
 
         ret = executeFunctionWithOwner(OBJECT_TO_JSVAL(p->obj), funcName.c_str(), 2, dataVal, jsvalRet);
+        // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
+        removeJSObject(_cx, event);
     }
-
-    removeJSObject(_cx, touch);
-    removeJSObject(_cx, event);
 
     return ret;
 }
@@ -1531,7 +1528,7 @@ bool ScriptingCore::handleMouseEvent(void* nativeObj, cocos2d::EventMouse::Mouse
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventMouse>((cocos2d::EventMouse*)event);
         jsval dataVal = OBJECT_TO_JSVAL(jsb_get_or_create_weak_jsobject(_cx, event, typeClass));
         ret = executeFunctionWithOwner(OBJECT_TO_JSVAL(p->obj), funcName.c_str(), 1, &dataVal, jsvalRet);
-
+        // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
         removeJSObject(_cx, event);
     }
     else CCLOG("ScriptingCore::handleMouseEvent native proxy NOT found");
@@ -1636,9 +1633,9 @@ bool ScriptingCore::handleKeyboardEvent(void* nativeObj, cocos2d::EventKeyboard:
     {
         ret = executeFunctionWithOwner(OBJECT_TO_JSVAL(p->obj), "_onKeyReleased", 2, args);
     }
-
+    
+    // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
     removeJSObject(_cx, event);
-
     return ret;
 }
 
@@ -1687,11 +1684,6 @@ int ScriptingCore::executeCustomTouchesEvent(EventTouch::EventCode eventType,
     jsval jsretArrVal = OBJECT_TO_JSVAL(jsretArr);
     executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), funcName.c_str(), 1, &jsretArrVal);
 
-    for (auto& touch : touches)
-    {
-        removeJSObject(this->_cx, touch);
-    }
-
     return 1;
 }
 
@@ -1707,8 +1699,6 @@ int ScriptingCore::executeCustomTouchEvent(EventTouch::EventCode eventType, Touc
     jsval jsTouch = OBJECT_TO_JSVAL(jsb_get_or_create_weak_jsobject(this->_cx, touch, typeClass));
 
     executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), funcName.c_str(), 1, &jsTouch, &retval);
-
-    removeJSObject(this->_cx, touch);
 
     return 1;
 
@@ -1727,9 +1717,16 @@ int ScriptingCore::executeCustomTouchEvent(EventTouch::EventCode eventType,
 
     executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), funcName.c_str(), 1, &jsTouch, retval);
 
-    removeJSObject(this->_cx, touch);
-
     return 1;
+}
+
+int ScriptingCore::executeGlobalFunction(const char* functionName)
+{
+    JSAutoCompartment ac(_cx, _global->get());
+    
+    std::string evalStr = functionName;
+    JS::RootedValue globalVal(_cx, OBJECT_TO_JSVAL(_global->get()));
+    return executeFunctionWithOwner(globalVal, functionName, 0, NULL);
 }
 
 int ScriptingCore::sendEvent(ScriptEvent* evt)
@@ -1832,6 +1829,21 @@ void ScriptingCore::unrootObject(Ref* ref)
         ref->_rooted = false;
     }
     else CCLOG("unrootObject: BUG. native not found: %p (%s)",  ref, typeid(*ref).name());
+}
+
+void ScriptingCore::removeObjectProxy(Ref* obj)
+{
+    auto proxy = jsb_get_native_proxy(obj);
+    if (proxy)
+    {
+#if ! CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        JS::RemoveObjectRoot(_cx, &proxy->obj);
+#endif
+        // remove the proxy here, since this was a "stack" object, not heap
+        // when js_finalize will be called, it will fail, but
+        // the correct solution is to have a new finalize for event
+        jsb_remove_proxy(proxy);
+    }
 }
 
 void ScriptingCore::garbageCollect()
