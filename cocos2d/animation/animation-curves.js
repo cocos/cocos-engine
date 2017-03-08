@@ -3,6 +3,7 @@ var bezierByTime = require('./bezier').bezierByTime;
 
 var binarySearch = require('./binary-search');
 var WrapModeMask = require('./types').WrapModeMask;
+var WrappedInfo = require('./types').WrappedInfo;
 
 /**
  * Compute a new ratio by curve type
@@ -291,20 +292,14 @@ var EventAnimCurve = cc.Class({
          */
         events: [],
 
-        /**
-         * Last wrapped info
-         * @property _lastWrappedInfo
-         * @type {Object}
-         * @default null
-         */
+        _wrappedInfo: {
+            default: function () {
+                return new WrappedInfo();
+            }
+        },
+
         _lastWrappedInfo: null,
 
-        /**
-         * Ignore event index
-         * @property _ignoreIndex
-         * @type {number}
-         * @default NaN
-         */
         _ignoreIndex: NaN
     },
 
@@ -316,7 +311,7 @@ var EventAnimCurve = cc.Class({
     sample: function (time, ratio, animationNode) {
         var length = this.ratios.length;
 
-        var currentWrappedInfo = animationNode.getWrappedInfo(animationNode.time);
+        var currentWrappedInfo = animationNode.getWrappedInfo(animationNode.time, this._wrappedInfo);
         var direction = currentWrappedInfo.direction;
         var currentIndex = binarySearch(this.ratios, currentWrappedInfo.ratio);
         if (currentIndex < 0) {
@@ -330,21 +325,21 @@ var EventAnimCurve = cc.Class({
             this._ignoreIndex = NaN;
         }
 
-        var lastWrappedInfo = this._lastWrappedInfo;
-
         currentWrappedInfo.frameIndex = currentIndex;
-        this._lastWrappedInfo = currentWrappedInfo;
 
-        if (!lastWrappedInfo) {
+        if (!this._lastWrappedInfo) {
             this._fireEvent(currentIndex);
+            this._lastWrappedInfo = new WrappedInfo(currentWrappedInfo);
             return;
         }
 
-        var lastIndex = lastWrappedInfo.frameIndex;
         var wrapMode = animationNode.wrapMode;
-
         var currentIterations = this._wrapIterations(currentWrappedInfo.iterations);
+
+        var lastWrappedInfo = this._lastWrappedInfo;
         var lastIterations = this._wrapIterations(lastWrappedInfo.iterations);
+        var lastIndex = lastWrappedInfo.frameIndex;
+        var lastDirection = lastWrappedInfo.direction;
 
         var interationsChanged = lastIterations !== -1 && currentIterations !== lastIterations;
 
@@ -352,7 +347,7 @@ var EventAnimCurve = cc.Class({
             this._fireEvent(0);
         }
         else if (lastIndex !== currentIndex || interationsChanged) {
-            direction = lastWrappedInfo.direction;
+            direction = lastDirection;
 
             do {
                 if (lastIndex !== currentIndex) {
@@ -386,6 +381,8 @@ var EventAnimCurve = cc.Class({
                 cc.director.getAnimationManager().pushDelayEvent(this, '_fireEvent', [lastIndex]);
             } while (lastIndex !== currentIndex && lastIndex > -1 && lastIndex < length);
         }
+
+        this._lastWrappedInfo.set(currentWrappedInfo);
     },
 
     _fireEvent: function (index) {
@@ -412,7 +409,7 @@ var EventAnimCurve = cc.Class({
         this._lastWrappedInfo = null;
         this._ignoreIndex = NaN;
 
-        var info = animationNode.getWrappedInfo(time);
+        var info = animationNode.getWrappedInfo(time, this._wrappedInfo);
         var direction = info.direction;
         var frameIndex = binarySearch(this.ratios, info.ratio);
 
