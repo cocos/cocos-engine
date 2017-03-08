@@ -364,19 +364,19 @@ ccui.Margin = cc.Class.extend({
     top: 0,
     right: 0,
     bottom: 0,
-    ctor: function () {
-        if (arguments.length == 1) {
-            var uiMargin = arguments[0];
+    ctor: function (marginOrLeft, top, right, bottom) {
+        if (top === undefined) {
+            var uiMargin = marginOrLeft;
             this.left = uiMargin.left;
             this.top = uiMargin.top;
             this.right = uiMargin.right;
             this.bottom = uiMargin.bottom;
         }
-        if (arguments.length == 4) {
-            this.left = arguments[0];
-            this.top = arguments[1];
-            this.right = arguments[2];
-            this.bottom = arguments[3];
+        if (bottom !== undefined) {
+            this.left = marginOrLeft;
+            this.top = top;
+            this.right = right;
+            this.bottom = bottom;
         }
     },
     setMargin: function (l, t, r, b) {
