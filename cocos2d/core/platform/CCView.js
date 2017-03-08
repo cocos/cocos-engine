@@ -183,7 +183,18 @@ var View = cc._Class.extend({
 
         // Check frame size changed or not
         var prevFrameW = view._frameSize.width, prevFrameH = view._frameSize.height, prevRotated = view._isRotated;
-        view._initFrameSize();
+        if (cc.sys.isMobile) {
+            var containerStyle = cc.game.container.style,
+                margin = containerStyle.margin;
+            containerStyle.margin = '0';
+            containerStyle.display = 'none';
+            view._initFrameSize();
+            containerStyle.margin = margin;
+            containerStyle.display = 'block';
+        }
+        else {
+            view._initFrameSize();
+        }
         if (view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
             return;
 

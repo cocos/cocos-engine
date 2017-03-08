@@ -463,8 +463,9 @@ dragonBones.ArmatureDisplay = cc.Class({
      */
     playAnimation: function(animName, playTimes) {
         if (this._sgNode) {
+            this.playTimes = (playTimes === undefined) ? -1 : playTimes;
             this.animationName = animName;
-            return this._sgNode.animation().play(animName, playTimes);
+            return this._sgNode.animation().play(animName, this.playTimes);
         }
 
         return null;
