@@ -281,7 +281,7 @@ var BaseNode = cc.Class({
                     if (parent) {
                         var couldActiveInScene = parent._activeInHierarchy;
                         if (couldActiveInScene) {
-                            cc.director._compScheduler.activateNode(this, value);
+                            cc.director._nodeActivator.activateNode(this, value);
                         }
                     }
                 }
@@ -852,7 +852,7 @@ var BaseNode = cc.Class({
         this._components.push(component);
 
         if (this._activeInHierarchy) {
-            cc.director._compScheduler.activateComp(component);
+            cc.director._nodeActivator.activateComp(component);
         }
 
         return component;
@@ -900,7 +900,7 @@ var BaseNode = cc.Class({
         this._components.splice(index, 0, comp);
 
         if (this._activeInHierarchy) {
-            cc.director._compScheduler.activateComp(comp);
+            cc.director._nodeActivator.activateComp(comp);
         }
     },
 
@@ -977,7 +977,7 @@ var BaseNode = cc.Class({
         for (i = 0; i < len; ++i) {
             var component = this._components[i];
             if (component._enabled) {
-                 cc.director._compScheduler.disableComp(component);
+                cc.director._compScheduler.disableComp(component);
             }
         }
         // deactivate recursively
@@ -1026,7 +1026,7 @@ var BaseNode = cc.Class({
         }
         var shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);
         if (this._activeInHierarchy !== shouldActiveNow) {
-            cc.director._compScheduler.activateNode(this, shouldActiveNow);
+            cc.director._nodeActivator.activateNode(this, shouldActiveNow);
         }
         if (CC_EDITOR || CC_TEST) {
             var scene = cc.director.getScene();
@@ -1182,7 +1182,7 @@ var BaseNode = cc.Class({
         // check activity state
         var shouldActiveInHierarchy = (this._parent && this._parent._activeInHierarchy && this._active);
         if (this._activeInHierarchy !== shouldActiveInHierarchy) {
-            cc.director._compScheduler.activateNode(this, shouldActiveInHierarchy);
+            cc.director._nodeActivator.activateNode(this, shouldActiveInHierarchy);
         }
     },
 });

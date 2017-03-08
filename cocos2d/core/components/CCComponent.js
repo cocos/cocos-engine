@@ -478,7 +478,7 @@ var Component = cc.Class({
         }
 
         // onDestroy
-        cc.director._compScheduler.destroyComp(this);
+        cc.director._nodeActivator.destroyComp(this);
 
         // do remove component
         this.node._removeComponent(this);

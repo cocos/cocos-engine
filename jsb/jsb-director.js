@@ -27,6 +27,7 @@
 
 var AutoReleaseUtils = require('../cocos2d/core/load-pipeline/auto-release-utils');
 var ComponentScheduler = require('../cocos2d/core/component-scheduler');
+var NodeActivator = require('../cocos2d/core/node-activator');
 var EventListeners = require('../cocos2d/core/event/event-listeners');
 
 cc.director._purgeDirector = cc.director.purgeDirector;
@@ -39,6 +40,7 @@ cc.js.mixin(cc.director, {
      */
     sharedInit: function () {
         this._compScheduler = new ComponentScheduler();
+        this._nodeActivator = new NodeActivator();
 
         // Animation manager
         if (cc.AnimationManager) {
@@ -64,6 +66,7 @@ cc.js.mixin(cc.director, {
 
     purgeDirector: function () {
         this._compScheduler.unscheduleAll();
+        this._nodeActivator.reset();
         this._purgeDirector();
     },
 

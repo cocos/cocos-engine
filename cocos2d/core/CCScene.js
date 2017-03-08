@@ -90,7 +90,7 @@ cc.Scene = cc.Class({
             // register all nodes to editor
             this._registerIfAttached(active);
         }
-        cc.director._compScheduler.activateNode(this, active);
+        cc.director._nodeActivator.activateNode(this, active);
     }
 });
 
