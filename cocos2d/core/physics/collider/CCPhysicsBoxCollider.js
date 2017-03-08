@@ -23,17 +23,29 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./platform');
-require('./assets');
+var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
 
-if (!CC_EDITOR || !Editor.isMainProcess) {
-    require('./CCNode');
-    require('./CCScene');
+var PhysicsBoxCollider = cc.Class({
+    name: 'cc.PhysicsBoxCollider',
+    extends: cc.BoxCollider,
+    mixins: [cc.PhysicsCollider],
 
-    require('./components');
-    require('./graphics');
-    require('./collider');
-    require('./physics');
-}
+    editor: CC_EDITOR && {
+        menu: 'i18n:MAIN_MENU.component.physics/Collider/Box',
+    },
 
-require('./base-ui/CCWidgetManager');
+    properties: cc.PhysicsCollider.properties,
+
+    _createShape: function (scale) {
+        var width = this.size.width/2/CC_PTM_RATIO * scale.x;
+        var height = this.size.height/2/CC_PTM_RATIO * scale.y;
+        var offsetX = this.offset.x/CC_PTM_RATIO *scale.x;
+        var offsetY = this.offset.y/CC_PTM_RATIO *scale.y;
+
+        var shape = new b2.PolygonShape();
+        shape.SetAsBox(width, height, new b2.Vec2(offsetX, offsetY), 0);
+        return shape;
+    }
+});
+
+cc.PhysicsBoxCollider = module.exports = PhysicsBoxCollider;

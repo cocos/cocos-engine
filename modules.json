@@ -195,6 +195,12 @@
     ]
   },
   {
+    "name": "Physics",
+    "entries": [
+      "./cocos2d/physics/index.js"
+    ]
+  },
+  {
     "name": "StudioComponent",
     "entries": [
       "./cocos2d/core/components/CCStudioComponent.js"

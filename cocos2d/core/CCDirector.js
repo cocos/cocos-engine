@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var EventListeners = require('./event/event-listeners');
 var EventTarget = require('./event/event-target');
 var Class = require('./platform/_CCClass');
 var AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
@@ -202,6 +203,15 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
         else {
             this._collisionManager = null;
+        }
+
+        // physics manager
+        if (cc.PhysicsManager) {
+            this._physicsManager = new cc.PhysicsManager();
+            this._scheduler.scheduleUpdate(this._physicsManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+        else {
+            this._physicsManager = null;
         }
 
         // WidgetManager
@@ -474,6 +484,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         // Collider manager
         if (this._collisionManager) {
             this._scheduler.scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+
+        // Physics manager
+        if (this._physicsManager) {
+            this._scheduler.scheduleUpdate(this._physicsManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
 
         this.startAnimation();
@@ -1196,6 +1211,15 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     getCollisionManager: function () {
         return this._collisionManager;
+    },
+
+    /**
+     * Returns the cc.PhysicsManager associated with this director.
+     * @method getPhysicsManager
+     * @return {PhysicsManager}
+     */
+    getPhysicsManager: function () {
+        return this._physicsManager;
     },
 
     /**

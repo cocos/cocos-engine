@@ -23,17 +23,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./platform');
-require('./assets');
+var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
 
-if (!CC_EDITOR || !Editor.isMainProcess) {
-    require('./CCNode');
-    require('./CCScene');
+var PhysicsCircleCollider = cc.Class({
+    name: 'cc.PhysicsCircleCollider',
+    extends: cc.CircleCollider,
+    mixins: [cc.PhysicsCollider],
 
-    require('./components');
-    require('./graphics');
-    require('./collider');
-    require('./physics');
-}
+    editor: CC_EDITOR && {
+        menu: 'i18n:MAIN_MENU.component.physics/Collider/Circle',
+    },
 
-require('./base-ui/CCWidgetManager');
+    properties: cc.PhysicsCollider.properties,
+
+    _createShape: function (scale) {
+        var shape = new b2.CircleShape();
+        shape.m_radius = this.radius / CC_PTM_RATIO * scale.x;
+        return shape;
+    }
+});
+
+cc.PhysicsCircleCollider = module.exports = PhysicsCircleCollider;

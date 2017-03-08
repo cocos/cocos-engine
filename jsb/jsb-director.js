@@ -25,6 +25,7 @@
 
 'use strict';
 
+var EventListeners = require('../cocos2d/core/event/event-listeners');
 var AutoReleaseUtils = require('../cocos2d/core/load-pipeline/auto-release-utils');
 var ComponentScheduler = require('../cocos2d/core/component-scheduler');
 var EventListeners = require('../cocos2d/core/event/event-listeners');
@@ -56,6 +57,15 @@ cc.js.mixin(cc.director, {
         }
         else {
             this._collisionManager = null;
+        }
+
+        // physics manager
+        if (cc.PhysicsManager) {
+            this._physicsManager = new cc.PhysicsManager();
+            this.getScheduler().scheduleUpdate(this._physicsManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+        else {
+            this._physicsManager = null;
         }
 
         // WidgetManager
@@ -92,6 +102,11 @@ cc.js.mixin(cc.director, {
             this.getScheduler().scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
 
+        // Physics manager
+        if (this._physicsManager) {
+            this.getScheduler().scheduleUpdate(this._physicsManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+
         this.startAnimation();
     },
 
@@ -111,6 +126,15 @@ cc.js.mixin(cc.director, {
      */
     getCollisionManager: function () {
         return this._collisionManager;
+    },
+
+    /**
+     * Returns the cc.PhysicsManager associated with this director.
+     * @method getPhysicsManager
+     * @return {PhysicsManager}
+     */
+    getPhysicsManager: function () {
+        return this._physicsManager;
     },
 
     /**

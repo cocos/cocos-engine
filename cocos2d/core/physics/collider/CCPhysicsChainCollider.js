@@ -23,58 +23,54 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * !#en Polygon Collider.
- * !#zh 多边形碰撞组件
- * @class PolygonCollider
- * @extends Component
- */
-var PolygonCollider = cc.Class({
-    name: 'cc.PolygonCollider',
-    extends: require('./CCCollider'),
+var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
+
+var PhysicsChainCollider = cc.Class({
+    name: 'cc.PhysicsChainCollider',
+    extends: cc.Collider,
+    mixins: [cc.PhysicsCollider],
 
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.collider/Polygon Collider',
+        menu: 'i18n:MAIN_MENU.component.physics/Collider/Chain',
         inspector: 'packages://inspector/inspectors/comps/physics/points-base-collider.js',
     },
 
-    properties: {
+    properties: cc.js.mixin({
+        loop: false,
+        points: {
+            default: function () {
+                 return [cc.v2(-50, 0), cc.v2(50, 0)];
+            },
+            type: [cc.Vec2]
+        },
+
         threshold: {
             default: 1,
             serializable: false,
             visible: false
         },
+    }, cc.PhysicsCollider.properties),
 
-        _offset: cc.v2(0, 0),
+    _createShape: function (scale, transform) {
+        var shape = new b2.ChainShape();
 
-        /**
-         * !#en Position offset
-         * !#zh 位置偏移量
-         * @property offset
-         * @type {Vec2}
-         */
-        offset: {
-            get: function () {
-                return this._offset;
-            },
-            set: function (value) {
-                this._offset = value;
-            },
-            type: cc.Vec2
-        },
-
-        /**
-         * !#en Polygon points
-         * !#zh 多边形顶点数组
-         * @property points
-         * @type {[Vec2]}
-         */
-        points: {
-            default: function () {
-                 return [];
-            },
-            type: [cc.Vec2]
+        var points = this.points;
+        var vertices = [];
+        for (var i = 0; i < points.length; i++) {
+            var p = points[i];
+            if (transform) {
+                p = cc.pointApplyAffineTransform(p, transform);
+            }
+            vertices.push( new b2.Vec2(p.x/CC_PTM_RATIO*scale.x, p.y/CC_PTM_RATIO*scale.y) );
         }
+
+        if (this.loop) {
+            shape.CreateLoop(vertices, vertices.length);
+        }
+        else {
+            shape.CreateChain(vertices, vertices.length);
+        }
+        return shape;
     },
 
     resetInEditor: CC_EDITOR && function () {
@@ -82,8 +78,8 @@ var PolygonCollider = cc.Class({
     },
 
     resetPointsByContour: CC_EDITOR && function () {
-        _Scene.PhysicsUtils.resetPoints(this, {threshold: this.threshold});
+        _Scene.PhysicsUtils.resetPoints(this, {threshold: this.threshold, loop: this.loop});
     }
 });
 
-cc.PolygonCollider = module.exports = PolygonCollider;
+cc.PhysicsChainCollider = module.exports = PhysicsChainCollider;

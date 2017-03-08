@@ -69,9 +69,11 @@ if (!isMainProcess) {
         }
     }
     else {
-        require('./bin/modular-cocos2d');
         if (!CC_TEST) {
             require('./bin/modular-cocos2d-cut');
+        }
+        else {
+            require('./bin/modular-cocos2d');
         }
     }
 }
