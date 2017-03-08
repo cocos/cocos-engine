@@ -25,7 +25,6 @@
 
 'use strict';
 
-var EventListeners = require('../cocos2d/core/event/event-listeners');
 var AutoReleaseUtils = require('../cocos2d/core/load-pipeline/auto-release-utils');
 var ComponentScheduler = require('../cocos2d/core/component-scheduler');
 var EventListeners = require('../cocos2d/core/event/event-listeners');

@@ -24,7 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var EventListeners = require('./event/event-listeners');
 var EventTarget = require('./event/event-target');
 var Class = require('./platform/_CCClass');
 var AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
