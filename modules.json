@@ -197,7 +197,7 @@
   {
     "name": "Physics",
     "entries": [
-      "./cocos2d/physics/index.js"
+      "./cocos2d/core/physics/index.js"
     ]
   },
   {
