@@ -23,66 +23,44 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * !#en Box Collider.
- * !#zh 包围盒碰撞组件
- * @class BoxCollider
- * @extends Component
- */
-var BoxCollider = cc.Class({
-    name: 'cc.BoxCollider',
-    extends: cc.Collider,
-
+var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
+var RopeJoint = cc.Class({
+    name: 'cc.RopeJoint',
+    extends: cc.Joint,
+    
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.collider/Box Collider',
+        inspector: 'packages://inspector/inspectors/comps/physics/joint.js',
+        menu: 'i18n:MAIN_MENU.component.physics/Joint/Rope',
     },
 
     properties: {
-        _offset: cc.v2(0, 0),
-        _size: cc.size(100, 100),
+        anchor: cc.v2(0, 0),
+        connectedAnchor: cc.v2(0, 0),
 
-        /**
-         * !#en Position offset
-         * !#zh 位置偏移量
-         * @property offset
-         * @type {Vec2}
-         */
-        offset: {
+        _maxLength: 1,
+
+        maxLength: {
             get: function () {
-                return this._offset;
+                return this._maxLength;
             },
             set: function (value) {
-                this._offset = value;
-            },
-            type: cc.Vec2
+                this._maxLength = value;
+                if (this._joint) {
+                    this._joint.SetMaxLength(value);
+                }
+            }
         },
 
-        /**
-         * !#en Box size
-         * !#zh 包围盒大小
-         * @property size
-         * @type {Size}
-         */
-        size: {
-            get: function () {
-                return this._size;
-            },
-            set: function (value) {
-                this._size.width = value.width < 0 ? 0 : value.width;
-                this._size.height = value.height < 0 ? 0 : value.height;
-            },
-            type: cc.Size
-        }
     },
 
-    resetInEditor: CC_EDITOR && function () {
-        var size = this.node.getContentSize();
-        if (size.width !== 0 && size.height !== 0) {
-            this.size = cc.size( size );
-            this.offset.x = (0.5 - this.node.anchorX) * size.width;
-            this.offset.y = (0.5 - this.node.anchorY) * size.height;
-        }
+    _createJointDef: function () {
+        var def = new b2.RopeJointDef();
+        def.localAnchorA = new b2.Vec2(this.anchor.x/CC_PTM_RATIO, this.anchor.y/CC_PTM_RATIO);
+        def.localAnchorB = new b2.Vec2(this.connectedAnchor.x/CC_PTM_RATIO, this.connectedAnchor.y/CC_PTM_RATIO);
+        def.maxLength = this.maxLength/CC_PTM_RATIO;
+
+        return def;
     }
 });
 
-cc.BoxCollider = module.exports = BoxCollider;
+cc.RopeJoint = module.exports = RopeJoint;

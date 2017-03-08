@@ -58,6 +58,15 @@ cc.js.mixin(cc.director, {
             this._collisionManager = null;
         }
 
+        // physics manager
+        if (cc.PhysicsManager) {
+            this._physicsManager = new cc.PhysicsManager();
+            this.getScheduler().scheduleUpdate(this._physicsManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+        else {
+            this._physicsManager = null;
+        }
+
         // WidgetManager
         cc._widgetManager.init(this);
     },
@@ -92,6 +101,11 @@ cc.js.mixin(cc.director, {
             this.getScheduler().scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
 
+        // Physics manager
+        if (this._physicsManager) {
+            this.getScheduler().scheduleUpdate(this._physicsManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+
         this.startAnimation();
     },
 
@@ -111,6 +125,15 @@ cc.js.mixin(cc.director, {
      */
     getCollisionManager: function () {
         return this._collisionManager;
+    },
+
+    /**
+     * Returns the cc.PhysicsManager associated with this director.
+     * @method getPhysicsManager
+     * @return {PhysicsManager}
+     */
+    getPhysicsManager: function () {
+        return this._physicsManager;
     },
 
     /**

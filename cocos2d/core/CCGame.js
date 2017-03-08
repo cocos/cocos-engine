@@ -210,14 +210,6 @@ var game = {
      */
     onStart: null,
 
-    /**
-     * !#en Callback when game exits.
-     * !#zh 当游戏结束后的回调函数。
-     * @method onStop
-     * @type {Function}
-     */
-    onStop: null,
-
 //@Public Methods
 
 //  @Game play control

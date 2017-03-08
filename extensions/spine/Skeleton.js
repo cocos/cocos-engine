@@ -69,6 +69,34 @@ sp.Skeleton = cc.Class({
     properties: {
 
         /**
+         * Record the listeners.
+         */
+        _startListener: {
+            default: null,
+            serializable: false,
+        },
+        _endListener: {
+            default: null,
+            serializable: false,
+        },
+        _completeListener: {
+            default: null,
+            serializable: false,
+        },
+        _eventListener: {
+            default: null,
+            serializable: false,
+        },
+        _disposeListener: {
+            default: null,
+            serializable: false,
+        },
+        _interruptListener: {
+            default: null,
+            serializable: false,
+        },
+
+        /**
          * !#en The skeletal animation is paused?
          * !#zh 该骨骼动画是否暂停。
          * @property paused
@@ -422,6 +450,14 @@ sp.Skeleton = cc.Class({
                 this.pause();
             }
         };
+
+        // using the recorded event listeners
+        this._startListener && this.setStartListener(this._startListener);
+        this._endListener && this.setEndListener(this._endListener);
+        this._completeListener && this.setCompleteListener(this._completeListener);
+        this._eventListener && this.setEventListener(this._eventListener);
+        this._interruptListener && this.setInterruptListener(this._interruptListener);
+        this._disposeListener && this.setDisposeListener(this._disposeListener);
 
         //if (!CC_EDITOR) {
         //    function animationCallback (ccObj, trackIndex, type, event, loopCount) {
@@ -835,6 +871,7 @@ sp.Skeleton = cc.Class({
      * @param {function} listener
      */
     setStartListener: function (listener) {
+        this._startListener = listener;
         if (this._sgNode) {
             this._sgNode.setStartListener(listener);
         }
@@ -847,6 +884,7 @@ sp.Skeleton = cc.Class({
      * @param {function} listener
      */
     setInterruptListener: function (listener) {
+        this._interruptListener = listener;
         if (this._sgNode) {
             this._sgNode.setInterruptListener(listener);
         }
@@ -859,6 +897,7 @@ sp.Skeleton = cc.Class({
      * @param {function} listener
      */
     setEndListener: function (listener) {
+        this._endListener = listener;
         if (this._sgNode) {
             this._sgNode.setEndListener(listener);
         }
@@ -871,6 +910,7 @@ sp.Skeleton = cc.Class({
      * @param {function} listener
      */
     setDisposeListener: function (listener) {
+        this._disposeListener = listener;
         if (this._sgNode) {
             this._sgNode.setDisposeListener(listener);
         }
@@ -883,6 +923,7 @@ sp.Skeleton = cc.Class({
      * @param {function} listener
      */
     setCompleteListener: function (listener) {
+        this._completeListener = listener;
         if (this._sgNode) {
             this._sgNode.setCompleteListener(listener);
         }
@@ -895,6 +936,7 @@ sp.Skeleton = cc.Class({
      * @param {function} listener
      */
     setEventListener: function (listener) {
+        this._eventListener = listener;
         if (this._sgNode) {
             this._sgNode.setEventListener(listener);
         }

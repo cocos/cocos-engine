@@ -33,6 +33,9 @@ var Destroying = Flags.Destroying;
 var POSITION_CHANGED = 'position-changed';
 var SIZE_CHANGED = 'size-changed';
 var ANCHOR_CHANGED = 'anchor-changed';
+var ROTATION_CHANGED = 'rotation-changed';
+var SCALE_CHANGED = 'scale-changed';
+
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
 var CHILD_REORDER = 'child-reorder';
@@ -454,6 +457,8 @@ var Node = cc.Class({
                 if (this._rotationX !== value || this._rotationY !== value) {
                     this._rotationX = this._rotationY = value;
                     this._sgNode.rotation = value;
+
+                    this.emit(ROTATION_CHANGED);
                 }
             }
         },
@@ -475,6 +480,8 @@ var Node = cc.Class({
                 if (this._rotationX !== value) {
                     this._rotationX = value;
                     this._sgNode.rotationX = value;
+
+                    this.emit(ROTATION_CHANGED);
                 }
             },
         },
@@ -496,6 +503,8 @@ var Node = cc.Class({
                 if (this._rotationY !== value) {
                     this._rotationY = value;
                     this._sgNode.rotationY = value;
+
+                    this.emit(ROTATION_CHANGED);
                 }
             },
         },
@@ -517,6 +526,8 @@ var Node = cc.Class({
                 if (this._scaleX !== value) {
                     this._scaleX = value;
                     this._sgNode.scaleX = value;
+
+                    this.emit(SCALE_CHANGED);
                 }
             },
         },
@@ -538,6 +549,8 @@ var Node = cc.Class({
                 if (this._scaleY !== value) {
                     this._scaleY = value;
                     this._sgNode.scaleY = value;
+
+                    this.emit(SCALE_CHANGED);
                 }
             },
         },
@@ -1568,7 +1581,7 @@ var Node = cc.Class({
     setScale (scaleX, scaleY) {
         if (typeof scaleX === 'object') {
             scaleY = scaleX.y;
-            scaleX = scaleX.x
+            scaleX = scaleX.x;
         }
         else {
             scaleY = (scaleY || scaleY === 0) ? scaleY : scaleX;
@@ -1577,6 +1590,8 @@ var Node = cc.Class({
             this._scaleX = scaleX;
             this._scaleY = scaleY;
             this._sgNode.setScale(scaleX, scaleY);
+
+            this.emit(SCALE_CHANGED);
         }
     },
 

@@ -81,6 +81,7 @@ require('./jsb-action');
 require('./jsb-etc');
 require('./jsb-audio');
 require('./jsb-tiledmap');
+require('./jsb-box2d');
 require('./jsb-dragonbones');
 
 if (cc.runtime) {
