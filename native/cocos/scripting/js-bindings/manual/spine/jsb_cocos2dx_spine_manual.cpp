@@ -262,7 +262,19 @@ jsval spslot_to_jsval(JSContext* cx, spSlot& v)
     if (!tmp) return JSVAL_NULL;
 
     JS::RootedValue jsbone(cx, spbone_to_jsval(cx, *v.bone));
-    JS::RootedValue jsattachment(cx, spattachment_to_jsval(cx, *v.attachment));
+
+    jsval jstemp = JSVAL_NULL;
+    if (v.attachment->type == spAttachmentType::SP_ATTACHMENT_REGION) {
+        jstemp = spregionattachment_to_jsval(cx, *((spRegionAttachment*)(v.attachment)));
+    }
+    else if (v.attachment->type == spAttachmentType::SP_ATTACHMENT_MESH ||
+             v.attachment->type == spAttachmentType::SP_ATTACHMENT_LINKED_MESH) {
+        jstemp = spmeshattachment_to_jsval(cx, *((spMeshAttachment*)(v.attachment)));
+    }
+    else {
+        jstemp = spattachment_to_jsval(cx, *(v.attachment));
+    }
+    JS::RootedValue jsattachment(cx, jstemp);
     JS::RootedValue jsdata(cx, spslotdata_to_jsval(cx, *v.data));
     bool ok = JS_DefineProperty(cx, tmp, "r", v.r, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
         JS_DefineProperty(cx, tmp, "g", v.g, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
