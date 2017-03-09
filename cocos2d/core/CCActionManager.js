@@ -466,3 +466,10 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
         }
     }
 });
+
+if (CC_TEST) {
+    cc.ActionManager.prototype.isTargetPaused_TEST = function (target) {
+        var element = this._hashTargets[target.__instanceId];
+        return element.paused;
+    };
+}

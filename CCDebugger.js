@@ -224,10 +224,21 @@ cc._initDebugSetting = function (mode) {
             };
         }
         cc.assert = function (cond, msg) {
-            if (!cond && msg) {
-                for (var i = 2; i < arguments.length; i++)
-                    msg = msg.replace(/(%s)|(%d)/, _formatString(arguments[i]));
-                throw new Error(msg);
+            if (!cond) {
+                if (msg) {
+                    for (var i = 2; i < arguments.length; i++) {
+                        msg = msg.replace(/(%s)|(%d)/, _formatString(arguments[i]));
+                    }
+                }
+                if (CC_DEV) {
+                    debugger;
+                }
+                if (CC_TEST) {
+                    ok(false, msg);
+                }
+                else {
+                    throw new Error(msg);
+                }
             }
         };
         if (mode !== cc.DebugMode.ERROR) {

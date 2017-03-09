@@ -66,7 +66,6 @@ var EventType = cc.Enum({
      * !#zh 当手指在屏幕上目标节点区域内移动时。
      * @property TOUCH_MOVE
      * @type {String}
-     * @value 1
      * @static
      */
     TOUCH_MOVE: 'touchmove',
@@ -248,7 +247,7 @@ var _mouseWheelHandler = function (event) {
     }
 };
 
-function _searchMaskParent (node) {
+function _searchMaskInParent (node) {
     var Mask = cc.Mask;
     if (Mask) {
         var index = 0;
@@ -991,17 +990,19 @@ var Node = cc.Class({
         }
     },
 
-    _onActive_EventsActions (newActive) {
-        // ActionManager, EventManager
-        if (newActive) {
+    _onPostActivated (active) {
+        if (active) {
             // activate
             cc.director.getActionManager().resumeTarget(this);
             cc.eventManager.resumeTarget(this);
             if (this._touchListener) {
-                this._touchListener.mask = _searchMaskParent(this);
+                var mask = this._touchListener.mask = _searchMaskInParent(this);
+                if (this._mouseListener) {
+                    this._mouseListener.mask = mask;
+                }
             }
-            if (this._mouseListener) {
-                this._mouseListener.mask = _searchMaskParent(this);
+            else if (this._mouseListener) {
+                this._mouseListener.mask = _searchMaskInParent(this);
             }
         }
         else {
@@ -1056,7 +1057,7 @@ var Node = cc.Class({
                     event: cc.EventListener.TOUCH_ONE_BY_ONE,
                     swallowTouches: true,
                     owner: this,
-                    mask: _searchMaskParent(this),
+                    mask: _searchMaskInParent(this),
                     onTouchBegan: _touchStartHandler,
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler
@@ -1074,7 +1075,7 @@ var Node = cc.Class({
                     event: cc.EventListener.MOUSE,
                     _previousIn: false,
                     owner: this,
-                    mask: _searchMaskParent(this),
+                    mask: _searchMaskInParent(this),
                     onMouseDown: _mouseDownHandler,
                     onMouseMove: _mouseMoveHandler,
                     onMouseUp: _mouseUpHandler,

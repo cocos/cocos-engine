@@ -177,11 +177,12 @@ var Component = cc.Class({
                 if (this._enabled !== value) {
                     this._enabled = value;
                     if (this.node._activeInHierarchy) {
+                        var compScheduler = cc.director._compScheduler;
                         if (value) {
-                            cc.director._compScheduler.enableComp(this);
+                            compScheduler.enableComp(this);
                         }
                         else {
-                            cc.director._compScheduler.disableComp(this);
+                            compScheduler.disableComp(this);
                         }
                     }
                 }
@@ -477,7 +478,7 @@ var Component = cc.Class({
         }
 
         // onDestroy
-        cc.director._compScheduler.destroyComp(this);
+        cc.director._nodeActivator.destroyComp(this);
 
         // do remove component
         this.node._removeComponent(this);
@@ -578,6 +579,7 @@ var Component = cc.Class({
 });
 
 Component._requireComponent = null;
+Component._executionOrder = 0;
 
 if (CC_EDITOR || CC_TEST) {
 
@@ -618,6 +620,9 @@ Object.defineProperty(Component, '_registerEditorProps', {
             for (var key in props) {
                 var val = props[key];
                 switch (key) {
+                    case 'executionOrder':
+                        cls._executionOrder = (typeof val === 'number' ? val : 0);
+                        break;
 
                     case 'executeInEditMode':
                         cls._executeInEditMode = !!val;

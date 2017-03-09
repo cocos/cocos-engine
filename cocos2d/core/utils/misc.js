@@ -104,7 +104,7 @@ m.cleanEval_fireClass = function (code) {
 if (CC_EDITOR) {
     // use anonymous function here to ensure it will not being hoisted without CC_EDITOR
 
-    m.tryCatchFunctor_EDITOR = function (funcName, receivedArgs, usedArgs) {
+    m.tryCatchFunctor_EDITOR = function (funcName, receivedArgs, usedArgs, afterCall) {
         function call_FUNC_InTryCatch (_R_ARGS_) {
             try {
                 target._FUNC_(_U_ARGS_);
@@ -112,12 +112,15 @@ if (CC_EDITOR) {
             catch (e) {
                 cc._throw(e);
             }
+            _AFTER_CALL_
         }
         // use evaled code to generate named function
-        return Function(('return ' + call_FUNC_InTryCatch).
-            replace(/_FUNC_/g, funcName).
-            replace('_R_ARGS_', 'target' + (receivedArgs ? ', ' + receivedArgs : '')).
-            replace('_U_ARGS_', usedArgs || ''))();
+        return Function('return ' + call_FUNC_InTryCatch
+                    .toString()
+                    .replace(/_FUNC_/g, funcName)
+                    .replace('_R_ARGS_', 'target' + (receivedArgs ? ', ' + receivedArgs : ''))
+                    .replace('_U_ARGS_', usedArgs || '')
+                    .replace('_AFTER_CALL_', afterCall || ''))();
     };
 }
 

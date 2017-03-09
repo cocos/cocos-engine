@@ -28,6 +28,7 @@ var EventTarget = require('./event/event-target');
 var Class = require('./platform/_CCClass');
 var AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
 var ComponentScheduler = require('./component-scheduler');
+var NodeActivator = require('./node-activator');
 var EventListeners = require('./event/event-listeners');
 
 cc.g_NumberOfDraws = 0;
@@ -144,6 +145,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         self._scheduler = null;
         // Scheduler for life-cycle methods in component
         self._compScheduler = null;
+        // Node activator
+        self._nodeActivator = null;
         // Action manager
         self._actionManager = null;
 
@@ -185,6 +188,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     sharedInit: function () {
         this._compScheduler = new ComponentScheduler();
+        this._nodeActivator = new NodeActivator();
 
         // Animation manager
         if (cc.AnimationManager) {
@@ -430,6 +434,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         //cleanup scheduler
         this.getScheduler().unscheduleAll();
         this._compScheduler.unscheduleAll();
+
+        this._nodeActivator.reset();
 
         // Disable event dispatching
         if (cc.eventManager)

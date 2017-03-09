@@ -30,7 +30,6 @@ var IdGenerater = require('../platform/id-generater');
 var JS = cc.js;
 var Destroying = Flags.Destroying;
 var DontDestroy = Flags.DontDestroy;
-var Activating = Flags.Activating;
 
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
@@ -278,10 +277,12 @@ var BaseNode = cc.Class({
                 value = !!value;
                 if (this._active !== value) {
                     this._active = value;
-                    var couldActiveInHierarchy = (this._parent && this._parent._activeInHierarchy);
-                    if (couldActiveInHierarchy) {
-                        this._onActivatedInHierarchy(value);
-                        this.emit('active-in-hierarchy-changed', this);
+                    var parent = this._parent;
+                    if (parent) {
+                        var couldActiveInScene = parent._activeInHierarchy;
+                        if (couldActiveInScene) {
+                            cc.director._nodeActivator.activateNode(this, value);
+                        }
                     }
                 }
             }
@@ -313,7 +314,6 @@ var BaseNode = cc.Class({
     },
 
     ctor (name) {
-
         this._name = typeof name !== 'undefined' ? name : 'New Node';
 
         this._activeInHierarchy = false;
@@ -342,7 +342,7 @@ var BaseNode = cc.Class({
         return this._parent;
     },
 
-    setParent (value) {
+    setParent (value) { // TODO merge with child
         if (this._parent === value) {
             return;
         }
@@ -852,11 +852,7 @@ var BaseNode = cc.Class({
         this._components.push(component);
 
         if (this._activeInHierarchy) {
-            if (typeof component.__preload === 'function') {
-                cc.director._compScheduler.doPreloadComp(component);
-            }
-            // call onLoad/onEnable
-            cc.director._compScheduler.activateComp(component);
+            cc.director._nodeActivator.activateComp(component);
         }
 
         return component;
@@ -904,12 +900,7 @@ var BaseNode = cc.Class({
         this._components.splice(index, 0, comp);
 
         if (this._activeInHierarchy) {
-            if (typeof comp.__preload === 'function' &&
-                !(comp._objFlags & cc.Object.Flags.IsPreloadCalled)) {
-                cc.director._compScheduler.doPreloadComp(comp);
-            }
-            // call onLoad/onEnable
-            cc.director._compScheduler.activateComp(comp);
+            cc.director._nodeActivator.activateComp(comp);
         }
     },
 
@@ -933,7 +924,7 @@ var BaseNode = cc.Class({
             cc.errorID(3813);
             return;
         }
-        if (typeof component !== 'object') {
+        if (!(component instanceof cc.Component)) {
             component = this.getComponent(component);
         }
         if (component) {
@@ -978,98 +969,22 @@ var BaseNode = cc.Class({
         }
     },
 
-    _onActivatedInHierarchy (newActive) {
-        if (newActive) {
-            cc.director._compScheduler.preloadNode(this);
-        }
-        this._activeRecursively(newActive);
-    },
+    _onPostActivated () {},
 
-    _activeRecursively (newActive) {
-        var cancelActivation = false;
-        if (this._objFlags & Activating) {
-            if (newActive) {
-                cc.errorID(3816, this.name);
-                return;
-            }
-            else {
-                cancelActivation = true;
-            }
-        }
-        else if (newActive) {
-            this._objFlags |= Activating;
-        }
-
-        this._activeInHierarchy = newActive;
-
-        // component maybe added during onEnable, and the onEnable of new component is already called
-        // so we should record the origin length
-        var originCount = this._components.length;
-        for (var c = 0; c < originCount; ++c) {
-            var component = this._components[c];
-            if (component instanceof cc.Component) {
-                if (newActive) {
-                    cc.director._compScheduler.activateComp(component);
-                    if (!this._activeInHierarchy) {
-                        // deactivated during activating
-                        this._objFlags &= ~Activating;
-                        return;
-                    }
-                }
-                else if (component._enabled) {
-                     cc.director._compScheduler.disableComp(component);
-                }
-            }
-            else {
-                if (CC_DEV) {
-                    cc.errorID(3817, this.name, c);
-                    console.log('Corrupted component value:', component);
-                }
-                if (component) {
-                    this._removeComponent(component);
-                }
-                else {
-                    JS.array.removeAt(this._components, c);
-                }
-                --c;
-                --originCount;
-            }
-        }
-
-        // activate children recursively
-        for (var i = 0, len = this._children.length; i < len; ++i) {
-            var child = this._children[i];
-            if (child._active) {
-                child._activeRecursively(newActive);
-                if (newActive && !this._activeInHierarchy) {
-                    // deactivated during activating
-                    this._objFlags &= ~Activating;
-                    return;
-                }
-            }
-        }
-
-        this._objFlags &= ~Activating;
-
-        if (!cancelActivation && this._onActive_EventsActions) {
-            this._onActive_EventsActions(newActive);
-        }
-    },
-
-    _deactivateChildComponents () {
-        // 和 _activeRecursively 类似但不修改 this._activeInHierarchy
-        var originCount = this._components.length;
-        for (var c = 0; c < originCount; ++c) {
-            var component = this._components[c];
+    _disableChildComps () {
+        // leave this._activeInHierarchy unmodified
+        var i, len = this._components.length;
+        for (i = 0; i < len; ++i) {
+            var component = this._components[i];
             if (component._enabled) {
-                 cc.director._compScheduler.disableComp(component);
+                cc.director._compScheduler.disableComp(component);
             }
         }
-        // deactivate children recursively
-        for (var i = 0, len = this._children.length; i < len; ++i) {
-            var entity = this._children[i];
-            if (entity._active) {
-                entity._deactivateChildComponents();
+        // deactivate recursively
+        for (i = 0, len = this._children.length; i < len; ++i) {
+            var node = this._children[i];
+            if (node._active) {
+                node._disableChildComps();
             }
         }
     },
@@ -1078,7 +993,7 @@ var BaseNode = cc.Class({
         if (cc.Object.prototype.destroy.call(this)) {
             // disable hierarchy
             if (this._activeInHierarchy) {
-                this._deactivateChildComponents();
+                this._disableChildComps();
             }
         }
     },
@@ -1109,10 +1024,9 @@ var BaseNode = cc.Class({
                 cc.warnID(1623);
             }
         }
-        var activeInHierarchyBefore = this._active && !!(oldParent && oldParent._activeInHierarchy);
         var shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);
-        if (activeInHierarchyBefore !== shouldActiveNow) {
-            this._onActivatedInHierarchy(shouldActiveNow);
+        if (this._activeInHierarchy !== shouldActiveNow) {
+            cc.director._nodeActivator.activateNode(this, shouldActiveNow);
         }
         if (CC_EDITOR || CC_TEST) {
             var scene = cc.director.getScene();
@@ -1260,14 +1174,15 @@ var BaseNode = cc.Class({
                 parent.emit('child-removed', this);
             }
         }
+
+        return destroyByParent;
     },
 
     onRestore: CC_EDITOR && function () {
         // check activity state
         var shouldActiveInHierarchy = (this._parent && this._parent._activeInHierarchy && this._active);
-        if (shouldActiveInHierarchy !== this._activeInHierarchy) {
-            this._onActivatedInHierarchy(shouldActiveInHierarchy);
-            this.emit('active-in-hierarchy-changed', this);
+        if (this._activeInHierarchy !== shouldActiveInHierarchy) {
+            cc.director._nodeActivator.activateNode(this, shouldActiveInHierarchy);
         }
     },
 });
@@ -1281,6 +1196,7 @@ if (CC_EDITOR) {
            // (simulate some destruct logic to make undo system work correctly)
            this._parent = null;
        }
+       return destroyByParent;
    };
 }
 
