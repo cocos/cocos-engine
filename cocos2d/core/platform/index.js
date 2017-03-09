@@ -25,6 +25,7 @@
 
 require('./js');
 require('./CCClass');
+require('./CCClassDecorator');
 require('./CCObject');
 require('./callbacks-invoker');
 require('./url');

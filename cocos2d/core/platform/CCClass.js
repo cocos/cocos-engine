@@ -819,6 +819,10 @@ function CCClass (options) {
         return define();
     }
 
+    if (typeof options === 'function') {
+        return cc.Class.decorator.class(options);
+    }
+
     var name = options.name;
     var base = options.extends/* || CCObject*/;
     var mixins = options.mixins;
@@ -1161,7 +1165,9 @@ module.exports = {
     fastDefine: CCClass._fastDefine,
     getNewValueTypeCode: getNewValueTypeCode,
     IDENTIFIER_RE: IDENTIFIER_RE,
-    escapeForJS: escapeForJS
+    escapeForJS: escapeForJS,
+    define,
+    declareProperties
 };
 
 if (CC_EDITOR) {
