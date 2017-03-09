@@ -245,8 +245,6 @@ _ccsg.EditBox = _ccsg.Node.extend({
     _placeholderFontName: '',
     _placeholderFontSize: 14,
     _placeholderColor: null,
-    __fullscreen: false,
-    __autoResize: false,
     _className: 'EditBox',
 
     ctor: function (size, normal9SpriteBg) {
@@ -552,6 +550,9 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
 (function (polyfill) {
     var EditBoxImpl = function () {
+        this.__fullscreen = false;
+        this.__autoResize = false;
+        this.__rotateScreen = false;
     };
 
     var proto = EditBoxImpl.prototype = Object.create(Object.prototype);
@@ -607,28 +608,15 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         }
     };
 
+    // Called before editbox focus to register cc.view status
     proto._beginEditingOnMobile = function (editBox) {
-        if (cc.view._isRotated) {
-            cc.container.style['-webkit-transform'] = 'rotate(0deg)';
-            cc.container.style.transform = 'rotate(0deg)';
-            cc.view._isRotated = false;
-            var policy = cc.view.getResolutionPolicy();
-            policy.apply(cc.view, cc.view.getDesignResolutionSize());
-            cc.view._isRotated = true;
-            //use window scrollTo to adjust the input area
-            window.scrollTo(35, 35);
-            this.__rotateScreen = true;
-        } else {
-            this.__rotateScreen = false;
-        }
-
         this.__orientationChanged = function () {
             adjustEditBoxPosition(editBox);
         };
 
         window.addEventListener('orientationchange', this.__orientationChanged);
 
-        if(cc.view.isAutoFullScreenEnabled()) {
+        if (cc.view.isAutoFullScreenEnabled()) {
             this.__fullscreen = true;
             cc.view.enableAutoFullScreen(false);
             cc.screen.exitFullScreen();
@@ -637,10 +625,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         }
         this.__autoResize = cc.view.__resizeWithBrowserSize;
         cc.view.resizeWithBrowserSize(false);
-
-        adjustEditBoxPosition(editBox);
     };
-
+    // Called after keyboard disappeared to readapte the game view
     proto._endEditingOnMobile = function () {
         if (this.__rotateScreen) {
             cc.container.style['-webkit-transform'] = 'rotate(90deg)';
@@ -664,6 +650,23 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         if (this.__autoResize) {
             cc.view.resizeWithBrowserSize(true);
         }
+    };
+    // Called after editbox focus to readapte the game view
+    proto._onFocusOnMobile = function (editBox) {
+        if (cc.view._isRotated) {
+            cc.container.style['-webkit-transform'] = 'rotate(0deg)';
+            cc.container.style.transform = 'rotate(0deg)';
+            cc.view._isRotated = false;
+            var policy = cc.view.getResolutionPolicy();
+            policy.apply(cc.view, cc.view.getDesignResolutionSize());
+            cc.view._isRotated = true;
+            //use window scrollTo to adjust the input area
+            window.scrollTo(35, 35);
+            this.__rotateScreen = true;
+        } else {
+            this.__rotateScreen = false;
+        }
+        adjustEditBoxPosition(editBox);
     };
 
 
@@ -735,9 +738,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             thisPointer._hiddenLabels();
 
             if (cc.sys.isMobile) {
-                thisPointer._beginEditingOnMobile(editBox);
+                thisPointer._onFocusOnMobile(editBox);
             }
-
 
             if (editBox._delegate && editBox._delegate.editBoxEditingDidBegan) {
                 editBox._delegate.editBoxEditingDidBegan(editBox);
@@ -747,11 +749,6 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             var editBox = thisPointer._editBox;
             editBox._text = this.value;
             thisPointer._updateDomTextCases();
-
-            if (cc.sys.isMobile) {
-                thisPointer._endEditingOnMobile();
-            }
-
 
             if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded) {
                 editBox._delegate.editBoxEditingDidEnded(editBox);
@@ -816,7 +813,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             this.style.color = cc.colorToHex(editBox._textColor);
 
             if (cc.sys.isMobile) {
-                thisPointer._beginEditingOnMobile(editBox);
+                thisPointer._onFocusOnMobile(editBox);
             }
 
             if (editBox._delegate && editBox._delegate.editBoxEditingDidBegan) {
@@ -839,10 +836,6 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             var editBox = thisPointer._editBox;
             editBox._text = this.value;
             thisPointer._updateDomTextCases();
-
-            if (cc.sys.isMobile) {
-                thisPointer._endEditingOnMobile();
-            }
 
             if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded) {
                 editBox._delegate.editBoxEditingDidEnded(editBox);
@@ -976,20 +969,32 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto._beginEditing = function() {
-        if(!this._editBox._alwaysOnTop) {
+        if (!this._editBox._alwaysOnTop) {
             if (this._edTxt.style.display === 'none') {
                 this._edTxt.style.display = '';
                 this._edTxt.focus();
             }
         }
+
+        if (cc.sys.isMobile && !this._editingMode) {
+            // Pre adaptation and 
+            this._beginEditingOnMobile(this._editBox);
+        }
         this._editingMode = true;
     };
 
     proto._endEditing = function() {
-        if(!this._editBox._alwaysOnTop) {
+        if (!this._editBox._alwaysOnTop) {
             this._edTxt.style.display = 'none';
         }
         this._showLabels();
+        if (cc.sys.isMobile && this._editingMode) {
+            var self = this;
+            // Delay end editing adaptation to ensure virtual keyboard is disapeared
+            setTimeout(function () {
+                self._endEditingOnMobile();
+            }, TIMER_NAME);
+        }
         this._editingMode = false;
     };
 
