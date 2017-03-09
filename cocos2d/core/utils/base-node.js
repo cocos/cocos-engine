@@ -342,7 +342,7 @@ var BaseNode = cc.Class({
         return this._parent;
     },
 
-    setParent (value) { // TODO merge with child
+    setParent (value) {
         if (this._parent === value) {
             return;
         }
@@ -354,6 +354,9 @@ var BaseNode = cc.Class({
         //
         var oldParent = this._parent;
         this._parent = value || null;
+
+        this._onSetParent(value);
+
         if (value) {
             if (!CC_JSB) {
                 cc.eventManager._setDirtyForNode(this);
@@ -969,8 +972,6 @@ var BaseNode = cc.Class({
         }
     },
 
-    _onPostActivated () {},
-
     _disableChildComps () {
         // leave this._activeInHierarchy unmodified
         var i, len = this._components.length;
@@ -1015,6 +1016,9 @@ var BaseNode = cc.Class({
             children[i].destroy();
         }
     },
+
+    _onSetParent (value) {},
+    _onPostActivated () {},
 
     _onHierarchyChanged (oldParent) {
         var newParent = this._parent;

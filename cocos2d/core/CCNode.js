@@ -898,6 +898,55 @@ var Node = cc.Class({
 
     // OVERRIDES
 
+    _onSetParent (value) {
+        var sgNode = this._sgNode;
+        if (sgNode.parent) {
+            sgNode.parent.removeChild(sgNode, false);
+        }
+        if (value) {
+            value._sgNode.addChild(sgNode);
+            value._delaySort();
+        }
+    },
+
+    _onSiblingIndexChanged (index) {
+        // update rendering scene graph, sort them by arrivalOrder
+        var parent = this._parent;
+        var siblings = parent._children;
+        var i = 0, len = siblings.length, sibling;
+        if (CC_JSB) {
+            if (cc.runtime) {
+                for (; i < len; i++) {
+                    sibling = siblings[i]._sgNode;
+                    // Reset zorder to update their arrival order
+                    var zOrder = sibling.getLocalZOrder();
+                    sibling.setLocalZOrder(zOrder + 1);
+                    sibling.setLocalZOrder(zOrder);
+                }
+            }
+            else {
+                parent._sgNode.removeChild(this._sgNode, false);
+                if (index + 1 < siblings.length) {
+                    var nextSibling = siblings[index + 1];
+                    parent._sgNode.insertChildBefore(this._sgNode, nextSibling._sgNode);
+                }
+                else {
+                    parent._sgNode.addChild(this._sgNode);
+                }
+            }
+        }
+        else {
+            for (; i < len; i++) {
+                sibling = siblings[i]._sgNode;
+                sibling._arrivalOrder = i;
+                cc.eventManager._setDirtyForNode(sibling);
+            }
+            cc.renderer.childrenOrderDirty = true;
+            parent._sgNode._reorderChildDirty = true;
+            parent._delaySort();
+        }
+    },
+
     _onPreDestroy () {
         var destroyByParent = this._onPreDestroyBase();
 
@@ -945,6 +994,33 @@ var Node = cc.Class({
         }
     },
 
+    _onPostActivated (active) {
+        if (active) {
+            // activate
+            cc.director.getActionManager().resumeTarget(this);
+            cc.eventManager.resumeTarget(this);
+            if (this._touchListener) {
+                var mask = this._touchListener.mask = _searchMaskInParent(this);
+                if (this._mouseListener) {
+                    this._mouseListener.mask = mask;
+                }
+            }
+            else if (this._mouseListener) {
+                this._mouseListener.mask = _searchMaskInParent(this);
+            }
+        }
+        else {
+            // deactivate
+            cc.director.getActionManager().pauseTarget(this);
+            cc.eventManager.pauseTarget(this);
+        }
+    },
+
+    _onHierarchyChanged (oldParent) {
+        this._onHierarchyChangedBase(oldParent);
+        cc._widgetManager._nodesOrderDirty = true;
+    },
+
     // INTERNAL
 
     /*
@@ -977,34 +1053,8 @@ var Node = cc.Class({
         }
     },
 
-    _onPostActivated (active) {
-        if (active) {
-            // activate
-            cc.director.getActionManager().resumeTarget(this);
-            cc.eventManager.resumeTarget(this);
-            if (this._touchListener) {
-                var mask = this._touchListener.mask = _searchMaskInParent(this);
-                if (this._mouseListener) {
-                    this._mouseListener.mask = mask;
-                }
-            }
-            else if (this._mouseListener) {
-                this._mouseListener.mask = _searchMaskInParent(this);
-            }
-        }
-        else {
-            // deactivate
-            cc.director.getActionManager().pauseTarget(this);
-            cc.eventManager.pauseTarget(this);
-        }
-    },
+    // EVENTS
 
-    _onHierarchyChanged (oldParent) {
-        this._onHierarchyChangedBase(oldParent);
-        cc._widgetManager._nodesOrderDirty = true;
-    },
-
-// EVENTS
     /**
      * !#en
      * Register a callback of a specific event type on Node.<br/>
@@ -1374,92 +1424,10 @@ var Node = cc.Class({
         }
     },
 
-    //functions moved from base node begin
-
-    //override
     setTag (value) {
         this._tag = value;
         this._sgNode.tag = value;
     },
-
-    setParent (value) {
-        if (this._parent === value) {
-            return;
-        }
-        if (CC_EDITOR && !cc.engine.isPlaying) {
-            if (_Scene.DetectConflict.beforeAddChild(this, value)) {
-                return;
-            }
-        }
-        var sgNode = this._sgNode;
-        if (sgNode.parent) {
-            sgNode.parent.removeChild(sgNode, false);
-        }
-        //
-        var oldParent = this._parent;
-        this._parent = value || null;
-        if (value) {
-            var parent = value._sgNode;
-            parent.addChild(sgNode);
-            updateOrder(this);
-            value._children.push(this);
-            value.emit(CHILD_ADDED, this);
-        }
-        if (oldParent) {
-            if (!(oldParent._objFlags & Destroying)) {
-                var removeAt = oldParent._children.indexOf(this);
-                if (CC_DEV && removeAt < 0) {
-                    return cc.errorID(1633);
-                }
-                oldParent._children.splice(removeAt, 1);
-                oldParent.emit(CHILD_REMOVED, this);
-                this._onHierarchyChanged(oldParent);
-            }
-        }
-        else if (value) {
-            this._onHierarchyChanged(null);
-        }
-    },
-
-    _onSiblingIndexChanged (index) {
-        // update rendering scene graph, sort them by arrivalOrder
-        var parent = this._parent;
-        var siblings = parent._children;
-        var i = 0, len = siblings.length, sibling;
-        if (CC_JSB) {
-            if (cc.runtime) {
-                for (; i < len; i++) {
-                    sibling = siblings[i]._sgNode;
-                    // Reset zorder to update their arrival order
-                    var zOrder = sibling.getLocalZOrder();
-                    sibling.setLocalZOrder(zOrder + 1);
-                    sibling.setLocalZOrder(zOrder);
-                }
-            }
-            else {
-                parent._sgNode.removeChild(this._sgNode, false);
-                if (index + 1 < siblings.length) {
-                    var nextSibling = siblings[index + 1];
-                    parent._sgNode.insertChildBefore(this._sgNode, nextSibling._sgNode);
-                }
-                else {
-                    parent._sgNode.addChild(this._sgNode);
-                }
-            }
-        }
-        else {
-            for (; i < len; i++) {
-                sibling = siblings[i]._sgNode;
-                sibling._arrivalOrder = i;
-                cc.eventManager._setDirtyForNode(sibling);
-            }
-            cc.renderer.childrenOrderDirty = true;
-            parent._sgNode._reorderChildDirty = true;
-            parent._delaySort();
-        }
-    },
-
-    //end override
 
     /**
      * !#en Returns a copy of the position (x,y) of the node in cocos2d coordinates. (0,0) is the left-bottom corner.
