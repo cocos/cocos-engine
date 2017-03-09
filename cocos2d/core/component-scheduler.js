@@ -93,6 +93,9 @@ var LifeCycleInvoker = cc.Class({
         // components which priority > 0
         this._pos = new Iterator([]);
 
+        if (CC_TEST) {
+            cc.assert(typeof invokeFunc === 'function', 'invokeFunc must be type function');
+        }
         this._invoke = invokeFunc;
     },
     statics: {
