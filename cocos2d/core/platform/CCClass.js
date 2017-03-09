@@ -819,6 +819,10 @@ function CCClass (options) {
         return define();
     }
 
+    if (typeof options === 'function') {
+        return cc.Class.decorator.class(options);
+    }
+
     var name = options.name;
     var base = options.extends/* || CCObject*/;
     var mixins = options.mixins;

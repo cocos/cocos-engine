@@ -21,7 +21,7 @@ function getScriptName() {
  export class ComponentName extends cc.Component {}
  --------------------------
  */
-function component(constructor) {
+function CCClass(constructor) {
     if (constructor.length > 0) {
         cc.warn("Please do not define parameters for a component constructor in " + getScriptName() + "!");
     }
@@ -42,7 +42,7 @@ function component(constructor) {
     definedClass[uuid] = cls;
     return cls;
 }
-exports.component = component;
+exports.class = CCClass;
 /*
  Decorator of a property in cc.Component.
  @CCProperty must be used with @CCComponent. Usage:
