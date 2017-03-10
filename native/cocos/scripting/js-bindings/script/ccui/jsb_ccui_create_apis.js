@@ -20,6 +20,8 @@
  * THE SOFTWARE.
  */
 
+'use strict';
+
 ccui.Widget.prototype.init = ccui.Widget.prototype._init;
 ccui.RichText.prototype.init = function(){
     ccui.Widget.prototype.init.call(this);
