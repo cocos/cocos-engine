@@ -29,7 +29,6 @@
 var ccui = ccui || {};
 
 cc.EditBox = ccui.EditBox;
-delete ccui.EditBox;
 
 cc.Scale9Sprite = ccui.Scale9Sprite;
 

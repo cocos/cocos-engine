@@ -106,7 +106,6 @@ JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS:
 {
     _jsthis = jsthis;
     _fval = fval;
-    _owner = JS::NullValue();
 }
 JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval, JS::HandleValue owner)
 : _cppOwner(nullptr)

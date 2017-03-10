@@ -718,9 +718,6 @@ JSCallbackWrapper::JSCallbackWrapper()
 : _cppOwner(nullptr)
 {
     JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
-    _jsCallback = JS::NullValue();
-    _jsThisObj = JS::NullValue();
-    _extraData = JS::NullValue();
 
     JS::RootedObject root(cx);
     get_or_create_js_obj("jsb._root", &root);
@@ -732,9 +729,6 @@ JSCallbackWrapper::JSCallbackWrapper(JS::HandleValue owner)
 : _cppOwner(nullptr)
 {
     _owner = owner;
-    _jsCallback = JS::NullValue();
-    _jsThisObj = JS::NullValue();
-    _extraData = JS::NullValue();
     
     JS::RootedObject ownerObj(ScriptingCore::getInstance()->getGlobalContext(), owner.toObjectOrNull());
     js_proxy *t = jsb_get_js_proxy(ownerObj);

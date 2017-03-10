@@ -14,11 +14,13 @@ public class SDKWrapper {
 	public static SDKWrapper getInstance() {
 		if (null == mInstace){
 			mInstace = new SDKWrapper();
-			try {
-				String fullName = "com.anysdk.framework.PluginWrapper";
-				mClass = Class.forName(fullName);
-			} catch (Exception e) {
-				e.printStackTrace();
+			if (PACKAGE_AS) {
+				try {
+					String fullName = "com.anysdk.framework.PluginWrapper";
+					mClass = Class.forName(fullName);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return mInstace;	
