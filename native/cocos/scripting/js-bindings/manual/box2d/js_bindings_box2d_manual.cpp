@@ -887,68 +887,57 @@ bool js_box2dclasses_b2World_CreateJoint(JSContext *cx, uint32_t argc, jsval *vp
             switch (type) {
                 case e_distanceJoint:
                 {
-                    b2DistanceJointDef def;
-                    tmpDef = &def;
+                    tmpDef = new b2DistanceJointDef();
                     break;
                 }
                 case e_frictionJoint:
                 {
-                    b2FrictionJointDef def;
-                    tmpDef = &def;
+                    tmpDef = new b2FrictionJointDef();
                     break;
                 }
                 case e_gearJoint:
                 {
-                    b2GearJointDef def;
-                    tmpDef = &def;
+                    tmpDef = new b2GearJointDef();
                     break;
                 }
                 case e_motorJoint:
                 {
-                    b2MotorJointDef def;
-                    tmpDef = &def;
+                    tmpDef = new b2MotorJointDef();
                     break;
                 }
                 case e_mouseJoint:
                 {
-                    b2MouseJointDef def;
-                    tmpDef = &def;
+                    tmpDef = new b2MouseJointDef();
                     break;
                 }
                 case e_prismaticJoint:
                 {
-                    b2PrismaticJointDef def;
-                    tmpDef = &def;
+                    tmpDef = new b2PrismaticJointDef();
                     break;
                 }
                 case e_pulleyJoint:
                 {
-                    b2PulleyJointDef def;
-                    tmpDef = &def;
+                    tmpDef = new b2PulleyJointDef();
                     break;
                 }
                 case e_revoluteJoint:
                 {
-                    b2RevoluteJointDef def;
-                    tmpDef = &def;
+                    tmpDef = new b2RevoluteJointDef();
                     break;
                 }
                 case e_ropeJoint:
                 {
-                    b2RopeJointDef def;
-                    tmpDef = &def;
+                    tmpDef = new b2RopeJointDef();
                     break;
                 }
                 case e_weldJoint: 
                 {
-                    b2WeldJointDef def;
-                    tmpDef = &def;
+                    tmpDef = new b2WeldJointDef();
                     break;
                 }
                 case e_wheelJoint:
                 {
-                    b2WheelJointDef def;
-                    tmpDef = &def;
+                    tmpDef = new b2WheelJointDef();
                     break;
                 }
                 default:
@@ -958,7 +947,14 @@ bool js_box2dclasses_b2World_CreateJoint(JSContext *cx, uint32_t argc, jsval *vp
         
         arg0=tmpDef; ok &= jsval_to_b2JointDef(cx, args.get(0), type, tmpDef);
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_CreateJoint : Error processing arguments");
+        
+        CCLOG("type : %d", type);
+        CCLOG("arg0.type : %d", arg0->type);
+        
         b2Joint* ret = cobj->CreateJoint(arg0);
+        
+        delete tmpDef;
+        
         JS::RootedValue jsret(cx);
         if (ret) {
             jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Joint>(cx, (b2Joint*)ret));
