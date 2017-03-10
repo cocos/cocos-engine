@@ -747,58 +747,23 @@ var _initSys = function () {
 };
 _initSys();
 
-/**
- * Init Debug setting.
- * @function
- */
-cc._initDebugSetting = function (mode) {
-    var ccGame = cc.game;
-    var bakLog = cc._cocosplayerLog || cc.log || log;
-    cc.log = cc.warn = cc.error = cc.assert = function(){};
-    if(mode == ccGame.DEBUG_MODE_NONE){
-    }else{
-        cc.error = function(){
-            bakLog.call(this, "ERROR :  " + cc.formatStr.apply(cc, arguments));
-        };
-        cc.assert = function(cond, msg) {
-            if (!cond && msg) {
-                var args = [];
-                for (var i = 1; i < arguments.length; i++)
-                    args.push(arguments[i]);
-                bakLog("Assert: " + cc.formatStr.apply(cc, args));
-            }
-        };
-        if(mode != ccGame.DEBUG_MODE_ERROR && mode != ccGame.DEBUG_MODE_ERROR_FOR_WEB_PAGE){
-            cc.warn = function(){
-                bakLog.call(this, "WARN :  " + cc.formatStr.apply(cc, arguments));
-            };
-        }
-        if(mode == ccGame.DEBUG_MODE_INFO || mode == ccGame.DEBUG_MODE_INFO_FOR_WEB_PAGE){
-            cc.log = function(){
-                bakLog.call(this, cc.formatStr.apply(cc, arguments));
-            };
-        }
-    }
-};
-
 //+++++++++++++++++++++++++something about CCGame end+++++++++++++++++++++++++++++
 
 // Original bind in Spidermonkey v33 will trigger object life cycle track issue in our memory model and cause crash
-Function.prototype.bind = function (oThis) {
+Function.prototype.bind = function (oThis, ...aArgs) {
     if (typeof this !== 'function') {
         // closest thing possible to the ECMAScript 5
         // internal IsCallable function
         throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
     }
 
-    var aArgs = Array.prototype.slice.call(arguments, 1),
-        fToBind = this,
+    var fToBind = this,
         fNOP = function () {},
-        fBound = function () {
+        fBound = function (...args) {
             return fToBind.apply(this instanceof fNOP && oThis
                 ? this
                 : oThis,
-                aArgs.concat(Array.prototype.slice.call(arguments)));
+                aArgs.concat(args));
         };
 
     fNOP.prototype = this.prototype;
