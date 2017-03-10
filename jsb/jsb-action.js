@@ -86,16 +86,16 @@ var actionArr = [
 
 function setCtorReplacer (proto) {
     var ctor = proto._ctor;
-    proto._ctor = function () {
-        ctor.apply(this, arguments);
+    proto._ctor = function (...args) {
+        ctor.apply(this, args);
         this.retain();
         this._retained = true;
     };
 }
 function setAliasReplacer (name, type) {
     var aliasName = name[0].toLowerCase() + name.substr(1);
-    cc[aliasName] = function () {
-        var action = type.create.apply(this, arguments);
+    cc[aliasName] = function (...args) {
+        var action = type.create.apply(this, args);
         action.retain();
         action._retained = true;
         return action;
@@ -258,12 +258,12 @@ cc.CallFunc.prototype._ctor = function (selector, selectorTarget, data) {
 
 function setChainFuncReplacer (proto, name) {
     var oldFunc = proto[name];
-    proto[name] = function () {
+    proto[name] = function (...args) {
         if (this._retained) {
             this.release();
             this._retained = false;
         }
-        var newAction = oldFunc.apply(this, arguments);
+        var newAction = oldFunc.apply(this, args);
         newAction.retain();
         newAction._retained = true;
         return newAction;
@@ -313,13 +313,10 @@ cc.ActionManager.prototype.addAction = function (action, target, paused) {
 function actionMgrFuncReplacer (funcName, targetPos) {
     var proto = cc.ActionManager.prototype;
     var oldFunc = proto[funcName];
-    proto[funcName] = function () {
-        var args = [];
-        for (var i = 0; i < arguments.length; i++) {
+    proto[funcName] = function (...args) {
+        for (var i = 0; i < args.length; i++) {
             if (i === targetPos)
-                args[i] = getSGTarget(arguments[i]);
-            else
-                args[i] = arguments[i];
+                args[i] = getSGTarget(args[i]);
         }
         if (!args[targetPos]) {
             return;
