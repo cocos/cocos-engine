@@ -588,9 +588,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
     // call user constructors
     if (ctors.length > 0) {
         body += 'var cs=fireClass.__ctors__;\n';
-        if (!CC_JSB) {
-            body += 'var args = arguments;\n';
-        }
+        var params = CC_JSB ? 'args' : 'arguments';
 
         if (useTryCatch) {
             body += 'try{\n';
@@ -598,12 +596,12 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
 
         if (ctors.length <= 5) {
             for (var i = 0; i < ctors.length; i++) {
-                body += '(cs[' + i + ']).apply(this,args);\n';
+                body += '(cs[' + i + ']).apply(this,' + params + ');\n';
             }
         }
         else {
-            body += 'for(i=0,l=cs.length;i<l;++i){\n';
-            body += '(cs[i]).apply(this,args);\n}\n';
+            body += 'for(var i=0,l=cs.length;i<l;++i){\n';
+            body += '(cs[i]).apply(this,' + params + ');\n}\n';
         }
 
         if (useTryCatch) {

@@ -345,7 +345,6 @@ cc.js.unregisterClass to remove the id of unused class';
             }
         }
     } : function () {
-        'use strict';
         for (var i = 0; i < arguments.length; i++) {
             var p = arguments[i].prototype;
             var classId = p.__cid__;
