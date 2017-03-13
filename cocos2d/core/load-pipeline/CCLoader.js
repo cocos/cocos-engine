@@ -326,13 +326,8 @@ JS.mixin(CCLoader.prototype, {
 
     _urlNotFound: function (url, type, completeCallback) {
         callInNextTick(function () {
-            var info;
-            if (type) {
-                info = JS.getClassName(type) + ' in "' + url + '" does not exist.';
-            }
-            else {
-                info = 'Resources url "' + url + '" does not exist.';
-            }
+            url = cc.url.normalize(url);
+            var info = `${type ? JS.getClassName(type) : 'Asset'} in "resources/${url}" does not exist.`;
             if (completeCallback) {
                 completeCallback(new Error(info), []);
             }
