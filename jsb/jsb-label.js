@@ -124,6 +124,8 @@ jsbLabel.prototype.setColor = function(color) {
     }
 };
 
+jsbLabel.prototype.setSpacingX = jsbLabel.prototype.setAdditionalKerning;
+
 jsbLabel.prototype._setTTFConfig = jsbLabel.prototype.setTTFConfig;
 jsbLabel.prototype.setTTFConfig = function (config) {
     this._setTTFConfig(config);

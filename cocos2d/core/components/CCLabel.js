@@ -516,7 +516,9 @@ var Label = cc.Class({
         sgNode.enableWrapText( this._enableWrapText );
         sgNode.setLineHeight(this._lineHeight);
         sgNode.setString(this.string);
-        sgNode.setSpacingX(this.spacingX);
+        if (this.font instanceof cc.BitmapFont) {
+            sgNode.setSpacingX(this.spacingX);
+        }
         if (CC_EDITOR) {
             this._userDefinedFontSize = this.fontSize;
             this._userDefinedFont = this.font;
