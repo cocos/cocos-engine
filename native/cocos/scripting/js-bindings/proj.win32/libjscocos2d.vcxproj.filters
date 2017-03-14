@@ -152,6 +152,15 @@
     <ClCompile Include="..\auto\jsb_cocos2dx_network_auto.cpp">
       <Filter>auto</Filter>
     </ClCompile>
+    <ClCompile Include="..\auto\jsb_box2d_auto.cpp">
+      <Filter>auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\box2d\js_bindings_box2d_manual.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\creator\js_bindings_creator_manual.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\auto\jsb_cocos2dx_auto.hpp">
@@ -288,6 +297,15 @@
     </ClInclude>
     <ClInclude Include="..\auto\jsb_cocos2dx_network_auto.hpp">
       <Filter>auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\auto\jsb_box2d_auto.hpp">
+      <Filter>auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\box2d\js_bindings_box2d_manual.h">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\creator\js_bindings_creator_manual.h">
+      <Filter>manual</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

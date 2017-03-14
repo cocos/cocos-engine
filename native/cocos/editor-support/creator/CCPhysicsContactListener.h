@@ -25,108 +25,28 @@
 #include "cocos2d.h"
 #include <functional>
 #include <vector>
-#include <algorithm>
 
 namespace creator {
 
 class CC_DLL PhysicsContactListener : public b2ContactListener
 {
 public:
-    PhysicsContactListener() {}
-    virtual ~PhysicsContactListener() {
-    }
+    PhysicsContactListener();
+    virtual ~PhysicsContactListener();
     
-    void setBeginContact(std::function<void(b2Contact* contact)> callback)
-    {
-        _beginContact = callback;
-    }
-    
-    void setEndContact(std::function<void(b2Contact* contact)> callback)
-    {
-        _endContact = callback;
-    }
-    
-    void setPreSolve(std::function<void(b2Contact* contact, const b2Manifold* oldManifold)> callback)
-    {
-        _preSolve = callback;
-    }
-    
-    void setPostSolve(std::function<void(b2Contact* contact, const b2ContactImpulse* impulse)> callback)
-    {
-        _postSolve = callback;
-    }
+    void setBeginContact(std::function<void(b2Contact* contact)> callback);
+    void setEndContact(std::function<void(b2Contact* contact)> callback);
+    void setPreSolve(std::function<void(b2Contact* contact, const b2Manifold* oldManifold)> callback);
+    void setPostSolve(std::function<void(b2Contact* contact, const b2ContactImpulse* impulse)> callback);
     
     
-    virtual void BeginContact(b2Contact* contact)
-    {
-        if (!_beginContact) return;
-        
-        b2Fixture* fixtureA = contact->GetFixtureA();
-        b2Fixture* fixtureB = contact->GetFixtureB();
-        
-        if (find(_contactFixtures.begin(), _contactFixtures.end(), fixtureA) != _contactFixtures.end( ) ||
-            find(_contactFixtures.begin(), _contactFixtures.end(), fixtureB) != _contactFixtures.end( ))
-        {
-            _beginContact(contact);
-        }
-        
-    }
+    virtual void BeginContact(b2Contact* contact);
+    virtual void EndContact(b2Contact* contact);
+    virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
+    virtual void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse);
     
-    virtual void EndContact(b2Contact* contact)
-    {
-        if (!_endContact) return;
-        
-        b2Fixture* fixtureA = contact->GetFixtureA();
-        b2Fixture* fixtureB = contact->GetFixtureB();
-        
-        if (find(_contactFixtures.begin(), _contactFixtures.end(), fixtureA) != _contactFixtures.end( ) ||
-            find(_contactFixtures.begin(), _contactFixtures.end(), fixtureB) != _contactFixtures.end( ))
-        {
-            _endContact(contact);
-        }
-    }
-    
-    virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
-    {
-        if (!_preSolve) return;
-        
-        b2Fixture* fixtureA = contact->GetFixtureA();
-        b2Fixture* fixtureB = contact->GetFixtureB();
-        
-        if (find(_contactFixtures.begin(), _contactFixtures.end(), fixtureA) != _contactFixtures.end( ) ||
-            find(_contactFixtures.begin(), _contactFixtures.end(), fixtureB) != _contactFixtures.end( ))
-        {
-            _preSolve(contact, oldManifold);
-        }
-    }
-    
-    virtual void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
-    {
-        if (!_postSolve) return;
-        
-        b2Fixture* fixtureA = contact->GetFixtureA();
-        b2Fixture* fixtureB = contact->GetFixtureB();
-        
-        if (find(_contactFixtures.begin(), _contactFixtures.end(), fixtureA) != _contactFixtures.end( ) ||
-            find(_contactFixtures.begin(), _contactFixtures.end(), fixtureB) != _contactFixtures.end( ))
-        {
-            _postSolve(contact, impulse);
-        }
-    }
-    
-    void registerContactFixture (b2Fixture* fixture)
-    {
-        _contactFixtures.push_back(fixture);
-    }
-    
-    void unregisterContactFixture (b2Fixture* fixture)
-    {
-        auto result = find(_contactFixtures.begin(), _contactFixtures.end(), fixture);
-        if ( result != _contactFixtures.end( ) )
-        {
-            _contactFixtures.erase(result);
-        }
-    }
+    void registerContactFixture(b2Fixture* fixture);
+    void unregisterContactFixture(b2Fixture* fixture);
     
 protected:
     std::function<void(b2Contact* contact)> _beginContact;

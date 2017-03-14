@@ -12,7 +12,7 @@ using namespace cocos2d;
 
 namespace creator {
 
-b2WorldManifold PhysicsUtils::_worldManifold;
+static b2WorldManifold _worldManifold;
 
 PhysicsUtils::PhysicsUtils()
     : PTM_RATIO(32)

@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\auto\jsb_box2d_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_audioengine_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_builder_auto.cpp" />
@@ -23,6 +24,7 @@
     <ClCompile Include="..\auto\jsb_creator_auto.cpp" />
     <ClCompile Include="..\auto\js_bindings_chipmunk_auto_classes.cpp" />
     <ClCompile Include="..\auto\js_bindings_chipmunk_functions.cpp" />
+    <ClCompile Include="..\manual\box2d\js_bindings_box2d_manual.cpp" />
     <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_manual.cpp" />
     <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_registration.cpp" />
     <ClCompile Include="..\manual\cocos2d_specifics.cpp" />
@@ -30,6 +32,7 @@
     <ClCompile Include="..\manual\cocostudio\jsb_cocos2dx_studio_conversions.cpp" />
     <ClCompile Include="..\manual\cocostudio\jsb_cocos2dx_studio_manual.cpp" />
     <ClCompile Include="..\manual\component\CCComponentJS.cpp" />
+    <ClCompile Include="..\manual\creator\js_bindings_creator_manual.cpp" />
     <ClCompile Include="..\manual\dragonbones\jsb_cocos2dx_dragonbones_manual.cpp" />
     <ClCompile Include="..\manual\extension\jsb_cocos2dx_extension_manual.cpp" />
     <ClCompile Include="..\manual\jsb_event_dispatcher_manual.cpp" />
@@ -51,6 +54,7 @@
     <ClCompile Include="..\manual\ui\jsb_cocos2dx_ui_manual.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\auto\jsb_box2d_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_audioengine_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_builder_auto.hpp" />
@@ -65,6 +69,7 @@
     <ClInclude Include="..\auto\js_bindings_chipmunk_auto_classes_registration.h" />
     <ClInclude Include="..\auto\js_bindings_chipmunk_functions.h" />
     <ClInclude Include="..\auto\js_bindings_chipmunk_functions_registration.h" />
+    <ClInclude Include="..\manual\box2d\js_bindings_box2d_manual.h" />
     <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_manual.h" />
     <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_registration.h" />
     <ClInclude Include="..\manual\cocos2d_specifics.hpp" />
@@ -73,6 +78,7 @@
     <ClInclude Include="..\manual\cocostudio\jsb_cocos2dx_studio_conversions.h" />
     <ClInclude Include="..\manual\cocostudio\jsb_cocos2dx_studio_manual.h" />
     <ClInclude Include="..\manual\component\CCComponentJS.h" />
+    <ClInclude Include="..\manual\creator\js_bindings_creator_manual.h" />
     <ClInclude Include="..\manual\dragonbones\jsb_cocos2dx_dragonbones_manual.h" />
     <ClInclude Include="..\manual\extension\jsb_cocos2dx_extension_manual.h" />
     <ClInclude Include="..\manual\jsb_event_dispatcher_manual.h" />
@@ -107,6 +113,9 @@
     </ProjectReference>
     <ProjectReference Include="..\..\..\editor-support\spine\proj.win32\libSpine.vcxproj">
       <Project>{b7c2a162-dec9-4418-972e-240ab3cbfcae}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\external\sources\Box2D\proj.win32\libBox2D.vcxproj">
+      <Project>{EB7E5610-C178-49C9-8B4C-1C283E616ED9}</Project>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">

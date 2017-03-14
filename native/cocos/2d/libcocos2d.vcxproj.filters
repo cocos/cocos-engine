@@ -1160,6 +1160,21 @@
     <ClCompile Include="..\editor-support\creator\Triangulate.cpp">
       <Filter>creator</Filter>
     </ClCompile>
+    <ClCompile Include="..\editor-support\creator\CCPhysicsDebugDraw.cpp">
+      <Filter>creator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\editor-support\creator\CCPhysicsUtils.cpp">
+      <Filter>creator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\editor-support\creator\CCPhysicsAABBQueryCallback.cpp">
+      <Filter>creator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\editor-support\creator\CCPhysicsContactListener.cpp">
+      <Filter>creator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\editor-support\creator\CCPhysicsRayCastCallback.cpp">
+      <Filter>creator</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cocos2d.h" />
@@ -2206,6 +2221,21 @@
       <Filter>creator</Filter>
     </ClInclude>
     <ClInclude Include="..\editor-support\creator\Triangulate.h">
+      <Filter>creator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\CCPhysicsAABBQueryCallback.h">
+      <Filter>creator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\CCPhysicsContactListener.h">
+      <Filter>creator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\CCPhysicsDebugDraw.h">
+      <Filter>creator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\CCPhysicsRayCastCallback.h">
+      <Filter>creator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\CCPhysicsUtils.h">
       <Filter>creator</Filter>
     </ClInclude>
   </ItemGroup>
