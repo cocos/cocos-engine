@@ -50,8 +50,6 @@ protected:
     
     std::vector<b2Body*> _bodies;
     float PTM_RATIO;
-    
-    static b2WorldManifold _worldManifold;
 };
     
 }

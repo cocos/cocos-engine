@@ -948,9 +948,6 @@ bool js_box2dclasses_b2World_CreateJoint(JSContext *cx, uint32_t argc, jsval *vp
         arg0=tmpDef; ok &= jsval_to_b2JointDef(cx, args.get(0), type, tmpDef);
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_CreateJoint : Error processing arguments");
         
-        CCLOG("type : %d", type);
-        CCLOG("arg0.type : %d", arg0->type);
-        
         b2Joint* ret = cobj->CreateJoint(arg0);
         
         delete tmpDef;
