@@ -29,46 +29,15 @@ namespace creator {
 class CC_DLL PhysicsAABBQueryCallback : public b2QueryCallback
 {
 public:
-    PhysicsAABBQueryCallback ()
-    {
-        _isPoint = false;
-    }
+    PhysicsAABBQueryCallback();
+    PhysicsAABBQueryCallback(const b2Vec2& p);
     
-    PhysicsAABBQueryCallback (const b2Vec2& p)
-    {
-        _point = p;
-        _isPoint = true;
-    }
+    ~PhysicsAABBQueryCallback();
     
-    ~PhysicsAABBQueryCallback() {}
+    virtual bool ReportFixture(b2Fixture* fixture);
     
-    virtual bool ReportFixture(b2Fixture* fixture)
-    {
-        b2Body* body = fixture->GetBody();
-        if (body->GetType() == b2_dynamicBody) {
-            if (_isPoint) {
-                if (fixture->TestPoint(_point)) {
-                    _fixtures.push_back(fixture);
-                    // We are done, terminate the query.
-                    return false;
-                }
-            }
-            else {
-                _fixtures.push_back(fixture);
-            }
-        }
-        
-        // Continue the query.
-        return true;
-    }
-    
-    b2Fixture* getFixture () {
-        return _fixtures.size() > 0 ? _fixtures[0] : nullptr;
-    }
-    
-    std::vector<b2Fixture*> getFixtures () {
-        return _fixtures;
-    }
+    b2Fixture* getFixture();
+    std::vector<b2Fixture*> getFixtures();
     
 protected:
     b2Vec2 _point;

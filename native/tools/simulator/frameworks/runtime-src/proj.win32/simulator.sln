@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simulator", "simulator.vcxproj", "{4E6A7A0E-DDD8-4BAA-8B22-C964069364ED}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjscocos2d", "..\..\..\..
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libDragonBones", "..\..\..\..\..\cocos\editor-support\dragonbones\proj.win32\libDragonBones.vcxproj", "{6B494955-1E66-40DA-830D-0D31B8D301EF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libBox2D", "..\..\..\..\..\external\sources\Box2D\proj.win32\libBox2D.vcxproj", "{EB7E5610-C178-49C9-8B4C-1C283E616ED9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +56,10 @@ Global
 		{6B494955-1E66-40DA-830D-0D31B8D301EF}.Debug|Win32.Build.0 = Debug|Win32
 		{6B494955-1E66-40DA-830D-0D31B8D301EF}.Release|Win32.ActiveCfg = Release|Win32
 		{6B494955-1E66-40DA-830D-0D31B8D301EF}.Release|Win32.Build.0 = Release|Win32
+		{EB7E5610-C178-49C9-8B4C-1C283E616ED9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EB7E5610-C178-49C9-8B4C-1C283E616ED9}.Debug|Win32.Build.0 = Debug|Win32
+		{EB7E5610-C178-49C9-8B4C-1C283E616ED9}.Release|Win32.ActiveCfg = Release|Win32
+		{EB7E5610-C178-49C9-8B4C-1C283E616ED9}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
