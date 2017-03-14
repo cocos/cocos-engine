@@ -9,7 +9,10 @@ LOCAL_SRC_FILES := CCScale9Sprite.cpp \
     CCGraphicsNode.cpp \
     Triangulate.cpp \
     CCPhysicsDebugDraw.cpp \
-    CCPhysicsUtils.cpp
+    CCPhysicsUtils.cpp \
+    CCPhysicsAABBQueryCallback.cpp \
+    CCPhysicsContactListener.cpp \
+    CCPhysicsRayCastCallback.cpp
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/..
 
