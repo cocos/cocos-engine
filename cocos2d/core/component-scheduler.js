@@ -201,20 +201,20 @@ function enableInEditor (comp) {
 function createInvokeImpl (code, useDt) {
     if (CC_EDITOR) {
         if (useDt) {
-            return function (iterator) {
-                var array = iterator.array;
-                for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                    var comp = array[iterator.i];
-                    code(comp);
-                }
-            };
-        }
-        else {
             return function (iterator, dt) {
                 var array = iterator.array;
                 for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                     var comp = array[iterator.i];
                     code(comp, dt);
+                }
+            };
+        }
+        else {
+            return function (iterator) {
+                var array = iterator.array;
+                for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                    var comp = array[iterator.i];
+                    code(comp);
                 }
             };
         }
