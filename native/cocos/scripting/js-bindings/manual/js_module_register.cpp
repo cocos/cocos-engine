@@ -22,6 +22,10 @@
 #include "scripting/js-bindings/manual/network/jsb_websocket.h"
 #include "scripting/js-bindings/manual/network/jsb_socketio.h"
 
+#include "scripting/js-bindings/auto/jsb_box2d_auto.hpp"
+#include "scripting/js-bindings/manual/box2d/js_bindings_box2d_manual.h"
+#include "scripting/js-bindings/manual/creator/js_bindings_creator_manual.h"
+
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 #include "scripting/js-bindings/auto/jsb_cocos2dx_experimental_video_auto.hpp"
 #include "scripting/js-bindings/manual/experimental/jsb_cocos2dx_experimental_video_manual.h"
@@ -46,6 +50,9 @@ int js_module_register()
     sc->addRegisterCallback(register_all_cocos2dx);
     sc->addRegisterCallback(register_cocos2dx_js_core);
     sc->addRegisterCallback(jsb_register_system);
+    
+    sc->addRegisterCallback(register_all_box2dclasses);
+    sc->addRegisterCallback(register_all_box2dclasses_manual);
     
     // extension can be commented out to reduce the package
     sc->addRegisterCallback(register_all_cocos2dx_extension);
@@ -78,6 +85,7 @@ int js_module_register()
 
     // register creator
     sc->addRegisterCallback(register_all_creator);
+    sc->addRegisterCallback(register_all_creatorclasses_manual);
     
     // XmlHttpRequest can be commented out to reduce the package
     sc->addRegisterCallback(MinXmlHttpRequest::_js_register);
