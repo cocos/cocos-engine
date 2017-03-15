@@ -630,7 +630,8 @@ void ScriptingCore::createGlobalContext() {
     }
 
     _rt = JS_NewRuntime(32L * 1024L * 1024L);
-    JS_SetGCParameter(_rt, JSGC_MAX_BYTES, 0xffffffff);
+    JS_SetGCParameter(_rt, JSGCParamKey::JSGC_MAX_BYTES, 0xffffffff);
+    JS_SetGCParameter(_rt, JSGCParamKey::JSGC_MODE, JSGC_MODE_COMPARTMENT);
 
     JS_SetTrustedPrincipals(_rt, &shellTrustedPrincipals);
     JS_SetSecurityCallbacks(_rt, &securityCallbacks);
@@ -738,10 +739,9 @@ JS::PersistentRootedScript* ScriptingCore::compileScript(const std::string& path
         /* Clear any pending exception from previous failed decoding.  */
         ReportException(cx);
 
-        std::string fullPath = futil->fullPathForFilename(path);
-
         JS::CompileOptions op(cx);
         op.setUTF8(true);
+        std::string fullPath = futil->fullPathForFilename(path);
         op.setFileAndLine(fullPath.c_str(), 1);
 
         bool ok = false;
