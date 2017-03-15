@@ -138,28 +138,6 @@ jsb.reflection = {
     }
 };
 
-// Key: ext, Value: callback
-var __JSBDownloadCallbackMap = {};
-var __JSBDownloadIndex = 0;
-
-jsb.onDownloadRemoteFile = function(callbackIndex, arg1, arg2) {
-    if (callbackIndex in __JSBDownloadCallbackMap) {
-        var callback = __JSBDownloadCallbackMap[callbackIndex];
-        if (callback) {
-            callback(arg1, arg2);
-        } else {
-            cc.log("ERROR: jsb.onDownloadRemoteFile, callback is null!");
-        }
-        delete __JSBDownloadCallbackMap[callbackIndex];
-    }
-};
-
-jsb.loadRemoteImg = function(downloadConfig, callback) {
-    __JSBDownloadIndex++;
-    __JSBDownloadCallbackMap[__JSBDownloadIndex] = callback;
-    jsb.__loadRemoteImg(downloadConfig, __JSBDownloadIndex);
-};
-
 //+++++++++++++++++++++++++Redefine JSB only APIs+++++++++++++++++++++++++++++
 
 
