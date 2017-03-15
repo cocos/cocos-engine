@@ -629,18 +629,6 @@ b2ChainShape : function (
 b2.PolygonShape = {
 
 /**
- * @method Set
- * @param {b2Vec2} arg0
- * @param {int} arg1
- */
-Set : function (
-b2vec2, 
-int 
-)
-{
-},
-
-/**
  * @method ComputeMass
  * @param {b2MassData} arg0
  * @param {float} arg1
@@ -750,22 +738,6 @@ Validate : function (
 )
 {
     return false;
-},
-
-/**
- * @method SetAsBox
-* @param {float|float} float
-* @param {float|float} float
-* @param {b2Vec2} b2vec2
-* @param {float} float
-*/
-SetAsBox : function(
-float,
-float,
-b2vec2,
-float 
-)
-{
 },
 
 /**
@@ -2025,7 +1997,7 @@ b2vec2
 /**
  * @class b2Contact
  */
-b2.b2Contact = {
+b2.Contact = {
 
 /**
  * @method GetNext
