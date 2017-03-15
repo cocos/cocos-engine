@@ -822,7 +822,8 @@ test('lateUpdate', function () {
                             lastExecutedMethod = method;
                         }
                         var myOrder = this.constructor._executionOrder;
-                        ok(myOrder >= lastExecutedOrder, `component ordered ${myOrder} should not execute before ${lastExecutedOrder}`);
+                        ok(myOrder >= lastExecutedOrder,
+                            'component ordered ' + myOrder + ' should not execute before ' + lastExecutedOrder);
                         lastExecutedOrder = myOrder;
                     };
                 })(orderedMethods[j]);
