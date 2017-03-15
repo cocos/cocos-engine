@@ -999,6 +999,7 @@ void AssetsManagerEx::onError(const network::DownloadTask& task,
     else if (task.identifier == MANIFEST_ID)
     {
         dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ERROR_DOWNLOAD_MANIFEST, task.identifier, errorStr, errorCode, errorCodeInternal);
+        _updateState = State::FAIL_TO_UPDATE;
     }
     else
     {
