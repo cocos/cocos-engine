@@ -1719,55 +1719,6 @@ bool js_box2dclasses_b2PolygonShape_Validate(JSContext *cx, uint32_t argc, jsval
     JS_ReportError(cx, "js_box2dclasses_b2PolygonShape_Validate : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_box2dclasses_b2PolygonShape_SetAsBox(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    b2PolygonShape* cobj = nullptr;
-
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx);
-    obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
-    cobj = (b2PolygonShape *)(proxy ? proxy->ptr : nullptr);
-    JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PolygonShape_SetAsBox : Invalid Native Object");
-    do {
-        bool ok = true;
-        if (argc == 4) {
-            double arg0 = 0;
-            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
-            if (!ok) { ok = true; break; }
-            double arg1 = 0;
-            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
-            if (!ok) { ok = true; break; }
-            b2Vec2 arg2;
-            ok &= jsval_to_b2Vec2(cx, args.get(2), &arg2);
-            if (!ok) { ok = true; break; }
-            double arg3 = 0;
-            ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
-            if (!ok) { ok = true; break; }
-            cobj->SetAsBox(arg0, arg1, arg2, arg3);
-            args.rval().setUndefined();
-            return true;
-        }
-    } while(0);
-
-    do {
-        bool ok = true;
-        if (argc == 2) {
-            double arg0 = 0;
-            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
-            if (!ok) { ok = true; break; }
-            double arg1 = 0;
-            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
-            if (!ok) { ok = true; break; }
-            cobj->SetAsBox(arg0, arg1);
-            args.rval().setUndefined();
-            return true;
-        }
-    } while(0);
-
-    JS_ReportError(cx, "js_box2dclasses_b2PolygonShape_SetAsBox : wrong number of arguments");
-    return false;
-}
 bool js_box2dclasses_b2PolygonShape_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1837,7 +1788,6 @@ void js_register_box2dclasses_b2PolygonShape(JSContext *cx, JS::HandleObject glo
         JS_FN("GetChildCount", js_box2dclasses_b2PolygonShape_GetChildCount, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("TestPoint", js_box2dclasses_b2PolygonShape_TestPoint, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("Validate", js_box2dclasses_b2PolygonShape_Validate, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("SetAsBox", js_box2dclasses_b2PolygonShape_SetAsBox, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
 
@@ -5321,7 +5271,7 @@ bool js_box2dclasses_b2Contact_ResetRestitution(JSContext *cx, uint32_t argc, js
 
 void js_register_box2dclasses_b2Contact(JSContext *cx, JS::HandleObject global) {
     jsb_b2Contact_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2Contact_class->name = "b2Contact";
+    jsb_b2Contact_class->name = "Contact";
     jsb_b2Contact_class->addProperty = JS_PropertyStub;
     jsb_b2Contact_class->delProperty = JS_DeletePropertyStub;
     jsb_b2Contact_class->getProperty = JS_PropertyStub;

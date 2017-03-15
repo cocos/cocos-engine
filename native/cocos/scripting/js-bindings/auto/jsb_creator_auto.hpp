@@ -117,8 +117,6 @@ void js_creator_PhysicsContactListener_finalize(JSContext *cx, JSObject *obj);
 void js_register_creator_PhysicsContactListener(JSContext *cx, JS::HandleObject global);
 void register_all_creator(JSContext* cx, JS::HandleObject obj);
 bool js_creator_PhysicsContactListener_unregisterContactFixture(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_creator_PhysicsContactListener_setEndContact(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_creator_PhysicsContactListener_setBeginContact(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsContactListener_registerContactFixture(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsContactListener_PhysicsContactListener(JSContext *cx, uint32_t argc, jsval *vp);
 

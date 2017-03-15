@@ -109,7 +109,6 @@ bool js_box2dclasses_b2PolygonShape_GetVertexCount(JSContext *cx, uint32_t argc,
 bool js_box2dclasses_b2PolygonShape_GetChildCount(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_box2dclasses_b2PolygonShape_TestPoint(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_box2dclasses_b2PolygonShape_Validate(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2PolygonShape_SetAsBox(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_box2dclasses_b2PolygonShape_b2PolygonShape(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_b2Body_class;

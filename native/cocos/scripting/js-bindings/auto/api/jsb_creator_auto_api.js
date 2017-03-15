@@ -835,26 +835,6 @@ b2fixture
 },
 
 /**
- * @method setEndContact
- * @param {function} arg0
- */
-setEndContact : function (
-func 
-)
-{
-},
-
-/**
- * @method setBeginContact
- * @param {function} arg0
- */
-setBeginContact : function (
-func 
-)
-{
-},
-
-/**
  * @method registerContactFixture
  * @param {b2Fixture} arg0
  */
