@@ -103,8 +103,9 @@ if (TestEditorExtends) {
 
         equal(node1.getChildrenCount(), node2.getChildrenCount(), 'The children count should be equal between two nodes.');
         if (node1.getChildrenCount() > 0) {
-            for (var i in node1.getChildren()) {
-                compare2Nodes(node1.getChildren()[i], node2.getChildren()[i], 'The children content should be equal between two nodes.');
+            var children = node1.getChildren();
+            for (var j = 0; j < children.length; ++j) {
+                compare2Nodes(children[j], node2.getChildren()[j], 'The children content should be equal between two nodes.');
             }
         }
     }

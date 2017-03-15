@@ -95,7 +95,7 @@ exports.test = function (callback) {
         console.error('Please run "npm install gulp-qunit" before running "gulp test".');
         throw e;
     }
-    return Gulp.src('bin/qunit-runner.html', { read: false })
+    return Gulp.src('bin/qunit-runner.html')
         .pipe(qunit({ timeout: 5 }))
         .on('end', callback);
 };
