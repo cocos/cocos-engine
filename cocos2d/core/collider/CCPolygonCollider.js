@@ -71,7 +71,7 @@ var PolygonCollider = cc.Class({
          */
         points: {
             default: function () {
-                 return [];
+                 return [cc.v2(-50,-50), cc.v2(50, -50), cc.v2(50,50), cc.v2(-50,50)];
             },
             type: [cc.Vec2]
         }
