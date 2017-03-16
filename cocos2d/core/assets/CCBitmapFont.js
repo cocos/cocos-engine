@@ -49,7 +49,9 @@ var BitmapFont = cc.Class({
 
         fontSize: {
             default: -1
-        }
+        },
+        //用来缓存 BitmapFont 解析之后的数据
+        _fntConfig: null
     }
 });
 
