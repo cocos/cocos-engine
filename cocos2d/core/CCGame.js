@@ -562,7 +562,7 @@ var game = {
             }
         };
 
-        window.requestAnimFrame(callback);
+        self._intervalId = window.requestAnimFrame(callback);
         self._paused = false;
     },
 

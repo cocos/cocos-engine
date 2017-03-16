@@ -260,10 +260,15 @@ JS.mixin(EventTarget.prototype, {
     },
 
     /**
-     * !#en Removes all callbacks previously registered with the same target.
-     * !#zh 删除指定目标上的所有注册回调。
+     * !#en Removes all callbacks previously registered with the same target (passed as parameter).
+     * This is not for removing all listeners in the current event target, 
+     * and this is not for removing all listeners the target parameter have registered.
+     * It's only for removing all listeners (callback and target couple) registered on the current event target by the target parameter.
+     * !#zh 在当前 EventTarget 上删除指定目标（target 参数）注册的所有事件监听器。
+     * 这个函数无法删除当前 EventTarget 的所有事件监听器，也无法删除 target 参数所注册的所有事件监听器。
+     * 这个函数只能删除 target 参数在当前 EventTarget 上注册的所有事件监听器。
      * @method targetOff
-     * @param {Object} target - The target to be searched for all related callbacks
+     * @param {Object} target - The target to be searched for all related listeners
      */
     targetOff: function (target) {
         if (this._capturingListeners) {
