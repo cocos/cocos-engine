@@ -45,7 +45,7 @@ var PhysicsPolygonCollider = cc.Class({
         var ret = PolygonSeprator.validate(points);
 
         if (ret === 2) {
-            points = points.revert();
+            points = points.reverse();
             ret = PolygonSeprator.validate(points);
         }
 
@@ -55,19 +55,34 @@ var PhysicsPolygonCollider = cc.Class({
             for (var i = 0; i < polys.length; i++) {
                 var poly = polys[i];
 
-                var shape = new b2.PolygonShape();
-                var vertices = [];
+                var shape = null, vertices = [];
                 
-                for (var j = 0; j < poly.length; j++) {
+                for (var j = 0, l = poly.length; j < l; j++) {
+                    if (!shape) {
+                        shape = new b2.PolygonShape();
+                    }
                     var p = poly[j];
                     if (transform) {
                         p = cc.pointApplyAffineTransform(p, transform);
                     }
                     vertices.push( new b2.Vec2(p.x/CC_PTM_RATIO*scale.x, p.y/CC_PTM_RATIO*scale.y) );
+
+                    if (vertices.length === b2.maxPolygonVertices) {
+                        shape.Set(vertices, vertices.length);
+                        shapes.push(shape);
+
+                        shape = null;
+
+                        if (j < l - 1) {
+                            vertices = [vertices[0], vertices[j]];
+                        }
+                    }
                 }
 
-                shape.Set(vertices, vertices.length);
-                shapes.push(shape);
+                if (shape) {
+                    shape.Set(vertices, vertices.length);
+                    shapes.push(shape);
+                }
             }
         }
         else {
