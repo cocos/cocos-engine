@@ -33,6 +33,7 @@ var BodyType = require('./CCPhysicsTypes').BodyType;
 var RigidBody = cc.Class({
     name: 'cc.RigidBody',
     extends: cc.Component,
+    mixins: [cc.EventTarget],
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.physics/Rigid Body',
@@ -63,7 +64,7 @@ var RigidBody = cc.Class({
 
                 if (this._b2Body) {
                     if (value === BodyType.Animated) {
-                        this._b2Body.SetType(BodyType.Animated);
+                        this._b2Body.SetType(BodyType.Kinematic);
                     }
                     else {
                         this._b2Body.SetType(value);
@@ -232,7 +233,7 @@ var RigidBody = cc.Class({
         return cc.v2();
     },
 
-    getPosition: function () {
+    getWorldPosition: function () {
         if (this._b2Body) {
             var pos = this._b2Body.GetPosition();
             return cc.v2(pos.x*CC_PTM_RATIO, pos.y*CC_PTM_RATIO);
@@ -240,7 +241,7 @@ var RigidBody = cc.Class({
         return cc.v2();
     },
 
-    getRotation: function () {
+    getWorldRotation: function () {
         if (this._b2Body) {
             return -this._b2Body.GetAngle() * (180 / Math.PI);
         }
@@ -286,10 +287,12 @@ var RigidBody = cc.Class({
 
     onEnable: function () {
         this._init();
+        this.emit('enabled');
     },
 
     onDisable: function () {
         this._destroy();
+        this.emit('disabled');
     },
 
     onLoad: function () {

@@ -80,6 +80,10 @@ PhysicsCollider.prototype.getAABB = function () {
     return cc.rect(minX, minY, maxX-minX, maxY-minY);
 };
 
+PhysicsCollider.prototype._getFixtureIndex = function (fixture) {
+    return this._fixtures.indexOf(fixture);
+};
+
 PhysicsCollider.prototype._init = function () {
     cc.director.getPhysicsManager().pushDelayEvent(this, '__init', []);
 };
@@ -150,6 +154,8 @@ PhysicsCollider.prototype.__init = function () {
     }
 
     this.body = body;
+    this.registerBodyEvent();
+
     this._inited = true;
 };
 PhysicsCollider.prototype.__destroy = function () {
@@ -167,7 +173,9 @@ PhysicsCollider.prototype.__destroy = function () {
         }
     }
     
+    this.registerBodyEvent();
     this.body = null;
+    
     this._fixtures.length = 0;
     this._shapes.length = 0;
     this._inited = false;
@@ -222,6 +230,22 @@ PhysicsCollider.properties = {
             this._restitution = value;
         }
     }
+};
+
+PhysicsCollider.prototype.setEnabled = function () {
+    this.enabled = true;
+}
+PhysicsCollider.prototype.setDisabled = function () {
+    this.enabled = false;   
+}
+
+PhysicsCollider.prototype.registerBodyEvent = function () {
+    this.body.on('enabled', this.setEnabled, this);
+    this.body.on('disabled', this.setDisabled, this);
+};
+PhysicsCollider.prototype.unregisterBodyEvent = function () {
+    this.body.off('enabled', this.setEnabled, this);
+    this.body.off('disabled', this.setDisabled, this);
 };
 
 cc.PhysicsCollider = module.exports = PhysicsCollider;
