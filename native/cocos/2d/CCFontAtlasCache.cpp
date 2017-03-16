@@ -239,8 +239,10 @@ void FontAtlasCache::reloadFontAtlasFNT(const std::string& fntDataString,
                                         SpriteFrame* spriteFrame,
                                         const Vec2& imageOffset/* = Vec2::ZERO*/)
 {
+    auto realFontFilename = spriteFrame->getTexture()->getPath();
+
     char tmp[ATLAS_MAP_KEY_BUFFER];
-    snprintf(tmp, ATLAS_MAP_KEY_BUFFER, "%.2f %.2f %s", imageOffset.x, imageOffset.y, fntDataString.c_str());
+    snprintf(tmp, ATLAS_MAP_KEY_BUFFER, "%.2f %.2f %s", imageOffset.x, imageOffset.y, realFontFilename.c_str());
     std::string atlasName = tmp;
 
     auto it = _atlasMap.find(atlasName);
