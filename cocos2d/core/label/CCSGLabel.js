@@ -229,9 +229,10 @@ _ccsg.Label = _ccsg.Node.extend({
     _isBold: false,
     _isItalic: false,
     _isUnderline: false,
+    _fontAsset: null,
 
     //fontHandle it is a system font name, ttf file path or bmfont file path.
-    ctor: function(string, fontHandle, spriteFrame) {
+    ctor: function(string, fontHandle, spriteFrame, fontAsset) {
         EventTarget.call(this);
 
         fontHandle = fontHandle || "";
@@ -241,7 +242,7 @@ _ccsg.Label = _ccsg.Node.extend({
         }
 
         this._string = string;
-
+        this._fontAsset = fontAsset;
         _ccsg.Node.prototype.ctor.call(this);
         this.setAnchorPoint(cc.p(0.5, 0.5));
         _ccsg.Node.prototype.setContentSize.call(this, cc.size(128, 128));
@@ -1301,7 +1302,13 @@ cc.BMFontHelper = {
                 var self = this;
                 this._resetBMFont();
 
-                self._config = FntLoader.parseFnt(fntDataStr);
+                var fntConfig = this._fontAsset._fntConfig;
+                if (fntConfig) {
+                    self._config = fntConfig;
+                } else {
+                    self._config = FntLoader.parseFnt(fntDataStr);
+                    this._fontAsset._fntConfig = self._config;
+                }
                 self._createFontChars();
                 self._spriteFrame = spriteFrame;
 

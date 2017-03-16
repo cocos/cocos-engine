@@ -490,7 +490,11 @@ var Label = cc.Class({
         var sgNode;
         if (this.font instanceof cc.BitmapFont) {
             if (this.font.spriteFrame) {
-                sgNode = this._sgNode = new _ccsg.Label(this.string, this.font.fntDataStr, this.font.spriteFrame);
+                if (CC_JSB) {
+                    sgNode = this._sgNode = new _ccsg.Label(this.string, this.font.fntDataStr, this.font.spriteFrame);
+                } else {
+                    sgNode = this._sgNode = new _ccsg.Label(this.string, this.font.fntDataStr, this.font.spriteFrame, this.font);
+                }
             } else {
                 cc.warnID(4011, this.font.name);
                 sgNode = this._sgNode = new _ccsg.Label(this.string);
