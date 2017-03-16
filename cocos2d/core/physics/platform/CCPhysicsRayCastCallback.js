@@ -5,6 +5,7 @@ function PhysicsRayCastCallback (type) {
     this._fixtures = [];
     this._points = [];
     this._normals = [];
+    this._fractions = [];
 }
 
 PhysicsRayCastCallback.prototype.ReportFixture = function (fixture, point, normal, fraction) {
@@ -12,12 +13,14 @@ PhysicsRayCastCallback.prototype.ReportFixture = function (fixture, point, norma
         this._fixtures[0] = fixture;
         this._points[0] = point;
         this._normals[0] = normal;
+        this._fractions[0] = fraction;
         return fraction;
     }
 
     this._fixtures.push(fixture);
     this._points.push(point);
     this._normals.push(normal);
+    this._fractions.push(fraction);
     
     if (this._type === 1) { // any
         return 0;
@@ -40,6 +43,10 @@ PhysicsRayCastCallback.prototype.getPoints = function () {
 
 PhysicsRayCastCallback.prototype.getNormals = function () {
     return this._normals;
+};
+
+PhysicsRayCastCallback.prototype.getFractions = function () {
+    return this._fractions;
 };
 
 cc.PhysicsRayCastCallback = module.exports = PhysicsRayCastCallback;

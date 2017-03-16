@@ -135,6 +135,10 @@ var PhysicsManager = cc.Class({
     },
 
     rayCast: function (p1, p2, type) {
+        if (p1.sub(p2).magSqr() === 0) {
+            return [];
+        }
+
         type = type || RayCastType.Closest;
 
         p1 = new b2.Vec2(p1.x/CC_PTM_RATIO, p1.y/CC_PTM_RATIO);
@@ -147,25 +151,25 @@ var PhysicsManager = cc.Class({
         if (fixtures.length > 0) {
             var points = callback.getPoints();
             var normals = callback.getNormals();
+            var fractions = callback.getFractions();
 
             var results = [];
             for (var i = 0, l = fixtures.length; i < l; i++) {
+                var fixture = fixtures[i];
+                var collider = fixture.collider;
                 results.push({
-                    collider: fixtures[i].collider,
+                    collider: collider,
+                    fixtureIndex: collider._getFixtureIndex(fixture),
                     point: cc.v2(points[i].x*CC_PTM_RATIO, points[i].y*CC_PTM_RATIO),
-                    normal: cc.v2(normals[i])
+                    normal: cc.v2(normals[i]),
+                    fraction: fractions[i]
                 });
             }
 
-            if (type === RayCastType.Closest ||
-                type === RayCastType.Any) {
-                return results[0];    
-            }
-            
             return results;
         }
 
-        return (type === RayCastType.Closest || type === RayCastType.Any) ? null : [];
+        return [];
     },
  
     syncPosition: function () {
@@ -222,7 +226,7 @@ var PhysicsManager = cc.Class({
 
     _registerListener: function () {
         if (!this._world) {
-            cc.warn('Please initPhysicsManager first');
+            cc.warn('Please init PhysicsManager first');
             return;
         }
 
