@@ -120,10 +120,24 @@ var Overflow = _ccsg.Label.Overflow;
 // be triggered. The function will be called after it stops being called for
 // N milliseconds. If `immediate` is passed, trigger the function on the
 // leading edge, instead of the trailing.
-function debounce(func, wait, immediate) {
+function debounce (func, wait, immediate) {
     var timeout;
-    return function() {
-        var context = this, args = arguments;
+    return CC_JSB ? function (...args) {
+        var context = this;
+        var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    } : function () {
+        var context = this;
+        var args = new Array(arguments.length);
+        for (var i = 0; i < arguments.length; i++) {
+            args[i] = arguments[i];
+        }
         var later = function() {
             timeout = null;
             if (!immediate) func.apply(context, args);

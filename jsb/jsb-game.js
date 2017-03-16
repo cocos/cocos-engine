@@ -163,7 +163,6 @@ cc.game = {
 
         // Additional step in JSB
         cc._renderType = cc.game.RENDER_TYPE_OPENGL;
-        cc._initDebugSetting(this.config[this.CONFIG_KEY.debugMode]);
         cc.director.sharedInit();
 
         // Load game scripts

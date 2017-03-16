@@ -94,7 +94,20 @@ Class.extend = function (props) {
         TheClass = eval(constructor);
     }
     else {
-        TheClass = function (arg0, arg1, arg2, arg3, arg4) {
+        TheClass = CC_JSB ? function (...args) {
+            this.__instanceId = ClassManager.getNewInstanceId();
+            if (this.ctor) {
+                switch (args.length) {
+                    case 0: this.ctor(); break;
+                    case 1: this.ctor(args[0]); break;
+                    case 2: this.ctor(args[0], args[1]); break;
+                    case 3: this.ctor(args[0], args[1], args[2]); break;
+                    case 4: this.ctor(args[0], args[1], args[2], args[3]); break;
+                    case 5: this.ctor(args[0], args[1], args[2], args[3], args[4]); break;
+                    default: this.ctor.apply(this, args);
+                }
+            }
+        } : function (arg0, arg1, arg2, arg3, arg4) {
             this.__instanceId = ClassManager.getNewInstanceId();
             if (this.ctor) {
                 switch (arguments.length) {
@@ -124,61 +137,64 @@ Class.extend = function (props) {
     this.__getters__ && (TheClass.__getters__ = cc.clone(this.__getters__));
     this.__setters__ && (TheClass.__setters__ = cc.clone(this.__setters__));
 
-    for (var idx = 0, li = arguments.length; idx < li; ++idx) {
-        var prop = arguments[idx];
-        for (var name in prop) {
-            var isFunc = (typeof prop[name] === "function");
-            var override = (typeof _super[name] === "function");
-            var hasSuperCall = fnTest.test(prop[name]);
+    for (var name in props) {
+        var isFunc = (typeof props[name] === "function");
+        var override = (typeof _super[name] === "function");
+        var hasSuperCall = fnTest.test(props[name]);
 
-            if (isFunc && override && hasSuperCall) {
-                desc.value = (function (name, fn) {
-                    return function () {
-                        var tmp = this._super;
+        if (isFunc && override && hasSuperCall) {
+            desc.value = (function (name, fn) {
+                return CC_JSB ? function (...args) {
+                    var tmp = this._super;
+                    this._super = _super[name];
+                    var ret = fn.apply(this, args);
+                    this._super = tmp;
+                    return ret;
+                } : function () {
+                    var tmp = this._super;
 
-                        // Add a new ._super() method that is the same method
-                        // but on the super-Class
-                        this._super = _super[name];
+                    // Add a new ._super() method that is the same method
+                    // but on the super-Class
+                    this._super = _super[name];
 
-                        // The method only need to be bound temporarily, so we
-                        // remove it when we're done executing
-                        var ret = fn.apply(this, arguments);
-                        this._super = tmp;
+                    // The method only need to be bound temporarily, so we
+                    // remove it when we're done executing
+                    var ret = fn.apply(this, arguments);
+                    this._super = tmp;
 
-                        return ret;
-                    };
-                })(name, prop[name]);
-                Object.defineProperty(prototype, name, desc);
-            } else if (isFunc) {
-                desc.value = prop[name];
-                Object.defineProperty(prototype, name, desc);
-            } else {
-                prototype[name] = prop[name];
+                    return ret;
+                };
+            })(name, props[name]);
+            Object.defineProperty(prototype, name, desc);
+        } else if (isFunc) {
+            desc.value = props[name];
+            Object.defineProperty(prototype, name, desc);
+        } else {
+            prototype[name] = props[name];
+        }
+
+        if (isFunc) {
+            // Override registered getter/setter
+            var getter, setter, propertyName;
+            if (this.__getters__ && this.__getters__[name]) {
+                propertyName = this.__getters__[name];
+                for (var i in this.__setters__) {
+                    if (this.__setters__[i] === propertyName) {
+                        setter = i;
+                        break;
+                    }
+                }
+                cc.defineGetterSetter(prototype, propertyName, props[name], props[setter] ? props[setter] : prototype[setter], name, setter);
             }
-
-            if (isFunc) {
-                // Override registered getter/setter
-                var getter, setter, propertyName;
-                if (this.__getters__ && this.__getters__[name]) {
-                    propertyName = this.__getters__[name];
-                    for (var i in this.__setters__) {
-                        if (this.__setters__[i] === propertyName) {
-                            setter = i;
-                            break;
-                        }
+            if (this.__setters__ && this.__setters__[name]) {
+                propertyName = this.__setters__[name];
+                for (var i in this.__getters__) {
+                    if (this.__getters__[i] === propertyName) {
+                        getter = i;
+                        break;
                     }
-                    cc.defineGetterSetter(prototype, propertyName, prop[name], prop[setter] ? prop[setter] : prototype[setter], name, setter);
                 }
-                if (this.__setters__ && this.__setters__[name]) {
-                    propertyName = this.__setters__[name];
-                    for (var i in this.__getters__) {
-                        if (this.__getters__[i] === propertyName) {
-                            getter = i;
-                            break;
-                        }
-                    }
-                    cc.defineGetterSetter(prototype, propertyName, prop[getter] ? prop[getter] : prototype[getter], prop[name], getter, name);
-                }
+                cc.defineGetterSetter(prototype, propertyName, props[getter] ? props[getter] : prototype[getter], props[name], getter, name);
             }
         }
     }
