@@ -4186,9 +4186,6 @@
 		4DFA4C141CBCE32800E3B736 /* creator */ = {
 			isa = PBXGroup;
 			children = (
-				4D938F951E77E59400C35653 /* CCPhysicsAABBQueryCallback.cpp */,
-				4D938F961E77E59400C35653 /* CCPhysicsContactListener.cpp */,
-				4D938F971E77E59400C35653 /* CCPhysicsRayCastCallback.cpp */,
 				4D2837171E0B7B6300501B7F /* CCPhysicsDebugDraw.cpp */,
 				4D2837181E0B7B6300501B7F /* CCPhysicsDebugDraw.h */,
 				4D2E69031CC543B40032DD5C /* CCGraphicsNode.cpp */,
@@ -4199,8 +4196,11 @@
 				4DFA4C161CBCE34100E3B736 /* CCScale9Sprite.h */,
 				4D2837111E0B7AE800501B7F /* CCPhysicsUtils.cpp */,
 				4D2837121E0B7AE800501B7F /* CCPhysicsUtils.h */,
+				4D938F961E77E59400C35653 /* CCPhysicsContactListener.cpp */,
 				4D11DCC41E48450D00DB6838 /* CCPhysicsContactListener.h */,
+				4D938F951E77E59400C35653 /* CCPhysicsAABBQueryCallback.cpp */,
 				4D11DCD11E487FA700DB6838 /* CCPhysicsAABBQueryCallback.h */,
+				4D938F971E77E59400C35653 /* CCPhysicsRayCastCallback.cpp */,
 				4D3818CE1E6D4EDB00DA344B /* CCPhysicsRayCastCallback.h */,
 			);
 			name = creator;

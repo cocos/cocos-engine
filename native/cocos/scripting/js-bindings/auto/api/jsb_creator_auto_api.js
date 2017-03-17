@@ -899,6 +899,16 @@ getType : function (
 },
 
 /**
+ * @method getFractions
+ * @return {Array}
+ */
+getFractions : function (
+)
+{
+    return new Array();
+},
+
+/**
  * @method PhysicsRayCastCallback
  * @constructor
  * @param {int} arg0
