@@ -53,6 +53,17 @@ var RigidBody = cc.Class({
 
         bullet: false,
 
+        enabled: {
+            get: function () {
+                return this._enabled;
+            },
+            set: function () {
+                cc.warnID('8200');
+            },
+            visible: false,
+            override: true
+        },
+
         type: {
             type: BodyType,
             get: function () {
@@ -63,7 +74,7 @@ var RigidBody = cc.Class({
 
                 if (this._b2Body) {
                     if (value === BodyType.Animated) {
-                        this._b2Body.SetType(BodyType.Animated);
+                        this._b2Body.SetType(BodyType.Kinematic);
                     }
                     else {
                         this._b2Body.SetType(value);
@@ -232,7 +243,7 @@ var RigidBody = cc.Class({
         return cc.v2();
     },
 
-    getPosition: function () {
+    getWorldPosition: function () {
         if (this._b2Body) {
             var pos = this._b2Body.GetPosition();
             return cc.v2(pos.x*CC_PTM_RATIO, pos.y*CC_PTM_RATIO);
@@ -240,7 +251,7 @@ var RigidBody = cc.Class({
         return cc.v2();
     },
 
-    getRotation: function () {
+    getWorldRotation: function () {
         if (this._b2Body) {
             return -this._b2Body.GetAngle() * (180 / Math.PI);
         }

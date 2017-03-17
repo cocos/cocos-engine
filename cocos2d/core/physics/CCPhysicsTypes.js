@@ -1,11 +1,4 @@
 
-var BodyType = cc.Enum({
-    Static: 0,
-    Kinematic: 1,
-    Dynamic: 2,
-    Animated: 3
-});
-
 var ContactType = {
     BEGIN_CONTACT: 'begin-contact',
     END_CONTACT: 'end-contact',
@@ -13,12 +6,19 @@ var ContactType = {
     POST_SOLVE: 'post-solve'
 };
 
+var BodyType = cc.Enum({
+    Static: 0,
+    Kinematic: 1,
+    Dynamic: 2,
+    Animated: 3
+});
+cc.PhysicsBodyType = BodyType;
+
 var RayCastType = cc.Enum({
     Closest: 0,
     Any: 1,
     All: 2
 });
-
 cc.RayCastType = RayCastType;
 
 module.exports = {

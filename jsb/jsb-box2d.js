@@ -445,4 +445,6 @@ b2.Joint.e_atLowerLimit = 1;
 b2.Joint.e_atUpperLimit = 2;
 b2.Joint.e_equalLimits = 3;
 
+b2.maxPolygonVertices = 8;
+
 })();
