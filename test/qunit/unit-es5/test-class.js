@@ -1,4 +1,4 @@
-﻿largeModule('Class New');
+﻿largeModule('Class ES5');
 
 test('test', function () {
 
@@ -143,7 +143,7 @@ test('define property in quick way', function () {
     ok(obj.vec2_one.equals(cc.Vec2.ONE), 'could define default value by using cc.Vec2.ONE');
 });
 
-test('Inherit', function () {
+test('extends', function () {
     var Animal = cc.Class({
         name: 'cc.Animal',
         properties: {
@@ -205,7 +205,7 @@ test('Inherit', function () {
     cc.js.unregisterClass(Animal, Dog, Husky, Labrador);
 });
 
-test('Inherit + constructor', function () {
+test('extends + constructor', function () {
     var animalConstructor = Callback();
     var huskyConstructor = Callback();
     var labradorConstructor = Callback();

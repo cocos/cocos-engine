@@ -302,6 +302,8 @@ if (CC_DEV) {
         "3647": "The length of range array must be equal or greater than 2", //parseAttributes_4
         "3648": "Can not declare %s.%s method, it is already defined in the properties of %s.",
         "3649": "CCClass %s have conflict between its ctor and __ctor__.",
+        "3650": "No need to specifiy '%s' attribute for '%s' in class \"%s\".",
+        "3651": "Can not call `_super` or `prototype.ctor` in ES6 Classes \"%s\", use `super` instead please.",
         //Prefab: 3700
         "3700": "internal error: _prefab is undefined", //_doInstantiate
         "3701": "Failed to load prefab asset for node '%s'", //syncWithPrefab

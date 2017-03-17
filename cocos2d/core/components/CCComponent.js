@@ -615,15 +615,15 @@ Object.defineProperty(Component, '_registerEditorProps', {
         if (reqComp) {
             cls._requireComponent = reqComp;
         }
+        var order = props.executionOrder;
+        if (order && typeof order === 'number') {
+            cls._executionOrder = order;
+        }
         if (CC_EDITOR || CC_TEST) {
             var name = cc.js.getClassName(cls);
             for (var key in props) {
                 var val = props[key];
                 switch (key) {
-                    case 'executionOrder':
-                        cls._executionOrder = (typeof val === 'number' ? val : 0);
-                        break;
-
                     case 'executeInEditMode':
                         cls._executeInEditMode = !!val;
                         break;
@@ -657,6 +657,7 @@ Object.defineProperty(Component, '_registerEditorProps', {
                         break;
 
                     case 'requireComponent':
+                    case 'executionOrder':
                         // skip here
                         break;
 
