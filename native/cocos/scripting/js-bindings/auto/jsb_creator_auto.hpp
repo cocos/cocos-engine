@@ -138,6 +138,7 @@ void js_creator_PhysicsRayCastCallback_finalize(JSContext *cx, JSObject *obj);
 void js_register_creator_PhysicsRayCastCallback(JSContext *cx, JS::HandleObject global);
 void register_all_creator(JSContext* cx, JS::HandleObject obj);
 bool js_creator_PhysicsRayCastCallback_getType(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_PhysicsRayCastCallback_getFractions(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsRayCastCallback_PhysicsRayCastCallback(JSContext *cx, uint32_t argc, jsval *vp);
 
 #endif // __creator_h__

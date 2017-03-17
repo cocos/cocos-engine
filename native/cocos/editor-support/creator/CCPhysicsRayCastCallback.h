@@ -37,6 +37,7 @@ public:
     std::vector<b2Fixture*>& getFixtures();
     std::vector<b2Vec2>& getPoints();
     std::vector<b2Vec2>& getNormals();
+    std::vector<float>& getFractions();
     
     int getType();
     
@@ -46,6 +47,7 @@ protected:
     std::vector<b2Fixture*> _fixtures;
     std::vector<b2Vec2> _points;
     std::vector<b2Vec2> _normals;
+    std::vector<float> _fractions;
 };
 
 }

@@ -2300,6 +2300,24 @@ bool js_creator_PhysicsRayCastCallback_getType(JSContext *cx, uint32_t argc, jsv
     JS_ReportError(cx, "js_creator_PhysicsRayCastCallback_getType : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
+bool js_creator_PhysicsRayCastCallback_getFractions(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::PhysicsRayCastCallback* cobj = (creator::PhysicsRayCastCallback *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsRayCastCallback_getFractions : Invalid Native Object");
+    if (argc == 0) {
+        std::vector<float, std::allocator<float> >& ret = cobj->getFractions();
+        JS::RootedValue jsret(cx);
+        jsret = std_vector_float_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_PhysicsRayCastCallback_getFractions : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
 bool js_creator_PhysicsRayCastCallback_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -2364,6 +2382,7 @@ void js_register_creator_PhysicsRayCastCallback(JSContext *cx, JS::HandleObject 
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getType", js_creator_PhysicsRayCastCallback_getType, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getFractions", js_creator_PhysicsRayCastCallback_getFractions, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
 
