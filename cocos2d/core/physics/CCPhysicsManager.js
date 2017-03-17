@@ -135,7 +135,7 @@ var PhysicsManager = cc.Class({
     },
 
     rayCast: function (p1, p2, type) {
-        if (p1.sub(p2).magSqr() === 0) {
+        if (p1.equals(p2)) {
             return [];
         }
 
