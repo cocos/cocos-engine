@@ -33,7 +33,6 @@ var BodyType = require('./CCPhysicsTypes').BodyType;
 var RigidBody = cc.Class({
     name: 'cc.RigidBody',
     extends: cc.Component,
-    mixins: [cc.EventTarget],
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.physics/Rigid Body',
@@ -53,6 +52,17 @@ var RigidBody = cc.Class({
         enabledContactListener: false,
 
         bullet: false,
+
+        enabled: {
+            get: function () {
+                return this._enabled;
+            },
+            set: function () {
+                cc.warnID('8200');
+            },
+            visible: false,
+            override: true
+        },
 
         type: {
             type: BodyType,
@@ -287,12 +297,10 @@ var RigidBody = cc.Class({
 
     onEnable: function () {
         this._init();
-        this.emit('enabled');
     },
 
     onDisable: function () {
         this._destroy();
-        this.emit('disabled');
     },
 
     onLoad: function () {

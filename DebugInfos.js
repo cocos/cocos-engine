@@ -577,6 +577,8 @@ if (CC_DEV) {
         "8103": "cc.GLProgram.link(): Cannot link invalid program", //link
         "8104": "cocos2d: ERROR: Failed to link program: %s", //link
         "8105": "cocos2d: cc.shaderCache._loadDefaultShader, error shader type", //_loadDefaultShader
+        //Physics: 8200
+        "8200": "Please set node\'s active instead of rigidBody\'s enabled.", //cc.RigidBody.enabled
     };
     cc._LogInfos = logs;
 }
