@@ -316,8 +316,9 @@ var RigidBody = cc.Class({
                     pos = new b2.Vec2(pos.x / CC_PTM_RATIO, pos.y / CC_PTM_RATIO);
                     var b2Pos = b2body.GetPosition();
 
-                    pos.x = (pos.x - b2Pos.x)/(1/60);
-                    pos.y = (pos.y - b2Pos.y)/(1/60);
+                    var timeStep = cc.game.config['frameRate'];
+                    pos.x = (pos.x - b2Pos.x)*timeStep;
+                    pos.y = (pos.y - b2Pos.y)*timeStep;
 
                     b2body.SetAwake(true);
                     b2body.SetLinearVelocity(pos);
@@ -334,9 +335,9 @@ var RigidBody = cc.Class({
                 var b2body = this._b2Body;
                 if (node.scale && this.type === BodyType.Animated) {
                     var b2Rotation = b2body.GetAngle();
-
+                    var timeStep = cc.game.config['frameRate'];
                     b2body.SetAwake(true);
-                    b2body.SetAngularVelocity((rotation - b2Rotation)/(1/60));
+                    b2body.SetAngularVelocity((rotation - b2Rotation)*timeStep);
                 }
                 else {
                     b2body.SetTransform(b2body.GetPosition(), rotation);

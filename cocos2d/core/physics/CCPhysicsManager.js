@@ -74,14 +74,15 @@ var PhysicsManager = cc.Class({
         this.emit('before-step');
         
         this._steping = true;
+        var timeStep = 1/cc.game.config['frameRate'];
 
         // http://new.gafferongames.com/post/fix_your_timestep/
         // will be super slow
         
         // this._accumulator += dt;
-        // while (this._accumulator > STEP_DT) {
-            world.Step(STEP_DT, 10, 10);
-        //     this._accumulator -= STEP_DT;
+        // while (this._accumulator > timeStep) {
+            world.Step(timeStep, 10, 10);
+        //     this._accumulator -= timeStep;
         // }
 
         world.DrawDebugData();
