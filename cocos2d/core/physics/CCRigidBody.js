@@ -311,18 +311,19 @@ var RigidBody = cc.Class({
         node.on('position-changed', function() {
             if (!this._ignoreNodeChanges) {
                 var pos = node.convertToWorldSpaceAR(cc.Vec2.ZERO);
+                var b2body = this._b2Body;
                 if (node.scale && this.type === BodyType.Animated) {
                     pos = new b2.Vec2(pos.x / CC_PTM_RATIO, pos.y / CC_PTM_RATIO);
-                    var b2Pos = this._b2Body.GetPosition();
+                    var b2Pos = b2body.GetPosition();
 
                     pos.x = (pos.x - b2Pos.x)/(1/60);
                     pos.y = (pos.y - b2Pos.y)/(1/60);
 
-                    this._b2Body.SetAwake(true);
-                    this._b2Body.SetLinearVelocity(pos);
+                    b2body.SetAwake(true);
+                    b2body.SetLinearVelocity(pos);
                 }
                 else {
-                    this._b2Body.SetTransform(new b2.Vec2(pos.x / CC_PTM_RATIO, pos.y / CC_PTM_RATIO), this._b2Body.GetAngle());
+                    b2body.SetTransform(new b2.Vec2(pos.x / CC_PTM_RATIO, pos.y / CC_PTM_RATIO), b2body.GetAngle());
                 }
             }
         }, this);
@@ -330,14 +331,15 @@ var RigidBody = cc.Class({
         node.on('rotation-changed', function() {
             if (!this._ignoreNodeChanges) {
                 var rotation = CC_TO_PHYSICS_ANGLE * getWorldRotation(node);
+                var b2body = this._b2Body;
                 if (node.scale && this.type === BodyType.Animated) {
-                    var b2Rotation = this._b2Body.GetAngle();
+                    var b2Rotation = b2body.GetAngle();
 
-                    this._b2Body.SetAwake(true);
-                    this._b2Body.SetAngularVelocity((rotation - b2Rotation)/(1/60));
+                    b2body.SetAwake(true);
+                    b2body.SetAngularVelocity((rotation - b2Rotation)/(1/60));
                 }
                 else {
-                    this._b2Body.SetTransform(this._b2Body.GetPosition(), rotation);
+                    b2body.SetTransform(b2body.GetPosition(), rotation);
                 }
             }
         }, this);
