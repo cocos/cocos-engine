@@ -227,18 +227,18 @@ var RigidBody = cc.Class({
 
     getWorldVector: function (localVector) {
         if (this._b2Body) {
-            localVector = new b2.Vec2(localVector.x*CC_PTM_RATIO, localVector.y*CC_PTM_RATIO);
+            localVector = new b2.Vec2(localVector.x/CC_PTM_RATIO, localVector.y/CC_PTM_RATIO);
             var vector = this._b2Body.GetWorldVector(localVector);
-            return cc.v2(vector.x/CC_PTM_RATIO, vector.y/CC_PTM_RATIO);
+            return cc.v2(vector.x*CC_PTM_RATIO, vector.y*CC_PTM_RATIO);
         }
         return cc.v2();
     },
 
     getLocalVector: function (worldVector) {
         if (this._b2Body) {
-            worldVector = new b2.Vec2(worldVector.x*CC_PTM_RATIO, worldVector.y*CC_PTM_RATIO);
+            worldVector = new b2.Vec2(worldVector.x/CC_PTM_RATIO, worldVector.y/CC_PTM_RATIO);
             var vector = this._b2Body.GetLocalVector(worldVector);
-            return cc.v2(vector.x/CC_PTM_RATIO, vector.y/CC_PTM_RATIO);
+            return cc.v2(vector.x*CC_PTM_RATIO, vector.y*CC_PTM_RATIO);
         }
         return cc.v2();
     },
@@ -253,16 +253,16 @@ var RigidBody = cc.Class({
 
     getWorldRotation: function () {
         if (this._b2Body) {
-            return -this._b2Body.GetAngle() * (180 / Math.PI);
+            return this._b2Body.GetAngle() * PHYSICS_TO_CC_ANGLE;
         }
         return 0;
     },
 
     getLinearVelocityFromWorldPoint: function (p) {
         if (this._b2Body) {
-            p = new b2.Vec2(p.x*CC_PTM_RATIO, p.y*CC_PTM_RATIO);
+            p = new b2.Vec2(p.x/CC_PTM_RATIO, p.y/CC_PTM_RATIO);
             var velocity = this._b2Body.GetLinearVelocityFromWorldPoint(p);
-            return cc.v2(velocity.x/CC_PTM_RATIO, velocity.y/CC_PTM_RATIO);
+            return cc.v2(velocity.x*CC_PTM_RATIO, velocity.y*CC_PTM_RATIO);
         }
         return cc.v2();
     },
