@@ -73,7 +73,11 @@ require('./cocos2d/core/platform/CCMacro');
 require('./cocos2d/core/load-pipeline');
 require('./cocos2d/core/textures');
 
-if (!CC_JSB) {
+if (CC_JSB) {
+    // rename cc.Class to cc._Class
+    cc._Class = cc.Class;
+}
+else {
     require('./cocos2d/kazmath');
     require('./cocos2d/core/CCDirector');
     require('./cocos2d/core/CCDirectorWebGL');

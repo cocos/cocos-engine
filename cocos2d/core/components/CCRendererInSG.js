@@ -71,7 +71,7 @@ var RendererInSG = cc.Class({
     },
 
     onEnable: function () {
-        if (CC_JSB && cc.director.getActionManager().getNumberOfRunningActionsInTarget(this.node) > 0) {
+        if (CC_JSB && cc.director._actionManager && cc.director._actionManager.getNumberOfRunningActionsInTarget(this.node) > 0) {
             cc.errorID(1629, this.node.name);
             cc.errorID(1630);
             cc.errorID(1631);

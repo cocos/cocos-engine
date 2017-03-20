@@ -42,10 +42,19 @@ cc.js.mixin(cc.director, {
         this._compScheduler = new ComponentScheduler();
         this._nodeActivator = new NodeActivator();
 
+        var scheduler = this.getScheduler();
+        // ActionManager
+        if (cc.ActionManager) {
+            this._actionManager = new cc.ActionManager();
+            scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        } else {
+            this._actionManager = null;
+        }
+
         // Animation manager
         if (cc.AnimationManager) {
             this._animationManager = new cc.AnimationManager();
-            this.getScheduler().scheduleUpdate(this._animationManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+            scheduler.scheduleUpdate(this._animationManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
         else {
             this._animationManager = null;
@@ -54,7 +63,7 @@ cc.js.mixin(cc.director, {
         // collider manager
         if (cc.CollisionManager) {
             this._collisionManager = new cc.CollisionManager();
-            this.getScheduler().scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+            scheduler.scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
         else {
             this._collisionManager = null;
@@ -89,9 +98,8 @@ cc.js.mixin(cc.director, {
             cc.eventManager.setEnabled(true);
 
         // Action manager
-        var actionManager = this.getActionManager();
-        if (actionManager) {
-            this.getScheduler().scheduleUpdate(actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        if (this._actionManager) {
+            this.getScheduler().scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
 
         // Animation manager
@@ -110,6 +118,20 @@ cc.js.mixin(cc.director, {
         }
 
         this.startAnimation();
+    },
+
+    getActionManager: function () {
+        return this._actionManager;
+    },
+
+    setActionManager: function (actionManager) {
+        if (this._actionManager !== actionManager) {
+            if (this._actionManager) {
+                this._scheduler.unscheduleUpdate(this._actionManager);
+            }
+            this._actionManager = actionManager;
+            this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
     },
 
     /**
@@ -436,16 +458,10 @@ cc.js.mixin(cc.director, {
     },
 });
 
+cc.defineGetterSetter(cc.director, "actionManager", cc.director.getActionManager, cc.director.setActionManager);
+
 cc.EventTarget.call(cc.director);
 cc.js.addon(cc.director, cc.EventTarget.prototype);
-
-// ActionManager
-if (cc.ActionManager) {
-    cc.director._actionManager = new cc.ActionManager();
-    cc.director._scheduler.scheduleUpdate(cc.director._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
-} else {
-    cc.director._actionManager = null;
-}
 
 cc.Director.EVENT_PROJECTION_CHANGED = 'director_projection_changed';
 cc.Director.EVENT_AFTER_DRAW = 'director_after_draw';
