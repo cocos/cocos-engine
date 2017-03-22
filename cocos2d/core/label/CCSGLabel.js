@@ -242,13 +242,13 @@ _ccsg.Label = _ccsg.Node.extend({
         }
 
         this._string = string;
-        this._fontAsset = fontAsset;
+
         _ccsg.Node.prototype.ctor.call(this);
         this.setAnchorPoint(cc.p(0.5, 0.5));
         _ccsg.Node.prototype.setContentSize.call(this, cc.size(128, 128));
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
 
-        this.setFontFileOrFamily(fontHandle, spriteFrame);
+        this.setFontFileOrFamily(fontHandle, spriteFrame, fontAsset);
         this.setString(this._string);
     },
 
@@ -529,8 +529,9 @@ _ccsg.Label = _ccsg.Node.extend({
         }
     },
 
-    setFontFileOrFamily: function(fontHandle, spriteFrame) {
+    setFontFileOrFamily: function(fontHandle, spriteFrame, fontAsset) {
         fontHandle = fontHandle || "Arial";
+        this._fontAsset = fontAsset;
         var extName = cc.path.extname(fontHandle);
 
         this._resetBMFont();

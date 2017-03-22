@@ -390,7 +390,11 @@ var Label = cc.Class({
 
                     if (this.font instanceof cc.BitmapFont) {
                         if (this.font.spriteFrame) {
-                            this._sgNode.setFontFileOrFamily(this.font.fntDataStr, this.font.spriteFrame);
+                            if (!CC_JSB) {
+                                this._sgNode.setFontFileOrFamily(this.font.fntDataStr, this.font.spriteFrame, this.font);
+                            } else {
+                                this._sgNode.setFontFileOrFamily(this.font.fntDataStr, this.font.spriteFrame);
+                            }
                         } else {
                             cc.warnID(4011, this.font.name);
                             this._sgNode.setFontFileOrFamily('');
