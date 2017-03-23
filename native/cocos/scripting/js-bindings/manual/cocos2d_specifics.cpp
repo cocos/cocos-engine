@@ -3354,34 +3354,6 @@ bool js_cocos2dx_SpriteBatchNode_getDescendants(JSContext *cx, uint32_t argc, js
     return false;
 }
 
-bool js_cocos2dx_NodeGrid_setGrid(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
-    cocos2d::NodeGrid* cobj = (cocos2d::NodeGrid *)(proxy ? proxy->ptr : nullptr);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_NodeGrid_setGrid : Invalid Native Object");
-    if (argc == 1) {
-        cocos2d::GridBase* arg0;
-        do {
-            if(args.get(0).isNull()) { arg0 = nullptr; break;}
-            if (!args.get(0).isObject()) { ok = false; break; }
-            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            proxy = jsb_get_js_proxy(tmpObj);
-            arg0 = (cocos2d::GridBase*)(proxy ? proxy->ptr : nullptr);
-            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
-        } while (0);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_NodeGrid_setGrid : Error processing arguments");
-        cobj->setGrid(arg0);
-        args.rval().setUndefined();
-        return true;
-    }
-
-    JS_ReportError(cx, "js_cocos2dx_NodeGrid_setGrid : wrong number of arguments: %d, was expecting %d", argc, 1);
-    return false;
-}
-
 // cc.PlistParser.getInstance()
 bool js_PlistParser_getInstance(JSContext *cx, unsigned argc, JS::Value *vp)
 {
@@ -4559,9 +4531,6 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
 
     tmpObj.set(jsb_cocos2d_Label_prototype);
     JS_DefineFunction(cx, tmpObj, "setTTFConfig", js_cocos2dx_Label_setTTFConfig, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-
-    tmpObj.set(jsb_cocos2d_NodeGrid_prototype);
-    JS_DefineFunction(cx, tmpObj, "setGrid", js_cocos2dx_NodeGrid_setGrid, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     tmpObj.set(jsb_cocos2d_Node_prototype);
     JS_DefineFunction(cx, tmpObj, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
