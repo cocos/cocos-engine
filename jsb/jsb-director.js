@@ -439,6 +439,14 @@ cc.js.mixin(cc.director, {
 cc.EventTarget.call(cc.director);
 cc.js.addon(cc.director, cc.EventTarget.prototype);
 
+// ActionManager
+if (cc.ActionManager) {
+    cc.director._actionManager = new cc.ActionManager();
+    cc.director._scheduler.scheduleUpdate(cc.director._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+} else {
+    cc.director._actionManager = null;
+}
+
 cc.Director.EVENT_PROJECTION_CHANGED = 'director_projection_changed';
 cc.Director.EVENT_AFTER_DRAW = 'director_after_draw';
 cc.Director.EVENT_BEFORE_VISIT = 'director_before_visit';

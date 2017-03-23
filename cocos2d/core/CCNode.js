@@ -1327,17 +1327,14 @@ var Node = cc.Class({
      * node.runAction(action.repeatForever()); // right
      */
     runAction (action) {
-        if (!this.active)
+        if (!this.active || !cc.director._actionManager)
             return;
         cc.assertID(action, 1618);
 
         if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
             this._retainAction(action);
         }
-        if (CC_JSB) {
-            this._sgNode._owner = this;
-        }
-        cc.director.getActionManager().addAction(action, this, false);
+        cc.director._actionManager.addAction(action, this, false);
         return action;
     },
 
@@ -1349,7 +1346,9 @@ var Node = cc.Class({
      * node.stopAllActions();
      */
     stopAllActions () {
-        cc.director.getActionManager().removeAllActionsFromTarget(this);
+        if (cc.director._actionManager) {
+            cc.director._actionManager.removeAllActionsFromTarget(this);
+        }
     },
 
     /**
@@ -1362,7 +1361,9 @@ var Node = cc.Class({
      * node.stopAction(action);
      */
     stopAction (action) {
-        cc.director.getActionManager().removeAction(action);
+        if (cc.director._actionManager) {
+            cc.director._actionManager.removeAction(action);
+        }
     },
 
     /**
@@ -1378,7 +1379,9 @@ var Node = cc.Class({
             cc.logID(1612);
             return;
         }
-        cc.director.getActionManager().removeActionByTag(tag, this);
+        if (cc.director._actionManager) {
+            cc.director._actionManager.removeActionByTag(tag, this);
+        }
     },
 
     /**
@@ -1396,7 +1399,7 @@ var Node = cc.Class({
             cc.logID(1613);
             return null;
         }
-        return cc.director.getActionManager().getActionByTag(tag, this);
+        return cc.director._actionManager ? cc.director._actionManager.getActionByTag(tag, this) : null;
     },
 
     /**
@@ -1418,7 +1421,7 @@ var Node = cc.Class({
      * cc.log("Running Action Count: " + count);
      */
     getNumberOfRunningActions () {
-        return cc.director.getActionManager().getNumberOfRunningActionsInTarget(this);
+        return cc.director._actionManager ? cc.director._actionManager.getNumberOfRunningActionsInTarget(this) : 0;
     },
 
     _retainAction (action) {

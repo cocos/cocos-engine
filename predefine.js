@@ -83,7 +83,6 @@ if (!CC_JSB) {
         require('./cocos2d/core/platform/CCSAXParser');
         require('./cocos2d/core/platform/CCView');
         require('./cocos2d/core/platform/CCScreen');
-        require('./cocos2d/core/CCActionManager');
         require('./cocos2d/core/CCScheduler');
         require('./cocos2d/core/event-manager');
         require('./cocos2d/core/renderer');
