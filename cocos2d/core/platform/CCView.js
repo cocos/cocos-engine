@@ -1171,7 +1171,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
             this._setupContainer(view, view._frameSize.width, view._frameSize.height);
             // Setup container's margin and padding
             if (view._isRotated) {
-                containerStyle.marginLeft = frameH + 'px';
+                containerStyle.margin = '0 0 0 ' + frameH + 'px';
             }
             else {
                 containerStyle.margin = '0px';
@@ -1202,7 +1202,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
             if (!CC_EDITOR) {
                 // Setup container's margin and padding
                 if (view._isRotated) {
-                    containerStyle.marginLeft = frameH + 'px';
+                    containerStyle.margin = '0 0 0 ' + frameH + 'px';
                 }
                 else {
                     containerStyle.margin = '0px';
