@@ -474,9 +474,12 @@ var Node = cc.Class({
         }
     },
 
-    //statics: {
-    //    _DirtyFlags: require('./utils/misc').DirtyFlags
-    //},
+    statics: {
+        // is node but not scene
+        isNode: function (obj) {
+            return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
+        }
+    },
 
     // OVERRIDES
 
