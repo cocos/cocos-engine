@@ -301,6 +301,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="..\editor-support\cocostudio\CocoStudio.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\DictionaryHelper.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\WidgetCallBackHandlerProtocol.cpp" />
+    <ClCompile Include="..\editor-support\creator\CCCameraNode.cpp" />
     <ClCompile Include="..\editor-support\creator\CCGraphicsNode.cpp" />
     <ClCompile Include="..\editor-support\creator\CCPhysicsAABBQueryCallback.cpp" />
     <ClCompile Include="..\editor-support\creator\CCPhysicsContactListener.cpp" />
@@ -650,6 +651,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="..\editor-support\cocostudio\CSParse3DBinary_generated.h" />
     <ClInclude Include="..\editor-support\cocostudio\DictionaryHelper.h" />
     <ClInclude Include="..\editor-support\cocostudio\WidgetCallBackHandlerProtocol.h" />
+    <ClInclude Include="..\editor-support\creator\CCCameraNode.h" />
     <ClInclude Include="..\editor-support\creator\CCGraphicsNode.h" />
     <ClInclude Include="..\editor-support\creator\CCPhysicsAABBQueryCallback.h" />
     <ClInclude Include="..\editor-support\creator\CCPhysicsContactListener.h" />
