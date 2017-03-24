@@ -9,6 +9,10 @@ var PhysicsDebugDraw = cc.Class({
         this._drawer.retain();
     },
 
+    getDrawer: function () {
+        return this._drawer;
+    },
+
     AddDrawerToNode: function (node) {
         this._drawer.removeFromParent();
         node.addChild(this._drawer);

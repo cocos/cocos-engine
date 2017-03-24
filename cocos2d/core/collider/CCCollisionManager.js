@@ -308,6 +308,15 @@ var CollisionManager = cc.Class({
         }
     },
 
+    attachDebugDrawToCamera: function (camera) {
+        if (!this._debugDrawer) return;
+        camera.addTarget(this._debugDrawer);
+    },
+    detachDebugDrawFromCamera: function (camera) {
+        if (!this._debugDrawer) return;
+        camera.removeTarget(this._debugDrawer);
+    },
+
     onNodeGroupChanged: function (event) {
         var node = event.currentTarget;
         var colliders = node.getComponents(cc.Collider);
