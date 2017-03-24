@@ -1715,7 +1715,31 @@ public:
      * @return std::function<void()>
      */
     const std::function<void()>& getonExitTransitionDidStartCallback() const { return _onExitTransitionDidStartCallback; }
-
+    
+    /**
+     * Set the callback of BeforeVisit.
+     * @param callback A std::function<void()> callback.
+     */
+    void setBeforeVisitCallback(const std::function<void(Renderer*)>& callback) { _beforeVisitCallback = callback; }
+    
+    /**
+     * Get the callback of event BeforeVisit.
+     * @return std::function<void()>
+     */
+    const std::function<void(Renderer*)>& getBeforeVisitCallback() const { return _beforeVisitCallback; }
+    
+    /**
+     * Set the callback of BeforeVisit.
+     * @param callback A std::function<void()> callback.
+     */
+    void setAfterVisitCallback(const std::function<void(Renderer*)>& callback) { _afterVisitCallback = callback; }
+    
+    /**
+     * Get the callback of event BeforeVisit.
+     * @return std::function<void()>
+     */
+    const std::function<void(Renderer*)>& getAfterVisitCallback() const { return _afterVisitCallback; }
+    
     /**
      * get & set camera mask, the node is visible by the camera whose camera flag & node's camera mask is true
      */
@@ -1881,6 +1905,8 @@ protected:
     std::function<void()> _onExitCallback;
     std::function<void()> _onEnterTransitionDidFinishCallback;
     std::function<void()> _onExitTransitionDidStartCallback;
+    std::function<void(Renderer*)> _beforeVisitCallback;
+    std::function<void(Renderer*)> _afterVisitCallback;
 
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Node);

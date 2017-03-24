@@ -970,6 +970,16 @@ getTag : function (
 },
 
 /**
+ * @method setAfterVisitCallback
+ * @param {function} arg0
+ */
+setAfterVisitCallback : function (
+func 
+)
+{
+},
+
+/**
  * @method getNodeToWorldAffineTransform
  * @return {cc.AffineTransform}
  */
@@ -1539,6 +1549,16 @@ getScheduler : function(
 )
 {
     return cc.Scheduler;
+},
+
+/**
+ * @method setBeforeVisitCallback
+ * @param {function} arg0
+ */
+setBeforeVisitCallback : function (
+func 
+)
+{
 },
 
 /**

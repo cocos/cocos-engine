@@ -149,6 +149,7 @@ bool js_cocos2dx_Node_removeAllComponents(JSContext *cx, uint32_t argc, jsval *v
 bool js_cocos2dx_Node__setLocalZOrder(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_setCameraMask(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_getTag(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_Node_setAfterVisitCallback(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_getNodeToWorldAffineTransform(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_removeChild(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_getScene(JSContext *cx, uint32_t argc, jsval *vp);
@@ -204,6 +205,7 @@ bool js_cocos2dx_Node_setName(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_getDisplayedOpacity(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_getLocalZOrder(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_getScheduler(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_Node_setBeforeVisitCallback(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_setActionManager(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_getPosition(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Node_insertChildBefore(JSContext *cx, uint32_t argc, jsval *vp);

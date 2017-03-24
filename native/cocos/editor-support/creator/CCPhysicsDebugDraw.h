@@ -34,6 +34,8 @@ public:
     PhysicsDebugDraw(float ratio = 32.0f);
     ~PhysicsDebugDraw();
     
+    creator::GraphicsNode* getDrawer();
+    
     void ClearDraw();
     
     void AddDrawerToNode(cocos2d::Node* node);

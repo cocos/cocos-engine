@@ -24,6 +24,11 @@ PhysicsDebugDraw::~PhysicsDebugDraw()
     _drawer->release();
 }
 
+creator::GraphicsNode* PhysicsDebugDraw::getDrawer()
+{
+    return _drawer;
+}
+    
 void PhysicsDebugDraw::ClearDraw()
 {
     _drawer->clear();

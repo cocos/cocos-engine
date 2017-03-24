@@ -7,6 +7,7 @@
 #include "editor-support/creator/CCPhysicsContactListener.h"
 #include "editor-support/creator/CCPhysicsAABBQueryCallback.h"
 #include "editor-support/creator/CCPhysicsRayCastCallback.h"
+#include "editor-support/creator/CCCameraNode.h"
 #include "scripting/js-bindings/manual/box2d/js_bindings_box2d_manual.h"
 
 template<class T>
@@ -1698,6 +1699,28 @@ void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
 JSClass  *jsb_creator_PhysicsDebugDraw_class;
 JSObject *jsb_creator_PhysicsDebugDraw_prototype;
 
+bool js_creator_PhysicsDebugDraw_getDrawer(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::PhysicsDebugDraw* cobj = (creator::PhysicsDebugDraw *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsDebugDraw_getDrawer : Invalid Native Object");
+    if (argc == 0) {
+        creator::GraphicsNode* ret = cobj->getDrawer();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<creator::GraphicsNode>(cx, (creator::GraphicsNode*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_PhysicsDebugDraw_getDrawer : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
 bool js_creator_PhysicsDebugDraw_ClearDraw(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1802,6 +1825,7 @@ void js_register_creator_PhysicsDebugDraw(JSContext *cx, JS::HandleObject global
     };
 
     static JSFunctionSpec funcs[] = {
+        JS_FN("getDrawer", js_creator_PhysicsDebugDraw_getDrawer, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("ClearDraw", js_creator_PhysicsDebugDraw_ClearDraw, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("AddDrawerToNode", js_creator_PhysicsDebugDraw_AddDrawerToNode, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -2408,6 +2432,151 @@ void js_register_creator_PhysicsRayCastCallback(JSContext *cx, JS::HandleObject 
     jsb_register_class<creator::PhysicsRayCastCallback>(cx, jsb_creator_PhysicsRayCastCallback_class, proto, parent_proto);
 }
 
+JSClass  *jsb_creator_CameraNode_class;
+JSObject *jsb_creator_CameraNode_prototype;
+
+bool js_creator_CameraNode_removeTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::CameraNode* cobj = (creator::CameraNode *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_CameraNode_removeTarget : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Node* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_creator_CameraNode_removeTarget : Error processing arguments");
+        cobj->removeTarget(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_CameraNode_removeTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_creator_CameraNode_setTransform(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::CameraNode* cobj = (creator::CameraNode *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_CameraNode_setTransform : Invalid Native Object");
+    if (argc == 2) {
+        cocos2d::Vec2 arg0;
+        double arg1 = 0;
+        ok &= jsval_to_vector2(cx, args.get(0), &arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_creator_CameraNode_setTransform : Error processing arguments");
+        cobj->setTransform(arg0, arg1);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_CameraNode_setTransform : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_creator_CameraNode_addTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::CameraNode* cobj = (creator::CameraNode *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_CameraNode_addTarget : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Node* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_creator_CameraNode_addTarget : Error processing arguments");
+        cobj->addTarget(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_CameraNode_addTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_creator_CameraNode_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    creator::CameraNode* cobj = new (std::nothrow) creator::CameraNode();
+
+    js_type_class_t *typeClass = js_get_type_from_native<creator::CameraNode>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "creator::CameraNode"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_Node_prototype;
+
+void js_register_creator_CameraNode(JSContext *cx, JS::HandleObject global) {
+    jsb_creator_CameraNode_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_creator_CameraNode_class->name = "CameraNode";
+    jsb_creator_CameraNode_class->addProperty = JS_PropertyStub;
+    jsb_creator_CameraNode_class->delProperty = JS_DeletePropertyStub;
+    jsb_creator_CameraNode_class->getProperty = JS_PropertyStub;
+    jsb_creator_CameraNode_class->setProperty = JS_StrictPropertyStub;
+    jsb_creator_CameraNode_class->enumerate = JS_EnumerateStub;
+    jsb_creator_CameraNode_class->resolve = JS_ResolveStub;
+    jsb_creator_CameraNode_class->convert = JS_ConvertStub;
+    jsb_creator_CameraNode_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("removeTarget", js_creator_CameraNode_removeTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setTransform", js_creator_CameraNode_setTransform, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("addTarget", js_creator_CameraNode_addTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
+    jsb_creator_CameraNode_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_creator_CameraNode_class,
+        js_creator_CameraNode_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_creator_CameraNode_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "CameraNode"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<creator::CameraNode>(cx, jsb_creator_CameraNode_class, proto, parent_proto);
+}
+
 void register_all_creator(JSContext* cx, JS::HandleObject obj) {
     // Get the ns
     JS::RootedObject ns(cx);
@@ -2420,5 +2589,6 @@ void register_all_creator(JSContext* cx, JS::HandleObject obj) {
     js_register_creator_Scale9SpriteV2(cx, ns);
     js_register_creator_GraphicsNode(cx, ns);
     js_register_creator_PhysicsAABBQueryCallback(cx, ns);
+    js_register_creator_CameraNode(cx, ns);
 }
 

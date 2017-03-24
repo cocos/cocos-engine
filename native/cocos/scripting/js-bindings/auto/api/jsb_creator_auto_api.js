@@ -747,6 +747,16 @@ GraphicsNode : function (
 cc.PhysicsDebugDraw = {
 
 /**
+ * @method getDrawer
+ * @return {creator::GraphicsNode}
+ */
+getDrawer : function (
+)
+{
+    return creator::GraphicsNode;
+},
+
+/**
  * @method ClearDraw
  */
 ClearDraw : function (
@@ -794,6 +804,18 @@ b2body
  * @method syncNode
  */
 syncNode : function (
+)
+{
+},
+
+/**
+ * @method setFixtureNext
+ * @param {b2Fixture} arg0
+ * @param {b2Fixture} arg1
+ */
+setFixtureNext : function (
+b2fixture, 
+b2fixture 
 )
 {
 },
@@ -915,6 +937,54 @@ getFractions : function (
  */
 PhysicsRayCastCallback : function (
 int 
+)
+{
+},
+
+};
+
+/**
+ * @class CameraNode
+ */
+cc.CameraNode = {
+
+/**
+ * @method removeTarget
+ * @param {cc.Node} arg0
+ */
+removeTarget : function (
+node 
+)
+{
+},
+
+/**
+ * @method setTransform
+ * @param {vec2_object} arg0
+ * @param {float} arg1
+ */
+setTransform : function (
+vec2, 
+float 
+)
+{
+},
+
+/**
+ * @method addTarget
+ * @param {cc.Node} arg0
+ */
+addTarget : function (
+node 
+)
+{
+},
+
+/**
+ * @method CameraNode
+ * @constructor
+ */
+CameraNode : function (
 )
 {
 },

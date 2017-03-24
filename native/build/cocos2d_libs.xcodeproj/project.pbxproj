@@ -660,6 +660,10 @@
 		4D2E690E1CC543B40032DD5C /* Triangulate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D2E69061CC543B40032DD5C /* Triangulate.h */; };
 		4D3818D11E6D4EDB00DA344B /* CCPhysicsRayCastCallback.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D3818CE1E6D4EDB00DA344B /* CCPhysicsRayCastCallback.h */; };
 		4D3818D21E6D4EDB00DA344B /* CCPhysicsRayCastCallback.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D3818CE1E6D4EDB00DA344B /* CCPhysicsRayCastCallback.h */; };
+		4D6CF4371E83AAD5003327D4 /* CCCameraNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D6CF4351E83AAD5003327D4 /* CCCameraNode.cpp */; };
+		4D6CF4381E83AAD5003327D4 /* CCCameraNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D6CF4351E83AAD5003327D4 /* CCCameraNode.cpp */; };
+		4D6CF4391E83AAD5003327D4 /* CCCameraNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D6CF4361E83AAD5003327D4 /* CCCameraNode.h */; };
+		4D6CF43A1E83AAD5003327D4 /* CCCameraNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D6CF4361E83AAD5003327D4 /* CCCameraNode.h */; };
 		4D76BE3A1A4AAF0A00102962 /* CCActionTimelineNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D76BE381A4AAF0A00102962 /* CCActionTimelineNode.cpp */; };
 		4D76BE3B1A4AAF0A00102962 /* CCActionTimelineNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D76BE381A4AAF0A00102962 /* CCActionTimelineNode.cpp */; };
 		4D76BE3C1A4AAF0A00102962 /* CCActionTimelineNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D76BE391A4AAF0A00102962 /* CCActionTimelineNode.h */; };
@@ -2270,6 +2274,8 @@
 		4D2E69051CC543B40032DD5C /* Triangulate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Triangulate.cpp; path = creator/Triangulate.cpp; sourceTree = "<group>"; };
 		4D2E69061CC543B40032DD5C /* Triangulate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Triangulate.h; path = creator/Triangulate.h; sourceTree = "<group>"; };
 		4D3818CE1E6D4EDB00DA344B /* CCPhysicsRayCastCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCPhysicsRayCastCallback.h; path = creator/CCPhysicsRayCastCallback.h; sourceTree = "<group>"; };
+		4D6CF4351E83AAD5003327D4 /* CCCameraNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCCameraNode.cpp; path = creator/CCCameraNode.cpp; sourceTree = "<group>"; };
+		4D6CF4361E83AAD5003327D4 /* CCCameraNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCCameraNode.h; path = creator/CCCameraNode.h; sourceTree = "<group>"; };
 		4D76BE381A4AAF0A00102962 /* CCActionTimelineNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCActionTimelineNode.cpp; sourceTree = "<group>"; };
 		4D76BE391A4AAF0A00102962 /* CCActionTimelineNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCActionTimelineNode.h; sourceTree = "<group>"; };
 		4D938F951E77E59400C35653 /* CCPhysicsAABBQueryCallback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCPhysicsAABBQueryCallback.cpp; path = creator/CCPhysicsAABBQueryCallback.cpp; sourceTree = "<group>"; };
@@ -4202,6 +4208,8 @@
 				4D11DCD11E487FA700DB6838 /* CCPhysicsAABBQueryCallback.h */,
 				4D938F971E77E59400C35653 /* CCPhysicsRayCastCallback.cpp */,
 				4D3818CE1E6D4EDB00DA344B /* CCPhysicsRayCastCallback.h */,
+				4D6CF4351E83AAD5003327D4 /* CCCameraNode.cpp */,
+				4D6CF4361E83AAD5003327D4 /* CCCameraNode.h */,
 			);
 			name = creator;
 			sourceTree = "<group>";
@@ -5027,6 +5035,7 @@
 				1A570216180BCBF40088DEC7 /* CCRenderTexture.h in Headers */,
 				4D2E69091CC543B40032DD5C /* CCGraphicsNode.h in Headers */,
 				1A570223180BCC1A0088DEC7 /* CCParticleBatchNode.h in Headers */,
+				4D6CF4391E83AAD5003327D4 /* CCCameraNode.h in Headers */,
 				FAC8F6681E1DF15D002B17E8 /* kvec.h in Headers */,
 				15AE1BD519AAE01E00C27E9E /* CCControlSaturationBrightnessPicker.h in Headers */,
 				15AE186919AAD31D00C27E9E /* CocosDenshion.h in Headers */,
@@ -5453,6 +5462,7 @@
 				FA6F1B681D80F858007DD223 /* CCArmatureDisplay.h in Headers */,
 				15AE198119AAD35700C27E9E /* CCTimelineMacro.h in Headers */,
 				FA6F1B621D80F858007DD223 /* Slot.h in Headers */,
+				4D6CF43A1E83AAD5003327D4 /* CCCameraNode.h in Headers */,
 				15AE1B7719AADA9A00C27E9E /* UIPageView.h in Headers */,
 				50ABBD8A1925AB4100A911A9 /* CCCustomCommand.h in Headers */,
 				299754F7193EC95400A54AC3 /* ObjectFactory.h in Headers */,
@@ -5946,6 +5956,7 @@
 				50ABBEB71925AB6F00A911A9 /* ccUTF8.cpp in Sources */,
 				FA6F1B411D80F858007DD223 /* Animation.cpp in Sources */,
 				15AE189819AAD33D00C27E9E /* CCMenuItemLoader.cpp in Sources */,
+				4D6CF4371E83AAD5003327D4 /* CCCameraNode.cpp in Sources */,
 				50ABBE271925AB6F00A911A9 /* CCAutoreleasePool.cpp in Sources */,
 				15AE197419AAD35700C27E9E /* CCTimeLine.cpp in Sources */,
 				BAFF7D6E1D5C1CF80051B92F /* BoundingBoxAttachment.c in Sources */,
@@ -6476,6 +6487,7 @@
 				1A57007E180BC5A10088DEC7 /* CCActionInterval.cpp in Sources */,
 				15AE1BF319AAE01E00C27E9E /* CCControlSaturationBrightnessPicker.cpp in Sources */,
 				1A570082180BC5A10088DEC7 /* CCActionManager.cpp in Sources */,
+				4D6CF4381E83AAD5003327D4 /* CCCameraNode.cpp in Sources */,
 				A0534A681B872FFD006B03E5 /* CCDownloader-apple.mm in Sources */,
 				FA6F1BA21D80F858007DD223 /* TimelineData.cpp in Sources */,
 				1A570086180BC5A10088DEC7 /* CCActionPageTurn3D.cpp in Sources */,
