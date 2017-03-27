@@ -27,9 +27,6 @@ if (!CC_JSB) {
     require('./CCSGCameraNode');
 }
 
-let ONE_DEGREE = Math.PI / 180;
-
-let cameraExists = false;
 let tempTransform = cc.affineTransformMake();
 
 let Camera = cc.Class({
@@ -75,12 +72,12 @@ let Camera = cc.Class({
     },
 
     onEnable: function () {
-        if (cameraExists) {
+        if (Camera.main) {
             cc.warnID('8300');
             return;
         }
 
-        cameraExists = true;
+        Camera.main = this;
 
         let targets = this._targets;
         for (let i = 0, l = targets.length; i < l; i++) {
@@ -89,7 +86,7 @@ let Camera = cc.Class({
     },
 
     onDisable: function () {
-        cameraExists = false;
+        Camera.main = null;
 
         let targets = this._targets;
         for (let i = 0, l = targets.length; i < l; i++) {
@@ -122,22 +119,13 @@ let Camera = cc.Class({
     calculateCaemraTransformIn: function (transform) {
         let node = this.node;
         
-        // calculate world position
-        let pos = node.convertToWorldSpaceAR(cc.Vec2.ZERO);
-
-        // calculate world rotation
-        let rotation = node.rotation;
-        let parent = node.parent;
-        while (parent){
-            rotation += parent.rotation;
-            parent = parent.parent;
-        }
+        let wt = node.getNodeToWorldTransform();
+        let rotation = -(Math.atan2(wt.b, wt.a) + Math.atan2(-wt.c, wt.d)) * 0.5;
 
         let a = 1, b = 0, c = 0, d = 1;
 
         // rotation
         if (rotation) {
-            rotation = rotation * ONE_DEGREE;
             c = Math.sin(rotation);
             d = Math.cos(rotation);
             a = d;
@@ -153,8 +141,8 @@ let Camera = cc.Class({
 
         // move camera to center
         let center = cc.visibleRect.center;
-        transform.tx = center.x - (a * pos.x + c * pos.y);
-        transform.ty = center.y - (b * pos.x + d * pos.y);
+        transform.tx = center.x - (a * wt.tx + c * wt.ty);
+        transform.ty = center.y - (b * wt.tx + d * wt.ty);
 
         transform.a = a;
         transform.b = b;
@@ -168,5 +156,7 @@ let Camera = cc.Class({
         this._sgNode.setTransform(t.a, t.b, t.c, t.d, t.tx, t.ty);
     }
 });
+
+Camera.main = null;
 
 module.exports = cc.Camera = Camera;
