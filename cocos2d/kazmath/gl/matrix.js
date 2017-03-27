@@ -106,7 +106,6 @@ math.glMatrixMode = function (mode) {
             throw new Error("Invalid matrix mode specified");   //TODO: Proper error handling
             break;
     }
-    cc.current_stack.lastUpdated = cc.director.getTotalFrames();
 };
 
 math.glLoadIdentity = function () {
