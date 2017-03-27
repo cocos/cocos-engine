@@ -960,11 +960,19 @@ node
 
 /**
  * @method setTransform
- * @param {vec2_object} arg0
+ * @param {float} arg0
  * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ * @param {float} arg4
+ * @param {float} arg5
  */
 setTransform : function (
-vec2, 
+float, 
+float, 
+float, 
+float, 
+float, 
 float 
 )
 {

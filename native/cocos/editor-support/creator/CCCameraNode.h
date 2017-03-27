@@ -41,7 +41,7 @@ namespace creator {
         CameraNode();
         ~CameraNode();
         
-        void setTransform(const cocos2d::Vec2& v, float zoom);
+        void setTransform(float a, float b, float c, float d, float tx, float ty);
         
         void addTarget(cocos2d::Node* target);
         void removeTarget(cocos2d::Node* target);

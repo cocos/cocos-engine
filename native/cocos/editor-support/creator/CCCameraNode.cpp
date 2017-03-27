@@ -17,20 +17,22 @@ namespace creator {
     
     CameraNode::CameraNode()
     {
+        _mat.setIdentity();
     }
     
     CameraNode::~CameraNode()
     {
     }
     
-    void CameraNode::setTransform(const cocos2d::Vec2& v, float zoom)
+    void CameraNode::setTransform(float a, float b, float c, float d, float tx, float ty)
     {
-        _mat.setIdentity();
-        
         float* m = _mat.m;
-        m[0] = m[5] = m[10] = zoom;
-        m[12] = v.x;
-        m[13] = v.y;
+        m[0] = a;
+        m[1] = b;
+        m[4] = c;
+        m[5] = d;
+        m[12] = tx;
+        m[13] = ty;
     }
     
     void CameraNode::addTarget(Node* target)

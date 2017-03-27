@@ -2471,18 +2471,26 @@ bool js_creator_CameraNode_setTransform(JSContext *cx, uint32_t argc, jsval *vp)
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     creator::CameraNode* cobj = (creator::CameraNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_CameraNode_setTransform : Invalid Native Object");
-    if (argc == 2) {
-        cocos2d::Vec2 arg0;
+    if (argc == 6) {
+        double arg0 = 0;
         double arg1 = 0;
-        ok &= jsval_to_vector2(cx, args.get(0), &arg0);
+        double arg2 = 0;
+        double arg3 = 0;
+        double arg4 = 0;
+        double arg5 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
         ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
+        ok &= JS::ToNumber( cx, args.get(4), &arg4) && !std::isnan(arg4);
+        ok &= JS::ToNumber( cx, args.get(5), &arg5) && !std::isnan(arg5);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_CameraNode_setTransform : Error processing arguments");
-        cobj->setTransform(arg0, arg1);
+        cobj->setTransform(arg0, arg1, arg2, arg3, arg4, arg5);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_creator_CameraNode_setTransform : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportError(cx, "js_creator_CameraNode_setTransform : wrong number of arguments: %d, was expecting %d", argc, 6);
     return false;
 }
 bool js_creator_CameraNode_addTarget(JSContext *cx, uint32_t argc, jsval *vp)
@@ -2550,7 +2558,7 @@ void js_register_creator_CameraNode(JSContext *cx, JS::HandleObject global) {
 
     static JSFunctionSpec funcs[] = {
         JS_FN("removeTarget", js_creator_CameraNode_removeTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("setTransform", js_creator_CameraNode_setTransform, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setTransform", js_creator_CameraNode_setTransform, 6, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("addTarget", js_creator_CameraNode_addTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
