@@ -180,6 +180,15 @@ var PhysicsManager = cc.Class({
         }
     },
 
+    attachDebugDrawToCamera: function (camera) {
+        if (!this._debugDrawer) return;
+        camera.addTarget(this._debugDrawer.getDrawer());
+    },
+    detachDebugDrawFromCamera: function (camera) {
+        if (!this._debugDrawer) return;
+        camera.removeTarget(this._debugDrawer.getDrawer());
+    },
+
     _registerContactFixture: function (fixture) {
         this._contactListener.registerContactFixture(fixture);
     },
@@ -260,7 +269,8 @@ var PhysicsManager = cc.Class({
             for (var i = 0, l = bodies.length; i < l; i++) {
                 var body = bodies[i];
                 var node = body.node;
-                node._position = node._sgNode.getPosition();
+                node._position.x = node._sgNode.getPositionX();
+                node._position.y = node._sgNode.getPositionY();
                 node._rotationX = node._rotationY = node._sgNode.getRotation();
             }
         }
@@ -384,6 +394,7 @@ cc.js.getset(PhysicsManager.prototype, 'gravity',
         }
     }
 );
+
 
 PhysicsManager.DrawBits = b2.Draw;
 PhysicsManager.CC_PTM_RATIO = CC_PTM_RATIO;
