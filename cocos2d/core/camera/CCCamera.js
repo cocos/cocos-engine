@@ -73,7 +73,7 @@ let Camera = cc.Class({
 
     onEnable: function () {
         if (Camera.main) {
-            cc.warnID('8300');
+            cc.errorID(8300);
             return;
         }
 
@@ -86,6 +86,10 @@ let Camera = cc.Class({
     },
 
     onDisable: function () {
+        if (Camera.main !== this) {
+            return;
+        }
+        
         Camera.main = null;
 
         let targets = this._targets;
