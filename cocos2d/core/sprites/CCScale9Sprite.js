@@ -1426,7 +1426,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             //     this._renderCmd._needDraw = false;
             // }
             // else {
-                this._renderCmd._needDraw = true;
+            //     this._renderCmd._needDraw = true;
             // }
         }
         else {

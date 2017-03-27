@@ -1,4 +1,3 @@
-let tempMatrix = new cc.math.Matrix4();
 
 let CameraNode = _ccsg.Node.extend({
     ctor: function () {
@@ -6,31 +5,26 @@ let CameraNode = _ccsg.Node.extend({
 
         this._mat = new cc.math.Matrix4();
         this._mat.identity();
+
+        this._beforeVisitCmd = new cc.CustomRenderCmd(this, this._onBeforeVisit);
+        this._afterVisitCmd = new cc.CustomRenderCmd(this, this._onAfterVisit);
     },
 
-    setTransform: function (vec, zoom) {
-        let mat = this._mat;
+    setTransform: function (a, b, c, d, tx, ty) {
+        let mat = this._mat.mat;
 
-        // reset matrix
-        tempMatrix.identity();
-        mat.identity();
-
-        // set zoom
-        tempMatrix.mat[0] = zoom;
-        tempMatrix.mat[5] = zoom;
-        tempMatrix.mat[10] = zoom;
-
-        // set x,y
-        tempMatrix.mat[12] = vec.x;
-        tempMatrix.mat[13] = vec.y;
-
-        mat.multiply(tempMatrix);
+        mat[0] = a;
+        mat[1] = b;
+        mat[4] = c;
+        mat[5] = d;
+        mat[12] = tx;
+        mat[13] = ty;
     },
 
     addTarget: function (target) {
-        if (target.__cameraInfo) return;
+        if (target._cameraInfo) return;
 
-        target.__cameraInfo = {
+        target._cameraInfo = {
             sgCameraNode: this,
             originVisit: target.visit
         };
@@ -39,23 +33,20 @@ let CameraNode = _ccsg.Node.extend({
     },
 
     removeTarget: function (target) {
-        let info = target.__cameraInfo;
+        let info = target._cameraInfo;
         if (!info) return;
         
         target.visit = info.originVisit;
-        target.__cameraInfo = undefined;
+        target._cameraInfo = undefined;
     },
 
     _visit: function (parent) {
-        let info = this.__cameraInfo;
+        let info = this._cameraInfo;
         let sgCameraNode = info.sgCameraNode;
 
-        let beforeVisitCmd = new cc.CustomRenderCmd(sgCameraNode, sgCameraNode._onBeforeVisit);
-        let afterVisitCmd = new cc.CustomRenderCmd(sgCameraNode, sgCameraNode._onAfterVisit);
-
-        cc.renderer.pushRenderCommand(beforeVisitCmd);
+        cc.renderer.pushRenderCommand(sgCameraNode._beforeVisitCmd);
         info.originVisit.call(this, parent);
-        cc.renderer.pushRenderCommand(afterVisitCmd);
+        cc.renderer.pushRenderCommand(sgCameraNode._afterVisitCmd);
     },
 
     _onBeforeVisit: function () {
@@ -67,10 +58,12 @@ let CameraNode = _ccsg.Node.extend({
     },
 
     _onAfterVisit: function () {
+        cc.renderer._breakBatch();
+        
         cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION)
         cc.current_stack.pop();
     },
 
 });
 
-module.exports = CameraNode;
+module.exports = _ccsg.CameraNode = CameraNode;
