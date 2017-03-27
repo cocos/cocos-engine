@@ -35,6 +35,7 @@ let Camera = cc.Class({
     
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/Camera',
+        executeInEditMode: false
     },
 
     properties: {
