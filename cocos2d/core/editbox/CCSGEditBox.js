@@ -699,7 +699,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             }
 
             if (editBox._delegate && editBox._delegate.editBoxTextChanged) {
-                if (editBox._text.toLowerCase() !== this.value.toLowerCase()) {
+                if (editBox._text !== this.value) {
                     editBox._text = this.value;
                     thisPointer._updateDomTextCases();
                     editBox._delegate.editBoxTextChanged(editBox, editBox._text);
