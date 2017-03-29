@@ -579,6 +579,8 @@ if (CC_DEV) {
         "8105": "cocos2d: cc.shaderCache._loadDefaultShader, error shader type", //_loadDefaultShader
         //Physics: 8200
         "8200": "Please set node\'s active instead of rigidbody\'s enabled.", //cc.RigidBody.enabled
+        //Camera: 8300
+        "8300": "Should only one camera exists, please check your project.", //cc.Camera.enabled
     };
     cc._LogInfos = logs;
 }

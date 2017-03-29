@@ -197,7 +197,8 @@ window._ccsg = {
     TMXObjectImage: cc.TMXObjetImage,
     TMXObjectShape: cc.TMXObjectShape,
     TMXLayer: cc.TMXLayer,
-    MotionStreak: cc.MotionStreak
+    MotionStreak: cc.MotionStreak,
+    CameraNode: cc.CameraNode
 };
 
 // __errorHandler

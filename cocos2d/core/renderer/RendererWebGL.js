@@ -268,9 +268,7 @@ cc.rendererWebGL = {
             if (cmdList.indexOf(cmd) === -1)
                 cmdList.push(cmd);
         } else {
-            if (this._renderCmds.indexOf(cmd) === -1) {
-                this._renderCmds.push(cmd);
-            }
+            this._renderCmds.push(cmd);
         }
     },
 
