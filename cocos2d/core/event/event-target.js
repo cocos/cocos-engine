@@ -154,9 +154,8 @@ JS.mixin(EventTarget.prototype, {
     /**
      * !#en
      * Register an callback of a specific event type on the EventTarget.
-     * This method is merely an alias to addEventListener.
      * !#zh
-     * 注册事件目标的特定事件类型回调，仅仅是 addEventListener 的别名。
+     * 注册事件目标的特定事件类型回调。
      *
      * @method on
      * @param {String} type - A string representing the event type to listen for.
@@ -213,9 +212,8 @@ JS.mixin(EventTarget.prototype, {
     /**
      * !#en
      * Removes the callback previously registered with the same type, callback, target and or useCapture.
-     * This method is merely an alias to removeEventListener.
      * !#zh
-     * 删除之前与同类型，回调，目标或 useCapture 注册的回调，仅仅是 removeEventListener 的别名。
+     * 删除之前与同类型，回调，目标或 useCapture 注册的回调。
      *
      * @method off
      * @param {String} type - A string representing the event type being removed.
@@ -262,10 +260,15 @@ JS.mixin(EventTarget.prototype, {
     },
 
     /**
-     * !#en Removes all callbacks previously registered with the same target.
-     * !#zh 删除指定目标上的所有注册回调。
+     * !#en Removes all callbacks previously registered with the same target (passed as parameter).
+     * This is not for removing all listeners in the current event target, 
+     * and this is not for removing all listeners the target parameter have registered.
+     * It's only for removing all listeners (callback and target couple) registered on the current event target by the target parameter.
+     * !#zh 在当前 EventTarget 上删除指定目标（target 参数）注册的所有事件监听器。
+     * 这个函数无法删除当前 EventTarget 的所有事件监听器，也无法删除 target 参数所注册的所有事件监听器。
+     * 这个函数只能删除 target 参数在当前 EventTarget 上注册的所有事件监听器。
      * @method targetOff
-     * @param {Object} target - The target to be searched for all related callbacks
+     * @param {Object} target - The target to be searched for all related listeners
      */
     targetOff: function (target) {
         if (this._capturingListeners) {
@@ -344,7 +347,7 @@ JS.mixin(EventTarget.prototype, {
             return;
         }
 
-        var event = new cc.Event.EventCustom(message);
+        var event = cc.Event.EventCustom.get(message);
         event.detail = detail;
 
         // Event.AT_TARGET
@@ -356,6 +359,7 @@ JS.mixin(EventTarget.prototype, {
         if (bublisteners && !event._propagationImmediateStopped) {
             this._bubblingListeners.invoke(event);
         }
+        cc.Event.EventCustom.put(event);
     },
 
     /*

@@ -117,7 +117,14 @@ function parseType (val, type, className, propName) {
             }
         }
         if (type.length > 0) {
-            val.type = type = type[0];
+            if (cc.RawAsset.isRawAssetType(type[0])) {
+                val.url = type[0];
+                delete val.type;
+                return;
+            }
+            else {
+                val.type = type = type[0];
+            }
         }
         else {
             return cc.errorID(5508, className, propName);

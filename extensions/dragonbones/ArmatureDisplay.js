@@ -23,6 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * @module dragonBones
+ */
+
 var DefaultArmaturesEnum = cc.Enum({ 'default': -1 });
 var DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
 
@@ -459,8 +463,9 @@ dragonBones.ArmatureDisplay = cc.Class({
      */
     playAnimation: function(animName, playTimes) {
         if (this._sgNode) {
+            this.playTimes = (playTimes === undefined) ? -1 : playTimes;
             this.animationName = animName;
-            return this._sgNode.animation().play(animName, playTimes);
+            return this._sgNode.animation().play(animName, this.playTimes);
         }
 
         return null;
@@ -572,8 +577,3 @@ dragonBones.ArmatureDisplay = cc.Class({
         return null;
     }
 });
-
-/**
- * module that contains all Dragon Bones runtime API
- * @module dragonBones
- */

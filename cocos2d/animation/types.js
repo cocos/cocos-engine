@@ -72,6 +72,25 @@ var WrapMode = cc.Enum({
 
 cc.WrapMode = WrapMode;
 
+// For internal
+var WrappedInfo = function (info) {
+    if (info) {
+        this.set(info);
+        return;
+    }
+
+    this.ratio = 0;
+    this.time = 0;
+    this.direction = 1;
+    this.stopped = true;
+    this.iterations = 0;
+};
+
+WrappedInfo.prototype.set = function (info) {
+    for (var k in info) {
+        this[k] = info[k];
+    }
+};
 
 /**
  * !#en The abstract interface for all playing animation.
@@ -232,6 +251,9 @@ function AnimationNode (animator, curves, timingInput) {
     if (this.delay > 0) {
         this._duringDelay = true;
     }
+
+    this._wrappedInfo = new WrappedInfo();
+    this._lastWrappedInfo = null;
 }
 JS.extend(AnimationNode, AnimationNodeBase);
 
@@ -268,7 +290,7 @@ JS.mixin(AnimationNode.prototype, {
         var info = this.sample();
 
         if (!this._lastWrappedInfo) {
-            this._lastWrappedInfo = info;
+            this._lastWrappedInfo = new WrappedInfo(info);
         }
 
         var anotherIteration = (info.iterations | 0) > (this._lastWrappedInfo.iterations | 0);
@@ -290,7 +312,7 @@ JS.mixin(AnimationNode.prototype, {
             this.emit('finished', this);
         }
 
-        this._lastWrappedInfo = info;
+        this._lastWrappedInfo.set(info);
     },
 
     _needRevers: function (currentIterations) {
@@ -314,7 +336,9 @@ JS.mixin(AnimationNode.prototype, {
         return needRevers;
     },
 
-    getWrappedInfo: function (time) {
+    getWrappedInfo: function (time, info) {
+        info = info || new WrappedInfo();
+        
         var stopped = false;
         var duration = this.duration;
         var ratio = 0;
@@ -356,21 +380,17 @@ JS.mixin(AnimationNode.prototype, {
 
         ratio = time / duration;
 
-        return {
-            ratio: ratio,
-            time: time,
-            direction: direction,
-            stopped: stopped,
-            iterations: currentIterations
-        };
+        info.ratio = ratio;
+        info.time = time;
+        info.direction = direction;
+        info.stopped = stopped;
+        info.iterations = currentIterations;
+
+        return info;
     },
 
     sample: function () {
-
-        // sample
-
-        var info = this.getWrappedInfo(this.time);
-
+        var info = this.getWrappedInfo(this.time, this._wrappedInfo);
         var curves = this.curves;
         for (var i = 0, len = curves.length; i < len; i++) {
             var curve = curves[i];
@@ -426,4 +446,5 @@ module.exports = {
     WrapModeMask: WrapModeMask,
     WrapMode: WrapMode,
     AnimationNode: AnimationNode,
+    WrappedInfo: WrappedInfo
 };

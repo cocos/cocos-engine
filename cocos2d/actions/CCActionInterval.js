@@ -312,10 +312,10 @@ cc.Sequence = cc.ActionInterval.extend({
         cc.ActionInterval.prototype.ctor.call(this);
         this._actions = [];
 
-		var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
-		var last = paramArray.length - 1;
-		if ((last >= 0) && (paramArray[last] == null))
-			cc.logID(1015);
+        var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
+        var last = paramArray.length - 1;
+        if ((last >= 0) && (paramArray[last] == null))
+            cc.logID(1015);
 
         if (last >= 0) {
             var prev = paramArray[0], action1;
@@ -443,24 +443,17 @@ cc.Sequence = cc.ActionInterval.extend({
 // todo: It should be use new
 cc.sequence = function (/*Multiple Arguments*/tempArray) {
     var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
-    if ((paramArray.length > 0) && (paramArray[paramArray.length - 1] == null))
+    var last = paramArray.length - 1;
+    if ((last >= 0) && (paramArray[last] == null))
         cc.logID(1015);
 
-    var result, current, i, repeat;
-    while(paramArray && paramArray.length > 0){
-        current = Array.prototype.shift.call(paramArray);
-        repeat = current._timesForRepeat || 1;
-        current._repeatMethod = false;
-        current._timesForRepeat = 1;
-
-        i = 0;
-        if(!result){
-            result = current;
-            i = 1;
-        }
-
-        for(i; i<repeat; i++){
-            result = cc.Sequence._actionOneTwo(result, current);
+    var result = null;
+    if (last >= 0) {
+        result = paramArray[0];
+        for (var i = 1; i <= last; i++) {
+            if (paramArray[i]) {
+                result = cc.Sequence._actionOneTwo(result, paramArray[i]);
+            }
         }
     }
 

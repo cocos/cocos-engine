@@ -229,9 +229,10 @@ _ccsg.Label = _ccsg.Node.extend({
     _isBold: false,
     _isItalic: false,
     _isUnderline: false,
+    _fontAsset: null,
 
     //fontHandle it is a system font name, ttf file path or bmfont file path.
-    ctor: function(string, fontHandle, spriteFrame) {
+    ctor: function(string, fontHandle, spriteFrame, fontAsset) {
         EventTarget.call(this);
 
         fontHandle = fontHandle || "";
@@ -247,7 +248,7 @@ _ccsg.Label = _ccsg.Node.extend({
         _ccsg.Node.prototype.setContentSize.call(this, cc.size(128, 128));
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
 
-        this.setFontFileOrFamily(fontHandle, spriteFrame);
+        this.setFontFileOrFamily(fontHandle, spriteFrame, fontAsset);
         this.setString(this._string);
     },
 
@@ -528,8 +529,9 @@ _ccsg.Label = _ccsg.Node.extend({
         }
     },
 
-    setFontFileOrFamily: function(fontHandle, spriteFrame) {
+    setFontFileOrFamily: function(fontHandle, spriteFrame, fontAsset) {
         fontHandle = fontHandle || "Arial";
+        this._fontAsset = fontAsset;
         var extName = cc.path.extname(fontHandle);
 
         this._resetBMFont();
@@ -1301,7 +1303,13 @@ cc.BMFontHelper = {
                 var self = this;
                 this._resetBMFont();
 
-                self._config = FntLoader.parseFnt(fntDataStr);
+                var fntConfig = this._fontAsset._fntConfig;
+                if (fntConfig) {
+                    self._config = fntConfig;
+                } else {
+                    self._config = FntLoader.parseFnt(fntDataStr);
+                    this._fontAsset._fntConfig = self._config;
+                }
                 self._createFontChars();
                 self._spriteFrame = spriteFrame;
 

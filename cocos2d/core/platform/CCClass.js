@@ -510,7 +510,12 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
         if (SuperCallReg.test(ctor)) {
             cc.warnID(3600, className);
             // suppresss super call
-            ctor = function () {
+            ctor = CC_JSB ? function (...args) {
+                this._super = function () {};
+                var ret = originCtor.apply(this, args);
+                this._super = null;
+                return ret;
+            } : function () {
                 this._super = function () {};
                 var ret = originCtor.apply(this, arguments);
                 this._super = null;
@@ -566,11 +571,12 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
 
     // create class constructor
     var body;
+    var args = CC_JSB ? '...args' : '';
     if (CC_DEV) {
-        body = '(function ' + normalizeClassName(className) + '(){\n';
+        body = '(function ' + normalizeClassName(className) + '(' + args + '){\n';
     }
     else {
-        body = '(function(){\n';
+        body = '(function(' + args + '){\n';
     }
     if (superCallBounded) {
         body += 'this._super=null;\n';
@@ -582,6 +588,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
     // call user constructors
     if (ctors.length > 0) {
         body += 'var cs=fireClass.__ctors__;\n';
+        var params = CC_JSB ? 'args' : 'arguments';
 
         if (useTryCatch) {
             body += 'try{\n';
@@ -589,12 +596,12 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
 
         if (ctors.length <= 5) {
             for (var i = 0; i < ctors.length; i++) {
-                body += '(cs[' + i + ']).apply(this,arguments);\n';
+                body += '(cs[' + i + ']).apply(this,' + params + ');\n';
             }
         }
         else {
             body += 'for(var i=0,l=cs.length;i<l;++i){\n';
-            body += '(cs[i]).apply(this,arguments);\n}\n';
+            body += '(cs[i]).apply(this,' + params + ');\n}\n';
         }
 
         if (useTryCatch) {
@@ -637,7 +644,13 @@ function boundSuperCalls (baseClass, options, className) {
                     hasSuperCall = true;
                     // boundSuperCall
                     options[funcName] = (function (superFunc, func) {
-                        return function () {
+                        return CC_JSB ? function (...args) {
+                            var tmp = this._super;
+                            this._super = superFunc;
+                            var ret = func.apply(this, args);
+                            this._super = tmp;
+                            return ret;
+                        } : function () {
                             var tmp = this._super;
 
                             // Add a new ._super() method that is the same method but on the super-Class

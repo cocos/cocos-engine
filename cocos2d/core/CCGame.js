@@ -210,14 +210,6 @@ var game = {
      */
     onStart: null,
 
-    /**
-     * !#en Callback when game exits.
-     * !#zh 当游戏结束后的回调函数。
-     * @method onStop
-     * @type {Function}
-     */
-    onStop: null,
-
 //@Public Methods
 
 //  @Game play control
@@ -511,9 +503,9 @@ var game = {
 //  @Time ticker section
     _setAnimFrame: function () {
         this._lastTime = new Date();
-        this._frameTime = 1000 / game.config[game.CONFIG_KEY.frameRate];
         var frameRate = game.config[game.CONFIG_KEY.frameRate];
-        if(frameRate !== 60 && frameRate !== 30) {
+        this._frameTime = 1000 / frameRate;
+        if (frameRate !== 60 && frameRate !== 30) {
             window.requestAnimFrame = this._stTime;
             window.cancelAnimationFrame = this._ctTime;
         }
@@ -560,7 +552,7 @@ var game = {
             if (!self._paused) {
                 if (frameRate === 30) {
                     if (skip = !skip) {
-                        window.requestAnimFrame(callback);
+                        self._intervalId = window.requestAnimFrame(callback);
                         return;
                     }
                 }
@@ -570,7 +562,7 @@ var game = {
             }
         };
 
-        window.requestAnimFrame(callback);
+        self._intervalId = window.requestAnimFrame(callback);
         self._paused = false;
     },
 

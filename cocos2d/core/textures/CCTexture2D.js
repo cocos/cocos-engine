@@ -332,16 +332,20 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
     /**
      * sets antialias texture parameters:              <br/>
      *  - GL_TEXTURE_MIN_FILTER = GL_NEAREST           <br/>
-     *  - GL_TEXTURE_MAG_FILTER = GL_NEAREST
+     *  - GL_TEXTURE_MAG_FILTER = GL_NEAREST           <br/>
+     * supported only in native or WebGl rendering mode
+     * @method setAntiAliasTexParameters
      */
     setAntiAliasTexParameters: function () {
         //support only in WebGl rendering mode
     },
 
     /**
-     * Sets alias texture parameters:
-     *   GL_TEXTURE_MIN_FILTER = GL_NEAREST
-     *   GL_TEXTURE_MAG_FILTER = GL_NEAREST
+     * Sets alias texture parameters:                 <br/>
+     *   GL_TEXTURE_MIN_FILTER = GL_NEAREST           <br/>
+     *   GL_TEXTURE_MAG_FILTER = GL_NEAREST           <br/>
+     * supported only in native or WebGl rendering mode
+     * @method setAliasTexParameters
      */
     setAliasTexParameters: function () {
         //support only in WebGl rendering mode

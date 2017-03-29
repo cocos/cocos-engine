@@ -55,7 +55,7 @@ var dataPool = {
     }
 };
 
-var FIX_ARTIFACTS_BY_STRECHING_TEXEL = cc.macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL,
+var macro = cc.macro,
     webgl,
     vl, vb, vt, vr,
     cornerId = [];
@@ -166,7 +166,7 @@ var simpleQuadGenerator = {
 
         //uv computation should take spritesheet into account.
         var l, b, r, t;
-        var texelCorrect = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 : 0;
+        var texelCorrect = macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 : 0;
 
         if (spriteFrame._rotated) {
             l = (textureRect.x + texelCorrect) / atlasWidth;
@@ -292,7 +292,7 @@ var scale9QuadGenerator = {
         //uv computation should take spritesheet into account.
         var u = this.x;
         var v = this.y;
-        var texelCorrect = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 : 0;
+        var texelCorrect = macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 : 0;
         var offset = 0, row, col;
 
         if (spriteFrame._rotated) {
@@ -348,7 +348,7 @@ var tiledQuadGenerator = {
 
         //uv computation should take spritesheet into account.
         var u0, v0, u1, v1;
-        var texelCorrect = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 : 0;
+        var texelCorrect = macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 : 0;
         if (spriteFrame._rotated) {
             u0 = (textureRect.x + texelCorrect) / atlasWidth;
             u1 = (textureRect.x + textureRect.height - texelCorrect) / atlasWidth;
@@ -465,7 +465,7 @@ var fillQuadGeneratorBar = {
         var textureRect = spriteFrame._rect;
         //uv computation should take spritesheet into account.
         var ul, vb, ur, vt;
-        var texelCorrect = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 : 0;
+        var texelCorrect = macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 : 0;
         if (spriteFrame._rotated) {
             ul = (textureRect.x + texelCorrect) / atlasWidth;
             vb = (textureRect.y + textureRect.width - texelCorrect) / atlasHeight;
@@ -906,7 +906,7 @@ var fillQuadGeneratorRadial = {
 
         //uv computation should take spritesheet into account.
         var u0, u3, v0, v3;
-        var texelCorrect = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 : 0;
+        var texelCorrect = macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 : 0;
 
         if (spriteFrame._rotated) {
             u0 = (textureRect.x + texelCorrect) / atlasWidth;

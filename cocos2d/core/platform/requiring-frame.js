@@ -27,7 +27,7 @@ var requiringFrames = [];  // the requiring frame infos
 
 cc._RF = {
     push: function (module, uuid, script) {
-        if (arguments.length === 2) {
+        if (script === undefined) {
             script = uuid;
             uuid = '';
         }

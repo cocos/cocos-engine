@@ -135,7 +135,7 @@ function WebGLRenderCmd (renderable) {
     this._shader = new cc.GLProgram();
     this._shader.initWithVertexShaderByteArray(Shader.vert, Shader.frag);
     this._shader.retain();
-    this._shader.addAttribute(cc.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
+    this._shader.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
     this._shader.link();
     this._shader.updateUniforms();
 
