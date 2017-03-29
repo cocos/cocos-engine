@@ -42,9 +42,9 @@ function _copyprop(name, source, target) {
 
 /**
  * This module provides some JavaScript utilities.
- * All members can be accessed with cc.js
+ * All members can be accessed with "cc.js".
+ * @submodule js
  * @module js
- * @namespace cc.js
  */
 var js = {
 
