@@ -37,6 +37,7 @@ extern jsval spskeleton_to_jsval(JSContext* cx, spSkeleton& v);
 extern jsval spattachment_to_jsval(JSContext* cx, spAttachment& v);
 extern jsval spregionattachment_to_jsval(JSContext* cx, spRegionAttachment& v);
 extern jsval spmeshattachment_to_jsval(JSContext* cx, spMeshAttachment& v);
+extern jsval spboundingboxattachment_to_jsval(JSContext* cx, spBoundingBoxAttachment& v);
 extern jsval spslotdata_to_jsval(JSContext* cx, spSlotData& v);
 extern jsval spslot_to_jsval(JSContext* cx, spSlot& v);
 extern jsval sptimeline_to_jsval(JSContext* cx, spTimeline& v);

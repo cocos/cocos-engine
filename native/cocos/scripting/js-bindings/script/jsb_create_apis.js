@@ -208,11 +208,11 @@ cc.DrawNode.prototype._ctor = function() {
     cc.DrawNode.prototype.init.call(this);
 };
 
-cc.LabelTTF.prototype._ctor = function(text, fontName, fontSize, dimensions, hAlignment, vAlignment) {
+cc.LabelTTF.prototype._ctor = function (text, fontName, fontSize, dimensions, hAlignment, vAlignment) {
     this._flippedX = false;
     this._flippedY = false;
     this._renderLabel = this.getRenderLabel();
-    if (arguments.length <= 0) {
+    if (text === undefined) {
         return;
     }
     

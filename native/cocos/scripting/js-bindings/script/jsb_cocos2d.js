@@ -129,9 +129,9 @@ cc.TMXLayerInfo.ATTRIB_ZLIB = 1 << 3;
 // Point
 cc.p = function (x, y) {
     'use strict';
-    if (x == undefined)
+    if (x === undefined)
         return {x: 0, y: 0};
-    if (y == undefined)
+    if (y === undefined)
         return {x: x.x, y: x.y};
     return {x:x, y:y};
 };
@@ -143,17 +143,16 @@ cc.size = function (w, h) {
 // Rect
 cc.rect = function (x, y, w, h) {
     'use strict';
-    var argLen = arguments.length;
-    if (argLen === 0)
+    if (x === undefined)
         return { x: 0, y: 0, width: 0, height: 0 };
 
-    if (argLen === 1)
+    if (y === undefined)
         return { x: x.x, y: x.y, width: x.width, height: x.height };
 
-    if (argLen === 2)
+    if (w === undefined)
         return { x: x.x, y: x.y, width: y.width, height: y.height };
 
-    if (argLen === 4)
+    if (h !== undefined)
         return { x: x, y: y, width: w, height: h };
 
     throw "unknown argument type";
@@ -780,11 +779,11 @@ cc.Layer.prototype.isBaked = function() {return false;};
 //
 cc.RenderTexture.prototype._beginWithClear = cc.RenderTexture.prototype.beginWithClear;
 cc.RenderTexture.prototype.beginWithClear = function(r, g, b, a, depthValue, stencilValue) {
-    arguments[0] /= 255;
-    arguments[1] /= 255;
-    arguments[2] /= 255;
-    arguments[3] /= 255;
-    this._beginWithClear.apply(this, arguments);
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    a /= 255;
+    this._beginWithClear(r, g, b, a, depthValue, stencilValue);
 };
 
 
@@ -836,23 +835,23 @@ _p.unscheduleAllCallbacksForTarget = function (target) {
 _p._schedule = _p.schedule;
 _p.schedule = function (callback, target, interval, repeat, delay, paused, key) {
     var isSelector = false;
-    if(typeof callback !== "function"){
+    if (typeof callback !== "function") {
         var selector = callback;
         isSelector = true;
     }
-    if(isSelector === false){
+    if (isSelector === false) {
         //callback, target, interval, repeat, delay, paused, key
         //callback, target, interval, paused, key
-        if(arguments.length === 4 || arguments.length === 5) {
+        if (repeat !== undefined && (delay === undefined || paused === undefined)) {
             key = delay;
             paused = repeat;
             delay = 0;
             repeat = cc.REPEAT_FOREVER;
         }
-    }else{
+    } else {
         //selector, target, interval, repeat, delay, paused
         //selector, target, interval, paused
-        if(arguments.length === 4){
+        if (repeat !== undefined && delay === undefined) {
             paused = repeat;
             repeat = cc.REPEAT_FOREVER;
             delay = 0;
@@ -905,21 +904,17 @@ cc.defineGetterSetter(cc.BlendFunc, "ALPHA_NON_PREMULTIPLIED", cc.BlendFunc._alp
 cc.BlendFunc.ADDITIVE;
 cc.defineGetterSetter(cc.BlendFunc, "ADDITIVE", cc.BlendFunc._additive);
 
-cc.GLProgram.prototype.setUniformLocationWithMatrix2fv = function(){
-    var tempArray = Array.prototype.slice.call(arguments);
-    tempArray = Array.prototype.concat.call(tempArray, 2);
-    this.setUniformLocationWithMatrixfvUnion.apply(this, tempArray);
+cc.GLProgram.prototype.setUniformLocationWithMatrix2fv = function (...args) {
+    args = Array.prototype.concat.call(args, 2);
+    this.setUniformLocationWithMatrixfvUnion.apply(this, args);
 };
-
-cc.GLProgram.prototype.setUniformLocationWithMatrix3fv = function(){
-    var tempArray = Array.prototype.slice.call(arguments);
-    tempArray = Array.prototype.concat.call(tempArray, 3);
-    this.setUniformLocationWithMatrixfvUnion.apply(this, tempArray);
+cc.GLProgram.prototype.setUniformLocationWithMatrix3fv = function (...args) {
+    args = Array.prototype.concat.call(args, 3);
+    this.setUniformLocationWithMatrixfvUnion.apply(this, args);
 };
-cc.GLProgram.prototype.setUniformLocationWithMatrix4fv = function(){
-    var tempArray = Array.prototype.slice.call(arguments);
-    tempArray = Array.prototype.concat.call(tempArray, 4);
-    this.setUniformLocationWithMatrixfvUnion.apply(this, tempArray);
+cc.GLProgram.prototype.setUniformLocationWithMatrix4fv = function (...args) {
+    args = Array.prototype.concat.call(args, 4);
+    this.setUniformLocationWithMatrixfvUnion.apply(this, args);
 };
 
 //
