@@ -1425,7 +1425,7 @@ var Node = cc.Class({
      */
     getNumberOfRunningActions () {
         return cc.director._actionManager ? cc.director._actionManager.getNumberOfRunningActionsInTarget(this) : 0;
-    }
+    },
 
     setTag (value) {
         this._tag = value;
