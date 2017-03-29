@@ -93,6 +93,7 @@ bool js_creator_PhysicsDebugDraw_constructor(JSContext *cx, uint32_t argc, jsval
 void js_creator_PhysicsDebugDraw_finalize(JSContext *cx, JSObject *obj);
 void js_register_creator_PhysicsDebugDraw(JSContext *cx, JS::HandleObject global);
 void register_all_creator(JSContext* cx, JS::HandleObject obj);
+bool js_creator_PhysicsDebugDraw_getDrawer(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsDebugDraw_ClearDraw(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsDebugDraw_AddDrawerToNode(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsDebugDraw_PhysicsDebugDraw(JSContext *cx, uint32_t argc, jsval *vp);
@@ -140,5 +141,17 @@ void register_all_creator(JSContext* cx, JS::HandleObject obj);
 bool js_creator_PhysicsRayCastCallback_getType(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsRayCastCallback_getFractions(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsRayCastCallback_PhysicsRayCastCallback(JSContext *cx, uint32_t argc, jsval *vp);
+
+extern JSClass  *jsb_creator_CameraNode_class;
+extern JSObject *jsb_creator_CameraNode_prototype;
+
+bool js_creator_CameraNode_constructor(JSContext *cx, uint32_t argc, jsval *vp);
+void js_creator_CameraNode_finalize(JSContext *cx, JSObject *obj);
+void js_register_creator_CameraNode(JSContext *cx, JS::HandleObject global);
+void register_all_creator(JSContext* cx, JS::HandleObject obj);
+bool js_creator_CameraNode_removeTarget(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_CameraNode_setTransform(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_CameraNode_addTarget(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_CameraNode_CameraNode(JSContext *cx, uint32_t argc, jsval *vp);
 
 #endif // __creator_h__

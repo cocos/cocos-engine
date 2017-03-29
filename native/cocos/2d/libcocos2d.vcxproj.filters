@@ -958,18 +958,6 @@
     <ClCompile Include="..\ui\UIEditBox\UIEditBoxImpl-win32.cpp">
       <Filter>ui\UIWidgets\EditBox</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\extensions\assets-manager\AssetsManagerEx.cpp">
-      <Filter>extension\AssetsManager</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\assets-manager\CCEventAssetsManagerEx.cpp">
-      <Filter>extension\AssetsManager</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\assets-manager\CCEventListenerAssetsManagerEx.cpp">
-      <Filter>extension\AssetsManager</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\assets-manager\Manifest.cpp">
-      <Filter>extension\AssetsManager</Filter>
-    </ClCompile>
     <ClCompile Include="..\ui\UIWebView.cpp">
       <Filter>ui\UIWidgets</Filter>
     </ClCompile>
@@ -1070,63 +1058,6 @@
     <ClCompile Include="..\ui\UITabControl.cpp">
       <Filter>ui\UIWidgets</Filter>
     </ClCompile>
-    <ClCompile Include="..\base\CCString.cpp">
-      <Filter>base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCArmature.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCArmatureAnimation.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCArmatureDataManager.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCArmatureDefine.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCBatchNode.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCBone.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCColliderDetector.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCDataReaderHelper.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCDatas.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCDecorativeDisplay.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCDisplayFactory.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCDisplayManager.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCProcessBase.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCSkin.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCSpriteFrameCacheHelper.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCTransformHelp.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCTween.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCUtilMath.cpp">
-      <Filter>cocostudio\Armature</Filter>
-    </ClCompile>
     <ClCompile Include="..\base\CCStencilStateManager.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -1173,6 +1104,13 @@
       <Filter>creator</Filter>
     </ClCompile>
     <ClCompile Include="..\editor-support\creator\CCPhysicsRayCastCallback.cpp">
+      <Filter>creator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extensions\assets-manager\AssetsManagerEx.cpp" />
+    <ClCompile Include="..\..\extensions\assets-manager\CCEventAssetsManagerEx.cpp" />
+    <ClCompile Include="..\..\extensions\assets-manager\CCEventListenerAssetsManagerEx.cpp" />
+    <ClCompile Include="..\..\extensions\assets-manager\Manifest.cpp" />
+    <ClCompile Include="..\editor-support\creator\CCCameraNode.cpp">
       <Filter>creator</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1275,9 +1213,6 @@
       <Filter>2d</Filter>
     </ClInclude>
     <ClInclude Include="CCLabelAtlas.h">
-      <Filter>2d</Filter>
-    </ClInclude>
-    <ClInclude Include="CCLabelTTF.h">
       <Filter>2d</Filter>
     </ClInclude>
     <ClInclude Include="CCLayer.h">
@@ -1799,36 +1734,6 @@
     <ClInclude Include="..\editor-support\cocostudio\DictionaryHelper.h">
       <Filter>cocostudio\json</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\json\document.h">
-      <Filter>cocostudio\json\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\external\json\filestream.h">
-      <Filter>cocostudio\json\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\external\json\prettywriter.h">
-      <Filter>cocostudio\json\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\external\json\rapidjson.h">
-      <Filter>cocostudio\json\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\external\json\reader.h">
-      <Filter>cocostudio\json\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\external\json\stringbuffer.h">
-      <Filter>cocostudio\json\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\external\json\writer.h">
-      <Filter>cocostudio\json\rapidjson</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\external\json\internal\pow10.h">
-      <Filter>cocostudio\json\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\external\json\internal\stack.h">
-      <Filter>cocostudio\json\rapidjson\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\external\json\internal\strfunc.h">
-      <Filter>cocostudio\json\rapidjson\internal</Filter>
-    </ClInclude>
     <ClInclude Include="..\editor-support\cocostudio\CCComAttribute.h">
       <Filter>cocostudio\components</Filter>
     </ClInclude>
@@ -2063,18 +1968,6 @@
     <ClInclude Include="..\ui\UIEditBox\UIEditBoxImpl-win32.h">
       <Filter>ui\UIWidgets\EditBox</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\extensions\assets-manager\AssetsManagerEx.h">
-      <Filter>extension\AssetsManager</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\assets-manager\CCEventAssetsManagerEx.h">
-      <Filter>extension\AssetsManager</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\assets-manager\CCEventListenerAssetsManagerEx.h">
-      <Filter>extension\AssetsManager</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\assets-manager\Manifest.h">
-      <Filter>extension\AssetsManager</Filter>
-    </ClInclude>
     <ClInclude Include="..\ui\UIWebView-inl.h">
       <Filter>ui\UIWidgets</Filter>
     </ClInclude>
@@ -2175,9 +2068,6 @@
     <ClInclude Include="..\network\CCDownloader-curl.h">
       <Filter>network\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\base\CCString.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\external\sources\ConvertUTF\ConvertUTF.h">
       <Filter>external\ConvertUTF</Filter>
     </ClInclude>
@@ -2201,12 +2091,6 @@
     </ClInclude>
     <ClInclude Include="..\..\external\sources\xxhash\xxhash.h">
       <Filter>external\xxhash</Filter>
-    </ClInclude>
-    <ClInclude Include="..\base\CCStencilStateManager.hpp">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ui\UIPageViewIndicator.h">
-      <Filter>ui\UIWidgets\ScrollWidget</Filter>
     </ClInclude>
     <ClInclude Include="..\editor-support\creator\CCScale9Sprite.h">
       <Filter>creator</Filter>
@@ -2236,6 +2120,32 @@
       <Filter>creator</Filter>
     </ClInclude>
     <ClInclude Include="..\editor-support\creator\CCPhysicsUtils.h">
+      <Filter>creator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\extensions\assets-manager\AssetsManagerEx.h" />
+    <ClInclude Include="..\..\extensions\assets-manager\CCEventAssetsManagerEx.h" />
+    <ClInclude Include="..\..\extensions\assets-manager\CCEventListenerAssetsManagerEx.h" />
+    <ClInclude Include="..\..\extensions\assets-manager\Manifest.h" />
+    <ClInclude Include="..\..\external\sources\json\document.h" />
+    <ClInclude Include="..\..\external\sources\json\filestream.h" />
+    <ClInclude Include="..\..\external\sources\json\internal\pow10.h" />
+    <ClInclude Include="..\..\external\sources\json\internal\stack.h" />
+    <ClInclude Include="..\..\external\sources\json\internal\strfunc.h" />
+    <ClInclude Include="..\..\external\sources\json\prettywriter.h" />
+    <ClInclude Include="..\..\external\sources\json\rapidjson.h" />
+    <ClInclude Include="..\..\external\sources\json\reader.h" />
+    <ClInclude Include="..\..\external\sources\json\stringbuffer.h" />
+    <ClInclude Include="..\..\external\sources\json\writer.h" />
+    <ClInclude Include="..\..\external\sources\poly2tri\common\shapes.h" />
+    <ClInclude Include="..\..\external\sources\poly2tri\common\utils.h" />
+    <ClInclude Include="..\..\external\sources\poly2tri\poly2tri.h" />
+    <ClInclude Include="..\..\external\sources\poly2tri\sweep\advancing_front.h" />
+    <ClInclude Include="..\..\external\sources\poly2tri\sweep\cdt.h" />
+    <ClInclude Include="..\..\external\sources\poly2tri\sweep\sweep.h" />
+    <ClInclude Include="..\..\external\sources\poly2tri\sweep\sweep_context.h" />
+    <ClInclude Include="..\ui\UIAbstractCheckButton.h" />
+    <ClInclude Include="..\ui\UITabControl.h" />
+    <ClInclude Include="..\editor-support\creator\CCCameraNode.h">
       <Filter>creator</Filter>
     </ClInclude>
   </ItemGroup>

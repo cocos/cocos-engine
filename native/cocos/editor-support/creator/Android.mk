@@ -12,7 +12,8 @@ LOCAL_SRC_FILES := CCScale9Sprite.cpp \
     CCPhysicsUtils.cpp \
     CCPhysicsAABBQueryCallback.cpp \
     CCPhysicsContactListener.cpp \
-    CCPhysicsRayCastCallback.cpp
+    CCPhysicsRayCastCallback.cpp \
+    CCCameraNode.cpp
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/..
 
