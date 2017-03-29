@@ -809,18 +809,6 @@ syncNode : function (
 },
 
 /**
- * @method setFixtureNext
- * @param {b2Fixture} arg0
- * @param {b2Fixture} arg1
- */
-setFixtureNext : function (
-b2fixture, 
-b2fixture 
-)
-{
-},
-
-/**
  * @method removeB2Body
  * @param {b2Body} arg0
  */
