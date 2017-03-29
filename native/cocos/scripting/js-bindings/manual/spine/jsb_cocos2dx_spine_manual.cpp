@@ -445,6 +445,8 @@ jsval sptrackentry_to_jsval(JSContext* cx, spTrackEntry& v)
     {
         JS::RootedValue val(cx, DOUBLE_TO_JSVAL(v.delay));
         bool ok = JS_SetProperty(cx, entry, "delay", val);
+        val.set(DOUBLE_TO_JSVAL(v.loop));
+        ok &= JS_SetProperty(cx, entry, "loop", val);
         val.set(DOUBLE_TO_JSVAL(v.trackIndex));
         ok &= JS_SetProperty(cx, entry, "trackIndex", val);
         val.set(DOUBLE_TO_JSVAL(v.trackTime));
