@@ -1,48 +1,79 @@
 
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
+var CC_PTM_RATIO = require('./CCPhysicsTypes').CC_PTM_RATIO;
 var ContactType = require('./CCPhysicsTypes').ContactType;
 
-function PhysicsContact (contact) {
-    this._contact = contact;
-    this.colliderA = contact.GetFixtureA().collider;
-    this.colliderB = contact.GetFixtureB().collider;
-    this.disabled = false;
+var pools = [];
+
+var pointCache = [cc.v2(), cc.v2()];
+
+var b2worldmanifold;
+if (!CC_JSB) {
+    b2worldmanifold = new b2.WorldManifold();
 }
 
+var worldmanifold = {
+    points: [],
+    separations: [],
+    localNormal: cc.v2()
+};
+
+function PhysicsContact () {
+}
+
+PhysicsContact.prototype.init = function (b2contact) {
+    this._b2contact = b2contact;
+    this.colliderA = b2contact.GetFixtureA().collider;
+    this.colliderB = b2contact.GetFixtureB().collider;
+    this.disabled = false;
+};
+
 PhysicsContact.prototype.getWorldManifold = function () {
-    var worldmanifold;
-
-    if (CC_JSB) {
-        worldmanifold = cc.director.getPhysicsManager()._utils.getContactWorldManifold(this._contact);
-    }
-    else {
-        worldmanifold = new b2.WorldManifold();
-        this._contact.GetWorldManifold(worldmanifold);
-    }
-
     var i;
     var points = worldmanifold.points;
-    for (i = 0; i < points.length; i++) {
-        var p = points[i];
-        if (!p) break;
-
-        points[i] = cc.v2(p.x * CC_PTM_RATIO, p.y * CC_PTM_RATIO);
-    }
-
-    points.length = i;
-
     var separations = worldmanifold.separations;
-    separations.length = points.length;
 
-    for (i = 0; i < separations.length; i++) {
-        separations[i] *= CC_PTM_RATIO;
+    if (CC_JSB) {
+        var wrapper = cc.PhysicsUtils.getContactWorldManifoldWrapper(this._b2contact);
+        var count = wrapper.getCount();
+        var localNormal = worldmanifold.localNormal;
+
+        points.length = separations.length = count;
+
+        for (i = 0; i < count; i++) {
+            let p = pointCache[i];
+            p.x = wrapper.getX(i);
+            p.y = wrapper.getY(i);
+            
+            points[i] = p;
+            separations[i] = wrapper.getSeparation(i);
+        }
+        
+        localNormal.x = wrapper.getNormalX();
+        localNormal.y = wrapper.getNormalY();
+    }
+    else {
+        this._b2contact.GetWorldManifold(b2worldmanifold);
+        var b2points = b2worldmanifold.points;
+        var b2separations = b2worldmanifold.separations;
+
+        var count = this._b2contact.GetManifold().pointCount;
+        points.length = separations.length = count;
+        
+        for (i = 0; i < count; i++) {
+            var p = pointCache[i];
+            p.x = b2points[i].x * CC_PTM_RATIO;
+            p.y = b2points[i].y * CC_PTM_RATIO;
+            
+            points[i] = p;
+            separations[i] = b2separations[i] * CC_PTM_RATIO;
+        }
     }
 
     return worldmanifold;
 };
 
 PhysicsContact.prototype.getManifold = function () {
-    var manifold = this._contact.GetManifold();
+    var manifold = this._b2contact.GetManifold();
     if (!CC_JSB) {
         manifold = manifold.Clone();
     }
@@ -108,6 +139,27 @@ PhysicsContact.prototype.emit = function (contactType) {
     }
 };
 
+PhysicsContact.get = function (b2contact) {
+    var c;
+    if (pools.length === 0) {
+        c = new cc.PhysicsContact();
+    }
+    else {
+        c = pools.pop(); 
+    }
+
+    c.init(b2contact);
+    b2contact._contact = c;
+
+    return c;
+};
+
+PhysicsContact.put = function (b2contact) {
+    pools.push(b2contact._contact);
+    b2contact._contact._b2contact = null;
+    b2contact._contact = null;
+};
+
 [
     'IsTouching', 
     'SetEnabled', 'IsEnabled', 
@@ -118,7 +170,7 @@ PhysicsContact.prototype.emit = function (contactType) {
 ].forEach(function(name) {
     var funcName = name[0].toLowerCase() + name.substr(1, name.length-1);
     PhysicsContact.prototype[funcName] = function () {
-        return this._contact[name].apply(this._contact, arguments);
+        return this._b2contact[name].apply(this._b2contact, arguments);
     };
 });
 

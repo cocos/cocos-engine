@@ -408,6 +408,12 @@ b2.WheelJointDef = function () {
   this.dampingRatio = 0.7;
 };
 
+b2.WorldManifold = function ()
+{
+    this.normal = new b2.Vec2();                         ///< world vector pointing from A to B
+    this.points = [];      ///< world contact point (point of intersection)
+    this.separations = []; ///< a negative value indicates overlap, in meters
+}
 
 // b2Shape
 var _p = b2.Shape.prototype;
@@ -446,5 +452,6 @@ b2.Joint.e_atUpperLimit = 2;
 b2.Joint.e_equalLimits = 3;
 
 b2.maxPolygonVertices = 8;
+b2.maxManifoldPoints = 2;
 
 })();

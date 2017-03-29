@@ -23,9 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
-var CC_TO_PHYSICS_ANGLE = cc.PhysicsManager.CC_TO_PHYSICS_ANGLE;
-var PHYSICS_TO_CC_ANGLE = cc.PhysicsManager.PHYSICS_TO_CC_ANGLE;
+var CC_PTM_RATIO = require('../CCPhysicsTypes').CC_PTM_RATIO;
+var CC_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').CC_TO_PHYSICS_ANGLE;
+var PHYSICS_TO_CC_ANGLE = require('../CCPhysicsTypes').PHYSICS_TO_CC_ANGLE;
 
 var RevoluteJoint = cc.Class({
     name: 'cc.RevoluteJoint',

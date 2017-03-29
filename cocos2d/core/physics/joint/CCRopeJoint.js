@@ -23,7 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
+var CC_PTM_RATIO = require('../CCPhysicsTypes').CC_PTM_RATIO;
+
 var RopeJoint = cc.Class({
     name: 'cc.RopeJoint',
     extends: cc.Joint,

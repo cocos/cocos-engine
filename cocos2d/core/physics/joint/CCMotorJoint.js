@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
-var CC_TO_PHYSICS_ANGLE = cc.PhysicsManager.CC_TO_PHYSICS_ANGLE;
+var CC_PTM_RATIO = require('../CCPhysicsTypes').CC_PTM_RATIO;
+var CC_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').CC_TO_PHYSICS_ANGLE;
 
 var MotorJoint = cc.Class({
     name: 'cc.MotorJoint',

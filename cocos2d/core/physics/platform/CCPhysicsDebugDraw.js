@@ -1,4 +1,4 @@
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
+var CC_PTM_RATIO = require('../CCPhysicsTypes').CC_PTM_RATIO;
 
 var PhysicsDebugDraw = cc.Class({
     name: 'cc.PhysicsDebugDraw',

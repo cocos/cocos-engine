@@ -23,13 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
  
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
+var CC_PTM_RATIO = require('../CCPhysicsTypes').CC_PTM_RATIO;
 var getWorldScale = require('../utils').getWorldScale;
 
 function PhysicsCollider () {
     this._fixtures = [];
     this._shapes = [];
     this._inited = false;
+    this._rect = cc.rect();
 }
 
 PhysicsCollider.prototype.onDisable = function () {
@@ -77,7 +78,13 @@ PhysicsCollider.prototype.getAABB = function () {
     maxX *= CC_PTM_RATIO;
     maxY *= CC_PTM_RATIO;
 
-    return cc.rect(minX, minY, maxX-minX, maxY-minY);
+    var r = this._rect;
+    r.x = minX;
+    r.y = minY;
+    r.width = maxX - minX;
+    r.height = maxY - minY;
+
+    return r;
 };
 
 PhysicsCollider.prototype._getFixtureIndex = function (fixture) {

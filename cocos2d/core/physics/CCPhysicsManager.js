@@ -23,13 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = 32;
-var CC_TO_PHYSICS_ANGLE = -Math.PI / 180;
-var PHYSICS_TO_CC_ANGLE = -180 / Math.PI;
-
 var ContactType = require('./CCPhysicsTypes').ContactType;
 var BodyType = require('./CCPhysicsTypes').BodyType;
 var RayCastType = require('./CCPhysicsTypes').RayCastType;
+
+var CC_PTM_RATIO = require('./CCPhysicsTypes').CC_PTM_RATIO;
+var CC_TO_PHYSICS_ANGLE = require('./CCPhysicsTypes').CC_TO_PHYSICS_ANGLE;
+var PHYSICS_TO_CC_ANGLE = require('./CCPhysicsTypes').PHYSICS_TO_CC_ANGLE;
 
 var STEP_DT = 1/60;
 
@@ -243,10 +243,10 @@ var PhysicsManager = cc.Class({
         if (this._contactListener) return;
 
         var listener = new cc.PhysicsContactListener();
-        listener.setBeginContact(this._onBeginContact.bind(this));
-        listener.setEndContact(this._onEndContact.bind(this));
-        listener.setPreSolve(this._onPreSolve.bind(this));
-        listener.setPostSolve(this._onPostSolve.bind(this));
+        listener.setBeginContact(this._onBeginContact);
+        listener.setEndContact(this._onEndContact);
+        listener.setPreSolve(this._onPreSolve);
+        listener.setPostSolve(this._onPostSolve);
         this._world.SetContactListener(listener);
 
         this._contactListener = listener;
@@ -290,27 +290,27 @@ var PhysicsManager = cc.Class({
         this._debugDrawer.AddDrawerToNode( cc.director.getScene()._sgNode );
     },
 
-    _onBeginContact: function (contact) {
-        var c = new cc.PhysicsContact(contact);
-        contact._contact = c;
+    _onBeginContact: function (b2contact) {
+        var c = cc.PhysicsContact.get(b2contact);
         c.emit(ContactType.BEGIN_CONTACT);
 
         if (c.disabled) {
-            contact.SetEnabled(false);
+            b2contact.SetEnabled(false);
         }
     },
 
-    _onEndContact: function (contact) {
-        var c = contact._contact;
+    _onEndContact: function (b2contact) {
+        var c = b2contact._contact;
         if (!c) {
             return;
         }
         c.emit(ContactType.END_CONTACT);
-        contact._contact = null;
+        
+        cc.PhysicsContact.put(b2contact);
     },
 
-    _onPreSolve: function (contact) {
-        var c = contact._contact;
+    _onPreSolve: function (b2contact) {
+        var c = b2contact._contact;
         if (!c) {
             return;
         }
@@ -318,12 +318,12 @@ var PhysicsManager = cc.Class({
         c.emit(ContactType.PRE_SOLVE);
 
         if (c.disabled) {
-            contact.SetEnabled(false);
+            b2contact.SetEnabled(false);
         }
     },
 
-    _onPostSolve: function (contact, impulse) {
-        var c = contact._contact;
+    _onPostSolve: function (b2contact, impulse) {
+        var c = b2contact._contact;
         if (!c) {
             return;
         }
@@ -395,10 +395,6 @@ cc.js.getset(PhysicsManager.prototype, 'gravity',
     }
 );
 
-
 PhysicsManager.DrawBits = b2.Draw;
-PhysicsManager.CC_PTM_RATIO = CC_PTM_RATIO;
-PhysicsManager.CC_TO_PHYSICS_ANGLE = CC_TO_PHYSICS_ANGLE;
-PhysicsManager.PHYSICS_TO_CC_ANGLE = PHYSICS_TO_CC_ANGLE;
 
 cc.PhysicsManager = module.exports = PhysicsManager;
