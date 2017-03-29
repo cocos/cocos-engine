@@ -322,7 +322,6 @@ bool js_cocos2dx_Director_getContentScaleFactor(JSContext *cx, uint32_t argc, js
 bool js_cocos2dx_Director_getWinSizeInPixels(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_getDeltaTime(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_setGLDefaultValues(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_Director_setActionManager(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_setAlphaBlending(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_popToRootScene(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_loadMatrix(JSContext *cx, uint32_t argc, jsval *vp);
@@ -377,7 +376,6 @@ bool js_cocos2dx_Director_setDisplayStats(JSContext *cx, uint32_t argc, jsval *v
 bool js_cocos2dx_Director_getEventDispatcher(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_replaceScene(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_setAnimationInterval(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_Director_getActionManager(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_getInstance(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_cocos2d_Scheduler_class;
@@ -1147,21 +1145,6 @@ bool js_cocos2dx_MotionStreak_setFastMode(JSContext *cx, uint32_t argc, jsval *v
 bool js_cocos2dx_MotionStreak_setStroke(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_MotionStreak_create(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_MotionStreak_MotionStreak(JSContext *cx, uint32_t argc, jsval *vp);
-
-extern JSClass  *jsb_cocos2d_NodeGrid_class;
-extern JSObject *jsb_cocos2d_NodeGrid_prototype;
-
-bool js_cocos2dx_NodeGrid_constructor(JSContext *cx, uint32_t argc, jsval *vp);
-void js_cocos2dx_NodeGrid_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_NodeGrid(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_NodeGrid_setGridRect(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_NodeGrid_setTarget(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_NodeGrid_setGrid(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_NodeGrid_getGrid(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_NodeGrid_getGridRect(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_NodeGrid_create(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_NodeGrid_NodeGrid(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_cocos2d_ParticleBatchNode_class;
 extern JSObject *jsb_cocos2d_ParticleBatchNode_prototype;

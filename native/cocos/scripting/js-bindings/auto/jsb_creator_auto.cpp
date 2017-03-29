@@ -2310,7 +2310,11 @@ bool js_creator_PhysicsRayCastCallback_getFractions(JSContext *cx, uint32_t argc
     if (argc == 0) {
         std::vector<float, std::allocator<float> >& ret = cobj->getFractions();
         JS::RootedValue jsret(cx);
-        jsret = std_vector_float_to_jsval(cx, ret);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<std::vector<float, std::allocator<float> >&>(cx, (std::vector<float, std::allocator<float> >&)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
         args.rval().set(jsret);
         return true;
     }
