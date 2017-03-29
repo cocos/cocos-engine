@@ -456,7 +456,7 @@
         this._gradientArgument = {};
         this._gradientArgument.left = 0;
         this._gradientArgument.top = 0;
-        var contentSize = this._node.getContentSize();
+        var contentSize = this._node._contentSize;
         switch(this._node.getFillColorGradientDirection()) {
                 //horizontal
             case 0:

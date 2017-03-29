@@ -307,7 +307,7 @@ var View = cc._Class.extend({
         var h = __BrowserGetter.availHeight(cc.game.frame);
         var isLandscape = w >= h;
 
-        if (CC_EDITOR || !this._orientationChanging || !cc.sys.isMobile ||
+        if (CC_EDITOR || !cc.sys.isMobile ||
             (isLandscape && this._orientation & cc.macro.ORIENTATION_LANDSCAPE) || 
             (!isLandscape && this._orientation & cc.macro.ORIENTATION_PORTRAIT)) {
             locFrameSize.width = w;
@@ -1154,7 +1154,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
             this._setupContainer(view, view._frameSize.width, view._frameSize.height);
             // Setup container's margin and padding
             if (view._isRotated) {
-                containerStyle.marginLeft = frameH + 'px';
+                containerStyle.margin = '0 0 0 ' + frameH + 'px';
             }
             else {
                 containerStyle.margin = '0px';
@@ -1185,7 +1185,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
             if (!CC_EDITOR) {
                 // Setup container's margin and padding
                 if (view._isRotated) {
-                    containerStyle.marginLeft = frameH + 'px';
+                    containerStyle.margin = '0 0 0 ' + frameH + 'px';
                 }
                 else {
                     containerStyle.margin = '0px';

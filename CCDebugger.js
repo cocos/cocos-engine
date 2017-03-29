@@ -219,25 +219,32 @@ cc._initDebugSetting = function (mode) {
             cc.error = console.error.bind(console);
         }
         else {
-            cc.error = function () {
+            cc.error = CC_JSB ? console.error : function () {
                 return console.error.apply(console, arguments);
             };
         }
-        cc.assert = function (cond, msg) {
-            if (!cond) {
-                if (msg) {
-                    for (var i = 2; i < arguments.length; i++) {
-                        msg = msg.replace(/(%s)|(%d)/, _formatString(arguments[i]));
+        cc.assert = CC_JSB ? function (cond, msg, ...args) {
+            if (!cond && msg) {
+                for (var i = 0; i < args.length; i++)
+                    msg = msg.replace(/(%s)|(%d)/, _formatString(args[i]));
+                throw new Error(msg);
+            }
+        } : function (cond, msg) {
+                if (!cond) {
+                    if (msg) {
+                        for (var i = 2; i < arguments.length; i++) {
+                            msg = msg.replace(/(%s)|(%d)/, _formatString(arguments[i]));
+                        }
                     }
-                }
-                if (CC_DEV) {
-                    debugger;
-                }
-                if (CC_TEST) {
-                    ok(false, msg);
-                }
-                else {
-                    throw new Error(msg);
+                    if (CC_DEV) {
+                        debugger;
+                    }
+                    if (CC_TEST) {
+                        ok(false, msg);
+                    }
+                    else {
+                        throw new Error(msg);
+                    }
                 }
             }
         };
@@ -263,7 +270,7 @@ cc._initDebugSetting = function (mode) {
                 cc.warn = console.warn.bind(console);
             }
             else {
-                cc.warn = function () {
+                cc.warn = CC_JSB ? console.warn : function () {
                     return console.warn.apply(console, arguments);
                 };
             }
@@ -305,7 +312,7 @@ cc._initDebugSetting = function (mode) {
              * @param {any} obj - A JavaScript string containing zero or more substitution strings.
              * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
              */
-            cc.info = function () {
+            cc.info = CC_JSB ? jsbLog : function () {
                 (console.info || console.log).apply(console, arguments);
             };
         }
@@ -323,7 +330,25 @@ cc._initDebugSetting = function (mode) {
     var errorMapUrl = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
 
     function genLogFunc (func, type) {
-        return function (id) {
+        return CC_JSB ? function (...args) {
+            var id = args[0];
+            if (args.length === 1) {
+                CC_DEV ? func(cc._LogInfos[id]) : func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
+                return;
+            }
+            if (CC_DEV) {
+                args[0] = cc._LogInfos[id];
+                func.apply(cc, args);
+            } else {
+                var msg = '';
+                if (args.length === 2) {
+                    msg = 'Arguments: ' + args[1];
+                } else if (args.length > 2) {
+                    msg = 'Arguments: ' + args.slice(1).join(', ');
+                }
+                func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + msg);
+            }
+        } : function (id) {
             if (arguments.length === 1) {
                 CC_DEV ? func(cc._LogInfos[id]) : func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
                 return;
@@ -350,14 +375,29 @@ cc._initDebugSetting = function (mode) {
     cc.warnID = genLogFunc(cc.warn, 'Warning');
     cc.errorID = genLogFunc(cc.error, 'Error');
     cc.logID = genLogFunc(cc.log, 'Log');
-    cc.assertID = function (cond, id) {
+    cc.assertID = CC_JSB ? function (...args) {
+        var cond = args[0];
+        var id = args[1];
+        if (CC_DEV) {
+            args[1] = cc._LogInfos[id];
+            cc.assert.apply(cc, args);
+        } else {
+            var msg = '';
+            if (args.length === 3) {
+                msg = 'Arguments: ' + args[2];
+            } else if (args.length > 3) {
+                msg = 'Arguments: ' + args.slice(2).join(', ');
+            }
+            cc.assert(cond, 'Assert ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + msg);
+        }
+    } : function (cond, id) {
         var argsArr = new Array(arguments.length);
         for(var i = 0; i < argsArr.length; ++i) {
             argsArr[i] = arguments[i];
         }
         if (CC_DEV) {
             argsArr[1] = cc._LogInfos[id];
-            cc.assert(cond, argsArr[1], argsArr);
+            cc.assert.apply(cc, argsArr);
         } else {
             var args = '';
             if (arguments.length === 3) {

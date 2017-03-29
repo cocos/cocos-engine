@@ -43,8 +43,8 @@ var originLog = console.log;
 
 // overwrite original console.log
 try {
-    console.log = function () {
-        originLog.call(console, cc.js.formatStr.apply(null, arguments));
+    console.log = function (...args) {
+        originLog(cc.js.formatStr.apply(null, args));
     };
 }
 catch (e) {

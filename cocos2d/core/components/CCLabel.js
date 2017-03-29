@@ -120,10 +120,24 @@ var Overflow = _ccsg.Label.Overflow;
 // be triggered. The function will be called after it stops being called for
 // N milliseconds. If `immediate` is passed, trigger the function on the
 // leading edge, instead of the trailing.
-function debounce(func, wait, immediate) {
+function debounce (func, wait, immediate) {
     var timeout;
-    return function() {
-        var context = this, args = arguments;
+    return CC_JSB ? function (...args) {
+        var context = this;
+        var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    } : function () {
+        var context = this;
+        var args = new Array(arguments.length);
+        for (var i = 0; i < arguments.length; i++) {
+            args[i] = arguments[i];
+        }
         var later = function() {
             timeout = null;
             if (!immediate) func.apply(context, args);
@@ -376,7 +390,11 @@ var Label = cc.Class({
 
                     if (this.font instanceof cc.BitmapFont) {
                         if (this.font.spriteFrame) {
-                            this._sgNode.setFontFileOrFamily(this.font.fntDataStr, this.font.spriteFrame);
+                            if (!CC_JSB) {
+                                this._sgNode.setFontFileOrFamily(this.font.fntDataStr, this.font.spriteFrame, this.font);
+                            } else {
+                                this._sgNode.setFontFileOrFamily(this.font.fntDataStr, this.font.spriteFrame);
+                            }
                         } else {
                             cc.warnID(4011, this.font.name);
                             this._sgNode.setFontFileOrFamily('');
@@ -490,7 +508,11 @@ var Label = cc.Class({
         var sgNode;
         if (this.font instanceof cc.BitmapFont) {
             if (this.font.spriteFrame) {
-                sgNode = this._sgNode = new _ccsg.Label(this.string, this.font.fntDataStr, this.font.spriteFrame);
+                if (CC_JSB) {
+                    sgNode = this._sgNode = new _ccsg.Label(this.string, this.font.fntDataStr, this.font.spriteFrame);
+                } else {
+                    sgNode = this._sgNode = new _ccsg.Label(this.string, this.font.fntDataStr, this.font.spriteFrame, this.font);
+                }
             } else {
                 cc.warnID(4011, this.font.name);
                 sgNode = this._sgNode = new _ccsg.Label(this.string);

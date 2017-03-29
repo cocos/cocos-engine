@@ -83,7 +83,7 @@ p.resumeState = function (state) {
 };
 
 p.setStateTime = function (state, time) {
-    if (arguments.length === 2) {
+    if (time !== undefined) {
         if (state) {
             state.setTime(time);
             state.sample();

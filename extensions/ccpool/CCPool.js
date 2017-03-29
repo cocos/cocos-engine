@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var _args = [];
+
 /**
  * !#en
  *  Attention: In creator, it's strongly not recommended to use cc.pool to manager cc.Node.
@@ -117,17 +119,31 @@ cc.pool = /** @lends cc.pool# */{
      * @method getFromPool
      * @returns {*} Call the reuse function an return the obj.
      */
-    getFromPool: function (objClass/*,args*/) {
+    getFromPool: CC_JSB ? function (objClass, ...args) {
         if (this.hasObject(objClass)) {
             var cid = cc.js._getClassId(objClass);
             var list = this._pool[cid];
-            var args = Array.prototype.slice.call(arguments);
-            args.shift();
             var obj = list.pop();
             // User implementation for re-enable the object
             obj.reuse && obj.reuse.apply(obj, args);
             // JSB release to avoid memory leak
             CC_JSB && obj.release && this._autoRelease(obj);
+            return obj;
+        }
+    } : function (objClass/*,args*/) {
+        if (this.hasObject(objClass)) {
+            var cid = cc.js._getClassId(objClass);
+            var list = this._pool[cid];
+            _args.length = arguments.length - 1;
+            for (var i = 0; i < _args.length; i++) {
+                _args[i] = arguments[i+1];
+            }
+            var obj = list.pop();
+            // User implementation for re-enable the object
+            obj.reuse && obj.reuse.apply(obj, _args);
+            // JSB release to avoid memory leak
+            CC_JSB && obj.release && this._autoRelease(obj);
+            _args.length = 0;
             return obj;
         }
     },

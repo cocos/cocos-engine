@@ -95,7 +95,20 @@ Class.extend = function (props) {
         TheClass = Function(ctor)();
     }
     else {
-        TheClass = function (arg0, arg1, arg2, arg3, arg4) {
+        TheClass = CC_JSB ? function (...args) {
+            this.__instanceId = ClassManager.getNewInstanceId();
+            if (this.ctor) {
+                switch (args.length) {
+                    case 0: this.ctor(); break;
+                    case 1: this.ctor(args[0]); break;
+                    case 2: this.ctor(args[0], args[1]); break;
+                    case 3: this.ctor(args[0], args[1], args[2]); break;
+                    case 4: this.ctor(args[0], args[1], args[2], args[3]); break;
+                    case 5: this.ctor(args[0], args[1], args[2], args[3], args[4]); break;
+                    default: this.ctor.apply(this, args);
+                }
+            }
+        } : function (arg0, arg1, arg2, arg3, arg4) {
             this.__instanceId = ClassManager.getNewInstanceId();
             if (this.ctor) {
                 switch (arguments.length) {
@@ -125,26 +138,30 @@ Class.extend = function (props) {
     this.__getters__ && (TheClass.__getters__ = cc.clone(this.__getters__));
     this.__setters__ && (TheClass.__setters__ = cc.clone(this.__setters__));
 
-    for (var idx = 0, li = arguments.length; idx < li; ++idx) {
-        var prop = arguments[idx];
-        for (var name in prop) {
-            var isFunc = (typeof prop[name] === "function");
-            var override = (typeof _super[name] === "function");
-            var hasSuperCall = fnTest.test(prop[name]);
+    for (var name in props) {
+        var isFunc = (typeof props[name] === "function");
+        var override = (typeof _super[name] === "function");
+        var hasSuperCall = fnTest.test(props[name]);
 
-            if (isFunc && override && hasSuperCall) {
-                desc.value = (function (name, fn) {
-                    return function () {
-                        var tmp = this._super;
+        if (isFunc && override && hasSuperCall) {
+            desc.value = (function (name, fn) {
+                return CC_JSB ? function (...args) {
+                    var tmp = this._super;
+                    this._super = _super[name];
+                    var ret = fn.apply(this, args);
+                    this._super = tmp;
+                    return ret;
+                } : function () {
+                    var tmp = this._super;
 
-                        // Add a new ._super() method that is the same method
-                        // but on the super-Class
-                        this._super = _super[name];
+                    // Add a new ._super() method that is the same method
+                    // but on the super-Class
+                    this._super = _super[name];
 
-                        // The method only need to be bound temporarily, so we
-                        // remove it when we're done executing
-                        var ret = fn.apply(this, arguments);
-                        this._super = tmp;
+                    // The method only need to be bound temporarily, so we
+                    // remove it when we're done executing
+                    var ret = fn.apply(this, arguments);
+                    this._super = tmp;
 
                         return ret;
                     };
