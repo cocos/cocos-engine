@@ -341,8 +341,8 @@ cc.ActionInterval.prototype._ctor = function(d) {
     d !== undefined && this.initWithDuration(d);
 };
 
-cc.Sequence.prototype._ctor = function(tempArray) {
-    var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
+cc.Sequence.prototype._ctor = function(...args) {
+    var paramArray = (args[0] instanceof Array) ? args[0] : args;
     var last = paramArray.length - 1;
     if ((last >= 0) && (paramArray[last] == null))
         cc.log('parameters should not be ending with null in Javascript');
@@ -366,8 +366,8 @@ cc.RepeatForever.prototype._ctor = function(action) {
     action !== undefined && this.initWithAction(action);
 };
 
-cc.Spawn.prototype._ctor = function(tempArray) {
-    var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
+cc.Spawn.prototype._ctor = function(...args) {
+    var paramArray = (args[0] instanceof Array) ? args[0] : args;
     var last = paramArray.length - 1;
     if ((last >= 0) && (paramArray[last] == null))
         cc.log('parameters should not be ending with null in Javascript');
@@ -547,11 +547,11 @@ cc.DrawNode.prototype._ctor = function() {
     cc.DrawNode.prototype.init.call(this);
 };
 
-cc.LabelTTF.prototype._ctor = function(text, fontName, fontSize, dimensions, hAlignment, vAlignment) {
+cc.LabelTTF.prototype._ctor = function (text, fontName, fontSize, dimensions, hAlignment, vAlignment) {
     this._flippedX = false;
     this._flippedY = false;
     this._renderLabel = this.getRenderLabel();
-    if (arguments.length <= 0) {
+    if (text === undefined) {
         return;
     }
     

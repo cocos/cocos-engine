@@ -217,14 +217,28 @@ void AssetsManagerEx::loadLocalManifest(const std::string& /*manifestUrl*/)
         }
     }
     
-    // Load local manifest in app package
+    // Ensure no search path of cached manifest is used to load this manifest
     std::vector<std::string> searchPaths = _fileUtils->getSearchPaths();
-    // Ensure no search path is used to load this manifest
-    std::vector<std::string> emptyPaths = {""};
-    _fileUtils->setSearchPaths(emptyPaths);
+    if (cachedManifest)
+    {
+        std::vector<std::string> cacheSearchPaths = cachedManifest->getSearchPaths();
+        std::vector<std::string> trimmedPaths = searchPaths;
+        for (auto path : cacheSearchPaths)
+        {
+            const auto pos = std::find(trimmedPaths.begin(), trimmedPaths.end(), path);
+            if (pos != trimmedPaths.end())
+            {
+                trimmedPaths.erase(pos);
+            }
+        }
+        _fileUtils->setSearchPaths(trimmedPaths);
+    }
+    // Load local manifest in app package
     _localManifest->parse(_manifestUrl);
-    // Restore search paths
-    _fileUtils->setSearchPaths(searchPaths);
+    if (cachedManifest) {
+        // Restore search paths
+        _fileUtils->setSearchPaths(searchPaths);
+    }
     if (_localManifest->isLoaded())
     {
         // Compare with cached manifest to determine which one to use
@@ -999,6 +1013,7 @@ void AssetsManagerEx::onError(const network::DownloadTask& task,
     else if (task.identifier == MANIFEST_ID)
     {
         dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ERROR_DOWNLOAD_MANIFEST, task.identifier, errorStr, errorCode, errorCodeInternal);
+        _updateState = State::FAIL_TO_UPDATE;
     }
     else
     {

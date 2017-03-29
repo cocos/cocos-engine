@@ -31,47 +31,6 @@ var cc = cc || {};
 var jsb = jsb || {};
 
 /**
- * Iterate over an object or an array, executing a function for each matched element.
- * @param {object|array} obj
- * @param {function} iterator
- * @param {object} [context]
- */
-cc.each = function (obj, iterator, context) {
-    if (!obj)
-        return;
-    if (obj instanceof Array) {
-        for (var i = 0, li = obj.length; i < li; i++) {
-            if (iterator.call(context, obj[i], i) === false)
-                return;
-        }
-    } else {
-        for (var key in obj) {
-            if (iterator.call(context, obj[key], key) === false)
-                return;
-        }
-    }
-};
-
-/**
- * Copy all of the properties in source objects to target object and return the target object.
- * @param {object} target
- * @param {object} *sources
- * @returns {object}
- */
-cc.extend = function(target) {
-    var sources = arguments.length >= 2 ? Array.prototype.slice.call(arguments, 1) : [];
-
-    cc.each(sources, function(src) {
-        for(var key in src) {
-            if (src.hasOwnProperty(key)) {
-                target[key] = src[key];
-            }
-        }
-    });
-    return target;
-};
-
-/**
  * Common getter setter configuration function
  * @function
  * @param {Object}   proto      A class prototype or an object to config
@@ -86,24 +45,50 @@ cc.defineGetterSetter = function (proto, prop, getter, setter){
     Object.defineProperty(proto, prop, desc);
 };
 
-//
-// JSB supports 2 official ways to create subclasses
-//
-// 1) Google "subclasses" borrowed from closure library
-// This is the recommended way to do it
-//
-cc.inherits = function (childCtor, parentCtor) {
-    /** @constructor */
-    function tempCtor() {};
-    tempCtor.prototype = parentCtor.prototype;
-    childCtor.superClass_ = parentCtor.prototype;
-    childCtor.prototype = new tempCtor();
-    childCtor.prototype.constructor = childCtor;
-
-    // Copy "static" method, but doesn't generate subclasses.
-//  for( var i in parentCtor ) {
-//      childCtor[ i ] = parentCtor[ i ];
-//  }
+/**
+ * Create a new object and copy all properties in an exist object to the new object
+ * @method clone
+ * @param {Object|Array} obj - The source object
+ * @return {Array|Object} The created object
+ */
+cc.clone = function (obj) {
+    // Cloning is better if the new object is having the same prototype chain
+    // as the copied obj (or otherwise, the cloned object is certainly going to
+    // have a different hidden class). Play with C1/C2 of the
+    // PerformanceVirtualMachineTests suite to see how this makes an impact
+    // under extreme conditions.
+    //
+    // Object.create(Object.getPrototypeOf(obj)) doesn't work well because the
+    // prototype lacks a link to the constructor (Carakan, V8) so the new
+    // object wouldn't have the hidden class that's associated with the
+    // constructor (also, for whatever reasons, utilizing
+    // Object.create(Object.getPrototypeOf(obj)) + Object.defineProperty is even
+    // slower than the original in V8). Therefore, we call the constructor, but
+    // there is a big caveat - it is possible that the this.init() in the
+    // constructor would throw with no argument. It is also possible that a
+    // derived class forgets to set "constructor" on the prototype. We ignore
+    // these possibities for and the ultimate solution is a standardized
+    // Object.clone(<object>).
+    var newObj = (obj.constructor) ? new obj.constructor : {};
+    
+    // Assuming that the constuctor above initialized all properies on obj, the
+    // following keyed assignments won't turn newObj into dictionary mode
+    // becasue they're not *appending new properties* but *assigning existing
+    // ones* (note that appending indexed properties is another story). See
+    // CCClass.js for a link to the devils when the assumption fails.
+    for (var key in obj) {
+        var copy = obj[key];
+        // Beware that typeof null == "object" !
+        if (typeof copy === "object" &&
+            copy &&
+            !(copy instanceof _ccsg.Node) &&
+            (CC_JSB || !(copy instanceof HTMLElement))) {
+            newObj[key] = cc.clone(copy);
+        } else {
+            newObj[key] = copy;
+        }
+    }
+    return newObj;
 };
 
 
@@ -144,7 +129,7 @@ cc.Class.extend = function (prop) {
         prototype[name] = typeof prop[name] == "function" &&
             typeof _super[name] == "function" && fnTest.test(prop[name]) ?
             (function (name, fn) {
-                return function () {
+                return function (...args) {
                     var tmp = this._super;
 
                     // Add a new ._super() method that is the same method
@@ -153,7 +138,7 @@ cc.Class.extend = function (prop) {
 
                     // The method only need to be bound temporarily, so we
                     // remove it when we're done executing
-                    var ret = fn.apply(this, arguments);
+                    var ret = fn.apply(this, args);
                     this._super = tmp;
 
                     return ret;
@@ -162,10 +147,20 @@ cc.Class.extend = function (prop) {
             prop[name];
     }
 
-    Class = function () {
+    Class = function (...args) {
         if (!initializing) {
             this.__instanceId = ClassManager.getNewInstanceId();
-            this.ctor && this.ctor.apply(this, arguments);
+            if (this.ctor) {
+                switch (args.length) {
+                    case 0: this.ctor(); break;
+                    case 1: this.ctor(args[0]); break;
+                    case 2: this.ctor(args[0], args[1]); break;
+                    case 3: this.ctor(args[0], args[1], args[2]); break;
+                    case 4: this.ctor(args[0], args[1], args[2], args[3]); break;
+                    case 5: this.ctor(args[0], args[1], args[2], args[3], args[4]); break;
+                    default: this.ctor.apply(this, args);
+                }
+            }
         }
     };
     // Populate our constructed prototype object
