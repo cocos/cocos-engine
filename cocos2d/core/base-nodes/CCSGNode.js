@@ -1440,7 +1440,7 @@ _ccsg.Node = cc.Class({
     runAction: function (action) {
         cc.assertID(action, 1618);
 
-        this.actionManager.addAction(action, this, !this._running);
+        this.actionManager && this.actionManager.addAction(action, this, !this._running);
         return action;
     },
 
@@ -1458,7 +1458,7 @@ _ccsg.Node = cc.Class({
      * @param {cc.Action} action An action object to be removed.
      */
     stopAction: function (action) {
-        this.actionManager.removeAction(action);
+        this.actionManager && this.actionManager.removeAction(action);
     },
 
     /**
@@ -1471,7 +1471,7 @@ _ccsg.Node = cc.Class({
             cc.logID(1612);
             return;
         }
-        this.actionManager.removeActionByTag(tag, this);
+        this.actionManager && this.actionManager.removeActionByTag(tag, this);
     },
 
     /**
@@ -1486,7 +1486,7 @@ _ccsg.Node = cc.Class({
             cc.logID(1613);
             return null;
         }
-        return this.actionManager.getActionByTag(tag, this);
+        return this.actionManager ? this.actionManager.getActionByTag(tag, this) : null;
     },
 
     /** <p>Returns the numbers of actions that are running plus the ones that are schedule to run (actions in actionsToAdd and actions arrays).<br/>
@@ -1497,7 +1497,7 @@ _ccsg.Node = cc.Class({
      * @return {Number} The number of actions that are running plus the ones that are schedule to run
      */
     getNumberOfRunningActions: function () {
-        return this.actionManager.getNumberOfRunningActionsInTarget(this);
+        return this.actionManager ? this.actionManager.getNumberOfRunningActionsInTarget(this) : 0;
     },
 
     // _ccsg.Node - Callbacks

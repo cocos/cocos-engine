@@ -73,7 +73,11 @@ require('./cocos2d/core/platform/CCMacro');
 require('./cocos2d/core/load-pipeline');
 require('./cocos2d/core/textures');
 
-if (!CC_JSB) {
+if (CC_JSB) {
+    // rename cc.Class to cc._Class
+    cc._Class = cc.Class;
+}
+else {
     require('./cocos2d/kazmath');
     require('./cocos2d/core/CCDirector');
     require('./cocos2d/core/CCDirectorWebGL');
@@ -83,7 +87,6 @@ if (!CC_JSB) {
         require('./cocos2d/core/platform/CCSAXParser');
         require('./cocos2d/core/platform/CCView');
         require('./cocos2d/core/platform/CCScreen');
-        require('./cocos2d/core/CCActionManager');
         require('./cocos2d/core/CCScheduler');
         require('./cocos2d/core/event-manager');
         require('./cocos2d/core/renderer');
