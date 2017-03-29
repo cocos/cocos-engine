@@ -2544,16 +2544,6 @@ setGLDefaultValues : function (
 },
 
 /**
- * @method setActionManager
- * @param {cc.ActionManager} arg0
- */
-setActionManager : function (
-actionmanager 
-)
-{
-},
-
-/**
  * @method setAlphaBlending
  * @param {bool} arg0
  */
@@ -3075,16 +3065,6 @@ setAnimationInterval : function (
 float 
 )
 {
-},
-
-/**
- * @method getActionManager
- * @return {cc.ActionManager}
- */
-getActionManager : function (
-)
-{
-    return cc.ActionManager;
 },
 
 /**
@@ -8415,84 +8395,6 @@ str
  * @constructor
  */
 MotionStreak : function (
-)
-{
-},
-
-};
-
-/**
- * @class NodeGrid
- */
-cc.NodeGrid = {
-
-/**
- * @method setGridRect
- * @param {rect_object} arg0
- */
-setGridRect : function (
-rect 
-)
-{
-},
-
-/**
- * @method setTarget
- * @param {cc.Node} arg0
- */
-setTarget : function (
-node 
-)
-{
-},
-
-/**
- * @method setGrid
- * @param {cc.GridBase} arg0
- */
-setGrid : function (
-gridbase 
-)
-{
-},
-
-/**
- * @method getGrid
-* @return {cc.GridBase|cc.GridBase}
-*/
-getGrid : function(
-)
-{
-    return cc.GridBase;
-},
-
-/**
- * @method getGridRect
- * @return {rect_object}
- */
-getGridRect : function (
-)
-{
-    return cc.Rect;
-},
-
-/**
- * @method create
-* @param {rect_object} rect
-* @return {cc.NodeGrid|cc.NodeGrid}
-*/
-create : function(
-rect 
-)
-{
-    return cc.NodeGrid;
-},
-
-/**
- * @method NodeGrid
- * @constructor
- */
-NodeGrid : function (
 )
 {
 },
