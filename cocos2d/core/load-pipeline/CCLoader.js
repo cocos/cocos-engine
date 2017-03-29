@@ -496,7 +496,7 @@ JS.mixin(CCLoader.prototype, {
      */
     getRes: function (url, type) {
         var item = this._cache[url];
-        if (!item && type) {
+        if (!item) {
             var uuid = this._getResUuid(url, type, true);
             if (uuid) {
                 var ref = this._getReferenceKey(uuid);
