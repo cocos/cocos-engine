@@ -98,6 +98,21 @@ bool js_creator_PhysicsDebugDraw_ClearDraw(JSContext *cx, uint32_t argc, jsval *
 bool js_creator_PhysicsDebugDraw_AddDrawerToNode(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsDebugDraw_PhysicsDebugDraw(JSContext *cx, uint32_t argc, jsval *vp);
 
+extern JSClass  *jsb_creator_PhysicsWorldManifoldWrapper_class;
+extern JSObject *jsb_creator_PhysicsWorldManifoldWrapper_prototype;
+
+bool js_creator_PhysicsWorldManifoldWrapper_constructor(JSContext *cx, uint32_t argc, jsval *vp);
+void js_creator_PhysicsWorldManifoldWrapper_finalize(JSContext *cx, JSObject *obj);
+void js_register_creator_PhysicsWorldManifoldWrapper(JSContext *cx, JS::HandleObject global);
+void register_all_creator(JSContext* cx, JS::HandleObject obj);
+bool js_creator_PhysicsWorldManifoldWrapper_getSeparation(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_PhysicsWorldManifoldWrapper_getX(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_PhysicsWorldManifoldWrapper_getY(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_PhysicsWorldManifoldWrapper_getCount(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_PhysicsWorldManifoldWrapper_getNormalY(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_PhysicsWorldManifoldWrapper_getNormalX(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_PhysicsWorldManifoldWrapper_PhysicsWorldManifoldWrapper(JSContext *cx, uint32_t argc, jsval *vp);
+
 extern JSClass  *jsb_creator_PhysicsUtils_class;
 extern JSObject *jsb_creator_PhysicsUtils_prototype;
 
@@ -107,7 +122,9 @@ void js_register_creator_PhysicsUtils(JSContext *cx, JS::HandleObject global);
 void register_all_creator(JSContext* cx, JS::HandleObject obj);
 bool js_creator_PhysicsUtils_addB2Body(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsUtils_syncNode(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_PhysicsUtils_setFixtureNext(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsUtils_removeB2Body(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_PhysicsUtils_getContactWorldManifoldWrapper(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsUtils_PhysicsUtils(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_creator_PhysicsContactListener_class;

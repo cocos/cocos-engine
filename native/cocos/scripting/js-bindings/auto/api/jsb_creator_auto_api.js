@@ -786,6 +786,88 @@ PhysicsDebugDraw : function (
 };
 
 /**
+ * @class PhysicsWorldManifoldWrapper
+ */
+cc.PhysicsWorldManifoldWrapper = {
+
+/**
+ * @method getSeparation
+ * @param {int} arg0
+ * @return {float}
+ */
+getSeparation : function (
+int 
+)
+{
+    return 0;
+},
+
+/**
+ * @method getX
+ * @param {int} arg0
+ * @return {float}
+ */
+getX : function (
+int 
+)
+{
+    return 0;
+},
+
+/**
+ * @method getY
+ * @param {int} arg0
+ * @return {float}
+ */
+getY : function (
+int 
+)
+{
+    return 0;
+},
+
+/**
+ * @method getCount
+ * @return {int}
+ */
+getCount : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getNormalY
+ * @return {float}
+ */
+getNormalY : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getNormalX
+ * @return {float}
+ */
+getNormalX : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method PhysicsWorldManifoldWrapper
+ * @constructor
+ */
+PhysicsWorldManifoldWrapper : function (
+)
+{
+},
+
+};
+
+/**
  * @class PhysicsUtils
  */
 cc.PhysicsUtils = {
@@ -828,6 +910,18 @@ removeB2Body : function (
 b2body 
 )
 {
+},
+
+/**
+ * @method getContactWorldManifoldWrapper
+ * @param {b2Contact} arg0
+ * @return {creator::PhysicsWorldManifoldWrapper}
+ */
+getContactWorldManifoldWrapper : function (
+b2contact 
+)
+{
+    return creator::PhysicsWorldManifoldWrapper;
 },
 
 /**
