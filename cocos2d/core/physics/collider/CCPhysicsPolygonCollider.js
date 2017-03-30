@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
  
-var CC_PTM_RATIO = require('../CCPhysicsTypes').CC_PTM_RATIO;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var PolygonSeprator = require('../CCPolygonSeprator');
 
 var PhysicsPolygonCollider = cc.Class({
@@ -67,7 +67,7 @@ var PhysicsPolygonCollider = cc.Class({
                         p = cc.pointApplyAffineTransform(p, transform);
                     }
 
-                    var v = new b2.Vec2(p.x/CC_PTM_RATIO*scale.x, p.y/CC_PTM_RATIO*scale.y);
+                    var v = new b2.Vec2(p.x/PTM_RATIO*scale.x, p.y/PTM_RATIO*scale.y);
                     vertices.push( v );
 
                     if (!firstVertice) {

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = require('../CCPhysicsTypes').CC_PTM_RATIO;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var CC_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').CC_TO_PHYSICS_ANGLE;
 
 var PrismaticJoint = cc.Class({
@@ -76,13 +76,13 @@ var PrismaticJoint = cc.Class({
 
     _createJointDef: function () {
         var def = new b2.PrismaticJointDef();
-        def.localAnchorA = new b2.Vec2(this.anchor.x/CC_PTM_RATIO, this.anchor.y/CC_PTM_RATIO);
-        def.localAnchorB = new b2.Vec2(this.connectedAnchor.x/CC_PTM_RATIO, this.connectedAnchor.y/CC_PTM_RATIO);
+        def.localAnchorA = new b2.Vec2(this.anchor.x/PTM_RATIO, this.anchor.y/PTM_RATIO);
+        def.localAnchorB = new b2.Vec2(this.connectedAnchor.x/PTM_RATIO, this.connectedAnchor.y/PTM_RATIO);
         def.localAxisA = new b2.Vec2(this.localAxisA.x, this.localAxisA.y);
         def.referenceAngle = this.referenceAngle * CC_TO_PHYSICS_ANGLE;
         def.enableLimit = this.enableLimit;
-        def.lowerTranslation = this.lowerTranslation/CC_PTM_RATIO;
-        def.upperTranslation = this.upperTranslation/CC_PTM_RATIO;
+        def.lowerTranslation = this.lowerTranslation/PTM_RATIO;
+        def.upperTranslation = this.upperTranslation/PTM_RATIO;
         def.enableMotor = this.enableMotor;
         def.maxMotorForce = this.maxMotorForce;
         def.motorSpeed = this.motorSpeed;

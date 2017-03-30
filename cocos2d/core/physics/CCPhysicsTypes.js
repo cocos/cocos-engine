@@ -26,7 +26,7 @@ module.exports = {
     ContactType: ContactType,
     RayCastType: RayCastType,
 
-    CC_PTM_RATIO: 32,
+    PTM_RATIO: 32,
     CC_TO_PHYSICS_ANGLE: -Math.PI / 180,
     PHYSICS_TO_CC_ANGLE: -180 / Math.PI,
 };

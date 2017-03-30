@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = require('../CCPhysicsTypes').CC_PTM_RATIO;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 
 var MouseJoint = cc.Class({
     name: 'cc.MouseJoint',
@@ -75,7 +75,7 @@ var MouseJoint = cc.Class({
             set: function (value) {
                 this._target = value;
                 if (this._joint) {
-                    this._joint.SetTarget(new b2.Vec2(value.x/CC_PTM_RATIO, value.y/CC_PTM_RATIO));
+                    this._joint.SetTarget(new b2.Vec2(value.x/PTM_RATIO, value.y/PTM_RATIO));
                 }
             }
         },
@@ -156,7 +156,7 @@ var MouseJoint = cc.Class({
 
     _createJointDef: function () {
         var def = new b2.MouseJointDef();
-        def.target = new b2.Vec2(this.target.x/CC_PTM_RATIO, this.target.y/CC_PTM_RATIO);
+        def.target = new b2.Vec2(this.target.x/PTM_RATIO, this.target.y/PTM_RATIO);
         def.maxForce = this.maxForce;
         def.dampingRatio = this.dampingRatio;
         def.frequencyHz = this.frequency;

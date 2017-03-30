@@ -1,5 +1,5 @@
 
-var CC_PTM_RATIO = require('./CCPhysicsTypes').CC_PTM_RATIO;
+var PTM_RATIO = require('./CCPhysicsTypes').PTM_RATIO;
 var ContactType = require('./CCPhysicsTypes').ContactType;
 
 var pools = [];

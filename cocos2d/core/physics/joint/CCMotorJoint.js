@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = require('../CCPhysicsTypes').CC_PTM_RATIO;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var CC_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').CC_TO_PHYSICS_ANGLE;
 
 var MotorJoint = cc.Class({
@@ -49,7 +49,7 @@ var MotorJoint = cc.Class({
             set: function (value) {
                 this._linearOffset = value;
                 if (this._joint) {
-                    this._joint.SetLinearOffset( new b2.Vec2(value.x/CC_PTM_RATIO, value.y/CC_PTM_RATIO) );
+                    this._joint.SetLinearOffset( new b2.Vec2(value.x/PTM_RATIO, value.y/PTM_RATIO) );
                 }
             }
         },
@@ -105,7 +105,7 @@ var MotorJoint = cc.Class({
 
     _createJointDef: function () {
         var def = new b2.MotorJointDef();
-        def.linearOffset = new b2.Vec2(this.linearOffset.x/CC_PTM_RATIO, this.linearOffset.y/CC_PTM_RATIO);
+        def.linearOffset = new b2.Vec2(this.linearOffset.x/PTM_RATIO, this.linearOffset.y/PTM_RATIO);
         def.angularOffset = this.angularOffset * CC_TO_PHYSICS_ANGLE;
         def.maxForce = this.maxForce;
         def.maxTorque = this.maxTorque;

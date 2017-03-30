@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = require('../CCPhysicsTypes').CC_PTM_RATIO;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 
 var PhysicsBoxCollider = cc.Class({
     name: 'cc.PhysicsBoxCollider',
@@ -37,10 +37,10 @@ var PhysicsBoxCollider = cc.Class({
     properties: cc.PhysicsCollider.properties,
 
     _createShape: function (scale) {
-        var width = this.size.width/2/CC_PTM_RATIO * scale.x;
-        var height = this.size.height/2/CC_PTM_RATIO * scale.y;
-        var offsetX = this.offset.x/CC_PTM_RATIO *scale.x;
-        var offsetY = this.offset.y/CC_PTM_RATIO *scale.y;
+        var width = this.size.width/2/PTM_RATIO * scale.x;
+        var height = this.size.height/2/PTM_RATIO * scale.y;
+        var offsetX = this.offset.x/PTM_RATIO *scale.x;
+        var offsetY = this.offset.y/PTM_RATIO *scale.y;
 
         var shape = new b2.PolygonShape();
         shape.SetAsBox(width, height, new b2.Vec2(offsetX, offsetY), 0);

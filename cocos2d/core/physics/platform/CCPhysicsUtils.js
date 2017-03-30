@@ -1,6 +1,6 @@
 
 var PHYSICS_TO_CC_ANGLE = require('../CCPhysicsTypes').PHYSICS_TO_CC_ANGLE;
-var CC_PTM_RATIO = require('../CCPhysicsTypes').CC_PTM_RATIO;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 
 var convertToNodeRotation = require('../utils').convertToNodeRotation;
 
@@ -22,8 +22,8 @@ PhysicsUtils.prototype.syncNode = function () {
         var pos = b2body.GetPosition();
 
         var position = node._position;
-        position.x = pos.x * CC_PTM_RATIO;
-        position.y = pos.y * CC_PTM_RATIO;
+        position.x = pos.x * PTM_RATIO;
+        position.y = pos.y * PTM_RATIO;
 
         var angle = b2body.GetAngle() * PHYSICS_TO_CC_ANGLE;
 
