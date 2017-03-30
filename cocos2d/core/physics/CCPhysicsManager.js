@@ -327,7 +327,11 @@ var PhysicsManager = cc.Class({
         if (!c) {
             return;
         }
-        c.emit(ContactType.POST_SOLVE, impulse);
+
+        // impulse only survive during post sole callback
+        c._impulse = impulse;
+        c.emit(ContactType.POST_SOLVE);
+        c._impulse = null;
     }
 });
 
