@@ -530,10 +530,10 @@ function _doCreateCtor (ctors, baseClass, className, options) {
     var body;
     var args = CC_JSB ? '...args' : '';
     if (CC_DEV) {
-        body = '(function ' + normalizeClassName(className) + '(){\n';
+        body = '(function ' + normalizeClassName(className) + '(' + args + '){\n';
     }
     else {
-        body = '(function(){\n';
+        body = '(function(' + args + '){\n';
     }
 
     if (superCallBounded) {
@@ -545,13 +545,11 @@ function _doCreateCtor (ctors, baseClass, className, options) {
 
     // call user constructors
     if (ctors.length > 0) {
-        var params = CC_JSB ? 'args' : 'arguments';
         var useTryCatch = ! (className && className.startsWith('cc.'));
         if (useTryCatch) {
             body += 'try{\n';
         }
-
-        var SNIPPET = ']).apply(this,' + params + ');\n';
+        var SNIPPET = CC_JSB ? ']).apply(this,args);\n' : ']).apply(this,arguments);\n';
         if (ctors.length === 1) {
             body += '(fireClass.__ctors__[0' + SNIPPET;
         }
