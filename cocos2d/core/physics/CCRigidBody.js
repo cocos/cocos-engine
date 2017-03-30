@@ -90,6 +90,9 @@ var RigidBody = cc.Class({
 
         allowSleep: {
             get: function () {
+                if (this._b2Body) {
+                    return this._b2Body.IsSleepingAllowed();
+                }
                 return this._allowSleep;
             },
             set: function (value) {
@@ -327,6 +330,21 @@ var RigidBody = cc.Class({
     applyTorque: function (torque, wake) {
         if (this._b2Body) {
             this._b2Body.ApplyTorque(torque, wake);
+        }
+    },
+
+    applyLinearImpulse: function (impulse, point, wake) {
+        if (this._b2Body) {
+            tempb2Vec21.Set(impulse.x/PTM_RATIO, impulse.y/PTM_RATIO);
+            tempb2Vec22.Set(point.x/PTM_RATIO, point.y/PTM_RATIO);
+            this._b2Body.ApplyLinearImpulse(tempb2Vec21, tempb2Vec22, wake);
+        }
+    },
+
+    applyAngularImpulse: function (impulse, wake) {
+        if (this._b2Body) {
+            tempb2Vec21.Set(impulse.x/PTM_RATIO, impulse.y/PTM_RATIO);
+            this._b2Body.ApplyAngularImpulse(tempb2Vec21, wake);
         }
     },
     
