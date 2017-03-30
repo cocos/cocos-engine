@@ -27,15 +27,15 @@
  * ClassManager
  */
 var ClassManager = cc.ClassManager = {
-    id : (0|(Math.random()*998)),
+    id: (0 | (Math.random() * 998)),
 
-    instanceId : (0|(Math.random()*998)),
+    instanceId: (0 | (Math.random() * 998)),
 
-    getNewID : function(){
+    getNewID: function () {
         return this.id++;
     },
 
-    getNewInstanceId : function(){
+    getNewInstanceId: function () {
         return this.instanceId++;
     }
 };
@@ -72,25 +72,25 @@ Class.extend = function (props) {
     // unnecessary in the for...in loop used 1) for generating Class()
     // 2) for cc.clone and perhaps more. It is also required to make
     // these function properties cacheable in Carakan.
-    var desc = {writable: true, enumerable: false, configurable: true};
+    var desc = { writable: true, enumerable: false, configurable: true };
 
     // The dummy Class constructor
     var TheClass;
     if (cc.game && cc.game.config && cc.game.config[cc.game.CONFIG_KEY.exposeClassName]) {
         var ctor =
             "return (function " + (props._className || "Class") + "(arg0,arg1,arg2,arg3,arg4) {\n" +
-                "this.__instanceId = cc.ClassManager.getNewInstanceId();\n" +
-                "if (this.ctor) {\n" +
-                    "switch (arguments.length) {\n" +
-                        "case 0: this.ctor(); break;\n" +
-                        "case 1: this.ctor(arg0); break;\n" +
-                        "case 2: this.ctor(arg0,arg1); break;\n" +
-                        "case 3: this.ctor(arg0,arg1,arg2); break;\n" +
-                        "case 4: this.ctor(arg0,arg1,arg2,arg3); break;\n" +
-                        "case 5: this.ctor(arg0,arg1,arg2,arg3,arg4); break;\n" +
-                        "default: this.ctor.apply(this, arguments);\n" +
-                    "}\n" +
-                "}\n" +
+            "this.__instanceId = cc.ClassManager.getNewInstanceId();\n" +
+            "if (this.ctor) {\n" +
+            "switch (arguments.length) {\n" +
+            "case 0: this.ctor(); break;\n" +
+            "case 1: this.ctor(arg0); break;\n" +
+            "case 2: this.ctor(arg0,arg1); break;\n" +
+            "case 3: this.ctor(arg0,arg1,arg2); break;\n" +
+            "case 4: this.ctor(arg0,arg1,arg2,arg3); break;\n" +
+            "case 5: this.ctor(arg0,arg1,arg2,arg3,arg4); break;\n" +
+            "default: this.ctor.apply(this, arguments);\n" +
+            "}\n" +
+            "}\n" +
             "});";
         TheClass = Function(ctor)();
     }
@@ -112,13 +112,13 @@ Class.extend = function (props) {
             this.__instanceId = ClassManager.getNewInstanceId();
             if (this.ctor) {
                 switch (arguments.length) {
-                case 0: this.ctor(); break;
-                case 1: this.ctor(arg0); break;
-                case 2: this.ctor(arg0, arg1); break;
-                case 3: this.ctor(arg0, arg1, arg2); break;
-                case 4: this.ctor(arg0, arg1, arg2, arg3); break;
-                case 5: this.ctor(arg0, arg1, arg2, arg3, arg4); break;
-                default: this.ctor.apply(this, arguments);
+                    case 0: this.ctor(); break;
+                    case 1: this.ctor(arg0); break;
+                    case 2: this.ctor(arg0, arg1); break;
+                    case 3: this.ctor(arg0, arg1, arg2); break;
+                    case 4: this.ctor(arg0, arg1, arg2, arg3); break;
+                    case 5: this.ctor(arg0, arg1, arg2, arg3, arg4); break;
+                    default: this.ctor.apply(this, arguments);
                 }
             }
         };
@@ -133,10 +133,6 @@ Class.extend = function (props) {
     // Enforce the constructor to be what we expect
     desc.value = TheClass;
     Object.defineProperty(proto, 'constructor', desc);
-
-    // Copy getter/setter
-    this.__getters__ && (TheClass.__getters__ = cc.clone(this.__getters__));
-    this.__setters__ && (TheClass.__setters__ = cc.clone(this.__setters__));
 
     for (var name in props) {
         var isFunc = (typeof props[name] === "function");
@@ -163,41 +159,15 @@ Class.extend = function (props) {
                     var ret = fn.apply(this, arguments);
                     this._super = tmp;
 
-                        return ret;
-                    };
-                })(name, prop[name]);
-                Object.defineProperty(proto, name, desc);
-            } else if (isFunc) {
-                desc.value = prop[name];
-                Object.defineProperty(proto, name, desc);
-            } else {
-                proto[name] = prop[name];
-            }
-
-            if (isFunc) {
-                // Override registered getter/setter
-                var getter, setter, propName;
-                if (this.__getters__ && this.__getters__[name]) {
-                    propName = this.__getters__[name];
-                    for (var i in this.__setters__) {
-                        if (this.__setters__[i] === propName) {
-                            setter = i;
-                            break;
-                        }
-                    }
-                    cc.defineGetterSetter(proto, propName, prop[name], prop[setter] ? prop[setter] : proto[setter], name, setter);
-                }
-                if (this.__setters__ && this.__setters__[name]) {
-                    propName = this.__setters__[name];
-                    for (var i in this.__getters__) {
-                        if (this.__getters__[i] === propName) {
-                            getter = i;
-                            break;
-                        }
-                    }
-                    cc.defineGetterSetter(proto, propName, prop[getter] ? prop[getter] : proto[getter], prop[name], getter, name);
-                }
-            }
+                    return ret;
+                };
+            })(name, props[name]);
+            Object.defineProperty(proto, name, desc);
+        } else if (isFunc) {
+            desc.value = props[name];
+            Object.defineProperty(proto, name, desc);
+        } else {
+            proto[name] = props[name];
         }
     }
 
@@ -223,7 +193,7 @@ Class.extend = function (props) {
  * @param {String}   getterName - Name of getter function for the property
  * @param {String}   setterName - Name of setter function for the property
  */
-cc.defineGetterSetter = function (proto, prop, getter, setter, getterName, setterName){
+cc.defineGetterSetter = function (proto, prop, getter, setter, getterName, setterName) {
     if (proto.__defineGetter__) {
         getter && proto.__defineGetter__(prop, getter);
         setter && proto.__defineSetter__(prop, setter);
