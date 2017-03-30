@@ -22,9 +22,29 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef CCPhysicsDefine_h
-#define CCPhysicsDefine_h
+#ifndef CCPhysicsContactImpulse_h
+#define CCPhysicsContactImpulse_h
 
-#define CC_PTM_RATIO 32
+#include "Box2D/Box2D.h"
+#include "cocos2d.h"
 
-#endif /* CCPhysicsDefine_h */
+namespace creator {
+    class PhysicsContactImpulse : public cocos2d::Ref
+    {
+    public:
+        PhysicsContactImpulse();
+        ~PhysicsContactImpulse();
+        
+        void init(const b2ContactImpulse* impulse);
+        
+        int getCount();
+        float32 getNormalImpulse(int index);
+        float32 getTangentImpulse(int index);
+        
+    protected:
+        b2ContactImpulse _impulse;
+    };
+}
+
+
+#endif /* CCPhysicsContactImpulse_h */

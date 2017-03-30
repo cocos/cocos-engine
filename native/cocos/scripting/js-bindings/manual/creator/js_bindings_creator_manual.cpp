@@ -34,10 +34,11 @@
 
 #include "scripting/js-bindings/auto/jsb_creator_auto.hpp"
 
-#include "editor-support/creator/CCPhysicsContactListener.h"
-#include "editor-support/creator/CCPhysicsUtils.h"
-#include "editor-support/creator/CCPhysicsAABBQueryCallback.h"
-#include "editor-support/creator/CCPhysicsRayCastCallback.h"
+#include "editor-support/creator/physics/CCPhysicsContactListener.h"
+#include "editor-support/creator/physics/CCPhysicsUtils.h"
+#include "editor-support/creator/physics/CCPhysicsAABBQueryCallback.h"
+#include "editor-support/creator/physics/CCPhysicsRayCastCallback.h"
+#include "editor-support/creator/physics/CCPhysicsContactImpulse.h"
 
 USING_NS_CC_EXT;
 
@@ -150,27 +151,22 @@ bool js_creator_PhysicsContactListener_setPreSolve(JSContext *cx, uint32_t argc,
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsContactListener_setPreSolve : Invalid Native Object");
     if (argc == 1) {
-        std::function<void (b2Contact *, const b2Manifold *)> arg0;
+        std::function<void (b2Contact *)> arg0;
         do {
             if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
-                auto lambda = [=](b2Contact* larg0, const b2Manifold* larg1) -> void {
+                auto lambda = [=](b2Contact* larg0) -> void {
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[2];
+                    jsval largv[1];
                     if (larg0) {
                         largv[0] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
                     } else {
                         largv[0] = JSVAL_NULL;
                     };
-//                    if (larg1) {
-//                        largv[1] = b2Manifold_to_jsval(cx, larg1);
-//                    } else {
-                        largv[1] = JSVAL_NULL;
-//                    };
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(2, largv), &rval);
+                    bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
                         JS_ReportPendingException(cx);
                     }
@@ -202,13 +198,13 @@ bool js_creator_PhysicsContactListener_setPostSolve(JSContext *cx, uint32_t argc
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsContactListener_setPostSolve : Invalid Native Object");
     if (argc == 1) {
-        std::function<void (b2Contact *, const b2ContactImpulse *)> arg0;
+        std::function<void (b2Contact *, const creator::PhysicsContactImpulse *)> arg0;
         do {
             if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
-                auto lambda = [=](b2Contact* larg0, const b2ContactImpulse* larg1) -> void {
+                auto lambda = [=](b2Contact* larg0, const creator::PhysicsContactImpulse* larg1) -> void {
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                     jsval largv[2];
                     if (larg0) {
@@ -216,11 +212,11 @@ bool js_creator_PhysicsContactListener_setPostSolve(JSContext *cx, uint32_t argc
                     } else {
                         largv[0] = JSVAL_NULL;
                     };
-//                    if (larg1) {
-//                        largv[1] = b2ContactImpulse_to_jsval(cx, (b2ContactImpulse*)larg1);
-//                    } else {
+                    if (larg1) {
+                        largv[1] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<creator::PhysicsContactImpulse>(cx, (creator::PhysicsContactImpulse*)larg1));
+                    } else {
                         largv[1] = JSVAL_NULL;
-//                    };
+                    };
                     JS::RootedValue rval(cx);
                     bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(2, largv), &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {

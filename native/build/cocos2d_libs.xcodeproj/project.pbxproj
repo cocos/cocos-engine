@@ -638,6 +638,10 @@
 		464AD6E6197EBB1400E502D8 /* pvr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 464AD6E3197EBB1400E502D8 /* pvr.cpp */; };
 		464AD6E7197EBB1400E502D8 /* pvr.h in Headers */ = {isa = PBXBuildFile; fileRef = 464AD6E4197EBB1400E502D8 /* pvr.h */; };
 		464AD6E8197EBB1400E502D8 /* pvr.h in Headers */ = {isa = PBXBuildFile; fileRef = 464AD6E4197EBB1400E502D8 /* pvr.h */; };
+		4D2816661E8CBB7200F26B06 /* CCPhysicsContactImpulse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2816641E8CBB7200F26B06 /* CCPhysicsContactImpulse.cpp */; };
+		4D2816671E8CBB7200F26B06 /* CCPhysicsContactImpulse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2816641E8CBB7200F26B06 /* CCPhysicsContactImpulse.cpp */; };
+		4D2816681E8CBB7200F26B06 /* CCPhysicsContactImpulse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D2816651E8CBB7200F26B06 /* CCPhysicsContactImpulse.h */; };
+		4D2816691E8CBB7200F26B06 /* CCPhysicsContactImpulse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D2816651E8CBB7200F26B06 /* CCPhysicsContactImpulse.h */; };
 		4D2E69071CC543B40032DD5C /* CCGraphicsNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2E69031CC543B40032DD5C /* CCGraphicsNode.cpp */; };
 		4D2E69081CC543B40032DD5C /* CCGraphicsNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2E69031CC543B40032DD5C /* CCGraphicsNode.cpp */; };
 		4D2E69091CC543B40032DD5C /* CCGraphicsNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D2E69041CC543B40032DD5C /* CCGraphicsNode.h */; };
@@ -2271,6 +2275,8 @@
 		46A168631807AF4E005B8026 /* CCTableView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CCTableView.h; sourceTree = "<group>"; };
 		46A168641807AF4E005B8026 /* CCTableViewCell.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CCTableViewCell.cpp; sourceTree = "<group>"; };
 		46A168651807AF4E005B8026 /* CCTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CCTableViewCell.h; sourceTree = "<group>"; };
+		4D2816641E8CBB7200F26B06 /* CCPhysicsContactImpulse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCPhysicsContactImpulse.cpp; sourceTree = "<group>"; };
+		4D2816651E8CBB7200F26B06 /* CCPhysicsContactImpulse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCPhysicsContactImpulse.h; sourceTree = "<group>"; };
 		4D2E69031CC543B40032DD5C /* CCGraphicsNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCGraphicsNode.cpp; path = creator/CCGraphicsNode.cpp; sourceTree = "<group>"; };
 		4D2E69041CC543B40032DD5C /* CCGraphicsNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCGraphicsNode.h; path = creator/CCGraphicsNode.h; sourceTree = "<group>"; };
 		4D2E69051CC543B40032DD5C /* Triangulate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Triangulate.cpp; path = creator/Triangulate.cpp; sourceTree = "<group>"; };
@@ -4049,6 +4055,8 @@
 				4DC06BC21E8A68D400CA08B1 /* CCPhysicsAABBQueryCallback.h */,
 				4DC06BC31E8A68D400CA08B1 /* CCPhysicsContactListener.cpp */,
 				4DC06BC41E8A68D400CA08B1 /* CCPhysicsContactListener.h */,
+				4D2816641E8CBB7200F26B06 /* CCPhysicsContactImpulse.cpp */,
+				4D2816651E8CBB7200F26B06 /* CCPhysicsContactImpulse.h */,
 				4DC06BCD1E8A68D400CA08B1 /* CCPhysicsWorldManifoldWrapper.cpp */,
 				4DC06BCE1E8A68D400CA08B1 /* CCPhysicsWorldManifoldWrapper.h */,
 				4DC06BEB1E8B604B00CA08B1 /* CCPhysicsManifoldWrapper.cpp */,
@@ -5208,6 +5216,7 @@
 				FA6F1B611D80F858007DD223 /* Slot.h in Headers */,
 				BAFF7CEC1D59E0DB0051B92F /* CocoStudio.h in Headers */,
 				50ABBE331925AB6F00A911A9 /* CCConfiguration.h in Headers */,
+				4D2816681E8CBB7200F26B06 /* CCPhysicsContactImpulse.h in Headers */,
 				15AE1BE319AAE01E00C27E9E /* CCScrollView.h in Headers */,
 				50CB247519D9C5A100687767 /* AudioCache.h in Headers */,
 				50ABC01F1926664800A911A9 /* CCThread.h in Headers */,
@@ -5609,6 +5618,7 @@
 				BAFF7DB11D5C1CF80051B92F /* SkeletonBounds.h in Headers */,
 				15AE1C0419AAE01E00C27E9E /* CCTableView.h in Headers */,
 				50ABBEA21925AB6F00A911A9 /* CCScheduler.h in Headers */,
+				4D2816691E8CBB7200F26B06 /* CCPhysicsContactImpulse.h in Headers */,
 				4DC06BE21E8A68D400CA08B1 /* CCPhysicsRayCastCallback.h in Headers */,
 				4DED48431DFFA4AF0070C5C4 /* b2Contact.h in Headers */,
 				1A57020B180BCBDF0088DEC7 /* CCMotionStreak.h in Headers */,
@@ -6212,6 +6222,7 @@
 				BAFF7CC01D59E0DB0051B92F /* CCDecorativeDisplay.cpp in Sources */,
 				15AE1BA319AADFDF00C27E9E /* UILayoutManager.cpp in Sources */,
 				4DED47DC1DFFA4AF0070C5C4 /* b2CollidePolygon.cpp in Sources */,
+				4D2816661E8CBB7200F26B06 /* CCPhysicsContactImpulse.cpp in Sources */,
 				BAFF7DCA1D5C1CF80051B92F /* spine-cocos2dx.cpp in Sources */,
 				4DED48041DFFA4AF0070C5C4 /* b2Draw.cpp in Sources */,
 				B230ED7119B417AE00364AA8 /* CCTrianglesCommand.cpp in Sources */,
@@ -6605,6 +6616,7 @@
 				29394CF319B01DBA00D2DE1A /* UIWebView.mm in Sources */,
 				15AE18BD19AAD33D00C27E9E /* CCLabelBMFontLoader.cpp in Sources */,
 				50ABC01E1926664800A911A9 /* CCThread.cpp in Sources */,
+				4D2816671E8CBB7200F26B06 /* CCPhysicsContactImpulse.cpp in Sources */,
 				2980F0271BA9A5550059E678 /* CCUISingleLineTextField.mm in Sources */,
 				BAFF7CD91D59E0DB0051B92F /* CCSpriteFrameCacheHelper.cpp in Sources */,
 				1A5701EB180BCB8C0088DEC7 /* CCTransitionPageTurn.cpp in Sources */,

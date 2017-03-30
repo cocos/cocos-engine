@@ -22,9 +22,34 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef CCPhysicsDefine_h
-#define CCPhysicsDefine_h
+#include "CCPhysicsContactImpulse.h"
+#include "CCPhysicsDefine.h"
 
-#define CC_PTM_RATIO 32
+namespace creator {
+    PhysicsContactImpulse::PhysicsContactImpulse()
+    {
+    }
+    PhysicsContactImpulse::~PhysicsContactImpulse()
+    {
+    }
+    
+    void PhysicsContactImpulse::init(const b2ContactImpulse* impulse)
+    {
+        _impulse = *impulse;
+    }
+    
+    int PhysicsContactImpulse::getCount()
+    {
+        return _impulse.count;
+    }
+    
+    float32 PhysicsContactImpulse::getNormalImpulse(int index)
+    {
+        return _impulse.normalImpulses[index] * CC_PTM_RATIO;
+    }
+    float32 PhysicsContactImpulse::getTangentImpulse(int index)
+    {
+        return _impulse.tangentImpulses[index];
+    }
+}
 
-#endif /* CCPhysicsDefine_h */

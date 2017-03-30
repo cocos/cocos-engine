@@ -22,12 +22,12 @@ void PhysicsContactListener::setEndContact(std::function<void(b2Contact* contact
     _endContact = callback;
 }
 
-void PhysicsContactListener::setPreSolve(std::function<void(b2Contact* contact, const b2Manifold* oldManifold)> callback)
+void PhysicsContactListener::setPreSolve(std::function<void(b2Contact* contact)> callback)
 {
     _preSolve = callback;
 }
 
-void PhysicsContactListener::setPostSolve(std::function<void(b2Contact* contact, const b2ContactImpulse* impulse)> callback)
+void PhysicsContactListener::setPostSolve(std::function<void(b2Contact* contact, const PhysicsContactImpulse* impulse)> callback)
 {
     _postSolve = callback;
 }
@@ -72,7 +72,7 @@ void PhysicsContactListener::PreSolve(b2Contact* contact, const b2Manifold* oldM
     if (find(_contactFixtures.begin(), _contactFixtures.end(), fixtureA) != _contactFixtures.end() ||
         find(_contactFixtures.begin(), _contactFixtures.end(), fixtureB) != _contactFixtures.end())
     {
-        _preSolve(contact, oldManifold);
+        _preSolve(contact);
     }
 }
 
@@ -86,7 +86,8 @@ void PhysicsContactListener::PostSolve(b2Contact* contact, const b2ContactImpuls
     if (find(_contactFixtures.begin(), _contactFixtures.end(), fixtureA) != _contactFixtures.end() ||
         find(_contactFixtures.begin(), _contactFixtures.end(), fixtureB) != _contactFixtures.end())
     {
-        _postSolve(contact, impulse);
+        _impulse.init(impulse);
+        _postSolve(contact, &_impulse);
     }
 }
 

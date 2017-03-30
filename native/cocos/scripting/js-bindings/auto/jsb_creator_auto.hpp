@@ -124,8 +124,21 @@ bool js_creator_PhysicsUtils_addB2Body(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsUtils_syncNode(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsUtils_setFixtureNext(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsUtils_removeB2Body(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_PhysicsUtils_getContactManifoldWrapper(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsUtils_getContactWorldManifoldWrapper(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsUtils_PhysicsUtils(JSContext *cx, uint32_t argc, jsval *vp);
+
+extern JSClass  *jsb_creator_PhysicsContactImpulse_class;
+extern JSObject *jsb_creator_PhysicsContactImpulse_prototype;
+
+bool js_creator_PhysicsContactImpulse_constructor(JSContext *cx, uint32_t argc, jsval *vp);
+void js_creator_PhysicsContactImpulse_finalize(JSContext *cx, JSObject *obj);
+void js_register_creator_PhysicsContactImpulse(JSContext *cx, JS::HandleObject global);
+void register_all_creator(JSContext* cx, JS::HandleObject obj);
+bool js_creator_PhysicsContactImpulse_getCount(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_PhysicsContactImpulse_getNormalImpulse(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_PhysicsContactImpulse_getTangentImpulse(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_PhysicsContactImpulse_PhysicsContactImpulse(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_creator_PhysicsContactListener_class;
 extern JSObject *jsb_creator_PhysicsContactListener_prototype;

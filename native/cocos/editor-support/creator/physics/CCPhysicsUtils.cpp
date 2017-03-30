@@ -14,6 +14,7 @@ using namespace cocos2d;
 namespace creator {
 
 static PhysicsWorldManifoldWrapper _worldManifoldWrapper;
+static PhysicsManifoldWrapper _manifoldWrapper;
 
 PhysicsUtils::PhysicsUtils()
 {
@@ -73,6 +74,12 @@ const PhysicsWorldManifoldWrapper* PhysicsUtils::getContactWorldManifoldWrapper(
     _worldManifoldWrapper.init(contact);
     contact->GetWorldManifold(_worldManifoldWrapper.getb2WorldManifold());
     return &_worldManifoldWrapper;
+}
+    
+const PhysicsManifoldWrapper* PhysicsUtils::getContactManifoldWrapper(b2Contact* contact)
+{
+    _manifoldWrapper.init(contact);
+    return &_manifoldWrapper;
 }
     
 cocos2d::Vec2 PhysicsUtils::_convertToNodePosition(cocos2d::Node* node, cocos2d::Vec2& position)

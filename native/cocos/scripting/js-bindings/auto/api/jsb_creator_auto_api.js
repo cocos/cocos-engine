@@ -913,6 +913,18 @@ b2body
 },
 
 /**
+ * @method getContactManifoldWrapper
+ * @param {b2Contact} arg0
+ * @return {creator::PhysicsManifoldWrapper}
+ */
+getContactManifoldWrapper : function (
+b2contact 
+)
+{
+    return creator::PhysicsManifoldWrapper;
+},
+
+/**
  * @method getContactWorldManifoldWrapper
  * @param {b2Contact} arg0
  * @return {creator::PhysicsWorldManifoldWrapper}
@@ -929,6 +941,56 @@ b2contact
  * @constructor
  */
 PhysicsUtils : function (
+)
+{
+},
+
+};
+
+/**
+ * @class PhysicsContactImpulse
+ */
+cc.PhysicsContactImpulse = {
+
+/**
+ * @method getCount
+ * @return {int}
+ */
+getCount : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getNormalImpulse
+ * @param {int} arg0
+ * @return {float}
+ */
+getNormalImpulse : function (
+int 
+)
+{
+    return 0;
+},
+
+/**
+ * @method getTangentImpulse
+ * @param {int} arg0
+ * @return {float}
+ */
+getTangentImpulse : function (
+int 
+)
+{
+    return 0;
+},
+
+/**
+ * @method PhysicsContactImpulse
+ * @constructor
+ */
+PhysicsContactImpulse : function (
 )
 {
 },
