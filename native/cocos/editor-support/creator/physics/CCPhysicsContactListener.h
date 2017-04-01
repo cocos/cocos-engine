@@ -32,6 +32,7 @@
 #include <functional>
 #include <vector>
 
+
 namespace creator {
 
 class CC_DLL PhysicsContactListener : public b2ContactListener
@@ -62,6 +63,8 @@ protected:
   
     std::vector<b2Fixture*> _contactFixtures;
     PhysicsContactImpulse _impulse;
+    
+    std::unordered_map<b2Contact*, bool> _contactMap;
 };
 
 }

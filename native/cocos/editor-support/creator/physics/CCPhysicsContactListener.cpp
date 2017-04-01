@@ -43,6 +43,7 @@ void PhysicsContactListener::BeginContact(b2Contact* contact)
     if (find(_contactFixtures.begin(), _contactFixtures.end(), fixtureA) != _contactFixtures.end() ||
         find(_contactFixtures.begin(), _contactFixtures.end(), fixtureB) != _contactFixtures.end())
     {
+        _contactMap[contact] = true;
         _beginContact(contact);
     }
 
@@ -52,13 +53,11 @@ void PhysicsContactListener::EndContact(b2Contact* contact)
 {
     if (!_endContact) return;
 
-    b2Fixture* fixtureA = contact->GetFixtureA();
-    b2Fixture* fixtureB = contact->GetFixtureB();
-
-    if (find(_contactFixtures.begin(), _contactFixtures.end(), fixtureA) != _contactFixtures.end() ||
-        find(_contactFixtures.begin(), _contactFixtures.end(), fixtureB) != _contactFixtures.end())
+    auto i = _contactMap.find(contact);
+    if (i != _contactMap.end())
     {
         _endContact(contact);
+        _contactMap.erase(i);
     }
 }
 
@@ -66,11 +65,7 @@ void PhysicsContactListener::PreSolve(b2Contact* contact, const b2Manifold* oldM
 {
     if (!_preSolve) return;
 
-    b2Fixture* fixtureA = contact->GetFixtureA();
-    b2Fixture* fixtureB = contact->GetFixtureB();
-
-    if (find(_contactFixtures.begin(), _contactFixtures.end(), fixtureA) != _contactFixtures.end() ||
-        find(_contactFixtures.begin(), _contactFixtures.end(), fixtureB) != _contactFixtures.end())
+    if (_contactMap.find(contact) != _contactMap.end())
     {
         _preSolve(contact);
     }
@@ -80,11 +75,7 @@ void PhysicsContactListener::PostSolve(b2Contact* contact, const b2ContactImpuls
 {
     if (!_postSolve) return;
 
-    b2Fixture* fixtureA = contact->GetFixtureA();
-    b2Fixture* fixtureB = contact->GetFixtureB();
-
-    if (find(_contactFixtures.begin(), _contactFixtures.end(), fixtureA) != _contactFixtures.end() ||
-        find(_contactFixtures.begin(), _contactFixtures.end(), fixtureB) != _contactFixtures.end())
+    if (_contactMap.find(contact) != _contactMap.end())
     {
         _impulse.init(impulse);
         _postSolve(contact, &_impulse);
