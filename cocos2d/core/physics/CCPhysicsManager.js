@@ -179,6 +179,12 @@ var PhysicsManager = cc.Class({
             bodies[i].syncPosition();
         }
     },
+    syncRotation: function () {
+        var bodies = this._bodies;
+        for (var i = 0; i < bodies.length; i++) {
+            bodies[i].syncRotation();
+        }
+    },    
 
     attachDebugDrawToCamera: function (camera) {
         if (!this._debugDrawer) return;

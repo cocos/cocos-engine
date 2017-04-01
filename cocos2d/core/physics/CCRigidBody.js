@@ -427,6 +427,10 @@ var RigidBody = cc.Class({
         var pos = this.node.convertToWorldSpaceAR(VEC2_ZERO);
         this._b2Body.SetTransform(new b2.Vec2(pos.x / PTM_RATIO, pos.y / PTM_RATIO), this._b2Body.GetAngle());
     },
+    syncRotation: function () {
+        var rotation = CC_TO_PHYSICS_ANGLE * getWorldRotation(node);
+        b2body.SetTransform(b2body.GetPosition(), rotation);
+    },
 
    _init: function () {
         cc.director.getPhysicsManager().pushDelayEvent(this, '__init', []);
