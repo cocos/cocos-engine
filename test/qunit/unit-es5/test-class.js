@@ -243,12 +243,10 @@ test('extends + constructor', function () {
     labradorConstructor.enable();
     huskyConstructor.callbackFunction(function () {
         animalConstructor.once('base construct should called automatically');
-        Husky.$super.call(this);
     });
 
     var husky = new Husky();
     huskyConstructor.once('call husky constructor');
-    animalConstructor.once('call anim constructor by husky');
 
     var dog = new Dog();
     animalConstructor.once('call anim constructor by dog');
@@ -346,9 +344,9 @@ test('isChildClassOf', function () {
     strictEqual(cc.isChildClassOf(Base, Object) &&
                 ! cc.isChildClassOf(Object, Base), true, 'any type is child of Object');
 
-    Base = function () {};
     var Sub = function () {};
     cc.js.extend(Sub, Base);
+
     strictEqual(cc.isChildClassOf(Sub, Base) &&
                 !cc.isChildClassOf(Base, Sub), true, 'Sub is child of Base');
 
@@ -723,3 +721,14 @@ test('simplified properties define', function () {
     deepEqual(arrayObj.rawAsset, [], 'checking array of rawAsset');
     deepEqual(arrayObj.asset, [], 'checking array of asset');
 });
+
+// test('call CCClass', function () {
+//     var Husky = cc.Class({
+//         properties: {
+//             weight: 100
+//         }
+//     });
+//     var target = {};
+//     Husky.call(target);
+//     strictEqual(target.weight, 100, 'pass');
+// });
