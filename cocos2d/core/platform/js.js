@@ -81,7 +81,24 @@ var js = {
      * @return {Object} the result obj
      * @deprecated
      */
-    addon: function (obj) {
+    addon: CC_JSB ? function (obj, ...args) {
+        obj = obj || {};
+        for (var i = 0, length = args.length; i < length; i++) {
+            var source = args[i];
+            if (source) {
+                if (typeof source !== 'object') {
+                    cc.errorID(5402, source);
+                    continue;
+                }
+                for ( var name in source) {
+                    if ( !(name in obj) ) {
+                        _copyprop( name, source, obj);
+                    }
+                }
+            }
+        }
+        return obj;
+    } : function (obj) {
         'use strict';
         obj = obj || {};
         for (var i = 1, length = arguments.length; i < length; i++) {
@@ -108,7 +125,22 @@ var js = {
      * @param {Object} ...sourceObj
      * @return {Object} the result obj
      */
-    mixin: function (obj) {
+    mixin: CC_JSB ? function (obj, ...args) {
+        obj = obj || {};
+        for (var i = 0, length = args.length; i < length; i++) {
+            var source = args[i];
+            if (source) {
+                if (typeof source !== 'object') {
+                    cc.errorID(5403, source);
+                    continue;
+                }
+                for ( var name in source) {
+                    _copyprop( name, source, obj);
+                }
+            }
+        }
+        return obj;
+    } : function (obj) {
         'use strict';
         obj = obj || {};
         for (var i = 1, length = arguments.length; i < length; i++) {
@@ -300,8 +332,19 @@ cc.js.unregisterClass to remove the id of unused class';
      * @method unregisterClass
      * @param {Function} ...constructor - the class you will want to unregister, any number of classes can be added
      */
-    js.unregisterClass = function (constructor) {
-        'use strict';
+    js.unregisterClass = CC_JSB ? function (...args) {
+        for (var i = 0; i < args.length; i++) {
+            var p = args[i].prototype;
+            var classId = p.__cid__;
+            if (classId) {
+                delete _idToClass[classId];
+            }
+            var classname = p.__classname__;
+            if (classname) {
+                delete _nameToClass[classname];
+            }
+        }
+    } : function () {
         for (var i = 0; i < arguments.length; i++) {
             var p = arguments[i].prototype;
             var classId = p.__cid__;
@@ -509,7 +552,37 @@ js.obsoletes = function (obj, objName, props, writable) {
  * @method formatStr
  * @returns {String}
  */
-js.formatStr = function () {
+js.formatStr = CC_JSB ? function (...args) {
+    var l = args.length;
+    if (l < 1) return '';
+    var REGEXP_NUM_OR_STR = /(%d)|(%s)/;
+
+    var i = 1;
+    var str = args[0];
+    var hasSubstitution = typeof str === 'string' && REGEXP_NUM_OR_STR.test(str);
+    if (hasSubstitution) {
+        var REGEXP_STR = /%s/;
+        for (; i < l; ++i) {
+            var arg = args[i];
+            var regExpToTest = typeof arg === 'number' ? REGEXP_NUM_OR_STR : REGEXP_STR;
+            if (regExpToTest.test(str))
+                str = str.replace(regExpToTest, arg);
+            else
+                str += ' ' + arg;
+        }
+    }
+    else {
+        if (l > 1) {
+            for (; i < l; ++i) {
+                str += ' ' + args[i];
+            }
+        }
+        else {
+            str = '' + str;
+        }
+    }
+    return str;
+} : function () {
     var args = arguments;
     var l = args.length;
     if (l < 1) return '';

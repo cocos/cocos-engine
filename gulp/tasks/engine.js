@@ -31,7 +31,8 @@ const Path = require('path');
 const Source = require('vinyl-source-stream');
 const Gulp = require('gulp');
 const Buffer = require('vinyl-buffer');
-const Uglify = require('gulp-uglify');
+const Minifier = require('gulp-uglify/minifier');
+const UglifyHarmony = require('uglify-js-harmony');
 const Sourcemaps = require('gulp-sourcemaps');
 const EventStream = require('event-stream');
 const Chalk = require('chalk');
@@ -57,7 +58,7 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, callback) {
     bundler = bundler.pipe(Source(outFile));
     bundler = bundler.pipe(Buffer());
     bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
-    bundler = bundler.pipe(Uglify(uglifyOption));
+    bundler = bundler.pipe(Minifier(uglifyOption, UglifyHarmony));
     bundler = bundler.pipe(Sourcemaps.write('./', {
         sourceRoot: './',
         includeContent: true,
@@ -100,7 +101,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback, 
     bundler = bundler.pipe(Buffer());
     if (createMap !== false)
         bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
-    bundler = bundler.pipe(Uglify(uglifyOption));
+    bundler = bundler.pipe(Minifier(uglifyOption, UglifyHarmony));
     if (Size) {
         bundler = bundler.pipe(rawSize);
         bundler = bundler.pipe(zippedSize);
@@ -123,7 +124,6 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback, 
 };
 
 exports.buildPreview = function (sourceFile, outputFile, callback) {
-
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
@@ -136,12 +136,12 @@ exports.buildPreview = function (sourceFile, outputFile, callback) {
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(Sourcemaps.init({loadMaps: true}))
-        .pipe(Uglify(Utils.uglifyOptions(false, {
+        .pipe(Minifier(Utils.uglifyOptions(false, {
             CC_EDITOR: false,
             CC_DEV: true,
             CC_TEST: false,
             CC_JSB: false
-        })))
+        }), UglifyHarmony))
         .pipe(Sourcemaps.write('./', {
             sourceRoot: '../',
             includeContent: false,
@@ -164,12 +164,12 @@ exports.buildJsb = function (sourceFile, outputFile, jsbSkipModules, callback) {
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
-        .pipe(Uglify(Utils.uglifyOptions(false, {
+        .pipe(Minifier(Utils.uglifyOptions(false, {
             CC_EDITOR: false,
             CC_DEV: false,
             CC_TEST: false,
             CC_JSB: true
-        })))
+        }), UglifyHarmony))
         .pipe(Gulp.dest(outDir))
         .on('end', callback);
 };
@@ -187,12 +187,12 @@ exports.buildJsbMin = function (sourceFile, outputFile, jsbSkipModules, callback
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
-        .pipe(Uglify(Utils.uglifyOptions(true, {
+        .pipe(Minifier(Utils.uglifyOptions(true, {
             CC_EDITOR: false,
             CC_DEV: false,
             CC_TEST: false,
             CC_JSB: true
-        })))
+        }), UglifyHarmony))
         .pipe(Gulp.dest(outDir))
         .on('end', callback);
 };

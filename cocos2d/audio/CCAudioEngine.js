@@ -262,9 +262,9 @@ var audioEngine = {
     },
 
     /**
-     * !#en Get audio state
-     * !#zh 获取音频状态。
-     * @method getState
+     * !#en Set Audio finish callback
+     * !#zh 设置一个音频结束后的回调
+     * @method setFinishCallback
      * @param {Number} audioID audio id.
      * @param {Function} callback loaded callback.
      * @example

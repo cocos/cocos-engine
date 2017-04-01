@@ -95,13 +95,27 @@ cc.Component.EventHandler = cc.Class({
          * @param {any} ...params
          * @statics
          */
-        emitEvents: function(events) {
-            'use strict';
+        emitEvents: CC_JSB ? function (events, ...args) {
             for (var i = 0, l = events.length; i < l; i++) {
                 var event = events[i];
-                if (! event instanceof cc.Component.EventHandler) continue;
+                if (!(event instanceof cc.Component.EventHandler)) continue;
 
-                event.emit(Array.prototype.slice.call(arguments, 1));
+                event.emit(args);
+            }
+        } : function(events) {
+            'use strict';
+            var args, i, l;
+            if (arguments.length > 0) {
+                args = new Array(arguments.length - 1);
+                for (i = 0, l = args.length; i < l; i++) {
+                    args[i] = arguments[i+1];
+                }
+            }
+            for (i = 0, l = events.length; i < l; i++) {
+                var event = events[i];
+                if (!(event instanceof cc.Component.EventHandler)) continue;
+
+                event.emit(args);
             }
         }
     },

@@ -25,14 +25,6 @@
 
 'use strict';
 
-cc.ProgressTimer.Type = cc.Enum({
-    /**
-     * Radial Counter-Clockwise
-     */
-    RADIAL: 0,
-    BAR: 1
-});
-
 //FIXME: should delete this line after implementing the VideoPlayer on Mac and Windows
 if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
     cc.VideoPlayer = {};
