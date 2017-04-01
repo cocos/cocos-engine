@@ -373,15 +373,15 @@ var RigidBody = cc.Class({
         var node = this.node;
 
         node.on('position-changed', function() {
-            if (!this._ignoreNodeChanges) {
-                var b2body = this._b2Body;
+            var b2body = this._b2Body;
+            if (!this._ignoreNodeChanges && b2body) {
                 var pos = node.convertToWorldSpaceAR(VEC2_ZERO);
 
                 var temp = CC_JSB ? tempb2Vec21 : b2body.m_linearVelocity;
                 temp.x = pos.x / PTM_RATIO;
                 temp.y = pos.y / PTM_RATIO;
 
-                if (node.scale && this.type === BodyType.Animated) {
+                if (this.type === BodyType.Animated) {
                     var b2Pos = b2body.GetPosition();
 
                     var timeStep = cc.game.config['frameRate'];
@@ -398,10 +398,10 @@ var RigidBody = cc.Class({
         }, this);
 
         node.on('rotation-changed', function() {
-            if (!this._ignoreNodeChanges) {
+            var b2body = this._b2Body;
+            if (!this._ignoreNodeChanges && b2body) {
                 var rotation = CC_TO_PHYSICS_ANGLE * getWorldRotation(node);
-                var b2body = this._b2Body;
-                if (node.scale && this.type === BodyType.Animated) {
+                if (this.type === BodyType.Animated) {
                     var b2Rotation = b2body.GetAngle();
                     var timeStep = cc.game.config['frameRate'];
                     b2body.SetAwake(true);
