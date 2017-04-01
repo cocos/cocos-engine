@@ -3310,7 +3310,7 @@ bool js_box2dclasses_b2Fixture_GetAABB(JSContext *cx, uint32_t argc, jsval *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_GetAABB : Error processing arguments");
         const b2AABB& ret = cobj->GetAABB(arg0);
         JS::RootedValue jsret(cx);
-        #pragma warning NO CONVERSION FROM NATIVE FOR b2AABB;
+        jsret = b2AABB_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
     }
