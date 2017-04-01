@@ -29,7 +29,7 @@
 #include "cocos2d.h"
 
 namespace creator {
-    class PhysicsManifoldWrapper : public cocos2d::Ref
+    class CC_DLL PhysicsManifoldWrapper : public cocos2d::Ref
     {
     public:
         PhysicsManifoldWrapper();
