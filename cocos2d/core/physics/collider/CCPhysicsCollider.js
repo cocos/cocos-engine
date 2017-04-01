@@ -56,12 +56,11 @@ PhysicsCollider.prototype.getAABB = function () {
     var minX = MAX, minY = MAX;
     var maxX = -MAX, maxY = -MAX;
     
-    var manager = cc.director.getPhysicsManager();
     var fixtures = this._fixtures;
     for (var i = 0; i < fixtures.length; i++) {
         var fixture = fixtures[i];
 
-        var count = fixture.m_proxyCount;
+        var count = fixture.GetShape().GetChildCount();
         for (var j = 0; j < count; j++) {
             var aabb = fixture.GetAABB(j);
             if (aabb.lowerBound.x < minX) minX = aabb.lowerBound.x;
@@ -69,8 +68,6 @@ PhysicsCollider.prototype.getAABB = function () {
             if (aabb.upperBound.x > maxX) maxX = aabb.upperBound.x;
             if (aabb.upperBound.y > maxY) maxY = aabb.upperBound.y;
         }
-
-        manager._registerContactFixture(fixture);
     }
 
     minX *= PTM_RATIO;
@@ -169,10 +166,13 @@ PhysicsCollider.prototype.__destroy = function () {
 
     var fixtures = this._fixtures;
     var body = this.body._getBody();
+    var manager = cc.director.getPhysicsManager();
 
     for (var i = fixtures.length-1; i >=0 ; i--) {
         var fixture = fixtures[i];
         fixture.collider = null;
+
+        manager._unregisterContactFixture(fixture);
 
         if (body) {
             body.DestroyFixture(fixture);
