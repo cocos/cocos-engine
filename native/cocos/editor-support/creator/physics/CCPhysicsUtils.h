@@ -43,13 +43,11 @@ public:
     PhysicsUtils();
     ~PhysicsUtils();
     
+public:
     void addB2Body(b2Body* body);
     void removeB2Body(b2Body* body);
     
     void syncNode();
-    
-    void setFixtureNext(b2Fixture* fixture, b2Fixture* next);
-    
 public:
     static const PhysicsWorldManifoldWrapper* getContactWorldManifoldWrapper(b2Contact* contact);
     static const PhysicsManifoldWrapper* getContactManifoldWrapper(b2Contact* contact);

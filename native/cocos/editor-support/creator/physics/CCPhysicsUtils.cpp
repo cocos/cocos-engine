@@ -63,12 +63,6 @@ void PhysicsUtils::syncNode()
     }
 }
     
-void PhysicsUtils::setFixtureNext(b2Fixture* fixture, b2Fixture* next)
-{
-    b2Fixture* f = fixture->GetNext();
-    *&f = next;
-}
-
 const PhysicsWorldManifoldWrapper* PhysicsUtils::getContactWorldManifoldWrapper(b2Contact* contact)
 {
     _worldManifoldWrapper.init(contact);

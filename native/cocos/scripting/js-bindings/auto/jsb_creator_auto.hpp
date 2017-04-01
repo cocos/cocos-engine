@@ -122,7 +122,6 @@ void js_register_creator_PhysicsUtils(JSContext *cx, JS::HandleObject global);
 void register_all_creator(JSContext* cx, JS::HandleObject obj);
 bool js_creator_PhysicsUtils_addB2Body(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsUtils_syncNode(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_creator_PhysicsUtils_setFixtureNext(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsUtils_removeB2Body(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsUtils_getContactManifoldWrapper(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsUtils_getContactWorldManifoldWrapper(JSContext *cx, uint32_t argc, jsval *vp);
