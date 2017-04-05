@@ -377,7 +377,17 @@ var RigidBody = cc.Class({
             if (!this._ignoreNodeChanges && b2body) {
                 var pos = node.convertToWorldSpaceAR(VEC2_ZERO);
 
-                var temp = CC_JSB ? tempb2Vec21 : b2body.m_linearVelocity;
+                var temp;
+                if (CC_JSB) {
+                    temp = tempb2Vec21;
+                }
+                else if (this.type === BodyType.Animated) {
+                    temp = b2body.GetLinearVelocity();
+                }
+                else {
+                    temp = b2body.GetPosition();
+                }
+
                 temp.x = pos.x / PTM_RATIO;
                 temp.y = pos.y / PTM_RATIO;
 

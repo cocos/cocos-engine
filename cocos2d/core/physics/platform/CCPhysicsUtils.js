@@ -30,13 +30,12 @@ PhysicsUtils.prototype.syncNode = function () {
         body._ignoreNodeChanges = true;
 
         if (node.parent.parent !== null) {
-            node.position = node.parent.convertToNodeSpaceAR( position );
-            node.rotation = convertToNodeRotation( node.parent, angle );
+            position = node.parent.convertToNodeSpaceAR( position );
+            angle = convertToNodeRotation( node.parent, angle );
         }
-        else {
-            node._sgNode.setPosition(position.x, position.y);
-            node.rotation = angle;
-        }
+
+        node._sgNode.setPosition(position.x, position.y);
+        node.rotation = angle;
 
         body._ignoreNodeChanges = false;
     }
