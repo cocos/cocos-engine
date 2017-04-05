@@ -55,6 +55,20 @@ PhysicsContact.prototype.init = function (b2contact) {
     this.colliderB = b2contact.GetFixtureB().collider;
     this.disabled = false;
     this._impulse = null;
+
+
+    this._b2contact = b2contact;
+    b2contact._contact = this;
+};
+
+PhysicsContact.prototype.reset = function () {
+    this.colliderA = null;
+    this.colliderB = null;
+    this.disabled = false;
+    this._impulse = null;
+
+    this._b2contact._contact = null;
+    this._b2contact = null;
 };
 
 PhysicsContact.prototype.getWorldManifold = function () {
@@ -235,17 +249,15 @@ PhysicsContact.get = function (b2contact) {
     }
 
     c.init(b2contact);
-
-    c._b2contact = b2contact;
-    b2contact._contact = c;
-
     return c;
 };
 
 PhysicsContact.put = function (b2contact) {
-    pools.push(b2contact._contact);
-    b2contact._contact._b2contact = null;
-    b2contact._contact = null;
+    var c = b2contact._contact;
+    if (!c) return;
+    
+    pools.push(c);
+    c.reset();
 };
 
 [
