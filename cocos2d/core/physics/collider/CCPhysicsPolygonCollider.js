@@ -38,7 +38,7 @@ var PhysicsPolygonCollider = cc.Class({
 
     properties: cc.PhysicsCollider.properties,
 
-    _createShape: function (scale, transform) {
+    _createShape: function (scale) {
         var shapes = [];
 
         var points = this.points;
@@ -63,10 +63,6 @@ var PhysicsPolygonCollider = cc.Class({
                         shape = new b2.PolygonShape();
                     }
                     var p = poly[j];
-                    if (transform) {
-                        p = cc.pointApplyAffineTransform(p, transform);
-                    }
-
                     var v = new b2.Vec2(p.x/PTM_RATIO*scale.x, p.y/PTM_RATIO*scale.y);
                     vertices.push( v );
 

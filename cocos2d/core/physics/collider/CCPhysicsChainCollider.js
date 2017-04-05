@@ -51,16 +51,13 @@ var PhysicsChainCollider = cc.Class({
         },
     }, cc.PhysicsCollider.properties),
 
-    _createShape: function (scale, transform) {
+    _createShape: function (scale) {
         var shape = new b2.ChainShape();
 
         var points = this.points;
         var vertices = [];
         for (var i = 0; i < points.length; i++) {
             var p = points[i];
-            if (transform) {
-                p = cc.pointApplyAffineTransform(p, transform);
-            }
             vertices.push( new b2.Vec2(p.x/PTM_RATIO*scale.x, p.y/PTM_RATIO*scale.y) );
         }
 

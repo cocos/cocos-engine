@@ -31,6 +31,8 @@ function PhysicsCollider () {
     this._shapes = [];
     this._inited = false;
     this._rect = cc.rect();
+    
+    this.body = null;
 }
 
 PhysicsCollider.prototype.onDisable = function () {
@@ -104,15 +106,10 @@ PhysicsCollider.prototype.__init = function () {
     var innerBody = body._getBody();
     if (!innerBody) return;
 
-    var transform;
-    if (body.node !== this.node) {
-        transform = cc.affineTransformConcat( this.node.getNodeToWorldTransformAR(), cc.affineTransformInvert(body.node.getNodeToWorldTransformAR()) );
-    }
-
     var node = body.node;
     var scale = getWorldScale(node);
 
-    var shapes = scale.x === 0 && scale.y === 0 ? [] : this._createShape(scale, transform);
+    var shapes = scale.x === 0 && scale.y === 0 ? [] : this._createShape(scale);
 
     if (!(shapes instanceof Array)) {
         shapes = [shapes];
@@ -194,11 +191,6 @@ PhysicsCollider.properties = {
     _sensor: false,
     _friction: 0.2,
     _restitution: 0,
-
-    body: {
-        default: null,
-        type: cc.RigidBody
-    },
 
     density: {
         get: function () {
