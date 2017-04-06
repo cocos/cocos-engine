@@ -187,6 +187,22 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  *
  * @method property
  * @param {Object} [options] - an object with some property attributes
+ * @param {Any} [options.type]
+ * @param {RawAsset} [options.url]
+ * @param {Boolean} [options.visible]
+ * @param {String} [options.displayName]
+ * @param {String} [options.tooltip]
+ * @param {Boolean} [options.multiline]
+ * @param {Boolean} [options.readonly]
+ * @param {Number} [options.min]
+ * @param {Number} [options.max]
+ * @param {Number} [options.step]
+ * @param {Number[]} [options.range]
+ * @param {Boolean} [options.slide]
+ * @param {Boolean} [options.serializable]
+ * @param {Boolean} [options.editorOnly]
+ * @param {Boolean} [options.override]
+ * @param {Boolean} [options.animatable]
  * @example
  * const {ccclass, property} = cc._decorator;
  *
@@ -568,24 +584,3 @@ cc._decorator = module.exports = {
     help,
     mixins,
 };
-
-// declare interface IProperty {
-//     type?: any;
-//     visible?: boolean;
-//     displayName?: string;
-//     tooltip?: string;
-//     multiline?: boolean;
-//     readonly?: boolean;
-//     min?: number;
-//     max?: number;
-//     step?: number;
-//     range?: Array<number>;
-//     slide?: boolean;
-//     serializable?: boolean;
-//     editorOnly?: boolean;
-//     url?: any;
-//     override?: boolean;
-//     animatable?: boolean;
-// }
-//
-
