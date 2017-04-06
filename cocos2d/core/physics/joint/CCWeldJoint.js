@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
-var CC_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').CC_TO_PHYSICS_ANGLE;
+var ANGLE_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
 
 var WeldJoint = cc.Class({
     name: 'cc.WeldJoint',
@@ -72,7 +72,7 @@ var WeldJoint = cc.Class({
         var def = new b2.WeldJointDef();
         def.localAnchorA = new b2.Vec2(this.anchor.x/PTM_RATIO, this.anchor.y/PTM_RATIO);
         def.localAnchorB = new b2.Vec2(this.connectedAnchor.x/PTM_RATIO, this.connectedAnchor.y/PTM_RATIO);
-        def.referenceAngle = this.referenceAngle * CC_TO_PHYSICS_ANGLE;
+        def.referenceAngle = this.referenceAngle * ANGLE_TO_PHYSICS_ANGLE;
 
         def.frequencyHz = this.frequency;
         def.dampingRatio = this.dampingRatio;

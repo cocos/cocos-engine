@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
-var CC_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').CC_TO_PHYSICS_ANGLE;
+var ANGLE_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
 
 var MotorJoint = cc.Class({
     name: 'cc.MotorJoint',
@@ -106,7 +106,7 @@ var MotorJoint = cc.Class({
     _createJointDef: function () {
         var def = new b2.MotorJointDef();
         def.linearOffset = new b2.Vec2(this.linearOffset.x/PTM_RATIO, this.linearOffset.y/PTM_RATIO);
-        def.angularOffset = this.angularOffset * CC_TO_PHYSICS_ANGLE;
+        def.angularOffset = this.angularOffset * ANGLE_TO_PHYSICS_ANGLE;
         def.maxForce = this.maxForce;
         def.maxTorque = this.maxTorque;
         def.correctionFactor = this.correctionFactor;

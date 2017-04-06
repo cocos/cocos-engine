@@ -28,8 +28,8 @@ var BodyType = require('./CCPhysicsTypes').BodyType;
 var RayCastType = require('./CCPhysicsTypes').RayCastType;
 
 var PTM_RATIO = require('./CCPhysicsTypes').PTM_RATIO;
-var CC_TO_PHYSICS_ANGLE = require('./CCPhysicsTypes').CC_TO_PHYSICS_ANGLE;
-var PHYSICS_TO_CC_ANGLE = require('./CCPhysicsTypes').PHYSICS_TO_CC_ANGLE;
+var ANGLE_TO_PHYSICS_ANGLE = require('./CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
+var PHYSICS_ANGLE_TO_ANGLE = require('./CCPhysicsTypes').PHYSICS_ANGLE_TO_ANGLE;
 
 var STEP_DT = 1/60;
 

@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
-var CC_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').CC_TO_PHYSICS_ANGLE;
+var ANGLE_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
 
 var WheelJoint = cc.Class({
     name: 'cc.WheelJoint',
@@ -67,7 +67,7 @@ var WheelJoint = cc.Class({
             set: function (value) {
                 this._motorSpeed = value;
                 if (this._joint) {
-                    this._joint.SetMotorSpeed(value * CC_TO_PHYSICS_ANGLE);
+                    this._joint.SetMotorSpeed(value * ANGLE_TO_PHYSICS_ANGLE);
                 }
             }
         },
@@ -117,7 +117,7 @@ var WheelJoint = cc.Class({
         def.localAxisA = new b2.Vec2(this.localAxisA.x, this.localAxisA.y);
         
         def.maxMotorTorque = this.maxMotorTorque;
-        def.motorSpeed = this.motorSpeed * CC_TO_PHYSICS_ANGLE;
+        def.motorSpeed = this.motorSpeed * ANGLE_TO_PHYSICS_ANGLE;
         def.enableMotor = this.enableMotor;
 
         def.dampingRatio = this.dampingRatio;

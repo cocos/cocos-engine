@@ -24,8 +24,8 @@
  ****************************************************************************/
 
 var PTM_RATIO = require('./CCPhysicsTypes').PTM_RATIO;
-var CC_TO_PHYSICS_ANGLE = require('./CCPhysicsTypes').CC_TO_PHYSICS_ANGLE;
-var PHYSICS_TO_CC_ANGLE = require('./CCPhysicsTypes').PHYSICS_TO_CC_ANGLE;
+var ANGLE_TO_PHYSICS_ANGLE = require('./CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
+var PHYSICS_ANGLE_TO_ANGLE = require('./CCPhysicsTypes').PHYSICS_ANGLE_TO_ANGLE;
 
 var getWorldRotation = require('./utils').getWorldRotation;
 var BodyType = require('./CCPhysicsTypes').BodyType;
@@ -165,14 +165,14 @@ var RigidBody = cc.Class({
         angularVelocity: {
             get: function () {
                 if (this._b2Body) {
-                    return this._b2Body.GetAngularVelocity() * PHYSICS_TO_CC_ANGLE;
+                    return this._b2Body.GetAngularVelocity() * PHYSICS_ANGLE_TO_ANGLE;
                 }
                 return this._angularVelocity;
             },
             set: function (value) {
                 this._angularVelocity = value;
                 if (this._b2Body) {
-                    this._b2Body.SetAngularVelocity( value * CC_TO_PHYSICS_ANGLE );
+                    this._b2Body.SetAngularVelocity( value * ANGLE_TO_PHYSICS_ANGLE );
                 }
             }
         },
@@ -276,7 +276,7 @@ var RigidBody = cc.Class({
 
     getWorldRotation: function () {
         if (this._b2Body) {
-            return this._b2Body.GetAngle() * PHYSICS_TO_CC_ANGLE;
+            return this._b2Body.GetAngle() * PHYSICS_ANGLE_TO_ANGLE;
         }
         return 0;
     },
@@ -410,7 +410,7 @@ var RigidBody = cc.Class({
         node.on('rotation-changed', function() {
             var b2body = this._b2Body;
             if (!this._ignoreNodeChanges && b2body) {
-                var rotation = CC_TO_PHYSICS_ANGLE * getWorldRotation(node);
+                var rotation = ANGLE_TO_PHYSICS_ANGLE * getWorldRotation(node);
                 if (this.type === BodyType.Animated) {
                     var b2Rotation = b2body.GetAngle();
                     var timeStep = cc.game.config['frameRate'];
@@ -438,7 +438,7 @@ var RigidBody = cc.Class({
         this._b2Body.SetTransform(new b2.Vec2(pos.x / PTM_RATIO, pos.y / PTM_RATIO), this._b2Body.GetAngle());
     },
     syncRotation: function () {
-        var rotation = CC_TO_PHYSICS_ANGLE * getWorldRotation(node);
+        var rotation = ANGLE_TO_PHYSICS_ANGLE * getWorldRotation(node);
         b2body.SetTransform(b2body.GetPosition(), rotation);
     },
 
@@ -469,7 +469,7 @@ var RigidBody = cc.Class({
         var linearVelocity = this.linearVelocity;
         bodyDef.linearVelocity = new b2.Vec2(linearVelocity.x/PTM_RATIO, linearVelocity.y/PTM_RATIO);
 
-        bodyDef.angularVelocity = this.angularVelocity * CC_TO_PHYSICS_ANGLE;
+        bodyDef.angularVelocity = this.angularVelocity * ANGLE_TO_PHYSICS_ANGLE;
         
         bodyDef.fixedRotation = this.fixedRotation;
         bodyDef.bullet = this.bullet;

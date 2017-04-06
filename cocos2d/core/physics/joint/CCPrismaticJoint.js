@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
-var CC_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').CC_TO_PHYSICS_ANGLE;
+var ANGLE_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
 
 var PrismaticJoint = cc.Class({
     name: 'cc.PrismaticJoint',
@@ -79,7 +79,7 @@ var PrismaticJoint = cc.Class({
         def.localAnchorA = new b2.Vec2(this.anchor.x/PTM_RATIO, this.anchor.y/PTM_RATIO);
         def.localAnchorB = new b2.Vec2(this.connectedAnchor.x/PTM_RATIO, this.connectedAnchor.y/PTM_RATIO);
         def.localAxisA = new b2.Vec2(this.localAxisA.x, this.localAxisA.y);
-        def.referenceAngle = this.referenceAngle * CC_TO_PHYSICS_ANGLE;
+        def.referenceAngle = this.referenceAngle * ANGLE_TO_PHYSICS_ANGLE;
         def.enableLimit = this.enableLimit;
         def.lowerTranslation = this.lowerTranslation/PTM_RATIO;
         def.upperTranslation = this.upperTranslation/PTM_RATIO;
