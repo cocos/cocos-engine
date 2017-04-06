@@ -696,7 +696,7 @@ function _getAllCtors (baseClass, mixins, options) {
     return ctors;
 }
 
-var SuperCallReg = /xyz/.test(function(){xyz}) ? /\b_super\b/ : /.*/;
+var SuperCallReg = /xyz/.test(function(){xyz}) ? /\b\._super\b/ : /.*/;
 var SuperCallRegStrict = /xyz/.test(function(){xyz}) ? /this\._super\s*\(/ : /(NONE){99}/;
 function boundSuperCalls (baseClass, options, className) {
     var hasSuperCall = false;

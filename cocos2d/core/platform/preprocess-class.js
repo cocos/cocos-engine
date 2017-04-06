@@ -224,7 +224,10 @@ exports.preprocessAttrs = function (properties, className, cls, es6) {
                     }
                 }
                 else if (!val.get && !val.set) {
-                    cc.errorID(5516, className, propName);
+                    var maybeTypeScript = es6;
+                    if (!maybeTypeScript) {
+                        cc.errorID(5516, className, propName);
+                    }
                 }
             }
             if (CC_DEV && !val.override && cls.__props__.indexOf(propName) !== -1) {

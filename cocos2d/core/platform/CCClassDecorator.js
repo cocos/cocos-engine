@@ -39,6 +39,7 @@
 require('./CCClass');
 const Preprocess = require('./preprocess-class');
 const JS = require('./js');
+const isPlainEmptyObj_DEV = CC_DEV && require('./utils').isPlainEmptyObj_DEV;
 
 function fNOP () {}
 function dNOP () {
@@ -292,28 +293,35 @@ function property (ctorProtoOrOptions, propName, desc) {
             //     prop = options;
             // }
             prop = JS.mixin(prop || {}, fullOptions || {});
-            if (desc.initializer) {
-                if (CC_DEV && options && options.default) {
-                    cc.warnID(3650, 'default', propName, JS.getClassName(ctorProto.constructor));
-                }
+            if (desc) {
+                if (desc.initializer) {
+                    if (CC_DEV && options && 'default' in options) {
+                        cc.warnID(3650, 'default', propName, JS.getClassName(ctorProto.constructor));
+                    }
 
-                prop.default = getDefaultFromInitializer(desc.initializer);
+                    prop.default = getDefaultFromInitializer(desc.initializer);
+                }
+                else {
+                    if (desc.get) {
+                        if (CC_DEV && options && options.get) {
+                            cc.warnID(3650, 'get', propName, JS.getClassName(ctorProto.constructor));
+                        }
+                        prop.get = desc.get;
+                    }
+                    if (desc.set) {
+                        if (CC_DEV && options && options.set) {
+                            cc.warnID(3650, 'set', propName, JS.getClassName(ctorProto.constructor));
+                        }
+                        prop.set = desc.set;
+                    }
+                }
             }
             else {
-                if (desc.value) {
-                    console.error('TS?');
-                }
-                if (desc.get) {
-                    if (CC_DEV && options && options.get) {
-                        cc.warnID(3650, 'get', propName, JS.getClassName(ctorProto.constructor));
-                    }
-                    prop.get = desc.get;
-                }
-                if (desc.set) {
-                    if (CC_DEV && options && options.set) {
-                        cc.warnID(3650, 'set', propName, JS.getClassName(ctorProto.constructor));
-                    }
-                    prop.set = desc.set;
+                // Can not get default value for typescript...
+                if (CC_DEV && isPlainEmptyObj_DEV(prop)) {
+                    cc.error('Failed to get default value of "%s" in class "%s". ' +
+                             'If using TypeScript, you also need to pass in the "default" attribute required by the "property" decorator.',
+                             propName, JS.getClassName(ctorProto.constructor));
                 }
             }
             props[propName] = prop;
