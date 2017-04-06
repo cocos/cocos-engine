@@ -1,8 +1,10 @@
 
-var PHYSICS_TO_CC_ANGLE = require('../CCPhysicsTypes').PHYSICS_TO_CC_ANGLE;
+var PHYSICS_ANGLE_TO_ANGLE = require('../CCPhysicsTypes').PHYSICS_ANGLE_TO_ANGLE;
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 
 var convertToNodeRotation = require('../utils').convertToNodeRotation;
+
+var tempPosition = cc.v2();
 
 function PhysicsUtils () {
 }
@@ -21,20 +23,19 @@ PhysicsUtils.prototype.syncNode = function () {
         var b2body = body._b2Body;
         var pos = b2body.GetPosition();
 
-        var position = node._position;
-        position.x = pos.x * PTM_RATIO;
-        position.y = pos.y * PTM_RATIO;
+        tempPosition.x = pos.x * PTM_RATIO;
+        tempPosition.y = pos.y * PTM_RATIO;
 
-        var angle = b2body.GetAngle() * PHYSICS_TO_CC_ANGLE;
+        var angle = b2body.GetAngle() * PHYSICS_ANGLE_TO_ANGLE;
 
         body._ignoreNodeChanges = true;
 
         if (node.parent.parent !== null) {
-            position = node.parent.convertToNodeSpaceAR( position );
+            tempPosition = node.parent.convertToNodeSpaceAR( tempPosition );
             angle = convertToNodeRotation( node.parent, angle );
         }
 
-        node._sgNode.setPosition(position.x, position.y);
+        node.position = tempPosition;
         node.rotation = angle;
 
         body._ignoreNodeChanges = false;
