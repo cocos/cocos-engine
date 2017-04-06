@@ -40,6 +40,11 @@ require('./CCClass');
 const Preprocess = require('./preprocess-class');
 const JS = require('./js');
 
+function fNOP () {}
+function dNOP () {
+    return fNOP;
+}
+
 function getSubDict (obj, key) {
     var res = obj[key];
     if (!res) {
@@ -48,19 +53,52 @@ function getSubDict (obj, key) {
     return res;
 }
 
-function normalizeCtorDecorator (transformFunc, env) {
-    if (env === false) {
-        return function () {};
-    }
+function checkCtorArgument (decorate) {
     return function (target) {
         if (typeof target === 'function') {
-            return transformFunc(target);
+            // no parameter, target is ctor
+            return decorate(target);
         }
         return function (ctor) {
-            return transformFunc(ctor, target);
+            return decorate(ctor, target);
         };
-    }
+    };
 }
+
+function _checkNormalArgument (validator_DEV, decorate, decoratorName) {
+    return function (target) {
+        if (CC_DEV && validator_DEV(target, decoratorName) === false) {
+            return fNOP;
+        }
+        return function (ctor) {
+            return decorate(ctor, target);
+        };
+    };
+}
+
+var checkCompArgument = _checkNormalArgument.bind(null, CC_DEV && function (arg, decoratorName) {
+    if (!cc.Class._isCCClass(arg)) {
+        cc.error('The parameter for %s is missing.', decoratorName);
+        return false;
+    }
+});
+
+function _checkArgumentType (type) {
+    return _checkNormalArgument.bind(null, CC_DEV && function (arg, decoratorName) {
+        if (arg instanceof cc.Component || arg === undefined) {
+            cc.error('The parameter for %s is missing.', decoratorName);
+            return false;
+        }
+        else if (typeof arg !== type) {
+            cc.error('The parameter for %s must be type %s.', decoratorName, type);
+            return false;
+        }
+    });
+}
+var checkStringArgument = _checkArgumentType('string');
+var checkNumberArgument = _checkArgumentType('number');
+// var checkBooleanArgument = _checkArgumentType('boolean');
+
 
 function getClassProto (ctor, decoratorName) {
     if (CC_DEV && cc.Class._isCCClass(ctor)) {
@@ -114,7 +152,7 @@ function getDefaultFromInitializer (initializer) {
  *     // ...
  * }
  */
-var ccclass = normalizeCtorDecorator(function (ctor, name) {
+var ccclass = checkCtorArgument(function (ctor, name) {
     // if (FIX_BABEL6) {
     //     eval('if(typeof _classCallCheck==="function"){_classCallCheck=function(){};}');
     // }
@@ -185,7 +223,7 @@ var ccclass = normalizeCtorDecorator(function (ctor, name) {
  *     texture = "";
  * }
  *
- * // above is equivalent to...
+ * // above is equivalent to (上面的代码相当于):
  *
  * var NewScript = cc.Class({
  *     properties: {
@@ -276,19 +314,21 @@ function property (ctorProtoOrOptions, propName, desc) {
 
 // Editor Decorators
 
-function createEditorDecorator (impl) {
-    return normalizeCtorDecorator(function (ctor) {
-        var proto = getClassProto(ctor, 'executeInEditMode');
+function createEditorDecorator (argCheckFunc, editorPropName, staticValue) {
+    return argCheckFunc(function (ctor, decoratedValue) {
+        var proto = getClassProto(ctor, editorPropName);
         if (proto) {
-            impl(getSubDict(proto, 'editor'));
+            var value = (staticValue !== undefined) ? staticValue : decoratedValue;
+            getSubDict(proto, 'editor')[editorPropName] = value;
         }
-    }, CC_DEV);
+    }, editorPropName);
 }
 
 /**
  * !#en
  * Makes a CCClass that inherit from component execute in edit mode.<br>
- * By default, all components are only executed in play mode, which means they will not have their callback functions executed while the Editor is in edit mode.
+ * By default, all components are only executed in play mode,
+ * which means they will not have their callback functions executed while the Editor is in edit mode.
  * !#zh
  * 允许继承自 Component 的 CCClass 在编辑器里执行。<br>
  * 默认情况下，所有 Component 都只会在运行时才会执行，也就是说它们的生命周期回调不会在编辑器里触发。
@@ -303,9 +343,163 @@ function createEditorDecorator (impl) {
  *     // ...
  * }
  */
-var executeInEditMode = createEditorDecorator(function (editorProto) {
-    editorProto.executeInEditMode = true;
-});
+var executeInEditMode = CC_DEV ? createEditorDecorator(checkCtorArgument, 'executeInEditMode', true) : dNOP;
+
+/**
+ * !#en
+ * Automatically add required component as a dependency for the CCClass that inherit from component.
+ * !#zh
+ * 为声明为 CCClass 的组件添加依赖的其它组件。当组件添加到节点上时，如果依赖的组件不存在，引擎将会自动将依赖组件添加到同一个节点，防止脚本出错。该设置在运行时同样有效。
+ *
+ * @method requireComponent
+ * @param {Component} requiredComponent
+ * @example
+ * const {ccclass, requireComponent} = cc._decorator;
+ *
+ * &#64;ccclass
+ * &#64;requireComponent(cc.Sprite)
+ * class SpriteCtrl extends cc.Component {
+ *     // ...
+ * }
+ */
+var requireComponent = createEditorDecorator(checkCompArgument, 'requireComponent');
+
+/**
+ * !#en
+ * The menu path to register a component to the editors "Component" menu. Eg. "Rendering/CameraCtrl".
+ * !#zh
+ * 将当前组件添加到组件菜单中，方便用户查找。例如 "Rendering/CameraCtrl"。
+ *
+ * @method menu
+ * @param {String} path - The path is the menu represented like a pathname.
+ *                        For example the menu could be "Rendering/CameraCtrl".
+ * @example
+ * const {ccclass, menu} = cc._decorator;
+ *
+ * &#64;ccclass
+ * &#64;menu("Rendering/CameraCtrl")
+ * class NewScript extends cc.Component {
+ *     // ...
+ * }
+ */
+var menu = CC_DEV ? createEditorDecorator(checkStringArgument, 'menu') : dNOP;
+
+/**
+ * !#en
+ * The execution order of lifecycle methods for Component.
+ * Those less than 0 will execute before while those greater than 0 will execute after.
+ * The order will only affect onLoad, onEnable, start, update and lateUpdate while onDisable and onDestroy will not be affected.
+ * !#zh
+ * 设置脚本生命周期方法调用的优先级。优先级小于 0 的组件将会优先执行，优先级大于 0 的组件将会延后执行。优先级仅会影响 onLoad, onEnable, start, update 和 lateUpdate，而 onDisable 和 onDestroy 不受影响。
+ *
+ * @method executionOrder
+ * @param {Number} order - The execution order of lifecycle methods for Component. Those less than 0 will execute before while those greater than 0 will execute after.
+ * @example
+ * const {ccclass, executionOrder} = cc._decorator;
+ *
+ * &#64;ccclass
+ * &#64;executionOrder(1)
+ * class CameraCtrl extends cc.Component {
+ *     // ...
+ * }
+ */
+var executionOrder = CC_DEV ? createEditorDecorator(checkNumberArgument, 'executionOrder') : dNOP;
+
+/**
+ * !#en
+ * Prevents Component of the same type (or subtype) to be added more than once to a Node.
+ * !#zh
+ * 防止多个相同类型（或子类型）的组件被添加到同一个节点。
+ *
+ * @method disallowMultiple
+ * @example
+ * const {ccclass, disallowMultiple} = cc._decorator;
+ *
+ * &#64;ccclass
+ * &#64;disallowMultiple
+ * class CameraCtrl extends cc.Component {
+ *     // ...
+ * }
+ */
+var disallowMultiple = CC_DEV ? createEditorDecorator(checkCtorArgument, 'disallowMultiple') : dNOP;
+
+/**
+ * !#en
+ * If specified, the editor's scene view will keep updating this node in 60 fps when it is selected, otherwise, it will update only if necessary.<br>
+ * This property is only available if executeInEditMode is true.
+ * !#zh
+ * 当指定了 "executeInEditMode" 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
+ *
+ * @method playOnFocus
+ * @example
+ * const {ccclass, playOnFocus, executeInEditMode} = cc._decorator;
+ *
+ * &#64;ccclass
+ * &#64;executeInEditMode
+ * &#64;playOnFocus
+ * class CameraCtrl extends cc.Component {
+ *     // ...
+ * }
+ */
+var playOnFocus = CC_DEV ? createEditorDecorator(checkCtorArgument, 'playOnFocus') : dNOP;
+
+/**
+ * !#en
+ * Specifying the url of the custom html to draw the component in **Properties**.
+ * !#zh
+ * 自定义当前组件在 **属性检查器** 中渲染时所用的网页 url。
+ *
+ * @method inspector
+ * @param {String} url
+ * @example
+ * const {ccclass, inspector} = cc._decorator;
+ *
+ * &#64;ccclass
+ * &#64;inspector("packages://inspector/inspectors/comps/camera-ctrl.js")
+ * class NewScript extends cc.Component {
+ *     // ...
+ * }
+ */
+var inspector = CC_DEV ? createEditorDecorator(checkStringArgument, 'inspector') : dNOP;
+
+/**
+ * !#en
+ * Specifying the url of the icon to display in the editor.
+ * !#zh
+ * 自定义当前组件在编辑器中显示的图标 url。
+ *
+ * @method icon
+ * @param {String} url
+ * @private
+ * @example
+ * const {ccclass, icon} = cc._decorator;
+ *
+ * &#64;ccclass
+ * &#64;icon("xxxx.png")
+ * class NewScript extends cc.Component {
+ *     // ...
+ * }
+ */
+var icon = CC_DEV ? createEditorDecorator(checkStringArgument, 'icon') : dNOP;
+
+/**
+ * !#en
+ * The custom documentation URL.
+ * !#zh
+ * 指定当前组件的帮助文档的 url，设置过后，在 **属性检查器** 中就会出现一个帮助图标，用户点击将打开指定的网页。
+ *
+ * @method help
+ * @param {String} url
+ * @example
+ * const {ccclass, help} = cc._decorator;
+ *
+ * &#64;ccclass
+ * &#64;help("app://docs/html/components/spine.html")
+ * class NewScript extends cc.Component {
+ *     // ...
+ * }
+ */
+var help = CC_DEV ? createEditorDecorator(checkStringArgument, 'help') : dNOP;
 
 // Other Decorators
 
@@ -364,16 +558,16 @@ cc._decorator = module.exports = {
     ccclass,
     property,
     executeInEditMode,
+    requireComponent,
+    menu,
+    executionOrder,
+    disallowMultiple,
+    playOnFocus,
+    inspector,
+    icon,
+    help,
     mixins,
 };
-
-// if (CC_EDITOR) {
-//     ccclass.reset = function () {
-//         currentProperties = {};
-//         defined = {};
-//         definedClass = {};
-//     };
-// }
 
 // declare interface IProperty {
 //     type?: any;
@@ -394,14 +588,4 @@ cc._decorator = module.exports = {
 //     animatable?: boolean;
 // }
 //
-// declare interface IEditor {
-//     requireComponent?: cc.Component;
-//     disallowMultiple?: cc.Component;
-//     menu?: string;
-//     executionOrder?: number;
-//     executeInEditMode?: boolean;
-//     playOnFocus?: boolean;
-//     inspector?: string;
-//     icon?: string;
-//     help?: string;
-// }
+

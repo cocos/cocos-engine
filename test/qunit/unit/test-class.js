@@ -3,7 +3,7 @@ largeModule('Class ES6');
 // most tests are the same as es5
 
 (function () {
-    const {ccclass, executeInEditMode, mixins, property} = cc._decorator;
+    const {ccclass, executeInEditMode, mixins, property, requireComponent, menu, executionOrder} = cc._decorator;
 
     test('empty class', function () {
         @ccclass
@@ -67,6 +67,42 @@ largeModule('Class ES6');
         strictEqual(NoExecuteInEditMode._executeInEditMode, false, 'should not execute in edit mode by default');
         strictEqual(SimpleStyle._executeInEditMode, true, 'should execute in edit mode by default');
         strictEqual(CalledStyle._executeInEditMode, true, 'should execute in edit mode by default even if decorator called');
+    });
+
+    test('requireComponent', function () {
+        @ccclass
+        @requireComponent(cc.Sprite)
+        class SpriteCtrl extends cc.Component {}
+
+        strictEqual(SpriteCtrl._requireComponent, cc.Sprite, 'pass');
+    });
+
+    // test('menu', function () {
+    //     @ccclass
+    //     @menu
+    //     class SpriteCtrl1 extends cc.Component {}
+    //
+    //     @ccclass
+    //     @menu()
+    //     class SpriteCtrl2 extends cc.Component {}
+    //
+    //     @ccclass
+    //     @menu(cc.Sprite)
+    //     class SpriteCtrl3 extends cc.Component {}
+    //
+    //     @ccclass
+    //     @menu('cc.Sprite')
+    //     class SpriteCtrl4 extends cc.Component {}
+    //
+    //     expect(0);
+    // });
+
+    test('executionOrder', function () {
+        @ccclass
+        @executionOrder(-1)
+        class SpriteCtrl extends cc.Component {}
+
+        strictEqual(SpriteCtrl._executionOrder, -1, 'pass');
     });
 
     test('test', function () {
