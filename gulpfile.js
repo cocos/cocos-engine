@@ -121,16 +121,24 @@ gulp.task('build-min', ['build-html5', 'build-jsb']);
 // test //
 /////////
 
-gulp.task('clean-test', function (done) {
-    Test.clean([
+gulp.task('clean-test', ['clean-test-cases'], function (done) {
+    Del([
         './bin/cocos2d-js-extends-for-test.js',
-        './bin/cocos2d-js-for-test.js'
+        './bin/cocos2d-js-for-test.js',
     ], done);
 });
 
-gulp.task('build-test', ['build-modular-cocos2d', 'clean-test'], function (done) {
+gulp.task('clean-test-cases', function (done) {
+    Del('./bin/test/**/*', done);
+});
+
+gulp.task('build-test-cases', ['clean-test-cases'], function (done) {
+    Test.buildTestCase('./bin/test/', done);
+});
+
+gulp.task('build-test', ['build-modular-cocos2d', 'clean-test', 'build-test-cases'], function (done) {
     Test.build('./index.js', './bin/cocos2d-js-for-test.js',
-               '../editor/test-utils/engine-extends-entry.js','./bin/cocos2d-js-extends-for-test.js',
+               '../editor/test-utils/engine-extends-entry.js', './bin/cocos2d-js-extends-for-test.js',
                done);
 });
 

@@ -52,7 +52,7 @@ function parseNotify (val, propName, notify, properties) {
     }
     if (val.hasOwnProperty('default')) {
         // 添加新的内部属性，将原来的属性修改为 getter/setter 形式
-        // 以 _ 开头将自动设置property 为 visible: false
+        // （以 _ 开头将自动设置property 为 visible: false）
         var newKey = "_N$" + propName;
 
         val.get = function () {
@@ -167,41 +167,47 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     }
 }
 
-module.exports.preprocessAttrs = function (properties, className, cls) {
-    for (var propName in properties) {
-        var val = properties[propName];
-        var isLiteral = val && val.constructor === Object;
-
-        if ( !isLiteral ) {
-            if (Array.isArray(val) && val.length > 0) {
-                val = {
-                    default: [],
-                    type: val
+exports.getFullFormOfProperty = function (options) {
+    var isLiteral = options && options.constructor === Object;
+    if ( !isLiteral ) {
+        if (Array.isArray(options) && options.length > 0) {
+            return {
+                default: [],
+                type: options
+            };
+        }
+        else if (typeof options === 'function') {
+            var type = options;
+            if (cc.RawAsset.isRawAssetType(type)) {
+                return {
+                    default: '',
+                    url: type
                 };
-            }
-            else if (typeof val === 'function') {
-                var type = val;
-                if (cc.RawAsset.isRawAssetType(type)) {
-                    val = {
-                        default: '',
-                        url: type
-                    };
-                }
-                else {
-                    val = cc.isChildClassOf(type, cc.ValueType) ? {
-                        default: new type()
-                    } : {
-                        default: null,
-                        type: val
-                    };
-                }
             }
             else {
-                val = {
-                    default: val
+                return cc.isChildClassOf(type, cc.ValueType) ? {
+                    default: new type()
+                } : {
+                    default: null,
+                    type: options
                 };
             }
-            properties[propName] = val;
+        }
+        else {
+            return {
+                default: options
+            };
+        }
+    }
+    return null;
+};
+
+exports.preprocessAttrs = function (properties, className, cls, es6) {
+    for (var propName in properties) {
+        var val = properties[propName];
+        var fullForm = exports.getFullFormOfProperty(val);
+        if (fullForm) {
+            val = properties[propName] = fullForm;
         }
         if (val) {
             if (CC_EDITOR) {
@@ -218,7 +224,10 @@ module.exports.preprocessAttrs = function (properties, className, cls) {
                     }
                 }
                 else if (!val.get && !val.set) {
-                    cc.errorID(5516, className, propName);
+                    var maybeTypeScript = es6;
+                    if (!maybeTypeScript) {
+                        cc.errorID(5516, className, propName);
+                    }
                 }
             }
             if (CC_DEV && !val.override && cls.__props__.indexOf(propName) !== -1) {
@@ -228,7 +237,12 @@ module.exports.preprocessAttrs = function (properties, className, cls) {
             }
             var notify = val.notify;
             if (notify) {
-                parseNotify(val, propName, notify, properties);
+                if (CC_DEV && es6) {
+                    cc.error('not yet support notify attribute for ES6 Classes');
+                }
+                else {
+                    parseNotify(val, propName, notify, properties);
+                }
             }
 
             if ('type' in val) {

@@ -34,7 +34,7 @@ function IdGenerater (category) {
     // init with a random id to emphasize that the returns id should not be stored in persistence data
     this.id = 0 | (Math.random() * 998);
     
-    this.prefix = category ? ('' + category + NonUuidMark) : '';
+    this.prefix = category ? (category + NonUuidMark) : '';
 }
 
 /*

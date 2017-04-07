@@ -20,7 +20,7 @@ test('test', function() {
     equal(cc.js.getClassName(myAsset), 'Foo', 'can getClassName of user type');
 
     delete MyAsset.prototype.__classname__;  // hack, remove class name
-    ok(cc.js.getClassName(myAsset), 'should fallback to constructor name if classname undefined');
+    ok(cc.js.getClassName(myAsset), 'should fallback to constructor\'s function name if classname undefined');
     // (constructor's name may renamed by uglify, so we do not test the value exactly)
 
     var asset = new Asset();

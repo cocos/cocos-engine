@@ -101,6 +101,7 @@ cc.g_NumberOfDraws = 0;
  * </p>
  *
  * @class Director
+ * @extends EventTarget
  */
 cc.Director = Class.extend(/** @lends cc.Director# */{
     ctor: function () {

@@ -24,6 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const tempCIDGenerater = new (require('./id-generater'))('cc.TmpCId.');
+
+
 function _getPropertyDescriptor (obj, name) {
     while (obj) {
         var pd = Object.getOwnPropertyDescriptor(obj, name);
@@ -162,7 +165,6 @@ var js = {
      * Derive the class from the supplied base class.
      * Both classes are just native javascript constructors, not created by cc.Class, so
      * usually you will want to inherit using {{#crossLink "cc/Class:method"}}cc.Class {{/crossLink}} instead.
-     *
      * @method extend
      * @param {Function} cls
      * @param {Function} base - the baseclass to inherit
@@ -183,9 +185,31 @@ var js = {
             }
         }
         for (var p in base) if (base.hasOwnProperty(p)) cls[p] = base[p];
-        cls.prototype = Object.create(base.prototype);
-        cls.prototype.constructor = cls;
+        cls.prototype = Object.create(base.prototype, {
+            constructor: {
+                value: cls,
+                writable: true,
+                configurable: true
+            }
+        });
         return cls;
+    },
+
+    /**
+     * Get super class
+     * @method getSuper
+     * @param {Function} ctor - the constructor of subclass
+     * @return {Function}
+     */
+    getSuper (ctor) {
+        if (CC_JSB && ctor.$super) {
+            return ctor.$super;
+        }
+        else {
+            var proto = ctor.prototype; // binded function do not have prototype
+            var dunderProto = proto && Object.getPrototypeOf(proto);
+            return dunderProto && dunderProto.constructor;
+        }
     },
 
     /**
@@ -211,29 +235,25 @@ var js = {
 };
 
 /**
- * Get class name of the object, if object is just a {} (and which class named 'Object'), it will return null.
+ * Get class name of the object, if object is just a {} (and which class named 'Object'), it will return "".
  * (modified from <a href="http://stackoverflow.com/questions/1249531/how-to-get-a-javascript-objects-class">the code from this stackoverflow post</a>)
  * @method getClassName
- * @param {Object|Function} obj - instance or constructor
+ * @param {Object|Function} objOrCtor - instance or constructor
  * @return {String}
  */
-js.getClassName = function (obj) {
-    if (typeof obj === 'function') {
-        if (obj.prototype.__classname__) {
-            return obj.prototype.__classname__;
+js.getClassName = function (objOrCtor) {
+    if (typeof objOrCtor === 'function') {
+        var prototype = objOrCtor.prototype;
+        if (prototype && prototype.hasOwnProperty('__classname__') && prototype.__classname__) {
+            return prototype.__classname__;
         }
-    }
-    else if (obj && obj.constructor) {
-        if (obj.constructor.prototype && obj.constructor.prototype.hasOwnProperty('__classname__')) {
-            return obj.__classname__;
-        }
-        var retval;
+        var retval = '';
         //  for browsers which have name property in the constructor of the object, such as chrome
-        if (obj.constructor.name) {
-            retval = obj.constructor.name;
+        if (objOrCtor.name) {
+            retval = objOrCtor.name;
         }
-        if (obj.constructor.toString) {
-            var arr, str = obj.constructor.toString();
+        if (objOrCtor.toString) {
+            var arr, str = objOrCtor.toString();
             if (str.charAt(0) === '[') {
                 // str is "[object objectClass]"
                 arr = str.match(/\[\w+\s*(\w+)\]/);
@@ -248,18 +268,15 @@ js.getClassName = function (obj) {
         }
         return retval !== 'Object' ? retval : '';
     }
+    else if (objOrCtor && objOrCtor.constructor) {
+        return js.getClassName(objOrCtor.constructor);
+    }
     return '';
 };
 
-var TCID_PREFIX = 'cc.TmpCId.';
-var id = 0;
-function getTempCID () {
-    return TCID_PREFIX + (id++);
+function isTempClassId_DEV (id) {
+    return typeof id !== 'string' || id.startsWith(tempCIDGenerater.prefix);
 }
-
-var isTempClassId = CC_DEV && function (id) {
-    return typeof id !== 'string' || id.startsWith(TCID_PREFIX);
-};
 
 // id 注册
 (function () {
@@ -316,7 +333,7 @@ cc.js.unregisterClass to remove the id of unused class';
         doSetClassName(className, constructor);
         // auto set class id
         if (!constructor.prototype.hasOwnProperty('__cid__')) {
-            var id = className || getTempCID();
+            var id = className || tempCIDGenerater.getNewId();
             if (id) {
                 js._setClassId(id, constructor);
             }
@@ -393,7 +410,7 @@ cc.js.unregisterClass to remove the id of unused class';
         var res;
         if (typeof obj === 'function' && obj.prototype.hasOwnProperty('__cid__')) {
             res = obj.prototype.__cid__;
-            if (!allowTempId && CC_DEV && isTempClassId(res)) {
+            if (!allowTempId && CC_DEV && isTempClassId_DEV(res)) {
                 return '';
             }
             return res;
@@ -402,7 +419,7 @@ cc.js.unregisterClass to remove the id of unused class';
             var prototype = obj.constructor.prototype;
             if (prototype && prototype.hasOwnProperty('__cid__')) {
                 res = obj.__cid__;
-                if (!allowTempId && CC_DEV && isTempClassId(res)) {
+                if (!allowTempId && CC_DEV && isTempClassId_DEV(res)) {
                     return '';
                 }
                 return res;

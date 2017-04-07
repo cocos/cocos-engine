@@ -54,7 +54,7 @@ function createAttrs (subclass) {
     var chains = cc.Class.getInheritanceChain(subclass);
     for (var i = chains.length - 1; i >= 0; i--) {
         var cls = chains[i];
-        var attrs = cls.__attrs__;
+        var attrs = cls.hasOwnProperty('__attrs__') && cls.__attrs__;
         if (!attrs) {
             superClass = chains[i + 1];
             createAttrsSingle(cls, cls, superClass && superClass.__attrs__);
@@ -85,7 +85,7 @@ function attr (ctor, propName, newAttrs) {
     var attrs, setter, key;
     if (typeof ctor === 'function') {
         // attributes shared between instances
-        attrs = ctor.__attrs__ || createAttrs(ctor);
+        attrs = getClassAttrs(ctor);
         setter = attrs.constructor.prototype;
     }
     else {
@@ -94,7 +94,7 @@ function attr (ctor, propName, newAttrs) {
         attrs = instance.__attrs__;
         if (!attrs) {
             ctor = instance.constructor;
-            var clsAttrs = ctor.__attrs__ || createAttrs(ctor);
+            var clsAttrs = getClassAttrs(ctor);
             attrs = createAttrsSingle(instance, ctor, clsAttrs);
         }
         setter = attrs;
@@ -127,11 +127,11 @@ function attr (ctor, propName, newAttrs) {
 }
 
 function getClassAttrs (ctor) {
-    return ctor.__attrs__ || createAttrs(ctor);
+    return (ctor.hasOwnProperty('__attrs__') && ctor.__attrs__) || createAttrs(ctor);
 }
 
 function setClassAttr (ctor, propName, key, value) {
-    var attrs = ctor.__attrs__ || createAttrs(ctor);
+    var attrs = getClassAttrs(ctor);
     attrs.constructor.prototype[propName + DELIMETER + key] = value;
 }
 

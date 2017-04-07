@@ -10,6 +10,6 @@ Changes proposed in this pull request:
 - To official teams:
   - [ ] Check that your javascript is following our [style guide](https://github.com/cocos-creator/fireball/blob/dev/.github/CONTRIBUTING.md) and end files with a newline
   - [ ] Document new code with comments in source code based on [API Docs](https://github.com/cocos-creator/fireball#api-docs)
-  - [ ] Make sure any log information in `cc.log` , `cc.error`, `cc.warn` or `cc.assert` has been moved into `DebugInfos.js` with an ID
+  - [ ] Make sure any runtime log information in `cc.log` , `cc.error`, `cc.warn` or `cc.assert` has been moved into `DebugInfos.js` with an ID
 
 @cocos-creator/engine-admins
