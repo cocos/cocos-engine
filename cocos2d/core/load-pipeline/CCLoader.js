@@ -287,6 +287,9 @@ JS.mixin(CCLoader.prototype, {
 
     _resources: resources,
     _getResUuid: function (url, type, quiet) {
+        if (!url) {
+            return null;
+        }
         // Ignore parameter
         var index = url.indexOf('?');
         if (index !== -1)
