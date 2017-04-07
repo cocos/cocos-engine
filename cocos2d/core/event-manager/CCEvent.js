@@ -28,37 +28,6 @@ var JS = cc.js;
 var Event = cc.Event;
 
 /**
- * !#en The type code of Touch event.
- * !#zh 触摸事件类型
- * @constant
- * @type {String}
- */
-cc.Event.TOUCH = 'touch';
-/**
- * !#en The type code of Mouse event.
- * !#zh 鼠标事件类型
- * @constant
- * @type {String}
- */
-cc.Event.MOUSE = 'mouse';
-/**
- * !#en The type code of Keyboard event.
- * !#zh 键盘事件类型
- * @constant
- * @memberof cc.Event
- * @type {String}
- */
-cc.Event.KEYBOARD = 'keyboard';
-/**
- * !#en The type code of Acceleration event.
- * !#zh 加速器事件类型
- * @constant
- * @memberof cc.Event
- * @type {String}
- */
-cc.Event.ACCELERATION = 'acceleration';
-
-/**
  * !#en The mouse event
  * !#zh 鼠标事件类型
  * @class Event.EventMouse
@@ -235,35 +204,40 @@ JS.mixin(EventMouse.prototype, {
 /**
  * !#en The none event code of mouse event.
  * !#zh 无。
- * @constant
+ * @property NONE
+ * @static
  * @type {Number}
  */
 EventMouse.NONE = 0;
 /**
  * !#en The event type code of mouse down event.
  * !#zh 鼠标按下事件。
- * @constant
+ * @property DOWN
+ * @static
  * @type {Number}
  */
 EventMouse.DOWN = 1;
 /**
  * !#en The event type code of mouse up event.
  * !#zh 鼠标按下后释放事件。
- * @constant
+ * @property UP
+ * @static
  * @type {Number}
  */
 EventMouse.UP = 2;
 /**
  * !#en The event type code of mouse move event.
  * !#zh 鼠标移动事件。
- * @constant
+ * @property MOVE
+ * @static
  * @type {Number}
  */
 EventMouse.MOVE = 3;
 /**
  * !#en The event type code of mouse scroll event.
  * !#zh 鼠标滚轮事件。
- * @constant
+ * @property SCROLL
+ * @static
  * @type {Number}
  */
 EventMouse.SCROLL = 4;
@@ -271,7 +245,8 @@ EventMouse.SCROLL = 4;
 /**
  * !#en The tag of Mouse left button.
  * !#zh 鼠标左键的标签。
- * @constant
+ * @property BUTTON_LEFT
+ * @static
  * @type {Number}
  */
 EventMouse.BUTTON_LEFT = 0;
@@ -279,7 +254,8 @@ EventMouse.BUTTON_LEFT = 0;
 /**
  * !#en The tag of Mouse right button  (The right button number is 2 on browser).
  * !#zh 鼠标右键的标签。
- * @constant
+ * @property BUTTON_RIGHT
+ * @static
  * @type {Number}
  */
 EventMouse.BUTTON_RIGHT = 2;
@@ -287,7 +263,8 @@ EventMouse.BUTTON_RIGHT = 2;
 /**
  * !#en The tag of Mouse middle button  (The right button number is 1 on browser).
  * !#zh 鼠标中键的标签。
- * @constant
+ * @property BUTTON_MIDDLE
+ * @static
  * @type {Number}
  */
 EventMouse.BUTTON_MIDDLE = 1;
@@ -295,7 +272,8 @@ EventMouse.BUTTON_MIDDLE = 1;
 /**
  * !#en The tag of Mouse button 4.
  * !#zh 鼠标按键 4 的标签。
- * @constant
+ * @property BUTTON_4
+ * @static
  * @type {Number}
  */
 EventMouse.BUTTON_4 = 3;
@@ -303,7 +281,8 @@ EventMouse.BUTTON_4 = 3;
 /**
  * !#en The tag of Mouse button 5.
  * !#zh 鼠标按键 5 的标签。
- * @constant
+ * @property BUTTON_5
+ * @static
  * @type {Number}
  */
 EventMouse.BUTTON_5 = 4;
@@ -311,7 +290,8 @@ EventMouse.BUTTON_5 = 4;
 /**
  * !#en The tag of Mouse button 6.
  * !#zh 鼠标按键 6 的标签。
- * @constant
+ * @property BUTTON_6
+ * @static
  * @type {Number}
  */
 EventMouse.BUTTON_6 = 5;
@@ -319,7 +299,8 @@ EventMouse.BUTTON_6 = 5;
 /**
  * !#en The tag of Mouse button 7.
  * !#zh 鼠标按键 7 的标签。
- * @constant
+ * @property BUTTON_7
+ * @static
  * @type {Number}
  */
 EventMouse.BUTTON_7 = 6;
@@ -327,7 +308,8 @@ EventMouse.BUTTON_7 = 6;
 /**
  * !#en The tag of Mouse button 8.
  * !#zh 鼠标按键 8 的标签。
- * @constant
+ * @property BUTTON_8
+ * @static
  * @type {Number}
  */
 EventMouse.BUTTON_8 = 7;

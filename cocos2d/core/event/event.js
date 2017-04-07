@@ -192,10 +192,43 @@ cc.Event.prototype = {
  * !#en Code for event without type.
  * !#zh 没有类型的事件
  * @property NO_TYPE
- * @final
+ * @static
  * @type {string}
  */
 cc.Event.NO_TYPE = 'no_type';
+
+/**
+ * !#en The type code of Touch event.
+ * !#zh 触摸事件类型
+ * @property TOUCH
+ * @static
+ * @type {String}
+ */
+cc.Event.TOUCH = 'touch';
+/**
+ * !#en The type code of Mouse event.
+ * !#zh 鼠标事件类型
+ * @property MOUSE
+ * @static
+ * @type {String}
+ */
+cc.Event.MOUSE = 'mouse';
+/**
+ * !#en The type code of Keyboard event.
+ * !#zh 键盘事件类型
+ * @property KEYBOARD
+ * @static
+ * @type {String}
+ */
+cc.Event.KEYBOARD = 'keyboard';
+/**
+ * !#en The type code of Acceleration event.
+ * !#zh 加速器事件类型
+ * @property ACCELERATION
+ * @static
+ * @type {String}
+ */
+cc.Event.ACCELERATION = 'acceleration';
 
 //event phase
 /**
@@ -203,7 +236,7 @@ cc.Event.NO_TYPE = 'no_type';
  * !#zh 尚未派发事件阶段
  * @property NONE
  * @type {Number}
- * @final
+ * @static
  */
 cc.Event.NONE = 0;
 /**
@@ -213,7 +246,7 @@ cc.Event.NONE = 0;
  * !#zh 捕获阶段，包括事件目标节点之前从根节点到最后一个节点的过程。
  * @property CAPTURING_PHASE
  * @type {Number}
- * @final
+ * @static
  */
 cc.Event.CAPTURING_PHASE = 1;
 /**
@@ -223,7 +256,7 @@ cc.Event.CAPTURING_PHASE = 1;
  * !#zh 目标阶段仅包括事件目标节点。
  * @property AT_TARGET
  * @type {Number}
- * @final
+ * @static
  */
 cc.Event.AT_TARGET = 2;
 /**
@@ -233,7 +266,7 @@ cc.Event.AT_TARGET = 2;
  * !#zh 冒泡阶段， 包括回程遇到到层次根节点的任何后续节点。
  * @property BUBBLING_PHASE
  * @type {Number}
- * @final
+ * @static
  */
 cc.Event.BUBBLING_PHASE = 3;
 

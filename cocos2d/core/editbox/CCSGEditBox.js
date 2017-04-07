@@ -551,9 +551,6 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
 (function (polyfill) {
     var EditBoxImpl = function () {
-        this.__fullscreen = false;
-        this.__autoResize = false;
-        this.__rotateScreen = false;
     };
 
     var proto = EditBoxImpl.prototype = Object.create(Object.prototype);
@@ -644,7 +641,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
         window.removeEventListener('orientationchange', this.__orientationChanged);
 
-        window.scrollY = 0;
+        window.scrollTo(0, 0);
         if(this.__fullscreen) {
             cc.view.enableAutoFullScreen(true);
         }
@@ -703,7 +700,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             }
 
             if (editBox._delegate && editBox._delegate.editBoxTextChanged) {
-                if (editBox._text.toLowerCase() !== this.value.toLowerCase()) {
+                if (editBox._text !== this.value) {
                     editBox._text = this.value;
                     thisPointer._updateDomTextCases();
                     editBox._delegate.editBoxTextChanged(editBox, editBox._text);
@@ -1186,17 +1183,26 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         this._edTxt = null;
     };
 
-    //it's a dom node, may be assigned with Input or TextArea.
-    proto._edFontSize = 14;
-    proto._edFontName = 'Arial';
-    proto._textLabel = null;
-    proto._placeholderLabel = null;
-    proto._editingMode = false;
+    proto.initializeRenderCmd = function (node) {
+        this._editBox = node;
+
+        //it's a dom node, may be assigned with Input or TextArea.
+        this._edFontSize = 14;
+        this._edFontName = 'Arial';
+        this._textLabel = null;
+        this._placeholderLabel = null;
+        this._editingMode = false;
+        
+        this.__fullscreen = false;
+        this.__autoResize = false;
+        this.__rotateScreen = false;
+        this.__orientationChanged = null;
+    };
 
     //define the canvas render command
     _ccsg.EditBox.CanvasRenderCmd = function (node) {
         this._rootCtor(node);
-        this._editBox = node;
+        this.initializeRenderCmd(node);
     };
 
     var canvasRenderCmdProto = _ccsg.EditBox.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
@@ -1211,7 +1217,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     //define the webgl render command
     _ccsg.EditBox.WebGLRenderCmd = function (node) {
         this._rootCtor(node);
-        this._editBox = node;
+        this.initializeRenderCmd(node);
     };
 
     var webGLRenderCmdProto = _ccsg.EditBox.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);

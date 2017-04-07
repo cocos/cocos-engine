@@ -865,7 +865,7 @@ var Node = cc.Class({
             sgNode.onEnter = function () {
                 _ccsg.Node.prototype.onEnter.call(this);
                 if (this._entity && !this._entity._active) {
-                    cc.director.getActionManager().pauseTarget(this);
+                    cc.director._actionManager && cc.director._actionManager.pauseTarget(this);
                     cc.eventManager.pauseTarget(this);
                 }
             };
@@ -963,7 +963,10 @@ var Node = cc.Class({
     _onPreDestroy () {
         var destroyByParent = this._onPreDestroyBase();
 
-        cc.director.getActionManager().removeAllActionsFromTarget(this);
+        // Actions
+        if (cc.director._actionManager) {
+            cc.director._actionManager.removeAllActionsFromTarget(this);
+        }
 
         // Remove Node.currentHovered
         if (_currentHovered === this) {
@@ -1008,9 +1011,10 @@ var Node = cc.Class({
     },
 
     _onPostActivated (active) {
+        var actionManager = cc.director._actionManager;
         if (active) {
             // activate
-            cc.director.getActionManager().resumeTarget(this);
+            actionManager && actionManager.resumeTarget(this);
             cc.eventManager.resumeTarget(this);
             if (this._touchListener) {
                 var mask = this._touchListener.mask = _searchMaskInParent(this);
@@ -1024,7 +1028,7 @@ var Node = cc.Class({
         }
         else {
             // deactivate
-            cc.director.getActionManager().pauseTarget(this);
+            actionManager && actionManager.pauseTarget(this);
             cc.eventManager.pauseTarget(this);
         }
     },
@@ -1056,7 +1060,9 @@ var Node = cc.Class({
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
-            cc.director.getActionManager().pauseTarget(this);
+            if (cc.director._actionManager) {
+                cc.director._actionManager.pauseTarget(this);
+            }
             cc.eventManager.pauseTarget(this);
         }
 
@@ -1327,17 +1333,11 @@ var Node = cc.Class({
      * node.runAction(action.repeatForever()); // right
      */
     runAction (action) {
-        if (!this.active)
+        if (!this.active || !cc.director._actionManager)
             return;
         cc.assertID(action, 1618);
 
-        if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
-            this._retainAction(action);
-        }
-        if (CC_JSB) {
-            this._sgNode._owner = this;
-        }
-        cc.director.getActionManager().addAction(action, this, false);
+        cc.director._actionManager.addAction(action, this, false);
         return action;
     },
 
@@ -1349,7 +1349,9 @@ var Node = cc.Class({
      * node.stopAllActions();
      */
     stopAllActions () {
-        cc.director.getActionManager().removeAllActionsFromTarget(this);
+        if (cc.director._actionManager) {
+            cc.director._actionManager.removeAllActionsFromTarget(this);
+        }
     },
 
     /**
@@ -1362,7 +1364,9 @@ var Node = cc.Class({
      * node.stopAction(action);
      */
     stopAction (action) {
-        cc.director.getActionManager().removeAction(action);
+        if (cc.director._actionManager) {
+            cc.director._actionManager.removeAction(action);
+        }
     },
 
     /**
@@ -1378,7 +1382,9 @@ var Node = cc.Class({
             cc.logID(1612);
             return;
         }
-        cc.director.getActionManager().removeActionByTag(tag, this);
+        if (cc.director._actionManager) {
+            cc.director._actionManager.removeActionByTag(tag, this);
+        }
     },
 
     /**
@@ -1396,7 +1402,7 @@ var Node = cc.Class({
             cc.logID(1613);
             return null;
         }
-        return cc.director.getActionManager().getActionByTag(tag, this);
+        return cc.director._actionManager ? cc.director._actionManager.getActionByTag(tag, this) : null;
     },
 
     /**
@@ -1418,23 +1424,7 @@ var Node = cc.Class({
      * cc.log("Running Action Count: " + count);
      */
     getNumberOfRunningActions () {
-        return cc.director.getActionManager().getNumberOfRunningActionsInTarget(this);
-    },
-
-    _retainAction (action) {
-        if (CC_JSB && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
-            this._retainedActions.push(action);
-            action.retain();
-        }
-    },
-
-    _releaseAllActions () {
-        if (CC_JSB) {
-            for (var i = 0; i < this._retainedActions.length; ++i) {
-                this._retainedActions[i].release();
-            }
-            this._retainedActions.length = 0;
-        }
+        return cc.director._actionManager ? cc.director._actionManager.getNumberOfRunningActionsInTarget(this) : 0;
     },
 
     setTag (value) {
@@ -2232,7 +2222,7 @@ var Node = cc.Class({
      */
     cleanup () {
         // actions
-        cc.director.getActionManager().removeAllActionsFromTarget(this);
+        cc.director._actionManager && cc.director._actionManager.removeAllActionsFromTarget(this);
         // event
         cc.eventManager.removeListeners(this);
 
@@ -2326,12 +2316,13 @@ var Node = cc.Class({
         sgNode.setColor(this._color);
 
         // update ActionManager and EventManager because sgNode maybe changed
+        var actionManager = cc.director._actionManager;
         if (this._activeInHierarchy) {
-            cc.director.getActionManager().resumeTarget(this);
+            actionManager && actionManager.resumeTarget(this);
             cc.eventManager.resumeTarget(this);
         }
         else {
-            cc.director.getActionManager().pauseTarget(this);
+            actionManager && actionManager.pauseTarget(this);
             cc.eventManager.pauseTarget(this);
         }
     },
@@ -2369,12 +2360,13 @@ var Node = cc.Class({
 
         this._onRestoreBase();
 
+        var actionManager = cc.director._actionManager;
         if (this._activeInHierarchy) {
-            cc.director.getActionManager().resumeTarget(this);
+            actionManager && actionManager.resumeTarget(this);
             cc.eventManager.resumeTarget(this);
         }
         else {
-            cc.director.getActionManager().pauseTarget(this);
+            actionManager && actionManager.pauseTarget(this);
             cc.eventManager.pauseTarget(this);
         }
     },

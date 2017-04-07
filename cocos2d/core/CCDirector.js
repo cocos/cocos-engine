@@ -1196,7 +1196,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     setActionManager: function (actionManager) {
         if (this._actionManager !== actionManager) {
+            if (this._actionManager) {
+                this._scheduler.unscheduleUpdate(this._actionManager);
+            }
             this._actionManager = actionManager;
+            this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
     },
 

@@ -12,7 +12,7 @@ var BodyType = cc.Enum({
     Dynamic: 2,
     Animated: 3
 });
-cc.PhysicsBodyType = BodyType;
+cc.RigidBodyType = BodyType;
 
 var RayCastType = cc.Enum({
     Closest: 0,
