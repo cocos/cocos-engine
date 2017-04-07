@@ -7,15 +7,16 @@
 //
 
 #include "CCPhysicsUtils.h"
+#include "CCPhysicsDefine.h"
 
 using namespace cocos2d;
 
 namespace creator {
 
-static b2WorldManifold _worldManifold;
+static PhysicsWorldManifoldWrapper _worldManifoldWrapper;
+static PhysicsManifoldWrapper _manifoldWrapper;
 
 PhysicsUtils::PhysicsUtils()
-    : PTM_RATIO(32)
 {
     
 }
@@ -48,7 +49,7 @@ void PhysicsUtils::syncNode()
         
         const b2Vec2& pos = body->GetPosition();
         
-        Vec2 position(pos.x*PTM_RATIO, pos.y*PTM_RATIO);
+        Vec2 position(pos.x*CC_PTM_RATIO, pos.y*CC_PTM_RATIO);
         float angle = -CC_RADIANS_TO_DEGREES(body->GetAngle());
         
         if (node->getParent() && node->getParent()->getParent()) {
@@ -61,11 +62,18 @@ void PhysicsUtils::syncNode()
         }
     }
 }
-
-const b2WorldManifold* PhysicsUtils::getContactWorldManifold(b2Contact* contact)
+    
+const PhysicsWorldManifoldWrapper* PhysicsUtils::getContactWorldManifoldWrapper(b2Contact* contact)
 {
-    contact->GetWorldManifold(&_worldManifold);
-    return &_worldManifold;
+    _worldManifoldWrapper.init(contact);
+    contact->GetWorldManifold(_worldManifoldWrapper.getb2WorldManifold());
+    return &_worldManifoldWrapper;
+}
+    
+const PhysicsManifoldWrapper* PhysicsUtils::getContactManifoldWrapper(b2Contact* contact)
+{
+    _manifoldWrapper.init(contact);
+    return &_manifoldWrapper;
 }
     
 cocos2d::Vec2 PhysicsUtils::_convertToNodePosition(cocos2d::Node* node, cocos2d::Vec2& position)

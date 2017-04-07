@@ -22,44 +22,34 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __CREATOR_CCCAMERANODE_H__
-#define __CREATOR_CCCAMERANODE_H__
-
-#include "2d/CCNode.h"
-#include "renderer/CCCustomCommand.h"
-
+#include "CCPhysicsContactImpulse.h"
+#include "CCPhysicsDefine.h"
 
 namespace creator {
-    struct CameraCommand
+    PhysicsContactImpulse::PhysicsContactImpulse()
     {
-        cocos2d::Node* target;
-        cocos2d::CustomCommand* beforeVisitCommand;
-        cocos2d::CustomCommand* afterVisitCommand;
-    };
-    
-    // This class implements debug drawing callbacks that are invoked
-    // inside b2World::Step.
-    class CC_DLL CameraNode : public cocos2d::Node
+    }
+    PhysicsContactImpulse::~PhysicsContactImpulse()
     {
-    public:
-        CameraNode();
-        ~CameraNode();
-        
-        void setTransform(float a, float b, float c, float d, float tx, float ty);
-        
-        void addTarget(cocos2d::Node* target);
-        void removeTarget(cocos2d::Node* target);
-        
-    public:
-        void beforeVisit();
-        void afterVisit();
-        
-    protected:
-        cocos2d::Mat4 _mat;
-        static cocos2d::Mat4 _tempMat;
-        std::vector<CameraCommand> _commands;
-    };
+    }
     
+    void PhysicsContactImpulse::init(const b2ContactImpulse* impulse)
+    {
+        _impulse = *impulse;
+    }
+    
+    int PhysicsContactImpulse::getCount()
+    {
+        return _impulse.count;
+    }
+    
+    float32 PhysicsContactImpulse::getNormalImpulse(int index)
+    {
+        return _impulse.normalImpulses[index] * CC_PTM_RATIO;
+    }
+    float32 PhysicsContactImpulse::getTangentImpulse(int index)
+    {
+        return _impulse.tangentImpulses[index];
+    }
 }
 
-#endif

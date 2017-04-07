@@ -814,6 +814,33 @@ jsval array_of_b2Vec2_to_jsval(JSContext* cx, const std::vector<b2Vec2>& vs)
     return OBJECT_TO_JSVAL(jsret);
 }
 
+jsval b2AABB_to_jsval(JSContext* cx, const b2AABB& v)
+{
+    JS::RootedObject object(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+    if (!object) {
+        return JSVAL_VOID;
+    }
+    
+    JS::RootedObject lowerBound(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+    if (!JS_DefineProperty(cx, lowerBound, "x", v.lowerBound.x, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
+        !JS_DefineProperty(cx, lowerBound, "y", v.lowerBound.y, JSPROP_ENUMERATE | JSPROP_PERMANENT) ) {
+        return JSVAL_VOID;
+    }
+    
+    JS::RootedObject upperBound(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+    if (!JS_DefineProperty(cx, upperBound, "x", v.upperBound.x, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
+        !JS_DefineProperty(cx, upperBound, "y", v.upperBound.y, JSPROP_ENUMERATE | JSPROP_PERMANENT) ) {
+        return JSVAL_VOID;
+    }
+    
+    if (!JS_DefineProperty(cx, object, "lowerBound", lowerBound, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
+        !JS_DefineProperty(cx, object, "upperBound", upperBound, JSPROP_ENUMERATE | JSPROP_PERMANENT) ) {
+        return JSVAL_VOID;
+    }
+    
+    return OBJECT_TO_JSVAL(object);
+}
+
 
 extern JSClass  *jsb_b2Shape_class;
 extern JSObject *jsb_b2Shape_prototype;
@@ -1255,7 +1282,6 @@ bool js_box2dclasses_b2ChainShape_CreateLoop(JSContext *cx, uint32_t argc, jsval
     JS_ReportError(cx, "js_box2dclasses_b2ChainShape_CreateLoop : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
-
 
 void register_all_box2dclasses_manual(JSContext* cx, JS::HandleObject obj) {
     JS::RootedObject tmpObj(cx);

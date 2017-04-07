@@ -22,44 +22,29 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __CREATOR_CCCAMERANODE_H__
-#define __CREATOR_CCCAMERANODE_H__
+#ifndef CCPhysicsContactImpulse_h
+#define CCPhysicsContactImpulse_h
 
-#include "2d/CCNode.h"
-#include "renderer/CCCustomCommand.h"
-
+#include "Box2D/Box2D.h"
+#include "cocos2d.h"
 
 namespace creator {
-    struct CameraCommand
-    {
-        cocos2d::Node* target;
-        cocos2d::CustomCommand* beforeVisitCommand;
-        cocos2d::CustomCommand* afterVisitCommand;
-    };
-    
-    // This class implements debug drawing callbacks that are invoked
-    // inside b2World::Step.
-    class CC_DLL CameraNode : public cocos2d::Node
+    class CC_DLL PhysicsContactImpulse : public cocos2d::Ref
     {
     public:
-        CameraNode();
-        ~CameraNode();
+        PhysicsContactImpulse();
+        ~PhysicsContactImpulse();
         
-        void setTransform(float a, float b, float c, float d, float tx, float ty);
+        void init(const b2ContactImpulse* impulse);
         
-        void addTarget(cocos2d::Node* target);
-        void removeTarget(cocos2d::Node* target);
-        
-    public:
-        void beforeVisit();
-        void afterVisit();
+        int getCount();
+        float32 getNormalImpulse(int index);
+        float32 getTangentImpulse(int index);
         
     protected:
-        cocos2d::Mat4 _mat;
-        static cocos2d::Mat4 _tempMat;
-        std::vector<CameraCommand> _commands;
+        b2ContactImpulse _impulse;
     };
-    
 }
 
-#endif
+
+#endif /* CCPhysicsContactImpulse_h */

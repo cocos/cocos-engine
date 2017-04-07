@@ -22,44 +22,38 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __CREATOR_CCCAMERANODE_H__
-#define __CREATOR_CCCAMERANODE_H__
+#ifndef CCPhysicsRayCastCallback_h
+#define CCPhysicsRayCastCallback_h
 
-#include "2d/CCNode.h"
-#include "renderer/CCCustomCommand.h"
-
+#include "Box2D/Box2D.h"
+#include "cocos2d.h"
 
 namespace creator {
-    struct CameraCommand
-    {
-        cocos2d::Node* target;
-        cocos2d::CustomCommand* beforeVisitCommand;
-        cocos2d::CustomCommand* afterVisitCommand;
-    };
+
+class CC_DLL PhysicsRayCastCallback : public b2RayCastCallback
+{
+public:
+    PhysicsRayCastCallback(int type);
+    ~PhysicsRayCastCallback();
     
-    // This class implements debug drawing callbacks that are invoked
-    // inside b2World::Step.
-    class CC_DLL CameraNode : public cocos2d::Node
-    {
-    public:
-        CameraNode();
-        ~CameraNode();
-        
-        void setTransform(float a, float b, float c, float d, float tx, float ty);
-        
-        void addTarget(cocos2d::Node* target);
-        void removeTarget(cocos2d::Node* target);
-        
-    public:
-        void beforeVisit();
-        void afterVisit();
-        
-    protected:
-        cocos2d::Mat4 _mat;
-        static cocos2d::Mat4 _tempMat;
-        std::vector<CameraCommand> _commands;
-    };
+    virtual float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float32 fraction);
     
+    std::vector<b2Fixture*>& getFixtures();
+    std::vector<b2Vec2>& getPoints();
+    std::vector<b2Vec2>& getNormals();
+    std::vector<float>& getFractions();
+    
+    int getType();
+    
+protected:
+    int _rayCastType;
+    
+    std::vector<b2Fixture*> _fixtures;
+    std::vector<b2Vec2> _points;
+    std::vector<b2Vec2> _normals;
+    std::vector<float> _fractions;
+};
+
 }
 
-#endif
+#endif /* CCPhysicsRayCastCallback_h */

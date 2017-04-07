@@ -47,6 +47,7 @@ jsval b2Manifold_to_jsval(JSContext* cx, const b2Manifold* v);
 jsval b2ContactImpulse_to_jsval(JSContext* cx, const b2ContactImpulse* v);
 jsval array_of_b2Fixture_to_jsval(JSContext* cx, const std::vector<b2Fixture*>& fixtures);
 jsval array_of_b2Vec2_to_jsval(JSContext* cx, const std::vector<b2Vec2>& vs);
+jsval b2AABB_to_jsval(JSContext* cx, const b2AABB& v);
 
 void register_all_box2dclasses_manual(JSContext* cx, JS::HandleObject obj);
 

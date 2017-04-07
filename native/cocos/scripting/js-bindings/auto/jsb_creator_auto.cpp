@@ -2,11 +2,13 @@
 #include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 #include "creator/CCScale9Sprite.h"
 #include "creator/CCGraphicsNode.h"
-#include "editor-support/creator/CCPhysicsDebugDraw.h"
-#include "editor-support/creator/CCPhysicsUtils.h"
-#include "editor-support/creator/CCPhysicsContactListener.h"
-#include "editor-support/creator/CCPhysicsAABBQueryCallback.h"
-#include "editor-support/creator/CCPhysicsRayCastCallback.h"
+#include "editor-support/creator/physics/CCPhysicsDebugDraw.h"
+#include "editor-support/creator/physics/CCPhysicsUtils.h"
+#include "editor-support/creator/physics/CCPhysicsContactListener.h"
+#include "editor-support/creator/physics/CCPhysicsAABBQueryCallback.h"
+#include "editor-support/creator/physics/CCPhysicsRayCastCallback.h"
+#include "editor-support/creator/physics/CCPhysicsWorldManifoldWrapper.h"
+#include "editor-support/creator/physics/CCPhysicsContactImpulse.h"
 #include "editor-support/creator/CCCameraNode.h"
 #include "scripting/js-bindings/manual/box2d/js_bindings_box2d_manual.h"
 
@@ -1853,6 +1855,193 @@ void js_register_creator_PhysicsDebugDraw(JSContext *cx, JS::HandleObject global
     jsb_register_class<creator::PhysicsDebugDraw>(cx, jsb_creator_PhysicsDebugDraw_class, proto, parent_proto);
 }
 
+JSClass  *jsb_creator_PhysicsWorldManifoldWrapper_class;
+JSObject *jsb_creator_PhysicsWorldManifoldWrapper_prototype;
+
+bool js_creator_PhysicsWorldManifoldWrapper_getSeparation(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getSeparation : Invalid Native Object");
+    if (argc == 1) {
+        int arg0 = 0;
+        ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getSeparation : Error processing arguments");
+        double ret = cobj->getSeparation(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_PhysicsWorldManifoldWrapper_getSeparation : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_creator_PhysicsWorldManifoldWrapper_getX(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getX : Invalid Native Object");
+    if (argc == 1) {
+        int arg0 = 0;
+        ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getX : Error processing arguments");
+        double ret = cobj->getX(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_PhysicsWorldManifoldWrapper_getX : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_creator_PhysicsWorldManifoldWrapper_getY(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getY : Invalid Native Object");
+    if (argc == 1) {
+        int arg0 = 0;
+        ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getY : Error processing arguments");
+        double ret = cobj->getY(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_PhysicsWorldManifoldWrapper_getY : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_creator_PhysicsWorldManifoldWrapper_getCount(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getCount : Invalid Native Object");
+    if (argc == 0) {
+        int ret = cobj->getCount();
+        JS::RootedValue jsret(cx);
+        jsret = int32_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_PhysicsWorldManifoldWrapper_getCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_creator_PhysicsWorldManifoldWrapper_getNormalY(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getNormalY : Invalid Native Object");
+    if (argc == 0) {
+        double ret = cobj->getNormalY();
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_PhysicsWorldManifoldWrapper_getNormalY : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_creator_PhysicsWorldManifoldWrapper_getNormalX(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getNormalX : Invalid Native Object");
+    if (argc == 0) {
+        double ret = cobj->getNormalX();
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_PhysicsWorldManifoldWrapper_getNormalX : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_creator_PhysicsWorldManifoldWrapper_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    creator::PhysicsWorldManifoldWrapper* cobj = new (std::nothrow) creator::PhysicsWorldManifoldWrapper();
+
+    js_type_class_t *typeClass = js_get_type_from_native<creator::PhysicsWorldManifoldWrapper>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "creator::PhysicsWorldManifoldWrapper"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+
+
+void js_register_creator_PhysicsWorldManifoldWrapper(JSContext *cx, JS::HandleObject global) {
+    jsb_creator_PhysicsWorldManifoldWrapper_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_creator_PhysicsWorldManifoldWrapper_class->name = "PhysicsWorldManifoldWrapper";
+    jsb_creator_PhysicsWorldManifoldWrapper_class->addProperty = JS_PropertyStub;
+    jsb_creator_PhysicsWorldManifoldWrapper_class->delProperty = JS_DeletePropertyStub;
+    jsb_creator_PhysicsWorldManifoldWrapper_class->getProperty = JS_PropertyStub;
+    jsb_creator_PhysicsWorldManifoldWrapper_class->setProperty = JS_StrictPropertyStub;
+    jsb_creator_PhysicsWorldManifoldWrapper_class->enumerate = JS_EnumerateStub;
+    jsb_creator_PhysicsWorldManifoldWrapper_class->resolve = JS_ResolveStub;
+    jsb_creator_PhysicsWorldManifoldWrapper_class->convert = JS_ConvertStub;
+    jsb_creator_PhysicsWorldManifoldWrapper_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("getSeparation", js_creator_PhysicsWorldManifoldWrapper_getSeparation, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getX", js_creator_PhysicsWorldManifoldWrapper_getX, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getY", js_creator_PhysicsWorldManifoldWrapper_getY, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getCount", js_creator_PhysicsWorldManifoldWrapper_getCount, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getNormalY", js_creator_PhysicsWorldManifoldWrapper_getNormalY, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getNormalX", js_creator_PhysicsWorldManifoldWrapper_getNormalX, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    jsb_creator_PhysicsWorldManifoldWrapper_prototype = JS_InitClass(
+        cx, global,
+        JS::NullPtr(),
+        jsb_creator_PhysicsWorldManifoldWrapper_class,
+        js_creator_PhysicsWorldManifoldWrapper_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_creator_PhysicsWorldManifoldWrapper_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "PhysicsWorldManifoldWrapper"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<creator::PhysicsWorldManifoldWrapper>(cx, jsb_creator_PhysicsWorldManifoldWrapper_class, proto, JS::NullPtr());
+}
+
 JSClass  *jsb_creator_PhysicsUtils_class;
 JSObject *jsb_creator_PhysicsUtils_prototype;
 
@@ -1928,6 +2117,68 @@ bool js_creator_PhysicsUtils_removeB2Body(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_creator_PhysicsUtils_removeB2Body : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
+bool js_creator_PhysicsUtils_getContactManifoldWrapper(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        b2Contact* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (b2Contact*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsUtils_getContactManifoldWrapper : Error processing arguments");
+
+        const creator::PhysicsManifoldWrapper* ret = creator::PhysicsUtils::getContactManifoldWrapper(arg0);
+        jsval jsret = JSVAL_NULL;
+        if (ret) {
+        jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<creator::PhysicsManifoldWrapper>(cx, (creator::PhysicsManifoldWrapper*)ret));
+    } else {
+        jsret = JSVAL_NULL;
+    };
+        args.rval().set(jsret);
+        return true;
+    }
+    JS_ReportError(cx, "js_creator_PhysicsUtils_getContactManifoldWrapper : wrong number of arguments");
+    return false;
+}
+
+bool js_creator_PhysicsUtils_getContactWorldManifoldWrapper(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        b2Contact* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (b2Contact*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsUtils_getContactWorldManifoldWrapper : Error processing arguments");
+
+        const creator::PhysicsWorldManifoldWrapper* ret = creator::PhysicsUtils::getContactWorldManifoldWrapper(arg0);
+        jsval jsret = JSVAL_NULL;
+        if (ret) {
+        jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<creator::PhysicsWorldManifoldWrapper>(cx, (creator::PhysicsWorldManifoldWrapper*)ret));
+    } else {
+        jsret = JSVAL_NULL;
+    };
+        args.rval().set(jsret);
+        return true;
+    }
+    JS_ReportError(cx, "js_creator_PhysicsUtils_getContactWorldManifoldWrapper : wrong number of arguments");
+    return false;
+}
+
 bool js_creator_PhysicsUtils_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1992,7 +2243,11 @@ void js_register_creator_PhysicsUtils(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("getContactManifoldWrapper", js_creator_PhysicsUtils_getContactManifoldWrapper, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getContactWorldManifoldWrapper", js_creator_PhysicsUtils_getContactWorldManifoldWrapper, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
 
     jsb_creator_PhysicsUtils_prototype = JS_InitClass(
         cx, global,
@@ -2011,6 +2266,132 @@ void js_register_creator_PhysicsUtils(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<creator::PhysicsUtils>(cx, jsb_creator_PhysicsUtils_class, proto, JS::NullPtr());
+}
+
+JSClass  *jsb_creator_PhysicsContactImpulse_class;
+JSObject *jsb_creator_PhysicsContactImpulse_prototype;
+
+bool js_creator_PhysicsContactImpulse_getCount(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::PhysicsContactImpulse* cobj = (creator::PhysicsContactImpulse *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsContactImpulse_getCount : Invalid Native Object");
+    if (argc == 0) {
+        int ret = cobj->getCount();
+        JS::RootedValue jsret(cx);
+        jsret = int32_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_PhysicsContactImpulse_getCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_creator_PhysicsContactImpulse_getNormalImpulse(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::PhysicsContactImpulse* cobj = (creator::PhysicsContactImpulse *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsContactImpulse_getNormalImpulse : Invalid Native Object");
+    if (argc == 1) {
+        int arg0 = 0;
+        ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsContactImpulse_getNormalImpulse : Error processing arguments");
+        double ret = cobj->getNormalImpulse(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_PhysicsContactImpulse_getNormalImpulse : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_creator_PhysicsContactImpulse_getTangentImpulse(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::PhysicsContactImpulse* cobj = (creator::PhysicsContactImpulse *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsContactImpulse_getTangentImpulse : Invalid Native Object");
+    if (argc == 1) {
+        int arg0 = 0;
+        ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsContactImpulse_getTangentImpulse : Error processing arguments");
+        double ret = cobj->getTangentImpulse(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_PhysicsContactImpulse_getTangentImpulse : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_creator_PhysicsContactImpulse_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    creator::PhysicsContactImpulse* cobj = new (std::nothrow) creator::PhysicsContactImpulse();
+
+    js_type_class_t *typeClass = js_get_type_from_native<creator::PhysicsContactImpulse>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "creator::PhysicsContactImpulse"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+
+
+void js_register_creator_PhysicsContactImpulse(JSContext *cx, JS::HandleObject global) {
+    jsb_creator_PhysicsContactImpulse_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_creator_PhysicsContactImpulse_class->name = "PhysicsContactImpulse";
+    jsb_creator_PhysicsContactImpulse_class->addProperty = JS_PropertyStub;
+    jsb_creator_PhysicsContactImpulse_class->delProperty = JS_DeletePropertyStub;
+    jsb_creator_PhysicsContactImpulse_class->getProperty = JS_PropertyStub;
+    jsb_creator_PhysicsContactImpulse_class->setProperty = JS_StrictPropertyStub;
+    jsb_creator_PhysicsContactImpulse_class->enumerate = JS_EnumerateStub;
+    jsb_creator_PhysicsContactImpulse_class->resolve = JS_ResolveStub;
+    jsb_creator_PhysicsContactImpulse_class->convert = JS_ConvertStub;
+    jsb_creator_PhysicsContactImpulse_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("getCount", js_creator_PhysicsContactImpulse_getCount, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getNormalImpulse", js_creator_PhysicsContactImpulse_getNormalImpulse, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getTangentImpulse", js_creator_PhysicsContactImpulse_getTangentImpulse, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    jsb_creator_PhysicsContactImpulse_prototype = JS_InitClass(
+        cx, global,
+        JS::NullPtr(),
+        jsb_creator_PhysicsContactImpulse_class,
+        js_creator_PhysicsContactImpulse_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_creator_PhysicsContactImpulse_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "PhysicsContactImpulse"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<creator::PhysicsContactImpulse>(cx, jsb_creator_PhysicsContactImpulse_class, proto, JS::NullPtr());
 }
 
 JSClass  *jsb_creator_PhysicsContactListener_class;
@@ -2593,8 +2974,10 @@ void register_all_creator(JSContext* cx, JS::HandleObject obj) {
     js_register_creator_PhysicsRayCastCallback(cx, ns);
     js_register_creator_PhysicsDebugDraw(cx, ns);
     js_register_creator_PhysicsContactListener(cx, ns);
+    js_register_creator_PhysicsContactImpulse(cx, ns);
     js_register_creator_PhysicsUtils(cx, ns);
     js_register_creator_Scale9SpriteV2(cx, ns);
+    js_register_creator_PhysicsWorldManifoldWrapper(cx, ns);
     js_register_creator_GraphicsNode(cx, ns);
     js_register_creator_PhysicsAABBQueryCallback(cx, ns);
     js_register_creator_CameraNode(cx, ns);

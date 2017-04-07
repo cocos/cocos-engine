@@ -22,44 +22,37 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __CREATOR_CCCAMERANODE_H__
-#define __CREATOR_CCCAMERANODE_H__
+#ifndef CCPhysicsManifoldWrapper_h
+#define CCPhysicsManifoldWrapper_h
 
-#include "2d/CCNode.h"
-#include "renderer/CCCustomCommand.h"
-
+#include "Box2D/Box2D.h"
+#include "cocos2d.h"
 
 namespace creator {
-    struct CameraCommand
-    {
-        cocos2d::Node* target;
-        cocos2d::CustomCommand* beforeVisitCommand;
-        cocos2d::CustomCommand* afterVisitCommand;
-    };
-    
-    // This class implements debug drawing callbacks that are invoked
-    // inside b2World::Step.
-    class CC_DLL CameraNode : public cocos2d::Node
+    class CC_DLL PhysicsManifoldWrapper : public cocos2d::Ref
     {
     public:
-        CameraNode();
-        ~CameraNode();
+        PhysicsManifoldWrapper();
+        ~PhysicsManifoldWrapper();
         
-        void setTransform(float a, float b, float c, float d, float tx, float ty);
+        void init(b2Contact* contact);
         
-        void addTarget(cocos2d::Node* target);
-        void removeTarget(cocos2d::Node* target);
-        
-    public:
-        void beforeVisit();
-        void afterVisit();
+        int getCount();
+        int getType();
+        float32 getX(int index);
+        float32 getY(int index);
+        float32 getNormalImpulse(int index);
+        float32 getTangentImpulse(int index);
+        float32 getLocalNormalX();
+        float32 getLocalNormalY();
+        float32 getLocalPointX();
+        float32 getLocalPointY();
         
     protected:
-        cocos2d::Mat4 _mat;
-        static cocos2d::Mat4 _tempMat;
-        std::vector<CameraCommand> _commands;
+        b2Contact* _contact;
+        b2Manifold* _manifold;
     };
-    
 }
 
-#endif
+
+#endif /* CCPhysicsWorldManifoldWrapper_h */

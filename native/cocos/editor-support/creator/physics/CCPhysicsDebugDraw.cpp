@@ -1,19 +1,13 @@
 #include "CCPhysicsDebugDraw.h"
-#include "CCGL.h"
+#include "CCPhysicsDefine.h"
 
 #include "cocos2d.h"
-
-#include <cstdio>
-#include <cstdarg>
-
-#include <cstring>
 
 using namespace cocos2d;
 
 namespace creator {
     
-PhysicsDebugDraw::PhysicsDebugDraw( float32 ratio )
-: mRatio( ratio )
+PhysicsDebugDraw::PhysicsDebugDraw()
 {
     _drawer = GraphicsNode::create();
     _drawer->retain();
@@ -47,9 +41,9 @@ void PhysicsDebugDraw::DrawPolygon(const b2Vec2* old_vertices, int vertexCount, 
     
     for( int i=0;i<vertexCount;i++) {
         if (i == 0)
-            _drawer->moveTo(old_vertices[i].x * mRatio, old_vertices[i].y * mRatio);
+            _drawer->moveTo(old_vertices[i].x * CC_PTM_RATIO, old_vertices[i].y * CC_PTM_RATIO);
         else {
-            _drawer->lineTo(old_vertices[i].x * mRatio, old_vertices[i].y * mRatio);
+            _drawer->lineTo(old_vertices[i].x * CC_PTM_RATIO, old_vertices[i].y * CC_PTM_RATIO);
         }
     }
     _drawer->close();
@@ -63,9 +57,9 @@ void PhysicsDebugDraw::DrawSolidPolygon(const b2Vec2* old_vertices, int vertexCo
     
     for( int i=0;i<vertexCount;i++) {
         if (i == 0)
-            _drawer->moveTo(old_vertices[i].x * mRatio, old_vertices[i].y * mRatio);
+            _drawer->moveTo(old_vertices[i].x * CC_PTM_RATIO, old_vertices[i].y * CC_PTM_RATIO);
         else {
-            _drawer->lineTo(old_vertices[i].x * mRatio, old_vertices[i].y * mRatio);
+            _drawer->lineTo(old_vertices[i].x * CC_PTM_RATIO, old_vertices[i].y * CC_PTM_RATIO);
         }
     }
     _drawer->close();
@@ -77,7 +71,7 @@ void PhysicsDebugDraw::DrawCircle(const b2Vec2& center, float32 radius, const b2
     Color4F c(color.r, color.g, color.b, /*color.a*/0.5);
     _drawer->setStrokeColor(c);
     
-    _drawer->circle(center.x * mRatio, center.y * mRatio, radius * mRatio);
+    _drawer->circle(center.x * CC_PTM_RATIO, center.y * CC_PTM_RATIO, radius * CC_PTM_RATIO);
     _drawer->stroke();
 }
 
@@ -86,7 +80,7 @@ void PhysicsDebugDraw::DrawSolidCircle(const b2Vec2& center, float32 radius, con
     Color4F c(color.r, color.g, color.b, /*color.a*/0.5);
     _drawer->setFillColor(c);
     
-    _drawer->circle(center.x * mRatio, center.y * mRatio, radius * mRatio);
+    _drawer->circle(center.x * CC_PTM_RATIO, center.y * CC_PTM_RATIO, radius * CC_PTM_RATIO);
     _drawer->fill();
 }
 
@@ -95,8 +89,8 @@ void PhysicsDebugDraw::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2C
     Color4F c(color.r, color.g, color.b, /*color.a*/0.5);
     _drawer->setStrokeColor(c);
     
-    _drawer->moveTo(p1.x * mRatio, p1.y * mRatio);
-    _drawer->lineTo(p2.x * mRatio, p2.y * mRatio);
+    _drawer->moveTo(p1.x * CC_PTM_RATIO, p1.y * CC_PTM_RATIO);
+    _drawer->lineTo(p2.x * CC_PTM_RATIO, p2.y * CC_PTM_RATIO);
     _drawer->stroke();
 }
 

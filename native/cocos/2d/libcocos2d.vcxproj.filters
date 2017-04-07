@@ -172,6 +172,9 @@
     <Filter Include="extension\AssetManager">
       <UniqueIdentifier>{c1b7ac70-432f-4d5b-bd3b-5ff5fce3436b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="creator\physics">
+      <UniqueIdentifier>{7ea5175c-acae-4b2f-ae6e-50daf6131b12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\external\sources\xxhash\xxhash.c">
@@ -1091,27 +1094,36 @@
     <ClCompile Include="..\editor-support\creator\Triangulate.cpp">
       <Filter>creator</Filter>
     </ClCompile>
-    <ClCompile Include="..\editor-support\creator\CCPhysicsDebugDraw.cpp">
-      <Filter>creator</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\creator\CCPhysicsUtils.cpp">
-      <Filter>creator</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\creator\CCPhysicsAABBQueryCallback.cpp">
-      <Filter>creator</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\creator\CCPhysicsContactListener.cpp">
-      <Filter>creator</Filter>
-    </ClCompile>
-    <ClCompile Include="..\editor-support\creator\CCPhysicsRayCastCallback.cpp">
-      <Filter>creator</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\extensions\assets-manager\AssetsManagerEx.cpp" />
     <ClCompile Include="..\..\extensions\assets-manager\CCEventAssetsManagerEx.cpp" />
     <ClCompile Include="..\..\extensions\assets-manager\CCEventListenerAssetsManagerEx.cpp" />
     <ClCompile Include="..\..\extensions\assets-manager\Manifest.cpp" />
     <ClCompile Include="..\editor-support\creator\CCCameraNode.cpp">
       <Filter>creator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\editor-support\creator\physics\CCPhysicsAABBQueryCallback.cpp">
+      <Filter>creator\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\editor-support\creator\physics\CCPhysicsContactImpulse.cpp">
+      <Filter>creator\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\editor-support\creator\physics\CCPhysicsContactListener.cpp">
+      <Filter>creator\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\editor-support\creator\physics\CCPhysicsDebugDraw.cpp">
+      <Filter>creator\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\editor-support\creator\physics\CCPhysicsManifoldWrapper.cpp">
+      <Filter>creator\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\editor-support\creator\physics\CCPhysicsRayCastCallback.cpp">
+      <Filter>creator\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\editor-support\creator\physics\CCPhysicsUtils.cpp">
+      <Filter>creator\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\editor-support\creator\physics\CCPhysicsWorldManifoldWrapper.cpp">
+      <Filter>creator\physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2107,21 +2119,6 @@
     <ClInclude Include="..\editor-support\creator\Triangulate.h">
       <Filter>creator</Filter>
     </ClInclude>
-    <ClInclude Include="..\editor-support\creator\CCPhysicsAABBQueryCallback.h">
-      <Filter>creator</Filter>
-    </ClInclude>
-    <ClInclude Include="..\editor-support\creator\CCPhysicsContactListener.h">
-      <Filter>creator</Filter>
-    </ClInclude>
-    <ClInclude Include="..\editor-support\creator\CCPhysicsDebugDraw.h">
-      <Filter>creator</Filter>
-    </ClInclude>
-    <ClInclude Include="..\editor-support\creator\CCPhysicsRayCastCallback.h">
-      <Filter>creator</Filter>
-    </ClInclude>
-    <ClInclude Include="..\editor-support\creator\CCPhysicsUtils.h">
-      <Filter>creator</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\extensions\assets-manager\AssetsManagerEx.h" />
     <ClInclude Include="..\..\extensions\assets-manager\CCEventAssetsManagerEx.h" />
     <ClInclude Include="..\..\extensions\assets-manager\CCEventListenerAssetsManagerEx.h" />
@@ -2147,6 +2144,33 @@
     <ClInclude Include="..\ui\UITabControl.h" />
     <ClInclude Include="..\editor-support\creator\CCCameraNode.h">
       <Filter>creator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\physics\CCPhysicsAABBQueryCallback.h">
+      <Filter>creator\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\physics\CCPhysicsContactImpulse.h">
+      <Filter>creator\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\physics\CCPhysicsContactListener.h">
+      <Filter>creator\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\physics\CCPhysicsDebugDraw.h">
+      <Filter>creator\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\physics\CCPhysicsDefine.h">
+      <Filter>creator\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\physics\CCPhysicsManifoldWrapper.h">
+      <Filter>creator\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\physics\CCPhysicsRayCastCallback.h">
+      <Filter>creator\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\physics\CCPhysicsUtils.h">
+      <Filter>creator\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\physics\CCPhysicsWorldManifoldWrapper.h">
+      <Filter>creator\physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

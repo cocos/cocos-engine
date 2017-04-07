@@ -8,11 +8,14 @@ LOCAL_MODULE_FILENAME := libcreator
 LOCAL_SRC_FILES := CCScale9Sprite.cpp \
     CCGraphicsNode.cpp \
     Triangulate.cpp \
-    CCPhysicsDebugDraw.cpp \
-    CCPhysicsUtils.cpp \
-    CCPhysicsAABBQueryCallback.cpp \
-    CCPhysicsContactListener.cpp \
-    CCPhysicsRayCastCallback.cpp \
+    physics/CCPhysicsDebugDraw.cpp \
+    physics/CCPhysicsUtils.cpp \
+    physics/CCPhysicsAABBQueryCallback.cpp \
+    physics/CCPhysicsContactListener.cpp \
+    physics/CCPhysicsRayCastCallback.cpp \
+    physics/CCPhysicsManifoldWrapper.cpp \
+    physics/CCPhysicsWorldManifoldWrapper.cpp \
+    physics/CCPhysicsContactImpulse.cpp \
     CCCameraNode.cpp
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/..
