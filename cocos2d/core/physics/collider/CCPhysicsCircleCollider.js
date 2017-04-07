@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 
 var PhysicsCircleCollider = cc.Class({
     name: 'cc.PhysicsCircleCollider',
@@ -38,7 +38,7 @@ var PhysicsCircleCollider = cc.Class({
 
     _createShape: function (scale) {
         var shape = new b2.CircleShape();
-        shape.m_radius = this.radius / CC_PTM_RATIO * scale.x;
+        shape.m_radius = this.radius / PTM_RATIO * scale.x;
         return shape;
     }
 });

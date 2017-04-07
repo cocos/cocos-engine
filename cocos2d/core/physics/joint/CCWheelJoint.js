@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
-var CC_TO_PHYSICS_ANGLE = cc.PhysicsManager.CC_TO_PHYSICS_ANGLE;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
+var ANGLE_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
 
 var WheelJoint = cc.Class({
     name: 'cc.WheelJoint',
@@ -67,7 +67,7 @@ var WheelJoint = cc.Class({
             set: function (value) {
                 this._motorSpeed = value;
                 if (this._joint) {
-                    this._joint.SetMotorSpeed(value * CC_TO_PHYSICS_ANGLE);
+                    this._joint.SetMotorSpeed(value * ANGLE_TO_PHYSICS_ANGLE);
                 }
             }
         },
@@ -111,13 +111,13 @@ var WheelJoint = cc.Class({
 
     _createJointDef: function () {
         var def = new b2.WheelJointDef();
-        def.localAnchorA = new b2.Vec2(this.anchor.x/CC_PTM_RATIO, this.anchor.y/CC_PTM_RATIO);
-        def.localAnchorB = new b2.Vec2(this.connectedAnchor.x/CC_PTM_RATIO, this.connectedAnchor.y/CC_PTM_RATIO);
+        def.localAnchorA = new b2.Vec2(this.anchor.x/PTM_RATIO, this.anchor.y/PTM_RATIO);
+        def.localAnchorB = new b2.Vec2(this.connectedAnchor.x/PTM_RATIO, this.connectedAnchor.y/PTM_RATIO);
         
         def.localAxisA = new b2.Vec2(this.localAxisA.x, this.localAxisA.y);
         
         def.maxMotorTorque = this.maxMotorTorque;
-        def.motorSpeed = this.motorSpeed * CC_TO_PHYSICS_ANGLE;
+        def.motorSpeed = this.motorSpeed * ANGLE_TO_PHYSICS_ANGLE;
         def.enableMotor = this.enableMotor;
 
         def.dampingRatio = this.dampingRatio;

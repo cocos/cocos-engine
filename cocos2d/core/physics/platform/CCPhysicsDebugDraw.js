@@ -1,4 +1,4 @@
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 
 var PhysicsDebugDraw = cc.Class({
     name: 'cc.PhysicsDebugDraw',
@@ -27,9 +27,9 @@ var PhysicsDebugDraw = cc.Class({
         
         for (var i=0; i<vertexCount; i++) {
             if (i === 0)
-                drawer.moveTo(vertices[i].x * CC_PTM_RATIO, vertices[i].y * CC_PTM_RATIO);
+                drawer.moveTo(vertices[i].x * PTM_RATIO, vertices[i].y * PTM_RATIO);
             else {
-                drawer.lineTo(vertices[i].x * CC_PTM_RATIO, vertices[i].y * CC_PTM_RATIO);
+                drawer.lineTo(vertices[i].x * PTM_RATIO, vertices[i].y * PTM_RATIO);
             }
         }
 
@@ -49,7 +49,7 @@ var PhysicsDebugDraw = cc.Class({
     },
 
     _DrawCircle: function (center, radius) {
-        this._drawer.circle(center.x * CC_PTM_RATIO, center.y * CC_PTM_RATIO, radius * CC_PTM_RATIO);
+        this._drawer.circle(center.x * PTM_RATIO, center.y * PTM_RATIO, radius * PTM_RATIO);
     },
 
     DrawCircle: function (center, radius, color) {
@@ -69,13 +69,13 @@ var PhysicsDebugDraw = cc.Class({
 
         if (p1.x === p2.x && p1.y === p2.y) {
             this._applyFillColor(color);
-            this._DrawCircle(p1, 2/CC_PTM_RATIO);
+            this._DrawCircle(p1, 2/PTM_RATIO);
             drawer.fill();
             return;
         }
         this._applyStrokeColor(color);
-        drawer.moveTo(p1.x * CC_PTM_RATIO, p1.y * CC_PTM_RATIO);
-        drawer.lineTo(p2.x * CC_PTM_RATIO, p2.y * CC_PTM_RATIO);
+        drawer.moveTo(p1.x * PTM_RATIO, p1.y * PTM_RATIO);
+        drawer.lineTo(p2.x * PTM_RATIO, p2.y * PTM_RATIO);
         drawer.stroke();   
     },
 

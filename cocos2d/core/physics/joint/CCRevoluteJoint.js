@@ -23,9 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
-var CC_TO_PHYSICS_ANGLE = cc.PhysicsManager.CC_TO_PHYSICS_ANGLE;
-var PHYSICS_TO_CC_ANGLE = cc.PhysicsManager.PHYSICS_TO_CC_ANGLE;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
+var ANGLE_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
+var PHYSICS_ANGLE_TO_ANGLE = require('../CCPhysicsTypes').PHYSICS_ANGLE_TO_ANGLE;
 
 var RevoluteJoint = cc.Class({
     name: 'cc.RevoluteJoint',
@@ -68,7 +68,7 @@ var RevoluteJoint = cc.Class({
             set: function (value) {
                 this._motorSpeed = value;
                 if (this._joint) {
-                    this._joint.SetMotorSpeed(value * CC_TO_PHYSICS_ANGLE);
+                    this._joint.SetMotorSpeed(value * ANGLE_TO_PHYSICS_ANGLE);
                 }
             }
         },
@@ -101,7 +101,7 @@ var RevoluteJoint = cc.Class({
             visible: false,
             get: function () {
                 if (this._joint) {
-                    return this._joint.GetJointAngle() * PHYSICS_TO_CC_ANGLE;
+                    return this._joint.GetJointAngle() * PHYSICS_ANGLE_TO_ANGLE;
                 }
                 return 0;
             }
@@ -110,19 +110,19 @@ var RevoluteJoint = cc.Class({
 
     _createJointDef: function () {
         var def = new b2.RevoluteJointDef();
-        def.localAnchorA = new b2.Vec2(this.anchor.x/CC_PTM_RATIO, this.anchor.y/CC_PTM_RATIO);
-        def.localAnchorB = new b2.Vec2(this.connectedAnchor.x/CC_PTM_RATIO, this.connectedAnchor.y/CC_PTM_RATIO);
+        def.localAnchorA = new b2.Vec2(this.anchor.x/PTM_RATIO, this.anchor.y/PTM_RATIO);
+        def.localAnchorB = new b2.Vec2(this.connectedAnchor.x/PTM_RATIO, this.connectedAnchor.y/PTM_RATIO);
 
         // cocos degree 0 is to right, and box2d degree 0 is to up.
-        def.lowerAngle = (this.upperAngle + 90) * CC_TO_PHYSICS_ANGLE;
-        def.upperAngle = (this.lowerAngle + 90) * CC_TO_PHYSICS_ANGLE;
+        def.lowerAngle = (this.upperAngle + 90) * ANGLE_TO_PHYSICS_ANGLE;
+        def.upperAngle = (this.lowerAngle + 90) * ANGLE_TO_PHYSICS_ANGLE;
         
         def.maxMotorTorque = this.maxMotorTorque;
-        def.motorSpeed = this.motorSpeed * CC_TO_PHYSICS_ANGLE;
+        def.motorSpeed = this.motorSpeed * ANGLE_TO_PHYSICS_ANGLE;
         def.enableLimit = this.enableLimit;
         def.enableMotor = this.enableMotor;
 
-        def.referenceAngle = this.referenceAngle * CC_TO_PHYSICS_ANGLE;
+        def.referenceAngle = this.referenceAngle * ANGLE_TO_PHYSICS_ANGLE;
 
         return def;
     }

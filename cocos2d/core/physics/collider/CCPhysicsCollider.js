@@ -23,13 +23,16 @@
  THE SOFTWARE.
  ****************************************************************************/
  
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var getWorldScale = require('../utils').getWorldScale;
 
 function PhysicsCollider () {
     this._fixtures = [];
     this._shapes = [];
     this._inited = false;
+    this._rect = cc.rect();
+    
+    this.body = null;
 }
 
 PhysicsCollider.prototype.onDisable = function () {
@@ -55,12 +58,11 @@ PhysicsCollider.prototype.getAABB = function () {
     var minX = MAX, minY = MAX;
     var maxX = -MAX, maxY = -MAX;
     
-    var manager = cc.director.getPhysicsManager();
     var fixtures = this._fixtures;
     for (var i = 0; i < fixtures.length; i++) {
         var fixture = fixtures[i];
 
-        var count = fixture.m_proxyCount;
+        var count = fixture.GetShape().GetChildCount();
         for (var j = 0; j < count; j++) {
             var aabb = fixture.GetAABB(j);
             if (aabb.lowerBound.x < minX) minX = aabb.lowerBound.x;
@@ -68,16 +70,20 @@ PhysicsCollider.prototype.getAABB = function () {
             if (aabb.upperBound.x > maxX) maxX = aabb.upperBound.x;
             if (aabb.upperBound.y > maxY) maxY = aabb.upperBound.y;
         }
-
-        manager._registerContactFixture(fixture);
     }
 
-    minX *= CC_PTM_RATIO;
-    minY *= CC_PTM_RATIO;
-    maxX *= CC_PTM_RATIO;
-    maxY *= CC_PTM_RATIO;
+    minX *= PTM_RATIO;
+    minY *= PTM_RATIO;
+    maxX *= PTM_RATIO;
+    maxY *= PTM_RATIO;
 
-    return cc.rect(minX, minY, maxX-minX, maxY-minY);
+    var r = this._rect;
+    r.x = minX;
+    r.y = minY;
+    r.width = maxX - minX;
+    r.height = maxY - minY;
+
+    return r;
 };
 
 PhysicsCollider.prototype._getFixtureIndex = function (fixture) {
@@ -100,15 +106,10 @@ PhysicsCollider.prototype.__init = function () {
     var innerBody = body._getBody();
     if (!innerBody) return;
 
-    var transform;
-    if (body.node !== this.node) {
-        transform = cc.affineTransformConcat( this.node.getNodeToWorldTransformAR(), cc.affineTransformInvert(body.node.getNodeToWorldTransformAR()) );
-    }
-
     var node = body.node;
     var scale = getWorldScale(node);
 
-    var shapes = scale.x === 0 && scale.y === 0 ? [] : this._createShape(scale, transform);
+    var shapes = scale.x === 0 && scale.y === 0 ? [] : this._createShape(scale);
 
     if (!(shapes instanceof Array)) {
         shapes = [shapes];
@@ -162,10 +163,13 @@ PhysicsCollider.prototype.__destroy = function () {
 
     var fixtures = this._fixtures;
     var body = this.body._getBody();
+    var manager = cc.director.getPhysicsManager();
 
     for (var i = fixtures.length-1; i >=0 ; i--) {
         var fixture = fixtures[i];
         fixture.collider = null;
+
+        manager._unregisterContactFixture(fixture);
 
         if (body) {
             body.DestroyFixture(fixture);
@@ -187,11 +191,6 @@ PhysicsCollider.properties = {
     _sensor: false,
     _friction: 0.2,
     _restitution: 0,
-
-    body: {
-        default: null,
-        type: cc.RigidBody
-    },
 
     density: {
         get: function () {

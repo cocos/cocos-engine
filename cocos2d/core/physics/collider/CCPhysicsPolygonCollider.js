@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
  
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var PolygonSeprator = require('../CCPolygonSeprator');
 
 var PhysicsPolygonCollider = cc.Class({
@@ -38,7 +38,7 @@ var PhysicsPolygonCollider = cc.Class({
 
     properties: cc.PhysicsCollider.properties,
 
-    _createShape: function (scale, transform) {
+    _createShape: function (scale) {
         var shapes = [];
 
         var points = this.points;
@@ -56,16 +56,19 @@ var PhysicsPolygonCollider = cc.Class({
                 var poly = polys[i];
 
                 var shape = null, vertices = [];
+                var firstVertice;
                 
                 for (var j = 0, l = poly.length; j < l; j++) {
                     if (!shape) {
                         shape = new b2.PolygonShape();
                     }
                     var p = poly[j];
-                    if (transform) {
-                        p = cc.pointApplyAffineTransform(p, transform);
+                    var v = new b2.Vec2(p.x/PTM_RATIO*scale.x, p.y/PTM_RATIO*scale.y);
+                    vertices.push( v );
+
+                    if (!firstVertice) {
+                        firstVertice = v;
                     }
-                    vertices.push( new b2.Vec2(p.x/CC_PTM_RATIO*scale.x, p.y/CC_PTM_RATIO*scale.y) );
 
                     if (vertices.length === b2.maxPolygonVertices) {
                         shape.Set(vertices, vertices.length);
@@ -74,7 +77,7 @@ var PhysicsPolygonCollider = cc.Class({
                         shape = null;
 
                         if (j < l - 1) {
-                            vertices = [vertices[0], vertices[j]];
+                            vertices = [firstVertice, vertices[vertices.length - 1]];
                         }
                     }
                 }

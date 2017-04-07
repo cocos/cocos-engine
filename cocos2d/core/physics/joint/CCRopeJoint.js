@@ -23,7 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
+
 var RopeJoint = cc.Class({
     name: 'cc.RopeJoint',
     extends: cc.Joint,
@@ -55,9 +56,9 @@ var RopeJoint = cc.Class({
 
     _createJointDef: function () {
         var def = new b2.RopeJointDef();
-        def.localAnchorA = new b2.Vec2(this.anchor.x/CC_PTM_RATIO, this.anchor.y/CC_PTM_RATIO);
-        def.localAnchorB = new b2.Vec2(this.connectedAnchor.x/CC_PTM_RATIO, this.connectedAnchor.y/CC_PTM_RATIO);
-        def.maxLength = this.maxLength/CC_PTM_RATIO;
+        def.localAnchorA = new b2.Vec2(this.anchor.x/PTM_RATIO, this.anchor.y/PTM_RATIO);
+        def.localAnchorB = new b2.Vec2(this.connectedAnchor.x/PTM_RATIO, this.connectedAnchor.y/PTM_RATIO);
+        def.maxLength = this.maxLength/PTM_RATIO;
 
         return def;
     }

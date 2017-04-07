@@ -24,5 +24,9 @@ cc.RayCastType = RayCastType;
 module.exports = {
     BodyType: BodyType,
     ContactType: ContactType,
-    RayCastType: RayCastType
+    RayCastType: RayCastType,
+
+    PTM_RATIO: 32,
+    ANGLE_TO_PHYSICS_ANGLE: -Math.PI / 180,
+    PHYSICS_ANGLE_TO_ANGLE: -180 / Math.PI,
 };

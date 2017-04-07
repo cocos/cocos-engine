@@ -23,13 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = 32;
-var CC_TO_PHYSICS_ANGLE = -Math.PI / 180;
-var PHYSICS_TO_CC_ANGLE = -180 / Math.PI;
-
 var ContactType = require('./CCPhysicsTypes').ContactType;
 var BodyType = require('./CCPhysicsTypes').BodyType;
 var RayCastType = require('./CCPhysicsTypes').RayCastType;
+
+var PTM_RATIO = require('./CCPhysicsTypes').PTM_RATIO;
+var ANGLE_TO_PHYSICS_ANGLE = require('./CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
+var PHYSICS_ANGLE_TO_ANGLE = require('./CCPhysicsTypes').PHYSICS_ANGLE_TO_ANGLE;
 
 var STEP_DT = 1/60;
 
@@ -74,14 +74,15 @@ var PhysicsManager = cc.Class({
         this.emit('before-step');
         
         this._steping = true;
+        var timeStep = 1/cc.game.config['frameRate'];
 
         // http://new.gafferongames.com/post/fix_your_timestep/
         // will be super slow
         
         // this._accumulator += dt;
-        // while (this._accumulator > STEP_DT) {
-            world.Step(STEP_DT, 10, 10);
-        //     this._accumulator -= STEP_DT;
+        // while (this._accumulator > timeStep) {
+            world.Step(timeStep, 10, 10);
+        //     this._accumulator -= timeStep;
         // }
 
         world.DrawDebugData();
@@ -100,10 +101,10 @@ var PhysicsManager = cc.Class({
     },
 
     testPoint: function (point) {
-        point = new b2.Vec2(point.x/CC_PTM_RATIO, point.y/CC_PTM_RATIO);
+        point = new b2.Vec2(point.x/PTM_RATIO, point.y/PTM_RATIO);
 
         var aabb = new b2.AABB();
-        var d = new b2.Vec2(0.2/CC_PTM_RATIO, 0.2/CC_PTM_RATIO);
+        var d = new b2.Vec2(0.2/PTM_RATIO, 0.2/PTM_RATIO);
         aabb.lowerBound = new b2.Vec2(point.x-d.x, point.y-d.y);
         aabb.upperBound = new b2.Vec2(point.x+d.x, point.y+d.y);
 
@@ -120,8 +121,8 @@ var PhysicsManager = cc.Class({
 
     testAABB: function (rect) {
         var aabb = new b2.AABB();
-        aabb.lowerBound = new b2.Vec2(rect.xMin/CC_PTM_RATIO, rect.yMin/CC_PTM_RATIO);
-        aabb.upperBound = new b2.Vec2(rect.xMax/CC_PTM_RATIO, rect.yMax/CC_PTM_RATIO);
+        aabb.lowerBound = new b2.Vec2(rect.xMin/PTM_RATIO, rect.yMin/PTM_RATIO);
+        aabb.upperBound = new b2.Vec2(rect.xMax/PTM_RATIO, rect.yMax/PTM_RATIO);
 
         var callback = new cc.PhysicsAABBQueryCallback();
         this._world.QueryAABB(callback, aabb);
@@ -141,8 +142,8 @@ var PhysicsManager = cc.Class({
 
         type = type || RayCastType.Closest;
 
-        p1 = new b2.Vec2(p1.x/CC_PTM_RATIO, p1.y/CC_PTM_RATIO);
-        p2 = new b2.Vec2(p2.x/CC_PTM_RATIO, p2.y/CC_PTM_RATIO);
+        p1 = new b2.Vec2(p1.x/PTM_RATIO, p1.y/PTM_RATIO);
+        p2 = new b2.Vec2(p2.x/PTM_RATIO, p2.y/PTM_RATIO);
 
         var callback = new cc.PhysicsRayCastCallback(type);
         this._world.RayCast(callback, p1, p2);
@@ -160,7 +161,7 @@ var PhysicsManager = cc.Class({
                 results.push({
                     collider: collider,
                     fixtureIndex: collider._getFixtureIndex(fixture),
-                    point: cc.v2(points[i].x*CC_PTM_RATIO, points[i].y*CC_PTM_RATIO),
+                    point: cc.v2(points[i].x*PTM_RATIO, points[i].y*PTM_RATIO),
                     normal: cc.v2(normals[i]),
                     fraction: fractions[i]
                 });
@@ -178,6 +179,12 @@ var PhysicsManager = cc.Class({
             bodies[i].syncPosition();
         }
     },
+    syncRotation: function () {
+        var bodies = this._bodies;
+        for (var i = 0; i < bodies.length; i++) {
+            bodies[i].syncRotation();
+        }
+    },    
 
     attachDebugDrawToCamera: function (camera) {
         if (!this._debugDrawer) return;
@@ -242,10 +249,10 @@ var PhysicsManager = cc.Class({
         if (this._contactListener) return;
 
         var listener = new cc.PhysicsContactListener();
-        listener.setBeginContact(this._onBeginContact.bind(this));
-        listener.setEndContact(this._onEndContact.bind(this));
-        listener.setPreSolve(this._onPreSolve.bind(this));
-        listener.setPostSolve(this._onPostSolve.bind(this));
+        listener.setBeginContact(this._onBeginContact);
+        listener.setEndContact(this._onEndContact);
+        listener.setPreSolve(this._onPreSolve);
+        listener.setPostSolve(this._onPostSolve);
         this._world.SetContactListener(listener);
 
         this._contactListener = listener;
@@ -289,27 +296,27 @@ var PhysicsManager = cc.Class({
         this._debugDrawer.AddDrawerToNode( cc.director.getScene()._sgNode );
     },
 
-    _onBeginContact: function (contact) {
-        var c = new cc.PhysicsContact(contact);
-        contact._contact = c;
+    _onBeginContact: function (b2contact) {
+        var c = cc.PhysicsContact.get(b2contact);
         c.emit(ContactType.BEGIN_CONTACT);
 
         if (c.disabled) {
-            contact.SetEnabled(false);
+            b2contact.SetEnabled(false);
         }
     },
 
-    _onEndContact: function (contact) {
-        var c = contact._contact;
+    _onEndContact: function (b2contact) {
+        var c = b2contact._contact;
         if (!c) {
             return;
         }
         c.emit(ContactType.END_CONTACT);
-        contact._contact = null;
+        
+        cc.PhysicsContact.put(b2contact);
     },
 
-    _onPreSolve: function (contact) {
-        var c = contact._contact;
+    _onPreSolve: function (b2contact) {
+        var c = b2contact._contact;
         if (!c) {
             return;
         }
@@ -317,16 +324,20 @@ var PhysicsManager = cc.Class({
         c.emit(ContactType.PRE_SOLVE);
 
         if (c.disabled) {
-            contact.SetEnabled(false);
+            b2contact.SetEnabled(false);
         }
     },
 
-    _onPostSolve: function (contact, impulse) {
-        var c = contact._contact;
+    _onPostSolve: function (b2contact, impulse) {
+        var c = b2contact._contact;
         if (!c) {
             return;
         }
-        c.emit(ContactType.POST_SOLVE, impulse);
+
+        // impulse only survive during post sole callback
+        c._impulse = impulse;
+        c.emit(ContactType.POST_SOLVE);
+        c._impulse = null;
     }
 });
 
@@ -356,7 +367,7 @@ cc.js.getset(PhysicsManager.prototype, 'debugDrawFlags',
     function (value) {
         if (value && !this._debugDrawFlags) {
             if (!this._debugDrawer) {
-                this._debugDrawer = new cc.PhysicsDebugDraw(CC_PTM_RATIO);
+                this._debugDrawer = new cc.PhysicsDebugDraw(PTM_RATIO);
                 this._world.SetDebugDraw( this._debugDrawer );
             }
 
@@ -382,22 +393,19 @@ cc.js.getset(PhysicsManager.prototype, 'gravity',
     function () {
         if (this._world) {
             var g = this._world.GetGravity();
-            return cc.v2(g.x*CC_PTM_RATIO, g.y*CC_PTM_RATIO);
+            return cc.v2(g.x*PTM_RATIO, g.y*PTM_RATIO);
         }
         return cc.v2();
     },
 
     function (value) {
         if (this._world) {
-            this._world.SetGravity(new b2.Vec2(value.x/CC_PTM_RATIO, value.y/CC_PTM_RATIO));
+            this._world.SetGravity(new b2.Vec2(value.x/PTM_RATIO, value.y/PTM_RATIO));
         }
     }
 );
 
-
 PhysicsManager.DrawBits = b2.Draw;
-PhysicsManager.CC_PTM_RATIO = CC_PTM_RATIO;
-PhysicsManager.CC_TO_PHYSICS_ANGLE = CC_TO_PHYSICS_ANGLE;
-PhysicsManager.PHYSICS_TO_CC_ANGLE = PHYSICS_TO_CC_ANGLE;
+PhysicsManager.PTM_RATIO = PTM_RATIO;
 
 cc.PhysicsManager = module.exports = PhysicsManager;

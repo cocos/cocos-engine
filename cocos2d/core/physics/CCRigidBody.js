@@ -23,12 +23,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
-var CC_TO_PHYSICS_ANGLE = cc.PhysicsManager.CC_TO_PHYSICS_ANGLE;
-var PHYSICS_TO_CC_ANGLE = cc.PhysicsManager.PHYSICS_TO_CC_ANGLE;
+var PTM_RATIO = require('./CCPhysicsTypes').PTM_RATIO;
+var ANGLE_TO_PHYSICS_ANGLE = require('./CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
+var PHYSICS_ANGLE_TO_ANGLE = require('./CCPhysicsTypes').PHYSICS_ANGLE_TO_ANGLE;
 
 var getWorldRotation = require('./utils').getWorldRotation;
 var BodyType = require('./CCPhysicsTypes').BodyType;
+
+var tempb2Vec21 = new b2.Vec2();
+var tempb2Vec22 = new b2.Vec2();
+
+var VEC2_ZERO = cc.Vec2.ZERO;
 
 var RigidBody = cc.Class({
     name: 'cc.RigidBody',
@@ -85,6 +90,9 @@ var RigidBody = cc.Class({
 
         allowSleep: {
             get: function () {
+                if (this._b2Body) {
+                    return this._b2Body.IsSleepingAllowed();
+                }
                 return this._allowSleep;
             },
             set: function (value) {
@@ -135,16 +143,21 @@ var RigidBody = cc.Class({
         linearVelocity: {
             type: cc.Vec2,
             get: function () {
+                var lv = this._linearVelocity;
                 if (this._b2Body) {
                     var velocity = this._b2Body.GetLinearVelocity();
-                    return cc.v2(velocity.x*CC_PTM_RATIO, velocity.y*CC_PTM_RATIO);
+                    lv.x = velocity.x*PTM_RATIO;
+                    lv.y = velocity.y*PTM_RATIO;
                 }
-                return this._linearVelocity;
+                return lv;
             },
             set: function (value) {
                 this._linearVelocity = value;
-                if (this._b2Body) {
-                    this._b2Body.SetLinearVelocity( new b2.Vec2(value.x/CC_PTM_RATIO, value.y/CC_PTM_RATIO) );
+                var b2body = this._b2Body;
+                if (b2body) {
+                    var temp = CC_JSB ? tempb2Vec21 : b2body.m_linearVelocity;
+                    temp.Set(value.x/PTM_RATIO, value.y/PTM_RATIO);
+                    b2body.SetLinearVelocity(temp);
                 }
             }
         },
@@ -152,14 +165,14 @@ var RigidBody = cc.Class({
         angularVelocity: {
             get: function () {
                 if (this._b2Body) {
-                    return this._b2Body.GetAngularVelocity() * PHYSICS_TO_CC_ANGLE;
+                    return this._b2Body.GetAngularVelocity() * PHYSICS_ANGLE_TO_ANGLE;
                 }
                 return this._angularVelocity;
             },
             set: function (value) {
                 this._angularVelocity = value;
                 if (this._b2Body) {
-                    this._b2Body.SetAngularVelocity( value * CC_TO_PHYSICS_ANGLE );
+                    this._b2Body.SetAngularVelocity( value * ANGLE_TO_PHYSICS_ANGLE );
                 }
             }
         },
@@ -207,78 +220,110 @@ var RigidBody = cc.Class({
         }
     },
 
-    getLocalPoint: function (worldPoint) {
+    getLocalPoint: function (worldPoint, out) {
+        out = out || cc.v2();
         if (this._b2Body) {
-            worldPoint = new b2.Vec2(worldPoint.x/CC_PTM_RATIO, worldPoint.y/CC_PTM_RATIO);
-            var pos = this._b2Body.GetLocalPoint(worldPoint);
-            return cc.v2(pos.x*CC_PTM_RATIO, pos.y*CC_PTM_RATIO);
+            tempb2Vec21.Set(worldPoint.x/PTM_RATIO, worldPoint.y/PTM_RATIO);
+            var pos = this._b2Body.GetLocalPoint(tempb2Vec21);
+            out.x = pos.x*PTM_RATIO;
+            out.y = pos.y*PTM_RATIO;
         }
-        return cc.v2();
+        return out;
     },
 
-    getWorldPoint: function (localPoint) {
+    getWorldPoint: function (localPoint, out) {
+        out = out || cc.v2();
         if (this._b2Body) {
-            localPoint = new b2.Vec2(localPoint.x/CC_PTM_RATIO, localPoint.y/CC_PTM_RATIO);
-            var pos = this._b2Body.GetWorldPoint(localPoint);
-            return cc.v2(pos.x*CC_PTM_RATIO, pos.y*CC_PTM_RATIO);
+            tempb2Vec21.Set(localPoint.x/PTM_RATIO, localPoint.y/PTM_RATIO);
+            var pos = this._b2Body.GetWorldPoint(tempb2Vec21);
+            out.x = pos.x*PTM_RATIO;
+            out.y = pos.y*PTM_RATIO;
         }
-        return cc.v2();
+        return out;
     },
 
-    getWorldVector: function (localVector) {
+    getWorldVector: function (localVector, out) {
+        out = out || cc.v2();
         if (this._b2Body) {
-            localVector = new b2.Vec2(localVector.x*CC_PTM_RATIO, localVector.y*CC_PTM_RATIO);
-            var vector = this._b2Body.GetWorldVector(localVector);
-            return cc.v2(vector.x/CC_PTM_RATIO, vector.y/CC_PTM_RATIO);
+            tempb2Vec21.Set(localVector.x/PTM_RATIO, localVector.y/PTM_RATIO);
+            var vector = this._b2Body.GetWorldVector(tempb2Vec21);
+            out.x = vector.x*PTM_RATIO;
+            out.y = vector.y*PTM_RATIO;
         }
-        return cc.v2();
+        return out;
     },
 
-    getLocalVector: function (worldVector) {
+    getLocalVector: function (worldVector, out) {
+        out = out || cc.v2();
         if (this._b2Body) {
-            worldVector = new b2.Vec2(worldVector.x*CC_PTM_RATIO, worldVector.y*CC_PTM_RATIO);
-            var vector = this._b2Body.GetLocalVector(worldVector);
-            return cc.v2(vector.x/CC_PTM_RATIO, vector.y/CC_PTM_RATIO);
+            tempb2Vec21.Set(worldVector.x/PTM_RATIO, worldVector.y/PTM_RATIO);
+            var vector = this._b2Body.GetLocalVector(tempb2Vec21);
+            out.x = vector.x*PTM_RATIO;
+            out.y = vector.y*PTM_RATIO;
         }
-        return cc.v2();
+        return out;
     },
 
-    getWorldPosition: function () {
+    getWorldPosition: function (out) {
+        out = out || cc.v2();
         if (this._b2Body) {
             var pos = this._b2Body.GetPosition();
-            return cc.v2(pos.x*CC_PTM_RATIO, pos.y*CC_PTM_RATIO);
+            out.x = pos.x*PTM_RATIO;
+            out.y = pos.y*PTM_RATIO;
         }
-        return cc.v2();
+        return out;
     },
 
     getWorldRotation: function () {
         if (this._b2Body) {
-            return -this._b2Body.GetAngle() * (180 / Math.PI);
+            return this._b2Body.GetAngle() * PHYSICS_ANGLE_TO_ANGLE;
         }
         return 0;
     },
 
-    getLinearVelocityFromWorldPoint: function (p) {
+    getLocalCenter: function (out) {
+        out = out || cc.v2();
         if (this._b2Body) {
-            p = new b2.Vec2(p.x*CC_PTM_RATIO, p.y*CC_PTM_RATIO);
-            var velocity = this._b2Body.GetLinearVelocityFromWorldPoint(p);
-            return cc.v2(velocity.x/CC_PTM_RATIO, velocity.y/CC_PTM_RATIO);
+            var pos = this._b2Body.GetLocalCenter();
+            out.x = pos.x*PTM_RATIO;
+            out.y = pos.y*PTM_RATIO;
         }
-        return cc.v2();
+        return out;
+    },
+
+    getWorldCenter: function (out) {
+        out = out || cc.v2();
+        if (this._b2Body) {
+            var pos = this._b2Body.GetWorldCenter();
+            out.x = pos.x*PTM_RATIO;
+            out.y = pos.y*PTM_RATIO;
+        }
+        return out;
+    },
+
+    getLinearVelocityFromWorldPoint: function (worldPoint, out) {
+        out = out || cc.v2();
+        if (this._b2Body) {
+            tempb2Vec21.Set(worldPoint.x/PTM_RATIO, worldPoint.y/PTM_RATIO);
+            var velocity = this._b2Body.GetLinearVelocityFromWorldPoint(tempb2Vec21);
+            out.x = velocity.x*PTM_RATIO;
+            out.y = velocity.y*PTM_RATIO;
+        }
+        return out;
     },
 
     applyForce: function (force, point, wake) {
         if (this._b2Body) {
-            force = new b2.Vec2(force.x/CC_PTM_RATIO, force.y/CC_PTM_RATIO);
-            point = new b2.Vec2(point.x/CC_PTM_RATIO, point.y/CC_PTM_RATIO);
-            this._b2Body.ApplyForce(force, point, wake);
+            tempb2Vec21.Set(force.x/PTM_RATIO, force.y/PTM_RATIO);
+            tempb2Vec22.Set(point.x/PTM_RATIO, point.y/PTM_RATIO);
+            this._b2Body.ApplyForce(tempb2Vec21, tempb2Vec22, wake);
         }
     },
 
     applyForceToCenter: function (force, wake) {
         if (this._b2Body) {
-            force = new b2.Vec2(force.x/CC_PTM_RATIO, force.y/CC_PTM_RATIO);
-            this._b2Body.ApplyForceToCenter(force, wake);
+            tempb2Vec21.Set(force.x/PTM_RATIO, force.y/PTM_RATIO);
+            this._b2Body.ApplyForceToCenter(tempb2Vec21, wake);
         }
     },
 
@@ -287,12 +332,31 @@ var RigidBody = cc.Class({
             this._b2Body.ApplyTorque(torque, wake);
         }
     },
+
+    applyLinearImpulse: function (impulse, point, wake) {
+        if (this._b2Body) {
+            tempb2Vec21.Set(impulse.x/PTM_RATIO, impulse.y/PTM_RATIO);
+            tempb2Vec22.Set(point.x/PTM_RATIO, point.y/PTM_RATIO);
+            this._b2Body.ApplyLinearImpulse(tempb2Vec21, tempb2Vec22, wake);
+        }
+    },
+
+    applyAngularImpulse: function (impulse, wake) {
+        if (this._b2Body) {
+            tempb2Vec21.Set(impulse.x/PTM_RATIO, impulse.y/PTM_RATIO);
+            this._b2Body.ApplyAngularImpulse(tempb2Vec21, wake);
+        }
+    },
     
     resetVelocity: function () {
-        if (!this._b2Body) return;
+        var b2body = this._b2Body;
+        if (!b2body) return;
 
-        this._b2Body.SetLinearVelocity(new b2.Vec2());
-        this._b2Body.SetAngularVelocity(0);
+        var temp = CC_JSB ? tempb2Vec21 : b2body.m_linearVelocity;
+        temp.Set(0, 0);
+
+        b2body.SetLinearVelocity(temp);
+        b2body.SetAngularVelocity(0);
     },
 
     onEnable: function () {
@@ -309,35 +373,52 @@ var RigidBody = cc.Class({
         var node = this.node;
 
         node.on('position-changed', function() {
-            if (!this._ignoreNodeChanges) {
-                var pos = node.convertToWorldSpaceAR(cc.Vec2.ZERO);
-                if (node.scale && this.type === BodyType.Animated) {
-                    pos = new b2.Vec2(pos.x / CC_PTM_RATIO, pos.y / CC_PTM_RATIO);
-                    var b2Pos = this._b2Body.GetPosition();
+            var b2body = this._b2Body;
+            if (!this._ignoreNodeChanges && b2body) {
+                var pos = node.convertToWorldSpaceAR(VEC2_ZERO);
 
-                    pos.x = (pos.x - b2Pos.x)/(1/60);
-                    pos.y = (pos.y - b2Pos.y)/(1/60);
-
-                    this._b2Body.SetAwake(true);
-                    this._b2Body.SetLinearVelocity(pos);
+                var temp;
+                if (CC_JSB) {
+                    temp = tempb2Vec21;
+                }
+                else if (this.type === BodyType.Animated) {
+                    temp = b2body.GetLinearVelocity();
                 }
                 else {
-                    this._b2Body.SetTransform(new b2.Vec2(pos.x / CC_PTM_RATIO, pos.y / CC_PTM_RATIO), this._b2Body.GetAngle());
+                    temp = b2body.GetPosition();
+                }
+
+                temp.x = pos.x / PTM_RATIO;
+                temp.y = pos.y / PTM_RATIO;
+
+                if (this.type === BodyType.Animated) {
+                    var b2Pos = b2body.GetPosition();
+
+                    var timeStep = cc.game.config['frameRate'];
+                    temp.x = (temp.x - b2Pos.x)*timeStep;
+                    temp.y = (temp.y - b2Pos.y)*timeStep;
+
+                    b2body.SetAwake(true);
+                    b2body.SetLinearVelocity(temp);
+                }
+                else {
+                    b2body.SetTransform(temp, b2body.GetAngle());
                 }
             }
         }, this);
 
         node.on('rotation-changed', function() {
-            if (!this._ignoreNodeChanges) {
-                var rotation = CC_TO_PHYSICS_ANGLE * getWorldRotation(node);
-                if (node.scale && this.type === BodyType.Animated) {
-                    var b2Rotation = this._b2Body.GetAngle();
-
-                    this._b2Body.SetAwake(true);
-                    this._b2Body.SetAngularVelocity((rotation - b2Rotation)/(1/60));
+            var b2body = this._b2Body;
+            if (!this._ignoreNodeChanges && b2body) {
+                var rotation = ANGLE_TO_PHYSICS_ANGLE * getWorldRotation(node);
+                if (this.type === BodyType.Animated) {
+                    var b2Rotation = b2body.GetAngle();
+                    var timeStep = cc.game.config['frameRate'];
+                    b2body.SetAwake(true);
+                    b2body.SetAngularVelocity((rotation - b2Rotation)*timeStep);
                 }
                 else {
-                    this._b2Body.SetTransform(this._b2Body.GetPosition(), rotation);
+                    b2body.SetTransform(b2body.GetPosition(), rotation);
                 }
             }
         }, this);
@@ -353,8 +434,12 @@ var RigidBody = cc.Class({
     },
 
     syncPosition: function () {
-        var pos = this.node.convertToWorldSpaceAR(cc.Vec2.ZERO);
-        this._b2Body.SetTransform(new b2.Vec2(pos.x / CC_PTM_RATIO, pos.y / CC_PTM_RATIO), this._b2Body.GetAngle());
+        var pos = this.node.convertToWorldSpaceAR(VEC2_ZERO);
+        this._b2Body.SetTransform(new b2.Vec2(pos.x / PTM_RATIO, pos.y / PTM_RATIO), this._b2Body.GetAngle());
+    },
+    syncRotation: function () {
+        var rotation = ANGLE_TO_PHYSICS_ANGLE * getWorldRotation(node);
+        b2body.SetTransform(b2body.GetPosition(), rotation);
     },
 
    _init: function () {
@@ -382,16 +467,16 @@ var RigidBody = cc.Class({
         bodyDef.angularDamping = this.angularDamping;
 
         var linearVelocity = this.linearVelocity;
-        bodyDef.linearVelocity = new b2.Vec2(linearVelocity.x/CC_PTM_RATIO, linearVelocity.y/CC_PTM_RATIO);
+        bodyDef.linearVelocity = new b2.Vec2(linearVelocity.x/PTM_RATIO, linearVelocity.y/PTM_RATIO);
 
-        bodyDef.angularVelocity = this.angularVelocity * CC_TO_PHYSICS_ANGLE;
+        bodyDef.angularVelocity = this.angularVelocity * ANGLE_TO_PHYSICS_ANGLE;
         
         bodyDef.fixedRotation = this.fixedRotation;
         bodyDef.bullet = this.bullet;
 
         var node = this.node;
-        var pos = node.convertToWorldSpaceAR(cc.Vec2.ZERO);
-        bodyDef.position = new b2.Vec2(pos.x / CC_PTM_RATIO, pos.y / CC_PTM_RATIO);
+        var pos = node.convertToWorldSpaceAR(VEC2_ZERO);
+        bodyDef.position = new b2.Vec2(pos.x / PTM_RATIO, pos.y / PTM_RATIO);
         bodyDef.angle = -(Math.PI / 180) * getWorldRotation(node); 
 
         cc.director.getPhysicsManager()._addBody(this, bodyDef);
