@@ -36,6 +36,10 @@ const Buffer = require('vinyl-buffer');
 const HandleErrors = require('../util/handleErrors');
 const Es = require('event-stream');
 
+const Minifier = require('gulp-uglify/minifier');
+const Sourcemaps = require('gulp-sourcemaps');
+const UglifyHarmony = require('uglify-js-harmony');
+
 const Utils = require('./utils');
 
 exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFileForExtends, callback) {
@@ -46,6 +50,20 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
         .pipe(HandleErrors())
         .pipe(Source(Path.basename(outputFile)))
         .pipe(Buffer())
+        // remove `..args` used in CC_JSB
+        .pipe(Sourcemaps.init({loadMaps: true}))
+        .pipe(Minifier(Utils.uglifyOptions(false, {
+            CC_EDITOR: false,
+            CC_DEV: true,
+            CC_TEST: true,
+            CC_JSB: false
+        }), UglifyHarmony))
+        .pipe(Sourcemaps.write('./', {
+            sourceRoot: '../',
+            includeContent: false,
+            addComment: true
+        }))
+        //
         .pipe(Gulp.dest(Path.dirname(outputFile)));
 
     if (Fs.existsSync(sourceFileForExtends)) {
