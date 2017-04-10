@@ -341,6 +341,8 @@ _ccsg.WebView.EventType = {
             this._div.style["-webkit-overflow-scrolling"] = "touch";
             this._iframe = document.createElement("iframe");
             this._div.appendChild(this._iframe);
+            this._iframe.style.width = "100%";
+            this._iframe.style.height = "100%";
         }else{
             this._div = this._iframe = document.createElement("iframe");
         }

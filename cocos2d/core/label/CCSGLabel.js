@@ -267,7 +267,6 @@ _ccsg.Label = _ccsg.Node.extend({
         this._tailoredTopY =  0;
         this._tailoredBottomY =  0;
         this._bmfontScale =  1.0;
-        this._spacingX =  0;
         this._horizontalKernings =  [];
         this._lineBreakWithoutSpaces =  false;
 
