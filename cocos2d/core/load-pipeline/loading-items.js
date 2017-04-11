@@ -270,8 +270,13 @@ var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
         this.active = false;
     }
 
-    if (urlList && urlList.length > 0) {
-        this.append(urlList);
+    if (urlList) {
+        if (urlList.length > 0) {
+            this.append(urlList);
+        }
+        else {
+            this.allComplete();
+        }
     }
 };
 
