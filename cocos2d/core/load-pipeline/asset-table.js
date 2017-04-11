@@ -73,7 +73,7 @@ cc.js.mixin(AssetTable.prototype, {
         return '';
     },
 
-    getUuidArray: function (path, type, out_uuidToUrl) {
+    getUuidArray: function (path, type, out_urls) {
         path = cc.url.normalize(path);
         if (path[path.length - 1] === '/') {
             path = path.slice(0, -1);
@@ -89,8 +89,8 @@ cc.js.mixin(AssetTable.prototype, {
                         var entry = item[i];
                         if (!type || isChildClassOf(entry.type, type)) {
                             uuids.push(entry.uuid);
-                            if (out_uuidToUrl) {
-                                out_uuidToUrl[entry.uuid] = p;
+                            if (out_urls) {
+                                out_urls.push(p);
                             }
                         }
                     }
@@ -98,8 +98,8 @@ cc.js.mixin(AssetTable.prototype, {
                 else {
                     if (!type || isChildClassOf(item.type, type)) {
                         uuids.push(item.uuid);
-                        if (out_uuidToUrl) {
-                            out_uuidToUrl[item.uuid] = p;
+                        if (out_urls) {
+                            out_urls.push(p);
                         }
                     }
                 }

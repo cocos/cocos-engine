@@ -687,5 +687,5 @@ if (CC_DEV) {
 
 }
 
-// remove after 1.5
+// remove after 1.6
 js.obsolete(cc.loader, 'cc.loader.loadResAll', 'loadResDir');
