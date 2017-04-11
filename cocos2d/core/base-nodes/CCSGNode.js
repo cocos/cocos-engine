@@ -639,9 +639,8 @@ _ccsg.Node = cc.Class({
      * @param {Boolean} visible Pass true to make the node visible, false to hide the node.
      */
     setVisible: function (visible) {
-        if(this._visible !== visible){
+        if (this._visible !== visible) {
             this._visible = visible;
-            //if(visible)
             this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
             cc.renderer.childrenOrderDirty = true;
         }
@@ -1871,12 +1870,16 @@ _ccsg.Node = cc.Class({
      * @param {_ccsg.Node.RenderCmd} parentCmd
      */
     visit: function (parent) {
-        // quick return if not visible
-        if (!this._visible)
-            return;
+        var cmd = this._renderCmd, parentCmd = parent ? parent._renderCmd : null;
 
-        var renderer = cc.renderer, cmd = this._renderCmd;
-        cmd.visit(parent && parent._renderCmd);
+        // quick return if not visible
+        if (!this._visible) {
+            cmd._propagateFlagsDown(parentCmd);
+            return;
+        }
+
+        var renderer = cc.renderer;
+        cmd.visit(parentCmd);
 
         var i, children = this._children, len = children.length, child;
         if (len > 0) {

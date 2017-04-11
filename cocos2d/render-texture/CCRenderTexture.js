@@ -99,13 +99,17 @@ cc.RenderTexture = _ccsg.Node.extend(/** @lends cc.RenderTexture# */{
     },
 
     visit: function (parent) {
+        var cmd = this._renderCmd, parentCmd = parent ? parent._renderCmd : null;
+
         // quick return if not visible
-        if (!this._visible)
+        if (!this._visible) {
+            cmd._propagateFlagsDown(parentCmd);
             return;
+        }
 
-        var renderer = cc.renderer, cmd = this._renderCmd;
+        var renderer = cc.renderer;
 
-        cmd.visit(parent && parent._renderCmd);
+        cmd.visit(parentCmd);
         renderer.pushRenderCommand(cmd);
         this.sprite.visit(this);
         cmd._dirtyFlag = 0;
