@@ -375,7 +375,7 @@ JS.mixin(CCLoader.prototype, {
     /**
      * Load resources from the "resources" folder inside the "assets" folder of your project.<br>
      * <br>
-     * Note: All asset urls in Creator use forward slashes, urls using backslashes will not work.
+     * Note: All asset URLs in Creator use forward slashes, URLs using backslashes will not work.
      *
      * @method loadRes
      * @param {String} url - Url of the target resource.
@@ -436,7 +436,7 @@ JS.mixin(CCLoader.prototype, {
         }
     },
 
-    _loadResUuids: function (uuids, progressCallback, completeCallback, uuidToUrl) {
+    _loadResUuids: function (uuids, progressCallback, completeCallback, urls) {
         if (uuids.length > 0) {
             var self = this;
             var res = uuids.map(function (uuid) {
@@ -447,8 +447,8 @@ JS.mixin(CCLoader.prototype, {
             });
             this.load(res, progressCallback, function (errors, items) {
                 if (completeCallback) {
-                    var results = [];
-                    var urls = uuidToUrl && {};
+                    var assetRes = [];
+                    var urlRes = urls && [];
                     for (var i = 0; i < res.length; ++i) {
                         var uuid = res[i].uuid;
                         var id = this._getReferenceKey(uuid);
@@ -456,17 +456,17 @@ JS.mixin(CCLoader.prototype, {
                         if (item) {
                             // should not release these assets, even if they are static referenced in the scene.
                             self.setAutoReleaseRecursively(uuid, false);
-                            results.push(item);
-                            if (urls) {
-                                urls[uuidToUrl[uuid]] = item;
+                            assetRes.push(item);
+                            if (urlRes) {
+                                urlRes.push(urls[i]);
                             }
                         }
                     }
-                    if (uuidToUrl) {
-                        completeCallback(errors, results, urls);
+                    if (urls) {
+                        completeCallback(errors, assetRes, urlRes);
                     }
                     else {
-                        completeCallback(errors, results);
+                        completeCallback(errors, assetRes);
                     }
                 }
             });
@@ -474,8 +474,8 @@ JS.mixin(CCLoader.prototype, {
         else {
             if (completeCallback) {
                 callInNextTick(function () {
-                    if (uuidToUrl) {
-                        completeCallback(null, [], {});
+                    if (urls) {
+                        completeCallback(null, [], []);
                     }
                     else {
                         completeCallback(null, []);
@@ -489,13 +489,15 @@ JS.mixin(CCLoader.prototype, {
      * This method is like {{#crossLink "loader/loadRes:method"}}{{/crossLink}} except that it accepts array of url.
      *
      * @method loadResArray
-     * @param {String[]} urls - Array of urls of the target resource.
+     * @param {String[]} urls - Array of URLs of the target resource.
      *                          The url is relative to the "resources" folder, extensions must be omitted.
      * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
      * @param {Function} [progressCallback] - Callback invoked when progression change.
      * @param {Function} completeCallback - A callback which is called when all assets have been loaded, or an error occurs.
-     * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called with the error. If all assets are loaded successfully, error will be null.
-     * @param {Array} completeCallback.assets - An array of all loaded assets. If nothing to load, assets will be an empty array.
+     * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called
+     *                                         with the error. If all assets are loaded successfully, error will be null.
+     * @param {Asset[]|Array} completeCallback.assets - An array of all loaded assets.
+     *                                                     If nothing to load, assets will be an empty array.
      * @example
      *
      * // load the SpriteFrames from resources folder
@@ -534,7 +536,7 @@ JS.mixin(CCLoader.prototype, {
     /**
      * Load all assets in a folder inside the "assets/resources" folder of your project.<br>
      * <br>
-     * Note: All asset urls in Creator use forward slashes, urls using backslashes will not work.
+     * Note: All asset URLs in Creator use forward slashes, URLs using backslashes will not work.
      *
      * @method loadResDir
      * @param {String} url - Url of the target folder.
@@ -542,9 +544,11 @@ JS.mixin(CCLoader.prototype, {
      * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
      * @param {Function} [progressCallback] - Callback invoked when progression change.
      * @param {Function} completeCallback - A callback which is called when all assets have been loaded, or an error occurs.
-     * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called with the error. If all assets are loaded successfully, error will be null.
-     * @param {Object[]} completeCallback.assets - An array of all loaded assets. If nothing to load, assets will be an empty array.
-     * @param {Object} completeCallback.urls - A dictionary which keys are url, values are asset.
+     * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called
+     *                                         with the error. If all assets are loaded successfully, error will be null.
+     * @param {Asset[]|Array} completeCallback.assets - An array of all loaded assets.
+     *                                             If nothing to load, assets will be an empty array.
+     * @param {String[]} completeCallback.urls - An array that lists all the URLs of loaded assets.
      *
      * @example
      *
@@ -560,12 +564,14 @@ JS.mixin(CCLoader.prototype, {
      *
      * // load all textures in "resources/imgs/"
      * cc.loader.loadResDir('imgs', cc.Texture2D, function (err, textures) {
-     *     if (err) {
-     *         cc.error(err);
-     *         return;
-     *     }
      *     var texture1 = textures[0];
      *     var texture2 = textures[1];
+     * });
+     *
+     * // load all JSONs in "resources/data/"
+     * cc.loader.loadResDir('data', function (err, objects, urls) {
+     *     var data = objects[0];
+     *     var url = urls[0];
      * });
      */
     loadResDir: function (url, type, progressCallback, completeCallback) {
@@ -574,9 +580,9 @@ JS.mixin(CCLoader.prototype, {
         progressCallback = args.onProgress;
         completeCallback = args.onComplete;
 
-        var uuidToUrl = {};
-        var uuids = resources.getUuidArray(url, type, uuidToUrl);
-        this._loadResUuids(uuids, progressCallback, completeCallback, uuidToUrl);
+        var urls = [];
+        var uuids = resources.getUuidArray(url, type, urls);
+        this._loadResUuids(uuids, progressCallback, completeCallback, urls);
     },
 
     /**
