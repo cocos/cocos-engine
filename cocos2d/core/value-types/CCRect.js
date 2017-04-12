@@ -251,7 +251,7 @@ Object.defineProperty(proto, 'yMax', {
  * !#en TODO
  * !#zh 矩形的中心点。
  * @property center
- * @type {Number}
+ * @type {Vec2}
  */
 Object.defineProperty(proto, 'center', {
     get: function () {
@@ -276,6 +276,19 @@ Object.defineProperty(proto, 'size', {
     set: function (value) {
         this.width = value.width;
         this.height = value.height;
+    }
+});
+/**
+ * @property origin
+ * @property {Vec2} origin
+ */
+Object.defineProperty(proto, 'origin', {
+    get: function () {
+        return new cc.Vec2(this.x, this.y);
+    },
+    set: function (value) {
+        this.x = value.x;
+        this.y = value.y;
     }
 });
 
