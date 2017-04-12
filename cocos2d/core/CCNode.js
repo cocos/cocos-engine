@@ -974,7 +974,6 @@ var Node = cc.Class({
         }
 
         if (CC_JSB) {
-            this._releaseAllActions();
             if (this._touchListener) {
                 this._touchListener.release();
                 this._touchListener.owner = null;
