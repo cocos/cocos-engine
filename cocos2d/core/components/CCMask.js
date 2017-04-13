@@ -49,6 +49,13 @@ var MaskType = cc.Enum({
      * @property {Number} IMAGE_STENCIL
      */
     IMAGE_STENCIL: 2,
+
+    /**
+     * !#en cc.Graphics Stencil Mask.
+     * !#zh 使用图形模板作为遮罩
+     * @property {Number} GRAPHICS_STENCIL
+     */
+    GRAPHICS_STENCIL: 3,
 });
 
 /**
@@ -107,6 +114,23 @@ var Mask = cc.Class({
             default: null,
             type: cc.SpriteFrame,
             tooltip: CC_DEV && 'i18n:COMPONENT.mask.spriteFrame',
+            notify: function() {
+                this._refreshStencil();
+            }
+        },
+
+        /**
+         * !#en The graphics node
+         * !#zh 图形模板
+         * @property graphicsNode
+         * @type {GraphicsNode}
+         * @default null
+         * @example
+         * mask.graphicsNode = newGraphicsNode;
+         */
+        graphicsNode: {
+            default: null,
+            type: cc.Graphics,
             notify: function() {
                 this._refreshStencil();
             }
@@ -281,6 +305,22 @@ var Mask = cc.Class({
                 stencil = new cc.Scale9Sprite();
                 stencil.setSpriteFrame(this.spriteFrame);
                 this._sgNode.setStencil(stencil);
+            }
+            stencil.setContentSize(contentSize);
+            stencil.setAnchorPoint(anchorPoint);
+            this._sgNode.setAlphaThreshold(this.alphaThreshold);
+        }
+        else if (this._type === MaskType.GRAPHICS_STENCIL) {
+            if (this.graphicsNode) {
+                this._sgNode.setStencil(this.graphicsNode._sgNode);
+            } else {
+                // this should be a safe placeholder
+                stencil = new cc.DrawNode();
+                if (CC_JSB) {
+                    stencil.retain();
+                }
+                this._sgNode.setStencil(stencil);
+                stencil.clear();
             }
             stencil.setContentSize(contentSize);
             stencil.setAnchorPoint(anchorPoint);
