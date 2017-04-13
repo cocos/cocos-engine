@@ -9,7 +9,7 @@ exports.uglifyOptions = function (minify, global_defs) {
         return {
             compress: {
                 global_defs: global_defs,
-                keep_infinity: true
+                // keep_infinity: true
             }
         };
     }

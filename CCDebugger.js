@@ -175,7 +175,7 @@ cc._initDebugSetting = function (mode) {
             if (!cond && msg) {
                 for (var i = 2; i < arguments.length; i++)
                     msg = msg.replace(/(%s)|(%d)/, _formatString(arguments[i]));
-                locLog("Assert: " + msg);
+                locLog("ASSERT: " + msg);
             }
         };
         if (mode !== cc.DebugMode.ERROR_FOR_WEB_PAGE) {
@@ -319,38 +319,27 @@ cc._initDebugSetting = function (mode) {
     cc.warnID = genLogFunc(cc.warn, 'Warning');
     cc.errorID = genLogFunc(cc.error, 'Error');
     cc.logID = genLogFunc(cc.log, 'Log');
-    cc.assertID = CC_JSB ? function (...args) {
-        var cond = args[0];
-        var id = args[1];
-        if (CC_DEV) {
-            args[1] = cc._LogInfos[id];
-            cc.assert.apply(cc, args);
-        } else {
-            var msg = '';
-            if (args.length === 3) {
-                msg = 'Arguments: ' + args[2];
-            } else if (args.length > 3) {
-                msg = 'Arguments: ' + args.slice(2).join(', ');
-            }
-            cc.assert(cond, 'Assert ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + msg);
+    var assertFailed = genLogFunc(function () {
+        // no need to protect arguments leak here in case of an error
+        var argsArr = [].slice.call(arguments);
+        argsArr.unshift(false);
+        cc.assert.apply(null, argsArr);
+    }, 'Assert');
+    cc.assertID = CC_JSB ? function (cond, ...args) {
+        if (cond) {
+            return;
         }
-    } : function (cond, id) {
-        var argsArr = new Array(arguments.length);
+        assertFailed.apply(null, args);
+    } : function (cond) {
+        'use strict';
+        if (cond) {
+            return;
+        }
+        var argsArr = new Array(arguments.length - 1);
         for (var i = 0; i < argsArr.length; ++i) {
-            argsArr[i] = arguments[i];
+            argsArr[i] = arguments[i + 1];
         }
-        if (CC_DEV) {
-            argsArr[1] = cc._LogInfos[id];
-            cc.assert.apply(cc, argsArr);
-        } else {
-            var args = '';
-            if (arguments.length === 3) {
-                args = 'Arguments: ' + arguments[2];
-            } else if (arguments.length > 3) {
-                args = 'Arguments: ' + argsArr.slice(2).join(', ');
-            }
-            cc.assert(cond, 'Assert ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
-        }
+        assertFailed.apply(null, argsArr);
     };
 };
 cc._throw = CC_EDITOR ? Editor.error : function (error) {
@@ -385,6 +374,7 @@ function genLogFunc(func, type) {
             func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + msg);
         }
     } : function (id) {
+        'use strict';
         if (arguments.length === 1) {
             CC_DEV ? func(cc._LogInfos[id]) : func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
             return;
