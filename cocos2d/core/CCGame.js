@@ -371,6 +371,7 @@ var game = /** @lends cc.game# */{
                 return id;
             }
         }
+        return -1;
     },
     getPersistRootNode:function(key){
          if (!key) {
