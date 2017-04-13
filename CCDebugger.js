@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 
-//+++++++++++++++++++++++++something about log start++++++++++++++++++++++++++++
 cc._logToWebPage = function (msg) {
     if (!cc._canvas)
         return;
@@ -159,7 +158,7 @@ var jsbLog = cc.log || console.log;
  */
 cc._initDebugSetting = function (mode) {
     // reset
-    cc.log = cc.warn = cc.error = cc._throw = cc.assert = function () { };
+    cc.log = cc.logID = cc.warn = cc.warnID = cc.error = cc.errorID = cc._throw = cc.assert = cc.assertID = function () { };
 
     if (mode === cc.DebugMode.NONE)
         return;
@@ -316,6 +315,43 @@ cc._initDebugSetting = function (mode) {
             (console.info || console.log).apply(console, arguments);
         };
     }
+
+    cc.warnID = genLogFunc(cc.warn, 'Warning');
+    cc.errorID = genLogFunc(cc.error, 'Error');
+    cc.logID = genLogFunc(cc.log, 'Log');
+    cc.assertID = CC_JSB ? function (...args) {
+        var cond = args[0];
+        var id = args[1];
+        if (CC_DEV) {
+            args[1] = cc._LogInfos[id];
+            cc.assert.apply(cc, args);
+        } else {
+            var msg = '';
+            if (args.length === 3) {
+                msg = 'Arguments: ' + args[2];
+            } else if (args.length > 3) {
+                msg = 'Arguments: ' + args.slice(2).join(', ');
+            }
+            cc.assert(cond, 'Assert ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + msg);
+        }
+    } : function (cond, id) {
+        var argsArr = new Array(arguments.length);
+        for (var i = 0; i < argsArr.length; ++i) {
+            argsArr[i] = arguments[i];
+        }
+        if (CC_DEV) {
+            argsArr[1] = cc._LogInfos[id];
+            cc.assert.apply(cc, argsArr);
+        } else {
+            var args = '';
+            if (arguments.length === 3) {
+                args = 'Arguments: ' + arguments[2];
+            } else if (arguments.length > 3) {
+                args = 'Arguments: ' + argsArr.slice(2).join(', ');
+            }
+            cc.assert(cond, 'Assert ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
+        }
+    };
 };
 cc._throw = CC_EDITOR ? Editor.error : function (error) {
     var stack = error.stack;
@@ -371,41 +407,3 @@ function genLogFunc(func, type) {
         }
     };
 }
-
-cc.warnID = genLogFunc(cc.warn, 'Warning');
-cc.errorID = genLogFunc(cc.error, 'Error');
-cc.logID = genLogFunc(cc.log, 'Log');
-cc.assertID = CC_JSB ? function (...args) {
-    var cond = args[0];
-    var id = args[1];
-    if (CC_DEV) {
-        args[1] = cc._LogInfos[id];
-        cc.assert.apply(cc, args);
-    } else {
-        var msg = '';
-        if (args.length === 3) {
-            msg = 'Arguments: ' + args[2];
-        } else if (args.length > 3) {
-            msg = 'Arguments: ' + args.slice(2).join(', ');
-        }
-        cc.assert(cond, 'Assert ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + msg);
-    }
-} : function (cond, id) {
-    var argsArr = new Array(arguments.length);
-    for (var i = 0; i < argsArr.length; ++i) {
-        argsArr[i] = arguments[i];
-    }
-    if (CC_DEV) {
-        argsArr[1] = cc._LogInfos[id];
-        cc.assert.apply(cc, argsArr);
-    } else {
-        var args = '';
-        if (arguments.length === 3) {
-            args = 'Arguments: ' + arguments[2];
-        } else if (arguments.length > 3) {
-            args = 'Arguments: ' + argsArr.slice(2).join(', ');
-        }
-        cc.assert(cond, 'Assert ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
-    }
-};
-//+++++++++++++++++++++++++something about log end+++++++++++++++++++++++++++++
