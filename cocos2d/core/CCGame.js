@@ -341,13 +341,17 @@ var game = /** @lends cc.game# */{
      * The target node must be placed in the root level of hierarchy, otherwise this API won't have any effect.
      * @method addPersistRootNode
      * @param {Node} node - The node to be made persistent
+     * @return {key} 返回创建使用的key -1失败 其它成功
      */
     addPersistRootNode: function (node) {
-        if (!(node instanceof cc.Node) || !node.uuid) {
+        return this.setPersistRootNode(node.uuid,node);
+    },
+    setPersistRootNode: function (key,node) {
+        if (!(node instanceof cc.Node) || !key) {
             cc.warn('The target can not be made persist because it\'s not a cc.Node or it doesn\'t have _id property.');
-            return;
+            return -1;
         }
-        var id = node.uuid;
+        var id = key;
         if (!this._persistRootNodes[id]) {
             var scene = cc.director._scene;
             if (cc.isValid(scene)) {
@@ -356,31 +360,51 @@ var game = /** @lends cc.game# */{
                 }
                 else if ( !(node.parent instanceof cc.Scene) ) {
                     cc.warn('The node can not be made persist because it\'s not under root node.');
-                    return;
+                    return -1;
                 }
                 else if (node.parent !== scene) {
                     cc.warn('The node can not be made persist because it\'s not in current scene.');
-                    return;
+                    return -1;
                 }
                 this._persistRootNodes[id] = node;
                 node._persistNode = true;
+                return id;
             }
         }
     },
+    getPersistRootNode:function(key){
+         if (!key) {
+            cc.warn(' getPersistRootNode key==null');
+            return null;
+        }
+        return this._persistRootNodes[key];
+    },
+
 
     /**
      * Remove a persistent root node
      * @method removePersistRootNode
-     * @param {Node} node - The node to be removed from persistent node list
+     * @param {Node|Number} nodeOrKey - The node to be removed from persistent node list
+     * @return {Boolean} false 失败 true 成功
      */
-    removePersistRootNode: function (node) {
-        if (node !== this._ignoreRemovePersistNode) {
-            var id = node.uuid || '';
-            if (node === this._persistRootNodes[id]) {
+    removePersistRootNode: function (nodeOrKey) {
+        if (nodeOrKey !== this._ignoreRemovePersistNode) {
+             var id =''
+            if(nodeOrKey instanceof cc.Node){
+                id = nodeOrKey.uuid || '';
+            }else if(typeof(nodeOrKey) == 'number'){
+                id = nodeOrKey;
+                nodeOrKey=this.getPersistRootNode(nodeOrKey);
+            }else{
+                return false;
+            }
+            if (nodeOrKey === this._persistRootNodes[id]) {
                 delete this._persistRootNodes[id];
-                node._persistNode = false;
+                nodeOrKey._persistNode = false;
+                return true;
             }
         }
+        return false;
     },
 
     /**
