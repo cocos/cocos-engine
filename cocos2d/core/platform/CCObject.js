@@ -416,7 +416,7 @@ prototype._destroyImmediate = function () {
         this._onPreDestroy();
     }
 
-    if (!CC_EDITOR || cc.engine._isPlaying) {
+    if ((CC_TEST ? (/* make CC_EDITOR mockable*/ Function('return !CC_EDITOR'))() : !CC_EDITOR) || cc.engine._isPlaying) {
         this._destruct();
     }
 

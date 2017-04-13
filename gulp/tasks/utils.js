@@ -7,7 +7,10 @@ const Browserify = require('browserify');
 exports.uglifyOptions = function (minify, global_defs) {
     if (minify) {
         return {
-            compress: {global_defs: global_defs}
+            compress: {
+                global_defs: global_defs,
+                keep_infinity: true
+            }
         };
     }
 
@@ -17,7 +20,7 @@ exports.uglifyOptions = function (minify, global_defs) {
         output: {
             // http://lisperator.net/uglifyjs/codegen
             beautify: true,
-            bracketize: true
+            bracketize: true,
         },
         compress: {
             // https://github.com/mishoo/UglifyJS2#compressor-options
@@ -28,7 +31,7 @@ exports.uglifyOptions = function (minify, global_defs) {
             drop_debugger: false,  // discard “debugger” statements
             unsafe: false, // some unsafe optimizations (see below)
             //conditionals: false,  // optimize if-s and conditional expressions
-            //comparisons: false,  // optimize comparisons
+            comparisons: false,  // optimize comparisons
             //evaluate: true,  // evaluate constant expressions
             booleans: false,  // optimize boolean expressions
             loops: false,  // optimize loops
