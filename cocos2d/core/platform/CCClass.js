@@ -343,20 +343,22 @@ function doDefine (className, baseClass, mixins, options) {
     });
 
 
+    var prototype = fireClass.prototype;
     if (baseClass) {
         if (!__es6__) {
             JS.extend(fireClass, baseClass);    // 这里会把父类的 __props__ 复制给子类
+            prototype = fireClass.prototype;    // get extended prototype
         }
         fireClass.$super = baseClass;
         if (CC_DEV && shouldAddProtoCtor) {
-            fireClass.prototype.ctor = function () {};
+            prototype.ctor = function () {};
         }
     }
 
     if (mixins) {
         for (var m = mixins.length - 1; m >= 0; m--) {
             var mixin = mixins[m];
-            mixinWithInherited(fireClass.prototype, mixin.prototype);
+            mixinWithInherited(prototype, mixin.prototype);
 
             // mixin statics (this will also copy editor attributes for component)
             mixinWithInherited(fireClass, mixin, function (prop) {
@@ -372,11 +374,11 @@ function doDefine (className, baseClass, mixins, options) {
             }
         }
         // restore constuctor overridden by mixin
-        fireClass.prototype.constructor = fireClass;
+        prototype.constructor = fireClass;
     }
 
     if (!__es6__) {
-        fireClass.prototype.__initProps__ = compileProps;
+        prototype.__initProps__ = compileProps;
     }
 
     JS.setClassName(className, fireClass);
@@ -562,9 +564,9 @@ function compileProps (actualClass) {
 }
 
 function _createCtor (ctors, baseClass, className, options) {
+    // bound super calls
     var superCallBounded = baseClass && boundSuperCalls(baseClass, options, className);
 
-    // create class constructor
     var body;
     var args = CC_JSB ? '...args' : '';
     if (CC_DEV) {
@@ -582,26 +584,20 @@ function _createCtor (ctors, baseClass, className, options) {
     body += 'this.__initProps__(fireClass);\n';
 
     // call user constructors
-    if (ctors.length > 0) {
+    var ctorLen = ctors.length;
+    if (ctorLen > 0) {
         var useTryCatch = ! (className && className.startsWith('cc.'));
         if (useTryCatch) {
             body += 'try{\n';
         }
-        var SNIPPET = CC_JSB ? ']).apply(this,args);\n' : ']).apply(this,arguments);\n';
-        if (ctors.length === 1) {
-            body += '(fireClass.__ctors__[0' + SNIPPET;
+        var SNIPPET = CC_JSB ? '].apply(this,args);\n' : '].apply(this,arguments);\n';
+        if (ctorLen === 1) {
+            body += 'fireClass.__ctors__[0' + SNIPPET;
         }
         else {
             body += 'var cs=fireClass.__ctors__;\n';
-            if (ctors.length <= 5) {
-                for (var i = 0; i < ctors.length; i++) {
-                    body += '(cs[' + i + SNIPPET;
-                }
-            }
-            else {
-                body += 'for(var i=0,l=cs.length;i<l;++i){\n' +
-                            '(cs[i' + SNIPPET +
-                        '}\n';
+            for (var i = 0; i < ctorLen; i++) {
+                body += 'cs[' + i + SNIPPET;
             }
         }
         if (useTryCatch) {
