@@ -320,9 +320,11 @@ cc._initDebugSetting = function (mode) {
     cc.errorID = genLogFunc(cc.error, 'Error');
     cc.logID = genLogFunc(cc.log, 'Log');
     var assertFailed = genLogFunc(function () {
-        // no need to protect arguments leak here in case of an error
-        var argsArr = [].slice.call(arguments);
-        argsArr.unshift(false);
+        // actually no need to protect arguments leak here in case of an error...
+        var argsArr = [false];
+        for (var i = 0; i < arguments.length; ++i) {
+            argsArr.push(arguments[i]);
+        }
         cc.assert.apply(null, argsArr);
     }, 'Assert');
     cc.assertID = CC_JSB ? function (cond, ...args) {
