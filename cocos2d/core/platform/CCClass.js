@@ -270,7 +270,10 @@ function getDefault (defaultVal) {
 
 function mixinWithInherited (dest, src, filter) {
     for (var prop in src) {
-        if (!dest.hasOwnProperty(prop) && (!filter || filter(prop))) {
+        if (!dest.hasOwnProperty(prop) &&
+            (!filter || filter(prop)) &&
+            !prop.startsWith('__ctor')
+        ) {
             Object.defineProperty(dest, prop, JS.getPropertyDescriptor(src, prop));
         }
     }
@@ -343,20 +346,22 @@ function doDefine (className, baseClass, mixins, options) {
     });
 
 
+    var prototype = fireClass.prototype;
     if (baseClass) {
         if (!__es6__) {
             JS.extend(fireClass, baseClass);    // 这里会把父类的 __props__ 复制给子类
+            prototype = fireClass.prototype;    // get extended prototype
         }
         fireClass.$super = baseClass;
         if (CC_DEV && shouldAddProtoCtor) {
-            fireClass.prototype.ctor = function () {};
+            prototype.ctor = function () {};
         }
     }
 
     if (mixins) {
         for (var m = mixins.length - 1; m >= 0; m--) {
             var mixin = mixins[m];
-            mixinWithInherited(fireClass.prototype, mixin.prototype);
+            mixinWithInherited(prototype, mixin.prototype);
 
             // mixin statics (this will also copy editor attributes for component)
             mixinWithInherited(fireClass, mixin, function (prop) {
@@ -372,11 +377,15 @@ function doDefine (className, baseClass, mixins, options) {
             }
         }
         // restore constuctor overridden by mixin
-        fireClass.prototype.constructor = fireClass;
+        prototype.constructor = fireClass;
     }
 
     if (!__es6__) {
-        fireClass.prototype.__initProps__ = compileProps;
+        prototype.__initProps__ = compileProps;
+    }
+
+    for (var i = 0; i < ctors.length; i++) {
+        prototype['__ctor' + i] = ctors[i];
     }
 
     JS.setClassName(className, fireClass);
@@ -561,18 +570,40 @@ function compileProps (actualClass) {
     initProps.call(this);
 }
 
+var paramList = CC_JSB ? '...args' : 'p0,p1,p2';
+var paramLists = CC_JSB ? [
+    '',
+    'args[0]',
+    'args[0],args[1]',
+    'args[0],args[1],args[2]'
+] : [
+    '',
+    'p0',
+    'p0,p1',
+    'p0,p1,p2',
+];
+
+function _callCtors (ctorsLen, paramCode) {
+    var res = '';
+    for (var i = 0; i < ctorsLen; i++) {
+        res += 'this.__ctor' + i + paramCode + ';\n';
+    }
+    return res;
+}
+
 function _createCtor (ctors, baseClass, className, options) {
+    // bound super calls
     var superCallBounded = baseClass && boundSuperCalls(baseClass, options, className);
 
-    // create class constructor
     var body;
-    var args = CC_JSB ? '...args' : '';
     if (CC_DEV) {
-        body = '(function ' + normalizeClassName_DEV(className) + '(' + args + '){\n';
+        body = '(function ' + normalizeClassName_DEV(className) + '(' + paramList + '){\n';
     }
     else {
-        body = '(function(' + args + '){\n';
+        body = '(function(' + paramList + '){\n';
     }
+
+    body += '\'use strict\';\n';
 
     if (superCallBounded) {
         body += 'this._super=null;\n';
@@ -580,30 +611,34 @@ function _createCtor (ctors, baseClass, className, options) {
 
     // instantiate props
     body += 'this.__initProps__(fireClass);\n';
-
     // call user constructors
-    if (ctors.length > 0) {
+    var ctorsLen = ctors.length;
+    if (ctorsLen > 0) {
+        var args = CC_JSB ? 'args' : 'arguments';
+        var applyArgs = `.apply(this,${args})`;
+
         var useTryCatch = ! (className && className.startsWith('cc.'));
         if (useTryCatch) {
             body += 'try{\n';
         }
-        var SNIPPET = CC_JSB ? ']).apply(this,args);\n' : ']).apply(this,arguments);\n';
-        if (ctors.length === 1) {
-            body += '(fireClass.__ctors__[0' + SNIPPET;
+        body += 'if(this.constructor===fireClass){\n' +
+                    `switch(${args}.length){\n`;
+        for(let i = 0; i < paramLists.length; i++) {
+            body +=     'case ' + i + ':\n' +
+                            // fast cases
+                            _callCtors(ctorsLen, `(${paramLists[i]})`) +
+                            'break;\n';
         }
-        else {
-            body += 'var cs=fireClass.__ctors__;\n';
-            if (ctors.length <= 5) {
-                for (var i = 0; i < ctors.length; i++) {
-                    body += '(cs[' + i + SNIPPET;
-                }
-            }
-            else {
-                body += 'for(var i=0,l=cs.length;i<l;++i){\n' +
-                            '(cs[i' + SNIPPET +
-                        '}\n';
-            }
+        body +=         'default:\n' +
+                            // slower
+                            _callCtors(ctorsLen, applyArgs) +
+                    '}\n';
+        body += '}else{\n';
+        for (let i = 0; i < ctorsLen; i++) {
+            body += `(fireClass.__ctors__[${i}])${applyArgs};\n`;
         }
+        body += '}\n';
+
         if (useTryCatch) {
             body += '}catch(e){\n' +
                         'cc._throw(e);\n' +

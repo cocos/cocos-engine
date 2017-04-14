@@ -79,18 +79,18 @@ Class.extend = function (props) {
     if (cc.game && cc.game.config && cc.game.config[cc.game.CONFIG_KEY.exposeClassName]) {
         var ctor =
             "return (function " + (props._className || "Class") + "(arg0,arg1,arg2,arg3,arg4) {\n" +
-            "this.__instanceId = cc.ClassManager.getNewInstanceId();\n" +
-            "if (this.ctor) {\n" +
-            "switch (arguments.length) {\n" +
-            "case 0: this.ctor(); break;\n" +
-            "case 1: this.ctor(arg0); break;\n" +
-            "case 2: this.ctor(arg0,arg1); break;\n" +
-            "case 3: this.ctor(arg0,arg1,arg2); break;\n" +
-            "case 4: this.ctor(arg0,arg1,arg2,arg3); break;\n" +
-            "case 5: this.ctor(arg0,arg1,arg2,arg3,arg4); break;\n" +
-            "default: this.ctor.apply(this, arguments);\n" +
-            "}\n" +
-            "}\n" +
+                "this.__instanceId = cc.ClassManager.getNewInstanceId();\n" +
+                "if (this.ctor) {\n" +
+                    "switch (arguments.length) {\n" +
+                        "case 0: this.ctor(); break;\n" +
+                        "case 1: this.ctor(arg0); break;\n" +
+                        "case 2: this.ctor(arg0,arg1); break;\n" +
+                        "case 3: this.ctor(arg0,arg1,arg2); break;\n" +
+                        "case 4: this.ctor(arg0,arg1,arg2,arg3); break;\n" +
+                        "case 5: this.ctor(arg0,arg1,arg2,arg3,arg4); break;\n" +
+                        "default: this.ctor.apply(this, arguments);\n" +
+                    "}\n" +
+                "}\n" +
             "});";
         TheClass = Function(ctor)();
     }
