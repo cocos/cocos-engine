@@ -341,11 +341,17 @@ var game = /** @lends cc.game# */{
      * The target node must be placed in the root level of hierarchy, otherwise this API won't have any effect.
      * @method addPersistRootNode
      * @param {Node} node - The node to be made persistent
-     * @return {key} 返回创建使用的key -1失败 其它成功
+     * @return {string}  return creation key is failure return -1
      */
     addPersistRootNode: function (node) {
         return this.setPersistRootNode(node.uuid,node);
     },
+    /**
+     *  set Persist Root Node
+     * @method setPersistRootNode
+     * @return {number|string} key return creation key is failure return -1
+     * @param  {Node} node - The node to be made persistent
+     */
     setPersistRootNode: function (key,node) {
         if (!(node instanceof cc.Node) || !key) {
             cc.warn('The target can not be made persist because it\'s not a cc.Node or it doesn\'t have _id property.');
@@ -373,6 +379,11 @@ var game = /** @lends cc.game# */{
         }
         return -1;
     },
+    /**
+     * get Persist Root Node
+     * @method getPersistRootNode
+     * @param {Number|string} key 
+     */
     getPersistRootNode:function(key){
          if (!key) {
             cc.warn(' getPersistRootNode key==null');
@@ -385,15 +396,15 @@ var game = /** @lends cc.game# */{
     /**
      * Remove a persistent root node
      * @method removePersistRootNode
-     * @param {Node|Number} nodeOrKey - The node to be removed from persistent node list
-     * @return {Boolean} false 失败 true 成功
+     * @param {Node|Number|string} nodeOrKey - The node to be removed from persistent node list
+     * @return {Boolean} failure false,succeed true
      */
     removePersistRootNode: function (nodeOrKey) {
         if (nodeOrKey !== this._ignoreRemovePersistNode) {
              var id =''
             if(nodeOrKey instanceof cc.Node){
                 id = nodeOrKey.uuid || '';
-            }else if(typeof(nodeOrKey) == 'number'){
+            }else if(typeof(nodeOrKey) == ('number' || 'string')){
                 id = nodeOrKey;
                 nodeOrKey=this.getPersistRootNode(nodeOrKey);
             }else{
