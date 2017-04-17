@@ -160,11 +160,12 @@ var Toggle = cc.Class({
 
         this._updateCheckMark();
 
-        this._emitToggleEvents(event);
 
         if(this.toggleGroup) {
             this.toggleGroup.updateToggles(this);
         }
+
+        this._emitToggleEvents(event);
     },
 
     _emitToggleEvents: function () {
@@ -187,11 +188,12 @@ var Toggle = cc.Class({
         }
 
         this.isChecked = true;
-        this._emitToggleEvents();
 
         if(this.toggleGroup) {
             this.toggleGroup.updateToggles(this);
         }
+
+        this._emitToggleEvents();
     },
 
     /**
