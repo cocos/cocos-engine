@@ -55,6 +55,11 @@ var ToggleGroup = cc.Class({
             default: false
         },
 
+        /**
+         * !#en Read only property, return the toggle items array reference managed by toggleGroup.
+         * !#zh 只读属性，返回 toggleGroup 管理的 toggle 数组引用
+         * @property {Array} toggleItems
+         */
         toggleItems: {
             get: function (){
                 return this._toggleItems;
