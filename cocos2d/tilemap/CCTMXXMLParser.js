@@ -848,7 +848,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         var objects = selGroup.querySelectorAll('object');
         var getContentScaleFactor = cc.director.getContentScaleFactor();
         if (objects) {
-            for (j = 0; j < objects.length; j++) {
+            for (var j = 0; j < objects.length; j++) {
                 var selObj = objects[j];
                 // The value for "type" was blank or not a valid class name
                 // Create an instance of TMXObjectInfo to store the object and its properties

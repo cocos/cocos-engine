@@ -138,7 +138,7 @@ JS.mixin(EventTarget.prototype, {
 
     /**
      * !#en Checks whether the EventTarget object has any callback registered for a specific type of event.
-     * !#zh 检查事件目标对象是否为不特定类型的事件注册的回调。
+     * !#zh 检查事件目标对象是否有为特定类型的事件注册的回调。
      * @param {String} type - The type of event.
      * @param {Boolean} checkCapture - Check for capturing or bubbling phase, check bubbling phase by default.
      * @return {Boolean} True if a callback of the specified type is registered in specified phase; false otherwise.
