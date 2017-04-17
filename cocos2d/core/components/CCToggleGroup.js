@@ -53,6 +53,12 @@ var ToggleGroup = cc.Class({
         allowSwitchOff: {
             tooltip: CC_DEV && 'i18n:COMPONENT.toggle_group.allowSwitchOff',
             default: false
+        },
+
+        toggleItems: {
+            get: function (){
+                return this._toggleItems;
+            }
         }
     },
 
