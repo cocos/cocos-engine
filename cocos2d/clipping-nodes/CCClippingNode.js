@@ -104,7 +104,9 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
      * @function
      */
     onExitTransitionDidStart: function () {
-        this._stencil.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
+        if (this._stencil) {
+            this._stencil.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
+        }
         _ccsg.Node.prototype.onExitTransitionDidStart.call(this);
     },
 
@@ -118,7 +120,9 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
      * @function
      */
     onExit: function () {
-        this._stencil.performRecursive(_ccsg.Node.performType.onExit);
+        if (this._stencil) {
+            this._stencil.performRecursive(_ccsg.Node.performType.onExit);
+        }
         _ccsg.Node.prototype.onExit.call(this);
     },
 
