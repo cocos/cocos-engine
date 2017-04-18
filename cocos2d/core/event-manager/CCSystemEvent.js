@@ -118,16 +118,8 @@ var SystemEvent = cc.Class({
             if (!accelerationListener) {
                 accelerationListener = cc.EventListener.create({
                     event: cc.EventListener.ACCELERATION,
-                    callback: function (accelEvent, event) {
+                    callback: function (acc, event) {
                         event.type = EventType.DEVICEMOTION;
-                        // fix android acc values are opposite
-                        if (!CC_JSB && cc.sys.os === cc.sys.OS_ANDROID &&
-                            cc.sys.browserType !== cc.sys.BROWSER_TYPE_MOBILE_QQ) {
-                            event.acc = cc.p(-accelEvent.x, -accelEvent.y);
-                        }
-                        else {
-                            event.acc = cc.p(accelEvent.x, accelEvent.y);
-                        }
                         cc.systemEvent.dispatchEvent(event);
                     }
                 });
