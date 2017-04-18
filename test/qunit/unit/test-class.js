@@ -665,7 +665,7 @@ largeModule('Class ES6');
         class BigDog extends Dog {
             constructor () {
                 super();
-                Mixin.call(this);
+                Mixin.call(this);   // expect Mixin will call its own ctor rather than this's
             }
         }
 
