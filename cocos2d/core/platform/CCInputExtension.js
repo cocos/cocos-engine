@@ -125,4 +125,10 @@ inputManager.didAccelerate = function (eventData) {
         mAcceleration.x = -mAcceleration.x;
         mAcceleration.y = -mAcceleration.y;
     }
+    // fix android acc values are opposite
+    if (!CC_JSB && cc.sys.os === cc.sys.OS_ANDROID &&
+        cc.sys.browserType !== cc.sys.BROWSER_TYPE_MOBILE_QQ) {
+        mAcceleration.x = -mAcceleration.x;
+        mAcceleration.y = -mAcceleration.y;
+    }
 };
