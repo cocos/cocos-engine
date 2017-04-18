@@ -1,8 +1,14 @@
 
-function PhysicsAABBQueryCallback (point) {
-    this._point = point;
+function PhysicsAABBQueryCallback () {
+    this._point = new b2.Vec2();
     this._fixtures = [];
 }
+
+PhysicsAABBQueryCallback.prototype.init = function (point) {
+    this._point.x = point.x;
+    this._point.y = point.y;
+    this._fixtures.length = 0;
+};
 
 PhysicsAABBQueryCallback.prototype.ReportFixture = function (fixture) {
     var body = fixture.GetBody();
@@ -19,7 +25,7 @@ PhysicsAABBQueryCallback.prototype.ReportFixture = function (fixture) {
         }
     }
 
-    // Continue the query.
+    // True to continue the query, false to terminate the query.
     return true;
 };
 

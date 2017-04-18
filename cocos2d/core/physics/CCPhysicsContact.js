@@ -54,8 +54,8 @@ PhysicsContact.prototype.init = function (b2contact) {
     this.colliderA = b2contact.GetFixtureA().collider;
     this.colliderB = b2contact.GetFixtureB().collider;
     this.disabled = false;
+    this.disabledOnce = false;
     this._impulse = null;
-
 
     this._b2contact = b2contact;
     b2contact._contact = this;
@@ -74,11 +74,11 @@ PhysicsContact.prototype.reset = function () {
 PhysicsContact.prototype.getWorldManifold = function () {
     var points = worldmanifold.points;
     var separations = worldmanifold.separations;
+    var normal = worldmanifold.normal;
 
     if (CC_JSB) {
         var wrapper = cc.PhysicsUtils.getContactWorldManifoldWrapper(this._b2contact);
         var count = wrapper.getCount();
-        var localNormal = worldmanifold.localNormal;
 
         points.length = separations.length = count;
 
@@ -91,8 +91,8 @@ PhysicsContact.prototype.getWorldManifold = function () {
             separations[i] = wrapper.getSeparation(i);
         }
         
-        localNormal.x = wrapper.getNormalX();
-        localNormal.y = wrapper.getNormalY();
+        normal.x = wrapper.getNormalX();
+        normal.y = wrapper.getNormalY();
     }
     else {
         this._b2contact.GetWorldManifold(b2worldmanifold);
@@ -110,6 +110,9 @@ PhysicsContact.prototype.getWorldManifold = function () {
             points[i] = p;
             separations[i] = b2separations[i] * PTM_RATIO;
         }
+
+        normal.x = b2worldmanifold.normal.x;
+        normal.y = b2worldmanifold.normal.y;
     }
 
     return worldmanifold;
@@ -236,6 +239,11 @@ PhysicsContact.prototype.emit = function (contactType) {
                 comp[func](this, colliderB, colliderA);
             }
         }
+    }
+
+    if (this.disabled || this.disabledOnce) {
+        this.setEnabled(false);
+        this.disabledOnce = false;
     }
 };
 

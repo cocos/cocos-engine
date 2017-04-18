@@ -17,7 +17,8 @@ cc.RigidBodyType = BodyType;
 var RayCastType = cc.Enum({
     Closest: 0,
     Any: 1,
-    All: 2
+    AllClosest: 2,
+    All: 3
 });
 cc.RayCastType = RayCastType;
 
