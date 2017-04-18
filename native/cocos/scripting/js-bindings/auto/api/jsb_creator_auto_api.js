@@ -1027,6 +1027,16 @@ PhysicsContactListener : function (
 cc.PhysicsAABBQueryCallback = {
 
 /**
+ * @method init
+* @param {b2Vec2} b2vec2
+*/
+init : function(
+b2vec2 
+)
+{
+},
+
+/**
  * @method getFixture
  * @return {b2Fixture}
  */
@@ -1039,10 +1049,8 @@ getFixture : function (
 /**
  * @method PhysicsAABBQueryCallback
  * @constructor
-* @param {b2Vec2} b2vec2
-*/
-PhysicsAABBQueryCallback : function(
-b2vec2 
+ */
+PhysicsAABBQueryCallback : function (
 )
 {
 },
@@ -1065,6 +1073,16 @@ getType : function (
 },
 
 /**
+ * @method init
+ * @param {int} arg0
+ */
+init : function (
+int 
+)
+{
+},
+
+/**
  * @method getFractions
  * @return {Array}
  */
@@ -1077,10 +1095,8 @@ getFractions : function (
 /**
  * @method PhysicsRayCastCallback
  * @constructor
- * @param {int} arg0
  */
 PhysicsRayCastCallback : function (
-int 
 )
 {
 },

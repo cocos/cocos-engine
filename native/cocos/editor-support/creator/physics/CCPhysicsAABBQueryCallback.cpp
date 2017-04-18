@@ -9,10 +9,17 @@ PhysicsAABBQueryCallback::PhysicsAABBQueryCallback()
 {
 }
 
-PhysicsAABBQueryCallback::PhysicsAABBQueryCallback(const b2Vec2& p)
-: _isPoint(false)
+void PhysicsAABBQueryCallback::init()
 {
+    _isPoint = false;
+    _fixtures.clear();
+}
+    
+void PhysicsAABBQueryCallback::init(const b2Vec2& p)
+{
+    _isPoint = true;
     _point = p;
+    _fixtures.clear();
 }
 
 PhysicsAABBQueryCallback::~PhysicsAABBQueryCallback()
