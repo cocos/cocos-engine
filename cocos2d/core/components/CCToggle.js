@@ -108,7 +108,7 @@ var Toggle = cc.Class({
         if(!CC_EDITOR) {
             this._registerToggleEvent();
         }
-        if(this.toggleGroup) {
+        if(this.toggleGroup && this.toggleGroup.enabled) {
             this.toggleGroup.addToggle(this);
         }
     },
@@ -118,14 +118,14 @@ var Toggle = cc.Class({
         if(!CC_EDITOR) {
             this._unregisterToggleEvent();
         }
-        if(this.toggleGroup) {
+        if(this.toggleGroup && this.toggleGroup.enabled) {
             this.toggleGroup.removeToggle(this);
         }
     },
 
     _updateCheckMark: function () {
         if(this.checkMark) {
-            this.checkMark.enabled = !!this.isChecked;
+            this.checkMark.node.active = !!this.isChecked;
         }
     },
 
@@ -151,7 +151,7 @@ var Toggle = cc.Class({
     },
 
     toggle: function (event) {
-        if(this.toggleGroup && this.isChecked) {
+        if(this.toggleGroup && this.toggleGroup.enabled && this.isChecked) {
             if(!this.toggleGroup.allowSwitchOff) {
                 return;
             }
@@ -160,11 +160,12 @@ var Toggle = cc.Class({
 
         this._updateCheckMark();
 
-        this._emitToggleEvents(event);
 
-        if(this.toggleGroup) {
+        if(this.toggleGroup && this.toggleGroup.enabled) {
             this.toggleGroup.updateToggles(this);
         }
+
+        this._emitToggleEvents(event);
     },
 
     _emitToggleEvents: function () {
@@ -180,18 +181,19 @@ var Toggle = cc.Class({
      * @method check
      */
     check: function () {
-        if(this.toggleGroup && this.isChecked) {
+        if(this.toggleGroup && this.toggleGroup.enabled && this.isChecked) {
             if(!this.toggleGroup.allowSwitchOff) {
                 return;
             }
         }
 
         this.isChecked = true;
-        this._emitToggleEvents();
 
-        if(this.toggleGroup) {
+        if(this.toggleGroup && this.toggleGroup.enabled) {
             this.toggleGroup.updateToggles(this);
         }
+
+        this._emitToggleEvents();
     },
 
     /**
@@ -200,7 +202,7 @@ var Toggle = cc.Class({
      * @method uncheck
      */
     uncheck: function () {
-        if(this.toggleGroup && this.isChecked) {
+        if(this.toggleGroup && this.toggleGroup.enabled && this.isChecked) {
             if(!this.toggleGroup.allowSwitchOff) {
                 return;
             }
