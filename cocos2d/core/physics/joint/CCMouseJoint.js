@@ -25,6 +25,24 @@
 
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 
+var tempB2Vec2 = new b2.Vec2();
+/**
+ * !#en
+ * A mouse joint is used to make a point on a body track a
+ * specified world point. This a soft constraint with a maximum
+ * force. This allows the constraint to stretch and without
+ * applying huge forces.
+ * Mouse Joint will auto register the touch event with the mouse region node,
+ * and move the choosed rigidbody in touch move event.
+ * Note : generally mouse joint only used in test bed.
+ * !#zh
+ * 鼠标关节用于使刚体上的一个点追踪一个指定的世界坐标系下的位置。
+ * 鼠标关节可以指定一个最大的里来施加一个柔和的约束。
+ * 鼠标关节会自动使用 mouse region 节点来注册鼠标事件，并且在触摸移动事件中移动选中的刚体。
+ * 注意：一般鼠标关节只在测试环境中使用。
+ * @class MouseJoint
+ * @extends Joint
+ */
 var MouseJoint = cc.Class({
     name: 'cc.MouseJoint',
     extends: cc.Joint,
@@ -53,20 +71,56 @@ var MouseJoint = cc.Class({
             override: true
         },
 
+        /**
+         * !#en
+         * The anchor of the rigidbody.
+         * !#zh
+         * 刚体的锚点。
+         * @property {Vec2} anchor
+         * @default cc.v2(0, 0)
+         */
         anchor: {
             default: cc.v2(0, 0),
+            override: true,
             visible: false
         },
+        /**
+         * !#en
+         * The anchor of the connected rigidbody.
+         * !#zh
+         * 关节另一端刚体的锚点。
+         * @property {Vec2} connectedAnchor
+         * @default cc.v2(0, 0)
+         */
         connectedAnchor: {
             default: cc.v2(0, 0),
+            override: true,
             visible: false
         },
 
+        /**
+         * !#en
+         * The node used to register touch evnet.
+         * If this is null, it will be the joint's node.
+         * !#zh
+         * 用于注册触摸事件的节点。
+         * 如果没有设置这个值，那么将会使用关节的节点来注册事件。
+         * @property {Node} mouseRegion
+         * @default null
+         */
         mouseRegion: {
             default: null,
             type: cc.Node
         },
 
+        /**
+         * !#en
+         * The target point.
+         * The mouse joint will move choosed rigidbody to target point.
+         * !#zh
+         * 目标点，鼠标关节将会移动选中的刚体到指定的目标点
+         * @property {Vec2} target
+         */
         target: {
             visible: false,
             get: function () {
@@ -75,11 +129,21 @@ var MouseJoint = cc.Class({
             set: function (value) {
                 this._target = value;
                 if (this._joint) {
-                    this._joint.SetTarget(new b2.Vec2(value.x/PTM_RATIO, value.y/PTM_RATIO));
+                    tempB2Vec2.x = value.x/PTM_RATIO;
+                    tempB2Vec2.y = value.y/PTM_RATIO;
+                    this._joint.SetTarget(tempB2Vec2);
                 }
             }
         },
 
+        /**
+         * !#en
+         * The spring frequency.
+         * !#zh
+         * 弹簧系数。
+         * @property {Number} frequency
+         * @default 0
+         */
         frequency: {
             get: function () {
                 return this._frequency;
@@ -92,6 +156,14 @@ var MouseJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The damping ratio.
+         * !#zh
+         * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
+         * @property {Number} dampingRatio
+         * @property 0
+         */
         dampingRatio: {
             get: function () {
                 return this._dampingRatio;
@@ -104,6 +176,14 @@ var MouseJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The maximum force
+         * !#zh
+         * 最大阻力值
+         * @property {Number} maxForce
+         * @default 1
+         */
         maxForce: {
             visible: false,
             get: function () {
@@ -140,7 +220,7 @@ var MouseJoint = cc.Class({
         var body = this.connectedBody = collider.body;
         body.awake = true;
 
-        this.maxForce = 1000 * this.connectedBody.mass;
+        this.maxForce = 1000 * this.connectedBody.getMass();
         this.target = target;
 
         this._init();
@@ -156,7 +236,9 @@ var MouseJoint = cc.Class({
 
     _createJointDef: function () {
         var def = new b2.MouseJointDef();
-        def.target = new b2.Vec2(this.target.x/PTM_RATIO, this.target.y/PTM_RATIO);
+        tempB2Vec2.x = this.target.x/PTM_RATIO;
+        tempB2Vec2.y = this.target.y/PTM_RATIO;
+        def.target = tempB2Vec2;
         def.maxForce = this.maxForce;
         def.dampingRatio = this.dampingRatio;
         def.frequencyHz = this.frequency;

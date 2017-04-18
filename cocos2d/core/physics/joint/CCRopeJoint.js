@@ -25,6 +25,18 @@
 
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 
+/**
+ * !#en
+ * A rope joint enforces a maximum distance between two points
+ * on two bodies. It has no other effect.
+ * Warning: if you attempt to change the maximum length during
+ * the simulation you will get some non-physical behavior.
+ * !#zh
+ * 绳子关节只指定两个刚体间的最大距离，没有其他的效果。
+ * 注意：如果你试图动态修改关节的长度，这有可能会得到一些意外的效果。
+ * @class RopeJoint
+ * @extends Joint
+ */
 var RopeJoint = cc.Class({
     name: 'cc.RopeJoint',
     extends: cc.Joint,
@@ -35,11 +47,16 @@ var RopeJoint = cc.Class({
     },
 
     properties: {
-        anchor: cc.v2(0, 0),
-        connectedAnchor: cc.v2(0, 0),
-
         _maxLength: 1,
 
+        /**
+         * !#en
+         * The max length.
+         * !#zh
+         * 最大长度。
+         * @property {Number} maxLength
+         * @default 1
+         */
         maxLength: {
             get: function () {
                 return this._maxLength;

@@ -23,8 +23,18 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var PTM_RATIO = cc.PhysicsManager.PTM_RATIO;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 
+/**
+ * !#en
+ * A distance joint constrains two points on two bodies
+ * to remain at a fixed distance from each other. You can view
+ * this as a massless, rigid rod.
+ * !#zh
+ * 距离关节通过一个固定的长度来约束关节链接的两个刚体。你可以将它想象成一个无质量，坚固的木棍。
+ * @class DistanceJoint
+ * @extends Joint
+ */
 var DistanceJoint = cc.Class({
     name: 'cc.DistanceJoint',
     extends: cc.Joint,
@@ -35,13 +45,18 @@ var DistanceJoint = cc.Class({
     },
 
     properties: {
-        anchor: cc.v2(0, 0),
-        connectedAnchor: cc.v2(0, 0),
-
         _distance: 1,
         _frequency: 0,
         _dampingRatio: 0,
 
+        /**
+         * !#en
+         * The distance separating the two ends of the joint.
+         * !#zh
+         * 关节两端的距离
+         * @property {Number} distance
+         * @default 1
+         */
         distance: {
             get: function () {
                 return this._distance;
@@ -54,6 +69,14 @@ var DistanceJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The spring frequency.
+         * !#zh
+         * 弹性系数。
+         * @property {Number} frequency
+         * @default 0
+         */
         frequency: {
             get: function () {
                 return this._frequency;
@@ -66,6 +89,14 @@ var DistanceJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The damping ratio.
+         * !#zh
+         * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
+         * @property {Number} dampingRatio
+         * @property 0
+         */
         dampingRatio: {
             get: function () {
                 return this._dampingRatio;

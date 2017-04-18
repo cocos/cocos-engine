@@ -13,13 +13,76 @@ if (!CC_JSB) {
     b2worldmanifold = new b2.WorldManifold();
 }
 
+/**
+ * @class WorldManifold
+ */
 var worldmanifold = {
+
+    /**
+     * !#en
+     * world contact point (point of intersection)
+     * !#zh
+     * 碰撞点集合
+     * @property {[Vec2]} points
+     */
     points: [],
+
+    /**
+     * !#en
+     * a negative value indicates overlap
+     * !#zh
+     * 一个负数，用于指明重叠的部分
+     */
     separations: [],
-    localNormal: cc.v2()
+
+    /**
+     * !#en
+     * world vector pointing from A to B
+     * !#zh
+     * 世界坐标系下由 A 指向 B 的向量
+     * @property {Vec2} normal
+     */
+    normal: cc.v2()
 };
 
-// temp manifold
+/**
+ * !#en
+ * A manifold point is a contact point belonging to a contact manifold. 
+ * It holds details related to the geometry and dynamics of the contact points.
+ * Note: the impulses are used for internal caching and may not
+ * provide reliable contact forces, especially for high speed collisions.
+ * !#zh
+ * ManifoldPoint 是接触信息中的接触点信息。它拥有关于几何和接触点的详细信息。
+ * 注意：信息中的冲量用于系统内部缓存，提供的接触力可能不是很准确，特别是高速移动中的碰撞信息。
+ * @class ManifoldPoint
+ */
+/**
+ * !#en
+ * The local point usage depends on the manifold type:
+ * -e_circles: the local center of circleB
+ * -e_faceA: the local center of circleB or the clip point of polygonB
+ * -e_faceB: the clip point of polygonA
+ * !#zh
+ * 本地坐标点的用途取决于 manifold 的类型
+ * - e_circles: circleB 的本地中心点
+ * - e_faceA: circleB 的本地中心点 或者是 polygonB 的截取点
+ * - e_faceB: polygonB 的截取点
+ * @property {Vec2} localPoint
+ */
+/**
+ * !#en
+ * Normal impulse.
+ * !#zh
+ * 法线冲量。
+ * @property {Number} normalImpulse
+ */
+/**
+ * !#en
+ * Tangent impulse.
+ * !#zh
+ * 切线冲量。
+ * @property {Number} tangentImpulse
+ */
 function ManifoldPoint () {
     this.localPoint = cc.v2();
     this.normalImpulse = 0;
@@ -33,20 +96,113 @@ if (!CC_JSB) {
     b2manifold = new b2.Manifold();
 }
 
+/**
+ * @class Manifold
+ */
 var manifold = {
+    /**
+     * !#en
+     * Manifold type :  0: e_circles, 1: e_faceA, 2: e_faceB
+     * !#zh
+     * Manifold 类型 :  0: e_circles, 1: e_faceA, 2: e_faceB
+     * @property {Number} type
+     */
     type: 0,
+
+    /**
+     * !#en
+     * The local point usage depends on the manifold type:
+     * -e_circles: the local center of circleA
+     * -e_faceA: the center of faceA
+     * -e_faceB: the center of faceB
+     * !#zh
+     * 用途取决于 manifold 类型
+     * -e_circles: circleA 的本地中心点
+     * -e_faceA: faceA 的本地中心点
+     * -e_faceB: faceB 的本地中心点
+     * @property {Vec2} localPoint
+     */
     localPoint: cc.v2(),
+    /**
+     * !#en
+     * -e_circles: not used
+     * -e_faceA: the normal on polygonA
+     * -e_faceB: the normal on polygonB
+     * !#zh
+     * -e_circles: 没被使用到
+     * -e_faceA: polygonA 的法向量
+     * -e_faceB: polygonB 的法向量
+     * @property {Vec2} localNormal
+     */
     localNormal: cc.v2(),
+
+    /**
+     * !#en
+     * the points of contact.
+     * !#zh
+     * 接触点信息。
+     * @property {[ManifoldPoint]} points
+     */
     points: []
 };
 
-// temp impulse
+/**
+ * !#en
+ * Contact impulses for reporting.
+ * !#zh
+ * 用于返回给回调的接触冲量。
+ * @class PhysicsImpulse
+ */
 var impulse = {
+    /**
+     * !#en
+     * Normal impulses.
+     * !#zh
+     * 法线方向的冲量
+     * @property normalImpulses
+     */
     normalImpulses: [],
+    /**
+     * !#en
+     * Tangent impulses
+     * !#zh
+     * 切线方向的冲量
+     * @property tangentImpulses
+     */
     tangentImpulses: []
 };
 
-// PhysicsContact
+/**
+ * !#en
+ * PhysicsContact will be generated during begin and end collision as a parameter of the collision callback.
+ * Note that contacts will be reused for speed up cpu time, so do not cache anything in the contact.
+ * !#zh
+ * 物理接触会在开始和结束碰撞之间生成，并作为参数传入到碰撞回调函数中。
+ * 注意：传入的物理接触会被系统进行重用，所以不要在使用中缓存里面的任何信息。
+ * @class PhysicsContact
+ */
+/**
+ * @property {Collider} colliderA
+ */
+/**
+ * @property {Collider} colliderB
+ */
+/**
+ * !#en
+ * If set disabled to true, the contact will be ignored until contact end.
+ * If you just want to disabled contact for current time step or sub-step, please use disabledOnce.
+ * !#zh
+ * 如果 disabled 被设置为 true，那么直到接触结束此接触都将被忽略。
+ * 如果只是希望在当前时间步或子步中忽略此接触，请使用 disabledOnce 。
+ * @property {Boolean} disabled
+ */
+/**
+ * !#en
+ * Disabled contact for current time step or sub-step.
+ * !#zh
+ * 在当前时间步或子步中忽略此接触。
+ * @property {Boolean} disabledOnce
+ */
 function PhysicsContact () {
 }
 
@@ -71,6 +227,14 @@ PhysicsContact.prototype.reset = function () {
     this._b2contact = null;
 };
 
+/**
+ * !#en
+ * Get the world manifold.
+ * !#zh
+ * 获取世界坐标系下的碰撞信息。
+ * @method getWorldManifold
+ * @return {WorldManifold}
+ */
 PhysicsContact.prototype.getWorldManifold = function () {
     var points = worldmanifold.points;
     var separations = worldmanifold.separations;
@@ -118,6 +282,14 @@ PhysicsContact.prototype.getWorldManifold = function () {
     return worldmanifold;
 };
 
+/**
+ * !#en
+ * Get the manifold.
+ * !#zh
+ * 获取世界坐标系下的碰撞信息。
+ * @method getManifold
+ * @return {Manifold}
+ */
 PhysicsContact.prototype.getManifold = function () {
     var points = manifold.points;
     
@@ -167,6 +339,16 @@ PhysicsContact.prototype.getManifold = function () {
     return manifold;
 };
 
+/**
+ * !#en
+ * Get the impulses.
+ * Note: PhysicsImpulse can only used in onPostSolve callback.
+ * !#zh
+ * 获取冲量信息
+ * 注意：这个信息只有在 onPostSolve 回调中才能获取到
+ * @method getImpulse
+ * @return {PhysicsImpulse}
+ */
 PhysicsContact.prototype.getImpulse = function () {
     var b2impulse = this._impulse;
     if (!b2impulse) return null;
@@ -268,6 +450,76 @@ PhysicsContact.put = function (b2contact) {
     c.reset();
 };
 
+/**
+ * !#en
+ * Is this contact touching?
+ * !#zh
+ * 返回碰撞体是否已经接触到。
+ * @method isTouching
+ * @return {Boolean}
+ */
+/**
+ * !#en
+ * Override the default friction mixture. You can call this in onPreSolve callback.
+ * !#zh
+ * 覆盖默认的摩擦力系数。你可以在 onPreSolve 回调中调用此函数。
+ * @method setFriction
+ * @param {Number} friction
+ */
+/**
+ * !#en
+ * Get the friction.
+ * !#zh
+ * 获取当前摩擦力系数
+ * @method getFriction
+ * @return {Number}
+ */
+/**
+ * !#en
+ * Reset the friction mixture to the default value.
+ * !#zh
+ * 重置摩擦力系数到默认值
+ * @method resetFriction
+ */
+/**
+ * !#en
+ * Override the default restitution mixture. You can call this in onPreSolve callback.
+ * !#zh
+ * 覆盖默认的恢复系数。你可以在 onPreSolve 回调中调用此函数。
+ * @method setRestitution
+ * @param {Number} restitution
+ */
+/**
+ * !#en
+ * Get the restitution.
+ * !#zh
+ * 获取当前恢复系数
+ * @method getRestitution
+ * @return {Number}
+ */
+/**
+ * !#en
+ * Reset the restitution mixture to the default value.
+ * !#zh
+ * 重置恢复系数到默认值
+ * @method resetRestitution
+ */
+/**
+ * !#en
+ * Set the desired tangent speed for a conveyor belt behavior.
+ * !#zh
+ * 为传送带设置期望的切线速度
+ * @method setTangentSpeed
+ * @param {Number} tangentSpeed
+ */
+/**
+ * !#en
+ * Get the desired tangent speed.
+ * !#zh
+ * 获取切线速度
+ * @method getTangentSpeed
+ * @return {Number}
+ */
 [
     'IsTouching', 
     'IsEnabled', 

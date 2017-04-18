@@ -34,6 +34,20 @@ var PHYSICS_ANGLE_TO_ANGLE = require('./CCPhysicsTypes').PHYSICS_ANGLE_TO_ANGLE;
 var tempB2AABB = new b2.AABB();
 var tempB2Vec21 = new b2.Vec2();
 var tempB2Vec22 = new b2.Vec2();
+
+/**
+ * !#en
+ * Physics manager uses box2d as the inner physics system, and hide most box2d implement details(creating rigidbody, synchronize rigidbody info to node).
+ * You can visit some common box2d function through physics manager(hit testing, raycast, debug info).
+ * Physics manager distributes the collision information to each collision callback when collision is produced.
+ * Note: You need first enable the collision listener in the rigidbody.
+ * !#zh
+ * 物理系统将 box2d 作为内部物理系统，并且隐藏了大部分 box2d 实现细节（比如创建刚体，同步刚体信息到节点中等）。
+ * 你可以通过物理系统访问一些 box2d 常用的功能，比如点击测试，射线测试，设置测试信息等。
+ * 物理系统还管理碰撞信息的分发，她会在产生碰撞时，将碰撞信息分发到各个碰撞回调中。
+ * 注意：你需要先在刚体中开启碰撞接听才会产生相应的碰撞回调。
+ * @class PhysicsManager
+ */
 var PhysicsManager = cc.Class({
     mixins: [cc.EventTarget],
 
@@ -100,6 +114,15 @@ var PhysicsManager = cc.Class({
         this._syncNode();
     },
 
+    /**
+     * !#en
+     * Test which collider contains the given world point
+     * !#zh
+     * 获取包含给定世界坐标系点的碰撞体
+     * @method testPoint
+     * @param {Vec2} point - the world point
+     * @return {PhysicsCollider}
+     */
     testPoint: function (point) {
         var x = tempB2Vec21.x = point.x/PTM_RATIO;
         var y = tempB2Vec21.y = point.y/PTM_RATIO;
@@ -122,6 +145,15 @@ var PhysicsManager = cc.Class({
         return null;
     },
 
+    /**
+     * !#en
+     * Test which colliders intersect the given world rect
+     * !#zh
+     * 获取与给定世界坐标系矩形相交的碰撞体
+     * @method testAABB
+     * @param {Rect} rect - the world rect
+     * @return {[PhysicsCollider]}
+     */
     testAABB: function (rect) {
         tempB2AABB.lowerBound.x = rect.xMin/PTM_RATIO;
         tempB2AABB.lowerBound.y = rect.yMin/PTM_RATIO;
@@ -140,6 +172,18 @@ var PhysicsManager = cc.Class({
         return colliders;
     },
 
+    /**
+     * !#en
+     * Raycast the world for all colliders in the path of the ray.
+     * The raycast ignores colliders that contain the starting point.
+     * !#zh
+     * 检测哪些碰撞体在给定射线的路径上，射线检测将忽略包含起始点的碰撞体。
+     * @method rayCast
+     * @param {Vec2} p1 - start point of the raycast
+     * @param {Vec2} p2 - end point of the raycast
+     * @param {RayCastType} type - optional, default is RayCastType.Closest
+     * @return {[PhysicsRayCastResult]}
+     */
     rayCast: function (p1, p2, type) {
         if (p1.equals(p2)) {
             return [];
@@ -213,10 +257,26 @@ var PhysicsManager = cc.Class({
         }
     },    
 
+    /**
+     * !#en
+     * Attach physics debug draw to camera
+     * !#zh
+     * 将物理的调试绘制信息附加到指定摄像机上
+     * @method attachDebugDrawToCamera
+     * @param {Camera} camera
+     */
     attachDebugDrawToCamera: function (camera) {
         if (!this._debugDrawer) return;
         camera.addTarget(this._debugDrawer.getDrawer());
     },
+    /**
+     * !#en
+     * Detach physics debug draw to camera
+     * !#zh
+     * 将物理的调试绘制信息从指定摄像机上移除
+     * @method detachDebugDrawFromCamera
+     * @param {Camera} camera
+     */
     detachDebugDrawFromCamera: function (camera) {
         if (!this._debugDrawer) return;
         camera.removeTarget(this._debugDrawer.getDrawer());
@@ -357,6 +417,14 @@ var PhysicsManager = cc.Class({
     }
 });
 
+/**
+ * !#en
+ * Enabled the physics manager?
+ * !#zh
+ * 指定是否启用物理系统？
+ * @property {Boolean} enabled
+ * @default false
+ */
 cc.js.getset(PhysicsManager.prototype, 'enabled', 
     function () {
         return this._enabled;
@@ -376,6 +444,25 @@ cc.js.getset(PhysicsManager.prototype, 'enabled',
     }
 );
 
+/**
+ * !#en
+ * Debug draw flags.
+ * !#zh
+ * 设置调试绘制标志
+ * @property {Number} debugDrawFlags
+ * @default 0
+ * @example
+ * // enable all debug draw info
+ * var Bits = cc.PhysicsManager.DrawBits;
+ * cc.director.getPhysicsManager().debugDrawFlags = Bits.e_aabbBit |
+    Bits.e_pairBit |
+    Bits.e_centerOfMassBit |
+    Bits.e_jointBit |
+    Bits.e_shapeBit;
+ 
+ * // disable debug draw info
+ * cc.director.getPhysicsManager().debugDrawFlags = 0;
+ */
 cc.js.getset(PhysicsManager.prototype, 'debugDrawFlags', 
     function () {
         return this._debugDrawFlags;
@@ -405,6 +492,13 @@ cc.js.getset(PhysicsManager.prototype, 'debugDrawFlags',
     }
 );
 
+/**
+ * !#en
+ * The physics world gravity.
+ * !#zh
+ * 物理世界重力值
+ * @property {Number} gravity
+ */
 cc.js.getset(PhysicsManager.prototype, 'gravity',
     function () {
         if (this._world) {
@@ -425,3 +519,36 @@ PhysicsManager.DrawBits = b2.Draw;
 PhysicsManager.PTM_RATIO = PTM_RATIO;
 
 cc.PhysicsManager = module.exports = PhysicsManager;
+
+
+/**
+ * @class PhysicsRayCastResult
+ */
+/**
+ * !#en
+ * The PhysicsCollider which intersects with the raycast
+ * !#zh
+ * 与射线相交的碰撞体
+ * @property {PhysicsCollider} collider
+ */
+/**
+ * !#en
+ * The intersection point
+ * !#zh
+ * 射线与碰撞体相交的点
+ * @property {Vec2} point
+ */
+/**
+ * !#en
+ * The normal vector at the point of intersection
+ * !#zh
+ * 射线与碰撞体相交的点的法向量
+ * @property {Vec2} normal
+ */
+/**
+ * !#en
+ * The fraction of the raycast path at the point of intersection
+ * !#zh
+ * 射线与碰撞体相交的点占射线长度的分数
+ * @property {Number} fraction
+ */

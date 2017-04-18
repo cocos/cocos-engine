@@ -26,6 +26,18 @@
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var ANGLE_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
 
+/**
+ * !#en
+ * A prismatic joint. This joint provides one degree of freedom: translation
+ * along an axis fixed in rigidbody. Relative rotation is prevented. You can
+ * use a joint limit to restrict the range of motion and a joint motor to
+ * drive the motion or to model joint friction.
+ * !#zh
+ * 移动关节指定了只能在一个方向上移动刚体。
+ * 你可以开启关节限制来设置刚体运行移动的间距，也可以开启马达来使用关节马达驱动刚体的运行。
+ * @class PrismaticJoint
+ * @extends Joint
+ */
 var PrismaticJoint = cc.Class({
     name: 'cc.PrismaticJoint',
     extends: cc.Joint,
@@ -36,19 +48,76 @@ var PrismaticJoint = cc.Class({
     },
 
     properties: {
-        anchor: cc.v2(0, 0),
-        connectedAnchor: cc.v2(0, 0),
+        /**
+         * !#en
+         * The local joint axis relative to rigidbody.
+         * !#zh
+         * 指定刚体可以移动的方向。
+         * @property {Vec2} localAxisA
+         * @default cc.v2(1, 0)
+         */
         localAxisA: cc.v2(1, 0),
 
+        /**
+         * !#en
+         * The reference angle.
+         * !#zh
+         * 相对角度
+         * @property {Number} referenceAngle
+         * @default 0
+         */
         referenceAngle: 0,
+
+        /**
+         * !#en
+         * Enable joint distance limit?
+         * !#zh
+         * 是否开启关节的距离限制？
+         * @property {Boolean} enableLimit
+         * @default false
+         */
         enableLimit: false,
+
+        /**
+         * !#en
+         * Enable joint motor?
+         * !#zh
+         * 是否开启关节马达？
+         * @property {Boolean} enableMotor
+         * @default false
+         */
         enableMotor: false,
-        lowerTranslation: 0,
-        upperTranslation: 0,
+
+        /**
+         * !#en
+         * The lower joint limit.
+         * !#zh
+         * 刚体能够移动的最小值
+         * @property {Number} lowerLimit
+         * @default 0
+         */
+        lowerLimit: 0,
+        /**
+         * !#en
+         * The upper joint limit.
+         * !#zh
+         * 刚体能够移动的最打值
+         * @property {Number} upperLimit
+         * @default 0
+         */
+        upperLimit: 0,
 
         _maxMotorForce: 0,
         _motorSpeed: 0,
 
+        /**
+         * !#en
+         * The maxium force can be applied to rigidbody to rearch the target motor speed.
+         * !#zh
+         * 可以施加到刚体的最大力。
+         * @property {Number} maxMotorForce
+         * @default 0
+         */
         maxMotorForce: {
             get: function () {
                 return this._maxMotorForce;
@@ -61,6 +130,14 @@ var PrismaticJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The expected motor speed.
+         * !#zh
+         * 期望的马达速度。
+         * @property {Number} motorSpeed
+         * @default 0
+         */
         motorSpeed: {
             get: function () {
                 return this._motorSpeed;
@@ -81,8 +158,8 @@ var PrismaticJoint = cc.Class({
         def.localAxisA = new b2.Vec2(this.localAxisA.x, this.localAxisA.y);
         def.referenceAngle = this.referenceAngle * ANGLE_TO_PHYSICS_ANGLE;
         def.enableLimit = this.enableLimit;
-        def.lowerTranslation = this.lowerTranslation/PTM_RATIO;
-        def.upperTranslation = this.upperTranslation/PTM_RATIO;
+        def.lowerTranslation = this.lowerLimit/PTM_RATIO;
+        def.upperTranslation = this.upperLimit/PTM_RATIO;
         def.enableMotor = this.enableMotor;
         def.maxMotorForce = this.maxMotorForce;
         def.motorSpeed = this.motorSpeed;

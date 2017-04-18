@@ -23,57 +23,62 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
+
+/**
+ * !#en
+ * Base class for joints to connect rigidbody.
+ * !#zh
+ * 关节类的基类
+ * @class Joint
+ * @extends Component
+ */
 var Joint = cc.Class({
     name: 'cc.Joint',
     extends: cc.Component,
 
     properties: {
+               /**
+         * !#en
+         * The anchor of the rigidbody.
+         * !#zh
+         * 刚体的锚点。
+         * @property {Vec2} anchor
+         * @default cc.v2(0, 0)
+         */
+        anchor: cc.v2(0, 0),
+        /**
+         * !#en
+         * The anchor of the connected rigidbody.
+         * !#zh
+         * 关节另一端刚体的锚点。
+         * @property {Vec2} connectedAnchor
+         * @default cc.v2(0, 0)
+         */
+        connectedAnchor: cc.v2(0, 0),
+        
+        /**
+         * !#en
+         * The rigidbody to which the other end of the joint is attached.
+         * !#zh
+         * 关节另一端链接的刚体
+         * @property {RigidBody} connectedBody
+         * @default null
+         */
         connectedBody: {
             default: null,
             type: cc.RigidBody
         },
 
+        /**
+         * !#en
+         * Should the two rigid bodies connected with this joint collide with each other?
+         * !#zh
+         * 链接到关节上的两个刚体是否应该相互碰撞？
+         * @property {Boolean} collideConnected
+         * @default false
+         */
         collideConnected: false,
-
-        worldAnchor: {
-            get: function () {
-                if (this._joint) {
-                    return this._joint.GetAnchorA();
-                }
-                return cc.Vec2.ZERO;
-            },
-            visible: false
-        },
-
-        worldConnectedAnchor: {
-            get: function () {
-                if (this._joint) {
-                    return this._joint.GetAnchorB();
-                }
-                return cc.Vec2.ZERO;
-            },
-            visible: false
-        },
-
-        bodyA: {
-            get: function () {
-                if (this._joint) {
-                    return this._joint.GetBodyA();
-                }
-                return null;
-            },
-            visible: false
-        },
-
-        bodyB: {
-            get: function () {
-                if (this._joint) {
-                    return this._joint.GetBodyB();
-                }
-                return null;
-            },
-            visible: false
-        }
     },
 
     onDisable: function () {
@@ -93,16 +98,66 @@ var Joint = cc.Class({
         this._init();
     },
 
-    getReactionForce: function (inv_dt) {
+    /**
+     * !#en
+     * Get the anchor point on rigidbody in world coordinates.
+     * !#zh
+     * 获取刚体世界坐标系下的锚点。
+     * @method worldAnchor
+     * @return {Vec2}
+     */
+    getWorldAnchor: function () {
         if (this._joint) {
-            return this._joint.GetReactionForce(inv_dt);
+            var anchor = this._joint.GetAnchorA();
+            return cc.v2(anchor.x * PTM_RATIO, anchor.y * PTM_RATIO);
         }
         return cc.Vec2.ZERO;
     },
 
-    getReactionTorque: function (inv_dt) {
+    /**
+     * !#en
+     * Get the anchor point on connected rigidbody in world coordinates.
+     * !#zh
+     * 获取链接刚体世界坐标系下的锚点。
+     * @method getWorldConnectedAnchor
+     * @return {Vec2}
+     */
+    getWorldConnectedAnchor: function () {
         if (this._joint) {
-            return this._joint.GetReactionForce(inv_dt);
+            var anchor = this._joint.GetAnchorB();
+            return cc.v2(anchor.x * PTM_RATIO, anchor.y * PTM_RATIO);
+        }
+        return cc.Vec2.ZERO;
+    },
+
+    /**
+     * !#en
+     * Gets the reaction force of the joint.
+     * !#zh
+     * 获取关节的反作用力。
+     * @method getReactionForce
+     * @param {Number} timeStep - The time to calculate the reaction force for.
+     * @return {Number}
+     */
+    getReactionForce: function (timeStep) {
+        if (this._joint) {
+            return this._joint.GetReactionForce(timeStep);
+        }
+        return 0;
+    },
+
+    /**
+     * !#en
+     * Gets the reaction torque of the joint.
+     * !#zh
+     * 获取关节的反扭矩。
+     * @method getReactionTorque
+     * @param {Number} timeStep - The time to calculate the reaction torque for.
+     * @return {Number}
+     */
+    getReactionTorque: function (timeStep) {
+        if (this._joint) {
+            return this._joint.GetReactionTorque(timeStep);
         }
         return 0;
     },

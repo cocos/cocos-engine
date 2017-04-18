@@ -30,6 +30,7 @@ PhysicsUtils.prototype.syncNode = function () {
 
         body._ignoreNodeChanges = true;
 
+        // When node's parent is not scene, convert position and rotation.
         if (node.parent.parent !== null) {
             tempPosition = node.parent.convertToNodeSpaceAR( tempPosition );
             angle = convertToNodeRotation( node.parent, angle );
