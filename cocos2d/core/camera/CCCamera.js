@@ -49,12 +49,22 @@ let Camera = cc.Class({
     },
 
     _createSgNode: function () {
-        return new _ccsg.CameraNode();
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            cc.warnID(8301);
+            return new _ccsg.Node();
+        }
+        else {
+            return new _ccsg.CameraNode();
+        }
     },
 
     _initSgNode: function () {},
 
     _addSgTargetInSg: function (target) {
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            return;
+        }
+
         if (target instanceof cc.Node) {
             this._sgNode.addTarget(target._sgNode);
         }
@@ -64,6 +74,10 @@ let Camera = cc.Class({
     },
 
     _removeTargetInSg: function (target) {
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            return;
+        }
+
         if (target instanceof cc.Node) {
             this._sgNode.removeTarget(target._sgNode);
         }
@@ -156,6 +170,10 @@ let Camera = cc.Class({
     },
 
     lateUpdate: !CC_EDITOR && function () {
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            return;
+        }
+
         let t = tempTransform;
         this.calculateCaemraTransformIn(t);
         this._sgNode.setTransform(t.a, t.b, t.c, t.d, t.tx, t.ty);
