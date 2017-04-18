@@ -53,3 +53,6 @@ armatureProto.removeEventListener = function (type, listener, target) {
     jsb.unregisterNativeRef(this, display);
     display.removeEvent(type, listener, target);
 };
+
+var transformProto = dragonBones.Transform.prototype;
+cc.js.getset(transformProto, 'rotation', transformProto.getRotation, transformProto.setRotation);
