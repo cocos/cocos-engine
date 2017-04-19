@@ -49,7 +49,15 @@ let Camera = cc.Class({
     },
 
     _createSgNode: function () {
-        return new _ccsg.CameraNode();
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            cc.errorID(8301);
+            var sgNode = new _ccsg.Node();
+            sgNode.setTransform = sgNode.addTarget = sgNode.removeTarget = function () {};
+            return sgNode;
+        }
+        else {
+            return new _ccsg.CameraNode();
+        }
     },
 
     _initSgNode: function () {},
