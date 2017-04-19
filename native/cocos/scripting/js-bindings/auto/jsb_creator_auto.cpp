@@ -2543,6 +2543,39 @@ void js_register_creator_PhysicsContactListener(JSContext *cx, JS::HandleObject 
 JSClass  *jsb_creator_PhysicsAABBQueryCallback_class;
 JSObject *jsb_creator_PhysicsAABBQueryCallback_prototype;
 
+bool js_creator_PhysicsAABBQueryCallback_init(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    creator::PhysicsAABBQueryCallback* cobj = nullptr;
+
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx);
+    obj.set(args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cobj = (creator::PhysicsAABBQueryCallback *)(proxy ? proxy->ptr : nullptr);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsAABBQueryCallback_init : Invalid Native Object");
+    do {
+        bool ok = true;
+        if (argc == 1) {
+            b2Vec2 arg0;
+            ok &= jsval_to_b2Vec2(cx, args.get(0), &arg0);
+            if (!ok) { ok = true; break; }
+            cobj->init(arg0);
+            args.rval().setUndefined();
+            return true;
+        }
+    } while(0);
+
+    do {
+        if (argc == 0) {
+            cobj->init();
+            args.rval().setUndefined();
+            return true;
+        }
+    } while(0);
+
+    JS_ReportError(cx, "js_creator_PhysicsAABBQueryCallback_init : wrong number of arguments");
+    return false;
+}
 bool js_creator_PhysicsAABBQueryCallback_getFixture(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -2567,51 +2600,18 @@ bool js_creator_PhysicsAABBQueryCallback_getFixture(JSContext *cx, uint32_t argc
 }
 bool js_creator_PhysicsAABBQueryCallback_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
-    bool ok = true;
-    creator::PhysicsAABBQueryCallback* cobj = nullptr;
-
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx);
-    do {
-        ok = true;
-        if (argc == 1) {
-            b2Vec2 arg0;
-            ok &= jsval_to_b2Vec2(cx, args.get(0), &arg0);
-            if (!ok) { ok = true; break; }
-            cobj = new (std::nothrow) creator::PhysicsAABBQueryCallback(arg0);
+    bool ok = true;
+    creator::PhysicsAABBQueryCallback* cobj = new (std::nothrow) creator::PhysicsAABBQueryCallback();
 
-            js_type_class_t *typeClass = js_get_type_from_native<creator::PhysicsAABBQueryCallback>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto.ref());
-            JS::RootedObject parent(cx, typeClass->parentProto.ref());
-            obj = JS_NewObject(cx, typeClass->jsclass, proto, parent);
-            js_proxy_t* p = jsb_new_proxy(cobj, obj);
-            jsb_non_ref_init(cx, &p->obj, cobj, "creator::PhysicsAABBQueryCallback");
-        }
-    } while(0);
+    js_type_class_t *typeClass = js_get_type_from_native<creator::PhysicsAABBQueryCallback>(cobj);
 
-    do {
-        ok = true;
-        if (argc == 0) {
-            cobj = new (std::nothrow) creator::PhysicsAABBQueryCallback();
-
-            js_type_class_t *typeClass = js_get_type_from_native<creator::PhysicsAABBQueryCallback>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto.ref());
-            JS::RootedObject parent(cx, typeClass->parentProto.ref());
-            obj = JS_NewObject(cx, typeClass->jsclass, proto, parent);
-            js_proxy_t* p = jsb_new_proxy(cobj, obj);
-            jsb_non_ref_init(cx, &p->obj, cobj, "creator::PhysicsAABBQueryCallback");
-        }
-    } while(0);
-
-    if (cobj) {
-        if (JS_HasProperty(cx, obj, "_ctor", &ok) && ok)
-                ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
-
-        args.rval().set(OBJECT_TO_JSVAL(obj));
-        return true;
-    }
-    JS_ReportError(cx, "js_creator_PhysicsAABBQueryCallback_constructor : wrong number of arguments");
-    return false;
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_create_weak_jsobject(cx, cobj, typeClass, "creator::PhysicsAABBQueryCallback"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
 }
 
 
@@ -2658,6 +2658,7 @@ void js_register_creator_PhysicsAABBQueryCallback(JSContext *cx, JS::HandleObjec
     };
 
     static JSFunctionSpec funcs[] = {
+        JS_FN("init", js_creator_PhysicsAABBQueryCallback_init, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getFixture", js_creator_PhysicsAABBQueryCallback_getFixture, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
@@ -2705,6 +2706,26 @@ bool js_creator_PhysicsRayCastCallback_getType(JSContext *cx, uint32_t argc, jsv
     JS_ReportError(cx, "js_creator_PhysicsRayCastCallback_getType : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
+bool js_creator_PhysicsRayCastCallback_init(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::PhysicsRayCastCallback* cobj = (creator::PhysicsRayCastCallback *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsRayCastCallback_init : Invalid Native Object");
+    if (argc == 1) {
+        int arg0 = 0;
+        ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsRayCastCallback_init : Error processing arguments");
+        cobj->init(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_PhysicsRayCastCallback_init : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
 bool js_creator_PhysicsRayCastCallback_getFractions(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -2727,10 +2748,7 @@ bool js_creator_PhysicsRayCastCallback_constructor(JSContext *cx, uint32_t argc,
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    int arg0 = 0;
-    ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
-    JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsRayCastCallback_constructor : Error processing arguments");
-    creator::PhysicsRayCastCallback* cobj = new (std::nothrow) creator::PhysicsRayCastCallback(arg0);
+    creator::PhysicsRayCastCallback* cobj = new (std::nothrow) creator::PhysicsRayCastCallback();
 
     js_type_class_t *typeClass = js_get_type_from_native<creator::PhysicsRayCastCallback>(cobj);
 
@@ -2787,6 +2805,7 @@ void js_register_creator_PhysicsRayCastCallback(JSContext *cx, JS::HandleObject 
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getType", js_creator_PhysicsRayCastCallback_getType, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("init", js_creator_PhysicsRayCastCallback_init, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getFractions", js_creator_PhysicsRayCastCallback_getFractions, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };

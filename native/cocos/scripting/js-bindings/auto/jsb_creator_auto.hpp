@@ -157,6 +157,7 @@ bool js_creator_PhysicsAABBQueryCallback_constructor(JSContext *cx, uint32_t arg
 void js_creator_PhysicsAABBQueryCallback_finalize(JSContext *cx, JSObject *obj);
 void js_register_creator_PhysicsAABBQueryCallback(JSContext *cx, JS::HandleObject global);
 void register_all_creator(JSContext* cx, JS::HandleObject obj);
+bool js_creator_PhysicsAABBQueryCallback_init(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsAABBQueryCallback_getFixture(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsAABBQueryCallback_PhysicsAABBQueryCallback(JSContext *cx, uint32_t argc, jsval *vp);
 
@@ -168,6 +169,7 @@ void js_creator_PhysicsRayCastCallback_finalize(JSContext *cx, JSObject *obj);
 void js_register_creator_PhysicsRayCastCallback(JSContext *cx, JS::HandleObject global);
 void register_all_creator(JSContext* cx, JS::HandleObject obj);
 bool js_creator_PhysicsRayCastCallback_getType(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_PhysicsRayCastCallback_init(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsRayCastCallback_getFractions(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_PhysicsRayCastCallback_PhysicsRayCastCallback(JSContext *cx, uint32_t argc, jsval *vp);
 
