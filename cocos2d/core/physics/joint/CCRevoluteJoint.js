@@ -27,6 +27,21 @@ var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var ANGLE_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
 var PHYSICS_ANGLE_TO_ANGLE = require('../CCPhysicsTypes').PHYSICS_ANGLE_TO_ANGLE;
 
+/**
+ * !#en
+ * A revolute joint constrains two bodies to share a common point while they
+ * are free to rotate about the point. The relative rotation about the shared
+ * point is the joint angle. You can limit the relative rotation with
+ * a joint limit that specifies a lower and upper angle. You can use a motor
+ * to drive the relative rotation about the shared point. A maximum motor torque
+ * is provided so that infinite forces are not generated.
+ * !#zh
+ * 旋转关节可以约束两个刚体围绕一个点来进行旋转。
+ * 你可以通过开启关节限制来限制旋转的最大角度和最小角度。
+ * 你可以通过开启马达来施加一个扭矩力来驱动这两个刚体在这一点上的相对速度。
+ * @class RevoluteJoint
+ * @extends Joint
+ */
 var RevoluteJoint = cc.Class({
     name: 'cc.RevoluteJoint',
     extends: cc.Joint,
@@ -37,18 +52,50 @@ var RevoluteJoint = cc.Class({
     },
 
     properties: {
-        anchor: cc.v2(0, 0),
-        connectedAnchor: cc.v2(0, 0),
-
-        referenceAngle: 0,
-        lowerAngle: 0,
-        upperAngle: 0,
-
         _maxMotorTorque: 0,
         _motorSpeed: 0,
         _enableLimit: false,
         _enableMotor: false,
+        
+        /**
+         * !#en
+         * The reference angle.
+         * An angle between bodies considered to be zero for the joint angle.
+         * !#zh
+         * 相对角度。
+         * 两个物体之间角度为零时可以看作相等于关节角度
+         * @property {Number} referenceAngle
+         * @default 0
+         */
+        referenceAngle: 0,
 
+        /**
+         * !#en
+         * The lower angle.
+         * !#zh
+         * 角度的最低限制。
+         * @property {Number} lowerAngle
+         * @default 0
+         */
+        lowerAngle: 0,
+        /**
+         * !#en
+         * The upper angle.
+         * !#zh
+         * 角度的最高限制。
+         * @property {Number} upperAngle
+         * @default 0
+         */
+        upperAngle: 0,
+
+        /**
+         * !#en
+         * The maxium torque can be applied to rigidbody to rearch the target motor speed.
+         * !#zh
+         * 可以施加到刚体的最大扭矩。
+         * @property {Number} maxMotorTorque
+         * @default 0
+         */
         maxMotorTorque: {
             get: function () {
                 return this._maxMotorTorque;
@@ -61,6 +108,14 @@ var RevoluteJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The expected motor speed.
+         * !#zh
+         * 期望的马达速度。
+         * @property {Number} motorSpeed
+         * @default 0
+         */
         motorSpeed: {
             get: function () {
                 return this._motorSpeed;
@@ -73,6 +128,14 @@ var RevoluteJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * Enable joint limit?
+         * !#zh
+         * 是否开启关节的限制？
+         * @property {Boolean} enableLimit
+         * @default false
+         */
         enableLimit: {
             get: function () {
                 return this._enableLimit;
@@ -85,6 +148,14 @@ var RevoluteJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * Enable joint motor?
+         * !#zh
+         * 是否开启关节马达？
+         * @property {Boolean} enableMotor
+         * @default false
+         */
         enableMotor: {
             get: function () {
                 return this._enableMotor;
@@ -95,17 +166,22 @@ var RevoluteJoint = cc.Class({
                     this._joint.EnableMotor(value);
                 }
             }
-        },
-
-        jointAngle: {
-            visible: false,
-            get: function () {
-                if (this._joint) {
-                    return this._joint.GetJointAngle() * PHYSICS_ANGLE_TO_ANGLE;
-                }
-                return 0;
-            }
         }
+    },
+
+    /**
+     * !#en
+     * Get the joint angle.
+     * !#zh
+     * 获取关节角度。
+     * @method getJointAngle
+     * @return {Number}
+     */
+    getJointAngle: function () {
+        if (this._joint) {
+            return this._joint.GetJointAngle() * PHYSICS_ANGLE_TO_ANGLE;
+        }
+        return 0;
     },
 
     _createJointDef: function () {

@@ -26,6 +26,14 @@
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var PolygonSeprator = require('../CCPolygonSeprator');
 
+/**
+ * !#en
+ * PhysicsPolygonCollider also inherits from {{#crossLink "PhysicsCollider"}}PhysicsCollider{{/crossLink}}
+ * !#zh
+ * PhysicsPolygonCollider 同样也继承自 {{#crossLink "PhysicsCollider"}}PhysicsCollider{{/crossLink}}
+ * @class PhysicsPolygonCollider
+ * @extends PolygonCollider
+ */
 var PhysicsPolygonCollider = cc.Class({
     name: 'cc.PhysicsPolygonCollider',
     extends: cc.PolygonCollider,

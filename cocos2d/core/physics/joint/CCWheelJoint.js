@@ -26,6 +26,19 @@
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var ANGLE_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
 
+/**
+ * !#en
+ * A wheel joint. This joint provides two degrees of freedom: translation
+ * along an axis fixed in bodyA and rotation in the plane. You can use a joint motor to drive
+ * the rotation or to model rotational friction.
+ * This joint is designed for vehicle suspensions.
+ * !#zh
+ * 轮子关节提供两个维度的自由度：旋转和沿着指定方向上位置的移动。
+ * 你可以通过开启关节马达来使用马达驱动刚体的旋转。
+ * 轮组关节是专门为机动车类型设计的。
+ * @class WheelJoint
+ * @extends Joint
+ */
 var WheelJoint = cc.Class({
     name: 'cc.WheelJoint',
     extends: cc.Joint,
@@ -36,11 +49,6 @@ var WheelJoint = cc.Class({
     },
 
     properties: {
-        anchor: cc.v2(0, 0),
-        connectedAnchor: cc.v2(0, 0),
-
-        localAxisA: cc.v2(1, 0),
-
         _maxMotorTorque: 0,
         _motorSpeed: 0,
         _enableMotor: false,
@@ -48,6 +56,24 @@ var WheelJoint = cc.Class({
         _frequency: 2,
         _dampingRatio: 0.7,
 
+        /**
+         * !#en
+         * The local joint axis relative to rigidbody.
+         * !#zh
+         * 指定刚体可以移动的方向。
+         * @property {Vec2} localAxisA
+         * @default cc.v2(1, 0)
+         */
+        localAxisA: cc.v2(1, 0),
+
+        /**
+         * !#en
+         * The maxium torque can be applied to rigidbody to rearch the target motor speed.
+         * !#zh
+         * 可以施加到刚体的最大扭矩。
+         * @property {Number} maxMotorTorque
+         * @default 0
+         */
         maxMotorTorque: {
             get: function () {
                 return this._maxMotorTorque;
@@ -60,6 +86,14 @@ var WheelJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The expected motor speed.
+         * !#zh
+         * 期望的马达速度。
+         * @property {Number} motorSpeed
+         * @default 0
+         */
         motorSpeed: {
             get: function () {
                 return this._motorSpeed;
@@ -72,6 +106,14 @@ var WheelJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * Enable joint motor?
+         * !#zh
+         * 是否开启关节马达？
+         * @property {Boolean} enableMotor
+         * @default false
+         */
         enableMotor: {
             get: function () {
                 return this._enableMotor;
@@ -84,6 +126,14 @@ var WheelJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The spring frequency.
+         * !#zh
+         * 弹性系数。
+         * @property {Number} frequency
+         * @default 0
+         */
         frequency: {
             get: function () {
                 return this._frequency;
@@ -96,6 +146,14 @@ var WheelJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The damping ratio.
+         * !#zh
+         * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
+         * @property {Number} dampingRatio
+         * @default 0
+         */
         dampingRatio: {
             get: function () {
                 return this._dampingRatio;

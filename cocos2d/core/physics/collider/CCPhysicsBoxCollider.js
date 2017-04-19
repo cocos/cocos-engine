@@ -25,6 +25,14 @@
 
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 
+/**
+ * !#en
+ * PhysicsBoxCollider also inherits from {{#crossLink "PhysicsCollider"}}PhysicsCollider{{/crossLink}}
+ * !#zh
+ * PhysicsBoxCollider 同样也继承自 {{#crossLink "PhysicsCollider"}}PhysicsCollider{{/crossLink}}
+ * @class PhysicsBoxCollider
+ * @extends BoxCollider
+ */
 var PhysicsBoxCollider = cc.Class({
     name: 'cc.PhysicsBoxCollider',
     extends: cc.BoxCollider,

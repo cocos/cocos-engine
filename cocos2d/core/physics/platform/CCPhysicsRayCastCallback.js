@@ -1,12 +1,19 @@
 
-function PhysicsRayCastCallback (type) {
-    this._type = type;
-
+function PhysicsRayCastCallback () {
+    this._type = 0;
     this._fixtures = [];
     this._points = [];
     this._normals = [];
     this._fractions = [];
 }
+
+PhysicsRayCastCallback.prototype.init = function (type) {
+    this._type = type;
+    this._fixtures.length = 0;
+    this._points.length = 0;
+    this._normals.length = 0;
+    this._fractions.length = 0;
+};
 
 PhysicsRayCastCallback.prototype.ReportFixture = function (fixture, point, normal, fraction) {
     if (this._type === 0) { // closest
@@ -25,7 +32,7 @@ PhysicsRayCastCallback.prototype.ReportFixture = function (fixture, point, norma
     if (this._type === 1) { // any
         return 0;
     }
-    else if (this._type === 2) { // all
+    else if (this._type >= 2) { // all
         return 1;
     }
 

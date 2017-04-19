@@ -26,6 +26,16 @@
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var ANGLE_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
 
+/**
+ * !#en
+ * A weld joint essentially glues two bodies together. A weld joint may
+ * distort somewhat because the island constraint solver is approximate.
+ * !#zh
+ * 熔接关节相当于将两个刚体粘在了一起。
+ * 熔接关节可能会使某些东西失真，因为约束求解器算出的都是近似值。
+ * @class WeldJoint
+ * @extends Joint
+ */
 var WeldJoint = cc.Class({
     name: 'cc.WeldJoint',
     extends: cc.Joint,
@@ -36,13 +46,27 @@ var WeldJoint = cc.Class({
     },
 
     properties: {
-        anchor: cc.v2(0, 0),
-        connectedAnchor: cc.v2(0, 0),
+        /**
+         * !#en
+         * The reference angle.
+         * !#zh
+         * 相对角度。
+         * @property {Number} referenceAngle
+         * @default 0
+         */
         referenceAngle: 0,
 
         _frequency: 0,
         _dampingRatio: 0,
 
+        /**
+         * !#en
+         * The frequency.
+         * !#zh
+         * 弹性系数。
+         * @property {Number} frequency
+         * @default 0
+         */
         frequency: {
             get: function () {
                 return this._frequency;
@@ -55,6 +79,14 @@ var WeldJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The damping ratio.
+         * !#zh
+         * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
+         * @property {Number} dampingRatio
+         * @property 0
+         */
         dampingRatio: {
             get: function () {
                 return this._dampingRatio;

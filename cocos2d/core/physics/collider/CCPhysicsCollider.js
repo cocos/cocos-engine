@@ -26,6 +26,9 @@
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var getWorldScale = require('../utils').getWorldScale;
 
+/**
+ * @class PhysicsCollider
+ */
 function PhysicsCollider () {
     this._fixtures = [];
     this._shapes = [];
@@ -47,11 +50,25 @@ PhysicsCollider.prototype.start = function () {
     this._init();
 };
 
+/**
+ * !#en
+ * Apply current changes to collider, this will regenerate inner box2d fixtures.
+ * !#zh
+ * 应用当前 collider 中的修改，调用此函数会重新生成内部 box2d 的夹具。
+ * @method apply
+ */
 PhysicsCollider.prototype.apply = function () {
     this._destroy();
     this._init();
 };
 
+/**
+ * !#en
+ * Get the world aabb of the collider
+ * !#zh
+ * 获取碰撞体的世界坐标系下的包围盒
+ * @method getAABB
+ */
 PhysicsCollider.prototype.getAABB = function () {
     var MAX = 10e6;
 
@@ -191,7 +208,15 @@ PhysicsCollider.properties = {
     _sensor: false,
     _friction: 0.2,
     _restitution: 0,
-
+    
+    /**
+     * !#en
+     * The density.
+     * !#zh
+     * 密度
+     * @property {Number} density
+     * @default 1
+     */
     density: {
         get: function () {
             return this._density;
@@ -201,6 +226,14 @@ PhysicsCollider.properties = {
         }
     },
 
+    /**
+     * !#en
+     * A sensor collider collects contact information but never generates a collision response
+     * !#zh
+     * 一个传感器类型的碰撞体会搜集碰撞信息，但是不会产生碰撞回调。
+     * @property {Boolean} sensor
+     * @default false
+     */
     sensor: {
         get: function () {
             return this._sensor;
@@ -210,6 +243,14 @@ PhysicsCollider.properties = {
         }
     },
 
+    /**
+     * !#en
+     * The friction coefficient, usually in the range [0,1].
+     * !#zh
+     * 摩擦系数，取值一般在 [0, 1] 之间
+     * @property {Number} friction
+     * @default 0.2
+     */
     friction: {
         get: function () {
             return this._friction;
@@ -219,6 +260,14 @@ PhysicsCollider.properties = {
         }
     },
 
+    /**
+     * !#en
+     * The restitution (elasticity) usually in the range [0,1].
+     * !#zh
+     * 弹性系数，取值一般在 [0, 1]之间
+     * @property {Number} restitution
+     * @default 0
+     */
     restitution: {
         get: function () {
             return this._restitution;

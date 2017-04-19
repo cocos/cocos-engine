@@ -26,6 +26,17 @@
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var ANGLE_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
 
+/**
+ * !#en
+ * A motor joint is used to control the relative motion
+ * between two bodies. A typical usage is to control the movement
+ * of a dynamic body with respect to the ground.
+ * !#zh
+ * 马达关节被用来控制两个刚体间的相对运动。
+ * 一个典型的例子是用来控制一个动态刚体相对于地面的运动。
+ * @class MotorJoint
+ * @extends Joint
+ */
 var MotorJoint = cc.Class({
     name: 'cc.MotorJoint',
     extends: cc.Joint,
@@ -42,6 +53,42 @@ var MotorJoint = cc.Class({
         _maxTorque: 1,
         _correctionFactor: 0.3,
 
+        /**
+         * !#en
+         * The anchor of the rigidbody.
+         * !#zh
+         * 刚体的锚点。
+         * @property {Vec2} anchor
+         * @default cc.v2(0, 0)
+         */
+        anchor: {
+            default: cc.v2(0, 0),
+            override: true,
+            visible: false
+        },
+        /**
+         * !#en
+         * The anchor of the connected rigidbody.
+         * !#zh
+         * 关节另一端刚体的锚点。
+         * @property {Vec2} connectedAnchor
+         * @default cc.v2(0, 0)
+         */
+        connectedAnchor: {
+            default: cc.v2(0, 0),
+            override: true,
+            visible: false
+        },
+
+
+        /**
+         * !#en
+         * The linear offset from connected rigidbody to rigidbody.
+         * !#zh
+         * 关节另一端的刚体相对于起始端刚体的位置偏移量
+         * @property {Vec2} linearOffset
+         * @default cc.v2(0,0)
+         */
         linearOffset: {
             get: function () {
                 return this._linearOffset;
@@ -54,6 +101,14 @@ var MotorJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The angular offset from connected rigidbody to rigidbody.
+         * !#zh
+         * 关节另一端的刚体相对于起始端刚体的角度偏移量
+         * @property {Number} angularOffset
+         * @default 0
+         */
         angularOffset: {
             get: function () {
                 return this._angularOffset;
@@ -66,6 +121,14 @@ var MotorJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The maximum force can be applied to rigidbody.
+         * !#zh
+         * 可以应用于刚体的最大的力值
+         * @property {Number} maxForce
+         * @default 1
+         */
         maxForce: {
             get: function () {
                 return this._maxForce;
@@ -78,6 +141,14 @@ var MotorJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The maximum torque can be applied to rigidbody.
+         * !#zh
+         * 可以应用于刚体的最大扭矩值
+         * @property {Number} maxTorque
+         * @default 1
+         */
         maxTorque: {
             get: function () {
                 return this._maxTorque;
@@ -90,6 +161,14 @@ var MotorJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The position correction factor in the range [0,1].
+         * !#zh
+         * 位置矫正系数，范围为 [0, 1]
+         * @property {Number} correctionFactor
+         * @default 0.3
+         */
         correctionFactor: {
             get: function () {
                 return this._correctionFactor;
