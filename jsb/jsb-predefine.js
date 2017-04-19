@@ -44,8 +44,12 @@ if (CC_DEV) {
     cc._Test = {};
 }
 
-// predefine some modules for cocos
+// polyfills
+if (!(CC_EDITOR && Editor.isMainProcess)) {
+    require('../polyfill/typescript');
+}
 
+// predefine some modules for cocos
 require('../cocos2d/core/platform/js');
 require('../cocos2d/core/value-types');
 require('../cocos2d/core/utils/find');

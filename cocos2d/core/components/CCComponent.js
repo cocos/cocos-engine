@@ -253,15 +253,21 @@ var Component = cc.Class({
     __preload: null,
 
     /**
-     * !#en When attaching to an active node or its node first activated.
-     * !#zh 当附加到一个激活的节点上或者其节点第一次激活时候调用。
+     * !#en
+     * When attaching to an active node or its node first activated.
+     * onLoad is always called before any start functions, this allows you to order initialization of scripts.
+     * !#zh
+     * 当附加到一个激活的节点上或者其节点第一次激活时候调用。onLoad 总是会在任何 start 方法调用前执行，这能用于安排脚本的初始化顺序。
      * @method onLoad
      */
     onLoad: null,
 
     /**
-     * !#en Called before all scripts' update if the Component is enabled the first time.
-     * !#zh 如果该组件第一次启用，则在所有组件的 update 之前调用。
+     * !#en
+     * Called before all scripts' update if the Component is enabled the first time.
+     * Usually used to initialize some logic which need to be called after all components' `onload` methods called.
+     * !#zh
+     * 如果该组件第一次启用，则在所有组件的 update 之前调用。通常用于需要在所有组件的 onLoad 初始化完毕后执行的逻辑。
      * @method start
      */
     start: null,
