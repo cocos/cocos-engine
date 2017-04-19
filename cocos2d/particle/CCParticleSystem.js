@@ -686,6 +686,8 @@ var ParticleSystem = cc.Class({
         this._focused = false;
         this._willStart = false;
         this._blendFunc = new cc.BlendFunc(0, 0);
+        // prevent repeated rewriting 'onExit'
+        this._originOnExit = null;
     },
 
     properties: properties,
@@ -989,15 +991,19 @@ var ParticleSystem = cc.Class({
         var autoRemove = this._autoRemoveOnFinish;
         sgNode.autoRemoveOnFinish = autoRemove;
         if (autoRemove) {
-            cc.assert(!sgNode.onExit);
+            if (this._originOnExit) {
+                return;
+            }
+            this._originOnExit = sgNode.onExit;
             var self = this;
             sgNode.onExit = function () {
-                _ccsg.Node.prototype.onExit.call(this);
+                self._originOnExit.call(this);
                 self.node.destroy();
             };
         }
-        else if (sgNode.hasOwnProperty('onExit')) {
-            sgNode.onExit = _ccsg.Node.prototype.onExit;
+        else if (this._originOnExit) {
+            sgNode.onExit = this._originOnExit;
+            this._originOnExit = null;
         }
     }
 });
