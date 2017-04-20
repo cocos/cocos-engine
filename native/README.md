@@ -10,17 +10,17 @@ It is based on [cocos2d-x](https://github.com/cocos2d/cocos2d-x)[version 3.9], b
 The major change:
 
 - Remove 3D features
- - Sprite3D
- - Skybox
- - Terrain
- - Light
- - Navmesh
- - Physics3D
- - BillBoard
- - Animate3D
- - Bundle3D
- - MeshSkin
- - etc..
+  - Sprite3D
+  - Skybox
+  - Terrain
+  - Light
+  - Navmesh
+  - Physics3D
+  - BillBoard
+  - Animate3D
+  - Bundle3D
+  - MeshSkin
+  - etc..
 
 - Only support iOS,OS X,Android and Windows.
 - Remove support for LUA script（It's temporary）
