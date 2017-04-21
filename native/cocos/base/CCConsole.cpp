@@ -53,6 +53,10 @@
 #include <sys/ioctl.h>
 #endif
 
+#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#define bzero(a, b) memset(a, 0, b);
+#endif
+
 #include "base/CCDirector.h"
 #include "base/CCScheduler.h"
 #include "platform/CCPlatformConfig.h"
