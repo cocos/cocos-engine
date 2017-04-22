@@ -124,6 +124,22 @@ if (CC_EDITOR) {
     };
 }
 
+m.imagePool = {
+    _pool: [],
+    _MAX: 10,
+    _smallImg: "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=",
+    get: function () {
+        return this._pool.pop() || new Image();
+    },
+    put: function (img) {
+        var pool = this._pool;
+        if (img instanceof HTMLImageElement && pool.length < this._MAX) {
+            img.src = this._smallImg;
+            pool.push(img);
+        }
+    }
+}
+
 module.exports = m;
 
 // jshint evil: false

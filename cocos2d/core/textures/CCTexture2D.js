@@ -835,16 +835,12 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 premultiplied = !!premultiplied;
                 var self = this;
                 // Not sure about this ! Some texture need to be updated even after loaded
-                if (!game._rendererInitialized)
+                if (!game._rendererInitialized) {
                     return;
-                if (!self._htmlElementObj) {
-                    var tex = cc.loader.getRes(self.url);
-                    if (!tex || !tex._htmlElementObj)
-                        return;
-                    self.initWithElement(tex._htmlElementObj);
                 }
-                if (!self._htmlElementObj.width || !self._htmlElementObj.height)
+                if (!self._htmlElementObj || !self._htmlElementObj.width || !self._htmlElementObj.height) {
                     return;
+                }
 
                 //upload image to buffer
                 var gl = cc._renderContext;
