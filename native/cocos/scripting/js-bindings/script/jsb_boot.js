@@ -31,6 +31,7 @@
 
 // Define singleton objects
 cc.director = cc.Director.getInstance();
+cc.director._actionManager = cc.director.getActionManager();
 cc.director._scheduler = cc.director.getScheduler();
 cc.winSize = cc.director.getWinSize();
 

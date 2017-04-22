@@ -875,6 +875,13 @@ public:
      * @lua NA
      * @js NA
      */
+    static bool sendActionEventToJS(Action* actionObject, int eventType, void* param);
+    /**
+     *
+     *
+     * @lua NA
+     * @js NA
+     */
     static bool sendNodeEventToJS(Node* node, int action);
     /**
      *
