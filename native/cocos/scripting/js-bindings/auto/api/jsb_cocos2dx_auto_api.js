@@ -2564,6 +2564,16 @@ setGLDefaultValues : function (
 },
 
 /**
+ * @method setActionManager
+ * @param {cc.ActionManager} arg0
+ */
+setActionManager : function (
+actionmanager 
+)
+{
+},
+
+/**
  * @method setAlphaBlending
  * @param {bool} arg0
  */
@@ -3085,6 +3095,16 @@ setAnimationInterval : function (
 float 
 )
 {
+},
+
+/**
+ * @method getActionManager
+ * @return {cc.ActionManager}
+ */
+getActionManager : function (
+)
+{
+    return cc.ActionManager;
 },
 
 /**
@@ -4915,6 +4935,372 @@ EventListenerTouchAllAtOnce : function (
 };
 
 /**
+ * @class Action
+ */
+cc.Action = {
+
+/**
+ * @method startWithTarget
+ * @param {cc.Node} arg0
+ */
+startWithTarget : function (
+node 
+)
+{
+},
+
+/**
+ * @method setOriginalTarget
+ * @param {cc.Node} arg0
+ */
+setOriginalTarget : function (
+node 
+)
+{
+},
+
+/**
+ * @method clone
+ * @return {cc.Action}
+ */
+clone : function (
+)
+{
+    return cc.Action;
+},
+
+/**
+ * @method getOriginalTarget
+ * @return {cc.Node}
+ */
+getOriginalTarget : function (
+)
+{
+    return cc.Node;
+},
+
+/**
+ * @method stop
+ */
+stop : function (
+)
+{
+},
+
+/**
+ * @method update
+ * @param {float} arg0
+ */
+update : function (
+float 
+)
+{
+},
+
+/**
+ * @method getTarget
+ * @return {cc.Node}
+ */
+getTarget : function (
+)
+{
+    return cc.Node;
+},
+
+/**
+ * @method getFlags
+ * @return {unsigned int}
+ */
+getFlags : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method step
+ * @param {float} arg0
+ */
+step : function (
+float 
+)
+{
+},
+
+/**
+ * @method setTag
+ * @param {int} arg0
+ */
+setTag : function (
+int 
+)
+{
+},
+
+/**
+ * @method setFlags
+ * @param {unsigned int} arg0
+ */
+setFlags : function (
+int 
+)
+{
+},
+
+/**
+ * @method getTag
+ * @return {int}
+ */
+getTag : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method setTarget
+ * @param {cc.Node} arg0
+ */
+setTarget : function (
+node 
+)
+{
+},
+
+/**
+ * @method isDone
+ * @return {bool}
+ */
+isDone : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method reverse
+ * @return {cc.Action}
+ */
+reverse : function (
+)
+{
+    return cc.Action;
+},
+
+};
+
+/**
+ * @class FiniteTimeAction
+ */
+cc.FiniteTimeAction = {
+
+/**
+ * @method setDuration
+ * @param {float} arg0
+ */
+setDuration : function (
+float 
+)
+{
+},
+
+/**
+ * @method getDuration
+ * @return {float}
+ */
+getDuration : function (
+)
+{
+    return 0;
+},
+
+};
+
+/**
+ * @class Speed
+ */
+cc.Speed = {
+
+/**
+ * @method setInnerAction
+ * @param {cc.ActionInterval} arg0
+ */
+setInnerAction : function (
+actioninterval 
+)
+{
+},
+
+/**
+ * @method getSpeed
+ * @return {float}
+ */
+getSpeed : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method setSpeed
+ * @param {float} arg0
+ */
+setSpeed : function (
+float 
+)
+{
+},
+
+/**
+ * @method initWithAction
+ * @param {cc.ActionInterval} arg0
+ * @param {float} arg1
+ * @return {bool}
+ */
+initWithAction : function (
+actioninterval, 
+float 
+)
+{
+    return false;
+},
+
+/**
+ * @method getInnerAction
+ * @return {cc.ActionInterval}
+ */
+getInnerAction : function (
+)
+{
+    return cc.ActionInterval;
+},
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @param {float} arg1
+ * @return {cc.Speed}
+ */
+create : function (
+actioninterval, 
+float 
+)
+{
+    return cc.Speed;
+},
+
+/**
+ * @method Speed
+ * @constructor
+ */
+Speed : function (
+)
+{
+},
+
+};
+
+/**
+ * @class Follow
+ */
+cc.Follow = {
+
+/**
+ * @method setBoundarySet
+ * @param {bool} arg0
+ */
+setBoundarySet : function (
+bool 
+)
+{
+},
+
+/**
+ * @method initWithTarget
+ * @param {cc.Node} arg0
+ * @param {rect_object} arg1
+ * @return {bool}
+ */
+initWithTarget : function (
+node, 
+rect 
+)
+{
+    return false;
+},
+
+/**
+ * @method initWithTargetAndOffset
+ * @param {cc.Node} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {rect_object} arg3
+ * @return {bool}
+ */
+initWithTargetAndOffset : function (
+node, 
+float, 
+float, 
+rect 
+)
+{
+    return false;
+},
+
+/**
+ * @method isBoundarySet
+ * @return {bool}
+ */
+isBoundarySet : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @param {cc.Node} arg0
+ * @param {rect_object} arg1
+ * @return {cc.Follow}
+ */
+create : function (
+node, 
+rect 
+)
+{
+    return cc.Follow;
+},
+
+/**
+ * @method createWithOffset
+ * @param {cc.Node} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {rect_object} arg3
+ * @return {cc.Follow}
+ */
+createWithOffset : function (
+node, 
+float, 
+float, 
+rect 
+)
+{
+    return cc.Follow;
+},
+
+/**
+ * @method Follow
+ * @constructor
+ */
+Follow : function (
+)
+{
+},
+
+};
+
+/**
  * @class Image
  */
 cc.Image = {
@@ -5713,6 +6099,2796 @@ size
  * @constructor
  */
 SpriteFrame : function (
+)
+{
+},
+
+};
+
+/**
+ * @class ActionInterval
+ */
+cc.ActionInterval = {
+
+/**
+ * @method getAmplitudeRate
+ * @return {float}
+ */
+getAmplitudeRate : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method initWithDuration
+ * @param {float} arg0
+ * @return {bool}
+ */
+initWithDuration : function (
+float 
+)
+{
+    return false;
+},
+
+/**
+ * @method setAmplitudeRate
+ * @param {float} arg0
+ */
+setAmplitudeRate : function (
+float 
+)
+{
+},
+
+/**
+ * @method getElapsed
+ * @return {float}
+ */
+getElapsed : function (
+)
+{
+    return 0;
+},
+
+};
+
+/**
+ * @class Sequence
+ */
+cc.Sequence = {
+
+/**
+ * @method init
+ * @param {Array} arg0
+ * @return {bool}
+ */
+init : function (
+array 
+)
+{
+    return false;
+},
+
+/**
+ * @method initWithTwoActions
+ * @param {cc.FiniteTimeAction} arg0
+ * @param {cc.FiniteTimeAction} arg1
+ * @return {bool}
+ */
+initWithTwoActions : function (
+finitetimeaction, 
+finitetimeaction 
+)
+{
+    return false;
+},
+
+/**
+ * @method Sequence
+ * @constructor
+ */
+Sequence : function (
+)
+{
+},
+
+};
+
+/**
+ * @class Repeat
+ */
+cc.Repeat = {
+
+/**
+ * @method setInnerAction
+ * @param {cc.FiniteTimeAction} arg0
+ */
+setInnerAction : function (
+finitetimeaction 
+)
+{
+},
+
+/**
+ * @method initWithAction
+ * @param {cc.FiniteTimeAction} arg0
+ * @param {unsigned int} arg1
+ * @return {bool}
+ */
+initWithAction : function (
+finitetimeaction, 
+int 
+)
+{
+    return false;
+},
+
+/**
+ * @method getInnerAction
+ * @return {cc.FiniteTimeAction}
+ */
+getInnerAction : function (
+)
+{
+    return cc.FiniteTimeAction;
+},
+
+/**
+ * @method create
+ * @param {cc.FiniteTimeAction} arg0
+ * @param {unsigned int} arg1
+ * @return {cc.Repeat}
+ */
+create : function (
+finitetimeaction, 
+int 
+)
+{
+    return cc.Repeat;
+},
+
+/**
+ * @method Repeat
+ * @constructor
+ */
+Repeat : function (
+)
+{
+},
+
+};
+
+/**
+ * @class RepeatForever
+ */
+cc.RepeatForever = {
+
+/**
+ * @method setInnerAction
+ * @param {cc.ActionInterval} arg0
+ */
+setInnerAction : function (
+actioninterval 
+)
+{
+},
+
+/**
+ * @method initWithAction
+ * @param {cc.ActionInterval} arg0
+ * @return {bool}
+ */
+initWithAction : function (
+actioninterval 
+)
+{
+    return false;
+},
+
+/**
+ * @method getInnerAction
+ * @return {cc.ActionInterval}
+ */
+getInnerAction : function (
+)
+{
+    return cc.ActionInterval;
+},
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.RepeatForever}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.RepeatForever;
+},
+
+/**
+ * @method RepeatForever
+ * @constructor
+ */
+RepeatForever : function (
+)
+{
+},
+
+};
+
+/**
+ * @class Spawn
+ */
+cc.Spawn = {
+
+/**
+ * @method init
+ * @param {Array} arg0
+ * @return {bool}
+ */
+init : function (
+array 
+)
+{
+    return false;
+},
+
+/**
+ * @method initWithTwoActions
+ * @param {cc.FiniteTimeAction} arg0
+ * @param {cc.FiniteTimeAction} arg1
+ * @return {bool}
+ */
+initWithTwoActions : function (
+finitetimeaction, 
+finitetimeaction 
+)
+{
+    return false;
+},
+
+/**
+ * @method Spawn
+ * @constructor
+ */
+Spawn : function (
+)
+{
+},
+
+};
+
+/**
+ * @class RotateTo
+ */
+cc.RotateTo = {
+
+/**
+ * @method initWithDuration
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @return {bool}
+ */
+initWithDuration : function (
+float, 
+float, 
+float 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+* @param {float|float} float
+* @param {float|float} float
+* @param {float} float
+* @return {cc.RotateTo|cc.RotateTo}
+*/
+create : function(
+float,
+float,
+float 
+)
+{
+    return cc.RotateTo;
+},
+
+/**
+ * @method RotateTo
+ * @constructor
+ */
+RotateTo : function (
+)
+{
+},
+
+};
+
+/**
+ * @class RotateBy
+ */
+cc.RotateBy = {
+
+/**
+ * @method initWithDuration
+* @param {float|float} float
+* @param {float|float} float
+* @param {float} float
+* @return {bool|bool}
+*/
+initWithDuration : function(
+float,
+float,
+float 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+* @param {float|float} float
+* @param {float|float} float
+* @param {float} float
+* @return {cc.RotateBy|cc.RotateBy}
+*/
+create : function(
+float,
+float,
+float 
+)
+{
+    return cc.RotateBy;
+},
+
+/**
+ * @method RotateBy
+ * @constructor
+ */
+RotateBy : function (
+)
+{
+},
+
+};
+
+/**
+ * @class MoveBy
+ */
+cc.MoveBy = {
+
+/**
+ * @method initWithDuration
+ * @param {float} arg0
+ * @param {vec2_object} arg1
+ * @return {bool}
+ */
+initWithDuration : function (
+float, 
+vec2 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @param {float} arg0
+ * @param {vec2_object} arg1
+ * @return {cc.MoveBy}
+ */
+create : function (
+float, 
+vec2 
+)
+{
+    return cc.MoveBy;
+},
+
+/**
+ * @method MoveBy
+ * @constructor
+ */
+MoveBy : function (
+)
+{
+},
+
+};
+
+/**
+ * @class MoveTo
+ */
+cc.MoveTo = {
+
+/**
+ * @method initWithDuration
+ * @param {float} arg0
+ * @param {vec2_object} arg1
+ * @return {bool}
+ */
+initWithDuration : function (
+float, 
+vec2 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @param {float} arg0
+ * @param {vec2_object} arg1
+ * @return {cc.MoveTo}
+ */
+create : function (
+float, 
+vec2 
+)
+{
+    return cc.MoveTo;
+},
+
+/**
+ * @method MoveTo
+ * @constructor
+ */
+MoveTo : function (
+)
+{
+},
+
+};
+
+/**
+ * @class SkewTo
+ */
+cc.SkewTo = {
+
+/**
+ * @method initWithDuration
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @return {bool}
+ */
+initWithDuration : function (
+float, 
+float, 
+float 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @return {cc.SkewTo}
+ */
+create : function (
+float, 
+float, 
+float 
+)
+{
+    return cc.SkewTo;
+},
+
+/**
+ * @method SkewTo
+ * @constructor
+ */
+SkewTo : function (
+)
+{
+},
+
+};
+
+/**
+ * @class SkewBy
+ */
+cc.SkewBy = {
+
+/**
+ * @method initWithDuration
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @return {bool}
+ */
+initWithDuration : function (
+float, 
+float, 
+float 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @return {cc.SkewBy}
+ */
+create : function (
+float, 
+float, 
+float 
+)
+{
+    return cc.SkewBy;
+},
+
+/**
+ * @method SkewBy
+ * @constructor
+ */
+SkewBy : function (
+)
+{
+},
+
+};
+
+/**
+ * @class JumpBy
+ */
+cc.JumpBy = {
+
+/**
+ * @method initWithDuration
+ * @param {float} arg0
+ * @param {vec2_object} arg1
+ * @param {float} arg2
+ * @param {int} arg3
+ * @return {bool}
+ */
+initWithDuration : function (
+float, 
+vec2, 
+float, 
+int 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @param {float} arg0
+ * @param {vec2_object} arg1
+ * @param {float} arg2
+ * @param {int} arg3
+ * @return {cc.JumpBy}
+ */
+create : function (
+float, 
+vec2, 
+float, 
+int 
+)
+{
+    return cc.JumpBy;
+},
+
+/**
+ * @method JumpBy
+ * @constructor
+ */
+JumpBy : function (
+)
+{
+},
+
+};
+
+/**
+ * @class JumpTo
+ */
+cc.JumpTo = {
+
+/**
+ * @method initWithDuration
+ * @param {float} arg0
+ * @param {vec2_object} arg1
+ * @param {float} arg2
+ * @param {int} arg3
+ * @return {bool}
+ */
+initWithDuration : function (
+float, 
+vec2, 
+float, 
+int 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @param {float} arg0
+ * @param {vec2_object} arg1
+ * @param {float} arg2
+ * @param {int} arg3
+ * @return {cc.JumpTo}
+ */
+create : function (
+float, 
+vec2, 
+float, 
+int 
+)
+{
+    return cc.JumpTo;
+},
+
+/**
+ * @method JumpTo
+ * @constructor
+ */
+JumpTo : function (
+)
+{
+},
+
+};
+
+/**
+ * @class BezierBy
+ */
+cc.BezierBy = {
+
+/**
+ * @method BezierBy
+ * @constructor
+ */
+BezierBy : function (
+)
+{
+},
+
+};
+
+/**
+ * @class BezierTo
+ */
+cc.BezierTo = {
+
+/**
+ * @method BezierTo
+ * @constructor
+ */
+BezierTo : function (
+)
+{
+},
+
+};
+
+/**
+ * @class ScaleTo
+ */
+cc.ScaleTo = {
+
+/**
+ * @method initWithDuration
+* @param {float|float|float} float
+* @param {float|float|float} float
+* @param {float|float} float
+* @param {float} float
+* @return {bool|bool|bool}
+*/
+initWithDuration : function(
+float,
+float,
+float,
+float 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+* @param {float|float|float} float
+* @param {float|float|float} float
+* @param {float|float} float
+* @param {float} float
+* @return {cc.ScaleTo|cc.ScaleTo|cc.ScaleTo}
+*/
+create : function(
+float,
+float,
+float,
+float 
+)
+{
+    return cc.ScaleTo;
+},
+
+/**
+ * @method ScaleTo
+ * @constructor
+ */
+ScaleTo : function (
+)
+{
+},
+
+};
+
+/**
+ * @class ScaleBy
+ */
+cc.ScaleBy = {
+
+/**
+ * @method create
+* @param {float|float|float} float
+* @param {float|float|float} float
+* @param {float|float} float
+* @param {float} float
+* @return {cc.ScaleBy|cc.ScaleBy|cc.ScaleBy}
+*/
+create : function(
+float,
+float,
+float,
+float 
+)
+{
+    return cc.ScaleBy;
+},
+
+/**
+ * @method ScaleBy
+ * @constructor
+ */
+ScaleBy : function (
+)
+{
+},
+
+};
+
+/**
+ * @class Blink
+ */
+cc.Blink = {
+
+/**
+ * @method initWithDuration
+ * @param {float} arg0
+ * @param {int} arg1
+ * @return {bool}
+ */
+initWithDuration : function (
+float, 
+int 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @param {float} arg0
+ * @param {int} arg1
+ * @return {cc.Blink}
+ */
+create : function (
+float, 
+int 
+)
+{
+    return cc.Blink;
+},
+
+/**
+ * @method Blink
+ * @constructor
+ */
+Blink : function (
+)
+{
+},
+
+};
+
+/**
+ * @class FadeTo
+ */
+cc.FadeTo = {
+
+/**
+ * @method initWithDuration
+ * @param {float} arg0
+ * @param {unsigned char} arg1
+ * @return {bool}
+ */
+initWithDuration : function (
+float, 
+char 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @param {float} arg0
+ * @param {unsigned char} arg1
+ * @return {cc.FadeTo}
+ */
+create : function (
+float, 
+char 
+)
+{
+    return cc.FadeTo;
+},
+
+/**
+ * @method FadeTo
+ * @constructor
+ */
+FadeTo : function (
+)
+{
+},
+
+};
+
+/**
+ * @class FadeIn
+ */
+cc.FadeIn = {
+
+/**
+ * @method setReverseAction
+ * @param {cc.FadeTo} arg0
+ */
+setReverseAction : function (
+fadeto 
+)
+{
+},
+
+/**
+ * @method create
+ * @param {float} arg0
+ * @return {cc.FadeIn}
+ */
+create : function (
+float 
+)
+{
+    return cc.FadeIn;
+},
+
+/**
+ * @method FadeIn
+ * @constructor
+ */
+FadeIn : function (
+)
+{
+},
+
+};
+
+/**
+ * @class FadeOut
+ */
+cc.FadeOut = {
+
+/**
+ * @method setReverseAction
+ * @param {cc.FadeTo} arg0
+ */
+setReverseAction : function (
+fadeto 
+)
+{
+},
+
+/**
+ * @method create
+ * @param {float} arg0
+ * @return {cc.FadeOut}
+ */
+create : function (
+float 
+)
+{
+    return cc.FadeOut;
+},
+
+/**
+ * @method FadeOut
+ * @constructor
+ */
+FadeOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class TintTo
+ */
+cc.TintTo = {
+
+/**
+ * @method initWithDuration
+ * @param {float} arg0
+ * @param {unsigned char} arg1
+ * @param {unsigned char} arg2
+ * @param {unsigned char} arg3
+ * @return {bool}
+ */
+initWithDuration : function (
+float, 
+char, 
+char, 
+char 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+* @param {float|float} float
+* @param {color3b_object|unsigned char} color3b
+* @param {unsigned char} char
+* @param {unsigned char} char
+* @return {cc.TintTo|cc.TintTo}
+*/
+create : function(
+float,
+char,
+char,
+char 
+)
+{
+    return cc.TintTo;
+},
+
+/**
+ * @method TintTo
+ * @constructor
+ */
+TintTo : function (
+)
+{
+},
+
+};
+
+/**
+ * @class TintBy
+ */
+cc.TintBy = {
+
+/**
+ * @method initWithDuration
+ * @param {float} arg0
+ * @param {short} arg1
+ * @param {short} arg2
+ * @param {short} arg3
+ * @return {bool}
+ */
+initWithDuration : function (
+float, 
+short, 
+short, 
+short 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @param {float} arg0
+ * @param {short} arg1
+ * @param {short} arg2
+ * @param {short} arg3
+ * @return {cc.TintBy}
+ */
+create : function (
+float, 
+short, 
+short, 
+short 
+)
+{
+    return cc.TintBy;
+},
+
+/**
+ * @method TintBy
+ * @constructor
+ */
+TintBy : function (
+)
+{
+},
+
+};
+
+/**
+ * @class DelayTime
+ */
+cc.DelayTime = {
+
+/**
+ * @method create
+ * @param {float} arg0
+ * @return {cc.DelayTime}
+ */
+create : function (
+float 
+)
+{
+    return cc.DelayTime;
+},
+
+/**
+ * @method DelayTime
+ * @constructor
+ */
+DelayTime : function (
+)
+{
+},
+
+};
+
+/**
+ * @class ReverseTime
+ */
+cc.ReverseTime = {
+
+/**
+ * @method initWithAction
+ * @param {cc.FiniteTimeAction} arg0
+ * @return {bool}
+ */
+initWithAction : function (
+finitetimeaction 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @param {cc.FiniteTimeAction} arg0
+ * @return {cc.ReverseTime}
+ */
+create : function (
+finitetimeaction 
+)
+{
+    return cc.ReverseTime;
+},
+
+/**
+ * @method ReverseTime
+ * @constructor
+ */
+ReverseTime : function (
+)
+{
+},
+
+};
+
+/**
+ * @class TargetedAction
+ */
+cc.TargetedAction = {
+
+/**
+ * @method getForcedTarget
+* @return {cc.Node|cc.Node}
+*/
+getForcedTarget : function(
+)
+{
+    return cc.Node;
+},
+
+/**
+ * @method initWithTarget
+ * @param {cc.Node} arg0
+ * @param {cc.FiniteTimeAction} arg1
+ * @return {bool}
+ */
+initWithTarget : function (
+node, 
+finitetimeaction 
+)
+{
+    return false;
+},
+
+/**
+ * @method setForcedTarget
+ * @param {cc.Node} arg0
+ */
+setForcedTarget : function (
+node 
+)
+{
+},
+
+/**
+ * @method create
+ * @param {cc.Node} arg0
+ * @param {cc.FiniteTimeAction} arg1
+ * @return {cc.TargetedAction}
+ */
+create : function (
+node, 
+finitetimeaction 
+)
+{
+    return cc.TargetedAction;
+},
+
+/**
+ * @method TargetedAction
+ * @constructor
+ */
+TargetedAction : function (
+)
+{
+},
+
+};
+
+/**
+ * @class CardinalSplineTo
+ */
+cc.CardinalSplineTo = {
+
+/**
+ * @method getPoints
+ * @return {point_object}
+ */
+getPoints : function (
+)
+{
+    return cc.PointArray;
+},
+
+/**
+ * @method updatePosition
+ * @param {vec2_object} arg0
+ */
+updatePosition : function (
+vec2 
+)
+{
+},
+
+/**
+ * @method CardinalSplineTo
+ * @constructor
+ */
+CardinalSplineTo : function (
+)
+{
+},
+
+};
+
+/**
+ * @class CardinalSplineBy
+ */
+cc.CardinalSplineBy = {
+
+/**
+ * @method CardinalSplineBy
+ * @constructor
+ */
+CardinalSplineBy : function (
+)
+{
+},
+
+};
+
+/**
+ * @class CatmullRomTo
+ */
+cc.CatmullRomTo = {
+
+};
+
+/**
+ * @class CatmullRomBy
+ */
+cc.CatmullRomBy = {
+
+};
+
+/**
+ * @class ActionEase
+ */
+cc.ActionEase = {
+
+/**
+ * @method initWithAction
+ * @param {cc.ActionInterval} arg0
+ * @return {bool}
+ */
+initWithAction : function (
+actioninterval 
+)
+{
+    return false;
+},
+
+/**
+ * @method getInnerAction
+ * @return {cc.ActionInterval}
+ */
+getInnerAction : function (
+)
+{
+    return cc.ActionInterval;
+},
+
+};
+
+/**
+ * @class EaseRateAction
+ */
+cc.EaseRateAction = {
+
+/**
+ * @method setRate
+ * @param {float} arg0
+ */
+setRate : function (
+float 
+)
+{
+},
+
+/**
+ * @method initWithAction
+ * @param {cc.ActionInterval} arg0
+ * @param {float} arg1
+ * @return {bool}
+ */
+initWithAction : function (
+actioninterval, 
+float 
+)
+{
+    return false;
+},
+
+/**
+ * @method getRate
+ * @return {float}
+ */
+getRate : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @param {float} arg1
+ * @return {cc.EaseRateAction}
+ */
+create : function (
+actioninterval, 
+float 
+)
+{
+    return cc.EaseRateAction;
+},
+
+};
+
+/**
+ * @class EaseIn
+ */
+cc.EaseIn = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @param {float} arg1
+ * @return {cc.EaseIn}
+ */
+create : function (
+actioninterval, 
+float 
+)
+{
+    return cc.EaseIn;
+},
+
+/**
+ * @method EaseIn
+ * @constructor
+ */
+EaseIn : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseOut
+ */
+cc.EaseOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @param {float} arg1
+ * @return {cc.EaseOut}
+ */
+create : function (
+actioninterval, 
+float 
+)
+{
+    return cc.EaseOut;
+},
+
+/**
+ * @method EaseOut
+ * @constructor
+ */
+EaseOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseInOut
+ */
+cc.EaseInOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @param {float} arg1
+ * @return {cc.EaseInOut}
+ */
+create : function (
+actioninterval, 
+float 
+)
+{
+    return cc.EaseInOut;
+},
+
+/**
+ * @method EaseInOut
+ * @constructor
+ */
+EaseInOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseExponentialIn
+ */
+cc.EaseExponentialIn = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseExponentialIn}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseExponentialIn;
+},
+
+/**
+ * @method EaseExponentialIn
+ * @constructor
+ */
+EaseExponentialIn : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseExponentialOut
+ */
+cc.EaseExponentialOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseExponentialOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseExponentialOut;
+},
+
+/**
+ * @method EaseExponentialOut
+ * @constructor
+ */
+EaseExponentialOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseExponentialInOut
+ */
+cc.EaseExponentialInOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseExponentialInOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseExponentialInOut;
+},
+
+/**
+ * @method EaseExponentialInOut
+ * @constructor
+ */
+EaseExponentialInOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseSineIn
+ */
+cc.EaseSineIn = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseSineIn}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseSineIn;
+},
+
+/**
+ * @method EaseSineIn
+ * @constructor
+ */
+EaseSineIn : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseSineOut
+ */
+cc.EaseSineOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseSineOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseSineOut;
+},
+
+/**
+ * @method EaseSineOut
+ * @constructor
+ */
+EaseSineOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseSineInOut
+ */
+cc.EaseSineInOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseSineInOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseSineInOut;
+},
+
+/**
+ * @method EaseSineInOut
+ * @constructor
+ */
+EaseSineInOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseElastic
+ */
+cc.EaseElastic = {
+
+/**
+ * @method setPeriod
+ * @param {float} arg0
+ */
+setPeriod : function (
+float 
+)
+{
+},
+
+/**
+ * @method initWithAction
+ * @param {cc.ActionInterval} arg0
+ * @param {float} arg1
+ * @return {bool}
+ */
+initWithAction : function (
+actioninterval, 
+float 
+)
+{
+    return false;
+},
+
+/**
+ * @method getPeriod
+ * @return {float}
+ */
+getPeriod : function (
+)
+{
+    return 0;
+},
+
+};
+
+/**
+ * @class EaseElasticIn
+ */
+cc.EaseElasticIn = {
+
+/**
+ * @method create
+* @param {cc.ActionInterval|cc.ActionInterval} actioninterval
+* @param {float} float
+* @return {cc.EaseElasticIn|cc.EaseElasticIn}
+*/
+create : function(
+actioninterval,
+float 
+)
+{
+    return cc.EaseElasticIn;
+},
+
+/**
+ * @method EaseElasticIn
+ * @constructor
+ */
+EaseElasticIn : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseElasticOut
+ */
+cc.EaseElasticOut = {
+
+/**
+ * @method create
+* @param {cc.ActionInterval|cc.ActionInterval} actioninterval
+* @param {float} float
+* @return {cc.EaseElasticOut|cc.EaseElasticOut}
+*/
+create : function(
+actioninterval,
+float 
+)
+{
+    return cc.EaseElasticOut;
+},
+
+/**
+ * @method EaseElasticOut
+ * @constructor
+ */
+EaseElasticOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseElasticInOut
+ */
+cc.EaseElasticInOut = {
+
+/**
+ * @method create
+* @param {cc.ActionInterval|cc.ActionInterval} actioninterval
+* @param {float} float
+* @return {cc.EaseElasticInOut|cc.EaseElasticInOut}
+*/
+create : function(
+actioninterval,
+float 
+)
+{
+    return cc.EaseElasticInOut;
+},
+
+/**
+ * @method EaseElasticInOut
+ * @constructor
+ */
+EaseElasticInOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseBounce
+ */
+cc.EaseBounce = {
+
+};
+
+/**
+ * @class EaseBounceIn
+ */
+cc.EaseBounceIn = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseBounceIn}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseBounceIn;
+},
+
+/**
+ * @method EaseBounceIn
+ * @constructor
+ */
+EaseBounceIn : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseBounceOut
+ */
+cc.EaseBounceOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseBounceOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseBounceOut;
+},
+
+/**
+ * @method EaseBounceOut
+ * @constructor
+ */
+EaseBounceOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseBounceInOut
+ */
+cc.EaseBounceInOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseBounceInOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseBounceInOut;
+},
+
+/**
+ * @method EaseBounceInOut
+ * @constructor
+ */
+EaseBounceInOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseBackIn
+ */
+cc.EaseBackIn = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseBackIn}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseBackIn;
+},
+
+/**
+ * @method EaseBackIn
+ * @constructor
+ */
+EaseBackIn : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseBackOut
+ */
+cc.EaseBackOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseBackOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseBackOut;
+},
+
+/**
+ * @method EaseBackOut
+ * @constructor
+ */
+EaseBackOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseBackInOut
+ */
+cc.EaseBackInOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseBackInOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseBackInOut;
+},
+
+/**
+ * @method EaseBackInOut
+ * @constructor
+ */
+EaseBackInOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseBezierAction
+ */
+cc.EaseBezierAction = {
+
+/**
+ * @method setBezierParamer
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ */
+setBezierParamer : function (
+float, 
+float, 
+float, 
+float 
+)
+{
+},
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseBezierAction}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseBezierAction;
+},
+
+/**
+ * @method EaseBezierAction
+ * @constructor
+ */
+EaseBezierAction : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseQuadraticActionIn
+ */
+cc.EaseQuadraticActionIn = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseQuadraticActionIn}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseQuadraticActionIn;
+},
+
+/**
+ * @method EaseQuadraticActionIn
+ * @constructor
+ */
+EaseQuadraticActionIn : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseQuadraticActionOut
+ */
+cc.EaseQuadraticActionOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseQuadraticActionOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseQuadraticActionOut;
+},
+
+/**
+ * @method EaseQuadraticActionOut
+ * @constructor
+ */
+EaseQuadraticActionOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseQuadraticActionInOut
+ */
+cc.EaseQuadraticActionInOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseQuadraticActionInOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseQuadraticActionInOut;
+},
+
+/**
+ * @method EaseQuadraticActionInOut
+ * @constructor
+ */
+EaseQuadraticActionInOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseQuarticActionIn
+ */
+cc.EaseQuarticActionIn = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseQuarticActionIn}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseQuarticActionIn;
+},
+
+/**
+ * @method EaseQuarticActionIn
+ * @constructor
+ */
+EaseQuarticActionIn : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseQuarticActionOut
+ */
+cc.EaseQuarticActionOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseQuarticActionOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseQuarticActionOut;
+},
+
+/**
+ * @method EaseQuarticActionOut
+ * @constructor
+ */
+EaseQuarticActionOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseQuarticActionInOut
+ */
+cc.EaseQuarticActionInOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseQuarticActionInOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseQuarticActionInOut;
+},
+
+/**
+ * @method EaseQuarticActionInOut
+ * @constructor
+ */
+EaseQuarticActionInOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseQuinticActionIn
+ */
+cc.EaseQuinticActionIn = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseQuinticActionIn}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseQuinticActionIn;
+},
+
+/**
+ * @method EaseQuinticActionIn
+ * @constructor
+ */
+EaseQuinticActionIn : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseQuinticActionOut
+ */
+cc.EaseQuinticActionOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseQuinticActionOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseQuinticActionOut;
+},
+
+/**
+ * @method EaseQuinticActionOut
+ * @constructor
+ */
+EaseQuinticActionOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseQuinticActionInOut
+ */
+cc.EaseQuinticActionInOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseQuinticActionInOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseQuinticActionInOut;
+},
+
+/**
+ * @method EaseQuinticActionInOut
+ * @constructor
+ */
+EaseQuinticActionInOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseCircleActionIn
+ */
+cc.EaseCircleActionIn = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseCircleActionIn}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseCircleActionIn;
+},
+
+/**
+ * @method EaseCircleActionIn
+ * @constructor
+ */
+EaseCircleActionIn : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseCircleActionOut
+ */
+cc.EaseCircleActionOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseCircleActionOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseCircleActionOut;
+},
+
+/**
+ * @method EaseCircleActionOut
+ * @constructor
+ */
+EaseCircleActionOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseCircleActionInOut
+ */
+cc.EaseCircleActionInOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseCircleActionInOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseCircleActionInOut;
+},
+
+/**
+ * @method EaseCircleActionInOut
+ * @constructor
+ */
+EaseCircleActionInOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseCubicActionIn
+ */
+cc.EaseCubicActionIn = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseCubicActionIn}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseCubicActionIn;
+},
+
+/**
+ * @method EaseCubicActionIn
+ * @constructor
+ */
+EaseCubicActionIn : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseCubicActionOut
+ */
+cc.EaseCubicActionOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseCubicActionOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseCubicActionOut;
+},
+
+/**
+ * @method EaseCubicActionOut
+ * @constructor
+ */
+EaseCubicActionOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class EaseCubicActionInOut
+ */
+cc.EaseCubicActionInOut = {
+
+/**
+ * @method create
+ * @param {cc.ActionInterval} arg0
+ * @return {cc.EaseCubicActionInOut}
+ */
+create : function (
+actioninterval 
+)
+{
+    return cc.EaseCubicActionInOut;
+},
+
+/**
+ * @method EaseCubicActionInOut
+ * @constructor
+ */
+EaseCubicActionInOut : function (
+)
+{
+},
+
+};
+
+/**
+ * @class ActionInstant
+ */
+cc.ActionInstant = {
+
+};
+
+/**
+ * @class Show
+ */
+cc.Show = {
+
+/**
+ * @method create
+ * @return {cc.Show}
+ */
+create : function (
+)
+{
+    return cc.Show;
+},
+
+/**
+ * @method Show
+ * @constructor
+ */
+Show : function (
+)
+{
+},
+
+};
+
+/**
+ * @class Hide
+ */
+cc.Hide = {
+
+/**
+ * @method create
+ * @return {cc.Hide}
+ */
+create : function (
+)
+{
+    return cc.Hide;
+},
+
+/**
+ * @method Hide
+ * @constructor
+ */
+Hide : function (
+)
+{
+},
+
+};
+
+/**
+ * @class ToggleVisibility
+ */
+cc.ToggleVisibility = {
+
+/**
+ * @method create
+ * @return {cc.ToggleVisibility}
+ */
+create : function (
+)
+{
+    return cc.ToggleVisibility;
+},
+
+/**
+ * @method ToggleVisibility
+ * @constructor
+ */
+ToggleVisibility : function (
+)
+{
+},
+
+};
+
+/**
+ * @class RemoveSelf
+ */
+cc.RemoveSelf = {
+
+/**
+ * @method init
+ * @param {bool} arg0
+ * @return {bool}
+ */
+init : function (
+bool 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @return {cc.RemoveSelf}
+ */
+create : function (
+)
+{
+    return cc.RemoveSelf;
+},
+
+/**
+ * @method RemoveSelf
+ * @constructor
+ */
+RemoveSelf : function (
+)
+{
+},
+
+};
+
+/**
+ * @class FlipX
+ */
+cc.FlipX = {
+
+/**
+ * @method initWithFlipX
+ * @param {bool} arg0
+ * @return {bool}
+ */
+initWithFlipX : function (
+bool 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @param {bool} arg0
+ * @return {cc.FlipX}
+ */
+create : function (
+bool 
+)
+{
+    return cc.FlipX;
+},
+
+/**
+ * @method FlipX
+ * @constructor
+ */
+FlipX : function (
+)
+{
+},
+
+};
+
+/**
+ * @class FlipY
+ */
+cc.FlipY = {
+
+/**
+ * @method initWithFlipY
+ * @param {bool} arg0
+ * @return {bool}
+ */
+initWithFlipY : function (
+bool 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @param {bool} arg0
+ * @return {cc.FlipY}
+ */
+create : function (
+bool 
+)
+{
+    return cc.FlipY;
+},
+
+/**
+ * @method FlipY
+ * @constructor
+ */
+FlipY : function (
+)
+{
+},
+
+};
+
+/**
+ * @class Place
+ */
+cc.Place = {
+
+/**
+ * @method initWithPosition
+ * @param {vec2_object} arg0
+ * @return {bool}
+ */
+initWithPosition : function (
+vec2 
+)
+{
+    return false;
+},
+
+/**
+ * @method create
+ * @param {vec2_object} arg0
+ * @return {cc.Place}
+ */
+create : function (
+vec2 
+)
+{
+    return cc.Place;
+},
+
+/**
+ * @method Place
+ * @constructor
+ */
+Place : function (
+)
+{
+},
+
+};
+
+/**
+ * @class CallFunc
+ */
+cc._CallFunc = {
+
+/**
+ * @method execute
+ */
+execute : function (
+)
+{
+},
+
+/**
+ * @method CallFunc
+ * @constructor
+ */
+CallFunc : function (
+)
+{
+},
+
+};
+
+/**
+ * @class CallFuncN
+ */
+cc.CallFunc = {
+
+/**
+ * @method CallFuncN
+ * @constructor
+ */
+CallFuncN : function (
+)
+{
+},
+
+};
+
+/**
+ * @class ActionManager
+ */
+cc.ActionManager = {
+
+/**
+ * @method getActionByTag
+ * @param {int} arg0
+ * @param {cc.Node} arg1
+ * @return {cc.Action}
+ */
+getActionByTag : function (
+int, 
+node 
+)
+{
+    return cc.Action;
+},
+
+/**
+ * @method removeActionByTag
+ * @param {int} arg0
+ * @param {cc.Node} arg1
+ */
+removeActionByTag : function (
+int, 
+node 
+)
+{
+},
+
+/**
+ * @method removeActionsByFlags
+ * @param {unsigned int} arg0
+ * @param {cc.Node} arg1
+ */
+removeActionsByFlags : function (
+int, 
+node 
+)
+{
+},
+
+/**
+ * @method removeAllActions
+ */
+removeAllActions : function (
+)
+{
+},
+
+/**
+ * @method addAction
+ * @param {cc.Action} arg0
+ * @param {cc.Node} arg1
+ * @param {bool} arg2
+ */
+addAction : function (
+action, 
+node, 
+bool 
+)
+{
+},
+
+/**
+ * @method resumeTarget
+ * @param {cc.Node} arg0
+ */
+resumeTarget : function (
+node 
+)
+{
+},
+
+/**
+ * @method update
+ * @param {float} arg0
+ */
+update : function (
+float 
+)
+{
+},
+
+/**
+ * @method pauseTarget
+ * @param {cc.Node} arg0
+ */
+pauseTarget : function (
+node 
+)
+{
+},
+
+/**
+ * @method getNumberOfRunningActionsInTarget
+ * @param {cc.Node} arg0
+ * @return {int}
+ */
+getNumberOfRunningActionsInTarget : function (
+node 
+)
+{
+    return 0;
+},
+
+/**
+ * @method removeAllActionsFromTarget
+ * @param {cc.Node} arg0
+ */
+removeAllActionsFromTarget : function (
+node 
+)
+{
+},
+
+/**
+ * @method resumeTargets
+ * @param {Array} arg0
+ */
+resumeTargets : function (
+array 
+)
+{
+},
+
+/**
+ * @method removeAction
+ * @param {cc.Action} arg0
+ */
+removeAction : function (
+action 
+)
+{
+},
+
+/**
+ * @method removeAllActionsByTag
+ * @param {int} arg0
+ * @param {cc.Node} arg1
+ */
+removeAllActionsByTag : function (
+int, 
+node 
+)
+{
+},
+
+/**
+ * @method pauseAllRunningActions
+ * @return {Array}
+ */
+pauseAllRunningActions : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method ActionManager
+ * @constructor
+ */
+ActionManager : function (
 )
 {
 },
