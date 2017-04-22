@@ -183,6 +183,8 @@ protected:
 #endif
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Action);
+protected:
+	void sendUpdateEventToScript(float dt, Action *actionObject);
 };
 
 /** @class FiniteTimeAction

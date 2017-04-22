@@ -34,6 +34,9 @@ cc.Node.prototype.attr = function(attrs) {
     }
 };
 
+var _proto = cc.Action.prototype;
+cc.defineGetterSetter(_proto, "tag", _proto.getTag, _proto.setTag);
+
 // Overrides
 _proto = cc.Label.prototype;
 cc.defineGetterSetter(_proto, "size", _proto.getContentSize, _proto.setContentSize);
@@ -106,6 +109,7 @@ cc.defineGetterSetter(_proto, "parent", _proto.getParent, _proto.setParent);
 cc.defineGetterSetter(_proto, "visible", _proto.isVisible, _proto.setVisible);
 cc.defineGetterSetter(_proto, "running", _proto.isRunning);
 cc.defineGetterSetter(_proto, "ignoreAnchor", _proto.isIgnoreAnchorPointForPosition, _proto.ignoreAnchorPointForPosition);
+cc.defineGetterSetter(_proto, "actionManager", _proto.getActionManager, _proto.setActionManager);
 cc.defineGetterSetter(_proto, "scheduler", _proto.getScheduler, _proto.setScheduler);
 cc.defineGetterSetter(_proto, "shaderProgram", _proto.getShaderProgram, _proto.setShaderProgram);
 cc.defineGetterSetter(_proto, "glServerState", _proto.getGLServerState, _proto.setGLServerState);

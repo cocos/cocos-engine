@@ -1287,6 +1287,38 @@ bool ScriptingCore::isFunctionOverridedInJS(JS::HandleObject obj, const std::str
     return false;
 }
 
+int ScriptingCore::handleActionEvent(void* data)
+{
+    if (NULL == data)
+        return 0;
+
+    ActionObjectScriptData* actionObjectScriptData = static_cast<ActionObjectScriptData*>(data);
+    if (NULL == actionObjectScriptData->nativeObject || NULL == actionObjectScriptData->eventType)
+        return 0;
+
+    Action* actionObject = static_cast<Action*>(actionObjectScriptData->nativeObject);
+    int eventType = *((int*)(actionObjectScriptData->eventType));
+
+    js_proxy_t * p = jsb_get_native_proxy(actionObject);
+    if (!p) return 0;
+
+    JSAutoCompartment ac(_cx, _global->get());
+
+    int ret = 0;
+    JS::RootedValue retval(_cx);
+
+    if (eventType == kActionUpdate)
+    {
+        JS::RootedObject jstarget(_cx, p->obj);
+        if (isFunctionOverridedInJS(jstarget, "update", js_cocos2dx_Action_update))
+        {
+            jsval dataVal = DOUBLE_TO_JSVAL(*((float *)actionObjectScriptData->param));
+            ret = executeFunctionWithOwner(OBJECT_TO_JSVAL(p->obj), "update", 1, &dataVal, &retval);
+        }
+    }
+    return ret;
+}
+
 int ScriptingCore::handleNodeEvent(void* data)
 {
     if (NULL == data)
@@ -1715,6 +1747,11 @@ int ScriptingCore::sendEvent(ScriptEvent* evt)
         case kNodeEvent:
             {
                 return handleNodeEvent(evt->data);
+            }
+            break;
+        case kScriptActionEvent:
+            {
+                return handleActionEvent(evt->data);
             }
             break;
         case kMenuClickedEvent:

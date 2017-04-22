@@ -48,6 +48,16 @@ Action::Action()
 #endif
 }
 
+void Action::sendUpdateEventToScript(float dt, Action *actionObject)
+{
+#if CC_ENABLE_SCRIPT_BINDING
+	if (_scriptType == kScriptTypeJavascript)
+	{
+		ScriptEngineManager::sendActionEventToJS(actionObject, kActionUpdate, (void *)&dt);
+	}
+#endif
+}
+
 Action::~Action()
 {
     CCLOGINFO("deallocing Action: %p - tag: %i", this, _tag);
@@ -326,6 +336,8 @@ void Follow::step(float dt)
     {
         _target->setPosition(tempPos);
     }
+
+    sendUpdateEventToScript(dt, this);
 }
 
 bool Follow::isDone() const
