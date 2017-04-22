@@ -43,13 +43,6 @@ cc.js.mixin(cc.director, {
         this._nodeActivator = new NodeActivator();
 
         var scheduler = this.getScheduler();
-        // ActionManager
-        if (cc.ActionManager) {
-            this._actionManager = new cc.ActionManager();
-            scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
-        } else {
-            this._actionManager = null;
-        }
 
         // Animation manager
         if (cc.AnimationManager) {
@@ -96,11 +89,6 @@ cc.js.mixin(cc.director, {
 
         if (cc.eventManager)
             cc.eventManager.setEnabled(true);
-
-        // Action manager
-        if (this._actionManager) {
-            this.getScheduler().scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
-        }
 
         // Animation manager
         if (this._animationManager) {
