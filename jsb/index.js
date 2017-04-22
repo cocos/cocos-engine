@@ -77,6 +77,7 @@ require('./jsb-particle');
 require('./jsb-spine');
 require('./jsb-enums');
 require('./jsb-event');
+require('./jsb-action');
 require('./jsb-etc');
 require('./jsb-audio');
 require('./jsb-tiledmap');

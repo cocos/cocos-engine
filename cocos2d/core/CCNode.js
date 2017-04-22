@@ -974,6 +974,9 @@ var Node = cc.Class({
         }
 
         if (CC_JSB) {
+            if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
+                this._releaseAllActions();
+            }
             if (this._touchListener) {
                 this._touchListener.release();
                 this._touchListener.owner = null;
@@ -1336,6 +1339,12 @@ var Node = cc.Class({
             return;
         cc.assertID(action, 1618);
 
+        if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
+            this._retainAction(action);
+        }
+        if (CC_JSB) {
+            this._sgNode._owner = this;
+        }
         cc.director._actionManager.addAction(action, this, false);
         return action;
     },
@@ -1424,6 +1433,22 @@ var Node = cc.Class({
      */
     getNumberOfRunningActions () {
         return cc.director._actionManager ? cc.director._actionManager.getNumberOfRunningActionsInTarget(this) : 0;
+    },
+
+    _retainAction (action) {
+        if (CC_JSB && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
+            this._retainedActions.push(action);
+            action.retain();
+        }
+    },
+
+    _releaseAllActions () {
+        if (CC_JSB) {
+            for (var i = 0; i < this._retainedActions.length; ++i) {
+                this._retainedActions[i].release();
+            }
+            this._retainedActions.length = 0;
+        }
     },
 
     setTag (value) {
