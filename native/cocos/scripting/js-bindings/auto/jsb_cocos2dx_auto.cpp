@@ -6401,6 +6401,34 @@ bool js_cocos2dx_Director_setGLDefaultValues(JSContext *cx, uint32_t argc, jsval
     JS_ReportError(cx, "js_cocos2dx_Director_setGLDefaultValues : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
+bool js_cocos2dx_Director_setActionManager(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Director_setActionManager : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::ActionManager* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionManager*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_setActionManager : Error processing arguments");
+        cobj->setActionManager(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Director_setActionManager : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
 bool js_cocos2dx_Director_setAlphaBlending(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -7473,6 +7501,28 @@ bool js_cocos2dx_Director_setAnimationInterval(JSContext *cx, uint32_t argc, jsv
     JS_ReportError(cx, "js_cocos2dx_Director_setAnimationInterval : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
+bool js_cocos2dx_Director_getActionManager(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Director_getActionManager : Invalid Native Object");
+    if (argc == 0) {
+        cocos2d::ActionManager* ret = cobj->getActionManager();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::ActionManager>(cx, (cocos2d::ActionManager*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Director_getActionManager : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
 bool js_cocos2dx_Director_getInstance(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -7514,6 +7564,7 @@ void js_register_cocos2dx_Director(JSContext *cx, JS::HandleObject global) {
         JS_FN("getWinSizeInPixels", js_cocos2dx_Director_getWinSizeInPixels, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getDeltaTime", js_cocos2dx_Director_getDeltaTime, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setGLDefaultValues", js_cocos2dx_Director_setGLDefaultValues, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setActionManager", js_cocos2dx_Director_setActionManager, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setAlphaBlending", js_cocos2dx_Director_setAlphaBlending, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("popToRootScene", js_cocos2dx_Director_popToRootScene, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("loadMatrix", js_cocos2dx_Director_loadMatrix, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -7568,6 +7619,7 @@ void js_register_cocos2dx_Director(JSContext *cx, JS::HandleObject global) {
         JS_FN("getEventDispatcher", js_cocos2dx_Director_getEventDispatcher, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("replaceScene", js_cocos2dx_Director_replaceScene, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setAnimationInterval", js_cocos2dx_Director_setAnimationInterval, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getActionManager", js_cocos2dx_Director_getActionManager, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
 
@@ -12103,6 +12155,1035 @@ void js_register_cocos2dx_EventListenerTouchAllAtOnce(JSContext *cx, JS::HandleO
     jsb_register_class<cocos2d::EventListenerTouchAllAtOnce>(cx, jsb_cocos2d_EventListenerTouchAllAtOnce_class, proto, parent_proto);
 }
 
+JSClass  *jsb_cocos2d_Action_class;
+JSObject *jsb_cocos2d_Action_prototype;
+
+bool js_cocos2dx_Action_startWithTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_startWithTarget : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Node* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Action_startWithTarget : Error processing arguments");
+        cobj->startWithTarget(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_startWithTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Action_setOriginalTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_setOriginalTarget : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Node* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Action_setOriginalTarget : Error processing arguments");
+        cobj->setOriginalTarget(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_setOriginalTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Action_clone(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_clone : Invalid Native Object");
+    if (argc == 0) {
+        cocos2d::Action* ret = cobj->clone();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::Action>(cx, (cocos2d::Action*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_clone : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Action_getOriginalTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_getOriginalTarget : Invalid Native Object");
+    if (argc == 0) {
+        cocos2d::Node* ret = cobj->getOriginalTarget();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_getOriginalTarget : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Action_stop(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_stop : Invalid Native Object");
+    if (argc == 0) {
+        cobj->stop();
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_stop : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Action_update(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_update : Invalid Native Object");
+    if (argc == 1) {
+        double arg0 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Action_update : Error processing arguments");
+        cobj->update(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_update : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Action_getTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_getTarget : Invalid Native Object");
+    if (argc == 0) {
+        cocos2d::Node* ret = cobj->getTarget();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_getTarget : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Action_getFlags(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_getFlags : Invalid Native Object");
+    if (argc == 0) {
+        unsigned int ret = cobj->getFlags();
+        JS::RootedValue jsret(cx);
+        jsret = uint32_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_getFlags : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Action_step(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_step : Invalid Native Object");
+    if (argc == 1) {
+        double arg0 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Action_step : Error processing arguments");
+        cobj->step(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_step : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Action_setTag(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_setTag : Invalid Native Object");
+    if (argc == 1) {
+        int arg0 = 0;
+        ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Action_setTag : Error processing arguments");
+        cobj->setTag(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_setTag : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Action_setFlags(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_setFlags : Invalid Native Object");
+    if (argc == 1) {
+        unsigned int arg0 = 0;
+        ok &= jsval_to_uint32(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Action_setFlags : Error processing arguments");
+        cobj->setFlags(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_setFlags : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Action_getTag(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_getTag : Invalid Native Object");
+    if (argc == 0) {
+        int ret = cobj->getTag();
+        JS::RootedValue jsret(cx);
+        jsret = int32_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_getTag : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Action_setTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_setTarget : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Node* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Action_setTarget : Error processing arguments");
+        cobj->setTarget(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_setTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Action_isDone(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_isDone : Invalid Native Object");
+    if (argc == 0) {
+        bool ret = cobj->isDone();
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_isDone : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Action_reverse(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Action_reverse : Invalid Native Object");
+    if (argc == 0) {
+        cocos2d::Action* ret = cobj->reverse();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::Action>(cx, (cocos2d::Action*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Action_reverse : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+
+void js_register_cocos2dx_Action(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_Action_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_Action_class->name = "Action";
+    jsb_cocos2d_Action_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_Action_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_Action_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_Action_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_Action_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_Action_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_Action_class->convert = JS_ConvertStub;
+    jsb_cocos2d_Action_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("startWithTarget", js_cocos2dx_Action_startWithTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setOriginalTarget", js_cocos2dx_Action_setOriginalTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("clone", js_cocos2dx_Action_clone, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getOriginalTarget", js_cocos2dx_Action_getOriginalTarget, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("stop", js_cocos2dx_Action_stop, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("update", js_cocos2dx_Action_update, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getTarget", js_cocos2dx_Action_getTarget, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getFlags", js_cocos2dx_Action_getFlags, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("step", js_cocos2dx_Action_step, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setTag", js_cocos2dx_Action_setTag, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setFlags", js_cocos2dx_Action_setFlags, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getTag", js_cocos2dx_Action_getTag, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setTarget", js_cocos2dx_Action_setTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("isDone", js_cocos2dx_Action_isDone, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("reverse", js_cocos2dx_Action_reverse, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    jsb_cocos2d_Action_prototype = JS_InitClass(
+        cx, global,
+        JS::NullPtr(),
+        jsb_cocos2d_Action_class,
+        empty_constructor, 0,
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_Action_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "Action"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::Action>(cx, jsb_cocos2d_Action_class, proto, JS::NullPtr());
+}
+
+JSClass  *jsb_cocos2d_FiniteTimeAction_class;
+JSObject *jsb_cocos2d_FiniteTimeAction_prototype;
+
+bool js_cocos2dx_FiniteTimeAction_setDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::FiniteTimeAction* cobj = (cocos2d::FiniteTimeAction *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_FiniteTimeAction_setDuration : Invalid Native Object");
+    if (argc == 1) {
+        double arg0 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FiniteTimeAction_setDuration : Error processing arguments");
+        cobj->setDuration(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_FiniteTimeAction_setDuration : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_FiniteTimeAction_getDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::FiniteTimeAction* cobj = (cocos2d::FiniteTimeAction *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_FiniteTimeAction_getDuration : Invalid Native Object");
+    if (argc == 0) {
+        double ret = cobj->getDuration();
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_FiniteTimeAction_getDuration : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+
+extern JSObject *jsb_cocos2d_Action_prototype;
+
+void js_register_cocos2dx_FiniteTimeAction(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_FiniteTimeAction_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_FiniteTimeAction_class->name = "FiniteTimeAction";
+    jsb_cocos2d_FiniteTimeAction_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_FiniteTimeAction_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_FiniteTimeAction_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_FiniteTimeAction_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_FiniteTimeAction_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_FiniteTimeAction_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_FiniteTimeAction_class->convert = JS_ConvertStub;
+    jsb_cocos2d_FiniteTimeAction_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("setDuration", js_cocos2dx_FiniteTimeAction_setDuration, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getDuration", js_cocos2dx_FiniteTimeAction_getDuration, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Action_prototype);
+    jsb_cocos2d_FiniteTimeAction_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_FiniteTimeAction_class,
+        empty_constructor, 0,
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_FiniteTimeAction_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "FiniteTimeAction"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::FiniteTimeAction>(cx, jsb_cocos2d_FiniteTimeAction_class, proto, parent_proto);
+}
+
+JSClass  *jsb_cocos2d_Speed_class;
+JSObject *jsb_cocos2d_Speed_prototype;
+
+bool js_cocos2dx_Speed_setInnerAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Speed* cobj = (cocos2d::Speed *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Speed_setInnerAction : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Speed_setInnerAction : Error processing arguments");
+        cobj->setInnerAction(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Speed_setInnerAction : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Speed_getSpeed(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Speed* cobj = (cocos2d::Speed *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Speed_getSpeed : Invalid Native Object");
+    if (argc == 0) {
+        double ret = cobj->getSpeed();
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Speed_getSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Speed_setSpeed(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Speed* cobj = (cocos2d::Speed *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Speed_setSpeed : Invalid Native Object");
+    if (argc == 1) {
+        double arg0 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Speed_setSpeed : Error processing arguments");
+        cobj->setSpeed(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Speed_setSpeed : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Speed_initWithAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Speed* cobj = (cocos2d::Speed *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Speed_initWithAction : Invalid Native Object");
+    if (argc == 2) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        double arg1 = 0;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Speed_initWithAction : Error processing arguments");
+        bool ret = cobj->initWithAction(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Speed_initWithAction : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_cocos2dx_Speed_getInnerAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Speed* cobj = (cocos2d::Speed *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Speed_getInnerAction : Invalid Native Object");
+    if (argc == 0) {
+        cocos2d::ActionInterval* ret = cobj->getInnerAction();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::ActionInterval>(cx, (cocos2d::ActionInterval*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Speed_getInnerAction : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Speed_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 2) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        double arg1 = 0;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Speed_create : Error processing arguments");
+
+        auto ret = cocos2d::Speed::create(arg0, arg1);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Speed>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::Speed"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_Speed_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_Speed_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::Speed* cobj = new (std::nothrow) cocos2d::Speed();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Speed>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::Speed"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_Action_prototype;
+
+void js_register_cocos2dx_Speed(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_Speed_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_Speed_class->name = "Speed";
+    jsb_cocos2d_Speed_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_Speed_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_Speed_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_Speed_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_Speed_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_Speed_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_Speed_class->convert = JS_ConvertStub;
+    jsb_cocos2d_Speed_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("setInnerAction", js_cocos2dx_Speed_setInnerAction, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("_getSpeed", js_cocos2dx_Speed_getSpeed, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("_setSpeed", js_cocos2dx_Speed_setSpeed, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("initWithAction", js_cocos2dx_Speed_initWithAction, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getInnerAction", js_cocos2dx_Speed_getInnerAction, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_Speed_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Action_prototype);
+    jsb_cocos2d_Speed_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_Speed_class,
+        js_cocos2dx_Speed_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_Speed_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "Speed"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::Speed>(cx, jsb_cocos2d_Speed_class, proto, parent_proto);
+}
+
+JSClass  *jsb_cocos2d_Follow_class;
+JSObject *jsb_cocos2d_Follow_prototype;
+
+bool js_cocos2dx_Follow_setBoundarySet(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Follow* cobj = (cocos2d::Follow *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Follow_setBoundarySet : Invalid Native Object");
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_setBoundarySet : Error processing arguments");
+        cobj->setBoundarySet(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Follow_setBoundarySet : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Follow_initWithTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Follow* cobj = (cocos2d::Follow *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Follow_initWithTarget : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Node* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTarget : Error processing arguments");
+        bool ret = cobj->initWithTarget(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    if (argc == 2) {
+        cocos2d::Node* arg0 = nullptr;
+        cocos2d::Rect arg1;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= jsval_to_ccrect(cx, args.get(1), &arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTarget : Error processing arguments");
+        bool ret = cobj->initWithTarget(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Follow_initWithTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Follow_initWithTargetAndOffset(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Follow* cobj = (cocos2d::Follow *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Follow_initWithTargetAndOffset : Invalid Native Object");
+    if (argc == 3) {
+        cocos2d::Node* arg0 = nullptr;
+        double arg1 = 0;
+        double arg2 = 0;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTargetAndOffset : Error processing arguments");
+        bool ret = cobj->initWithTargetAndOffset(arg0, arg1, arg2);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    if (argc == 4) {
+        cocos2d::Node* arg0 = nullptr;
+        double arg1 = 0;
+        double arg2 = 0;
+        cocos2d::Rect arg3;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= jsval_to_ccrect(cx, args.get(3), &arg3);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTargetAndOffset : Error processing arguments");
+        bool ret = cobj->initWithTargetAndOffset(arg0, arg1, arg2, arg3);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Follow_initWithTargetAndOffset : wrong number of arguments: %d, was expecting %d", argc, 3);
+    return false;
+}
+bool js_cocos2dx_Follow_isBoundarySet(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Follow* cobj = (cocos2d::Follow *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Follow_isBoundarySet : Invalid Native Object");
+    if (argc == 0) {
+        bool ret = cobj->isBoundarySet();
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Follow_isBoundarySet : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Follow_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::Node* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_create : Error processing arguments");
+
+        auto ret = cocos2d::Follow::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Follow>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::Follow"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    if (argc == 2) {
+        cocos2d::Node* arg0 = nullptr;
+        cocos2d::Rect arg1;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= jsval_to_ccrect(cx, args.get(1), &arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_create : Error processing arguments");
+
+        auto ret = cocos2d::Follow::create(arg0, arg1);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Follow>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::Follow"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_Follow_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_Follow_createWithOffset(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 3) {
+        cocos2d::Node* arg0 = nullptr;
+        double arg1 = 0;
+        double arg2 = 0;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_createWithOffset : Error processing arguments");
+
+        auto ret = cocos2d::Follow::createWithOffset(arg0, arg1, arg2);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Follow>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::Follow"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    if (argc == 4) {
+        cocos2d::Node* arg0 = nullptr;
+        double arg1 = 0;
+        double arg2 = 0;
+        cocos2d::Rect arg3;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= jsval_to_ccrect(cx, args.get(3), &arg3);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_createWithOffset : Error processing arguments");
+
+        auto ret = cocos2d::Follow::createWithOffset(arg0, arg1, arg2, arg3);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Follow>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::Follow"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_Follow_createWithOffset : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_Follow_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::Follow* cobj = new (std::nothrow) cocos2d::Follow();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Follow>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::Follow"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_Follow_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::Follow *nobj = new (std::nothrow) cocos2d::Follow();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::Follow");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_Action_prototype;
+
+    
+void js_register_cocos2dx_Follow(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_Follow_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_Follow_class->name = "Follow";
+    jsb_cocos2d_Follow_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_Follow_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_Follow_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_Follow_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_Follow_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_Follow_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_Follow_class->convert = JS_ConvertStub;
+    jsb_cocos2d_Follow_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("setBoundarySet", js_cocos2dx_Follow_setBoundarySet, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("initWithTarget", js_cocos2dx_Follow_initWithTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("initWithTargetAndOffset", js_cocos2dx_Follow_initWithTargetAndOffset, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("isBoundarySet", js_cocos2dx_Follow_isBoundarySet, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_Follow_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_Follow_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("createWithOffset", js_cocos2dx_Follow_createWithOffset, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Action_prototype);
+    jsb_cocos2d_Follow_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_Follow_class,
+        js_cocos2dx_Follow_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_Follow_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "Follow"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::Follow>(cx, jsb_cocos2d_Follow_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.Follow.extend = cc.Class.extend; })()");
+}
+
 JSClass  *jsb_cocos2d_Image_class;
 JSObject *jsb_cocos2d_Image_prototype;
 
@@ -14317,6 +15398,9865 @@ void js_register_cocos2dx_SpriteFrame(JSContext *cx, JS::HandleObject global) {
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::SpriteFrame>(cx, jsb_cocos2d_SpriteFrame_class, proto, JS::NullPtr());
     anonEvaluate(cx, global, "(function () { cc.SpriteFrame.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_ActionInterval_class;
+JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+bool js_cocos2dx_ActionInterval_getAmplitudeRate(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionInterval* cobj = (cocos2d::ActionInterval *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionInterval_getAmplitudeRate : Invalid Native Object");
+    if (argc == 0) {
+        double ret = cobj->getAmplitudeRate();
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionInterval_getAmplitudeRate : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_ActionInterval_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionInterval* cobj = (cocos2d::ActionInterval *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionInterval_initWithDuration : Invalid Native Object");
+    if (argc == 1) {
+        double arg0 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionInterval_initWithDuration : Error processing arguments");
+        bool ret = cobj->initWithDuration(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionInterval_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_ActionInterval_setAmplitudeRate(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionInterval* cobj = (cocos2d::ActionInterval *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionInterval_setAmplitudeRate : Invalid Native Object");
+    if (argc == 1) {
+        double arg0 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionInterval_setAmplitudeRate : Error processing arguments");
+        cobj->setAmplitudeRate(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionInterval_setAmplitudeRate : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_ActionInterval_getElapsed(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionInterval* cobj = (cocos2d::ActionInterval *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionInterval_getElapsed : Invalid Native Object");
+    if (argc == 0) {
+        double ret = cobj->getElapsed();
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionInterval_getElapsed : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+
+extern JSObject *jsb_cocos2d_FiniteTimeAction_prototype;
+
+void js_register_cocos2dx_ActionInterval(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_ActionInterval_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_ActionInterval_class->name = "ActionInterval";
+    jsb_cocos2d_ActionInterval_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_ActionInterval_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_ActionInterval_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_ActionInterval_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_ActionInterval_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_ActionInterval_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_ActionInterval_class->convert = JS_ConvertStub;
+    jsb_cocos2d_ActionInterval_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("getAmplitudeRate", js_cocos2dx_ActionInterval_getAmplitudeRate, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("initWithDuration", js_cocos2dx_ActionInterval_initWithDuration, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setAmplitudeRate", js_cocos2dx_ActionInterval_setAmplitudeRate, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getElapsed", js_cocos2dx_ActionInterval_getElapsed, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_FiniteTimeAction_prototype);
+    jsb_cocos2d_ActionInterval_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_ActionInterval_class,
+        empty_constructor, 0,
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ActionInterval"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::ActionInterval>(cx, jsb_cocos2d_ActionInterval_class, proto, parent_proto);
+}
+
+JSClass  *jsb_cocos2d_Sequence_class;
+JSObject *jsb_cocos2d_Sequence_prototype;
+
+bool js_cocos2dx_Sequence_init(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Sequence* cobj = (cocos2d::Sequence *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Sequence_init : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Vector<cocos2d::FiniteTimeAction *> arg0;
+        ok &= jsval_to_ccvector(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sequence_init : Error processing arguments");
+        bool ret = cobj->init(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Sequence_init : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Sequence_initWithTwoActions(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Sequence* cobj = (cocos2d::Sequence *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Sequence_initWithTwoActions : Invalid Native Object");
+    if (argc == 2) {
+        cocos2d::FiniteTimeAction* arg0 = nullptr;
+        cocos2d::FiniteTimeAction* arg1 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::FiniteTimeAction*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        do {
+            if (args.get(1).isNull()) { arg1 = nullptr; break; }
+            if (!args.get(1).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(1).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg1 = (cocos2d::FiniteTimeAction*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg1, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sequence_initWithTwoActions : Error processing arguments");
+        bool ret = cobj->initWithTwoActions(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Sequence_initWithTwoActions : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_cocos2dx_Sequence_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::Sequence* cobj = new (std::nothrow) cocos2d::Sequence();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Sequence>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::Sequence"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_Sequence_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::Sequence *nobj = new (std::nothrow) cocos2d::Sequence();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::Sequence");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_Sequence(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_Sequence_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_Sequence_class->name = "Sequence";
+    jsb_cocos2d_Sequence_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_Sequence_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_Sequence_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_Sequence_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_Sequence_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_Sequence_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_Sequence_class->convert = JS_ConvertStub;
+    jsb_cocos2d_Sequence_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("init", js_cocos2dx_Sequence_init, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("initWithTwoActions", js_cocos2dx_Sequence_initWithTwoActions, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_Sequence_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_Sequence_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_Sequence_class,
+        js_cocos2dx_Sequence_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_Sequence_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "Sequence"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::Sequence>(cx, jsb_cocos2d_Sequence_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.Sequence.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_Repeat_class;
+JSObject *jsb_cocos2d_Repeat_prototype;
+
+bool js_cocos2dx_Repeat_setInnerAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Repeat* cobj = (cocos2d::Repeat *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Repeat_setInnerAction : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::FiniteTimeAction* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::FiniteTimeAction*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Repeat_setInnerAction : Error processing arguments");
+        cobj->setInnerAction(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Repeat_setInnerAction : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Repeat_initWithAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Repeat* cobj = (cocos2d::Repeat *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Repeat_initWithAction : Invalid Native Object");
+    if (argc == 2) {
+        cocos2d::FiniteTimeAction* arg0 = nullptr;
+        unsigned int arg1 = 0;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::FiniteTimeAction*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= jsval_to_uint32(cx, args.get(1), &arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Repeat_initWithAction : Error processing arguments");
+        bool ret = cobj->initWithAction(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Repeat_initWithAction : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_cocos2dx_Repeat_getInnerAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Repeat* cobj = (cocos2d::Repeat *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Repeat_getInnerAction : Invalid Native Object");
+    if (argc == 0) {
+        cocos2d::FiniteTimeAction* ret = cobj->getInnerAction();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::FiniteTimeAction>(cx, (cocos2d::FiniteTimeAction*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Repeat_getInnerAction : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Repeat_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 2) {
+        cocos2d::FiniteTimeAction* arg0 = nullptr;
+        unsigned int arg1 = 0;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::FiniteTimeAction*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= jsval_to_uint32(cx, args.get(1), &arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Repeat_create : Error processing arguments");
+
+        auto ret = cocos2d::Repeat::create(arg0, arg1);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Repeat>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::Repeat"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_Repeat_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_Repeat_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::Repeat* cobj = new (std::nothrow) cocos2d::Repeat();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Repeat>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::Repeat"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_Repeat_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::Repeat *nobj = new (std::nothrow) cocos2d::Repeat();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::Repeat");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_Repeat(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_Repeat_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_Repeat_class->name = "Repeat";
+    jsb_cocos2d_Repeat_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_Repeat_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_Repeat_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_Repeat_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_Repeat_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_Repeat_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_Repeat_class->convert = JS_ConvertStub;
+    jsb_cocos2d_Repeat_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("setInnerAction", js_cocos2dx_Repeat_setInnerAction, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("initWithAction", js_cocos2dx_Repeat_initWithAction, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getInnerAction", js_cocos2dx_Repeat_getInnerAction, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_Repeat_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_Repeat_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_Repeat_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_Repeat_class,
+        js_cocos2dx_Repeat_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_Repeat_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "Repeat"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::Repeat>(cx, jsb_cocos2d_Repeat_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.Repeat.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_RepeatForever_class;
+JSObject *jsb_cocos2d_RepeatForever_prototype;
+
+bool js_cocos2dx_RepeatForever_setInnerAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::RepeatForever* cobj = (cocos2d::RepeatForever *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_RepeatForever_setInnerAction : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RepeatForever_setInnerAction : Error processing arguments");
+        cobj->setInnerAction(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_RepeatForever_setInnerAction : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_RepeatForever_initWithAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::RepeatForever* cobj = (cocos2d::RepeatForever *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_RepeatForever_initWithAction : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RepeatForever_initWithAction : Error processing arguments");
+        bool ret = cobj->initWithAction(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_RepeatForever_initWithAction : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_RepeatForever_getInnerAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::RepeatForever* cobj = (cocos2d::RepeatForever *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_RepeatForever_getInnerAction : Invalid Native Object");
+    if (argc == 0) {
+        cocos2d::ActionInterval* ret = cobj->getInnerAction();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::ActionInterval>(cx, (cocos2d::ActionInterval*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_RepeatForever_getInnerAction : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_RepeatForever_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RepeatForever_create : Error processing arguments");
+
+        auto ret = cocos2d::RepeatForever::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::RepeatForever>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::RepeatForever"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_RepeatForever_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_RepeatForever_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::RepeatForever* cobj = new (std::nothrow) cocos2d::RepeatForever();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::RepeatForever>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::RepeatForever"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_RepeatForever_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::RepeatForever *nobj = new (std::nothrow) cocos2d::RepeatForever();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::RepeatForever");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_RepeatForever(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_RepeatForever_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_RepeatForever_class->name = "RepeatForever";
+    jsb_cocos2d_RepeatForever_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_RepeatForever_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_RepeatForever_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_RepeatForever_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_RepeatForever_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_RepeatForever_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_RepeatForever_class->convert = JS_ConvertStub;
+    jsb_cocos2d_RepeatForever_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("setInnerAction", js_cocos2dx_RepeatForever_setInnerAction, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("initWithAction", js_cocos2dx_RepeatForever_initWithAction, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getInnerAction", js_cocos2dx_RepeatForever_getInnerAction, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_RepeatForever_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_RepeatForever_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_RepeatForever_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_RepeatForever_class,
+        js_cocos2dx_RepeatForever_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_RepeatForever_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "RepeatForever"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::RepeatForever>(cx, jsb_cocos2d_RepeatForever_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.RepeatForever.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_Spawn_class;
+JSObject *jsb_cocos2d_Spawn_prototype;
+
+bool js_cocos2dx_Spawn_init(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Spawn* cobj = (cocos2d::Spawn *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Spawn_init : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Vector<cocos2d::FiniteTimeAction *> arg0;
+        ok &= jsval_to_ccvector(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Spawn_init : Error processing arguments");
+        bool ret = cobj->init(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Spawn_init : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Spawn_initWithTwoActions(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Spawn* cobj = (cocos2d::Spawn *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Spawn_initWithTwoActions : Invalid Native Object");
+    if (argc == 2) {
+        cocos2d::FiniteTimeAction* arg0 = nullptr;
+        cocos2d::FiniteTimeAction* arg1 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::FiniteTimeAction*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        do {
+            if (args.get(1).isNull()) { arg1 = nullptr; break; }
+            if (!args.get(1).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(1).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg1 = (cocos2d::FiniteTimeAction*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg1, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Spawn_initWithTwoActions : Error processing arguments");
+        bool ret = cobj->initWithTwoActions(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Spawn_initWithTwoActions : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_cocos2dx_Spawn_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::Spawn* cobj = new (std::nothrow) cocos2d::Spawn();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Spawn>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::Spawn"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_Spawn_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::Spawn *nobj = new (std::nothrow) cocos2d::Spawn();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::Spawn");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_Spawn(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_Spawn_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_Spawn_class->name = "Spawn";
+    jsb_cocos2d_Spawn_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_Spawn_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_Spawn_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_Spawn_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_Spawn_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_Spawn_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_Spawn_class->convert = JS_ConvertStub;
+    jsb_cocos2d_Spawn_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("init", js_cocos2dx_Spawn_init, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("initWithTwoActions", js_cocos2dx_Spawn_initWithTwoActions, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_Spawn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_Spawn_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_Spawn_class,
+        js_cocos2dx_Spawn_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_Spawn_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "Spawn"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::Spawn>(cx, jsb_cocos2d_Spawn_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.Spawn.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_RotateTo_class;
+JSObject *jsb_cocos2d_RotateTo_prototype;
+
+bool js_cocos2dx_RotateTo_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::RotateTo* cobj = (cocos2d::RotateTo *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_RotateTo_initWithDuration : Invalid Native Object");
+    if (argc == 3) {
+        double arg0 = 0;
+        double arg1 = 0;
+        double arg2 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RotateTo_initWithDuration : Error processing arguments");
+        bool ret = cobj->initWithDuration(arg0, arg1, arg2);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_RotateTo_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 3);
+    return false;
+}
+bool js_cocos2dx_RotateTo_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    
+    do {
+        bool ok = true;
+        if (argc == 2) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            cocos2d::RotateTo* ret = cocos2d::RotateTo::create(arg0, arg1);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::RotateTo>(cx, (cocos2d::RotateTo*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    
+    do {
+        bool ok = true;
+        if (argc == 3) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            double arg2 = 0;
+            ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+            if (!ok) { ok = true; break; }
+            cocos2d::RotateTo* ret = cocos2d::RotateTo::create(arg0, arg1, arg2);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::RotateTo>(cx, (cocos2d::RotateTo*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    JS_ReportError(cx, "js_cocos2dx_RotateTo_create : wrong number of arguments");
+    return false;
+}
+bool js_cocos2dx_RotateTo_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::RotateTo* cobj = new (std::nothrow) cocos2d::RotateTo();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::RotateTo>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::RotateTo"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_RotateTo_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::RotateTo *nobj = new (std::nothrow) cocos2d::RotateTo();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::RotateTo");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_RotateTo(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_RotateTo_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_RotateTo_class->name = "RotateTo";
+    jsb_cocos2d_RotateTo_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_RotateTo_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_RotateTo_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_RotateTo_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_RotateTo_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_RotateTo_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_RotateTo_class->convert = JS_ConvertStub;
+    jsb_cocos2d_RotateTo_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithDuration", js_cocos2dx_RotateTo_initWithDuration, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_RotateTo_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_RotateTo_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_RotateTo_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_RotateTo_class,
+        js_cocos2dx_RotateTo_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_RotateTo_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "RotateTo"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::RotateTo>(cx, jsb_cocos2d_RotateTo_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.RotateTo.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_RotateBy_class;
+JSObject *jsb_cocos2d_RotateBy_prototype;
+
+bool js_cocos2dx_RotateBy_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    cocos2d::RotateBy* cobj = nullptr;
+
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx);
+    obj.set(args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cobj = (cocos2d::RotateBy *)(proxy ? proxy->ptr : nullptr);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_RotateBy_initWithDuration : Invalid Native Object");
+    do {
+        bool ok = true;
+        if (argc == 3) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            double arg2 = 0;
+            ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+            if (!ok) { ok = true; break; }
+            bool ret = cobj->initWithDuration(arg0, arg1, arg2);
+            jsval jsret = JSVAL_NULL;
+            jsret = BOOLEAN_TO_JSVAL(ret);
+            args.rval().set(jsret);
+            return true;
+        }
+    } while(0);
+
+    do {
+        bool ok = true;
+        if (argc == 2) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            bool ret = cobj->initWithDuration(arg0, arg1);
+            jsval jsret = JSVAL_NULL;
+            jsret = BOOLEAN_TO_JSVAL(ret);
+            args.rval().set(jsret);
+            return true;
+        }
+    } while(0);
+
+    JS_ReportError(cx, "js_cocos2dx_RotateBy_initWithDuration : wrong number of arguments");
+    return false;
+}
+bool js_cocos2dx_RotateBy_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    
+    do {
+        bool ok = true;
+        if (argc == 3) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            double arg2 = 0;
+            ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+            if (!ok) { ok = true; break; }
+            cocos2d::RotateBy* ret = cocos2d::RotateBy::create(arg0, arg1, arg2);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::RotateBy>(cx, (cocos2d::RotateBy*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    
+    do {
+        bool ok = true;
+        if (argc == 2) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            cocos2d::RotateBy* ret = cocos2d::RotateBy::create(arg0, arg1);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::RotateBy>(cx, (cocos2d::RotateBy*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    JS_ReportError(cx, "js_cocos2dx_RotateBy_create : wrong number of arguments");
+    return false;
+}
+bool js_cocos2dx_RotateBy_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::RotateBy* cobj = new (std::nothrow) cocos2d::RotateBy();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::RotateBy>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::RotateBy"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_RotateBy_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::RotateBy *nobj = new (std::nothrow) cocos2d::RotateBy();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::RotateBy");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_RotateBy(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_RotateBy_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_RotateBy_class->name = "RotateBy";
+    jsb_cocos2d_RotateBy_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_RotateBy_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_RotateBy_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_RotateBy_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_RotateBy_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_RotateBy_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_RotateBy_class->convert = JS_ConvertStub;
+    jsb_cocos2d_RotateBy_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithDuration", js_cocos2dx_RotateBy_initWithDuration, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_RotateBy_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_RotateBy_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_RotateBy_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_RotateBy_class,
+        js_cocos2dx_RotateBy_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_RotateBy_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "RotateBy"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::RotateBy>(cx, jsb_cocos2d_RotateBy_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.RotateBy.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_MoveBy_class;
+JSObject *jsb_cocos2d_MoveBy_prototype;
+
+bool js_cocos2dx_MoveBy_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::MoveBy* cobj = (cocos2d::MoveBy *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_MoveBy_initWithDuration : Invalid Native Object");
+    if (argc == 2) {
+        double arg0 = 0;
+        cocos2d::Vec2 arg1;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_vector2(cx, args.get(1), &arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MoveBy_initWithDuration : Error processing arguments");
+        bool ret = cobj->initWithDuration(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_MoveBy_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_cocos2dx_MoveBy_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 2) {
+        double arg0 = 0;
+        cocos2d::Vec2 arg1;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_vector2(cx, args.get(1), &arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MoveBy_create : Error processing arguments");
+
+        auto ret = cocos2d::MoveBy::create(arg0, arg1);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MoveBy>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::MoveBy"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_MoveBy_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_MoveBy_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::MoveBy* cobj = new (std::nothrow) cocos2d::MoveBy();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MoveBy>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::MoveBy"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_MoveBy_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::MoveBy *nobj = new (std::nothrow) cocos2d::MoveBy();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::MoveBy");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_MoveBy(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_MoveBy_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_MoveBy_class->name = "MoveBy";
+    jsb_cocos2d_MoveBy_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_MoveBy_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_MoveBy_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_MoveBy_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_MoveBy_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_MoveBy_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_MoveBy_class->convert = JS_ConvertStub;
+    jsb_cocos2d_MoveBy_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithDuration", js_cocos2dx_MoveBy_initWithDuration, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_MoveBy_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_MoveBy_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_MoveBy_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_MoveBy_class,
+        js_cocos2dx_MoveBy_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_MoveBy_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "MoveBy"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::MoveBy>(cx, jsb_cocos2d_MoveBy_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.MoveBy.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_MoveTo_class;
+JSObject *jsb_cocos2d_MoveTo_prototype;
+
+bool js_cocos2dx_MoveTo_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::MoveTo* cobj = (cocos2d::MoveTo *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_MoveTo_initWithDuration : Invalid Native Object");
+    if (argc == 2) {
+        double arg0 = 0;
+        cocos2d::Vec2 arg1;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_vector2(cx, args.get(1), &arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MoveTo_initWithDuration : Error processing arguments");
+        bool ret = cobj->initWithDuration(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_MoveTo_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_cocos2dx_MoveTo_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 2) {
+        double arg0 = 0;
+        cocos2d::Vec2 arg1;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_vector2(cx, args.get(1), &arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MoveTo_create : Error processing arguments");
+
+        auto ret = cocos2d::MoveTo::create(arg0, arg1);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MoveTo>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::MoveTo"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_MoveTo_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_MoveTo_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::MoveTo* cobj = new (std::nothrow) cocos2d::MoveTo();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MoveTo>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::MoveTo"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_MoveTo_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::MoveTo *nobj = new (std::nothrow) cocos2d::MoveTo();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::MoveTo");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_MoveBy_prototype;
+
+    
+void js_register_cocos2dx_MoveTo(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_MoveTo_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_MoveTo_class->name = "MoveTo";
+    jsb_cocos2d_MoveTo_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_MoveTo_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_MoveTo_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_MoveTo_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_MoveTo_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_MoveTo_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_MoveTo_class->convert = JS_ConvertStub;
+    jsb_cocos2d_MoveTo_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithDuration", js_cocos2dx_MoveTo_initWithDuration, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_MoveTo_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_MoveTo_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_MoveBy_prototype);
+    jsb_cocos2d_MoveTo_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_MoveTo_class,
+        js_cocos2dx_MoveTo_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_MoveTo_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "MoveTo"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::MoveTo>(cx, jsb_cocos2d_MoveTo_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.MoveTo.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_SkewTo_class;
+JSObject *jsb_cocos2d_SkewTo_prototype;
+
+bool js_cocos2dx_SkewTo_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::SkewTo* cobj = (cocos2d::SkewTo *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_SkewTo_initWithDuration : Invalid Native Object");
+    if (argc == 3) {
+        double arg0 = 0;
+        double arg1 = 0;
+        double arg2 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SkewTo_initWithDuration : Error processing arguments");
+        bool ret = cobj->initWithDuration(arg0, arg1, arg2);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_SkewTo_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 3);
+    return false;
+}
+bool js_cocos2dx_SkewTo_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 3) {
+        double arg0 = 0;
+        double arg1 = 0;
+        double arg2 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SkewTo_create : Error processing arguments");
+
+        auto ret = cocos2d::SkewTo::create(arg0, arg1, arg2);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SkewTo>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::SkewTo"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_SkewTo_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_SkewTo_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::SkewTo* cobj = new (std::nothrow) cocos2d::SkewTo();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SkewTo>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::SkewTo"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_SkewTo_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::SkewTo *nobj = new (std::nothrow) cocos2d::SkewTo();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::SkewTo");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_SkewTo(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_SkewTo_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_SkewTo_class->name = "SkewTo";
+    jsb_cocos2d_SkewTo_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_SkewTo_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_SkewTo_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_SkewTo_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_SkewTo_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_SkewTo_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_SkewTo_class->convert = JS_ConvertStub;
+    jsb_cocos2d_SkewTo_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithDuration", js_cocos2dx_SkewTo_initWithDuration, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_SkewTo_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_SkewTo_create, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_SkewTo_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_SkewTo_class,
+        js_cocos2dx_SkewTo_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_SkewTo_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "SkewTo"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::SkewTo>(cx, jsb_cocos2d_SkewTo_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.SkewTo.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_SkewBy_class;
+JSObject *jsb_cocos2d_SkewBy_prototype;
+
+bool js_cocos2dx_SkewBy_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::SkewBy* cobj = (cocos2d::SkewBy *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_SkewBy_initWithDuration : Invalid Native Object");
+    if (argc == 3) {
+        double arg0 = 0;
+        double arg1 = 0;
+        double arg2 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SkewBy_initWithDuration : Error processing arguments");
+        bool ret = cobj->initWithDuration(arg0, arg1, arg2);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_SkewBy_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 3);
+    return false;
+}
+bool js_cocos2dx_SkewBy_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 3) {
+        double arg0 = 0;
+        double arg1 = 0;
+        double arg2 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SkewBy_create : Error processing arguments");
+
+        auto ret = cocos2d::SkewBy::create(arg0, arg1, arg2);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SkewBy>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::SkewBy"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_SkewBy_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_SkewBy_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::SkewBy* cobj = new (std::nothrow) cocos2d::SkewBy();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SkewBy>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::SkewBy"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_SkewBy_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::SkewBy *nobj = new (std::nothrow) cocos2d::SkewBy();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::SkewBy");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_SkewTo_prototype;
+
+    
+void js_register_cocos2dx_SkewBy(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_SkewBy_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_SkewBy_class->name = "SkewBy";
+    jsb_cocos2d_SkewBy_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_SkewBy_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_SkewBy_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_SkewBy_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_SkewBy_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_SkewBy_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_SkewBy_class->convert = JS_ConvertStub;
+    jsb_cocos2d_SkewBy_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithDuration", js_cocos2dx_SkewBy_initWithDuration, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_SkewBy_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_SkewBy_create, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_SkewTo_prototype);
+    jsb_cocos2d_SkewBy_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_SkewBy_class,
+        js_cocos2dx_SkewBy_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_SkewBy_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "SkewBy"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::SkewBy>(cx, jsb_cocos2d_SkewBy_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.SkewBy.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_JumpBy_class;
+JSObject *jsb_cocos2d_JumpBy_prototype;
+
+bool js_cocos2dx_JumpBy_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::JumpBy* cobj = (cocos2d::JumpBy *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_JumpBy_initWithDuration : Invalid Native Object");
+    if (argc == 4) {
+        double arg0 = 0;
+        cocos2d::Vec2 arg1;
+        double arg2 = 0;
+        int arg3 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_vector2(cx, args.get(1), &arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= jsval_to_int32(cx, args.get(3), (int32_t *)&arg3);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_JumpBy_initWithDuration : Error processing arguments");
+        bool ret = cobj->initWithDuration(arg0, arg1, arg2, arg3);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_JumpBy_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 4);
+    return false;
+}
+bool js_cocos2dx_JumpBy_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 4) {
+        double arg0 = 0;
+        cocos2d::Vec2 arg1;
+        double arg2 = 0;
+        int arg3 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_vector2(cx, args.get(1), &arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= jsval_to_int32(cx, args.get(3), (int32_t *)&arg3);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_JumpBy_create : Error processing arguments");
+
+        auto ret = cocos2d::JumpBy::create(arg0, arg1, arg2, arg3);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::JumpBy>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::JumpBy"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_JumpBy_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_JumpBy_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::JumpBy* cobj = new (std::nothrow) cocos2d::JumpBy();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::JumpBy>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::JumpBy"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_JumpBy_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::JumpBy *nobj = new (std::nothrow) cocos2d::JumpBy();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::JumpBy");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_JumpBy(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_JumpBy_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_JumpBy_class->name = "JumpBy";
+    jsb_cocos2d_JumpBy_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_JumpBy_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_JumpBy_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_JumpBy_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_JumpBy_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_JumpBy_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_JumpBy_class->convert = JS_ConvertStub;
+    jsb_cocos2d_JumpBy_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithDuration", js_cocos2dx_JumpBy_initWithDuration, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_JumpBy_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_JumpBy_create, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_JumpBy_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_JumpBy_class,
+        js_cocos2dx_JumpBy_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_JumpBy_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "JumpBy"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::JumpBy>(cx, jsb_cocos2d_JumpBy_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.JumpBy.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_JumpTo_class;
+JSObject *jsb_cocos2d_JumpTo_prototype;
+
+bool js_cocos2dx_JumpTo_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::JumpTo* cobj = (cocos2d::JumpTo *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_JumpTo_initWithDuration : Invalid Native Object");
+    if (argc == 4) {
+        double arg0 = 0;
+        cocos2d::Vec2 arg1;
+        double arg2 = 0;
+        int arg3 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_vector2(cx, args.get(1), &arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= jsval_to_int32(cx, args.get(3), (int32_t *)&arg3);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_JumpTo_initWithDuration : Error processing arguments");
+        bool ret = cobj->initWithDuration(arg0, arg1, arg2, arg3);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_JumpTo_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 4);
+    return false;
+}
+bool js_cocos2dx_JumpTo_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 4) {
+        double arg0 = 0;
+        cocos2d::Vec2 arg1;
+        double arg2 = 0;
+        int arg3 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_vector2(cx, args.get(1), &arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= jsval_to_int32(cx, args.get(3), (int32_t *)&arg3);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_JumpTo_create : Error processing arguments");
+
+        auto ret = cocos2d::JumpTo::create(arg0, arg1, arg2, arg3);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::JumpTo>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::JumpTo"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_JumpTo_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_JumpTo_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::JumpTo* cobj = new (std::nothrow) cocos2d::JumpTo();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::JumpTo>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::JumpTo"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_JumpTo_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::JumpTo *nobj = new (std::nothrow) cocos2d::JumpTo();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::JumpTo");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_JumpBy_prototype;
+
+    
+void js_register_cocos2dx_JumpTo(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_JumpTo_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_JumpTo_class->name = "JumpTo";
+    jsb_cocos2d_JumpTo_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_JumpTo_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_JumpTo_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_JumpTo_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_JumpTo_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_JumpTo_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_JumpTo_class->convert = JS_ConvertStub;
+    jsb_cocos2d_JumpTo_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithDuration", js_cocos2dx_JumpTo_initWithDuration, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_JumpTo_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_JumpTo_create, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_JumpBy_prototype);
+    jsb_cocos2d_JumpTo_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_JumpTo_class,
+        js_cocos2dx_JumpTo_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_JumpTo_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "JumpTo"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::JumpTo>(cx, jsb_cocos2d_JumpTo_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.JumpTo.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_BezierBy_class;
+JSObject *jsb_cocos2d_BezierBy_prototype;
+
+bool js_cocos2dx_BezierBy_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::BezierBy* cobj = new (std::nothrow) cocos2d::BezierBy();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::BezierBy>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::BezierBy"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_BezierBy_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::BezierBy *nobj = new (std::nothrow) cocos2d::BezierBy();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::BezierBy");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_BezierBy(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_BezierBy_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_BezierBy_class->name = "BezierBy";
+    jsb_cocos2d_BezierBy_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_BezierBy_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_BezierBy_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_BezierBy_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_BezierBy_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_BezierBy_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_BezierBy_class->convert = JS_ConvertStub;
+    jsb_cocos2d_BezierBy_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_BezierBy_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_BezierBy_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_BezierBy_class,
+        js_cocos2dx_BezierBy_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_BezierBy_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "BezierBy"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::BezierBy>(cx, jsb_cocos2d_BezierBy_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.BezierBy.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_BezierTo_class;
+JSObject *jsb_cocos2d_BezierTo_prototype;
+
+bool js_cocos2dx_BezierTo_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::BezierTo* cobj = new (std::nothrow) cocos2d::BezierTo();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::BezierTo>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::BezierTo"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_BezierTo_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::BezierTo *nobj = new (std::nothrow) cocos2d::BezierTo();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::BezierTo");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_BezierBy_prototype;
+
+    
+void js_register_cocos2dx_BezierTo(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_BezierTo_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_BezierTo_class->name = "BezierTo";
+    jsb_cocos2d_BezierTo_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_BezierTo_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_BezierTo_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_BezierTo_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_BezierTo_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_BezierTo_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_BezierTo_class->convert = JS_ConvertStub;
+    jsb_cocos2d_BezierTo_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_BezierTo_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_BezierBy_prototype);
+    jsb_cocos2d_BezierTo_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_BezierTo_class,
+        js_cocos2dx_BezierTo_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_BezierTo_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "BezierTo"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::BezierTo>(cx, jsb_cocos2d_BezierTo_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.BezierTo.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_ScaleTo_class;
+JSObject *jsb_cocos2d_ScaleTo_prototype;
+
+bool js_cocos2dx_ScaleTo_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    cocos2d::ScaleTo* cobj = nullptr;
+
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx);
+    obj.set(args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cobj = (cocos2d::ScaleTo *)(proxy ? proxy->ptr : nullptr);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ScaleTo_initWithDuration : Invalid Native Object");
+    do {
+        bool ok = true;
+        if (argc == 3) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            double arg2 = 0;
+            ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+            if (!ok) { ok = true; break; }
+            bool ret = cobj->initWithDuration(arg0, arg1, arg2);
+            jsval jsret = JSVAL_NULL;
+            jsret = BOOLEAN_TO_JSVAL(ret);
+            args.rval().set(jsret);
+            return true;
+        }
+    } while(0);
+
+    do {
+        bool ok = true;
+        if (argc == 2) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            bool ret = cobj->initWithDuration(arg0, arg1);
+            jsval jsret = JSVAL_NULL;
+            jsret = BOOLEAN_TO_JSVAL(ret);
+            args.rval().set(jsret);
+            return true;
+        }
+    } while(0);
+
+    do {
+        bool ok = true;
+        if (argc == 4) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            double arg2 = 0;
+            ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+            if (!ok) { ok = true; break; }
+            double arg3 = 0;
+            ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
+            if (!ok) { ok = true; break; }
+            bool ret = cobj->initWithDuration(arg0, arg1, arg2, arg3);
+            jsval jsret = JSVAL_NULL;
+            jsret = BOOLEAN_TO_JSVAL(ret);
+            args.rval().set(jsret);
+            return true;
+        }
+    } while(0);
+
+    JS_ReportError(cx, "js_cocos2dx_ScaleTo_initWithDuration : wrong number of arguments");
+    return false;
+}
+bool js_cocos2dx_ScaleTo_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    
+    do {
+        bool ok = true;
+        if (argc == 3) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            double arg2 = 0;
+            ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+            if (!ok) { ok = true; break; }
+            cocos2d::ScaleTo* ret = cocos2d::ScaleTo::create(arg0, arg1, arg2);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::ScaleTo>(cx, (cocos2d::ScaleTo*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    
+    do {
+        bool ok = true;
+        if (argc == 2) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            cocos2d::ScaleTo* ret = cocos2d::ScaleTo::create(arg0, arg1);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::ScaleTo>(cx, (cocos2d::ScaleTo*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    
+    do {
+        bool ok = true;
+        if (argc == 4) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            double arg2 = 0;
+            ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+            if (!ok) { ok = true; break; }
+            double arg3 = 0;
+            ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
+            if (!ok) { ok = true; break; }
+            cocos2d::ScaleTo* ret = cocos2d::ScaleTo::create(arg0, arg1, arg2, arg3);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::ScaleTo>(cx, (cocos2d::ScaleTo*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    JS_ReportError(cx, "js_cocos2dx_ScaleTo_create : wrong number of arguments");
+    return false;
+}
+bool js_cocos2dx_ScaleTo_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::ScaleTo* cobj = new (std::nothrow) cocos2d::ScaleTo();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ScaleTo>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::ScaleTo"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_ScaleTo_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::ScaleTo *nobj = new (std::nothrow) cocos2d::ScaleTo();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::ScaleTo");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_ScaleTo(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_ScaleTo_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_ScaleTo_class->name = "ScaleTo";
+    jsb_cocos2d_ScaleTo_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_ScaleTo_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_ScaleTo_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_ScaleTo_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_ScaleTo_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_ScaleTo_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_ScaleTo_class->convert = JS_ConvertStub;
+    jsb_cocos2d_ScaleTo_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithDuration", js_cocos2dx_ScaleTo_initWithDuration, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_ScaleTo_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_ScaleTo_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_ScaleTo_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_ScaleTo_class,
+        js_cocos2dx_ScaleTo_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_ScaleTo_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ScaleTo"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::ScaleTo>(cx, jsb_cocos2d_ScaleTo_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.ScaleTo.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_ScaleBy_class;
+JSObject *jsb_cocos2d_ScaleBy_prototype;
+
+bool js_cocos2dx_ScaleBy_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    
+    do {
+        bool ok = true;
+        if (argc == 3) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            double arg2 = 0;
+            ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+            if (!ok) { ok = true; break; }
+            cocos2d::ScaleBy* ret = cocos2d::ScaleBy::create(arg0, arg1, arg2);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::ScaleBy>(cx, (cocos2d::ScaleBy*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    
+    do {
+        bool ok = true;
+        if (argc == 2) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            cocos2d::ScaleBy* ret = cocos2d::ScaleBy::create(arg0, arg1);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::ScaleBy>(cx, (cocos2d::ScaleBy*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    
+    do {
+        bool ok = true;
+        if (argc == 4) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            double arg2 = 0;
+            ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+            if (!ok) { ok = true; break; }
+            double arg3 = 0;
+            ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
+            if (!ok) { ok = true; break; }
+            cocos2d::ScaleBy* ret = cocos2d::ScaleBy::create(arg0, arg1, arg2, arg3);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::ScaleBy>(cx, (cocos2d::ScaleBy*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    JS_ReportError(cx, "js_cocos2dx_ScaleBy_create : wrong number of arguments");
+    return false;
+}
+bool js_cocos2dx_ScaleBy_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::ScaleBy* cobj = new (std::nothrow) cocos2d::ScaleBy();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ScaleBy>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::ScaleBy"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_ScaleBy_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::ScaleBy *nobj = new (std::nothrow) cocos2d::ScaleBy();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::ScaleBy");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ScaleTo_prototype;
+
+    
+void js_register_cocos2dx_ScaleBy(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_ScaleBy_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_ScaleBy_class->name = "ScaleBy";
+    jsb_cocos2d_ScaleBy_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_ScaleBy_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_ScaleBy_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_ScaleBy_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_ScaleBy_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_ScaleBy_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_ScaleBy_class->convert = JS_ConvertStub;
+    jsb_cocos2d_ScaleBy_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_ScaleBy_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_ScaleBy_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ScaleTo_prototype);
+    jsb_cocos2d_ScaleBy_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_ScaleBy_class,
+        js_cocos2dx_ScaleBy_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_ScaleBy_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ScaleBy"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::ScaleBy>(cx, jsb_cocos2d_ScaleBy_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.ScaleBy.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_Blink_class;
+JSObject *jsb_cocos2d_Blink_prototype;
+
+bool js_cocos2dx_Blink_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Blink* cobj = (cocos2d::Blink *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Blink_initWithDuration : Invalid Native Object");
+    if (argc == 2) {
+        double arg0 = 0;
+        int arg1 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_int32(cx, args.get(1), (int32_t *)&arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Blink_initWithDuration : Error processing arguments");
+        bool ret = cobj->initWithDuration(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Blink_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_cocos2dx_Blink_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 2) {
+        double arg0 = 0;
+        int arg1 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_int32(cx, args.get(1), (int32_t *)&arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Blink_create : Error processing arguments");
+
+        auto ret = cocos2d::Blink::create(arg0, arg1);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Blink>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::Blink"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_Blink_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_Blink_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::Blink* cobj = new (std::nothrow) cocos2d::Blink();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Blink>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::Blink"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_Blink_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::Blink *nobj = new (std::nothrow) cocos2d::Blink();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::Blink");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_Blink(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_Blink_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_Blink_class->name = "Blink";
+    jsb_cocos2d_Blink_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_Blink_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_Blink_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_Blink_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_Blink_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_Blink_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_Blink_class->convert = JS_ConvertStub;
+    jsb_cocos2d_Blink_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithDuration", js_cocos2dx_Blink_initWithDuration, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_Blink_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_Blink_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_Blink_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_Blink_class,
+        js_cocos2dx_Blink_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_Blink_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "Blink"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::Blink>(cx, jsb_cocos2d_Blink_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.Blink.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_FadeTo_class;
+JSObject *jsb_cocos2d_FadeTo_prototype;
+
+bool js_cocos2dx_FadeTo_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::FadeTo* cobj = (cocos2d::FadeTo *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_FadeTo_initWithDuration : Invalid Native Object");
+    if (argc == 2) {
+        double arg0 = 0;
+        uint16_t arg1;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_uint16(cx, args.get(1), &arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FadeTo_initWithDuration : Error processing arguments");
+        bool ret = cobj->initWithDuration(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_FadeTo_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_cocos2dx_FadeTo_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 2) {
+        double arg0 = 0;
+        uint16_t arg1;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_uint16(cx, args.get(1), &arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FadeTo_create : Error processing arguments");
+
+        auto ret = cocos2d::FadeTo::create(arg0, arg1);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FadeTo>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::FadeTo"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_FadeTo_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_FadeTo_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::FadeTo* cobj = new (std::nothrow) cocos2d::FadeTo();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FadeTo>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::FadeTo"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_FadeTo_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::FadeTo *nobj = new (std::nothrow) cocos2d::FadeTo();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::FadeTo");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_FadeTo(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_FadeTo_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_FadeTo_class->name = "FadeTo";
+    jsb_cocos2d_FadeTo_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_FadeTo_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_FadeTo_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_FadeTo_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_FadeTo_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_FadeTo_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_FadeTo_class->convert = JS_ConvertStub;
+    jsb_cocos2d_FadeTo_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithDuration", js_cocos2dx_FadeTo_initWithDuration, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_FadeTo_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_FadeTo_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_FadeTo_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_FadeTo_class,
+        js_cocos2dx_FadeTo_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_FadeTo_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "FadeTo"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::FadeTo>(cx, jsb_cocos2d_FadeTo_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.FadeTo.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_FadeIn_class;
+JSObject *jsb_cocos2d_FadeIn_prototype;
+
+bool js_cocos2dx_FadeIn_setReverseAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::FadeIn* cobj = (cocos2d::FadeIn *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_FadeIn_setReverseAction : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::FadeTo* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::FadeTo*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FadeIn_setReverseAction : Error processing arguments");
+        cobj->setReverseAction(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_FadeIn_setReverseAction : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_FadeIn_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        double arg0 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FadeIn_create : Error processing arguments");
+
+        auto ret = cocos2d::FadeIn::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FadeIn>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::FadeIn"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_FadeIn_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_FadeIn_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::FadeIn* cobj = new (std::nothrow) cocos2d::FadeIn();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FadeIn>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::FadeIn"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_FadeIn_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::FadeIn *nobj = new (std::nothrow) cocos2d::FadeIn();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::FadeIn");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_FadeTo_prototype;
+
+    
+void js_register_cocos2dx_FadeIn(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_FadeIn_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_FadeIn_class->name = "FadeIn";
+    jsb_cocos2d_FadeIn_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_FadeIn_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_FadeIn_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_FadeIn_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_FadeIn_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_FadeIn_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_FadeIn_class->convert = JS_ConvertStub;
+    jsb_cocos2d_FadeIn_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("setReverseAction", js_cocos2dx_FadeIn_setReverseAction, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_FadeIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_FadeIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_FadeTo_prototype);
+    jsb_cocos2d_FadeIn_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_FadeIn_class,
+        js_cocos2dx_FadeIn_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_FadeIn_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "FadeIn"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::FadeIn>(cx, jsb_cocos2d_FadeIn_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.FadeIn.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_FadeOut_class;
+JSObject *jsb_cocos2d_FadeOut_prototype;
+
+bool js_cocos2dx_FadeOut_setReverseAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::FadeOut* cobj = (cocos2d::FadeOut *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_FadeOut_setReverseAction : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::FadeTo* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::FadeTo*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FadeOut_setReverseAction : Error processing arguments");
+        cobj->setReverseAction(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_FadeOut_setReverseAction : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_FadeOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        double arg0 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FadeOut_create : Error processing arguments");
+
+        auto ret = cocos2d::FadeOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FadeOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::FadeOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_FadeOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_FadeOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::FadeOut* cobj = new (std::nothrow) cocos2d::FadeOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FadeOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::FadeOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_FadeOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::FadeOut *nobj = new (std::nothrow) cocos2d::FadeOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::FadeOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_FadeTo_prototype;
+
+    
+void js_register_cocos2dx_FadeOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_FadeOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_FadeOut_class->name = "FadeOut";
+    jsb_cocos2d_FadeOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_FadeOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_FadeOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_FadeOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_FadeOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_FadeOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_FadeOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_FadeOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("setReverseAction", js_cocos2dx_FadeOut_setReverseAction, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_FadeOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_FadeOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_FadeTo_prototype);
+    jsb_cocos2d_FadeOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_FadeOut_class,
+        js_cocos2dx_FadeOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_FadeOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "FadeOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::FadeOut>(cx, jsb_cocos2d_FadeOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.FadeOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_TintTo_class;
+JSObject *jsb_cocos2d_TintTo_prototype;
+
+bool js_cocos2dx_TintTo_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::TintTo* cobj = (cocos2d::TintTo *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TintTo_initWithDuration : Invalid Native Object");
+    if (argc == 4) {
+        double arg0 = 0;
+        uint16_t arg1;
+        uint16_t arg2;
+        uint16_t arg3;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_uint16(cx, args.get(1), &arg1);
+        ok &= jsval_to_uint16(cx, args.get(2), &arg2);
+        ok &= jsval_to_uint16(cx, args.get(3), &arg3);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TintTo_initWithDuration : Error processing arguments");
+        bool ret = cobj->initWithDuration(arg0, arg1, arg2, arg3);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_TintTo_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 4);
+    return false;
+}
+bool js_cocos2dx_TintTo_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    
+    do {
+        bool ok = true;
+        if (argc == 2) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            cocos2d::Color3B arg1;
+            ok &= jsval_to_cccolor3b(cx, args.get(1), &arg1);
+            if (!ok) { ok = true; break; }
+            cocos2d::TintTo* ret = cocos2d::TintTo::create(arg0, arg1);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::TintTo>(cx, (cocos2d::TintTo*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    
+    do {
+        bool ok = true;
+        if (argc == 4) {
+            double arg0 = 0;
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
+            uint16_t arg1;
+            ok &= jsval_to_uint16(cx, args.get(1), &arg1);
+            if (!ok) { ok = true; break; }
+            uint16_t arg2;
+            ok &= jsval_to_uint16(cx, args.get(2), &arg2);
+            if (!ok) { ok = true; break; }
+            uint16_t arg3;
+            ok &= jsval_to_uint16(cx, args.get(3), &arg3);
+            if (!ok) { ok = true; break; }
+            cocos2d::TintTo* ret = cocos2d::TintTo::create(arg0, arg1, arg2, arg3);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::TintTo>(cx, (cocos2d::TintTo*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    JS_ReportError(cx, "js_cocos2dx_TintTo_create : wrong number of arguments");
+    return false;
+}
+bool js_cocos2dx_TintTo_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::TintTo* cobj = new (std::nothrow) cocos2d::TintTo();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TintTo>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::TintTo"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_TintTo_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::TintTo *nobj = new (std::nothrow) cocos2d::TintTo();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::TintTo");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_TintTo(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_TintTo_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_TintTo_class->name = "TintTo";
+    jsb_cocos2d_TintTo_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_TintTo_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_TintTo_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_TintTo_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_TintTo_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_TintTo_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_TintTo_class->convert = JS_ConvertStub;
+    jsb_cocos2d_TintTo_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithDuration", js_cocos2dx_TintTo_initWithDuration, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_TintTo_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_TintTo_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_TintTo_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_TintTo_class,
+        js_cocos2dx_TintTo_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_TintTo_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "TintTo"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::TintTo>(cx, jsb_cocos2d_TintTo_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.TintTo.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_TintBy_class;
+JSObject *jsb_cocos2d_TintBy_prototype;
+
+bool js_cocos2dx_TintBy_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::TintBy* cobj = (cocos2d::TintBy *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TintBy_initWithDuration : Invalid Native Object");
+    if (argc == 4) {
+        double arg0 = 0;
+        int32_t arg1 = 0;
+        int32_t arg2 = 0;
+        int32_t arg3 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_int32(cx, args.get(1), &arg1);
+        ok &= jsval_to_int32(cx, args.get(2), &arg2);
+        ok &= jsval_to_int32(cx, args.get(3), &arg3);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TintBy_initWithDuration : Error processing arguments");
+        bool ret = cobj->initWithDuration(arg0, arg1, arg2, arg3);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_TintBy_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 4);
+    return false;
+}
+bool js_cocos2dx_TintBy_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 4) {
+        double arg0 = 0;
+        int32_t arg1 = 0;
+        int32_t arg2 = 0;
+        int32_t arg3 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= jsval_to_int32(cx, args.get(1), &arg1);
+        ok &= jsval_to_int32(cx, args.get(2), &arg2);
+        ok &= jsval_to_int32(cx, args.get(3), &arg3);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TintBy_create : Error processing arguments");
+
+        auto ret = cocos2d::TintBy::create(arg0, arg1, arg2, arg3);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TintBy>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::TintBy"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_TintBy_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_TintBy_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::TintBy* cobj = new (std::nothrow) cocos2d::TintBy();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TintBy>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::TintBy"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_TintBy_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::TintBy *nobj = new (std::nothrow) cocos2d::TintBy();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::TintBy");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_TintBy(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_TintBy_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_TintBy_class->name = "TintBy";
+    jsb_cocos2d_TintBy_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_TintBy_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_TintBy_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_TintBy_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_TintBy_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_TintBy_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_TintBy_class->convert = JS_ConvertStub;
+    jsb_cocos2d_TintBy_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithDuration", js_cocos2dx_TintBy_initWithDuration, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_TintBy_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_TintBy_create, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_TintBy_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_TintBy_class,
+        js_cocos2dx_TintBy_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_TintBy_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "TintBy"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::TintBy>(cx, jsb_cocos2d_TintBy_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.TintBy.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_DelayTime_class;
+JSObject *jsb_cocos2d_DelayTime_prototype;
+
+bool js_cocos2dx_DelayTime_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        double arg0 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_DelayTime_create : Error processing arguments");
+
+        auto ret = cocos2d::DelayTime::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::DelayTime>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::DelayTime"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_DelayTime_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_DelayTime_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::DelayTime* cobj = new (std::nothrow) cocos2d::DelayTime();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::DelayTime>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::DelayTime"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_DelayTime_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::DelayTime *nobj = new (std::nothrow) cocos2d::DelayTime();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::DelayTime");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_DelayTime(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_DelayTime_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_DelayTime_class->name = "DelayTime";
+    jsb_cocos2d_DelayTime_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_DelayTime_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_DelayTime_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_DelayTime_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_DelayTime_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_DelayTime_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_DelayTime_class->convert = JS_ConvertStub;
+    jsb_cocos2d_DelayTime_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_DelayTime_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_DelayTime_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_DelayTime_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_DelayTime_class,
+        js_cocos2dx_DelayTime_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_DelayTime_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "DelayTime"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::DelayTime>(cx, jsb_cocos2d_DelayTime_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.DelayTime.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_ReverseTime_class;
+JSObject *jsb_cocos2d_ReverseTime_prototype;
+
+bool js_cocos2dx_ReverseTime_initWithAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ReverseTime* cobj = (cocos2d::ReverseTime *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ReverseTime_initWithAction : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::FiniteTimeAction* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::FiniteTimeAction*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ReverseTime_initWithAction : Error processing arguments");
+        bool ret = cobj->initWithAction(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ReverseTime_initWithAction : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_ReverseTime_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::FiniteTimeAction* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::FiniteTimeAction*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ReverseTime_create : Error processing arguments");
+
+        auto ret = cocos2d::ReverseTime::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ReverseTime>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::ReverseTime"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_ReverseTime_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_ReverseTime_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::ReverseTime* cobj = new (std::nothrow) cocos2d::ReverseTime();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ReverseTime>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::ReverseTime"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_ReverseTime_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::ReverseTime *nobj = new (std::nothrow) cocos2d::ReverseTime();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::ReverseTime");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_ReverseTime(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_ReverseTime_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_ReverseTime_class->name = "ReverseTime";
+    jsb_cocos2d_ReverseTime_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_ReverseTime_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_ReverseTime_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_ReverseTime_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_ReverseTime_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_ReverseTime_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_ReverseTime_class->convert = JS_ConvertStub;
+    jsb_cocos2d_ReverseTime_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithAction", js_cocos2dx_ReverseTime_initWithAction, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_ReverseTime_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_ReverseTime_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_ReverseTime_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_ReverseTime_class,
+        js_cocos2dx_ReverseTime_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_ReverseTime_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ReverseTime"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::ReverseTime>(cx, jsb_cocos2d_ReverseTime_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.ReverseTime.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_TargetedAction_class;
+JSObject *jsb_cocos2d_TargetedAction_prototype;
+
+bool js_cocos2dx_TargetedAction_getForcedTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    cocos2d::TargetedAction* cobj = nullptr;
+
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx);
+    obj.set(args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cobj = (cocos2d::TargetedAction *)(proxy ? proxy->ptr : nullptr);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TargetedAction_getForcedTarget : Invalid Native Object");
+    do {
+        if (argc == 0) {
+            const cocos2d::Node* ret = cobj->getForcedTarget();
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while(0);
+
+    do {
+        if (argc == 0) {
+            cocos2d::Node* ret = cobj->getForcedTarget();
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while(0);
+
+    JS_ReportError(cx, "js_cocos2dx_TargetedAction_getForcedTarget : wrong number of arguments");
+    return false;
+}
+bool js_cocos2dx_TargetedAction_initWithTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::TargetedAction* cobj = (cocos2d::TargetedAction *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TargetedAction_initWithTarget : Invalid Native Object");
+    if (argc == 2) {
+        cocos2d::Node* arg0 = nullptr;
+        cocos2d::FiniteTimeAction* arg1 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        do {
+            if (args.get(1).isNull()) { arg1 = nullptr; break; }
+            if (!args.get(1).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(1).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg1 = (cocos2d::FiniteTimeAction*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg1, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TargetedAction_initWithTarget : Error processing arguments");
+        bool ret = cobj->initWithTarget(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_TargetedAction_initWithTarget : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_cocos2dx_TargetedAction_setForcedTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::TargetedAction* cobj = (cocos2d::TargetedAction *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TargetedAction_setForcedTarget : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Node* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TargetedAction_setForcedTarget : Error processing arguments");
+        cobj->setForcedTarget(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_TargetedAction_setForcedTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_TargetedAction_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 2) {
+        cocos2d::Node* arg0 = nullptr;
+        cocos2d::FiniteTimeAction* arg1 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        do {
+            if (args.get(1).isNull()) { arg1 = nullptr; break; }
+            if (!args.get(1).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(1).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg1 = (cocos2d::FiniteTimeAction*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg1, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TargetedAction_create : Error processing arguments");
+
+        auto ret = cocos2d::TargetedAction::create(arg0, arg1);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TargetedAction>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::TargetedAction"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_TargetedAction_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_TargetedAction_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::TargetedAction* cobj = new (std::nothrow) cocos2d::TargetedAction();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TargetedAction>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::TargetedAction"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_TargetedAction_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::TargetedAction *nobj = new (std::nothrow) cocos2d::TargetedAction();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::TargetedAction");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+    
+void js_register_cocos2dx_TargetedAction(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_TargetedAction_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_TargetedAction_class->name = "TargetedAction";
+    jsb_cocos2d_TargetedAction_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_TargetedAction_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_TargetedAction_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_TargetedAction_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_TargetedAction_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_TargetedAction_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_TargetedAction_class->convert = JS_ConvertStub;
+    jsb_cocos2d_TargetedAction_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("getForcedTarget", js_cocos2dx_TargetedAction_getForcedTarget, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("initWithTarget", js_cocos2dx_TargetedAction_initWithTarget, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setForcedTarget", js_cocos2dx_TargetedAction_setForcedTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_TargetedAction_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_TargetedAction_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_TargetedAction_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_TargetedAction_class,
+        js_cocos2dx_TargetedAction_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_TargetedAction_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "TargetedAction"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::TargetedAction>(cx, jsb_cocos2d_TargetedAction_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.TargetedAction.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_CardinalSplineTo_class;
+JSObject *jsb_cocos2d_CardinalSplineTo_prototype;
+
+bool js_cocos2dx_CardinalSplineTo_getPoints(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::CardinalSplineTo* cobj = (cocos2d::CardinalSplineTo *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_CardinalSplineTo_getPoints : Invalid Native Object");
+    if (argc == 0) {
+        cocos2d::PointArray* ret = cobj->getPoints();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::PointArray>(cx, (cocos2d::PointArray*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_CardinalSplineTo_getPoints : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_CardinalSplineTo_updatePosition(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::CardinalSplineTo* cobj = (cocos2d::CardinalSplineTo *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_CardinalSplineTo_updatePosition : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Vec2 arg0;
+        ok &= jsval_to_vector2(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_CardinalSplineTo_updatePosition : Error processing arguments");
+        cobj->updatePosition(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_CardinalSplineTo_updatePosition : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_CardinalSplineTo_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::CardinalSplineTo* cobj = new (std::nothrow) cocos2d::CardinalSplineTo();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::CardinalSplineTo>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::CardinalSplineTo"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+void js_register_cocos2dx_CardinalSplineTo(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_CardinalSplineTo_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_CardinalSplineTo_class->name = "CardinalSplineTo";
+    jsb_cocos2d_CardinalSplineTo_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_CardinalSplineTo_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_CardinalSplineTo_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_CardinalSplineTo_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_CardinalSplineTo_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_CardinalSplineTo_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_CardinalSplineTo_class->convert = JS_ConvertStub;
+    jsb_cocos2d_CardinalSplineTo_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("getPoints", js_cocos2dx_CardinalSplineTo_getPoints, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("updatePosition", js_cocos2dx_CardinalSplineTo_updatePosition, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_CardinalSplineTo_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_CardinalSplineTo_class,
+        js_cocos2dx_CardinalSplineTo_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_CardinalSplineTo_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "CardinalSplineTo"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::CardinalSplineTo>(cx, jsb_cocos2d_CardinalSplineTo_class, proto, parent_proto);
+}
+
+JSClass  *jsb_cocos2d_CardinalSplineBy_class;
+JSObject *jsb_cocos2d_CardinalSplineBy_prototype;
+
+bool js_cocos2dx_CardinalSplineBy_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::CardinalSplineBy* cobj = new (std::nothrow) cocos2d::CardinalSplineBy();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::CardinalSplineBy>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::CardinalSplineBy"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_CardinalSplineTo_prototype;
+
+void js_register_cocos2dx_CardinalSplineBy(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_CardinalSplineBy_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_CardinalSplineBy_class->name = "CardinalSplineBy";
+    jsb_cocos2d_CardinalSplineBy_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_CardinalSplineBy_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_CardinalSplineBy_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_CardinalSplineBy_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_CardinalSplineBy_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_CardinalSplineBy_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_CardinalSplineBy_class->convert = JS_ConvertStub;
+    jsb_cocos2d_CardinalSplineBy_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_CardinalSplineTo_prototype);
+    jsb_cocos2d_CardinalSplineBy_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_CardinalSplineBy_class,
+        js_cocos2dx_CardinalSplineBy_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_CardinalSplineBy_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "CardinalSplineBy"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::CardinalSplineBy>(cx, jsb_cocos2d_CardinalSplineBy_class, proto, parent_proto);
+}
+
+JSClass  *jsb_cocos2d_CatmullRomTo_class;
+JSObject *jsb_cocos2d_CatmullRomTo_prototype;
+
+
+extern JSObject *jsb_cocos2d_CardinalSplineTo_prototype;
+
+void js_register_cocos2dx_CatmullRomTo(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_CatmullRomTo_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_CatmullRomTo_class->name = "CatmullRomTo";
+    jsb_cocos2d_CatmullRomTo_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_CatmullRomTo_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_CatmullRomTo_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_CatmullRomTo_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_CatmullRomTo_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_CatmullRomTo_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_CatmullRomTo_class->convert = JS_ConvertStub;
+    jsb_cocos2d_CatmullRomTo_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_CardinalSplineTo_prototype);
+    jsb_cocos2d_CatmullRomTo_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_CatmullRomTo_class,
+        dummy_constructor<cocos2d::CatmullRomTo>, 0, // no constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_CatmullRomTo_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "CatmullRomTo"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::CatmullRomTo>(cx, jsb_cocos2d_CatmullRomTo_class, proto, parent_proto);
+}
+
+JSClass  *jsb_cocos2d_CatmullRomBy_class;
+JSObject *jsb_cocos2d_CatmullRomBy_prototype;
+
+
+extern JSObject *jsb_cocos2d_CardinalSplineBy_prototype;
+
+void js_register_cocos2dx_CatmullRomBy(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_CatmullRomBy_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_CatmullRomBy_class->name = "CatmullRomBy";
+    jsb_cocos2d_CatmullRomBy_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_CatmullRomBy_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_CatmullRomBy_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_CatmullRomBy_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_CatmullRomBy_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_CatmullRomBy_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_CatmullRomBy_class->convert = JS_ConvertStub;
+    jsb_cocos2d_CatmullRomBy_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_CardinalSplineBy_prototype);
+    jsb_cocos2d_CatmullRomBy_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_CatmullRomBy_class,
+        dummy_constructor<cocos2d::CatmullRomBy>, 0, // no constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_CatmullRomBy_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "CatmullRomBy"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::CatmullRomBy>(cx, jsb_cocos2d_CatmullRomBy_class, proto, parent_proto);
+}
+
+JSClass  *jsb_cocos2d_ActionEase_class;
+JSObject *jsb_cocos2d_ActionEase_prototype;
+
+bool js_cocos2dx_ActionEase_initWithAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionEase* cobj = (cocos2d::ActionEase *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionEase_initWithAction : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionEase_initWithAction : Error processing arguments");
+        bool ret = cobj->initWithAction(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionEase_initWithAction : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_ActionEase_getInnerAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionEase* cobj = (cocos2d::ActionEase *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionEase_getInnerAction : Invalid Native Object");
+    if (argc == 0) {
+        cocos2d::ActionInterval* ret = cobj->getInnerAction();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::ActionInterval>(cx, (cocos2d::ActionInterval*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionEase_getInnerAction : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+
+extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+
+void js_register_cocos2dx_ActionEase(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_ActionEase_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_ActionEase_class->name = "ActionEase";
+    jsb_cocos2d_ActionEase_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_ActionEase_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_ActionEase_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_ActionEase_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_ActionEase_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_ActionEase_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_ActionEase_class->convert = JS_ConvertStub;
+    jsb_cocos2d_ActionEase_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithAction", js_cocos2dx_ActionEase_initWithAction, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getInnerAction", js_cocos2dx_ActionEase_getInnerAction, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    jsb_cocos2d_ActionEase_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_ActionEase_class,
+        empty_constructor, 0,
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_ActionEase_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ActionEase"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::ActionEase>(cx, jsb_cocos2d_ActionEase_class, proto, parent_proto);
+}
+
+JSClass  *jsb_cocos2d_EaseRateAction_class;
+JSObject *jsb_cocos2d_EaseRateAction_prototype;
+
+bool js_cocos2dx_EaseRateAction_setRate(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::EaseRateAction* cobj = (cocos2d::EaseRateAction *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_EaseRateAction_setRate : Invalid Native Object");
+    if (argc == 1) {
+        double arg0 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseRateAction_setRate : Error processing arguments");
+        cobj->setRate(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_EaseRateAction_setRate : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_EaseRateAction_initWithAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::EaseRateAction* cobj = (cocos2d::EaseRateAction *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_EaseRateAction_initWithAction : Invalid Native Object");
+    if (argc == 2) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        double arg1 = 0;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseRateAction_initWithAction : Error processing arguments");
+        bool ret = cobj->initWithAction(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_EaseRateAction_initWithAction : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_cocos2dx_EaseRateAction_getRate(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::EaseRateAction* cobj = (cocos2d::EaseRateAction *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_EaseRateAction_getRate : Invalid Native Object");
+    if (argc == 0) {
+        double ret = cobj->getRate();
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_EaseRateAction_getRate : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_EaseRateAction_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 2) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        double arg1 = 0;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseRateAction_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseRateAction::create(arg0, arg1);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseRateAction>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseRateAction"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseRateAction_create : wrong number of arguments");
+    return false;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+void js_register_cocos2dx_EaseRateAction(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseRateAction_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseRateAction_class->name = "EaseRateAction";
+    jsb_cocos2d_EaseRateAction_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseRateAction_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseRateAction_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseRateAction_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseRateAction_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseRateAction_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseRateAction_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseRateAction_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("setRate", js_cocos2dx_EaseRateAction_setRate, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("initWithAction", js_cocos2dx_EaseRateAction_initWithAction, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getRate", js_cocos2dx_EaseRateAction_getRate, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseRateAction_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseRateAction_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseRateAction_class,
+        empty_constructor, 0,
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseRateAction_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseRateAction"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseRateAction>(cx, jsb_cocos2d_EaseRateAction_class, proto, parent_proto);
+}
+
+JSClass  *jsb_cocos2d_EaseIn_class;
+JSObject *jsb_cocos2d_EaseIn_prototype;
+
+bool js_cocos2dx_EaseIn_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 2) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        double arg1 = 0;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseIn_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseIn::create(arg0, arg1);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseIn>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseIn"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseIn_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseIn_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseIn* cobj = new (std::nothrow) cocos2d::EaseIn();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseIn>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseIn"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseIn_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseIn *nobj = new (std::nothrow) cocos2d::EaseIn();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseIn");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_EaseRateAction_prototype;
+
+    
+void js_register_cocos2dx_EaseIn(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseIn_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseIn_class->name = "EaseIn";
+    jsb_cocos2d_EaseIn_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseIn_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseIn_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseIn_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseIn_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseIn_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseIn_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseIn_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseIn_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseRateAction_prototype);
+    jsb_cocos2d_EaseIn_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseIn_class,
+        js_cocos2dx_EaseIn_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseIn_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseIn"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseIn>(cx, jsb_cocos2d_EaseIn_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseIn.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseOut_class;
+JSObject *jsb_cocos2d_EaseOut_prototype;
+
+bool js_cocos2dx_EaseOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 2) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        double arg1 = 0;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseOut::create(arg0, arg1);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseOut* cobj = new (std::nothrow) cocos2d::EaseOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseOut *nobj = new (std::nothrow) cocos2d::EaseOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_EaseRateAction_prototype;
+
+    
+void js_register_cocos2dx_EaseOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseOut_class->name = "EaseOut";
+    jsb_cocos2d_EaseOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseOut_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseRateAction_prototype);
+    jsb_cocos2d_EaseOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseOut_class,
+        js_cocos2dx_EaseOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseOut>(cx, jsb_cocos2d_EaseOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseInOut_class;
+JSObject *jsb_cocos2d_EaseInOut_prototype;
+
+bool js_cocos2dx_EaseInOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 2) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        double arg1 = 0;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseInOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseInOut::create(arg0, arg1);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseInOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseInOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseInOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseInOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseInOut* cobj = new (std::nothrow) cocos2d::EaseInOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseInOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseInOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseInOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseInOut *nobj = new (std::nothrow) cocos2d::EaseInOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseInOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_EaseRateAction_prototype;
+
+    
+void js_register_cocos2dx_EaseInOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseInOut_class->name = "EaseInOut";
+    jsb_cocos2d_EaseInOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseInOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseInOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseInOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseInOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseInOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseInOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseInOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseInOut_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseRateAction_prototype);
+    jsb_cocos2d_EaseInOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseInOut_class,
+        js_cocos2dx_EaseInOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseInOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseInOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseInOut>(cx, jsb_cocos2d_EaseInOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseInOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseExponentialIn_class;
+JSObject *jsb_cocos2d_EaseExponentialIn_prototype;
+
+bool js_cocos2dx_EaseExponentialIn_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseExponentialIn_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseExponentialIn::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseExponentialIn>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseExponentialIn"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseExponentialIn_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseExponentialIn_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseExponentialIn* cobj = new (std::nothrow) cocos2d::EaseExponentialIn();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseExponentialIn>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseExponentialIn"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseExponentialIn_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseExponentialIn *nobj = new (std::nothrow) cocos2d::EaseExponentialIn();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseExponentialIn");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseExponentialIn(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseExponentialIn_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseExponentialIn_class->name = "EaseExponentialIn";
+    jsb_cocos2d_EaseExponentialIn_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseExponentialIn_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseExponentialIn_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseExponentialIn_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseExponentialIn_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseExponentialIn_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseExponentialIn_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseExponentialIn_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseExponentialIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseExponentialIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseExponentialIn_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseExponentialIn_class,
+        js_cocos2dx_EaseExponentialIn_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialIn_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseExponentialIn"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseExponentialIn>(cx, jsb_cocos2d_EaseExponentialIn_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseExponentialIn.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseExponentialOut_class;
+JSObject *jsb_cocos2d_EaseExponentialOut_prototype;
+
+bool js_cocos2dx_EaseExponentialOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseExponentialOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseExponentialOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseExponentialOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseExponentialOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseExponentialOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseExponentialOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseExponentialOut* cobj = new (std::nothrow) cocos2d::EaseExponentialOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseExponentialOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseExponentialOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseExponentialOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseExponentialOut *nobj = new (std::nothrow) cocos2d::EaseExponentialOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseExponentialOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseExponentialOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseExponentialOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseExponentialOut_class->name = "EaseExponentialOut";
+    jsb_cocos2d_EaseExponentialOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseExponentialOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseExponentialOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseExponentialOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseExponentialOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseExponentialOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseExponentialOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseExponentialOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseExponentialOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseExponentialOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseExponentialOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseExponentialOut_class,
+        js_cocos2dx_EaseExponentialOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseExponentialOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseExponentialOut>(cx, jsb_cocos2d_EaseExponentialOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseExponentialOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseExponentialInOut_class;
+JSObject *jsb_cocos2d_EaseExponentialInOut_prototype;
+
+bool js_cocos2dx_EaseExponentialInOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseExponentialInOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseExponentialInOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseExponentialInOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseExponentialInOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseExponentialInOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseExponentialInOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseExponentialInOut* cobj = new (std::nothrow) cocos2d::EaseExponentialInOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseExponentialInOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseExponentialInOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseExponentialInOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseExponentialInOut *nobj = new (std::nothrow) cocos2d::EaseExponentialInOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseExponentialInOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseExponentialInOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseExponentialInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseExponentialInOut_class->name = "EaseExponentialInOut";
+    jsb_cocos2d_EaseExponentialInOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseExponentialInOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseExponentialInOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseExponentialInOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseExponentialInOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseExponentialInOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseExponentialInOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseExponentialInOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseExponentialInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseExponentialInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseExponentialInOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseExponentialInOut_class,
+        js_cocos2dx_EaseExponentialInOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialInOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseExponentialInOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseExponentialInOut>(cx, jsb_cocos2d_EaseExponentialInOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseExponentialInOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseSineIn_class;
+JSObject *jsb_cocos2d_EaseSineIn_prototype;
+
+bool js_cocos2dx_EaseSineIn_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseSineIn_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseSineIn::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseSineIn>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseSineIn"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseSineIn_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseSineIn_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseSineIn* cobj = new (std::nothrow) cocos2d::EaseSineIn();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseSineIn>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseSineIn"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseSineIn_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseSineIn *nobj = new (std::nothrow) cocos2d::EaseSineIn();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseSineIn");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseSineIn(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseSineIn_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseSineIn_class->name = "EaseSineIn";
+    jsb_cocos2d_EaseSineIn_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseSineIn_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseSineIn_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseSineIn_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseSineIn_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseSineIn_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseSineIn_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseSineIn_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseSineIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseSineIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseSineIn_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseSineIn_class,
+        js_cocos2dx_EaseSineIn_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseSineIn_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseSineIn"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseSineIn>(cx, jsb_cocos2d_EaseSineIn_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseSineIn.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseSineOut_class;
+JSObject *jsb_cocos2d_EaseSineOut_prototype;
+
+bool js_cocos2dx_EaseSineOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseSineOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseSineOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseSineOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseSineOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseSineOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseSineOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseSineOut* cobj = new (std::nothrow) cocos2d::EaseSineOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseSineOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseSineOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseSineOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseSineOut *nobj = new (std::nothrow) cocos2d::EaseSineOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseSineOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseSineOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseSineOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseSineOut_class->name = "EaseSineOut";
+    jsb_cocos2d_EaseSineOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseSineOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseSineOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseSineOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseSineOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseSineOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseSineOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseSineOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseSineOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseSineOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseSineOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseSineOut_class,
+        js_cocos2dx_EaseSineOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseSineOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseSineOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseSineOut>(cx, jsb_cocos2d_EaseSineOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseSineOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseSineInOut_class;
+JSObject *jsb_cocos2d_EaseSineInOut_prototype;
+
+bool js_cocos2dx_EaseSineInOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseSineInOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseSineInOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseSineInOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseSineInOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseSineInOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseSineInOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseSineInOut* cobj = new (std::nothrow) cocos2d::EaseSineInOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseSineInOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseSineInOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseSineInOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseSineInOut *nobj = new (std::nothrow) cocos2d::EaseSineInOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseSineInOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseSineInOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseSineInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseSineInOut_class->name = "EaseSineInOut";
+    jsb_cocos2d_EaseSineInOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseSineInOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseSineInOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseSineInOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseSineInOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseSineInOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseSineInOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseSineInOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseSineInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseSineInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseSineInOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseSineInOut_class,
+        js_cocos2dx_EaseSineInOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseSineInOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseSineInOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseSineInOut>(cx, jsb_cocos2d_EaseSineInOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseSineInOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseElastic_class;
+JSObject *jsb_cocos2d_EaseElastic_prototype;
+
+bool js_cocos2dx_EaseElastic_setPeriod(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::EaseElastic* cobj = (cocos2d::EaseElastic *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_EaseElastic_setPeriod : Invalid Native Object");
+    if (argc == 1) {
+        double arg0 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseElastic_setPeriod : Error processing arguments");
+        cobj->setPeriod(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_EaseElastic_setPeriod : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_EaseElastic_initWithAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::EaseElastic* cobj = (cocos2d::EaseElastic *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_EaseElastic_initWithAction : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseElastic_initWithAction : Error processing arguments");
+        bool ret = cobj->initWithAction(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    if (argc == 2) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        double arg1 = 0;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseElastic_initWithAction : Error processing arguments");
+        bool ret = cobj->initWithAction(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_EaseElastic_initWithAction : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_EaseElastic_getPeriod(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::EaseElastic* cobj = (cocos2d::EaseElastic *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_EaseElastic_getPeriod : Invalid Native Object");
+    if (argc == 0) {
+        double ret = cobj->getPeriod();
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_EaseElastic_getPeriod : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+void js_register_cocos2dx_EaseElastic(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseElastic_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseElastic_class->name = "EaseElastic";
+    jsb_cocos2d_EaseElastic_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseElastic_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseElastic_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseElastic_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseElastic_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseElastic_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseElastic_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseElastic_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("setPeriod", js_cocos2dx_EaseElastic_setPeriod, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("initWithAction", js_cocos2dx_EaseElastic_initWithAction, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getPeriod", js_cocos2dx_EaseElastic_getPeriod, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseElastic_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseElastic_class,
+        empty_constructor, 0,
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseElastic_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseElastic"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseElastic>(cx, jsb_cocos2d_EaseElastic_class, proto, parent_proto);
+}
+
+JSClass  *jsb_cocos2d_EaseElasticIn_class;
+JSObject *jsb_cocos2d_EaseElasticIn_prototype;
+
+bool js_cocos2dx_EaseElasticIn_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    
+    do {
+        bool ok = true;
+        if (argc == 1) {
+            cocos2d::ActionInterval* arg0 = nullptr;
+            do {
+                if (args.get(0).isNull()) { arg0 = nullptr; break; }
+                if (!args.get(0).isObject()) { ok = false; break; }
+                js_proxy_t *jsProxy;
+                JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+                jsProxy = jsb_get_js_proxy(tmpObj);
+                arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+                JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+            } while (0);
+            if (!ok) { ok = true; break; }
+            cocos2d::EaseElasticIn* ret = cocos2d::EaseElasticIn::create(arg0);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::EaseElasticIn>(cx, (cocos2d::EaseElasticIn*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    
+    do {
+        bool ok = true;
+        if (argc == 2) {
+            cocos2d::ActionInterval* arg0 = nullptr;
+            do {
+                if (args.get(0).isNull()) { arg0 = nullptr; break; }
+                if (!args.get(0).isObject()) { ok = false; break; }
+                js_proxy_t *jsProxy;
+                JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+                jsProxy = jsb_get_js_proxy(tmpObj);
+                arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+                JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+            } while (0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            cocos2d::EaseElasticIn* ret = cocos2d::EaseElasticIn::create(arg0, arg1);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::EaseElasticIn>(cx, (cocos2d::EaseElasticIn*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    JS_ReportError(cx, "js_cocos2dx_EaseElasticIn_create : wrong number of arguments");
+    return false;
+}
+bool js_cocos2dx_EaseElasticIn_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseElasticIn* cobj = new (std::nothrow) cocos2d::EaseElasticIn();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseElasticIn>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseElasticIn"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseElasticIn_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseElasticIn *nobj = new (std::nothrow) cocos2d::EaseElasticIn();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseElasticIn");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_EaseElastic_prototype;
+
+    
+void js_register_cocos2dx_EaseElasticIn(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseElasticIn_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseElasticIn_class->name = "EaseElasticIn";
+    jsb_cocos2d_EaseElasticIn_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseElasticIn_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseElasticIn_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseElasticIn_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseElasticIn_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseElasticIn_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseElasticIn_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseElasticIn_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseElasticIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseElasticIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseElastic_prototype);
+    jsb_cocos2d_EaseElasticIn_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseElasticIn_class,
+        js_cocos2dx_EaseElasticIn_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseElasticIn_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseElasticIn"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseElasticIn>(cx, jsb_cocos2d_EaseElasticIn_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseElasticIn.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseElasticOut_class;
+JSObject *jsb_cocos2d_EaseElasticOut_prototype;
+
+bool js_cocos2dx_EaseElasticOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    
+    do {
+        bool ok = true;
+        if (argc == 1) {
+            cocos2d::ActionInterval* arg0 = nullptr;
+            do {
+                if (args.get(0).isNull()) { arg0 = nullptr; break; }
+                if (!args.get(0).isObject()) { ok = false; break; }
+                js_proxy_t *jsProxy;
+                JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+                jsProxy = jsb_get_js_proxy(tmpObj);
+                arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+                JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+            } while (0);
+            if (!ok) { ok = true; break; }
+            cocos2d::EaseElasticOut* ret = cocos2d::EaseElasticOut::create(arg0);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::EaseElasticOut>(cx, (cocos2d::EaseElasticOut*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    
+    do {
+        bool ok = true;
+        if (argc == 2) {
+            cocos2d::ActionInterval* arg0 = nullptr;
+            do {
+                if (args.get(0).isNull()) { arg0 = nullptr; break; }
+                if (!args.get(0).isObject()) { ok = false; break; }
+                js_proxy_t *jsProxy;
+                JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+                jsProxy = jsb_get_js_proxy(tmpObj);
+                arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+                JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+            } while (0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            cocos2d::EaseElasticOut* ret = cocos2d::EaseElasticOut::create(arg0, arg1);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::EaseElasticOut>(cx, (cocos2d::EaseElasticOut*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    JS_ReportError(cx, "js_cocos2dx_EaseElasticOut_create : wrong number of arguments");
+    return false;
+}
+bool js_cocos2dx_EaseElasticOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseElasticOut* cobj = new (std::nothrow) cocos2d::EaseElasticOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseElasticOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseElasticOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseElasticOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseElasticOut *nobj = new (std::nothrow) cocos2d::EaseElasticOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseElasticOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_EaseElastic_prototype;
+
+    
+void js_register_cocos2dx_EaseElasticOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseElasticOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseElasticOut_class->name = "EaseElasticOut";
+    jsb_cocos2d_EaseElasticOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseElasticOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseElasticOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseElasticOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseElasticOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseElasticOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseElasticOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseElasticOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseElasticOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseElasticOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseElastic_prototype);
+    jsb_cocos2d_EaseElasticOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseElasticOut_class,
+        js_cocos2dx_EaseElasticOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseElasticOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseElasticOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseElasticOut>(cx, jsb_cocos2d_EaseElasticOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseElasticOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseElasticInOut_class;
+JSObject *jsb_cocos2d_EaseElasticInOut_prototype;
+
+bool js_cocos2dx_EaseElasticInOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    
+    do {
+        bool ok = true;
+        if (argc == 1) {
+            cocos2d::ActionInterval* arg0 = nullptr;
+            do {
+                if (args.get(0).isNull()) { arg0 = nullptr; break; }
+                if (!args.get(0).isObject()) { ok = false; break; }
+                js_proxy_t *jsProxy;
+                JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+                jsProxy = jsb_get_js_proxy(tmpObj);
+                arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+                JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+            } while (0);
+            if (!ok) { ok = true; break; }
+            cocos2d::EaseElasticInOut* ret = cocos2d::EaseElasticInOut::create(arg0);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::EaseElasticInOut>(cx, (cocos2d::EaseElasticInOut*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    
+    do {
+        bool ok = true;
+        if (argc == 2) {
+            cocos2d::ActionInterval* arg0 = nullptr;
+            do {
+                if (args.get(0).isNull()) { arg0 = nullptr; break; }
+                if (!args.get(0).isObject()) { ok = false; break; }
+                js_proxy_t *jsProxy;
+                JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+                jsProxy = jsb_get_js_proxy(tmpObj);
+                arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+                JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+            } while (0);
+            if (!ok) { ok = true; break; }
+            double arg1 = 0;
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
+            cocos2d::EaseElasticInOut* ret = cocos2d::EaseElasticInOut::create(arg0, arg1);
+            jsval jsret = JSVAL_NULL;
+            if (ret) {
+                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::EaseElasticInOut>(cx, (cocos2d::EaseElasticInOut*)ret));
+            } else {
+                jsret = JSVAL_NULL;
+            };
+            args.rval().set(jsret);
+            return true;
+        }
+    } while (0);
+    JS_ReportError(cx, "js_cocos2dx_EaseElasticInOut_create : wrong number of arguments");
+    return false;
+}
+bool js_cocos2dx_EaseElasticInOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseElasticInOut* cobj = new (std::nothrow) cocos2d::EaseElasticInOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseElasticInOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseElasticInOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseElasticInOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseElasticInOut *nobj = new (std::nothrow) cocos2d::EaseElasticInOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseElasticInOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_EaseElastic_prototype;
+
+    
+void js_register_cocos2dx_EaseElasticInOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseElasticInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseElasticInOut_class->name = "EaseElasticInOut";
+    jsb_cocos2d_EaseElasticInOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseElasticInOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseElasticInOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseElasticInOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseElasticInOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseElasticInOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseElasticInOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseElasticInOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseElasticInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseElasticInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseElastic_prototype);
+    jsb_cocos2d_EaseElasticInOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseElasticInOut_class,
+        js_cocos2dx_EaseElasticInOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseElasticInOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseElasticInOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseElasticInOut>(cx, jsb_cocos2d_EaseElasticInOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseElasticInOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseBounce_class;
+JSObject *jsb_cocos2d_EaseBounce_prototype;
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+void js_register_cocos2dx_EaseBounce(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseBounce_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseBounce_class->name = "EaseBounce";
+    jsb_cocos2d_EaseBounce_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBounce_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseBounce_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBounce_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseBounce_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseBounce_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseBounce_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseBounce_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseBounce_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseBounce_class,
+        empty_constructor, 0,
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBounce_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBounce"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseBounce>(cx, jsb_cocos2d_EaseBounce_class, proto, parent_proto);
+}
+
+JSClass  *jsb_cocos2d_EaseBounceIn_class;
+JSObject *jsb_cocos2d_EaseBounceIn_prototype;
+
+bool js_cocos2dx_EaseBounceIn_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBounceIn_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseBounceIn::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBounceIn>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseBounceIn"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseBounceIn_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseBounceIn_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseBounceIn* cobj = new (std::nothrow) cocos2d::EaseBounceIn();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBounceIn>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseBounceIn"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseBounceIn_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseBounceIn *nobj = new (std::nothrow) cocos2d::EaseBounceIn();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseBounceIn");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_EaseBounce_prototype;
+
+    
+void js_register_cocos2dx_EaseBounceIn(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseBounceIn_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseBounceIn_class->name = "EaseBounceIn";
+    jsb_cocos2d_EaseBounceIn_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBounceIn_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseBounceIn_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBounceIn_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseBounceIn_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseBounceIn_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseBounceIn_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseBounceIn_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseBounceIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseBounceIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseBounce_prototype);
+    jsb_cocos2d_EaseBounceIn_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseBounceIn_class,
+        js_cocos2dx_EaseBounceIn_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceIn_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBounceIn"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseBounceIn>(cx, jsb_cocos2d_EaseBounceIn_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseBounceIn.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseBounceOut_class;
+JSObject *jsb_cocos2d_EaseBounceOut_prototype;
+
+bool js_cocos2dx_EaseBounceOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBounceOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseBounceOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBounceOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseBounceOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseBounceOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseBounceOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseBounceOut* cobj = new (std::nothrow) cocos2d::EaseBounceOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBounceOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseBounceOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseBounceOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseBounceOut *nobj = new (std::nothrow) cocos2d::EaseBounceOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseBounceOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_EaseBounce_prototype;
+
+    
+void js_register_cocos2dx_EaseBounceOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseBounceOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseBounceOut_class->name = "EaseBounceOut";
+    jsb_cocos2d_EaseBounceOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBounceOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseBounceOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBounceOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseBounceOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseBounceOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseBounceOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseBounceOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseBounceOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseBounceOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseBounce_prototype);
+    jsb_cocos2d_EaseBounceOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseBounceOut_class,
+        js_cocos2dx_EaseBounceOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBounceOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseBounceOut>(cx, jsb_cocos2d_EaseBounceOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseBounceOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseBounceInOut_class;
+JSObject *jsb_cocos2d_EaseBounceInOut_prototype;
+
+bool js_cocos2dx_EaseBounceInOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBounceInOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseBounceInOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBounceInOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseBounceInOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseBounceInOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseBounceInOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseBounceInOut* cobj = new (std::nothrow) cocos2d::EaseBounceInOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBounceInOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseBounceInOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseBounceInOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseBounceInOut *nobj = new (std::nothrow) cocos2d::EaseBounceInOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseBounceInOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_EaseBounce_prototype;
+
+    
+void js_register_cocos2dx_EaseBounceInOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseBounceInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseBounceInOut_class->name = "EaseBounceInOut";
+    jsb_cocos2d_EaseBounceInOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBounceInOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseBounceInOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBounceInOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseBounceInOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseBounceInOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseBounceInOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseBounceInOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseBounceInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseBounceInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseBounce_prototype);
+    jsb_cocos2d_EaseBounceInOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseBounceInOut_class,
+        js_cocos2dx_EaseBounceInOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceInOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBounceInOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseBounceInOut>(cx, jsb_cocos2d_EaseBounceInOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseBounceInOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseBackIn_class;
+JSObject *jsb_cocos2d_EaseBackIn_prototype;
+
+bool js_cocos2dx_EaseBackIn_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBackIn_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseBackIn::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBackIn>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseBackIn"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseBackIn_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseBackIn_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseBackIn* cobj = new (std::nothrow) cocos2d::EaseBackIn();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBackIn>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseBackIn"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseBackIn_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseBackIn *nobj = new (std::nothrow) cocos2d::EaseBackIn();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseBackIn");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseBackIn(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseBackIn_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseBackIn_class->name = "EaseBackIn";
+    jsb_cocos2d_EaseBackIn_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBackIn_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseBackIn_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBackIn_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseBackIn_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseBackIn_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseBackIn_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseBackIn_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseBackIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseBackIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseBackIn_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseBackIn_class,
+        js_cocos2dx_EaseBackIn_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBackIn_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBackIn"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseBackIn>(cx, jsb_cocos2d_EaseBackIn_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseBackIn.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseBackOut_class;
+JSObject *jsb_cocos2d_EaseBackOut_prototype;
+
+bool js_cocos2dx_EaseBackOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBackOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseBackOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBackOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseBackOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseBackOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseBackOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseBackOut* cobj = new (std::nothrow) cocos2d::EaseBackOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBackOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseBackOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseBackOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseBackOut *nobj = new (std::nothrow) cocos2d::EaseBackOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseBackOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseBackOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseBackOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseBackOut_class->name = "EaseBackOut";
+    jsb_cocos2d_EaseBackOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBackOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseBackOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBackOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseBackOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseBackOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseBackOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseBackOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseBackOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseBackOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseBackOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseBackOut_class,
+        js_cocos2dx_EaseBackOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBackOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBackOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseBackOut>(cx, jsb_cocos2d_EaseBackOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseBackOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseBackInOut_class;
+JSObject *jsb_cocos2d_EaseBackInOut_prototype;
+
+bool js_cocos2dx_EaseBackInOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBackInOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseBackInOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBackInOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseBackInOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseBackInOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseBackInOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseBackInOut* cobj = new (std::nothrow) cocos2d::EaseBackInOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBackInOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseBackInOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseBackInOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseBackInOut *nobj = new (std::nothrow) cocos2d::EaseBackInOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseBackInOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseBackInOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseBackInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseBackInOut_class->name = "EaseBackInOut";
+    jsb_cocos2d_EaseBackInOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBackInOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseBackInOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBackInOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseBackInOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseBackInOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseBackInOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseBackInOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseBackInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseBackInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseBackInOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseBackInOut_class,
+        js_cocos2dx_EaseBackInOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBackInOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBackInOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseBackInOut>(cx, jsb_cocos2d_EaseBackInOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseBackInOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseBezierAction_class;
+JSObject *jsb_cocos2d_EaseBezierAction_prototype;
+
+bool js_cocos2dx_EaseBezierAction_setBezierParamer(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::EaseBezierAction* cobj = (cocos2d::EaseBezierAction *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_EaseBezierAction_setBezierParamer : Invalid Native Object");
+    if (argc == 4) {
+        double arg0 = 0;
+        double arg1 = 0;
+        double arg2 = 0;
+        double arg3 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBezierAction_setBezierParamer : Error processing arguments");
+        cobj->setBezierParamer(arg0, arg1, arg2, arg3);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_EaseBezierAction_setBezierParamer : wrong number of arguments: %d, was expecting %d", argc, 4);
+    return false;
+}
+bool js_cocos2dx_EaseBezierAction_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBezierAction_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseBezierAction::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBezierAction>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseBezierAction"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseBezierAction_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseBezierAction_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseBezierAction* cobj = new (std::nothrow) cocos2d::EaseBezierAction();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBezierAction>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseBezierAction"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseBezierAction_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseBezierAction *nobj = new (std::nothrow) cocos2d::EaseBezierAction();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseBezierAction");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseBezierAction(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseBezierAction_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseBezierAction_class->name = "EaseBezierAction";
+    jsb_cocos2d_EaseBezierAction_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBezierAction_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseBezierAction_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseBezierAction_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseBezierAction_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseBezierAction_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseBezierAction_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseBezierAction_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("setBezierParamer", js_cocos2dx_EaseBezierAction_setBezierParamer, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_EaseBezierAction_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseBezierAction_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseBezierAction_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseBezierAction_class,
+        js_cocos2dx_EaseBezierAction_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBezierAction_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBezierAction"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseBezierAction>(cx, jsb_cocos2d_EaseBezierAction_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseBezierAction.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseQuadraticActionIn_class;
+JSObject *jsb_cocos2d_EaseQuadraticActionIn_prototype;
+
+bool js_cocos2dx_EaseQuadraticActionIn_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuadraticActionIn_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseQuadraticActionIn::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuadraticActionIn>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseQuadraticActionIn"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseQuadraticActionIn_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseQuadraticActionIn_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseQuadraticActionIn* cobj = new (std::nothrow) cocos2d::EaseQuadraticActionIn();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuadraticActionIn>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseQuadraticActionIn"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseQuadraticActionIn_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseQuadraticActionIn *nobj = new (std::nothrow) cocos2d::EaseQuadraticActionIn();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseQuadraticActionIn");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseQuadraticActionIn(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseQuadraticActionIn_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseQuadraticActionIn_class->name = "EaseQuadraticActionIn";
+    jsb_cocos2d_EaseQuadraticActionIn_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuadraticActionIn_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseQuadraticActionIn_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuadraticActionIn_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseQuadraticActionIn_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseQuadraticActionIn_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseQuadraticActionIn_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseQuadraticActionIn_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuadraticActionIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseQuadraticActionIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseQuadraticActionIn_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseQuadraticActionIn_class,
+        js_cocos2dx_EaseQuadraticActionIn_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionIn_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuadraticActionIn"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseQuadraticActionIn>(cx, jsb_cocos2d_EaseQuadraticActionIn_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseQuadraticActionIn.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseQuadraticActionOut_class;
+JSObject *jsb_cocos2d_EaseQuadraticActionOut_prototype;
+
+bool js_cocos2dx_EaseQuadraticActionOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuadraticActionOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseQuadraticActionOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuadraticActionOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseQuadraticActionOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseQuadraticActionOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseQuadraticActionOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseQuadraticActionOut* cobj = new (std::nothrow) cocos2d::EaseQuadraticActionOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuadraticActionOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseQuadraticActionOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseQuadraticActionOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseQuadraticActionOut *nobj = new (std::nothrow) cocos2d::EaseQuadraticActionOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseQuadraticActionOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseQuadraticActionOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseQuadraticActionOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseQuadraticActionOut_class->name = "EaseQuadraticActionOut";
+    jsb_cocos2d_EaseQuadraticActionOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuadraticActionOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseQuadraticActionOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuadraticActionOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseQuadraticActionOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseQuadraticActionOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseQuadraticActionOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseQuadraticActionOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuadraticActionOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseQuadraticActionOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseQuadraticActionOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseQuadraticActionOut_class,
+        js_cocos2dx_EaseQuadraticActionOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuadraticActionOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseQuadraticActionOut>(cx, jsb_cocos2d_EaseQuadraticActionOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseQuadraticActionOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseQuadraticActionInOut_class;
+JSObject *jsb_cocos2d_EaseQuadraticActionInOut_prototype;
+
+bool js_cocos2dx_EaseQuadraticActionInOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuadraticActionInOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseQuadraticActionInOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuadraticActionInOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseQuadraticActionInOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseQuadraticActionInOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseQuadraticActionInOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseQuadraticActionInOut* cobj = new (std::nothrow) cocos2d::EaseQuadraticActionInOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuadraticActionInOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseQuadraticActionInOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseQuadraticActionInOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseQuadraticActionInOut *nobj = new (std::nothrow) cocos2d::EaseQuadraticActionInOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseQuadraticActionInOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseQuadraticActionInOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseQuadraticActionInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseQuadraticActionInOut_class->name = "EaseQuadraticActionInOut";
+    jsb_cocos2d_EaseQuadraticActionInOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuadraticActionInOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseQuadraticActionInOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuadraticActionInOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseQuadraticActionInOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseQuadraticActionInOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseQuadraticActionInOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseQuadraticActionInOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuadraticActionInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseQuadraticActionInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseQuadraticActionInOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseQuadraticActionInOut_class,
+        js_cocos2dx_EaseQuadraticActionInOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionInOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuadraticActionInOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseQuadraticActionInOut>(cx, jsb_cocos2d_EaseQuadraticActionInOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseQuadraticActionInOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseQuarticActionIn_class;
+JSObject *jsb_cocos2d_EaseQuarticActionIn_prototype;
+
+bool js_cocos2dx_EaseQuarticActionIn_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuarticActionIn_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseQuarticActionIn::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuarticActionIn>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseQuarticActionIn"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseQuarticActionIn_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseQuarticActionIn_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseQuarticActionIn* cobj = new (std::nothrow) cocos2d::EaseQuarticActionIn();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuarticActionIn>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseQuarticActionIn"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseQuarticActionIn_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseQuarticActionIn *nobj = new (std::nothrow) cocos2d::EaseQuarticActionIn();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseQuarticActionIn");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseQuarticActionIn(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseQuarticActionIn_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseQuarticActionIn_class->name = "EaseQuarticActionIn";
+    jsb_cocos2d_EaseQuarticActionIn_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuarticActionIn_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseQuarticActionIn_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuarticActionIn_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseQuarticActionIn_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseQuarticActionIn_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseQuarticActionIn_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseQuarticActionIn_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuarticActionIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseQuarticActionIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseQuarticActionIn_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseQuarticActionIn_class,
+        js_cocos2dx_EaseQuarticActionIn_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionIn_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuarticActionIn"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseQuarticActionIn>(cx, jsb_cocos2d_EaseQuarticActionIn_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseQuarticActionIn.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseQuarticActionOut_class;
+JSObject *jsb_cocos2d_EaseQuarticActionOut_prototype;
+
+bool js_cocos2dx_EaseQuarticActionOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuarticActionOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseQuarticActionOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuarticActionOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseQuarticActionOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseQuarticActionOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseQuarticActionOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseQuarticActionOut* cobj = new (std::nothrow) cocos2d::EaseQuarticActionOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuarticActionOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseQuarticActionOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseQuarticActionOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseQuarticActionOut *nobj = new (std::nothrow) cocos2d::EaseQuarticActionOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseQuarticActionOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseQuarticActionOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseQuarticActionOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseQuarticActionOut_class->name = "EaseQuarticActionOut";
+    jsb_cocos2d_EaseQuarticActionOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuarticActionOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseQuarticActionOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuarticActionOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseQuarticActionOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseQuarticActionOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseQuarticActionOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseQuarticActionOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuarticActionOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseQuarticActionOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseQuarticActionOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseQuarticActionOut_class,
+        js_cocos2dx_EaseQuarticActionOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuarticActionOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseQuarticActionOut>(cx, jsb_cocos2d_EaseQuarticActionOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseQuarticActionOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseQuarticActionInOut_class;
+JSObject *jsb_cocos2d_EaseQuarticActionInOut_prototype;
+
+bool js_cocos2dx_EaseQuarticActionInOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuarticActionInOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseQuarticActionInOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuarticActionInOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseQuarticActionInOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseQuarticActionInOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseQuarticActionInOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseQuarticActionInOut* cobj = new (std::nothrow) cocos2d::EaseQuarticActionInOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuarticActionInOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseQuarticActionInOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseQuarticActionInOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseQuarticActionInOut *nobj = new (std::nothrow) cocos2d::EaseQuarticActionInOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseQuarticActionInOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseQuarticActionInOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseQuarticActionInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseQuarticActionInOut_class->name = "EaseQuarticActionInOut";
+    jsb_cocos2d_EaseQuarticActionInOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuarticActionInOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseQuarticActionInOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuarticActionInOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseQuarticActionInOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseQuarticActionInOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseQuarticActionInOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseQuarticActionInOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuarticActionInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseQuarticActionInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseQuarticActionInOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseQuarticActionInOut_class,
+        js_cocos2dx_EaseQuarticActionInOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionInOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuarticActionInOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseQuarticActionInOut>(cx, jsb_cocos2d_EaseQuarticActionInOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseQuarticActionInOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseQuinticActionIn_class;
+JSObject *jsb_cocos2d_EaseQuinticActionIn_prototype;
+
+bool js_cocos2dx_EaseQuinticActionIn_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuinticActionIn_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseQuinticActionIn::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuinticActionIn>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseQuinticActionIn"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseQuinticActionIn_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseQuinticActionIn_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseQuinticActionIn* cobj = new (std::nothrow) cocos2d::EaseQuinticActionIn();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuinticActionIn>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseQuinticActionIn"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseQuinticActionIn_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseQuinticActionIn *nobj = new (std::nothrow) cocos2d::EaseQuinticActionIn();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseQuinticActionIn");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseQuinticActionIn(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseQuinticActionIn_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseQuinticActionIn_class->name = "EaseQuinticActionIn";
+    jsb_cocos2d_EaseQuinticActionIn_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuinticActionIn_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseQuinticActionIn_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuinticActionIn_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseQuinticActionIn_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseQuinticActionIn_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseQuinticActionIn_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseQuinticActionIn_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuinticActionIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseQuinticActionIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseQuinticActionIn_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseQuinticActionIn_class,
+        js_cocos2dx_EaseQuinticActionIn_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionIn_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuinticActionIn"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseQuinticActionIn>(cx, jsb_cocos2d_EaseQuinticActionIn_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseQuinticActionIn.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseQuinticActionOut_class;
+JSObject *jsb_cocos2d_EaseQuinticActionOut_prototype;
+
+bool js_cocos2dx_EaseQuinticActionOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuinticActionOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseQuinticActionOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuinticActionOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseQuinticActionOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseQuinticActionOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseQuinticActionOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseQuinticActionOut* cobj = new (std::nothrow) cocos2d::EaseQuinticActionOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuinticActionOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseQuinticActionOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseQuinticActionOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseQuinticActionOut *nobj = new (std::nothrow) cocos2d::EaseQuinticActionOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseQuinticActionOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseQuinticActionOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseQuinticActionOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseQuinticActionOut_class->name = "EaseQuinticActionOut";
+    jsb_cocos2d_EaseQuinticActionOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuinticActionOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseQuinticActionOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuinticActionOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseQuinticActionOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseQuinticActionOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseQuinticActionOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseQuinticActionOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuinticActionOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseQuinticActionOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseQuinticActionOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseQuinticActionOut_class,
+        js_cocos2dx_EaseQuinticActionOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuinticActionOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseQuinticActionOut>(cx, jsb_cocos2d_EaseQuinticActionOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseQuinticActionOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseQuinticActionInOut_class;
+JSObject *jsb_cocos2d_EaseQuinticActionInOut_prototype;
+
+bool js_cocos2dx_EaseQuinticActionInOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuinticActionInOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseQuinticActionInOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuinticActionInOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseQuinticActionInOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseQuinticActionInOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseQuinticActionInOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseQuinticActionInOut* cobj = new (std::nothrow) cocos2d::EaseQuinticActionInOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuinticActionInOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseQuinticActionInOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseQuinticActionInOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseQuinticActionInOut *nobj = new (std::nothrow) cocos2d::EaseQuinticActionInOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseQuinticActionInOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseQuinticActionInOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseQuinticActionInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseQuinticActionInOut_class->name = "EaseQuinticActionInOut";
+    jsb_cocos2d_EaseQuinticActionInOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuinticActionInOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseQuinticActionInOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseQuinticActionInOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseQuinticActionInOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseQuinticActionInOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseQuinticActionInOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseQuinticActionInOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuinticActionInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseQuinticActionInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseQuinticActionInOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseQuinticActionInOut_class,
+        js_cocos2dx_EaseQuinticActionInOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionInOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuinticActionInOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseQuinticActionInOut>(cx, jsb_cocos2d_EaseQuinticActionInOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseQuinticActionInOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseCircleActionIn_class;
+JSObject *jsb_cocos2d_EaseCircleActionIn_prototype;
+
+bool js_cocos2dx_EaseCircleActionIn_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseCircleActionIn_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseCircleActionIn::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCircleActionIn>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseCircleActionIn"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseCircleActionIn_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseCircleActionIn_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseCircleActionIn* cobj = new (std::nothrow) cocos2d::EaseCircleActionIn();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCircleActionIn>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseCircleActionIn"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseCircleActionIn_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseCircleActionIn *nobj = new (std::nothrow) cocos2d::EaseCircleActionIn();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseCircleActionIn");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseCircleActionIn(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseCircleActionIn_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseCircleActionIn_class->name = "EaseCircleActionIn";
+    jsb_cocos2d_EaseCircleActionIn_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseCircleActionIn_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseCircleActionIn_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseCircleActionIn_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseCircleActionIn_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseCircleActionIn_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseCircleActionIn_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseCircleActionIn_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseCircleActionIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseCircleActionIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseCircleActionIn_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseCircleActionIn_class,
+        js_cocos2dx_EaseCircleActionIn_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionIn_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseCircleActionIn"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseCircleActionIn>(cx, jsb_cocos2d_EaseCircleActionIn_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseCircleActionIn.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseCircleActionOut_class;
+JSObject *jsb_cocos2d_EaseCircleActionOut_prototype;
+
+bool js_cocos2dx_EaseCircleActionOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseCircleActionOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseCircleActionOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCircleActionOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseCircleActionOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseCircleActionOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseCircleActionOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseCircleActionOut* cobj = new (std::nothrow) cocos2d::EaseCircleActionOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCircleActionOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseCircleActionOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseCircleActionOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseCircleActionOut *nobj = new (std::nothrow) cocos2d::EaseCircleActionOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseCircleActionOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseCircleActionOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseCircleActionOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseCircleActionOut_class->name = "EaseCircleActionOut";
+    jsb_cocos2d_EaseCircleActionOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseCircleActionOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseCircleActionOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseCircleActionOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseCircleActionOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseCircleActionOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseCircleActionOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseCircleActionOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseCircleActionOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseCircleActionOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseCircleActionOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseCircleActionOut_class,
+        js_cocos2dx_EaseCircleActionOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseCircleActionOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseCircleActionOut>(cx, jsb_cocos2d_EaseCircleActionOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseCircleActionOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseCircleActionInOut_class;
+JSObject *jsb_cocos2d_EaseCircleActionInOut_prototype;
+
+bool js_cocos2dx_EaseCircleActionInOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseCircleActionInOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseCircleActionInOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCircleActionInOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseCircleActionInOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseCircleActionInOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseCircleActionInOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseCircleActionInOut* cobj = new (std::nothrow) cocos2d::EaseCircleActionInOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCircleActionInOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseCircleActionInOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseCircleActionInOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseCircleActionInOut *nobj = new (std::nothrow) cocos2d::EaseCircleActionInOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseCircleActionInOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseCircleActionInOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseCircleActionInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseCircleActionInOut_class->name = "EaseCircleActionInOut";
+    jsb_cocos2d_EaseCircleActionInOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseCircleActionInOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseCircleActionInOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseCircleActionInOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseCircleActionInOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseCircleActionInOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseCircleActionInOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseCircleActionInOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseCircleActionInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseCircleActionInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseCircleActionInOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseCircleActionInOut_class,
+        js_cocos2dx_EaseCircleActionInOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionInOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseCircleActionInOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseCircleActionInOut>(cx, jsb_cocos2d_EaseCircleActionInOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseCircleActionInOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseCubicActionIn_class;
+JSObject *jsb_cocos2d_EaseCubicActionIn_prototype;
+
+bool js_cocos2dx_EaseCubicActionIn_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseCubicActionIn_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseCubicActionIn::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCubicActionIn>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseCubicActionIn"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseCubicActionIn_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseCubicActionIn_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseCubicActionIn* cobj = new (std::nothrow) cocos2d::EaseCubicActionIn();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCubicActionIn>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseCubicActionIn"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseCubicActionIn_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseCubicActionIn *nobj = new (std::nothrow) cocos2d::EaseCubicActionIn();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseCubicActionIn");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseCubicActionIn(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseCubicActionIn_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseCubicActionIn_class->name = "EaseCubicActionIn";
+    jsb_cocos2d_EaseCubicActionIn_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseCubicActionIn_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseCubicActionIn_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseCubicActionIn_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseCubicActionIn_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseCubicActionIn_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseCubicActionIn_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseCubicActionIn_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseCubicActionIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseCubicActionIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseCubicActionIn_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseCubicActionIn_class,
+        js_cocos2dx_EaseCubicActionIn_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionIn_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseCubicActionIn"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseCubicActionIn>(cx, jsb_cocos2d_EaseCubicActionIn_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseCubicActionIn.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseCubicActionOut_class;
+JSObject *jsb_cocos2d_EaseCubicActionOut_prototype;
+
+bool js_cocos2dx_EaseCubicActionOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseCubicActionOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseCubicActionOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCubicActionOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseCubicActionOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseCubicActionOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseCubicActionOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseCubicActionOut* cobj = new (std::nothrow) cocos2d::EaseCubicActionOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCubicActionOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseCubicActionOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseCubicActionOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseCubicActionOut *nobj = new (std::nothrow) cocos2d::EaseCubicActionOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseCubicActionOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseCubicActionOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseCubicActionOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseCubicActionOut_class->name = "EaseCubicActionOut";
+    jsb_cocos2d_EaseCubicActionOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseCubicActionOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseCubicActionOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseCubicActionOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseCubicActionOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseCubicActionOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseCubicActionOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseCubicActionOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseCubicActionOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseCubicActionOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseCubicActionOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseCubicActionOut_class,
+        js_cocos2dx_EaseCubicActionOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseCubicActionOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseCubicActionOut>(cx, jsb_cocos2d_EaseCubicActionOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseCubicActionOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_EaseCubicActionInOut_class;
+JSObject *jsb_cocos2d_EaseCubicActionInOut_prototype;
+
+bool js_cocos2dx_EaseCubicActionInOut_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::ActionInterval* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::ActionInterval*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseCubicActionInOut_create : Error processing arguments");
+
+        auto ret = cocos2d::EaseCubicActionInOut::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCubicActionInOut>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::EaseCubicActionInOut"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_EaseCubicActionInOut_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_EaseCubicActionInOut_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::EaseCubicActionInOut* cobj = new (std::nothrow) cocos2d::EaseCubicActionInOut();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCubicActionInOut>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EaseCubicActionInOut"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_EaseCubicActionInOut_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::EaseCubicActionInOut *nobj = new (std::nothrow) cocos2d::EaseCubicActionInOut();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::EaseCubicActionInOut");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionEase_prototype;
+
+    
+void js_register_cocos2dx_EaseCubicActionInOut(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_EaseCubicActionInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_EaseCubicActionInOut_class->name = "EaseCubicActionInOut";
+    jsb_cocos2d_EaseCubicActionInOut_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseCubicActionInOut_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_EaseCubicActionInOut_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_EaseCubicActionInOut_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_EaseCubicActionInOut_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_EaseCubicActionInOut_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_EaseCubicActionInOut_class->convert = JS_ConvertStub;
+    jsb_cocos2d_EaseCubicActionInOut_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseCubicActionInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_EaseCubicActionInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
+    jsb_cocos2d_EaseCubicActionInOut_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_EaseCubicActionInOut_class,
+        js_cocos2dx_EaseCubicActionInOut_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionInOut_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseCubicActionInOut"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::EaseCubicActionInOut>(cx, jsb_cocos2d_EaseCubicActionInOut_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.EaseCubicActionInOut.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_ActionInstant_class;
+JSObject *jsb_cocos2d_ActionInstant_prototype;
+
+
+extern JSObject *jsb_cocos2d_FiniteTimeAction_prototype;
+
+void js_register_cocos2dx_ActionInstant(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_ActionInstant_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_ActionInstant_class->name = "ActionInstant";
+    jsb_cocos2d_ActionInstant_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_ActionInstant_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_ActionInstant_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_ActionInstant_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_ActionInstant_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_ActionInstant_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_ActionInstant_class->convert = JS_ConvertStub;
+    jsb_cocos2d_ActionInstant_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_FiniteTimeAction_prototype);
+    jsb_cocos2d_ActionInstant_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_ActionInstant_class,
+        empty_constructor, 0,
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_ActionInstant_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ActionInstant"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::ActionInstant>(cx, jsb_cocos2d_ActionInstant_class, proto, parent_proto);
+}
+
+JSClass  *jsb_cocos2d_Show_class;
+JSObject *jsb_cocos2d_Show_prototype;
+
+bool js_cocos2dx_Show_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    if (argc == 0) {
+
+        auto ret = cocos2d::Show::create();
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Show>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::Show"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_Show_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_Show_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::Show* cobj = new (std::nothrow) cocos2d::Show();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Show>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::Show"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_Show_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::Show *nobj = new (std::nothrow) cocos2d::Show();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::Show");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+
+    
+void js_register_cocos2dx_Show(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_Show_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_Show_class->name = "Show";
+    jsb_cocos2d_Show_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_Show_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_Show_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_Show_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_Show_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_Show_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_Show_class->convert = JS_ConvertStub;
+    jsb_cocos2d_Show_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_Show_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_Show_create, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
+    jsb_cocos2d_Show_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_Show_class,
+        js_cocos2dx_Show_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_Show_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "Show"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::Show>(cx, jsb_cocos2d_Show_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.Show.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_Hide_class;
+JSObject *jsb_cocos2d_Hide_prototype;
+
+bool js_cocos2dx_Hide_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    if (argc == 0) {
+
+        auto ret = cocos2d::Hide::create();
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Hide>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::Hide"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_Hide_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_Hide_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::Hide* cobj = new (std::nothrow) cocos2d::Hide();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Hide>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::Hide"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_Hide_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::Hide *nobj = new (std::nothrow) cocos2d::Hide();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::Hide");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+
+    
+void js_register_cocos2dx_Hide(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_Hide_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_Hide_class->name = "Hide";
+    jsb_cocos2d_Hide_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_Hide_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_Hide_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_Hide_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_Hide_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_Hide_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_Hide_class->convert = JS_ConvertStub;
+    jsb_cocos2d_Hide_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_Hide_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_Hide_create, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
+    jsb_cocos2d_Hide_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_Hide_class,
+        js_cocos2dx_Hide_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_Hide_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "Hide"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::Hide>(cx, jsb_cocos2d_Hide_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.Hide.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_ToggleVisibility_class;
+JSObject *jsb_cocos2d_ToggleVisibility_prototype;
+
+bool js_cocos2dx_ToggleVisibility_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    if (argc == 0) {
+
+        auto ret = cocos2d::ToggleVisibility::create();
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ToggleVisibility>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::ToggleVisibility"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_ToggleVisibility_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_ToggleVisibility_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::ToggleVisibility* cobj = new (std::nothrow) cocos2d::ToggleVisibility();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ToggleVisibility>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::ToggleVisibility"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+
+void js_register_cocos2dx_ToggleVisibility(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_ToggleVisibility_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_ToggleVisibility_class->name = "ToggleVisibility";
+    jsb_cocos2d_ToggleVisibility_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_ToggleVisibility_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_ToggleVisibility_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_ToggleVisibility_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_ToggleVisibility_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_ToggleVisibility_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_ToggleVisibility_class->convert = JS_ConvertStub;
+    jsb_cocos2d_ToggleVisibility_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_ToggleVisibility_create, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
+    jsb_cocos2d_ToggleVisibility_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_ToggleVisibility_class,
+        js_cocos2dx_ToggleVisibility_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_ToggleVisibility_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ToggleVisibility"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::ToggleVisibility>(cx, jsb_cocos2d_ToggleVisibility_class, proto, parent_proto);
+}
+
+JSClass  *jsb_cocos2d_RemoveSelf_class;
+JSObject *jsb_cocos2d_RemoveSelf_prototype;
+
+bool js_cocos2dx_RemoveSelf_init(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::RemoveSelf* cobj = (cocos2d::RemoveSelf *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_RemoveSelf_init : Invalid Native Object");
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RemoveSelf_init : Error processing arguments");
+        bool ret = cobj->init(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_RemoveSelf_init : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_RemoveSelf_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 0) {
+
+        auto ret = cocos2d::RemoveSelf::create();
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::RemoveSelf>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::RemoveSelf"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RemoveSelf_create : Error processing arguments");
+
+        auto ret = cocos2d::RemoveSelf::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::RemoveSelf>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::RemoveSelf"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_RemoveSelf_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_RemoveSelf_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::RemoveSelf* cobj = new (std::nothrow) cocos2d::RemoveSelf();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::RemoveSelf>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::RemoveSelf"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+
+void js_register_cocos2dx_RemoveSelf(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_RemoveSelf_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_RemoveSelf_class->name = "RemoveSelf";
+    jsb_cocos2d_RemoveSelf_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_RemoveSelf_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_RemoveSelf_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_RemoveSelf_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_RemoveSelf_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_RemoveSelf_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_RemoveSelf_class->convert = JS_ConvertStub;
+    jsb_cocos2d_RemoveSelf_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("init", js_cocos2dx_RemoveSelf_init, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_RemoveSelf_create, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
+    jsb_cocos2d_RemoveSelf_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_RemoveSelf_class,
+        js_cocos2dx_RemoveSelf_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_RemoveSelf_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "RemoveSelf"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::RemoveSelf>(cx, jsb_cocos2d_RemoveSelf_class, proto, parent_proto);
+}
+
+JSClass  *jsb_cocos2d_FlipX_class;
+JSObject *jsb_cocos2d_FlipX_prototype;
+
+bool js_cocos2dx_FlipX_initWithFlipX(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::FlipX* cobj = (cocos2d::FlipX *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_FlipX_initWithFlipX : Invalid Native Object");
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FlipX_initWithFlipX : Error processing arguments");
+        bool ret = cobj->initWithFlipX(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_FlipX_initWithFlipX : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_FlipX_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FlipX_create : Error processing arguments");
+
+        auto ret = cocos2d::FlipX::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FlipX>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::FlipX"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_FlipX_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_FlipX_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::FlipX* cobj = new (std::nothrow) cocos2d::FlipX();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FlipX>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::FlipX"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_FlipX_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::FlipX *nobj = new (std::nothrow) cocos2d::FlipX();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::FlipX");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+
+    
+void js_register_cocos2dx_FlipX(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_FlipX_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_FlipX_class->name = "FlipX";
+    jsb_cocos2d_FlipX_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_FlipX_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_FlipX_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_FlipX_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_FlipX_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_FlipX_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_FlipX_class->convert = JS_ConvertStub;
+    jsb_cocos2d_FlipX_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithFlipX", js_cocos2dx_FlipX_initWithFlipX, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_FlipX_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_FlipX_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
+    jsb_cocos2d_FlipX_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_FlipX_class,
+        js_cocos2dx_FlipX_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_FlipX_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "FlipX"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::FlipX>(cx, jsb_cocos2d_FlipX_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.FlipX.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_FlipY_class;
+JSObject *jsb_cocos2d_FlipY_prototype;
+
+bool js_cocos2dx_FlipY_initWithFlipY(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::FlipY* cobj = (cocos2d::FlipY *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_FlipY_initWithFlipY : Invalid Native Object");
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FlipY_initWithFlipY : Error processing arguments");
+        bool ret = cobj->initWithFlipY(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_FlipY_initWithFlipY : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_FlipY_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FlipY_create : Error processing arguments");
+
+        auto ret = cocos2d::FlipY::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FlipY>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::FlipY"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_FlipY_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_FlipY_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::FlipY* cobj = new (std::nothrow) cocos2d::FlipY();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FlipY>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::FlipY"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_FlipY_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::FlipY *nobj = new (std::nothrow) cocos2d::FlipY();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::FlipY");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+
+    
+void js_register_cocos2dx_FlipY(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_FlipY_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_FlipY_class->name = "FlipY";
+    jsb_cocos2d_FlipY_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_FlipY_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_FlipY_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_FlipY_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_FlipY_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_FlipY_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_FlipY_class->convert = JS_ConvertStub;
+    jsb_cocos2d_FlipY_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithFlipY", js_cocos2dx_FlipY_initWithFlipY, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_FlipY_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_FlipY_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
+    jsb_cocos2d_FlipY_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_FlipY_class,
+        js_cocos2dx_FlipY_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_FlipY_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "FlipY"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::FlipY>(cx, jsb_cocos2d_FlipY_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.FlipY.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_Place_class;
+JSObject *jsb_cocos2d_Place_prototype;
+
+bool js_cocos2dx_Place_initWithPosition(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Place* cobj = (cocos2d::Place *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Place_initWithPosition : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Vec2 arg0;
+        ok &= jsval_to_vector2(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Place_initWithPosition : Error processing arguments");
+        bool ret = cobj->initWithPosition(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Place_initWithPosition : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Place_create(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    if (argc == 1) {
+        cocos2d::Vec2 arg0;
+        ok &= jsval_to_vector2(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Place_create : Error processing arguments");
+
+        auto ret = cocos2d::Place::create(arg0);
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Place>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::Place"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_Place_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_Place_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::Place* cobj = new (std::nothrow) cocos2d::Place();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Place>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::Place"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_Place_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::Place *nobj = new (std::nothrow) cocos2d::Place();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::Place");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+
+    
+void js_register_cocos2dx_Place(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_Place_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_Place_class->name = "Place";
+    jsb_cocos2d_Place_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_Place_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_Place_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_Place_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_Place_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_Place_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_Place_class->convert = JS_ConvertStub;
+    jsb_cocos2d_Place_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("initWithPosition", js_cocos2dx_Place_initWithPosition, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_Place_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_Place_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
+    jsb_cocos2d_Place_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_Place_class,
+        js_cocos2dx_Place_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_Place_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "Place"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::Place>(cx, jsb_cocos2d_Place_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.Place.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_CallFunc_class;
+JSObject *jsb_cocos2d_CallFunc_prototype;
+
+bool js_cocos2dx_CallFunc_execute(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::CallFunc* cobj = (cocos2d::CallFunc *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_CallFunc_execute : Invalid Native Object");
+    if (argc == 0) {
+        cobj->execute();
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_CallFunc_execute : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_CallFunc_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::CallFunc* cobj = new (std::nothrow) cocos2d::CallFunc();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::CallFunc>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::CallFunc"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_CallFunc_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::CallFunc *nobj = new (std::nothrow) cocos2d::CallFunc();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::CallFunc");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+
+    
+void js_register_cocos2dx_CallFunc(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_CallFunc_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_CallFunc_class->name = "_CallFunc";
+    jsb_cocos2d_CallFunc_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_CallFunc_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_CallFunc_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_CallFunc_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_CallFunc_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_CallFunc_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_CallFunc_class->convert = JS_ConvertStub;
+    jsb_cocos2d_CallFunc_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("execute", js_cocos2dx_CallFunc_execute, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_CallFunc_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
+    jsb_cocos2d_CallFunc_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_CallFunc_class,
+        js_cocos2dx_CallFunc_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_CallFunc_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "CallFunc"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::CallFunc>(cx, jsb_cocos2d_CallFunc_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc._CallFunc.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_CallFuncN_class;
+JSObject *jsb_cocos2d_CallFuncN_prototype;
+
+bool js_cocos2dx_CallFuncN_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::CallFuncN* cobj = new (std::nothrow) cocos2d::CallFuncN();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::CallFuncN>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::CallFuncN"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_CallFuncN_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::CallFuncN *nobj = new (std::nothrow) cocos2d::CallFuncN();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::CallFuncN");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JSObject *jsb_cocos2d_CallFunc_prototype;
+
+    
+void js_register_cocos2dx_CallFuncN(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_CallFuncN_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_CallFuncN_class->name = "CallFunc";
+    jsb_cocos2d_CallFuncN_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_CallFuncN_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_CallFuncN_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_CallFuncN_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_CallFuncN_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_CallFuncN_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_CallFuncN_class->convert = JS_ConvertStub;
+    jsb_cocos2d_CallFuncN_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_CallFuncN_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_CallFunc_prototype);
+    jsb_cocos2d_CallFuncN_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_CallFuncN_class,
+        js_cocos2dx_CallFuncN_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_CallFuncN_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "CallFuncN"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::CallFuncN>(cx, jsb_cocos2d_CallFuncN_class, proto, parent_proto);
+    anonEvaluate(cx, global, "(function () { cc.CallFunc.extend = cc.Class.extend; })()");
+}
+
+JSClass  *jsb_cocos2d_ActionManager_class;
+JSObject *jsb_cocos2d_ActionManager_prototype;
+
+bool js_cocos2dx_ActionManager_getActionByTag(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionManager_getActionByTag : Invalid Native Object");
+    if (argc == 2) {
+        int arg0 = 0;
+        const cocos2d::Node* arg1 = nullptr;
+        ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
+        do {
+            if (args.get(1).isNull()) { arg1 = nullptr; break; }
+            if (!args.get(1).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(1).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg1 = (const cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg1, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_getActionByTag : Error processing arguments");
+        cocos2d::Action* ret = cobj->getActionByTag(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::Action>(cx, (cocos2d::Action*)ret));
+        } else {
+            jsret = JSVAL_NULL;
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionManager_getActionByTag : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_cocos2dx_ActionManager_removeActionByTag(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionManager_removeActionByTag : Invalid Native Object");
+    if (argc == 2) {
+        int arg0 = 0;
+        cocos2d::Node* arg1 = nullptr;
+        ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
+        do {
+            if (args.get(1).isNull()) { arg1 = nullptr; break; }
+            if (!args.get(1).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(1).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg1 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg1, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_removeActionByTag : Error processing arguments");
+        cobj->removeActionByTag(arg0, arg1);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionManager_removeActionByTag : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_cocos2dx_ActionManager_removeActionsByFlags(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionManager_removeActionsByFlags : Invalid Native Object");
+    if (argc == 2) {
+        unsigned int arg0 = 0;
+        cocos2d::Node* arg1 = nullptr;
+        ok &= jsval_to_uint32(cx, args.get(0), &arg0);
+        do {
+            if (args.get(1).isNull()) { arg1 = nullptr; break; }
+            if (!args.get(1).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(1).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg1 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg1, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_removeActionsByFlags : Error processing arguments");
+        cobj->removeActionsByFlags(arg0, arg1);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionManager_removeActionsByFlags : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_cocos2dx_ActionManager_removeAllActions(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionManager_removeAllActions : Invalid Native Object");
+    if (argc == 0) {
+        cobj->removeAllActions();
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionManager_removeAllActions : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_ActionManager_addAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionManager_addAction : Invalid Native Object");
+    if (argc == 3) {
+        cocos2d::Action* arg0 = nullptr;
+        cocos2d::Node* arg1 = nullptr;
+        bool arg2;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Action*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        do {
+            if (args.get(1).isNull()) { arg1 = nullptr; break; }
+            if (!args.get(1).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(1).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg1 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg1, cx, false, "Invalid Native Object");
+        } while (0);
+        arg2 = JS::ToBoolean(args.get(2));
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_addAction : Error processing arguments");
+        cobj->addAction(arg0, arg1, arg2);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionManager_addAction : wrong number of arguments: %d, was expecting %d", argc, 3);
+    return false;
+}
+bool js_cocos2dx_ActionManager_resumeTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionManager_resumeTarget : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Node* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_resumeTarget : Error processing arguments");
+        cobj->resumeTarget(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionManager_resumeTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_ActionManager_update(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionManager_update : Invalid Native Object");
+    if (argc == 1) {
+        double arg0 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_update : Error processing arguments");
+        cobj->update(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionManager_update : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_ActionManager_pauseTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionManager_pauseTarget : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Node* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_pauseTarget : Error processing arguments");
+        cobj->pauseTarget(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionManager_pauseTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_ActionManager_getNumberOfRunningActionsInTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionManager_getNumberOfRunningActionsInTarget : Invalid Native Object");
+    if (argc == 1) {
+        const cocos2d::Node* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (const cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_getNumberOfRunningActionsInTarget : Error processing arguments");
+        ssize_t ret = cobj->getNumberOfRunningActionsInTarget(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = ssize_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionManager_getNumberOfRunningActionsInTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_ActionManager_removeAllActionsFromTarget(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionManager_removeAllActionsFromTarget : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Node* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_removeAllActionsFromTarget : Error processing arguments");
+        cobj->removeAllActionsFromTarget(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionManager_removeAllActionsFromTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_ActionManager_resumeTargets(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionManager_resumeTargets : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Vector<cocos2d::Node *> arg0;
+        ok &= jsval_to_ccvector(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_resumeTargets : Error processing arguments");
+        cobj->resumeTargets(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionManager_resumeTargets : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_ActionManager_removeAction(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionManager_removeAction : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Action* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Action*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_removeAction : Error processing arguments");
+        cobj->removeAction(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionManager_removeAction : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_ActionManager_removeAllActionsByTag(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionManager_removeAllActionsByTag : Invalid Native Object");
+    if (argc == 2) {
+        int arg0 = 0;
+        cocos2d::Node* arg1 = nullptr;
+        ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
+        do {
+            if (args.get(1).isNull()) { arg1 = nullptr; break; }
+            if (!args.get(1).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(1).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg1 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg1, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_removeAllActionsByTag : Error processing arguments");
+        cobj->removeAllActionsByTag(arg0, arg1);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionManager_removeAllActionsByTag : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_cocos2dx_ActionManager_pauseAllRunningActions(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ActionManager_pauseAllRunningActions : Invalid Native Object");
+    if (argc == 0) {
+        cocos2d::Vector<cocos2d::Node *> ret = cobj->pauseAllRunningActions();
+        JS::RootedValue jsret(cx);
+        jsret = ccvector_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_ActionManager_pauseAllRunningActions : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_ActionManager_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::ActionManager* cobj = new (std::nothrow) cocos2d::ActionManager();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ActionManager>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::ActionManager"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+static bool js_cocos2dx_ActionManager_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::ActionManager *nobj = new (std::nothrow) cocos2d::ActionManager();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::ActionManager");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    args.rval().setUndefined();
+    return true;
+}
+
+
+    
+void js_register_cocos2dx_ActionManager(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_ActionManager_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_ActionManager_class->name = "ActionManager";
+    jsb_cocos2d_ActionManager_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_ActionManager_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_ActionManager_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_ActionManager_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_ActionManager_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_ActionManager_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_ActionManager_class->convert = JS_ConvertStub;
+    jsb_cocos2d_ActionManager_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("getActionByTag", js_cocos2dx_ActionManager_getActionByTag, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("removeActionByTag", js_cocos2dx_ActionManager_removeActionByTag, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("removeActionsByFlags", js_cocos2dx_ActionManager_removeActionsByFlags, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("removeAllActions", js_cocos2dx_ActionManager_removeAllActions, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("addAction", js_cocos2dx_ActionManager_addAction, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("resumeTarget", js_cocos2dx_ActionManager_resumeTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("update", js_cocos2dx_ActionManager_update, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("pauseTarget", js_cocos2dx_ActionManager_pauseTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getNumberOfRunningActionsInTarget", js_cocos2dx_ActionManager_getNumberOfRunningActionsInTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("removeAllActionsFromTarget", js_cocos2dx_ActionManager_removeAllActionsFromTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("resumeTargets", js_cocos2dx_ActionManager_resumeTargets, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("removeAction", js_cocos2dx_ActionManager_removeAction, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("removeAllActionsByTag", js_cocos2dx_ActionManager_removeAllActionsByTag, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("pauseAllRunningActions", js_cocos2dx_ActionManager_pauseAllRunningActions, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_ActionManager_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    jsb_cocos2d_ActionManager_prototype = JS_InitClass(
+        cx, global,
+        JS::NullPtr(),
+        jsb_cocos2d_ActionManager_class,
+        js_cocos2dx_ActionManager_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_ActionManager_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ActionManager"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::ActionManager>(cx, jsb_cocos2d_ActionManager_class, proto, JS::NullPtr());
+    anonEvaluate(cx, global, "(function () { cc.ActionManager.extend = cc.Class.extend; })()");
 }
 
 JSClass  *jsb_cocos2d_AtlasNode_class;
@@ -36955,97 +47895,180 @@ void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj) {
     JS::RootedObject ns(cx);
     get_or_create_js_obj(cx, obj, "cc", &ns);
 
+    js_register_cocos2dx_RenderState(cx, ns);
+    js_register_cocos2dx_Material(cx, ns);
+    js_register_cocos2dx_Action(cx, ns);
+    js_register_cocos2dx_FiniteTimeAction(cx, ns);
+    js_register_cocos2dx_ActionInstant(cx, ns);
+    js_register_cocos2dx_Hide(cx, ns);
     js_register_cocos2dx_SimpleAudioEngine(cx, ns);
     js_register_cocos2dx_TMXObjectGroupInfo(cx, ns);
     js_register_cocos2dx_Node(cx, ns);
     js_register_cocos2dx_ParticleSystem(cx, ns);
     js_register_cocos2dx_ParticleSystemQuad(cx, ns);
-    js_register_cocos2dx_ParticleSnow(cx, ns);
+    js_register_cocos2dx_ParticleSpiral(cx, ns);
+    js_register_cocos2dx_ActionInterval(cx, ns);
+    js_register_cocos2dx_MoveBy(cx, ns);
+    js_register_cocos2dx_MoveTo(cx, ns);
+    js_register_cocos2dx_JumpBy(cx, ns);
     js_register_cocos2dx_EventListener(cx, ns);
     js_register_cocos2dx_EventListenerKeyboard(cx, ns);
     js_register_cocos2dx_EventListenerMouse(cx, ns);
     js_register_cocos2dx_ComponentContainer(cx, ns);
     js_register_cocos2dx_Director(cx, ns);
     js_register_cocos2dx_Scheduler(cx, ns);
+    js_register_cocos2dx_ActionEase(cx, ns);
+    js_register_cocos2dx_EaseElastic(cx, ns);
+    js_register_cocos2dx_EaseElasticOut(cx, ns);
+    js_register_cocos2dx_EaseQuadraticActionInOut(cx, ns);
+    js_register_cocos2dx_EaseBackOut(cx, ns);
     js_register_cocos2dx_Texture2D(cx, ns);
-    js_register_cocos2dx_TMXTiledMap(cx, ns);
-    js_register_cocos2dx_EventListenerCustom(cx, ns);
+    js_register_cocos2dx_SkewTo(cx, ns);
+    js_register_cocos2dx_SkewBy(cx, ns);
+    js_register_cocos2dx_EaseQuadraticActionOut(cx, ns);
     js_register_cocos2dx_Layer(cx, ns);
+    js_register_cocos2dx_TMXTilesetInfo(cx, ns);
+    js_register_cocos2dx_TMXTiledMap(cx, ns);
+    js_register_cocos2dx_FadeTo(cx, ns);
+    js_register_cocos2dx_FadeIn(cx, ns);
+    js_register_cocos2dx_EventListenerCustom(cx, ns);
+    js_register_cocos2dx_EaseSineInOut(cx, ns);
+    js_register_cocos2dx_EaseElasticInOut(cx, ns);
+    js_register_cocos2dx_EaseBounce(cx, ns);
+    js_register_cocos2dx_Show(cx, ns);
+    js_register_cocos2dx_FadeOut(cx, ns);
+    js_register_cocos2dx_CallFunc(cx, ns);
     js_register_cocos2dx_Event(cx, ns);
     js_register_cocos2dx_EventMouse(cx, ns);
     js_register_cocos2dx_GLView(cx, ns);
-    js_register_cocos2dx_Touch(cx, ns);
+    js_register_cocos2dx_EaseBezierAction(cx, ns);
     js_register_cocos2dx_ParticleFireworks(cx, ns);
     js_register_cocos2dx_MenuItem(cx, ns);
     js_register_cocos2dx_MenuItemSprite(cx, ns);
     js_register_cocos2dx_MenuItemImage(cx, ns);
     js_register_cocos2dx_ParticleFire(cx, ns);
     js_register_cocos2dx_ParticleSmoke(cx, ns);
+    js_register_cocos2dx_EaseRateAction(cx, ns);
+    js_register_cocos2dx_EaseIn(cx, ns);
+    js_register_cocos2dx_EaseExponentialInOut(cx, ns);
+    js_register_cocos2dx_CardinalSplineTo(cx, ns);
+    js_register_cocos2dx_CatmullRomTo(cx, ns);
+    js_register_cocos2dx_EaseExponentialOut(cx, ns);
     js_register_cocos2dx_Label(cx, ns);
     js_register_cocos2dx_Application(cx, ns);
+    js_register_cocos2dx_DelayTime(cx, ns);
     js_register_cocos2dx_AsyncTaskPool(cx, ns);
+    js_register_cocos2dx_ParticleSnow(cx, ns);
     js_register_cocos2dx_DrawNode(cx, ns);
     js_register_cocos2dx_TMXObjectShape(cx, ns);
-    js_register_cocos2dx_RenderState(cx, ns);
-    js_register_cocos2dx_Material(cx, ns);
+    js_register_cocos2dx_EaseElasticIn(cx, ns);
+    js_register_cocos2dx_EaseCircleActionInOut(cx, ns);
     js_register_cocos2dx_TMXObject(cx, ns);
     js_register_cocos2dx_EventAcceleration(cx, ns);
+    js_register_cocos2dx_EaseCubicActionIn(cx, ns);
     js_register_cocos2dx_SpriteBatchNode(cx, ns);
     js_register_cocos2dx_Configuration(cx, ns);
     js_register_cocos2dx_ParticleSun(cx, ns);
     js_register_cocos2dx_TMXLayer(cx, ns);
+    js_register_cocos2dx_FlipX(cx, ns);
+    js_register_cocos2dx_FlipY(cx, ns);
+    js_register_cocos2dx_RepeatForever(cx, ns);
+    js_register_cocos2dx_Place(cx, ns);
     js_register_cocos2dx_EventListenerAcceleration(cx, ns);
     js_register_cocos2dx_GLProgram(cx, ns);
-    js_register_cocos2dx_MenuItemLabel(cx, ns);
+    js_register_cocos2dx_EaseBounceOut(cx, ns);
+    js_register_cocos2dx_RenderTexture(cx, ns);
+    js_register_cocos2dx_SpriteFrameCache(cx, ns);
     js_register_cocos2dx_ClippingNode(cx, ns);
     js_register_cocos2dx_ParticleFlower(cx, ns);
+    js_register_cocos2dx_EaseCircleActionIn(cx, ns);
     js_register_cocos2dx_Image(cx, ns);
+    js_register_cocos2dx_Blink(cx, ns);
+    js_register_cocos2dx_JumpTo(cx, ns);
     js_register_cocos2dx_AtlasNode(cx, ns);
     js_register_cocos2dx_Pass(cx, ns);
-    js_register_cocos2dx_SpriteFrameCache(cx, ns);
-    js_register_cocos2dx_MotionStreak(cx, ns);
-    js_register_cocos2dx_TMXTilesetInfo(cx, ns);
+    js_register_cocos2dx_Touch(cx, ns);
+    js_register_cocos2dx_SAXParser(cx, ns);
+    js_register_cocos2dx_CardinalSplineBy(cx, ns);
+    js_register_cocos2dx_CatmullRomBy(cx, ns);
+    js_register_cocos2dx_TMXLayerInfo(cx, ns);
+    js_register_cocos2dx_EaseSineIn(cx, ns);
+    js_register_cocos2dx_EaseBounceIn(cx, ns);
     js_register_cocos2dx_TMXObjectGroup(cx, ns);
+    js_register_cocos2dx_ParticleGalaxy(cx, ns);
+    js_register_cocos2dx_MenuItemLabel(cx, ns);
+    js_register_cocos2dx_EaseQuinticActionIn(cx, ns);
     js_register_cocos2dx_LayerColor(cx, ns);
     js_register_cocos2dx_LayerGradient(cx, ns);
     js_register_cocos2dx_EventListenerTouchAllAtOnce(cx, ns);
-    js_register_cocos2dx_RenderTexture(cx, ns);
+    js_register_cocos2dx_ToggleVisibility(cx, ns);
+    js_register_cocos2dx_Repeat(cx, ns);
     js_register_cocos2dx_LayerMultiplex(cx, ns);
-    js_register_cocos2dx_TMXLayerInfo(cx, ns);
-    js_register_cocos2dx_ParticleGalaxy(cx, ns);
+    js_register_cocos2dx_TintTo(cx, ns);
+    js_register_cocos2dx_EaseBackInOut(cx, ns);
+    js_register_cocos2dx_TargetedAction(cx, ns);
+    js_register_cocos2dx_RotateTo(cx, ns);
     js_register_cocos2dx_Device(cx, ns);
     js_register_cocos2dx_EventListenerFocus(cx, ns);
     js_register_cocos2dx_Properties(cx, ns);
-    js_register_cocos2dx_ParticleExplosion(cx, ns);
+    js_register_cocos2dx_BezierBy(cx, ns);
+    js_register_cocos2dx_BezierTo(cx, ns);
     js_register_cocos2dx_ParticleMeteor(cx, ns);
     js_register_cocos2dx_SpriteFrame(cx, ns);
+    js_register_cocos2dx_ActionManager(cx, ns);
     js_register_cocos2dx_ParticleBatchNode(cx, ns);
     js_register_cocos2dx_EventFocus(cx, ns);
+    js_register_cocos2dx_EaseQuinticActionInOut(cx, ns);
     js_register_cocos2dx_TileMapAtlas(cx, ns);
-    js_register_cocos2dx_ParticleSpiral(cx, ns);
+    js_register_cocos2dx_ScaleTo(cx, ns);
+    js_register_cocos2dx_Spawn(cx, ns);
+    js_register_cocos2dx_EaseQuarticActionInOut(cx, ns);
     js_register_cocos2dx_GLProgramState(cx, ns);
+    js_register_cocos2dx_EaseCircleActionOut(cx, ns);
+    js_register_cocos2dx_EaseCubicActionInOut(cx, ns);
     js_register_cocos2dx_ParticleData(cx, ns);
+    js_register_cocos2dx_EaseQuarticActionOut(cx, ns);
+    js_register_cocos2dx_EaseBackIn(cx, ns);
+    js_register_cocos2dx_ParticleExplosion(cx, ns);
+    js_register_cocos2dx_Follow(cx, ns);
+    js_register_cocos2dx_TintBy(cx, ns);
+    js_register_cocos2dx_ReverseTime(cx, ns);
+    js_register_cocos2dx_EaseQuarticActionIn(cx, ns);
     js_register_cocos2dx_Menu(cx, ns);
+    js_register_cocos2dx_EaseInOut(cx, ns);
+    js_register_cocos2dx_ScaleBy(cx, ns);
     js_register_cocos2dx_EventTouch(cx, ns);
     js_register_cocos2dx_TMXMapInfo(cx, ns);
-    js_register_cocos2dx_MenuItemAtlasFont(cx, ns);
+    js_register_cocos2dx_EaseExponentialIn(cx, ns);
+    js_register_cocos2dx_EaseQuinticActionOut(cx, ns);
     js_register_cocos2dx_EventDispatcher(cx, ns);
+    js_register_cocos2dx_MenuItemAtlasFont(cx, ns);
     js_register_cocos2dx_Sprite(cx, ns);
     js_register_cocos2dx_ParallaxNode(cx, ns);
     js_register_cocos2dx_EventCustom(cx, ns);
     js_register_cocos2dx_Component(cx, ns);
+    js_register_cocos2dx_EaseCubicActionOut(cx, ns);
     js_register_cocos2dx_EventListenerTouchOneByOne(cx, ns);
     js_register_cocos2dx_TextFieldTTF(cx, ns);
     js_register_cocos2dx_ParticleRain(cx, ns);
+    js_register_cocos2dx_EaseOut(cx, ns);
     js_register_cocos2dx_MenuItemFont(cx, ns);
+    js_register_cocos2dx_EaseSineOut(cx, ns);
     js_register_cocos2dx_TextureCache(cx, ns);
     js_register_cocos2dx_MenuItemToggle(cx, ns);
+    js_register_cocos2dx_RemoveSelf(cx, ns);
     js_register_cocos2dx_LabelTTF(cx, ns);
     js_register_cocos2dx_ProtectedNode(cx, ns);
-    js_register_cocos2dx_SAXParser(cx, ns);
+    js_register_cocos2dx_MotionStreak(cx, ns);
+    js_register_cocos2dx_RotateBy(cx, ns);
     js_register_cocos2dx_FileUtils(cx, ns);
+    js_register_cocos2dx_CallFuncN(cx, ns);
+    js_register_cocos2dx_Sequence(cx, ns);
+    js_register_cocos2dx_EaseBounceInOut(cx, ns);
     js_register_cocos2dx_Scene(cx, ns);
     js_register_cocos2dx_GLProgramCache(cx, ns);
+    js_register_cocos2dx_EaseQuadraticActionIn(cx, ns);
+    js_register_cocos2dx_Speed(cx, ns);
     js_register_cocos2dx_TMXObjectImage(cx, ns);
 }
 
