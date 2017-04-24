@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var PNGReader = require('../cocos2d/particle/CCPNGReader');
-var tiffReader = require('../cocos2d/particle/CCTIFFReader');
+var PNGReader = require('./CCPNGReader');
+var tiffReader = require('./CCTIFFReader');
 
 // ideas taken from:
 //   . The ocean spray in your face [Jeff Lander]

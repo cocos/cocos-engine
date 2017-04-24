@@ -44,7 +44,6 @@ const Utils = require('./utils');
 
 exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFileForExtends, callback) {
     var engine = Utils.createBundler(sourceFile)
-        .ignore('./bin/modular-cocos2d-cut.js')
         .bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
@@ -75,7 +74,6 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
                 sourceMaps: true,
                 compact: false
             })
-            .ignore('./bin/modular-cocos2d-cut.js')
             .bundle()
             .on('error', HandleErrors.handler)
             .pipe(HandleErrors())
