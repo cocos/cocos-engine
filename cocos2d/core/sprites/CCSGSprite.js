@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var EventTarget = require("../cocos2d/core/event/event-target");
+var EventTarget = require("../event/event-target");
 
 /**
  * <p>_ccsg.Sprite is a 2d image ( http://en.wikipedia.org/wiki/Sprite_(computer_graphics) )  <br/>

@@ -50,7 +50,7 @@ if (!isMainProcess) {
     // LOAD ORIGIN COCOS2D
     if (CC_EDITOR) {
         try {
-            require('./bin/modular-cocos2d');
+            require('./cocos2d/index.js');
         }
         catch (e) {
             if (e.code === 'MODULE_NOT_FOUND') {
@@ -69,10 +69,7 @@ if (!isMainProcess) {
         }
     }
     else {
-        require('./bin/modular-cocos2d');
-        if (!CC_TEST) {
-            require('./bin/modular-cocos2d-cut');
-        }
+        require('./cocos2d/index.js');
     }
 }
 else {

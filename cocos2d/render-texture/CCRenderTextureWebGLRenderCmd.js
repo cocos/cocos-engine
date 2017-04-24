@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var misc = require('../cocos2d/core/utils/misc');
+var misc = require('../core/utils/misc');
 
 cc.RenderTexture.WebGLRenderCmd = function(renderableObject){
     this._rootCtor(renderableObject);

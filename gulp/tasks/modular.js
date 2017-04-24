@@ -34,82 +34,82 @@ const es = require('event-stream');
 const sourcemaps = require('gulp-sourcemaps');
 
 var modules = {
-    'Core': [
-        './cocos2d/core/base-nodes/BaseNodesPropertyDefine.js',
-        './cocos2d/core/base-nodes/CCSGNode.js',
-        './cocos2d/core/base-nodes/CCSGNodeCanvasRenderCmd.js',
-        './cocos2d/core/base-nodes/CCSGNodeWebGLRenderCmd.js',
-        './cocos2d/core/scenes/CCSGScene.js',
-        './cocos2d/core/CCConfiguration.js',
-        './cocos2d/core/CCDrawingPrimitivesCanvas.js',
-        './cocos2d/core/CCDrawingPrimitivesWebGL.js'
-    ],
+    // 'Core': [
+    //     './cocos2d/core/base-nodes/BaseNodesPropertyDefine.js',
+    //     './cocos2d/core/base-nodes/CCSGNode.js',
+    //     './cocos2d/core/base-nodes/CCSGNodeCanvasRenderCmd.js',
+    //     './cocos2d/core/base-nodes/CCSGNodeWebGLRenderCmd.js',
+    //     './cocos2d/core/scenes/CCSGScene.js',
+    //     './cocos2d/core/CCConfiguration.js',
+    //     './cocos2d/core/CCDrawingPrimitivesCanvas.js',
+    //     './cocos2d/core/CCDrawingPrimitivesWebGL.js'
+    // ],
 
-    'Sprite': [
-        './cocos2d/core/sprites/SpritesPropertyDefine.js',
-        './cocos2d/core/sprites/CCSGSprite.js',
-        './cocos2d/core/sprites/CCSGSpriteCanvasRenderCmd.js',
-        './cocos2d/core/sprites/CCSGSpriteWebGLRenderCmd.js',
-        './cocos2d/core/sprites/CCScale9Sprite.js',
-        './cocos2d/core/sprites/CCScale9SpriteCanvasRenderCmd.js',
-        './cocos2d/core/sprites/CCScale9SpriteWebGLRenderCmd.js',
-        './cocos2d/core/sprites/CCSpriteBatchNode.js'
-    ],
+    // 'Sprite': [
+        // './cocos2d/core/sprites/SpritesPropertyDefine.js',
+        // './cocos2d/core/sprites/CCSGSprite.js',
+        // './cocos2d/core/sprites/CCSGSpriteCanvasRenderCmd.js',
+        // './cocos2d/core/sprites/CCSGSpriteWebGLRenderCmd.js',
+        // './cocos2d/core/sprites/CCScale9Sprite.js',
+        // './cocos2d/core/sprites/CCScale9SpriteCanvasRenderCmd.js',
+        // './cocos2d/core/sprites/CCScale9SpriteWebGLRenderCmd.js',
+        // './cocos2d/core/sprites/CCSpriteBatchNode.js'
+    // ],
 
-    'Label': [
-        './cocos2d/core/label/CCTextUtils.js',
-        './cocos2d/core/label/CCSGLabel.js',
-        './cocos2d/core/label/CCSGLabelCanvasRenderCmd.js',
-        './cocos2d/core/label/CCSGLabelWebGLRenderCmd.js'
-    ],
+    // 'Label': [
+    //     './cocos2d/core/label/CCTextUtils.js',
+    //     './cocos2d/core/label/CCSGLabel.js',
+    //     './cocos2d/core/label/CCSGLabelCanvasRenderCmd.js',
+    //     './cocos2d/core/label/CCSGLabelWebGLRenderCmd.js'
+    // ],
 
-    'Mask': [
-        './cocos2d/shape-nodes/CCDrawNode.js',
-        './cocos2d/shape-nodes/CCDrawNodeCanvasRenderCmd.js',
-        './cocos2d/shape-nodes/CCDrawNodeWebGLRenderCmd.js',
-        './cocos2d/clipping-nodes/CCClippingNode.js',
-        './cocos2d/clipping-nodes/CCClippingNodeCanvasRenderCmd.js',
-        './cocos2d/clipping-nodes/CCClippingNodeWebGLRenderCmd.js'
-    ],
+    // 'Mask': [
+    //     './cocos2d/shape-nodes/CCDrawNode.js',
+    //     './cocos2d/shape-nodes/CCDrawNodeCanvasRenderCmd.js',
+    //     './cocos2d/shape-nodes/CCDrawNodeWebGLRenderCmd.js',
+    //     './cocos2d/clipping-nodes/CCClippingNode.js',
+    //     './cocos2d/clipping-nodes/CCClippingNodeCanvasRenderCmd.js',
+    //     './cocos2d/clipping-nodes/CCClippingNodeWebGLRenderCmd.js'
+    // ],
 
-    'ParticleSystem': [
-        './cocos2d/particle/CCSGParticleSystem.js',
-        './cocos2d/particle/CCSGParticleSystemCanvasRenderCmd.js',
-        './cocos2d/particle/CCSGParticleSystemWebGLRenderCmd.js',
-        './cocos2d/particle/CCParticleBatchNode.js',
-        './cocos2d/particle/CCParticleBatchNodeCanvasRenderCmd.js',
-        './cocos2d/particle/CCParticleBatchNodeWebGLRenderCmd.js'
-    ],
+    // 'ParticleSystem': [
+    //     './cocos2d/particle/CCSGParticleSystem.js',
+    //     './cocos2d/particle/CCSGParticleSystemCanvasRenderCmd.js',
+    //     './cocos2d/particle/CCSGParticleSystemWebGLRenderCmd.js',
+    //     './cocos2d/particle/CCParticleBatchNode.js',
+    //     './cocos2d/particle/CCParticleBatchNodeCanvasRenderCmd.js',
+    //     './cocos2d/particle/CCParticleBatchNodeWebGLRenderCmd.js'
+    // ],
 
-    'TiledMap': [
-        './cocos2d/tilemap/CCSGTMXTiledMap.js',
-        './cocos2d/tilemap/CCTMXXMLParser.js',
-        './cocos2d/tilemap/CCSGTMXObjectGroup.js',
-        './cocos2d/tilemap/CCSGTMXObject.js',
-        './cocos2d/tilemap/CCSGTMXLayer.js',
-        './cocos2d/tilemap/CCTMXLayerCanvasRenderCmd.js',
-        './cocos2d/tilemap/CCTMXLayerWebGLRenderCmd.js'
-    ],
+    // 'TiledMap': [
+    //     './cocos2d/tilemap/CCSGTMXTiledMap.js',
+    //     './cocos2d/tilemap/CCTMXXMLParser.js',
+    //     './cocos2d/tilemap/CCSGTMXObjectGroup.js',
+    //     './cocos2d/tilemap/CCSGTMXObject.js',
+    //     './cocos2d/tilemap/CCSGTMXLayer.js',
+    //     './cocos2d/tilemap/CCTMXLayerCanvasRenderCmd.js',
+    //     './cocos2d/tilemap/CCTMXLayerWebGLRenderCmd.js'
+    // ],
 
-    'EditorBox': [
-        './cocos2d/core/editbox/CCSGEditBox.js'
-    ],
+    // 'EditorBox': [
+    //     './cocos2d/core/editbox/CCSGEditBox.js'
+    // ],
 
-    'VideoPlayer': [
-        './cocos2d/core/videoplayer/CCSGVideoPlayer.js'
-    ],
+    // 'VideoPlayer': [
+    //     './cocos2d/core/videoplayer/CCSGVideoPlayer.js'
+    // ],
 
-    'WebView': [
-        './cocos2d/core/webview/CCSGWebView.js'
-    ],
+    // 'WebView': [
+    //     './cocos2d/core/webview/CCSGWebView.js'
+    // ],
 
-    'MotionStreak': [
-        './cocos2d/motion-streak/CCSGMotionStreak.js',
-        './cocos2d/motion-streak/CCSGMotionStreakWebGLRenderCmd.js',
-        './cocos2d/render-texture/CCRenderTexture.js',
-        './cocos2d/render-texture/CCRenderTextureCanvasRenderCmd.js',
-        './cocos2d/render-texture/CCRenderTextureWebGLRenderCmd.js'
-    ]
+    // 'MotionStreak': [
+    //     './cocos2d/motion-streak/CCSGMotionStreak.js',
+    //     './cocos2d/motion-streak/CCSGMotionStreakWebGLRenderCmd.js',
+    //     './cocos2d/render-texture/CCRenderTexture.js',
+    //     './cocos2d/render-texture/CCRenderTextureCanvasRenderCmd.js',
+    //     './cocos2d/render-texture/CCRenderTextureWebGLRenderCmd.js'
+    // ]
 
 };
 

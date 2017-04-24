@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var EventTarget = require("../cocos2d/core/event/event-target");
+var EventTarget = require("../event/event-target");
 
 var FntLoader = {
     INFO_EXP: /info [^\n]*(\n|$)/gi,
