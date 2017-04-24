@@ -73,7 +73,6 @@ if (!isMainProcess) {
     }
 }
 else {
-    // load modules for editor's core-level which included in modular-cocos2d.js
     cc._initDebugSetting(1);    // DEBUG_MODE_INFO
 }
 
