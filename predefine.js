@@ -94,6 +94,9 @@ else {
 
         require('./CCBoot');
         require('./cocos2d/core/CCGame');
+
+        // Require in predefine to ensure modular-cocos2d can determine whether action module is included
+        require('./cocos2d/actions');
     }
 }
 

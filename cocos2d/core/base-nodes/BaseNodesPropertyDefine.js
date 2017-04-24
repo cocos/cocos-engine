@@ -49,7 +49,6 @@ cc._tmp.PrototypeCCNode = function () {
     cc.defineGetterSetter(_p, "visible", _p.isVisible, _p.setVisible);
     cc.defineGetterSetter(_p, "running", _p.isRunning);
     cc.defineGetterSetter(_p, "ignoreAnchor", _p.isIgnoreAnchorPointForPosition, _p.setIgnoreAnchorPointForPosition);
-    cc.defineGetterSetter(_p, "actionManager", _p.getActionManager, _p.setActionManager);
     cc.defineGetterSetter(_p, "scheduler", _p.getScheduler, _p.setScheduler);
     //cc.defineGetterSetter(_p, "boundingBox", _p.getBoundingBox);
     cc.defineGetterSetter(_p, "shaderProgram", _p.getShaderProgram, _p.setShaderProgram);
