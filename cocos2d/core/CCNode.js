@@ -1204,6 +1204,38 @@ var Node = cc.Class({
         this._checkMouseListeners();
     },
 
+    /**
+     * !#en Pause node related system events registered with the current Node. Node system events includes touch and mouse events.
+     * If recursive is set to true, then this API will pause the node system events for the node and all nodes in its sub node tree.
+     * Reference: http://cocos2d-x.org/docs/editors_and_tools/creator-chapters/scripting/internal-events/
+     * !#zh 暂停当前节点上注册的所有节点系统事件，节点系统事件包含触摸和鼠标事件。
+     * 如果传递 recursive 为 true，那么这个 API 将暂停本节点和它的子树上所有节点的节点系统事件。
+     * 参考：http://cocos.com/docs/creator/scripting/internal-events.html
+     * @method pauseSystemEvents
+     * @param {Boolean} recursive - Whether to pause node system events on the sub node tree.
+     * @example
+     * node.pauseSystemEvents(true);
+     */
+    pauseSystemEvents (recursive) {
+        cc.eventManager.pauseTarget(this, recursive);
+    },
+
+    /**
+     * !#en Resume node related system events registered with the current Node. Node system events includes touch and mouse events.
+     * If recursive is set to true, then this API will resume the node system events for the node and all nodes in its sub node tree.
+     * Reference: http://cocos2d-x.org/docs/editors_and_tools/creator-chapters/scripting/internal-events/
+     * !#zh 恢复当前节点上注册的所有节点系统事件，节点系统事件包含触摸和鼠标事件。
+     * 如果传递 recursive 为 true，那么这个 API 将恢复本节点和它的子树上所有节点的节点系统事件。
+     * 参考：http://cocos.com/docs/creator/scripting/internal-events.html
+     * @method resumeSystemEvents
+     * @param {Boolean} recursive - Whether to resume node system events on the sub node tree.
+     * @example
+     * node.resumeSystemEvents(true);
+     */
+    resumeSystemEvents (recursive) {
+        cc.eventManager.resumeTarget(this, recursive);
+    },
+
     _checkTouchListeners () {
         if (!(this._objFlags & Destroying) && this._touchListener) {
             var i = 0;
