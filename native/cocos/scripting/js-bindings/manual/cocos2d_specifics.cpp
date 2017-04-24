@@ -346,82 +346,6 @@ bool js_cocos2dx_CCMenu_create(JSContext *cx, uint32_t argc, jsval *vp)
     return false;
 }
 
-bool js_cocos2dx_CCSequence_create(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    if (argc > 0) {
-        Vector<FiniteTimeAction*> array;
-        JS::RootedObject actions(cx, args.get(0).toObjectOrNull());
-        if (argc == 1 && JS_IsArrayObject(cx, actions)) {
-            bool ok = true;
-            ok &= jsval_to_ccvector(cx, args.get(0), &array);
-            JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-        } else {
-            uint32_t i = 0;
-            while (i < argc) {
-                js_proxy_t *proxy;
-                JS::RootedObject tmpObj(cx, args.get(i).toObjectOrNull());
-                proxy = jsb_get_js_proxy(tmpObj);
-                cocos2d::FiniteTimeAction *item = (cocos2d::FiniteTimeAction*)(proxy ? proxy->ptr : nullptr);
-                TEST_NATIVE_OBJECT(cx, item)
-                array.pushBack(item);
-                i++;
-            }
-        }
-        auto ret = new (std::nothrow) cocos2d::Sequence;
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Sequence>(ret);
-        // link the native object with the javascript object
-        JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, ret, typeClass, "cocos2d::Sequence"));
-        
-        auto ok = ret->init(array);
-        if (ok)
-        {
-            args.rval().set(OBJECT_TO_JSVAL(jsobj));
-            return true;
-        }
-    }
-    JS_ReportError(cx, "wrong number of arguments");
-    return false;
-}
-
-bool js_cocos2dx_CCSpawn_create(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    if (argc > 0) {
-        Vector<FiniteTimeAction*> array;
-        JS::RootedObject actions(cx, args.get(0).toObjectOrNull());
-        if (argc == 1 && JS_IsArrayObject(cx, actions)) {
-            bool ok = true;
-            ok &= jsval_to_ccvector(cx, args.get(0), &array);
-            JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-        } else {
-            uint32_t i = 0;
-            while (i < argc) {
-                js_proxy_t *proxy;
-                JS::RootedObject tmpObj(cx, args[i].toObjectOrNull());
-                proxy = jsb_get_js_proxy(tmpObj);
-                cocos2d::FiniteTimeAction *item = (cocos2d::FiniteTimeAction*)(proxy ? proxy->ptr : nullptr);
-                TEST_NATIVE_OBJECT(cx, item)
-                array.pushBack(item);
-                i++;
-            }
-        }
-        auto ret = new (std::nothrow) cocos2d::Spawn;
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Spawn>(ret);
-        // link the native object with the javascript object
-        JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, ret, typeClass, "cocos2d::Spawn"));
-        
-        auto ok = ret->init(array);
-        if (ok)
-        {
-            args.rval().set(OBJECT_TO_JSVAL(jsobj));
-            return true;
-        }
-    }
-    JS_ReportError(cx, "wrong number of arguments");
-    return false;
-}
-
 // TODO: This function is deprecated. The new API is "new MenuItemToggle" instead of "MenuItemToggle.create"
 // There are not js tests for this function. Impossible to know weather it works Ok.
 bool js_cocos2dx_CCMenuItemToggle_create(JSContext *cx, uint32_t argc, jsval *vp)
@@ -5596,12 +5520,6 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     JS_GetProperty(cx, ccObj, "MenuItemToggle", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
     JS_DefineFunction(cx, tmpObj, "_create", js_cocos2dx_CCMenuItemToggle_create, 1, JSPROP_READONLY | JSPROP_PERMANENT);
-    JS_GetProperty(cx, ccObj, "Sequence", &tmpVal);
-    tmpObj = tmpVal.toObjectOrNull();
-    JS_DefineFunction(cx, tmpObj, "create", js_cocos2dx_CCSequence_create, 0, JSPROP_READONLY | JSPROP_PERMANENT);
-    JS_GetProperty(cx, ccObj, "Spawn", &tmpVal);
-    tmpObj = tmpVal.toObjectOrNull();
-    JS_DefineFunction(cx, tmpObj, "create", js_cocos2dx_CCSpawn_create, 0, JSPROP_READONLY | JSPROP_PERMANENT);
     tmpObj.set(jsb_cocos2d_Scene_prototype);
     JS_DefineFunction(cx, tmpObj, "init", js_cocos2dx_CCScene_init, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE);
 
