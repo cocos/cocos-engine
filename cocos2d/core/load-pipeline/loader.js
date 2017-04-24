@@ -27,6 +27,7 @@ var JS = require('../platform/js');
 var Pipeline = require('./pipeline');
 var Texture2D = require('../textures/CCTexture2D');
 var loadUuid = require('./uuid-loader');
+var misc = require('../utils/misc');
 
 function loadNothing (item, callback) {
     callback(null, null);
@@ -55,6 +56,8 @@ function loadImage (item, callback) {
     tex.url = url;
     tex.initWithElement(item.content);
     tex.handleLoadedTexture();
+    // Image element no longer needed
+    misc.imagePool.put(item.content);
     cc.textureCache.cacheImage(url, tex);
     callback(null, tex);
 }
