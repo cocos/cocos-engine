@@ -1,16 +1,16 @@
 /*
  Copyright (c) 2010 Steve Oldmeadow
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
+ 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,7 +18,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-
+ 
  $Id$
  */
 
@@ -54,14 +54,14 @@ typedef enum {
 /** Notifications */
 extern NSString * const kCDN_AudioManagerInitialised;
 
-@interface CDAsynchInitialiser : NSOperation {}
+@interface CDAsynchInitialiser : NSOperation {}    
 @end
 
 /** CDAudioManager supports two long audio source channels called left and right*/
 typedef enum {
     kASC_Left = 0,
     kASC_Right = 1
-} tAudioSourceChannel;
+} tAudioSourceChannel;    
 
 typedef enum {
     kLAS_Init,
@@ -94,19 +94,19 @@ typedef enum {
     NSString        *audioSourceFilePath;
     NSInteger        numberOfLoops;
     float            volume;
-    id<CDLongAudioSourceDelegate> delegate;
+    id<CDLongAudioSourceDelegate> delegate; 
     BOOL            mute;
     BOOL            enabled_;
     BOOL            backgroundMusic;
     // whether background music is paused
     BOOL            paused;
     BOOL            stopped;
-@public
+@public    
     BOOL            systemPaused;//Used for auto resign handling
     NSTimeInterval    systemPauseLocation;//Used for auto resign handling
 @protected
     tLongAudioSourceState state;
-}
+}    
 @property (readonly) AVAudioPlayer *audioSourcePlayer;
 @property (readonly) NSString *audioSourceFilePath;
 @property (readwrite, nonatomic) NSInteger numberOfLoops;
@@ -120,7 +120,7 @@ typedef enum {
 -(void) load:(NSString*) filePath;
 /** Plays the audio source */
 -(void) play;
-/** Stops playing the audio soruce */
+/** Stops playing the audio source */
 -(void) stop;
 /** Pauses the audio source */
 -(void) pause;
@@ -133,15 +133,15 @@ typedef enum {
 
 @end
 
-/**
+/** 
  CDAudioManager manages audio requirements for a game.  It provides access to a CDSoundEngine object
  for playing sound effects.  It provides access to two CDLongAudioSource object (left and right channel)
  for playing long duration audio such as background music and narration tracks.  Additionally it manages
  the audio session to take care of things like audio session interruption and interacting with the audio
  of other apps that are running on the device.
-
+ 
  Requirements:
- - Firmware: OS 2.2 or greater
+ - Firmware: OS 2.2 or greater 
  - Files: CDAudioManager.*, CocosDenshion.*
  - Frameworks: OpenAL, AudioToolbox, AVFoundation
  @since v0.8
@@ -167,7 +167,7 @@ typedef enum {
     BOOL _interrupted;
     BOOL _audioSessionActive;
     BOOL enabled_;
-
+    
     //For handling resign/become active
     BOOL _isObservingAppEvents;
     tAudioManagerResignBehavior _resignBehavior;
