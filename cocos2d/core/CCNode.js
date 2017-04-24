@@ -1353,6 +1353,28 @@ var Node = cc.Class({
     } : emptyFunc,
 
     /**
+     * !#en Pause all actions running on the current node. Equals to `cc.director.getActionManager().pauseTarget(node)`.
+     * !#zh 暂停本节点上所有正在运行的动作。和 `cc.director.getActionManager().pauseTarget(node);` 等价。
+     * @method pauseAllActions
+     * @example
+     * node.pauseAllActions();
+     */
+    pauseAllActions: ActionManagerExist ? function () {
+        cc.director.getActionManager().pauseTarget(this);
+    } : emptyFunc,
+
+    /**
+     * !#en Resume all paused actions on the current node. Equals to `cc.director.getActionManager().resumeTarget(node)`.
+     * !#zh 恢复运行本节点上所有暂停的动作。和 `cc.director.getActionManager().resumeTarget(node);` 等价。
+     * @method resumeAllActions
+     * @example
+     * node.resumeAllActions();
+     */
+    resumeAllActions: ActionManagerExist ? function () {
+        cc.director.getActionManager().resumeTarget(this);
+    } : emptyFunc,
+
+    /**
      * !#en Stops and removes all actions from the running action list .
      * !#zh 停止并且移除所有正在运行的动作列表。
      * @method stopAllActions
