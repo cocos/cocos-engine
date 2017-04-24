@@ -24,6 +24,7 @@
  ****************************************************************************/
 var JS = require('../platform/js');
 var Path = require('../utils/CCPath');
+var misc = require('../utils/misc');
 var Pipeline = require('./pipeline');
 var LoadingItems = require('./loading-items');
 var PackDownloader = require('./pack-downloader');
@@ -79,7 +80,7 @@ function downloadImage (item, callback, isCrossOrigin, img) {
     }
 
     var url = urlAppendTimestamp(item.url);
-    img = img || new Image();
+    img = img || misc.imagePool.get();
     if (isCrossOrigin && window.location.protocol !== 'file:') {
         img.crossOrigin = 'anonymous';
     }

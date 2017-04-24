@@ -82,7 +82,6 @@ asyncTest('Load with dependencies', function () {
     });
 
     var json1 = {
-        id: assetDir + '/library/65/6545543',
         url: assetDir + '/library/65/6545543',
         type: 'deps'
     };
@@ -98,7 +97,7 @@ asyncTest('Load with dependencies', function () {
 
     var depsProgression = new Callback().enable();
     var progressCallback = new Callback(function (completedCount, totalCount, item) {
-        if (item.id === json1.id) {
+        if (item.id === json1.url) {
             var dep = loader.getRes(dep1);
             ok(dep instanceof cc.Texture2D, 'should correctly load dependent image1');
             dep = loader.getRes(dep2);
@@ -127,7 +126,14 @@ asyncTest('Load with dependencies', function () {
         ok(items.isCompleted(), 'be able to load all resources');
         depsProgression.expect(depsCount, 'should call progress callback for all ' + depsCount + ' dependencies');
         progressCallback.expect(total, 'should call ' + total + ' times progress callback for ' + total + ' resources');
-        strictEqual(loader.getResCount(), total, 'getResCount should return correct count of loaded resources');
+        var count = loader.getResCount();
+        if (isPhantomJS) {
+            // Test environment doesn't load audio
+            strictEqual(count, total-1, 'getResCount should return correct count of loaded resources');
+        }
+        else {
+            strictEqual(count, total, 'getResCount should return correct count of loaded resources');
+        }
         loader.releaseAll();
         
         start();

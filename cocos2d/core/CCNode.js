@@ -45,6 +45,9 @@ var ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 var Misc = require('./utils/misc');
 //var RegisteredInEditor = Flags.RegisteredInEditor;
 
+var ActionManagerExist = !!cc.ActionManager;
+var emptyFunc = function () {};
+
 /**
  * !#en The event type supported by Node
  * !#zh Node 支持的事件类型
@@ -865,7 +868,7 @@ var Node = cc.Class({
             sgNode.onEnter = function () {
                 _ccsg.Node.prototype.onEnter.call(this);
                 if (this._entity && !this._entity._active) {
-                    cc.director._actionManager && cc.director._actionManager.pauseTarget(this);
+                    ActionManagerExist && cc.director.getActionManager().pauseTarget(this);
                     cc.eventManager.pauseTarget(this);
                 }
             };
@@ -964,8 +967,8 @@ var Node = cc.Class({
         var destroyByParent = this._onPreDestroyBase();
 
         // Actions
-        if (cc.director._actionManager) {
-            cc.director._actionManager.removeAllActionsFromTarget(this);
+        if (ActionManagerExist) {
+            cc.director.getActionManager().removeAllActionsFromTarget(this);
         }
 
         // Remove Node.currentHovered
@@ -974,6 +977,9 @@ var Node = cc.Class({
         }
 
         if (CC_JSB) {
+            if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
+                this._releaseAllActions();
+            }
             if (this._touchListener) {
                 this._touchListener.release();
                 this._touchListener.owner = null;
@@ -1010,7 +1016,7 @@ var Node = cc.Class({
     },
 
     _onPostActivated (active) {
-        var actionManager = cc.director._actionManager;
+        var actionManager = ActionManagerExist ? cc.director.getActionManager() : null;
         if (active) {
             // activate
             actionManager && actionManager.resumeTarget(this);
@@ -1059,8 +1065,8 @@ var Node = cc.Class({
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
-            if (cc.director._actionManager) {
-                cc.director._actionManager.pauseTarget(this);
+            if (ActionManagerExist) {
+                cc.director.getActionManager().pauseTarget(this);
             }
             cc.eventManager.pauseTarget(this);
         }
@@ -1331,14 +1337,20 @@ var Node = cc.Class({
      * node.runAction(action).repeatForever(); // fail
      * node.runAction(action.repeatForever()); // right
      */
-    runAction (action) {
-        if (!this.active || !cc.director._actionManager)
+    runAction: ActionManagerExist ? function (action) {
+        if (!this.active)
             return;
         cc.assertID(action, 1618);
 
-        cc.director._actionManager.addAction(action, this, false);
+        if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
+            this._retainAction(action);
+        }
+        if (CC_JSB) {
+            this._sgNode._owner = this;
+        }
+        cc.director.getActionManager().addAction(action, this, false);
         return action;
-    },
+    } : emptyFunc,
 
     /**
      * !#en Stops and removes all actions from the running action list .
@@ -1347,11 +1359,9 @@ var Node = cc.Class({
      * @example
      * node.stopAllActions();
      */
-    stopAllActions () {
-        if (cc.director._actionManager) {
-            cc.director._actionManager.removeAllActionsFromTarget(this);
-        }
-    },
+    stopAllActions: ActionManagerExist ? function () {
+        cc.director.getActionManager().removeAllActionsFromTarget(this);
+    } : emptyFunc,
 
     /**
      * !#en Stops and removes an action from the running action list.
@@ -1362,11 +1372,9 @@ var Node = cc.Class({
      * var action = cc.scaleTo(0.2, 1, 0.6);
      * node.stopAction(action);
      */
-    stopAction (action) {
-        if (cc.director._actionManager) {
-            cc.director._actionManager.removeAction(action);
-        }
-    },
+    stopAction: ActionManagerExist ? function (action) {
+        cc.director.getActionManager().removeAction(action);
+    } : emptyFunc,
 
     /**
      * !#en Removes an action from the running action list by its tag.
@@ -1376,15 +1384,13 @@ var Node = cc.Class({
      * @example
      * node.stopAction(1);
      */
-    stopActionByTag (tag) {
+    stopActionByTag: ActionManagerExist ? function (tag) {
         if (tag === cc.Action.TAG_INVALID) {
             cc.logID(1612);
             return;
         }
-        if (cc.director._actionManager) {
-            cc.director._actionManager.removeActionByTag(tag, this);
-        }
-    },
+        cc.director.getActionManager().removeActionByTag(tag, this);
+    } : emptyFunc,
 
     /**
      * !#en Returns an action from the running action list by its tag.
@@ -1396,12 +1402,14 @@ var Node = cc.Class({
      * @example
      * var action = node.getActionByTag(1);
      */
-    getActionByTag (tag) {
+    getActionByTag: ActionManagerExist ? function (tag) {
         if (tag === cc.Action.TAG_INVALID) {
             cc.logID(1613);
             return null;
         }
-        return cc.director._actionManager ? cc.director._actionManager.getActionByTag(tag, this) : null;
+        return cc.director.getActionManager().getActionByTag(tag, this);
+    } : function () {
+        return null;
     },
 
     /**
@@ -1422,8 +1430,26 @@ var Node = cc.Class({
      * var count = node.getNumberOfRunningActions();
      * cc.log("Running Action Count: " + count);
      */
-    getNumberOfRunningActions () {
-        return cc.director._actionManager ? cc.director._actionManager.getNumberOfRunningActionsInTarget(this) : 0;
+    getNumberOfRunningActions: ActionManagerExist ? function () {
+        return cc.director.getActionManager().getNumberOfRunningActionsInTarget(this);
+    } : function () {
+        return 0;
+    },
+
+    _retainAction (action) {
+        if (CC_JSB && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
+            this._retainedActions.push(action);
+            action.retain();
+        }
+    },
+
+    _releaseAllActions () {
+        if (CC_JSB) {
+            for (var i = 0; i < this._retainedActions.length; ++i) {
+                this._retainedActions[i].release();
+            }
+            this._retainedActions.length = 0;
+        }
     },
 
     setTag (value) {
@@ -2221,7 +2247,7 @@ var Node = cc.Class({
      */
     cleanup () {
         // actions
-        cc.director._actionManager && cc.director._actionManager.removeAllActionsFromTarget(this);
+        ActionManagerExist && cc.director.getActionManager().removeAllActionsFromTarget(this);
         // event
         cc.eventManager.removeListeners(this);
 
@@ -2315,7 +2341,7 @@ var Node = cc.Class({
         sgNode.setColor(this._color);
 
         // update ActionManager and EventManager because sgNode maybe changed
-        var actionManager = cc.director._actionManager;
+        var actionManager = ActionManagerExist ? cc.director.getActionManager() : null;
         if (this._activeInHierarchy) {
             actionManager && actionManager.resumeTarget(this);
             cc.eventManager.resumeTarget(this);
@@ -2359,7 +2385,7 @@ var Node = cc.Class({
 
         this._onRestoreBase();
 
-        var actionManager = cc.director._actionManager;
+        var actionManager = cc.director.getActionManager();
         if (this._activeInHierarchy) {
             actionManager && actionManager.resumeTarget(this);
             cc.eventManager.resumeTarget(this);

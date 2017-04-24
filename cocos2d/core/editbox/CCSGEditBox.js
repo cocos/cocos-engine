@@ -30,7 +30,7 @@
 var SCROLLY = 40;
 var TIMER_NAME = 400;
 var LEFT_PADDING = 2;
-var Utils = require('../cocos2d/core/platform/utils');
+var Utils = require('../platform/utils');
 
 function adjustEditBoxPosition (editBox) {
     var worldPos = editBox.convertToWorldSpace(cc.p(0,0));

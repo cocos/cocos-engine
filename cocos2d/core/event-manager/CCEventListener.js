@@ -288,21 +288,13 @@ cc.EventListener.KEYBOARD = 3;
  */
 cc.EventListener.MOUSE = 4;
 /**
- * !#en The type code of focus event listener.
+ * !#en The type code of acceleration event listener.
  * !#zh 加速器事件监听器类型
  * @property ACCELERATION
  * @type {Number}
  * @static
  */
 cc.EventListener.ACCELERATION = 6;
-/*
- * !#en The type code of Focus change event listener.
- * !#zh 焦点事件监听器类型
- * @property FOCUS
- * @type {Number}
- * @static
- */
-cc.EventListener.FOCUS = 7;
 /*
  * !#en The type code of custom event listener.
  * !#zh 自定义事件监听器类型
@@ -316,13 +308,12 @@ cc._EventListenerCustom = cc.EventListener.extend({
     _onCustomEvent: null,
     ctor: function (listenerId, callback) {
         this._onCustomEvent = callback;
-        var selfPointer = this;
-        var listener = function (event) {
-            if (selfPointer._onCustomEvent !== null)
-                selfPointer._onCustomEvent(event);
-        };
+        cc.EventListener.prototype.ctor.call(this, cc.EventListener.CUSTOM, listenerId, this._callback);
+    },
 
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.CUSTOM, listenerId, listener);
+    _callback: function (event) {
+        if (this._onCustomEvent !== null)
+            this._onCustomEvent(event);
     },
 
     checkAvailable: function () {
@@ -341,31 +332,31 @@ cc._EventListenerMouse = cc.EventListener.extend({
     onMouseScroll: null,
 
     ctor: function () {
-        var selfPointer = this;
-        var listener = function (event) {
-            var eventType = cc.Event.EventMouse;
-            switch (event._eventType) {
-                case eventType.DOWN:
-                    if (selfPointer.onMouseDown)
-                        selfPointer.onMouseDown(event);
-                    break;
-                case eventType.UP:
-                    if (selfPointer.onMouseUp)
-                        selfPointer.onMouseUp(event);
-                    break;
-                case eventType.MOVE:
-                    if (selfPointer.onMouseMove)
-                        selfPointer.onMouseMove(event);
-                    break;
-                case eventType.SCROLL:
-                    if (selfPointer.onMouseScroll)
-                        selfPointer.onMouseScroll(event);
-                    break;
-                default:
-                    break;
-            }
-        };
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.MOUSE, cc._EventListenerMouse.LISTENER_ID, listener);
+        cc.EventListener.prototype.ctor.call(this, cc.EventListener.MOUSE, cc._EventListenerMouse.LISTENER_ID, this._callback);
+    },
+
+    _callback: function (event) {
+        var eventType = cc.Event.EventMouse;
+        switch (event._eventType) {
+            case eventType.DOWN:
+                if (this.onMouseDown)
+                    this.onMouseDown(event);
+                break;
+            case eventType.UP:
+                if (this.onMouseUp)
+                    this.onMouseUp(event);
+                break;
+            case eventType.MOVE:
+                if (this.onMouseMove)
+                    this.onMouseMove(event);
+                break;
+            case eventType.SCROLL:
+                if (this.onMouseScroll)
+                    this.onMouseScroll(event);
+                break;
+            default:
+                break;
+        }
     },
 
     clone: function () {
@@ -493,8 +484,7 @@ cc.EventListener.create = function(argObj){
     else if(listenerType === cc.EventListener.ACCELERATION){
         listener = new cc._EventListenerAcceleration(argObj.callback);
         delete argObj.callback;
-    } else if(listenerType === cc.EventListener.FOCUS)
-        listener = new cc._EventListenerFocus();
+    }
 
     for(var key in argObj) {
         listener[key] = argObj[key];
@@ -503,46 +493,20 @@ cc.EventListener.create = function(argObj){
     return listener;
 };
 
-cc._EventListenerFocus = cc.EventListener.extend({
-    clone: function(){
-        var listener = new cc._EventListenerFocus();
-        listener.onFocusChanged = this.onFocusChanged;
-        return listener;
-    },
-    checkAvailable: function(){
-        if(!this.onFocusChanged){
-            cc.log("Invalid EventListenerFocus!");
-            return false;
-        }
-        return true;
-    },
-    onFocusChanged: null,
-    ctor: function(){
-        var listener = function(event){
-            if(this.onFocusChanged)
-                this.onFocusChanged(event._widgetLoseFocus, event._widgetGetFocus);
-        };
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.FOCUS, cc._EventListenerFocus.LISTENER_ID, listener);
-    }
-});
-
-cc._EventListenerFocus.LISTENER_ID = "__cc_focus_event";
-
 //Acceleration
 cc._EventListenerAcceleration = cc.EventListener.extend({
     _onAccelerationEvent: null,
 
     ctor: function (callback) {
         this._onAccelerationEvent = callback;
-        var selfPointer = this;
-        var listener = function (event) {
-            selfPointer._onAccelerationEvent(event.acc, event);
-        };
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.ACCELERATION, cc._EventListenerAcceleration.LISTENER_ID, listener);
+        cc.EventListener.prototype.ctor.call(this, cc.EventListener.ACCELERATION, cc._EventListenerAcceleration.LISTENER_ID, this._callback);
+    },
+
+    _callback: function (event) {
+        this._onAccelerationEvent(event.acc, event);
     },
 
     checkAvailable: function () {
-
         cc.assertID(this._onAccelerationEvent, 1803);
 
         return true;
@@ -562,17 +526,17 @@ cc._EventListenerKeyboard = cc.EventListener.extend({
     onKeyReleased: null,
 
     ctor: function () {
-        var selfPointer = this;
-        var listener = function (event) {
-            if (event.isPressed) {
-                if (selfPointer.onKeyPressed)
-                    selfPointer.onKeyPressed(event.keyCode, event);
-            } else {
-                if (selfPointer.onKeyReleased)
-                    selfPointer.onKeyReleased(event.keyCode, event);
-            }
-        };
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.KEYBOARD, cc._EventListenerKeyboard.LISTENER_ID, listener);
+        cc.EventListener.prototype.ctor.call(this, cc.EventListener.KEYBOARD, cc._EventListenerKeyboard.LISTENER_ID, this._callback);
+    },
+
+    _callback: function (event) {
+        if (event.isPressed) {
+            if (this.onKeyPressed)
+                this.onKeyPressed(event.keyCode, event);
+        } else {
+            if (this.onKeyReleased)
+                this.onKeyReleased(event.keyCode, event);
+        }
     },
 
     clone: function () {

@@ -212,7 +212,7 @@ var PhysicsManager = cc.Class({
                 var collider = fixture.collider;
 
                 if (type === RayCastType.AllClosest) {
-                    var result = results.find(result => {
+                    var result = results.find(function(result) {
                         return result.collider === collider;
                     });
 

@@ -43,40 +43,13 @@ Function(
 
 require('./predefine');
 
-// LOAD BUNDLED COCOS2D
+// load cocos2D engine code
 
 var isMainProcess = CC_EDITOR && Editor.isMainProcess;
 if (!isMainProcess) {
-    // LOAD ORIGIN COCOS2D
-    if (CC_EDITOR) {
-        try {
-            require('./bin/modular-cocos2d');
-        }
-        catch (e) {
-            if (e.code === 'MODULE_NOT_FOUND') {
-                Editor.Dialog.messageBox({
-                    type: 'error',
-                    buttons: [Editor.T('MESSAGE.ok')],
-                    message: Editor.T('EDITOR_MAIN.engine_not_build'),
-                    detail: e.stack,
-                    noLink: true,
-                });
-                return;
-            }
-            else {
-                throw e;
-            }
-        }
-    }
-    else {
-        require('./bin/modular-cocos2d');
-        if (!CC_TEST) {
-            require('./bin/modular-cocos2d-cut');
-        }
-    }
+    require('./cocos2d/index.js');
 }
 else {
-    // load modules for editor's core-level which included in modular-cocos2d.js
     cc._initDebugSetting(1);    // DEBUG_MODE_INFO
 }
 

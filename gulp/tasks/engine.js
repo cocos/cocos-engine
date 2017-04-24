@@ -128,9 +128,7 @@ exports.buildPreview = function (sourceFile, outputFile, callback) {
     var outDir = Path.dirname(outputFile);
 
     var bundler = Utils.createBundler(sourceFile);
-    bundler
-        .ignore('./bin/modular-cocos2d-cut.js')
-        .bundle()
+    bundler.bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
         .pipe(Source(outFile))
