@@ -964,18 +964,6 @@
     <ClCompile Include="..\ui\UIWebView.cpp">
       <Filter>ui\UIWidgets</Filter>
     </ClCompile>
-    <ClCompile Include="..\audio\AudioEngine.cpp">
-      <Filter>audioengine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\audio\win32\AudioCache.cpp">
-      <Filter>audioengine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\audio\win32\AudioEngine-win32.cpp">
-      <Filter>audioengine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\audio\win32\AudioPlayer.cpp">
-      <Filter>audioengine</Filter>
-    </ClCompile>
     <ClCompile Include="..\ui\UILayoutComponent.cpp">
       <Filter>ui\Layouts</Filter>
     </ClCompile>
@@ -1055,9 +1043,6 @@
     <ClCompile Include="..\network\CCDownloader.cpp">
       <Filter>network\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\network\CCDownloader-curl.cpp">
-      <Filter>network</Filter>
-    </ClCompile>
     <ClCompile Include="..\ui\UITabControl.cpp">
       <Filter>ui\UIWidgets</Filter>
     </ClCompile>
@@ -1124,6 +1109,36 @@
     </ClCompile>
     <ClCompile Include="..\editor-support\creator\physics\CCPhysicsWorldManifoldWrapper.cpp">
       <Filter>creator\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\win32\AudioCache.cpp">
+      <Filter>audioengine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\win32\AudioDecoder.cpp">
+      <Filter>audioengine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\win32\AudioDecoderManager.cpp">
+      <Filter>audioengine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\win32\AudioDecoderMp3.cpp">
+      <Filter>audioengine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\win32\AudioDecoderOgg.cpp">
+      <Filter>audioengine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\win32\AudioEngine-win32.cpp">
+      <Filter>audioengine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\win32\AudioPlayer.cpp">
+      <Filter>audioengine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\CCDownloader-curl.cpp">
+      <Filter>network\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\Uri.cpp">
+      <Filter>network\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\AudioEngine.cpp">
+      <Filter>audioengine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1986,18 +2001,6 @@
     <ClInclude Include="..\ui\UIWebView.h">
       <Filter>ui\UIWidgets</Filter>
     </ClInclude>
-    <ClInclude Include="..\audio\include\AudioEngine.h">
-      <Filter>audioengine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\audio\win32\AudioCache.h">
-      <Filter>audioengine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\audio\win32\AudioEngine-win32.h">
-      <Filter>audioengine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\audio\win32\AudioPlayer.h">
-      <Filter>audioengine</Filter>
-    </ClInclude>
     <ClInclude Include="..\ui\UILayoutComponent.h">
       <Filter>ui\Layouts</Filter>
     </ClInclude>
@@ -2171,6 +2174,36 @@
     </ClInclude>
     <ClInclude Include="..\editor-support\creator\physics\CCPhysicsWorldManifoldWrapper.h">
       <Filter>creator\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\win32\AudioCache.h">
+      <Filter>audioengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\win32\AudioDecoder.h">
+      <Filter>audioengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\win32\AudioDecoderManager.h">
+      <Filter>audioengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\win32\AudioDecoderMp3.h">
+      <Filter>audioengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\win32\AudioDecoderOgg.h">
+      <Filter>audioengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\win32\AudioEngine-win32.h">
+      <Filter>audioengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\win32\AudioMacros.h">
+      <Filter>audioengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\win32\AudioPlayer.h">
+      <Filter>audioengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\Uri.h">
+      <Filter>network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\include\AudioEngine.h">
+      <Filter>audioengine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
