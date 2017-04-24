@@ -41,6 +41,7 @@ var PhysicsChainCollider = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.physics/Collider/Chain',
         inspector: 'packages://inspector/inspectors/comps/physics/points-base-collider.js',
+        requireComponent: cc.RigidBody
     },
 
     properties: cc.js.mixin({

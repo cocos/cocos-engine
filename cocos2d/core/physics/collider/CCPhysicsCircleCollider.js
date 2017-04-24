@@ -40,6 +40,7 @@ var PhysicsCircleCollider = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.physics/Collider/Circle',
+        requireComponent: cc.RigidBody
     },
 
     properties: cc.PhysicsCollider.properties,
