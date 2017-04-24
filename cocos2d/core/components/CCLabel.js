@@ -289,6 +289,21 @@ var Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font_size',
         },
 
+        /**
+         * !#en Font family of label.
+         * !#zh 文本字体名称。
+         * @property {String} fontFamily
+         */
+        fontFamily: {
+            default: "Arial",
+            tooltip: 'i18n:COMPONENT.label.font_family',
+            notify: function () {
+                if (this._sgNode) {
+                    this._sgNode.setFontFileOrFamily(this.fontFamily);
+                }
+            }
+        },
+
         _lineHeight: 40,
         /**
          * !#en Line Height of label.
@@ -444,7 +459,7 @@ var Label = cc.Class({
                 if (value) {
                     this.font = null;
                     if (this._sgNode) {
-                        this._sgNode.setFontFileOrFamily('Arial');
+                        this._sgNode.setFontFileOrFamily(this.fontFamily);
                     }
                 }
 
@@ -544,6 +559,9 @@ var Label = cc.Class({
         sgNode.setHorizontalAlign( this.horizontalAlign );
         sgNode.setVerticalAlign( this.verticalAlign );
         sgNode.setFontSize( this._fontSize );
+        if (this.useSystemFont) {
+            sgNode.setFontFileOrFamily(this.fontFamily);
+        }
         sgNode.setOverflow( this.overflow );
         sgNode.enableWrapText( this._enableWrapText );
         sgNode.setLineHeight(this._lineHeight);
