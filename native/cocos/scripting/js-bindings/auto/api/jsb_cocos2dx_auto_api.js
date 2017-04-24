@@ -5176,20 +5176,6 @@ getInnerAction : function (
 },
 
 /**
- * @method create
- * @param {cc.ActionInterval} arg0
- * @param {float} arg1
- * @return {cc.Speed}
- */
-create : function (
-actioninterval, 
-float 
-)
-{
-    return cc.Speed;
-},
-
-/**
  * @method Speed
  * @constructor
  */
@@ -5255,38 +5241,6 @@ isBoundarySet : function (
 )
 {
     return false;
-},
-
-/**
- * @method create
- * @param {cc.Node} arg0
- * @param {rect_object} arg1
- * @return {cc.Follow}
- */
-create : function (
-node, 
-rect 
-)
-{
-    return cc.Follow;
-},
-
-/**
- * @method createWithOffset
- * @param {cc.Node} arg0
- * @param {float} arg1
- * @param {float} arg2
- * @param {rect_object} arg3
- * @return {cc.Follow}
- */
-createWithOffset : function (
-node, 
-float, 
-float, 
-rect 
-)
-{
-    return cc.Follow;
 },
 
 /**
@@ -6236,20 +6190,6 @@ getInnerAction : function (
 },
 
 /**
- * @method create
- * @param {cc.FiniteTimeAction} arg0
- * @param {unsigned int} arg1
- * @return {cc.Repeat}
- */
-create : function (
-finitetimeaction, 
-int 
-)
-{
-    return cc.Repeat;
-},
-
-/**
  * @method Repeat
  * @constructor
  */
@@ -6295,18 +6235,6 @@ getInnerAction : function (
 )
 {
     return cc.ActionInterval;
-},
-
-/**
- * @method create
- * @param {cc.ActionInterval} arg0
- * @return {cc.RepeatForever}
- */
-create : function (
-actioninterval 
-)
-{
-    return cc.RepeatForever;
 },
 
 /**
@@ -7237,20 +7165,6 @@ setForcedTarget : function (
 node 
 )
 {
-},
-
-/**
- * @method create
- * @param {cc.Node} arg0
- * @param {cc.FiniteTimeAction} arg1
- * @return {cc.TargetedAction}
- */
-create : function (
-node, 
-finitetimeaction 
-)
-{
-    return cc.TargetedAction;
 },
 
 /**
