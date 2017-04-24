@@ -752,8 +752,6 @@ for (var a in easeActions) {
 
 // Action2d
 cc.action = cc.Action.create;
-cc.speed = cc.Speed.create;
-cc.follow = cc.Follow.create;
 cc.cardinalSplineTo = cc.CardinalSplineTo.create;
 cc.cardinalSplineBy = cc.CardinalSplineBy.create;
 cc.catmullRomTo = cc.CatmullRomTo.create;
@@ -764,21 +762,12 @@ cc.toggleVisibility = cc.ToggleVisibility.create;
 cc.removeSelf = cc.RemoveSelf.create;
 cc.flipX = cc.FlipX.create;
 cc.flipY = cc.FlipY.create;
-// cc.place = cc.Place.create;
 cc.callFunc = cc.CallFunc.create;
 cc.actionInterval = cc.ActionInterval.create;
-cc.sequence = cc.Sequence.create;
-cc.repeat = cc.Repeat.create;
-cc.repeatForever = cc.RepeatForever.create;
-cc.spawn = cc.Spawn.create;
 cc.rotateTo = cc.RotateTo.create;
 cc.rotateBy = cc.RotateBy.create;
-//cc.moveBy = cc.MoveBy.create;
-//cc.moveTo = cc.MoveTo.create;
 cc.skewTo = cc.SkewTo.create;
 cc.skewBy = cc.SkewBy.create;
-//cc.jumpBy = cc.JumpBy.create;
-//cc.jumpTo = cc.JumpTo.create;
 cc.bezierBy = cc.BezierBy.create;
 cc.bezierTo = cc.BezierTo.create;
 cc.scaleTo = cc.ScaleTo.create;
@@ -791,7 +780,6 @@ cc.tintTo = cc.TintTo.create;
 cc.tintBy = cc.TintBy.create;
 cc.delayTime = cc.DelayTime.create;
 cc.reverseTime = cc.ReverseTime.create;
-cc.targetedAction = cc.TargetedAction.create;
 
 cc.Place._create = cc.Place.create;
 cc.place = cc.Place.create = function(posOrX, y){
@@ -905,7 +893,6 @@ cc.Speed.prototype.getSpeed = cc.ActionInterval.prototype.getSpeed = function() 
 //
 // Node API
 //
-
 cc.Node.prototype.setUserData = function (data) {
     this.userData = data;
 };

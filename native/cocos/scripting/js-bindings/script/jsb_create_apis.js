@@ -197,14 +197,20 @@ _p._ctor = function(tmxFile, resourcePath){
 
 /************************  Actions  *************************/
 
-cc.Speed.prototype._ctor = function(action, speed) {
+cc.Speed.prototype._ctor = function (action, speed) {
     speed !== undefined && this.initWithAction(action, speed);
+};
+cc.speed = cc.Speed.create = function (action, speed) {
+    return new cc.Speed(action, speed);
 };
 
 cc.Follow.prototype._ctor = function (followedNode, rect) {
-    if(followedNode)
+    if (followedNode)
         rect ? this.initWithTarget(followedNode, rect)
              : this.initWithTarget(followedNode);
+};
+cc.follow = cc.Follow.create = function (followedNode, rect) {
+    return new cc.Follow(followedNode, rect);
 };
 
 cc.CardinalSplineTo.prototype._ctor = cc.CardinalSplineBy.prototype._ctor = function(duration, points, tension) {
@@ -287,45 +293,89 @@ cc.ActionInterval.prototype._ctor = function(d) {
     d !== undefined && this.initWithDuration(d);
 };
 
-cc.Sequence.prototype._ctor = function(tempArray) {
-    var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
-    var last = paramArray.length - 1;
-    if ((last >= 0) && (paramArray[last] == null))
+cc.Sequence.prototype._ctor = function(...args) {
+    var actions = (args[0] instanceof Array) ? args[0] : args;
+    var last = actions.length - 1;
+    if ((last >= 0) && (actions[last] == null))
         cc.log('parameters should not be ending with null in Javascript');
 
-    if (last >= 0) {
-        var prev = paramArray[0];
+    if (last >= 1) {
+        var prev = actions[0];
         for (var i = 1; i < last; i++) {
-            if (paramArray[i]) {
-                prev = cc.Sequence.create(prev, paramArray[i]);
+            if (actions[i]) {
+                prev = new cc.Sequence(prev, actions[i]);
             }
         }
-        this.initWithTwoActions(prev, paramArray[last]);
+        this.initWithTwoActions(prev, actions[last]);
+    }
+};
+cc.sequence = cc.Sequence.create = function (...args) {
+    var actions = (args[0] instanceof Array) ? args[0] : args;
+    var last = actions.length - 1;
+    if ((last >= 0) && (actions[last] == null))
+        cc.log('parameters should not be ending with null in Javascript');
+
+    if (last >= 1) {
+        var prev = actions[0];
+        for (var i = 1; i < last; i++) {
+            if (actions[i]) {
+                prev = new cc.Sequence(prev, actions[i]);
+            }
+        }
+        return new cc.Sequence(prev, actions[last]);
+    }
+    else {
+        return null;
     }
 };
 
-cc.Repeat.prototype._ctor = function(action, times) {
+cc.Repeat.prototype._ctor = function (action, times) {
     times !== undefined && this.initWithAction(action, times);
 };
-
-cc.RepeatForever.prototype._ctor = function(action) {
-    action !== undefined && this.initWithAction(action);
+cc.repeat = cc.Repeat.create = function (action, times) {
+    return new cc.Repeat(action, times);
 };
 
-cc.Spawn.prototype._ctor = function(tempArray) {
-    var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
-    var last = paramArray.length - 1;
-    if ((last >= 0) && (paramArray[last] == null))
+cc.RepeatForever.prototype._ctor = function (action) {
+    action !== undefined && this.initWithAction(action);
+};
+cc.repeatForever = cc.RepeatForever.create = function (action) {
+    return new cc.RepeatForever(action);
+};
+
+cc.Spawn.prototype._ctor = function (...args) {
+    var actions = (args[0] instanceof Array) ? args[0] : args;
+    var last = actions.length - 1;
+    if ((last >= 0) && (actions[last] == null))
         cc.log('parameters should not be ending with null in Javascript');
 
-    if (last >= 0) {
-        var prev = paramArray[0];
+    if (last >= 1) {
+        var prev = actions[0];
         for (var i = 1; i < last; i++) {
-            if (paramArray[i]) {
-                prev = cc.Spawn.create(prev, paramArray[i]);
+            if (actions[i]) {
+                prev = new cc.Spawn(prev, actions[i]);
             }
         }
-        this.initWithTwoActions(prev, paramArray[last]);
+        this.initWithTwoActions(prev, actions[last]);
+    }
+};
+cc.spawn = cc.Spawn.create = function (...args) {
+    var actions = (args[0] instanceof Array) ? args[0] : args;
+    var last = actions.length - 1;
+    if ((last >= 0) && (actions[last] == null))
+        cc.log('parameters should not be ending with null in Javascript');
+
+    if (last >= 1) {
+        var prev = actions[0];
+        for (var i = 1; i < last; i++) {
+            if (actions[i]) {
+                prev = new cc.Spawn(prev, actions[i]);
+            }
+        }
+        return new cc.Spawn(prev, actions[last]);
+    }
+    else {
+        return null;
     }
 };
 
@@ -405,8 +455,11 @@ cc.ReverseTime.prototype._ctor = function(action) {
     action && this.initWithAction(action);
 };*/
 
-cc.TargetedAction.prototype._ctor = function(target, action) {
+cc.TargetedAction.prototype._ctor = function (target, action) {
     action && this.initWithTarget(target, action);
+};
+cc.targetedAction = cc.TargetedAction.create = function (target, action) {
+    return new cc.TargetedAction(target, action);
 };
 
 /************************  Nodes  *************************/
