@@ -290,13 +290,16 @@ var Label = cc.Class({
         },
 
         /**
-         * !#en Font family of label.
-         * !#zh 文本字体名称。
+         * !#en Font family of label, only take effect when useSystemFont property is true.
+         * !#zh 文本字体名称, 只在 useSystemFont 属性为 true 的时候生效。
          * @property {String} fontFamily
          */
         fontFamily: {
             default: "Arial",
             tooltip: 'i18n:COMPONENT.label.font_family',
+            visible : function () {
+                return this.useSystemFont;
+            },
             notify: function () {
                 if (this._sgNode) {
                     this._sgNode.setFontFileOrFamily(this.fontFamily);
