@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var ActionManagerExist = cc.ActionManager !== undefined;
+var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
 
 /*

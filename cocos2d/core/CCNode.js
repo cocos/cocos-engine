@@ -45,7 +45,7 @@ var ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 var Misc = require('./utils/misc');
 //var RegisteredInEditor = Flags.RegisteredInEditor;
 
-var ActionManagerExist = cc.ActionManager !== undefined;
+var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
 
 /**
