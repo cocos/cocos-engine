@@ -213,6 +213,8 @@ PhysicsContact.prototype.init = function (b2contact) {
     this.disabledOnce = false;
     this._impulse = null;
 
+    this._inverted = false;
+
     this._b2contact = b2contact;
     b2contact._contact = this;
 };
@@ -279,6 +281,11 @@ PhysicsContact.prototype.getWorldManifold = function () {
         normal.y = b2worldmanifold.normal.y;
     }
 
+    if (this._inverted) {
+        normal.x *= -1;
+        normal.y *= -1;
+    }
+
     return worldmanifold;
 };
 
@@ -292,6 +299,8 @@ PhysicsContact.prototype.getWorldManifold = function () {
  */
 PhysicsContact.prototype.getManifold = function () {
     var points = manifold.points;
+    var localNormal = manifold.localNormal;
+    var localPoint = manifold.localPoint;
     
     if (CC_JSB) {
         var wrapper = cc.PhysicsUtils.getContactManifoldWrapper();
@@ -307,10 +316,10 @@ PhysicsContact.prototype.getManifold = function () {
             points[i] = p;
         }
 
-        manifold.localNormal.x = wrapper.getLocalNormalX();
-        manifold.localNormal.y = wrapper.getLocalNormalY();
-        manifold.localPoint.x = wrapper.getLocalPointX();
-        manifold.localPoint.y = wrapper.getLocalPointY();
+        localNormal.x = wrapper.getLocalNormalX();
+        localNormal.y = wrapper.getLocalNormalY();
+        localPoint.x = wrapper.getLocalPointX();
+        localPoint.y = wrapper.getLocalPointY();
         manifold.type = wrapper.getType();
     }
     else {
@@ -329,11 +338,16 @@ PhysicsContact.prototype.getManifold = function () {
             points[i] = p;
         }
 
-        manifold.localPoint.x = b2manifold.localPoint.x * PTM_RATIO;
-        manifold.localPoint.y = b2manifold.localPoint.y * PTM_RATIO;
-        manifold.localNormal.x = b2manifold.localNormal.x;
-        manifold.localNormal.y = b2manifold.localNormal.y;
+        localPoint.x = b2manifold.localPoint.x * PTM_RATIO;
+        localPoint.y = b2manifold.localPoint.y * PTM_RATIO;
+        localNormal.x = b2manifold.localNormal.x;
+        localNormal.y = b2manifold.localNormal.y;
         manifold.type = b2manifold.type;
+    }
+
+    if (this._inverted) {
+        localNormal.x *= -1;
+        localNormal.y *= -1;
     }
 
     return manifold;
@@ -405,6 +419,7 @@ PhysicsContact.prototype.emit = function (contactType) {
 
     if (bodyA.enabledContactListener) {
         comps = bodyA.node._components;
+        this._inverted = false;
         for (i = 0, l = comps.length; i < l; i++) {
             comp = comps[i];
             if (comp[func]) {
@@ -415,6 +430,7 @@ PhysicsContact.prototype.emit = function (contactType) {
 
     if (bodyB.enabledContactListener) {
         comps = bodyB.node._components;
+        this._inverted = true;
         for (i = 0, l = comps.length; i < l; i++) {
             comp = comps[i];
             if (comp[func]) {
