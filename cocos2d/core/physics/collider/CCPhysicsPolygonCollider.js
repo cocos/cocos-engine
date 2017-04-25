@@ -60,6 +60,7 @@ var PhysicsPolygonCollider = cc.Class({
 
         if (ret === 0) {
             var polys = PolygonSeprator.calcShapes(points);
+            var offset = this.offset;
 
             for (var i = 0; i < polys.length; i++) {
                 var poly = polys[i];
@@ -72,7 +73,9 @@ var PhysicsPolygonCollider = cc.Class({
                         shape = new b2.PolygonShape();
                     }
                     var p = poly[j];
-                    var v = new b2.Vec2(p.x/PTM_RATIO*scale.x, p.y/PTM_RATIO*scale.y);
+                    var x = (p.x + offset.x)/PTM_RATIO*scale.x;
+                    var y = (p.y + offset.y)/PTM_RATIO*scale.y;
+                    var v = new b2.Vec2(x, y);
                     vertices.push( v );
 
                     if (!firstVertice) {
