@@ -1,5 +1,5 @@
 /****************************************************************************
-Copyright (c) 2016 Chukong Technologies Inc.
+Copyright (c) 2016-2017 Chukong Technologies Inc.
 
 http://www.cocos2d-x.org
 
@@ -93,7 +93,7 @@ bool AudioDecoder::init(const std::string &url, int sampleRate)
 bool AudioDecoder::start()
 {
     auto oldTime = clockNow();
-
+    auto nowTime = oldTime;
     bool ret;
     do
     {
@@ -103,23 +103,31 @@ bool AudioDecoder::start()
             ALOGE("decodeToPcm (%s) failed!", _url.c_str());
             break;
         }
+
+        nowTime = clockNow();
+        ALOGD("Decoding (%s) to pcm data wasted %fms", _url.c_str(), intervalInMS(oldTime, nowTime));
+        oldTime = nowTime;
+
         ret = resample();
         if (!ret) 
         {
             ALOGE("resample (%s) failed!", _url.c_str());
             break;
         }
+
+        nowTime = clockNow();
+        ALOGD("Resampling (%s) wasted %fms", _url.c_str(), intervalInMS(oldTime, nowTime));
+        oldTime = nowTime;
+
         ret = interleave();
         if (!ret) 
         {
             ALOGE("interleave (%s) failed!", _url.c_str());
             break;
         }
-
-        auto nowTime = clockNow();
-
-        ALOGV("Decoding (%s) to pcm data wasted %fms", _url.c_str(),
-              intervalInMS(oldTime, nowTime));
+        
+        nowTime = clockNow();
+        ALOGD("Interleave (%s) wasted %fms", _url.c_str(), intervalInMS(oldTime, nowTime));
 
     } while(false);
 

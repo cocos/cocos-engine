@@ -4,6 +4,7 @@
 #include "audio/android/AudioDecoderSLES.h"
 #include "audio/android/AudioDecoderOgg.h"
 #include "audio/android/AudioDecoderMp3.h"
+#include "audio/android/AudioDecoderWav.h"
 #include "platform/CCFileUtils.h"
 
 namespace cocos2d { namespace experimental {
@@ -25,6 +26,15 @@ AudioDecoder* AudioDecoderProvider::createAudioDecoder(SLEngineItf engineItf, co
     else if (extension == ".mp3")
     {
         decoder = new AudioDecoderMp3();
+        if (!decoder->init(url, sampleRate))
+        {
+            delete decoder;
+            decoder = nullptr;
+        }
+    }
+    else if (extension == ".wav")
+    {
+        decoder = new AudioDecoderWav();
         if (!decoder->init(url, sampleRate))
         {
             delete decoder;

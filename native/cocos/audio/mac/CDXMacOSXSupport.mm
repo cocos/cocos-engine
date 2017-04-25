@@ -1,16 +1,16 @@
 /*
  Copyright (c) 2010 Steve Oldmeadow
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
+ 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,7 +18,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-
+ 
  $Id$
  */
 
@@ -40,7 +40,7 @@ NSString *const AVAudioSessionCategoryAudioProcessing = @"AVAudioSessionCategory
 OSStatus AudioSessionGetProperty(UInt32 inID, UInt32 *ioDataSize, void *outData) {
 	//TODO: set outData appropriately
 	return 0;
-}
+}    
 
 @implementation CCAudioPlayer
 
@@ -52,18 +52,18 @@ OSStatus AudioSessionGetProperty(UInt32 inID, UInt32 *ioDataSize, void *outData)
 		if (_player != nil) {
 			_player.delegate = self;
 			CDLOG(@"Denshion::CDXMacOSXSupport - NSSound allocated for %@", theUrl);
-		}
+		}	
 	}
 	return self;
 }
 
-- (id)initWithData:(NSData *)theData error:(NSError **)outError {
+- (id)initWithData:(NSData *)theData error:(NSError **)outError { 
 	if ((self = [super init])) {
 		_player = [[NSSound alloc] initWithData:theData];
 		if (_player != nil) {
 			_player.delegate = self;
 			CDLOG(@"Denshion::CDXMacOSXSupport - NSSound allocated for %@", theData);
-		}
+		}	
 	}
 	return self;
 }
@@ -72,21 +72,21 @@ OSStatus AudioSessionGetProperty(UInt32 inID, UInt32 *ioDataSize, void *outData)
 -(void) dealloc {
 	[_player release];
 	[super dealloc];
-}
+}	
 
 - (void)sound:(NSSound *)sound didFinishPlaying:(BOOL)finished {
 	if (self.delegate && [self.delegate respondsToSelector:@selector(audioPlayerDidFinishPlaying:successfully:)]) {
 		[self.delegate audioPlayerDidFinishPlaying:self successfully:finished];
-	}
-}
+	}	
+}	
 
 - (BOOL)play {
 	BOOL result;
 	result = [_player play];
 	if (!result) {
-		//May be paused, try resuming instead
+		//May be paused, try resuming instead 
 		result = [_player resume];
-	}
+	}	
 	return result;
 }
 
@@ -98,15 +98,15 @@ OSStatus AudioSessionGetProperty(UInt32 inID, UInt32 *ioDataSize, void *outData)
 
 -(void) pause {
 	[_player pause];
-}
+}	
 
 -(void) stop {
 	[_player stop];
-}
+}	
 
 -(BOOL) isPlaying {
 	return [_player isPlaying];
-}
+}	
 
 -(void) setVolume:(float) vol {
 	[_player setVolume:vol];
@@ -114,23 +114,23 @@ OSStatus AudioSessionGetProperty(UInt32 inID, UInt32 *ioDataSize, void *outData)
 
 -(float) volume {
 	return [_player volume];
-}
+}	
 
 -(void) setNumberOfLoops:(NSInteger) nOfLoops {
 	if (nOfLoops < 0) {
 		[_player setLoops:YES];
 	} else {
 		[_player setLoops:NO];
-	}
-}
+	}	
+}	
 
 -(NSInteger) numberOfLoops {
 	if (_player.loops) {
 		return -1;
 	} else {
 		return 0;
-	}
-}
+	}	
+}	
 
 -(void) setCurrentTime:(NSTimeInterval) aCurrentTime {
 	[_player setCurrentTime:aCurrentTime];
@@ -147,17 +147,17 @@ OSStatus AudioSessionGetProperty(UInt32 inID, UInt32 *ioDataSize, void *outData)
 #pragma mark unsupported
 - (BOOL)prepareToPlay {
 	return YES;
-}
+}	
 -(BOOL)playAtTime:(NSTimeInterval)time {
 	return YES;
-}
+}	
 -(void) setMeteringEnabled:(BOOL) enabled {
-}
+}	
 -(BOOL) isMeteringEnabled {
 	return NO;
-}
+}	
 - (void)updateMeters{}
-- (float)peakPowerForChannel:(NSUInteger)channelNumber{return 0.0f;}
+- (float)peakPowerForChannel:(NSUInteger)channelNumber{return 0.0f;} 
 - (float)averagePowerForChannel:(NSUInteger)channelNumber{return 0.0f;}
 @end
 
@@ -170,7 +170,7 @@ OSStatus AudioSessionGetProperty(UInt32 inID, UInt32 *ioDataSize, void *outData)
 
 + (id)sharedInstance {
 	return nil;
-}
+}	
 
 - (BOOL)setActive:(BOOL)beActive error:(NSError**)outError {return YES;}
 - (BOOL)setActive:(BOOL)beActive withFlags:(NSInteger)flags error:(NSError**)outError {return YES;}

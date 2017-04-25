@@ -1,6 +1,6 @@
 /****************************************************************************
 Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2016 Chukong Technologies Inc.
+Copyright (c) 2013-2017 Chukong Technologies Inc.
 
 http://www.cocos2d-x.org
 
@@ -33,7 +33,7 @@ THE SOFTWARE.
         #define EXPORT_DLL
     #else
         #if defined(_EXPORT_DLL_)
-            #define EXPORT_DLL      __declspec(dllexport)
+            #define EXPORT_DLL      __declspec(dllexport)    
         #else         /* use a DLL library */
             #define EXPORT_DLL     __declspec(dllimport)
         #endif
@@ -46,6 +46,6 @@ THE SOFTWARE.
     #else
     #define EXPORT_DLL
     #endif
-#endif
+#endif 
 
 #endif    // end of __EXPORT_COMMON__
