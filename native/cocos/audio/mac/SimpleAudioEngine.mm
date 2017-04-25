@@ -57,7 +57,7 @@ static void static_pauseBackgroundMusic()
 static void static_resumeBackgroundMusic()
 {
     [[SimpleAudioEngine sharedEngine] resumeBackgroundMusic];
-}
+} 
 
 static void static_rewindBackgroundMusic()
 {
@@ -84,12 +84,12 @@ static void static_setBackgroundMusicVolume(float volume)
     volume = MAX( MIN(volume, 1.0), 0 );
     [SimpleAudioEngine sharedEngine].backgroundMusicVolume = volume;
 }
-
+     
 static float static_getEffectsVolume()
 {
     return [[SimpleAudioEngine sharedEngine] effectsVolume];
 }
-
+     
 static void static_setEffectsVolume(float volume)
 {
     volume = MAX( MIN(volume, 1.0), 0 );
@@ -100,17 +100,17 @@ static unsigned int static_playEffect(const char* pszFilePath, bool bLoop, Float
 {
     return [[SimpleAudioEngine sharedEngine] playEffect:[NSString stringWithUTF8String: pszFilePath] loop:bLoop pitch:pszPitch pan: pszPan gain:pszGain ];
 }
-
+     
 static void static_stopEffect(int nSoundId)
 {
     [[SimpleAudioEngine sharedEngine] stopEffect: nSoundId];
 }
-
+     
 static void static_preloadEffect(const char* pszFilePath)
 {
     [[SimpleAudioEngine sharedEngine] preloadEffect: [NSString stringWithUTF8String: pszFilePath]];
 }
-
+     
 static void static_unloadEffect(const char* pszFilePath)
 {
     [[SimpleAudioEngine sharedEngine] unloadEffect: [NSString stringWithUTF8String: pszFilePath]];
@@ -161,7 +161,7 @@ SimpleAudioEngine* SimpleAudioEngine::getInstance()
     {
         s_pEngine = new (std::nothrow) SimpleAudioEngine();
     }
-
+    
     return s_pEngine;
 }
 
@@ -172,7 +172,7 @@ void SimpleAudioEngine::end()
         delete s_pEngine;
         s_pEngine = nullptr;
     }
-
+    
     static_end();
 }
 
@@ -203,7 +203,7 @@ void SimpleAudioEngine::pauseBackgroundMusic()
 void SimpleAudioEngine::resumeBackgroundMusic()
 {
     static_resumeBackgroundMusic();
-}
+} 
 
 void SimpleAudioEngine::rewindBackgroundMusic()
 {

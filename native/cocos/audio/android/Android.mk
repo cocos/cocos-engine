@@ -16,6 +16,7 @@ LOCAL_SRC_FILES := AudioEngine-inl.cpp \
                    AudioDecoderSLES.cpp \
                    AudioDecoderOgg.cpp \
                    AudioDecoderMp3.cpp \
+                   AudioDecoderWav.cpp \
                    AudioPlayerProvider.cpp \
                    AudioResampler.cpp \
                    AudioResamplerCubic.cpp \
@@ -31,7 +32,8 @@ LOCAL_SRC_FILES := AudioEngine-inl.cpp \
                    audio_utils/minifloat.cpp \
                    audio_utils/primitives.c \
                    utils/Utils.cpp \
-                   mp3reader.cpp
+                   mp3reader.cpp \
+                   tinysndfile.cpp
 
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../include

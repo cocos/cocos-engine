@@ -1,16 +1,16 @@
 /*
  Copyright (c) 2010 Steve Oldmeadow
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
+ 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,7 +18,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-
+ 
  $Id$
  */
 
@@ -27,13 +27,13 @@
 
 NSString * const kCDN_AudioManagerInitialised = @"kCDN_AudioManagerInitialised";
 
-//NSOperation object used to asynchronously initialise
+//NSOperation object used to asynchronously initialise 
 @implementation CDAsynchInitialiser
 
 -(void) main {
     [super main];
     [CDAudioManager sharedManager];
-}
+}    
 
 @end
 
@@ -57,10 +57,10 @@ NSString * const kCDN_AudioManagerInitialised = @"kCDN_AudioManagerInitialised";
     [audioSourcePlayer release];
     [audioSourceFilePath release];
     [super dealloc];
-}
+}    
 
 -(void) load:(NSString*) filePath {
-    //We have alread loaded a file previously,  check if we are being asked to load the same file
+    //We have already loaded a file previously, check if we are being asked to load the same file
     if (state == kLAS_Init || ![filePath isEqualToString:audioSourceFilePath]) {
         CDLOGINFO(@"Denshion::CDLongAudioSource - Loading new audio source %@",filePath);
         //New file
@@ -78,10 +78,10 @@ NSString * const kCDN_AudioManagerInitialised = @"kCDN_AudioManagerInitialised";
             if (delegate && [delegate respondsToSelector:@selector(cdAudioSourceFileDidChange:)]) {
                 //Tell our delegate the file has changed
                 [delegate cdAudioSourceFileDidChange:self];
-            }
+            }    
         } else {
             CDLOG(@"Denshion::CDLongAudioSource - Error initialising audio player: %@",error);
-        }
+        }    
     } else {
         //Same file - just return it to a consistent state
         [self pause];
@@ -90,7 +90,7 @@ NSString * const kCDN_AudioManagerInitialised = @"kCDN_AudioManagerInitialised";
     audioSourcePlayer.volume = volume;
     audioSourcePlayer.numberOfLoops = numberOfLoops;
     state = kLAS_Loaded;
-}
+}    
 
 -(void) play {
     if (enabled_) {
@@ -99,18 +99,18 @@ NSString * const kCDN_AudioManagerInitialised = @"kCDN_AudioManagerInitialised";
         [audioSourcePlayer play];
     } else {
         CDLOGINFO(@"Denshion::CDLongAudioSource long audio source didn't play because it is disabled");
-    }
-}
+    }    
+}    
 
 -(void) stop {
     paused = NO;
     [audioSourcePlayer stop];
-}
+}    
 
 -(void) pause {
     paused = YES;
     [audioSourcePlayer pause];
-}
+}    
 
 -(void) rewind {
     paused = NO;
@@ -121,7 +121,7 @@ NSString * const kCDN_AudioManagerInitialised = @"kCDN_AudioManagerInitialised";
 -(void) resume {
     paused = NO;
     [audioSourcePlayer resume];
-}
+}    
 
 -(BOOL) isPlaying {
     if (state != kLAS_Init) {
@@ -136,10 +136,10 @@ NSString * const kCDN_AudioManagerInitialised = @"kCDN_AudioManagerInitialised";
     volume = newVolume;
     if (state != kLAS_Init && !mute) {
         audioSourcePlayer.volume = newVolume;
-    }
+    }    
 }
 
--(float) volume
+-(float) volume 
 {
     return volume;
 }
@@ -148,9 +148,9 @@ NSString * const kCDN_AudioManagerInitialised = @"kCDN_AudioManagerInitialised";
 -(BOOL) mute
 {
     return mute;
-}
+}    
 
--(void) setMute:(BOOL) muteValue
+-(void) setMute:(BOOL) muteValue 
 {
     if (mute != muteValue) {
         if (mute) {
@@ -160,15 +160,15 @@ NSString * const kCDN_AudioManagerInitialised = @"kCDN_AudioManagerInitialised";
             audioSourcePlayer.volume = 0.0f;
         }
         mute = muteValue;
-    }
-}
+    }    
+}    
 
--(BOOL) enabled
+-(BOOL) enabled 
 {
     return enabled_;
-}
+}    
 
--(void) setEnabled:(BOOL)enabledValue
+-(void) setEnabled:(BOOL)enabledValue 
 {
     if (enabledValue != enabled_) {
         enabled_ = enabledValue;
@@ -176,25 +176,25 @@ NSString * const kCDN_AudioManagerInitialised = @"kCDN_AudioManagerInitialised";
             //"Stop" the sounds
             [self pause];
             [self rewind];
-        }
-    }
-}
+        }    
+    }    
+}    
 
 -(NSInteger) numberOfLoops {
     return numberOfLoops;
-}
+}    
 
 -(void) setNumberOfLoops:(NSInteger) loopCount
 {
     audioSourcePlayer.numberOfLoops = loopCount;
     numberOfLoops = loopCount;
-}
+}    
 
 - (void)audioPlayerDidFinishPlaying:(CCAudioPlayer *)player successfully:(BOOL)flag {
     CDLOGINFO(@"Denshion::CDLongAudioSource - audio player finished");
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_IPHONE_SIMULATOR    
     CDLOGINFO(@"Denshion::CDLongAudioSource - workaround for OpenAL clobbered audio issue");
-    //This is a workaround for an issue in all simulators (tested to 3.1.2).  Problem is
+    //This is a workaround for an issue in all simulators (tested to 3.1.2).  Problem is 
     //that OpenAL audio playback is clobbered when an CCAudioPlayer stops.  Workaround
     //is to keep the player playing on an endless loop with 0 volume and then when
     //it is played again reset the volume and set loop count appropriately.
@@ -202,11 +202,11 @@ NSString * const kCDN_AudioManagerInitialised = @"kCDN_AudioManagerInitialised";
     player.numberOfLoops = -1;
     player.volume = 0;
     [player play];
-#endif
+#endif    
     if (delegate && [delegate respondsToSelector:@selector(cdAudioSourceDidFinishPlaying:)]) {
         [delegate cdAudioSourceDidFinishPlaying:self];
-    }
-}
+    }    
+}    
 
 -(void)audioPlayerBeginInterruption:(CCAudioPlayer *)player {
     CDLOGINFO(@"Denshion::CDLongAudioSource - audio player interrupted");
@@ -215,16 +215,16 @@ NSString * const kCDN_AudioManagerInitialised = @"kCDN_AudioManagerInitialised";
 -(void)audioPlayerEndInterruption:(CCAudioPlayer *)player {
     CDLOGINFO(@"Denshion::CDLongAudioSource - audio player resumed");
     if (self.backgroundMusic) {
-        //Check if background music can play as rules may have changed during
+        //Check if background music can play as rules may have changed during 
         //the interruption. This is to address a specific issue in 4.x when
         //fast task switching
         if([CDAudioManager sharedManager].willPlayBackgroundMusic) {
             [player play];
-        }
+        }    
     } else {
         [player play];
-    }
-}
+    }    
+}    
 
 @end
 
@@ -249,26 +249,26 @@ static BOOL configured = FALSE;
     NSError *activationError = nil;
     if ([[AVAudioSession sharedInstance] setActive:active error:&activationError]) {
         _audioSessionActive = active;
-        CDLOGINFO(@"Denshion::CDAudioManager - Audio session set active %i succeeded", active);
+        CDLOGINFO(@"Denshion::CDAudioManager - Audio session set active %i succeeded", active); 
         return YES;
     } else {
         //Failed
-        CDLOG(@"Denshion::CDAudioManager - Audio session set active %i failed with error %@", active, activationError);
+        CDLOG(@"Denshion::CDAudioManager - Audio session set active %i failed with error %@", active, activationError); 
         return NO;
-    }
-}
+    }    
+}    
 
 -(BOOL) audioSessionSetCategory:(NSString*) category {
     NSError *categoryError = nil;
     if ([[AVAudioSession sharedInstance] setCategory:category error:&categoryError]) {
-        CDLOGINFO(@"Denshion::CDAudioManager - Audio session set category %@ succeeded", category);
+        CDLOGINFO(@"Denshion::CDAudioManager - Audio session set category %@ succeeded", category); 
         return YES;
     } else {
         //Failed
-        CDLOG(@"Denshion::CDAudioManager - Audio session set category %@ failed with error %@", category, categoryError);
+        CDLOG(@"Denshion::CDAudioManager - Audio session set category %@ failed with error %@", category, categoryError); 
         return NO;
-    }
-}
+    }    
+}    
 
 // Init
 + (CDAudioManager *) sharedManager
@@ -282,14 +282,14 @@ static BOOL configured = FALSE;
             sharedManager = [[CDAudioManager alloc] init:configuredMode];
             _sharedManagerState = kAMStateInitialised;//This is only really relevant when using asynchronous initialisation
             [[NSNotificationCenter defaultCenter] postNotificationName:kCDN_AudioManagerInitialised object:nil];
-        }
+        }    
     }
     return sharedManager;
 }
 
 + (tAudioManagerState) sharedManagerState {
     return _sharedManagerState;
-}
+}    
 
 /**
  * Call this to set up audio manager asynchronously.  Initialisation is finished when sharedManagerState == kAMStateInitialised
@@ -302,9 +302,9 @@ static BOOL configured = FALSE;
             CDAsynchInitialiser *initOp = [[[CDAsynchInitialiser alloc] init] autorelease];
             NSOperationQueue *opQ = [[[NSOperationQueue alloc] init] autorelease];
             [opQ addOperation:initOp];
-        }
+        }    
     }
-}
+}    
 
 + (id) alloc
 {
@@ -321,7 +321,7 @@ static BOOL configured = FALSE;
 + (void) configure: (tAudioManagerMode) mode {
     configuredMode = mode;
     configured = TRUE;
-}
+}    
 
 -(BOOL) isOtherAudioPlaying {
     UInt32 isPlaying = 0;
@@ -334,7 +334,7 @@ static BOOL configured = FALSE;
 
     _mode = mode;
     switch (_mode) {
-
+            
         case kAMM_FxOnly:
             //Share audio with other app
             CDLOGINFO(@"Denshion::CDAudioManager - Audio will be shared");
@@ -342,7 +342,7 @@ static BOOL configured = FALSE;
             _audioSessionCategory = AVAudioSessionCategoryAmbient;
             willPlayBackgroundMusic = NO;
             break;
-
+            
         case kAMM_FxPlusMusic:
             //Use audio exclusively - if other audio is playing it will be stopped
             CDLOGINFO(@"Denshion::CDAudioManager -  Audio will be exclusive");
@@ -350,7 +350,7 @@ static BOOL configured = FALSE;
             _audioSessionCategory = AVAudioSessionCategorySoloAmbient;
             willPlayBackgroundMusic = YES;
             break;
-
+            
         case kAMM_MediaPlayback:
             //Use audio exclusively, ignore mute switch and sleep
             CDLOGINFO(@"Denshion::CDAudioManager -  Media playback mode, audio will be exclusive");
@@ -358,7 +358,7 @@ static BOOL configured = FALSE;
             _audioSessionCategory = AVAudioSessionCategoryPlayback;
             willPlayBackgroundMusic = YES;
             break;
-
+            
         case kAMM_PlayAndRecord:
             //Use audio exclusively, ignore mute switch and sleep, has inputs and outputs
             CDLOGINFO(@"Denshion::CDAudioManager -  Play and record mode, audio will be exclusive");
@@ -366,7 +366,7 @@ static BOOL configured = FALSE;
             _audioSessionCategory = AVAudioSessionCategoryPlayAndRecord;
             willPlayBackgroundMusic = YES;
             break;
-
+            
         default:
             //kAudioManagerFxPlusMusicIfNoOtherAudio
             if ([self isOtherAudioPlaying]) {
@@ -379,18 +379,18 @@ static BOOL configured = FALSE;
                 //_audioSessionCategory = kAudioSessionCategory_SoloAmbientSound;
                 _audioSessionCategory = AVAudioSessionCategorySoloAmbient;
                 willPlayBackgroundMusic = YES;
-            }
-
+            }    
+            
             break;
     }
-
+     
     [self audioSessionSetCategory:_audioSessionCategory];
-
-}
+    
+}    
 
 /**
- * This method is used to work around various bugs introduced in 4.x OS versions. In some circumstances the
- * audio session is interrupted but never resumed, this results in the loss of OpenAL audio when following
+ * This method is used to work around various bugs introduced in 4.x OS versions. In some circumstances the 
+ * audio session is interrupted but never resumed, this results in the loss of OpenAL audio when following 
  * standard practices. If we detect this situation then we will attempt to resume the audio session ourselves.
  * Known triggers: lock the device then unlock it (iOS 4.2 gm), playback a song using MPMediaPlayer (iOS 4.0)
  */
@@ -398,16 +398,16 @@ static BOOL configured = FALSE;
     if (_interrupted && alcGetCurrentContext() == NULL) {
         CDLOG(@"Denshion::CDAudioManager - bad OpenAL context detected, attempting to resume audio session");
         [self audioSessionResumed];
-    }
-}
+    }    
+}    
 
 - (id) init: (tAudioManagerMode) mode {
     if ((self = [super init])) {
-
-        //Initialise the audio session
+        
+        //Initialise the audio session 
         AVAudioSession* session = [AVAudioSession sharedInstance];
         session.delegate = self;
-
+    
         _mode = mode;
         backgroundMusicCompletionSelector = nil;
         _isObservingAppEvents = FALSE;
@@ -418,27 +418,27 @@ static BOOL configured = FALSE;
         _audioSessionActive = NO;
         [self setMode:mode];
         soundEngine = [[CDSoundEngine alloc] init];
-
+        
         //Set up audioSource channels
         audioSourceChannels = [[NSMutableArray alloc] init];
         CDLongAudioSource *leftChannel = [[CDLongAudioSource alloc] init];
         leftChannel.backgroundMusic = YES;
         CDLongAudioSource *rightChannel = [[CDLongAudioSource alloc] init];
         rightChannel.backgroundMusic = NO;
-        [audioSourceChannels insertObject:leftChannel atIndex:kASC_Left];
+        [audioSourceChannels insertObject:leftChannel atIndex:kASC_Left];    
         [audioSourceChannels insertObject:rightChannel atIndex:kASC_Right];
         [leftChannel release];
         [rightChannel release];
         //Used to support legacy APIs
         backgroundMusic = [self audioSourceForChannel:BACKGROUND_MUSIC_CHANNEL];
         backgroundMusic.delegate = self;
-
+        
         //Add handler for bad al context messages, these are posted by the sound engine.
         [[NSNotificationCenter defaultCenter] addObserver:self    selector:@selector(badAlContextHandler) name:kCDN_BadAlContext object:nil];
 
-    }
-    return self;
-}
+    }    
+    return self;        
+}    
 
 -(void) dealloc {
     CDLOGINFO(@"Denshion::CDAudioManager - deallocating");
@@ -448,13 +448,13 @@ static BOOL configured = FALSE;
     [self audioSessionSetActive:NO];
     [audioSourceChannels release];
     [super dealloc];
-}
+}    
 
 /** Retrieves the audio source for the specified channel */
--(CDLongAudioSource*) audioSourceForChannel:(tAudioSourceChannel) channel
+-(CDLongAudioSource*) audioSourceForChannel:(tAudioSourceChannel) channel 
 {
     return (CDLongAudioSource*)[audioSourceChannels objectAtIndex:channel];
-}
+}    
 
 /** Loads the data from the specified file path to the channel's audio source */
 -(CDLongAudioSource*) audioSourceLoad:(NSString*) filePath channel:(tAudioSourceChannel) channel
@@ -464,14 +464,14 @@ static BOOL configured = FALSE;
         [audioSource load:filePath];
     }
     return audioSource;
-}
+}    
 
 -(BOOL) isBackgroundMusicPlaying {
     return [self.backgroundMusic isPlaying];
-}
+}    
 
 //NB: originally I tried using a route change listener and intended to store the current route,
-//however, on a 3gs running 3.1.2 no route change is generated when the user switches the
+//however, on a 3gs running 3.1.2 no route change is generated when the user switches the 
 //ringer mute switch to off (i.e. enables sound) therefore polling is the only reliable way to
 //determine ringer switch state
 -(BOOL) isDeviceMuted {
@@ -479,36 +479,36 @@ static BOOL configured = FALSE;
 #if TARGET_IPHONE_SIMULATOR
     //Calling audio route stuff on the simulator causes problems
     return NO;
-#else
+#else    
     CFStringRef newAudioRoute;
     UInt32 propertySize = sizeof (CFStringRef);
-
+    
     AudioSessionGetProperty (
                              kAudioSessionProperty_AudioRoute,
                              &propertySize,
                              &newAudioRoute
                              );
-
+    
     if (newAudioRoute == NULL) {
         //Don't expect this to happen but playing safe otherwise a null in the CFStringCompare will cause a crash
         return YES;
-    } else {
+    } else {    
         CFComparisonResult newDeviceIsMuted =    CFStringCompare (
                                                                  newAudioRoute,
                                                                  (CFStringRef) @"",
                                                                  0
                                                                  );
-
+        
         return (newDeviceIsMuted == kCFCompareEqualTo);
-    }
+    }    
 #endif
-}
+}    
 
 #pragma mark Audio Interrupt Protocol
 
 -(BOOL) mute {
     return _mute;
-}
+}    
 
 -(void) setMute:(BOOL) muteValue {
     if (muteValue != _mute) {
@@ -516,13 +516,13 @@ static BOOL configured = FALSE;
         [soundEngine setMute:muteValue];
         for( CDLongAudioSource *audioSource in audioSourceChannels) {
             audioSource.mute = muteValue;
-        }
-    }
+        }    
+    }    
 }
 
 -(BOOL) enabled {
     return enabled_;
-}
+}    
 
 -(void) setEnabled:(BOOL) enabledValue {
     if (enabledValue != enabled_) {
@@ -530,20 +530,20 @@ static BOOL configured = FALSE;
         [soundEngine setEnabled:enabled_];
         for( CDLongAudioSource *audioSource in audioSourceChannels) {
             audioSource.enabled = enabled_;
-        }
-    }
+        }    
+    }    
 }
 
 -(CDLongAudioSource*) backgroundMusic
 {
     return backgroundMusic;
-}
+}    
 
 //Load background music ready for playing
 -(void) preloadBackgroundMusic:(NSString*) filePath
 {
-    [self.backgroundMusic load:filePath];
-}
+    [self.backgroundMusic load:filePath];    
+}    
 
 -(void) playBackgroundMusic:(NSString*) filePath loop:(BOOL) loop
 {
@@ -571,7 +571,7 @@ static BOOL configured = FALSE;
 -(void) pauseBackgroundMusic
 {
     [self.backgroundMusic pause];
-}
+}    
 
 -(void) resumeBackgroundMusic
 {
@@ -579,35 +579,35 @@ static BOOL configured = FALSE;
         CDLOGINFO(@"Denshion::CDAudioManager - resume bgm aborted because audio is not exclusive or sound is muted");
         return;
     }
-
+    
     if (![self.backgroundMusic paused]) {
         return;
     }
-
+    
     [self.backgroundMusic resume];
-}
+}    
 
 -(void) rewindBackgroundMusic
 {
     [self.backgroundMusic rewind];
-}
+}    
 
 -(void) setBackgroundMusicCompletionListener:(id) listener selector:(SEL) selector {
     backgroundMusicCompletionListener = listener;
     backgroundMusicCompletionSelector = selector;
-}
+}    
 
 /*
  * Call this method to have the audio manager automatically handle application resign and
  * become active.  Pass a tAudioManagerResignBehavior to indicate the desired behavior
  * for resigning and becoming active again.
  *
- * If autohandle is YES then the applicationWillResignActive and applicationDidBecomActive
+ * If autohandle is YES then the applicationWillResignActive and applicationDidBecomActive 
  * methods are automatically called, otherwise you must call them yourself at the appropriate time.
  *
  * Based on idea of Dominique Bongard
  */
--(void) setResignBehavior:(tAudioManagerResignBehavior) resignBehavior autoHandle:(BOOL) autoHandle {
+-(void) setResignBehavior:(tAudioManagerResignBehavior) resignBehavior autoHandle:(BOOL) autoHandle { 
 
     if (!_isObservingAppEvents && autoHandle) {
         [[NSNotificationCenter defaultCenter] addObserver:self    selector:@selector(applicationWillResignActive:) name:@"UIApplicationWillResignActiveNotification" object:nil];
@@ -616,18 +616,18 @@ static BOOL configured = FALSE;
         _isObservingAppEvents = TRUE;
     }
     _resignBehavior = resignBehavior;
-}
+}    
 
 - (void) applicationWillResignActive {
     _resigned = YES;
-
-    //Set the audio sesssion to one that allows sharing so that other audio won't be clobbered on resume
+    
+    //Set the audio session to one that allows sharing so that other audio won't be clobbered on resume
     [self audioSessionSetCategory:AVAudioSessionCategoryAmbient];
-
+    
     switch (_resignBehavior) {
-
+            
         case kAMRBStopPlay:
-
+            
             for( CDLongAudioSource *audioSource in audioSourceChannels) {
                 if (audioSource.isPlaying) {
                     audioSource->systemPaused = YES;
@@ -641,18 +641,18 @@ static BOOL configured = FALSE;
                 }
             }
             break;
-
+            
         case kAMRBStop:
             //Stop music regardless of whether it is playing or not because if it was paused
             //then the OS would resume it
             for( CDLongAudioSource *audioSource in audioSourceChannels) {
                 [audioSource stop];
-            }
-
+            }    
+            
         default:
             break;
-
-    }
+            
+    }            
     CDLOGINFO(@"Denshion::CDAudioManager - handled resign active");
 }
 
@@ -660,18 +660,18 @@ static BOOL configured = FALSE;
 - (void) applicationWillResignActive:(NSNotification *) notification
 {
     [self applicationWillResignActive];
-}
+}    
 
 - (void) applicationDidBecomeActive {
-
+    
     if (_resigned) {
         _resigned = NO;
         //Reset the mode incase something changed with audio while we were inactive
         [self setMode:_mode];
         switch (_resignBehavior) {
-
+                
             case kAMRBStopPlay:
-
+                
                 //Music had been stopped but stop maintains current time
                 //so playing again will continue from where music was before resign active.
                 //We check if music can be played because while we were inactive the user might have
@@ -685,10 +685,10 @@ static BOOL configured = FALSE;
                     }
                 }
                 break;
-
+                
             default:
                 break;
-
+                
         }
         CDLOGINFO(@"Denshion::CDAudioManager - audio manager handled become active");
     }
@@ -700,7 +700,7 @@ static BOOL configured = FALSE;
     [self applicationDidBecomeActive];
 }
 
-//Called when application terminates only if setResignBehavior has been called
+//Called when application terminates only if setResignBehavior has been called 
 - (void) applicationWillTerminate:(NSNotification *) notification
 {
     CDLOGINFO(@"Denshion::CDAudioManager - audio manager handling terminate");
@@ -712,8 +712,8 @@ static BOOL configured = FALSE;
     CDLOGINFO(@"Denshion::CDAudioManager - audio manager got told background music finished");
     if (backgroundMusicCompletionSelector != nil) {
         [backgroundMusicCompletionListener performSelector:backgroundMusicCompletionSelector];
-    }
-}
+    }    
+}    
 
 -(void) beginInterruption {
     CDLOGINFO(@"Denshion::CDAudioManager - begin interruption");
@@ -730,78 +730,78 @@ static BOOL configured = FALSE;
     CDLOGINFO(@"Denshion::CDAudioManager - interruption ended with flags %i",flags);
     if (flags == AVAudioSessionInterruptionFlags_ShouldResume) {
         [self audioSessionResumed];
-    }
+    }    
 }
 #endif
 
--(void)audioSessionInterrupted
-{
+-(void)audioSessionInterrupted 
+{ 
     if (!_interrupted) {
-        CDLOGINFO(@"Denshion::CDAudioManager - Audio session interrupted");
+        CDLOGINFO(@"Denshion::CDAudioManager - Audio session interrupted"); 
         _interrupted = YES;
 
-        // Deactivate the current audio session
+        // Deactivate the current audio session 
         [self audioSessionSetActive:NO];
-
+        
         if (alcGetCurrentContext() != NULL) {
-            CDLOGINFO(@"Denshion::CDAudioManager - Setting OpenAL context to NULL");
+            CDLOGINFO(@"Denshion::CDAudioManager - Setting OpenAL context to NULL"); 
 
             ALenum  error = AL_NO_ERROR;
 
-            // set the current context to NULL will 'shutdown' openAL
-            alcMakeContextCurrent(NULL);
-
+            // set the current context to NULL will 'shutdown' openAL 
+            alcMakeContextCurrent(NULL); 
+        
             if((error = alGetError()) != AL_NO_ERROR) {
                 CDLOG(@"Denshion::CDAudioManager - Error making context current %x\n", error);
-            }
+            } 
             #pragma unused(error)
         }
-    }
-}
+    }    
+} 
 
--(void)audioSessionResumed
-{
+-(void)audioSessionResumed 
+{ 
     if (_interrupted) {
-        CDLOGINFO(@"Denshion::CDAudioManager - Audio session resumed");
+        CDLOGINFO(@"Denshion::CDAudioManager - Audio session resumed"); 
         _interrupted = NO;
-
+        
         BOOL activationResult = NO;
         // Reactivate the current audio session
-        activationResult = [self audioSessionSetActive:YES];
-
+        activationResult = [self audioSessionSetActive:YES]; 
+        
         //This code is to handle a problem with iOS 4.0 and 4.01 where reactivating the session can fail if
         //task switching is performed too rapidly. A test case that reliably reproduces the issue is to call the
         //iPhone and then hang up after two rings (timing may vary ;))
         //Basically we keep waiting and trying to let the OS catch up with itself but the number of tries is
         //limited.
         if (!activationResult) {
-            CDLOG(@"Denshion::CDAudioManager - Failure reactivating audio session, will try wait-try cycle");
+            CDLOG(@"Denshion::CDAudioManager - Failure reactivating audio session, will try wait-try cycle"); 
             int activateCount = 0;
             while (!activationResult && activateCount < 10) {
                 [NSThread sleepForTimeInterval:0.5];
-                activationResult = [self audioSessionSetActive:YES];
+                activationResult = [self audioSessionSetActive:YES]; 
                 activateCount++;
-                CDLOGINFO(@"Denshion::CDAudioManager - Reactivation attempt %i status = %i",activateCount,activationResult);
-            }
+                CDLOGINFO(@"Denshion::CDAudioManager - Reactivation attempt %i status = %i",activateCount,activationResult); 
+            }    
         }
-
+        
         if (alcGetCurrentContext() == NULL) {
-            CDLOGINFO(@"Denshion::CDAudioManager - Restoring OpenAL context");
+            CDLOGINFO(@"Denshion::CDAudioManager - Restoring OpenAL context"); 
             ALenum  error = AL_NO_ERROR;
-            // Restore open al context
-            alcMakeContextCurrent([soundEngine openALContext]);
+            // Restore open al context 
+            alcMakeContextCurrent([soundEngine openALContext]); 
             if((error = alGetError()) != AL_NO_ERROR) {
                 CDLOG(@"Denshion::CDAudioManager - Error making context current%x\n", error);
-            }
+            } 
             #pragma unused(error)
-        }
-    }
+        }    
+    }    
 }
 
 +(void) end {
     [sharedManager release];
     sharedManager = nil;
-}
+}    
 
 @end
 
@@ -810,7 +810,7 @@ static BOOL configured = FALSE;
 
 -(void) _setTargetProperty:(float) newVal {
     ((CDLongAudioSource*)target).volume = newVal;
-}
+}    
 
 -(float) _getTargetProperty {
     return ((CDLongAudioSource*)target).volume;
@@ -823,7 +823,7 @@ static BOOL configured = FALSE;
 
 -(Class) _allowableType {
     return [CDLongAudioSource class];
-}
+}    
 
 @end
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -835,18 +835,18 @@ static BOOL configured = FALSE;
         loadedBuffers = [[NSMutableDictionary alloc] initWithCapacity:CD_BUFFERS_START];
         freedBuffers = [[NSMutableArray alloc] init];
         nextBufferId = 0;
-    }
+    }    
     return self;
-}
+}    
 
 -(void) dealloc {
     [loadedBuffers release];
     [freedBuffers release];
     [super dealloc];
-}
+}    
 
 -(int) bufferForFile:(NSString*) filePath create:(BOOL) create {
-
+    
     NSNumber* soundId = (NSNumber*)[loadedBuffers objectForKey:filePath];
     if(soundId == nil)
     {
@@ -855,7 +855,7 @@ static BOOL configured = FALSE;
             //First try to get a buffer from the free buffers
             if ([freedBuffers count] > 0) {
                 bufferId = [[[freedBuffers lastObject] retain] autorelease];
-                [freedBuffers removeLastObject];
+                [freedBuffers removeLastObject]; 
                 CDLOGINFO(@"Denshion::CDBufferManager reusing buffer id %i",[bufferId intValue]);
             } else {
                 bufferId = [[NSNumber alloc] initWithInt:nextBufferId];
@@ -863,7 +863,7 @@ static BOOL configured = FALSE;
                 CDLOGINFO(@"Denshion::CDBufferManager generating new buffer id %i",[bufferId intValue]);
                 nextBufferId++;
             }
-
+            
             if ([soundEngine loadBuffer:[bufferId intValue] filePath:filePath]) {
                 //File successfully loaded
                 CDLOGINFO(@"Denshion::CDBufferManager buffer loaded %@ %@",bufferId,filePath);
@@ -873,15 +873,15 @@ static BOOL configured = FALSE;
                 //File didn't load, put buffer id on free list
                 [freedBuffers addObject:bufferId];
                 return kCDNoBuffer;
-            }
+            }    
         } else {
             //No matching buffer was found
             return kCDNoBuffer;
-        }
+        }    
     } else {
         return [soundId intValue];
-    }
-}
+    }    
+}    
 
 -(void) releaseBufferForFile:(NSString *) filePath {
     int bufferId = [self bufferForFile:filePath create:NO];
@@ -891,7 +891,9 @@ static BOOL configured = FALSE;
         NSNumber *freedBufferId = [[NSNumber alloc] initWithInt:bufferId];
         [freedBufferId autorelease];
         [freedBuffers addObject:freedBufferId];
-    }
-}
+    }    
+}    
 @end
+
+
 
