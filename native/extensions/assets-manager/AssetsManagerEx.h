@@ -112,9 +112,28 @@ public:
      */
     const Manifest* getLocalManifest() const;
     
+    /** @brief Load a custom local manifest object, the local manifest must be loaded already.
+     * You can only manually load local manifest when the update state is UNCHECKED, it will fail once the update process is began.
+     * This API will do the following things:
+     * 1. Reset storage path
+     * 2. Set local storage
+     * 3. Search for cached manifest and compare with the local manifest
+     * 4. Init temporary manifest and remote manifest
+     * If successfully load the given local manifest and inited other manifests, it will return true, otherwise it will return false
+     * @param localManifest    The local manifest object to be set
+     * @param storagePath    The local storage path
+     */
+    bool loadLocalManifest(Manifest* localManifest, const std::string& storagePath = "");
+    
     /** @brief Function for retrieving the remote manifest object
      */
     const Manifest* getRemoteManifest() const;
+    
+    /** @brief Load a custom remote manifest object, the manifest must be loaded already.
+     * You can only manually load remote manifest when the update state is UNCHECKED and local manifest is already inited, it will fail once the update process is began.
+     * @param remoteManifest    The remote manifest object to be set
+     */
+    bool loadRemoteManifest(Manifest* remoteManifest);
     
     /** @brief Gets whether the current download is resuming previous unfinished job, this will only be available after READY_TO_UPDATE state, under unknown states it will return false by default.
      */
@@ -166,9 +185,9 @@ protected:
     
     std::string get(const std::string& key) const;
     
-    void initManifests(const std::string& manifestUrl);
+    void initManifests();
     
-    void loadLocalManifest(const std::string& manifestUrl);
+    bool loadLocalManifest(const std::string& manifestUrl);
     
     void prepareLocalManifest();
     

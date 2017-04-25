@@ -110,7 +110,10 @@ AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::stri
     _cacheManifestPath = _storagePath + MANIFEST_FILENAME;
     _tempManifestPath = _tempStoragePath + TEMP_MANIFEST_FILENAME;
 
-    initManifests(manifestUrl);
+    if (loadLocalManifest(manifestUrl))
+    {
+        initManifests();
+    }
 }
 
 AssetsManagerEx::~AssetsManagerEx()
@@ -139,45 +142,34 @@ AssetsManagerEx* AssetsManagerEx::create(const std::string& manifestUrl, const s
     return ret;
 }
 
-void AssetsManagerEx::initManifests(const std::string& manifestUrl)
+void AssetsManagerEx::initManifests()
 {
     _inited = true;
-    // Init and load local manifest
-    _localManifest = new (std::nothrow) Manifest();
-    if (_localManifest)
+    // Init and load temporary manifest
+    _tempManifest = new (std::nothrow) Manifest();
+    if (_tempManifest)
     {
-        loadLocalManifest(manifestUrl);
-        
-        // Init and load temporary manifest
-        _tempManifest = new (std::nothrow) Manifest();
-        if (_tempManifest)
+        _tempManifest->parseFile(_tempManifestPath);
+        // Previous update is interrupted
+        if (_fileUtils->isFileExist(_tempManifestPath))
         {
-            _tempManifest->parse(_tempManifestPath);
-            // Previous update is interrupted
-            if (_fileUtils->isFileExist(_tempManifestPath))
+            // Manifest parse failed, remove all temp files
+            if (!_tempManifest->isLoaded())
             {
-                // Manifest parse failed, remove all temp files
-                if (!_tempManifest->isLoaded())
-                {
-                    _fileUtils->removeDirectory(_tempStoragePath);
-                    CC_SAFE_RELEASE(_tempManifest);
-                    _tempManifest = nullptr;
-                }
+                _fileUtils->removeDirectory(_tempStoragePath);
+                CC_SAFE_RELEASE(_tempManifest);
+                _tempManifest = nullptr;
             }
-        }
-        else
-        {
-            _inited = false;
-        }
-        
-        // Init remote manifest for future usage
-        _remoteManifest = new (std::nothrow) Manifest();
-        if (!_remoteManifest)
-        {
-            _inited = false;
         }
     }
     else
+    {
+        _inited = false;
+    }
+    
+    // Init remote manifest for future usage
+    _remoteManifest = new (std::nothrow) Manifest();
+    if (!_remoteManifest)
     {
         _inited = false;
     }
@@ -202,15 +194,96 @@ void AssetsManagerEx::prepareLocalManifest()
     _localManifest->prependSearchPaths();
 }
 
-void AssetsManagerEx::loadLocalManifest(const std::string& /*manifestUrl*/)
+bool AssetsManagerEx::loadLocalManifest(Manifest* localManifest, const std::string& storagePath/* = ""*/)
 {
+    if (_updateState > State::UNCHECKED)
+    {
+        return false;
+    }
+    if (!localManifest || !localManifest->isLoaded())
+    {
+        return false;
+    }
+    _inited = true;
+    // Reset storage path
+    if (storagePath.size() > 0)
+    {
+        setStoragePath(storagePath);
+        _tempVersionPath = _tempStoragePath + VERSION_FILENAME;
+        _cacheManifestPath = _storagePath + MANIFEST_FILENAME;
+        _tempManifestPath = _tempStoragePath + TEMP_MANIFEST_FILENAME;
+    }
+    // Release existing local manifest
+    if (_localManifest)
+    {
+        CC_SAFE_RELEASE(_localManifest);
+    }
+    _localManifest = localManifest;
+    _localManifest->retain();
+    // Find the cached manifest file
+    Manifest *cachedManifest = nullptr;
+    if (_fileUtils->isFileExist(_cacheManifestPath))
+    {
+        cachedManifest = new (std::nothrow) Manifest();
+        if (cachedManifest)
+        {
+            cachedManifest->parseFile(_cacheManifestPath);
+            if (!cachedManifest->isLoaded())
+            {
+                _fileUtils->removeFile(_cacheManifestPath);
+                CC_SAFE_RELEASE(cachedManifest);
+                cachedManifest = nullptr;
+            }
+        }
+    }
+    // Compare with cached manifest to determine which one to use
+    if (cachedManifest)
+    {
+        bool localNewer = _localManifest->versionGreater(cachedManifest, _versionCompareHandle);
+        if (localNewer)
+        {
+            // Recreate storage, to empty the content
+            _fileUtils->removeDirectory(_storagePath);
+            _fileUtils->createDirectory(_storagePath);
+            CC_SAFE_RELEASE(cachedManifest);
+        }
+        else
+        {
+            CC_SAFE_RELEASE(_localManifest);
+            _localManifest = cachedManifest;
+        }
+    }
+    prepareLocalManifest();
+    
+    // Init temp manifest and remote manifest
+    initManifests();
+    
+    if (!_inited)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+bool AssetsManagerEx::loadLocalManifest(const std::string& /*manifestUrl*/)
+{
+    // Init and load local manifest
+    _localManifest = new (std::nothrow) Manifest();
+    if (!_localManifest)
+    {
+        return false;
+    }
     Manifest *cachedManifest = nullptr;
     // Find the cached manifest file
     if (_fileUtils->isFileExist(_cacheManifestPath))
     {
         cachedManifest = new (std::nothrow) Manifest();
-        if (cachedManifest) {
-            cachedManifest->parse(_cacheManifestPath);
+        if (cachedManifest)
+        {
+            cachedManifest->parseFile(_cacheManifestPath);
             if (!cachedManifest->isLoaded())
             {
                 _fileUtils->removeFile(_cacheManifestPath);
@@ -237,15 +310,17 @@ void AssetsManagerEx::loadLocalManifest(const std::string& /*manifestUrl*/)
         _fileUtils->setSearchPaths(trimmedPaths);
     }
     // Load local manifest in app package
-    _localManifest->parse(_manifestUrl);
-    if (cachedManifest) {
+    _localManifest->parseFile(_manifestUrl);
+    if (cachedManifest)
+    {
         // Restore search paths
         _fileUtils->setSearchPaths(searchPaths);
     }
     if (_localManifest->isLoaded())
     {
         // Compare with cached manifest to determine which one to use
-        if (cachedManifest) {
+        if (cachedManifest)
+        {
             bool localNewer = _localManifest->versionGreater(cachedManifest, _versionCompareHandle);
             if (localNewer)
             {
@@ -268,7 +343,41 @@ void AssetsManagerEx::loadLocalManifest(const std::string& /*manifestUrl*/)
     {
         CCLOG("AssetsManagerEx : No local manifest file found error.\n");
         dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ERROR_NO_LOCAL_MANIFEST);
+        return false;
     }
+    return true;
+}
+
+bool AssetsManagerEx::loadRemoteManifest(Manifest* remoteManifest)
+{
+    if (!_inited || _updateState > State::UNCHECKED)
+    {
+        return false;
+    }
+    if (!remoteManifest || !remoteManifest->isLoaded())
+    {
+        return false;
+    }
+    // Release existing remote manifest
+    if (_remoteManifest)
+    {
+        CC_SAFE_RELEASE(_remoteManifest);
+    }
+    _remoteManifest = remoteManifest;
+    _remoteManifest->retain();
+    // Compare manifest version and set state
+    if (_localManifest->versionGreater(_remoteManifest, _versionCompareHandle))
+    {
+        _updateState = State::UP_TO_DATE;
+        _fileUtils->removeDirectory(_tempStoragePath);
+        dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ALREADY_UP_TO_DATE);
+    }
+    else
+    {
+        _updateState = State::NEED_UPDATE;
+        dispatchUpdateEvent(EventAssetsManagerEx::EventCode::NEW_VERSION_FOUND);
+    }
+    return true;
 }
 
 std::string AssetsManagerEx::basename(const std::string& path) const
@@ -638,7 +747,7 @@ void AssetsManagerEx::parseManifest()
     if (_updateState != State::MANIFEST_LOADED)
         return;
 
-    _remoteManifest->parse(_tempManifestPath);
+    _remoteManifest->parseFile(_tempManifestPath);
 
     if (!_remoteManifest->isLoaded())
     {
