@@ -36,6 +36,10 @@ var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var Joint = cc.Class({
     name: 'cc.Joint',
     extends: cc.Component,
+    
+    editor: { 
+        requireComponent: cc.RigidBody
+    },
 
     properties: {
                /**
