@@ -81,8 +81,6 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../manual \
 
 LOCAL_EXPORT_LDLIBS := -lz
 
-LOCAL_WHOLE_STATIC_LIBRARIES := cocos2d_js_android_static
-
 LOCAL_STATIC_LIBRARIES := cocos2dx_static
 LOCAL_STATIC_LIBRARIES += spidermonkey_static
 

@@ -106,7 +106,7 @@ gulp.task('gen-libs', function(cb) {
   else {
     cocosConsoleBin = Path.join(cocosConsoleRoot, 'cocos.bat');
   }
-  execSync(cocosConsoleBin + ' gen-libs -m release --app-abi armeabi:arm64-v8a:armeabi-v7a:x86', '.');
+  execSync(cocosConsoleBin + ' gen-libs -m release --android-studio --app-abi armeabi:arm64-v8a:armeabi-v7a:x86', '.');
   cb();
 });
 

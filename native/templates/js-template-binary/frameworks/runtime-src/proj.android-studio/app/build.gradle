@@ -1,23 +1,56 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    buildToolsVersion "25.0.0"
 
     defaultConfig {
         applicationId "org.cocos2dx.hellojavascript"
         minSdkVersion 10
-        targetSdkVersion 22
+        targetSdkVersion PROP_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
+
+        externalNativeBuild {
+            ndkBuild {
+                if (!project.hasProperty("PROP_NDK_MODE") || PROP_NDK_MODE.compareTo('none') != 0) {
+                    // skip the NDK Build step if PROP_NDK_MODE is none
+                    targets 'cocos2djs'
+                    arguments 'NDK_TOOLCHAIN_VERSION=4.9'
+                    arguments 'APP_PLATFORM=android-'+PROP_TARGET_SDK_VERSION
+                    
+                    def module_paths = [project.file("${COCOS_X_ROOT}"),
+                                        project.file("${COCOS_X_ROOT}/cocos"),
+                                        project.file("${COCOS_X_ROOT}/external")]
+                    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                        arguments 'NDK_MODULE_PATH=' + module_paths.join(";")
+                    }
+                    else {
+                        arguments 'NDK_MODULE_PATH=' + module_paths.join(':')
+                    }
+
+                    arguments '-j' + Runtime.runtime.availableProcessors()
+                    abiFilters.addAll(PROP_APP_ABI.split(':').collect{it as String})
+                }
+            }
+        }
     }
 
     sourceSets.main {
         java.srcDir "src"
         res.srcDir "res"
-        jniLibs.srcDir "libs"
         manifest.srcFile "AndroidManifest.xml"
-        assets.srcDir "assets"
+    }
+
+    externalNativeBuild {
+        ndkBuild {
+            if (!project.hasProperty("PROP_NDK_MODE") || PROP_NDK_MODE.compareTo('none') != 0) {
+                // skip the NDK Build step if PROP_NDK_MODE is none
+                path "jni/Android.mk"
+            }
+        }
     }
 
     signingConfigs {
@@ -39,6 +72,48 @@ android {
             if (project.hasProperty("RELEASE_STORE_FILE")) {
                 signingConfig signingConfigs.release
             }
+
+            externalNativeBuild {
+                ndkBuild {
+                    arguments 'NDK_DEBUG=0'
+                }
+            }
+        }
+
+        debug {
+            externalNativeBuild {
+                ndkBuild {
+                    arguments 'NDK_DEBUG=1'
+                }
+            }
+        }
+    }
+}
+
+android.applicationVariants.all { variant ->
+    // delete previous files first
+    delete "${buildDir}/intermediates/assets/${variant.dirName}"
+
+    variant.mergeAssets.doLast {
+        copy {
+           from "${buildDir}/../../../../../res"
+           into "${buildDir}/intermediates/assets/${variant.dirName}/res"
+        }
+
+        copy {
+            from "${buildDir}/../../../../../src"
+            into "${buildDir}/intermediates/assets/${variant.dirName}/src"
+        }
+
+        copy {
+            from "${buildDir}/../../../../../main.js"
+            from "${buildDir}/../../../../../project.json"
+            into "${buildDir}/intermediates/assets/${variant.dirName}"
+        }
+
+        copy {
+            from "${COCOS_X_ROOT}/cocos/scripting/js-bindings/script"
+            into "${buildDir}/intermediates/assets/${variant.dirName}/script"
         }
     }
 }
