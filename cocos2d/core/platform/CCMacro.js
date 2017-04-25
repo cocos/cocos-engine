@@ -1885,7 +1885,16 @@ cc.macro = {
      * 它的值被 native 宏 CC_ENABLE_GC_FOR_NATIVE_OBJECTS 所控制，修改 JS 宏的值不会产生任何效果。
      * @property {Number} ENABLE_GC_FOR_NATIVE_OBJECTS
      */
-    ENABLE_GC_FOR_NATIVE_OBJECTS: true
+    ENABLE_GC_FOR_NATIVE_OBJECTS: true,
+
+    /**
+     * !#en 
+     * Whether or not enabled tiled map auto culling.
+     * !#zh
+     * 是否开启瓦片地图的自动裁减功能
+     * @property {Boolean} ENABLE_TILEDMAP_CULLING
+     */
+    ENABLE_TILEDMAP_CULLING: true,
 };
 
 /**

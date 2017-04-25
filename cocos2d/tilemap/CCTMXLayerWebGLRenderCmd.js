@@ -102,16 +102,19 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
     // Culling
     var startCol = 0, startRow = 0,
         maxCol = cols, maxRow = rows;
-    if (!hasRotation && layerOrientation === Orientation.ORTHO) {
-        startCol = Math.floor(-(mapx - extw * a) / (maptw * a));
-        startRow = Math.floor((mapy - exth * d + mapth * rows * d - winh) / (mapth * d));
-        maxCol = Math.ceil((winw - mapx + extw * a) / (maptw * a));
-        maxRow = rows - Math.floor(-(mapy + exth * d) / (mapth * d));
-        // Adjustment
-        if (startCol < 0) startCol = 0;
-        if (startRow < 0) startRow = 0;
-        if (maxCol > cols) maxCol = cols;
-        if (maxRow > rows) maxRow = rows;
+
+    if (cc.macro.ENABLE_TILEDMAP_CULLING) {
+        if (!hasRotation && layerOrientation === Orientation.ORTHO) {
+            startCol = Math.floor(-(mapx - extw * a) / (maptw * a));
+            startRow = Math.floor((mapy - exth * d + mapth * rows * d - winh) / (mapth * d));
+            maxCol = Math.ceil((winw - mapx + extw * a) / (maptw * a));
+            maxRow = rows - Math.floor(-(mapy + exth * d) / (mapth * d));
+            // Adjustment
+            if (startCol < 0) startCol = 0;
+            if (startRow < 0) startRow = 0;
+            if (maxCol > cols) maxCol = cols;
+            if (maxRow > rows) maxRow = rows;
+        }
     }
 
     var row, col,
