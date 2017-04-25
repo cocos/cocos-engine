@@ -68,9 +68,12 @@ AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::stri
 , _updateEntry(UpdateEntry::NONE)
 , _percent(0)
 , _percentByFile(0)
+, _totalSize(0)
+, _totalDownloaded(0)
 , _totalToDownload(0)
 , _totalWaitToDownload(0)
 , _nextSavePoint(0.0)
+, _downloadResumed(false)
 , _maxConcurrentTask(32)
 , _currConcurrentTask(0)
 , _versionCompareHandle(nullptr)
@@ -531,7 +534,7 @@ void AssetsManagerEx::dispatchUpdateEvent(EventAssetsManagerEx::EventCode code, 
             break;
     }
 
-    EventAssetsManagerEx event(_eventName, this, code, _percent, _percentByFile, assetId, message, curle_code, curlm_code);
+    EventAssetsManagerEx event(_eventName, this, code, assetId, message, curle_code, curlm_code);
     _eventDispatcher->dispatchEvent(&event);
 }
 
@@ -664,18 +667,18 @@ void AssetsManagerEx::parseManifest()
     }
 }
 
-void AssetsManagerEx::startUpdate()
+void AssetsManagerEx::prepareUpdate()
 {
     if (_updateState != State::NEED_UPDATE)
         return;
 
-    _updateState = State::UPDATING;
     // Clean up before update
     _failedUnits.clear();
     _downloadUnits.clear();
     _totalWaitToDownload = _totalToDownload = 0;
     _nextSavePoint = 0;
-    _percent = _percentByFile = _sizeCollected = _totalSize = 0;
+    _percent = _percentByFile = _sizeCollected = _totalDownloaded = _totalSize = 0;
+    _downloadResumed = false;
     _downloadedSize.clear();
     _totalEnabled = false;
     
@@ -685,10 +688,7 @@ void AssetsManagerEx::startUpdate()
         _tempManifest->saveToFile(_tempManifestPath);
         _tempManifest->genResumeAssetsList(&_downloadUnits);
         _totalWaitToDownload = _totalToDownload = (int)_downloadUnits.size();
-        this->batchDownload();
-        
-        std::string msg = StringUtils::format("Resuming from previous unfinished update, %d files remains to be finished.", _totalToDownload);
-        dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_PROGRESSION, "", msg);
+        _downloadResumed = true;
     }
     else
     {
@@ -712,6 +712,7 @@ void AssetsManagerEx::startUpdate()
         if (diff_map.size() == 0)
         {
             updateSucceed();
+            return;
         }
         else
         {
@@ -737,11 +738,31 @@ void AssetsManagerEx::startUpdate()
             }
             
             _totalWaitToDownload = _totalToDownload = (int)_downloadUnits.size();
-            this->batchDownload();
-            
-            std::string msg = StringUtils::format("Start to update %d files from remote package.", _totalToDownload);
-            dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_PROGRESSION, "", msg);
         }
+    }
+    _updateState = State::READY_TO_UPDATE;
+}
+
+void AssetsManagerEx::startUpdate()
+{
+    if (_updateState == State::NEED_UPDATE)
+    {
+        prepareUpdate();
+    }
+    else if (_updateState == State::READY_TO_UPDATE)
+    {
+        _updateState = State::UPDATING;
+        std::string msg;
+        if (_downloadResumed)
+        {
+            msg = StringUtils::format("Resuming from previous unfinished update, %d files remains to be finished.", _totalToDownload);
+        }
+        else
+        {
+            msg = StringUtils::format("Start to update %d files from remote package.", _totalToDownload);
+        }
+        dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_PROGRESSION, "", msg);
+        batchDownload();
     }
 }
 
@@ -923,7 +944,7 @@ void AssetsManagerEx::updateAssets(const DownloadUnits& assets)
         _updateState = State::UPDATING;
         _downloadUnits.clear();
         _downloadedSize.clear();
-        _percent = _percentByFile = _sizeCollected = _totalSize = 0;
+        _percent = _percentByFile = _sizeCollected = _totalDownloaded = _totalSize = 0;
         _totalWaitToDownload = _totalToDownload = (int)assets.size();
         _nextSavePoint = 0;
         _totalEnabled = false;
@@ -1034,7 +1055,7 @@ void AssetsManagerEx::onProgress(double total, double downloaded, const std::str
     {
         // Calcul total downloaded
         bool found = false;
-        double totalDownloaded = 0;
+        _totalDownloaded = 0;
         for (auto it = _downloadedSize.begin(); it != _downloadedSize.end(); ++it)
         {
             if (it->first == customId)
@@ -1042,7 +1063,7 @@ void AssetsManagerEx::onProgress(double total, double downloaded, const std::str
                 it->second = downloaded;
                 found = true;
             }
-            totalDownloaded += it->second;
+            _totalDownloaded += it->second;
         }
         // Collect information if not registed
         if (!found)
@@ -1066,7 +1087,7 @@ void AssetsManagerEx::onProgress(double total, double downloaded, const std::str
         
         if (_totalEnabled && _updateState == State::UPDATING)
         {
-            float currentPercent = 100 * totalDownloaded / _totalSize;
+            float currentPercent = 100 * _totalDownloaded / _totalSize;
             // Notify at integer level change
             if ((int)currentPercent != (int)_percent) {
                 _percent = currentPercent;

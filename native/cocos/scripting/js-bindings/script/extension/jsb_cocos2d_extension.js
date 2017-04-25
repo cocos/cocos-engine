@@ -54,6 +54,22 @@ jsb.EventListenerAssetsManager = cc.EventListenerAssetsManager;
  */
 jsb.EventAssetsManager = cc.EventAssetsManager;
 
+jsb.AssetsManager.State = {
+    UNCHECKED : 0,
+    PREDOWNLOAD_VERSION : 1,
+    DOWNLOADING_VERSION : 2,
+    VERSION_LOADED : 3,
+    PREDOWNLOAD_MANIFEST : 4,
+    DOWNLOADING_MANIFEST : 5,
+    MANIFEST_LOADED : 6,
+    NEED_UPDATE : 7,
+    READY_TO_UPDATE : 8,
+    UPDATING : 9,
+    UNZIPPING : 10,
+    UP_TO_DATE : 11,
+    FAIL_TO_UPDATE : 12
+}
+
 jsb.EventListenerAssetsManager.prototype._ctor = function(assetsManager, callback) {
     callback !== undefined && this.init(assetsManager, callback);
 };

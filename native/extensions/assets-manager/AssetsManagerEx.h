@@ -61,6 +61,7 @@ public:
         DOWNLOADING_MANIFEST,
         MANIFEST_LOADED,
         NEED_UPDATE,
+        READY_TO_UPDATE,
         UPDATING,
         UNZIPPING,
         UP_TO_DATE,
@@ -83,6 +84,10 @@ public:
      *          he wants to update resources.
      */
     void checkUpdate();
+    
+    /** @brief Prepare the update process, this will cleanup download process flags, fill up download units with temporary manifest or remote manifest
+     */
+    void prepareUpdate();
     
     /** @brief Update with the current local manifest.
      */
@@ -107,6 +112,26 @@ public:
     /** @brief Function for retrieving the remote manifest object
      */
     const Manifest* getRemoteManifest() const;
+    
+    /** @brief Gets whether the current download is resuming previous unfinished job, this will only be available after READY_TO_UPDATE state, under unknown states it will return false by default.
+     */
+    bool isResuming() const {return _downloadResumed;};
+    
+    /** @brief Gets the total byte size to be downloaded of the update, this will only be available after READY_TO_UPDATE state, under unknown states it will return 0 by default.
+     */
+    double getTotalBytes() const {return _totalSize;};
+    
+    /** @brief Gets the current downloaded byte size of the update, this will only be available after READY_TO_UPDATE state, under unknown states it will return 0 by default.
+     */
+    double getDownloadedBytes() const {return _totalDownloaded;};
+    
+    /** @brief Gets the total files count to be downloaded of the update, this will only be available after READY_TO_UPDATE state, under unknown states it will return 0 by default.
+     */
+    int getTotalFiles() const {return _totalToDownload;};
+    
+    /** @brief Gets the current downloaded files count of the update, this will only be available after READY_TO_UPDATE state, under unknown states it will return 0 by default.
+     */
+    int getDownloadedFiles() const {return _totalToDownload - _totalWaitToDownload;};
     
     /** @brief Function for retrieving the max concurrent task count
      */
@@ -282,6 +307,8 @@ private:
     //! Download queue
     std::vector<std::string> _queue;
     
+    bool _downloadResumed;
+    
     //! Max concurrent task count for downloading
     int _maxConcurrentTask;
     
@@ -300,8 +327,11 @@ private:
     //! Indicate the number of file whose total size have been collected
     int _sizeCollected;
     
-    //! Total file size need to be downloaded (sum of all file)
+    //! Total file size need to be downloaded (sum of all files)
     double _totalSize;
+    
+    //! Total downloaded file size (sum of all downloaded files)
+    double _totalDownloaded;
     
     //! Downloaded size for each file
     std::unordered_map<std::string, double> _downloadedSize;
