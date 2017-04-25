@@ -39,9 +39,9 @@ var PhysicsPolygonCollider = cc.Class({
     extends: cc.PolygonCollider,
     mixins: [cc.PhysicsCollider],
 
-    editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.physics/Collider/Polygon',
-        inspector: 'packages://inspector/inspectors/comps/physics/points-base-collider.js',
+    editor: {
+        menu: CC_EDITOR && 'i18n:MAIN_MENU.component.physics/Collider/Polygon',
+        inspector: CC_EDITOR && 'packages://inspector/inspectors/comps/physics/points-base-collider.js',
         requireComponent: cc.RigidBody
     },
 

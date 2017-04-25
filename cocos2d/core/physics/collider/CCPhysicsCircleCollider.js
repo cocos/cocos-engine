@@ -38,8 +38,8 @@ var PhysicsCircleCollider = cc.Class({
     extends: cc.CircleCollider,
     mixins: [cc.PhysicsCollider],
 
-    editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.physics/Collider/Circle',
+    editor: {
+        menu: CC_EDITOR && 'i18n:MAIN_MENU.component.physics/Collider/Circle',
         requireComponent: cc.RigidBody
     },
 

@@ -38,8 +38,8 @@ var PhysicsBoxCollider = cc.Class({
     extends: cc.BoxCollider,
     mixins: [cc.PhysicsCollider],
 
-    editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.physics/Collider/Box',
+    editor: {
+        menu: CC_EDITOR && 'i18n:MAIN_MENU.component.physics/Collider/Box',
         requireComponent: cc.RigidBody
     },
 

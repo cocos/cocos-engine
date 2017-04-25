@@ -37,7 +37,7 @@ var Joint = cc.Class({
     name: 'cc.Joint',
     extends: cc.Component,
     
-    editor: CC_EDITOR && { 
+    editor: { 
         requireComponent: cc.RigidBody
     },
 
