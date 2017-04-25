@@ -71,6 +71,9 @@ public:
     const static std::string VERSION_ID;
     const static std::string MANIFEST_ID;
     
+    typedef std::function<int(const std::string& versionA, const std::string& versionB)> VersionCompareHandle;
+    typedef std::function<bool(const std::string& path, Manifest::Asset asset)> VerifyCallback;
+    
     /** @brief Create function for creating a new AssetsManagerEx
      @param manifestUrl   The url for the local manifest file
      @param storagePath   The storage path for downloaded assets
@@ -144,16 +147,16 @@ public:
     /** @brief Set the handle function for comparing manifests versions
      * @param handle    The compare function
      */
-    void setVersionCompareHandle(const std::function<int(const std::string& versionA, const std::string& versionB)>& handle) {_versionCompareHandle = handle;};
+    void setVersionCompareHandle(const VersionCompareHandle& handle) {_versionCompareHandle = handle;};
     
     /** @brief Set the verification function for checking whether downloaded asset is correct, e.g. using md5 verification
      * @param callback  The verify callback function
      */
-    void setVerifyCallback(const std::function<bool(const std::string& path, Manifest::Asset asset)>& callback) {_verifyCallback = callback;};
+    void setVerifyCallback(const VerifyCallback& callback) {_verifyCallback = callback;};
     
 CC_CONSTRUCTOR_ACCESS:
     
-    AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath);
+    AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath, const VersionCompareHandle& handle = nullptr);
     
     virtual ~AssetsManagerEx();
     
@@ -344,10 +347,10 @@ private:
     float _nextSavePoint;
     
     //! Handle function to compare versions between different manifests
-    std::function<int(const std::string& versionA, const std::string& versionB)> _versionCompareHandle;
+    VersionCompareHandle _versionCompareHandle;
     
     //! Callback function to verify the downloaded assets
-    std::function<bool(const std::string& path, Manifest::Asset asset)> _verifyCallback;
+    VerifyCallback _verifyCallback;
     
     //! Marker for whether the assets manager is inited
     bool _inited;

@@ -54,7 +54,7 @@ const std::string AssetsManagerEx::MANIFEST_ID = "@manifest";
 
 // Implementation of AssetsManagerEx
 
-AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath)
+AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath, const VersionCompareHandle& handle/* = nullptr*/)
 : _updateState(State::UNCHECKED)
 , _assets(nullptr)
 , _storagePath("")
@@ -76,7 +76,7 @@ AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::stri
 , _downloadResumed(false)
 , _maxConcurrentTask(32)
 , _currConcurrentTask(0)
-, _versionCompareHandle(nullptr)
+, _versionCompareHandle(handle)
 , _verifyCallback(nullptr)
 , _inited(false)
 {
