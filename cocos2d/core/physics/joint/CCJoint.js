@@ -97,6 +97,13 @@ var Joint = cc.Class({
         this._init();
     },
 
+    /**
+     * !#en
+     * Apply current changes to joint, this will regenerate inner box2d joint.
+     * !#zh
+     * 应用当前关节中的修改，调用此函数会重新生成内部 box2d 的关节。
+     * @method apply
+     */
     apply: function () {
         this._destroy();
         this._init();
