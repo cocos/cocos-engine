@@ -884,6 +884,49 @@ bool js_box2dclasses_b2Shape_SetRadius(JSContext *cx, uint32_t argc, jsval *vp)
     return false;
 }
 
+
+extern JSClass  *jsb_b2CircleShape_class;
+extern JSObject *jsb_b2CircleShape_prototype;
+
+bool js_box2dclasses_b2CircleShape_GetPosition(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    b2CircleShape* cobj = (b2CircleShape *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2CircleShape_GetPosition : Invalid Native Object");
+    if (argc == 0) {
+        b2Vec2& ret = cobj->m_p;
+        JS::RootedValue jsret(cx);
+        jsret = b2Vec2_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    
+    JS_ReportError(cx, "js_box2dclasses_b2CircleShape_GetPosition : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_box2dclasses_b2CircleShape_SetPosition(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    b2CircleShape* cobj = (b2CircleShape *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2CircleShape_SetPosition : Invalid Native Object");
+    if (argc == 1) {
+        b2Vec2 arg0;
+        ok &= jsval_to_b2Vec2(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_SetPosition : Error processing arguments");
+        cobj->m_p = arg0;
+        args.rval().setUndefined();
+        return true;
+    }
+    
+    JS_ReportError(cx, "js_box2dclasses_b2Shape_SetRadius : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+
 bool js_box2dclasses_b2World_CreateJoint(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1289,6 +1332,10 @@ void register_all_box2dclasses_manual(JSContext* cx, JS::HandleObject obj) {
     tmpObj.set(jsb_b2Shape_prototype);
     JS_DefineFunction(cx, tmpObj, "SetRadius", js_box2dclasses_b2Shape_SetRadius, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "GetRadius", js_box2dclasses_b2Shape_GetRadius, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    
+    tmpObj.set(jsb_b2CircleShape_prototype);
+    JS_DefineFunction(cx, tmpObj, "SetPosition", js_box2dclasses_b2CircleShape_SetPosition, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, tmpObj, "GetPosition", js_box2dclasses_b2CircleShape_GetPosition, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
     tmpObj.set(jsb_b2World_prototype);
     JS_DefineFunction(cx, tmpObj, "CreateBody", js_box2dclasses_b2World_CreateBody, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
