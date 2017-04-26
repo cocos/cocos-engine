@@ -260,10 +260,9 @@ Object.defineProperty(proto, 'yMax', {
 });
 
 /**
- * !#en TODO
+ * !#en The position of the center of the rectangle.
  * !#zh 矩形的中心点。
- * @property center
- * @type {Number}
+ * @property {Vec2} center
  */
 Object.defineProperty(proto, 'center', {
     get: function () {
@@ -277,7 +276,22 @@ Object.defineProperty(proto, 'center', {
 });
 
 /**
- * !#en TODO
+ * !#en The X and Y position of the rectangle.
+ * !#zh 矩形的 x 和 y 坐标。
+ * @property {Vec2} origin
+ */
+Object.defineProperty(proto, 'origin', {
+    get () {
+        return new cc.Vec2(this.x, this.y);
+    },
+    set (value) {
+        this.x = value.x;
+        this.y = value.y;
+    }
+});
+
+/**
+ * !#en Width and height of the rectangle.
  * !#zh 矩形的大小。
  * @property {Size} size
  */

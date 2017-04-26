@@ -184,7 +184,8 @@ JS.mixin(CCLoader.prototype, {
      * @param {Function} [progressCallback] - Callback invoked when progression change
      * @param {Function} [completeCallback] - Callback invoked when all resources loaded
      * @typescript
-     * load(resources: string|string[]|{uuid: string, url: string, type: string}, progressCallback?: Function, completeCallback?: Function): void
+     * load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, completeCallback?: Function): void
+     * load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, progressCallback: Function, completeCallback: Function|null): void
      */
     load: function(resources, progressCallback, completeCallback) {
         if (completeCallback === undefined) {
