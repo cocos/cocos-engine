@@ -30,7 +30,7 @@
  * !#en Class for LabelAtlas handling.
  * !#zh 艺术数字字体资源类。
  * @class LabelAtlas
- * @extends cc.BitmapFont
+ * @extends BitmapFont
  *
  */
 var LabelAtlas = cc.Class({

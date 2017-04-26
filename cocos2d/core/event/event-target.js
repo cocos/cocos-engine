@@ -162,8 +162,8 @@ JS.mixin(EventTarget.prototype, {
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param {Event} callback.param event
-     * @param {Object} target - The target to invoke the callback, can be null
-     * @param {Boolean} useCapture - When set to true, the capture argument prevents callback
+     * @param {Object} [target] - The target to invoke the callback, can be null
+     * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
      *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
      *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
      *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
@@ -209,8 +209,8 @@ JS.mixin(EventTarget.prototype, {
      * @method off
      * @param {String} type - A string representing the event type being removed.
      * @param {Function} callback - The callback to remove.
-     * @param {Object} target - The target to invoke the callback, if it's not given, only callback without target will be removed
-     * @param {Boolean} useCapture - Specifies whether the callback being removed was registered as a capturing callback or not.
+     * @param {Object} [target] - The target to invoke the callback, if it's not given, only callback without target will be removed
+     * @param {Boolean} [useCapture=false] - Specifies whether the callback being removed was registered as a capturing callback or not.
      *                              If not specified, useCapture defaults to false. If a callback was registered twice,
      *                              one with capture and one without, each must be removed separately. Removal of a capturing callback
      *                              does not affect a non-capturing version of the same listener, and vice versa.
@@ -274,8 +274,8 @@ JS.mixin(EventTarget.prototype, {
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param {Event} callback.param event
-     * @param {Object} target - The target to invoke the callback, can be null
-     * @param {Boolean} useCapture - When set to true, the capture argument prevents callback
+     * @param {Object} [target] - The target to invoke the callback, can be null
+     * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
      *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
      *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
      *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.

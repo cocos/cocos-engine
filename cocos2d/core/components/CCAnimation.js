@@ -56,11 +56,13 @@ function equalClips (clip1, clip2) {
  *  - finished : 动画播放完成时
  * 
  * @class Animation
- * @extends CCComponent
+ * @extends Component
+ * @uses EventTarget
  */
 var Animation = cc.Class({
     name: 'cc.Animation',
     extends: require('./CCComponent'),
+    mixins: [cc.EventTarget],
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/Animation',
@@ -429,7 +431,7 @@ var Animation = cc.Class({
      * 但是如果 force 参数为 true，则会强制停止该动画，然后移除该动画剪辑和相关的动画。这时候如果 clip 是 defaultClip，defaultClip 将会被重置为 null。
      * @method removeClip
      * @param {AnimationClip} clip
-     * @param {Boolean} force If force is true, then will always remove the clip and any animation states based on it.
+     * @param {Boolean} [force=false] - If force is true, then will always remove the clip and any animation states based on it.
      */
     removeClip: function (clip, force) {
         if (!clip) {
@@ -509,12 +511,13 @@ var Animation = cc.Class({
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param {Event} callback.param event
-     * @param {Object} target - The target to invoke the callback, can be null
-     * @param {Boolean} useCapture - When set to true, the capture argument prevents callback
+     * @param {Object} [target] - The target to invoke the callback, can be null
+     * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
      *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
      *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
      *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
      *
+     * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
      * @example
      * onPlay: function (event) {
      *     var state = event.detail;    // state instanceof cc.AnimationState
@@ -544,6 +547,8 @@ var Animation = cc.Class({
         }
 
         listeners.push([type, callback, target, useCapture]);
+
+        return callback;
     },
 
 
@@ -555,8 +560,8 @@ var Animation = cc.Class({
      * @method off
      * @param {String} type - A string representing the event type being removed.
      * @param {Function} callback - The callback to remove.
-     * @param {Object} target - The target to invoke the callback, if it's not given, only callback without target will be removed
-     * @param {Boolean} useCapture - Specifies whether the callback being removed was registered as a capturing callback or not.
+     * @param {Object} [target] - The target to invoke the callback, if it's not given, only callback without target will be removed
+     * @param {Boolean} [useCapture=false] - Specifies whether the callback being removed was registered as a capturing callback or not.
      *                              If not specified, useCapture defaults to false. If a callback was registered twice,
      *                              one with capture and one without, each must be removed separately. Removal of a capturing callback
      *                              does not affect a non-capturing version of the same listener, and vice versa.

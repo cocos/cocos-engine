@@ -69,7 +69,7 @@ function defineNotInheritable (obj, prop, value, writable) {
 
 /**
  * Bit mask that controls object states.
- * @class Flags
+ * @enum Flags
  * @static
  * @private
  */

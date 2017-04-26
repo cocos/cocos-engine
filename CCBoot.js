@@ -26,63 +26,37 @@
 cc._tmp = cc._tmp || {};
 cc._LogInfos = cc._LogInfos || {};
 
-var _p = window;
-/** @expose */
-_p.gl;
-/** @expose */
-_p.WebGLRenderingContext;
-/** @expose */
-_p.DeviceOrientationEvent;
-/** @expose */
-_p.DeviceMotionEvent;
-/** @expose */
-_p.AudioContext;
-if (!_p.AudioContext) {
-    /** @expose */
-    _p.webkitAudioContext;
-}
-/** @expose */
-_p.mozAudioContext;
-_p = Object.prototype;
-/** @expose */
-_p._super;
-/** @expose */
-_p.ctor;
-_p = null;
-
 /**
- * The current version of Cocos2d-JS being used.<br/>
+ * The current version of Cocos2d being used.<br/>
  * Please DO NOT remove this String, it is an important flag for bug tracking.<br/>
  * If you post a bug to forum, please attach this flag.
- * @type {String}
- * @name cc.ENGINE_VERSION
+ * @property {String} ENGINE_VERSION
  */
 var engineVersion;
 engineVersion = '1.4.1-beta.1';
 window['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
 
 /**
- * drawing primitive of game engine
- * @type {cc.DrawingPrimitive}
+ * @property {DrawingPrimitive} _drawingUtil - drawing primitive of game engine
+ * @private
  */
 cc._drawingUtil = null;
 
 /**
- * main Canvas 2D/3D Context of game engine
- * @type {CanvasRenderingContext2D|WebGLRenderingContext}
+ * @property {CanvasRenderingContext2D|WebGLRenderingContext} _renderContext - main Canvas 2D/3D Context of game engine
+ * @private
  */
 cc._renderContext = null;
 cc._supportRender = false;
 
 /**
- * Main canvas of game engine
- * @type {HTMLCanvasElement}
+ * @property {HTMLCanvasElement} _canvas - Main canvas of game engine
+ * @private
  */
 cc._canvas = null;
 
 /**
- * The element contains the game canvas
- * @type {HTMLDivElement}
+ * @property {HTMLDivElement} container - The element contains the game canvas
  */
 cc.container = null;
 cc._gameDiv = null;
@@ -91,7 +65,6 @@ require('./cocos2d/core/utils');
 require('./cocos2d/core/platform/CCSys');
 
 
-//+++++++++++++++++++++++++Engine initialization function begin+++++++++++++++++++++++++++
 (function () {
 
 var _jsAddedCache = {}, //cache for js and module that has added into jsList to be loaded.
@@ -225,4 +198,3 @@ cc.initEngine = function (config, cb) {
 };
 
 })();
-//+++++++++++++++++++++++++Engine initialization function end+++++++++++++++++++++++++++++

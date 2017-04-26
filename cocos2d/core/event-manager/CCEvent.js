@@ -318,8 +318,11 @@ EventMouse.BUTTON_8 = 7;
  * !#en The touch event
  * !#zh 触摸事件
  * @class Event.EventTouch
- *
+ * @constructor
  * @extends Event
+ */
+/**
+ * @method constructor
  * @param {Array} touchArr - The array of the touches
  * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
  */

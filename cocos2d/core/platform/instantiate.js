@@ -42,8 +42,11 @@ var _isDomNode = require('./utils').isDomNode;
  * <del>对于 Entity / Component 等 Scene Object，如果对方也会被一起 Instantiate，则重定向到新的引用，否则保留为原来的引用。</del>
  *
  * @method instantiate
- * @param {Object} original - An existing object that you want to make a copy of.
- * @return {Object} the newly instantiated object
+ * @param {Prefab|Node|Object} original - An existing object that you want to make a copy of.
+ * @return {Node|Object} the newly instantiated object
+ * @typescript
+ * instantiate(original: Prefab): Node
+ * instantiate<T>(original: T): T
  */
 function instantiate (original) {
     if (typeof original !== 'object' || Array.isArray(original)) {

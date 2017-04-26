@@ -136,7 +136,7 @@ function syncFlow (item) {
  * 一个 pipe 就是一个对象，它包含了字符串类型的 ‘id’ 和 ‘handle’ 函数，在 pipeline 中 id 必须是唯一的。</br>
  * 它还可以包括 ‘async’ 属性以确定它是否是一个异步过程。
  *
- * @method Pipeline
+ * @method constructor
  * @param {Array} pipes
  * @example
  *  var pipeline = new Pipeline([

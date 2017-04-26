@@ -182,7 +182,7 @@ cc.toggleVisibility = function () {
  * Delete self in the next frame.
  * @class RemoveSelf
  * @extends ActionInstant
- * @param {Boolean} isNeedCleanUp
+ * @param {Boolean} [isNeedCleanUp=true]
  *
  * @example
  * // example
@@ -219,7 +219,7 @@ cc.RemoveSelf = cc.ActionInstant.extend({
  * !#en Create a RemoveSelf object with a flag indicate whether the target should be cleaned up while removing.
  * !#zh 从父节点移除自身。
  * @method removeSelf
- * @param {Boolean} isNeedCleanUp
+ * @param {Boolean} [isNeedCleanUp = true]
  * @return {ActionInstant}
  *
  * @example
@@ -415,8 +415,8 @@ cc.place = function (pos, y) {
  * @class CallFunc
  * @extends ActionInstant
  * @param {function} selector
- * @param {object|null} [selectorTarget]
- * @param {*|null} [data] data for function, it accepts all data types.
+ * @param {object} [selectorTarget=null]
+ * @param {*} [data=null] data for function, it accepts all data types.
  * @example
  * // example
  * // CallFunc without data
@@ -434,8 +434,8 @@ cc.CallFunc = cc.ActionInstant.extend({
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
 	 * Creates a CallFunc action with the callback.
 	 * @param {function} selector
-	 * @param {object|null} [selectorTarget]
-	 * @param {*|null} [data] data for function, it accepts all data types.
+	 * @param {object} [selectorTarget=null]
+	 * @param {*} [data=null] data for function, it accepts all data types.
 	 */
     ctor:function(selector, selectorTarget, data){
         cc.FiniteTimeAction.prototype.ctor.call(this);
@@ -508,8 +508,8 @@ cc.CallFunc = cc.ActionInstant.extend({
  * !#zh 执行回调函数。
  * @method callFunc
  * @param {function} selector
- * @param {object|null} [selectorTarget]
- * @param {*|null} [data] data for function, it accepts all data types.
+ * @param {object} [selectorTarget=null]
+ * @param {*} [data=null] - data for function, it accepts all data types.
  * @return {ActionInstant}
  * @example
  * // example

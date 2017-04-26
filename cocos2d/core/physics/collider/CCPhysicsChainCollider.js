@@ -32,6 +32,7 @@ var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
  * PhysicsPolygonCollider 同样也继承自 {{#crossLink "PhysicsCollider"}}PhysicsCollider{{/crossLink}}
  * @class PhysicsChainCollider
  * @extends PolygonCollider
+ * @uses PhysicsCollider
  */
 var PhysicsChainCollider = cc.Class({
     name: 'cc.PhysicsChainCollider',

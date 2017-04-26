@@ -39,12 +39,11 @@ var JS = require('../platform/js');
  * !#zh
  * cc.Rect类的构造函数。可以通过 {{#crossLink "cc/rect:method"}} cc.rect {{/crossLink}} 简便方法进行创建。
  *
- * @method Rect
+ * @method constructor
  * @param {Number} [x=0]
  * @param {Number} [y=0]
  * @param {Number} [w=0]
  * @param {Number} [h=0]
- * @return {Rect}
  */
 function Rect (x, y, w, h) {
     if (x && typeof x === 'object') {
@@ -60,6 +59,19 @@ function Rect (x, y, w, h) {
 }
 JS.extend(Rect, ValueType);
 require('../platform/CCClass').fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
+
+/**
+ * @property {Number} x
+ */
+/**
+ * @property {Number} y
+ */
+/**
+ * @property {Number} width
+ */
+/**
+ * @property {Number} height
+ */
 
 /**
  * !#en Creates a rectangle from two coordinate values.
@@ -344,7 +356,7 @@ cc.Rect = Rect;
  * !#zh
  * 该方法用来快速创建一个新的矩形。{{#crossLink "Rect/Rect:method"}}cc.Rect{{/crossLink}}
  * @method rect
- * @param {Number[]|Number} [x=0]
+ * @param {Number} [x=0]
  * @param {Number} [y=0]
  * @param {Number} [w=0]
  * @param {Number} [h=0]

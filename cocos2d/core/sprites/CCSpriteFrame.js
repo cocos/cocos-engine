@@ -39,7 +39,7 @@ var EventTarget = require("../event/event-target");
  *
  * @class SpriteFrame
  * @extends Asset
- *
+ * @uses EventTarget
  * @example
  * // load a cc.SpriteFrame with image path (Recommend)
  * var self = this;
@@ -82,7 +82,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * Constructor of SpriteFrame class.
      * !#zh
      * SpriteFrame 类的构造函数。
-     * @method SpriteFrame
+     * @method constructor
      * @param {String|Texture2D} [filename]
      * @param {Rect} [rect]
      * @param {Boolean} [rotated] - Whether the frame is rotated in the texture

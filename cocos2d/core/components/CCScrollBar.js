@@ -83,7 +83,7 @@ var Scrollbar = cc.Class({
         /**
          * !#en The direction of scrollbar.
          * !#zh ScrollBar 的滚动方向。
-         *@property {Scrollbar.Direction} direction
+         * @property {Scrollbar.Direction} direction
          */
         direction: {
             default: Direction.HORIZONTAL,
@@ -96,9 +96,9 @@ var Scrollbar = cc.Class({
         },
 
         /**
-         * !#en Whehter enable auto hide or not.
+         * !#en Whether enable auto hide or not.
          * !#zh 是否在没有滚动动作时自动隐藏 ScrollBar。
-         *@property {Boolean} enableAutoHide
+         * @property {Boolean} enableAutoHide
          */
         enableAutoHide: {
             default: true,
@@ -113,7 +113,7 @@ var Scrollbar = cc.Class({
          * !#zh
          * 没有滚动动作后经过多久会自动隐藏。
          * 注意：只要当 “enableAutoHide” 为 true 时，才有效。
-         *@property {Number} autoHideTime
+         * @property {Number} autoHideTime
          */
         autoHideTime: {
             default: 1.0,

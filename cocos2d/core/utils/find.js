@@ -33,7 +33,7 @@
  * @static
  * @param {String} path
  * @param {Node} [referenceNode]
- * @return {Node} the node or null if not found
+ * @return {Node|null} the node or null if not found
  */
 cc.find = module.exports = function (path, referenceNode) {
     if (path == null) {

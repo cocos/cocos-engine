@@ -152,6 +152,9 @@ function getDefaultFromInitializer (initializer) {
  * class LoginData {
  *     // ...
  * }
+ * @typescript
+ * ccclass(name?: string): Function
+ * ccclass(_class?: Function): void
  */
 var ccclass = checkCtorArgument(function (ctor, name) {
     // if (FIX_BABEL6) {
@@ -204,6 +207,7 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  * @param {Boolean} [options.editorOnly]
  * @param {Boolean} [options.override]
  * @param {Boolean} [options.animatable]
+ * @param {Any} [options.default] - for TypeScript only.
  * @example
  * const {ccclass, property} = cc._decorator;
  *
@@ -276,6 +280,9 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  *         },
  *     }
  * });
+ * @typescript
+ * property(options?: {type?: any; url?: cc.RawAsset; visible?: boolean; displayName?: string; tooltip?: string; multiline?: boolean; readonly?: boolean; min?: number; max?: number; step?: number; range?: number[]; slide?: boolean; serializable?: boolean; editorOnly?: boolean; override?: boolean; animatable?: boolean; default?: any}): Function
+ * property(_target: Object, _key: any, _desc?: any): void
  */
 function property (ctorProtoOrOptions, propName, desc) {
     var options = null;
@@ -366,6 +373,9 @@ function createEditorDecorator (argCheckFunc, editorPropName, staticValue) {
  * class NewScript extends cc.Component {
  *     // ...
  * }
+ * @typescript
+ * executeInEditMode(): Function
+ * executeInEditMode(_class: Function): void
  */
 var executeInEditMode = CC_DEV ? createEditorDecorator(checkCtorArgument, 'executeInEditMode', true) : dNOP;
 
@@ -385,6 +395,8 @@ var executeInEditMode = CC_DEV ? createEditorDecorator(checkCtorArgument, 'execu
  * class SpriteCtrl extends cc.Component {
  *     // ...
  * }
+ * @typescript
+ * requireComponent(requiredComponent: {new (): cc.Component}): Function
  */
 var requireComponent = createEditorDecorator(checkCompArgument, 'requireComponent');
 
@@ -405,6 +417,8 @@ var requireComponent = createEditorDecorator(checkCompArgument, 'requireComponen
  * class NewScript extends cc.Component {
  *     // ...
  * }
+ * @typescript
+ * menu(path: string): Function
  */
 var menu = CC_DEV ? createEditorDecorator(checkStringArgument, 'menu') : dNOP;
 
@@ -426,6 +440,8 @@ var menu = CC_DEV ? createEditorDecorator(checkStringArgument, 'menu') : dNOP;
  * class CameraCtrl extends cc.Component {
  *     // ...
  * }
+ * @typescript
+ * executionOrder(order: number): Function
  */
 var executionOrder = CC_DEV ? createEditorDecorator(checkNumberArgument, 'executionOrder') : dNOP;
 
@@ -444,6 +460,9 @@ var executionOrder = CC_DEV ? createEditorDecorator(checkNumberArgument, 'execut
  * class CameraCtrl extends cc.Component {
  *     // ...
  * }
+ * @typescript
+ * disallowMultiple(): Function
+ * disallowMultiple(_class: Function): void
  */
 var disallowMultiple = CC_DEV ? createEditorDecorator(checkCtorArgument, 'disallowMultiple') : dNOP;
 
@@ -464,6 +483,9 @@ var disallowMultiple = CC_DEV ? createEditorDecorator(checkCtorArgument, 'disall
  * class CameraCtrl extends cc.Component {
  *     // ...
  * }
+ * @typescript
+ * playOnFocus(): Function
+ * playOnFocus(_class: Function): void
  */
 var playOnFocus = CC_DEV ? createEditorDecorator(checkCtorArgument, 'playOnFocus') : dNOP;
 
@@ -483,6 +505,8 @@ var playOnFocus = CC_DEV ? createEditorDecorator(checkCtorArgument, 'playOnFocus
  * class NewScript extends cc.Component {
  *     // ...
  * }
+ * @typescript
+ * inspector(path: string): Function
  */
 var inspector = CC_DEV ? createEditorDecorator(checkStringArgument, 'inspector') : dNOP;
 
@@ -503,6 +527,8 @@ var inspector = CC_DEV ? createEditorDecorator(checkStringArgument, 'inspector')
  * class NewScript extends cc.Component {
  *     // ...
  * }
+ * @typescript
+ * icon(path: string): Function
  */
 var icon = CC_DEV ? createEditorDecorator(checkStringArgument, 'icon') : dNOP;
 
@@ -522,6 +548,8 @@ var icon = CC_DEV ? createEditorDecorator(checkStringArgument, 'icon') : dNOP;
  * class NewScript extends cc.Component {
  *     // ...
  * }
+ * @typescript
+ * help(path: string): Function
  */
 var help = CC_DEV ? createEditorDecorator(checkStringArgument, 'help') : dNOP;
 
@@ -564,6 +592,8 @@ var help = CC_DEV ? createEditorDecorator(checkStringArgument, 'help') : dNOP;
  *     }
  *     // ...
  * }
+ * @typescript
+ * mixins(ctor: Function, ...rest: Function[]): Function
  */
 function mixins () {
     var mixins = [];

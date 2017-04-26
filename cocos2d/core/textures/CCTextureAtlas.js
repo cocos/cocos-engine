@@ -45,7 +45,7 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
      * <p>Creates a TextureAtlas with an filename and with an initial capacity for Quads. <br />
      * The TextureAtlas capacity can be increased in runtime. </p>
      * Constructor of cc.TextureAtlas
-     * @method TextureAtlas
+     * @method constructor
      * @param {String|Texture2D} fileName
      * @param {Number} capacity
      * @example {@link utils/api/engine/docs/cocos2d/core/textures/TextureAtlas.js}
@@ -93,7 +93,7 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
     /**
      * Texture of the texture atlas.
      * @method getTexture
-     * @return {Image}
+     * @return {Texture2D}
      */
     getTexture: function () {
         return this.texture;
@@ -102,7 +102,7 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
     /**
      * Set texture for texture atlas.
      * @method setTexture
-     * @param {Image} texture
+     * @param {Texture2D} texture
      */
     setTexture: function (texture) {
         this.texture = texture;
@@ -224,7 +224,7 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
      * The TextureAtlas capacity can be increased in runtime.<br />
      * WARNING: Do not reinitialize the TextureAtlas because it will leak memory</p>
      * @method initWithTexture
-     * @param {Image} texture
+     * @param {Texture2D} texture
      * @param {Number} capacity
      * @return {Boolean}
      * @example {@link utils/api/engine/docs/cocos2d/core/textures/initWithTexture.js}
@@ -703,7 +703,7 @@ if (cc._renderType === game.RENDER_TYPE_WEBGL) {
 /**
  * Image texture for cc.TextureAtlas.
  * @property texture
- * @type {Image}
+ * @type {Texture2D}
  */
 
 /**

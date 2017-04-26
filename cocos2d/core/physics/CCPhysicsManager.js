@@ -47,6 +47,7 @@ var tempB2Vec22 = new b2.Vec2();
  * 物理系统还管理碰撞信息的分发，她会在产生碰撞时，将碰撞信息分发到各个碰撞回调中。
  * 注意：你需要先在刚体中开启碰撞接听才会产生相应的碰撞回调。
  * @class PhysicsManager
+ * @uses EventTarget
  */
 var PhysicsManager = cc.Class({
     mixins: [cc.EventTarget],

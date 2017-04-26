@@ -496,8 +496,8 @@ cc.Scheduler = cc._Class.extend({
      * @param {Object} target
      * @param {Function} callback_fn
      * @param {Number} interval
-     * @param {Number} repeat
-     * @param {Number} delay
+     * @param {Number} [repeat]
+     * @param {Number} [delay]
      * @param {Boolean} paused
      * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/scheduleCallbackForTarget.js}
      */
@@ -513,8 +513,8 @@ cc.Scheduler = cc._Class.extend({
      * @param {Function} callback
      * @param {Object} target
      * @param {Number} interval
-     * @param {Number} repeat
-     * @param {Number} delay
+     * @param {Number} [repeat]
+     * @param {Number} [delay]
      * @param {Boolean} paused
      * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/schedule.js}
      */

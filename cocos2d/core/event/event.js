@@ -29,14 +29,12 @@ var JS = require("../platform/js");
  * !#en Base class of all kinds of events.
  * !#zh 包含事件相关信息的对象。
  * @class Event
- *
  */
 
 /**
- * @method Event
+ * @method constructor
  * @param {String} type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
  * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
- * @return {Event}
  */
 cc.Event = function(type, bubbles) {
     /**
@@ -279,10 +277,9 @@ cc.Event.BUBBLING_PHASE = 3;
  */
 
 /**
- * @method EventCustom
+ * @method constructor
  * @param {String} type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
  * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
- * @return {EventCustom}
  */
 var EventCustom = function (type, bubbles) {
     cc.Event.call(this, type, bubbles);

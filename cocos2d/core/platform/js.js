@@ -799,3 +799,8 @@ js.array = {
 cc.js = js;
 
 module.exports = js;
+
+// fix submodule pollute ...
+/**
+ * @submodule cc
+ */

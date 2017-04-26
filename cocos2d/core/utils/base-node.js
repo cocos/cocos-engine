@@ -105,6 +105,9 @@ function findChildComponents(children, constructor, components) {
  *
  * @class _BaseNode
  * @extends Object
+ * @uses EventTarget
+ * @constructor
+ * @param {String} [name]
  * @private
  */
 var BaseNode = cc.Class({
@@ -185,16 +188,6 @@ var BaseNode = cc.Class({
                 this._name = value;
             },
         },
-
-        /**
-         * !#en The parent of the node.
-         * !#zh 该节点的父节点。
-         * @property parent
-         * @type {Node}
-         * @default null
-         * @example
-         * node.parent = newNode;
-         */
 
         _id: {
             default: '',
@@ -313,6 +306,10 @@ var BaseNode = cc.Class({
 
     },
 
+    /**
+     * @method constructor
+     * @param {String} [name]
+     */
     ctor (name) {
         this._name = typeof name !== 'undefined' ? name : 'New Node';
 
@@ -338,6 +335,15 @@ var BaseNode = cc.Class({
         this._tag = tag;
     },
 
+    /**
+     * !#en The parent of the node.
+     * !#zh 该节点的父节点。
+     * @property parent
+     * @type {Node}
+     * @default null
+     * @example
+     * node.parent = newNode;
+     */
     getParent () {
         return this._parent;
     },
@@ -698,6 +704,9 @@ var BaseNode = cc.Class({
      * var sprite = node.getComponent(cc.Sprite);
      * // get custom test calss.
      * var test = node.getComponent("Test");
+     * @typescript
+     * getComponent<T extends Component>(type: {new(): T; }): T
+     * getComponent(className: string): any
      */
     getComponent (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName);
@@ -716,6 +725,9 @@ var BaseNode = cc.Class({
      * @example
      * var sprites = node.getComponents(cc.Sprite);
      * var tests = node.getComponents("Test");
+     * @typescript
+     * getComponents<T extends Component>(type: {new(): T; }): T[]
+     * getComponents(className: string): any[]
      */
     getComponents (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName), components = [];
@@ -734,6 +746,9 @@ var BaseNode = cc.Class({
      * @example
      * var sprite = node.getComponentInChildren(cc.Sprite);
      * var Test = node.getComponentInChildren("Test");
+     * @typescript
+     * getComponentInChildren<T extends Component>(type: {new(): T; }): T
+     * getComponentInChildren(className: string): any
      */
     getComponentInChildren (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName);
@@ -752,6 +767,9 @@ var BaseNode = cc.Class({
      * @example
      * var sprites = node.getComponentsInChildren(cc.Sprite);
      * var tests = node.getComponentsInChildren("Test");
+     * @typescript
+     * getComponentsInChildren<T extends Component>(type: {new(): T; }): T[]
+     * getComponentsInChildren(className: string): any[]
      */
     getComponentsInChildren (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName), components = [];
@@ -785,6 +803,9 @@ var BaseNode = cc.Class({
      * @example
      * var sprite = node.addComponent(cc.Sprite);
      * var test = node.addComponent("Test");
+     * @typescript
+     * addComponent<T extends Component>(type: {new(): T; }): T
+     * addComponent(className: string): any
      */
     addComponent (typeOrClassName) {
 

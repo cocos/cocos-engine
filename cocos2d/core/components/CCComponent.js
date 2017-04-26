@@ -231,6 +231,8 @@ var Component = cc.Class({
      * !#en Update is called every frame, if the Component is enabled.
      * !#zh 如果该组件启用，则每帧调用 update。
      * @method update
+     * @param {Number} dt - the delta time in seconds it took to complete the last frame
+     * @protected
      */
     update: null,
 
@@ -238,6 +240,7 @@ var Component = cc.Class({
      * !#en LateUpdate is called every frame, if the Component is enabled.
      * !#zh 如果该组件启用，则每帧调用 LateUpdate。
      * @method lateUpdate
+     * @protected
      */
     lateUpdate: null,
 
@@ -259,6 +262,7 @@ var Component = cc.Class({
      * !#zh
      * 当附加到一个激活的节点上或者其节点第一次激活时候调用。onLoad 总是会在任何 start 方法调用前执行，这能用于安排脚本的初始化顺序。
      * @method onLoad
+     * @protected
      */
     onLoad: null,
 
@@ -269,6 +273,7 @@ var Component = cc.Class({
      * !#zh
      * 如果该组件第一次启用，则在所有组件的 update 之前调用。通常用于需要在所有组件的 onLoad 初始化完毕后执行的逻辑。
      * @method start
+     * @protected
      */
     start: null,
 
@@ -276,6 +281,7 @@ var Component = cc.Class({
      * !#en Called when this component becomes enabled and its node is active.
      * !#zh 当该组件被启用，并且它的节点也激活时。
      * @method onEnable
+     * @protected
      */
     onEnable: null,
 
@@ -283,6 +289,7 @@ var Component = cc.Class({
      * !#en Called when this component becomes disabled or its node becomes inactive.
      * !#zh 当该组件被禁用或节点变为无效时调用。
      * @method onDisable
+     * @protected
      */
     onDisable: null,
 
@@ -290,21 +297,25 @@ var Component = cc.Class({
      * !#en Called when this component will be destroyed.
      * !#zh 当该组件被销毁时调用
      * @method onDestroy
+     * @protected
      */
     onDestroy: null,
 
     /**
      * @method onFocusInEditor
+     * @protected
      */
     onFocusInEditor: null,
     /**
      * @method onLostFocusInEditor
+     * @protected
      */
     onLostFocusInEditor: null,
     /**
      * !#en Called to initialize the component or node’s properties when adding the component the first time or when the Reset command is used. This function is only called in editor.
      * !#zh 用来初始化组件或节点的一些属性，当该组件被第一次添加到节点上或用户点击了它的 Reset 菜单时调用。这个回调只会在编辑器下调用。
      * @method resetInEditor
+     * @protected
      */
     resetInEditor: null,
 
@@ -315,14 +326,17 @@ var Component = cc.Class({
      * !#zh 向节点添加一个组件类，你还可以通过传入脚本的名称来添加组件。
      *
      * @method addComponent
-     * @param {Function|String} typeOrTypename - the constructor or the class name of the component to add
+     * @param {Function|String} typeOrClassName - the constructor or the class name of the component to add
      * @return {Component} - the newly added component
      * @example
      * var sprite = node.addComponent(cc.Sprite);
      * var test = node.addComponent("Test");
+     * @typescript
+     * addComponent<T extends Component>(type: {new(): T; }): T
+     * addComponent(className: string): any
      */
-    addComponent (typeOrTypename) {
-        return this.node.addComponent(typeOrTypename);
+    addComponent (typeOrClassName) {
+        return this.node.addComponent(typeOrClassName);
     },
 
     /**
@@ -341,6 +355,9 @@ var Component = cc.Class({
      * var sprite = node.getComponent(cc.Sprite);
      * // get custom test calss.
      * var test = node.getComponent("Test");
+     * @typescript
+     * getComponent<T extends Component>(type: {new(): T; }): T
+     * getComponent(className: string): any
      */
     getComponent (typeOrClassName) {
         return this.node.getComponent(typeOrClassName);
@@ -356,6 +373,9 @@ var Component = cc.Class({
      * @example
      * var sprites = node.getComponents(cc.Sprite);
      * var tests = node.getComponents("Test");
+     * @typescript
+     * getComponents<T extends Component>(type: {new(): T; }): T[]
+     * getComponents(className: string): any[]
      */
     getComponents (typeOrClassName) {
         return this.node.getComponents(typeOrClassName);
@@ -371,6 +391,9 @@ var Component = cc.Class({
      * @example
      * var sprite = node.getComponentInChildren(cc.Sprite);
      * var Test = node.getComponentInChildren("Test");
+     * @typescript
+     * getComponentInChildren<T extends Component>(type: {new(): T; }): T
+     * getComponentInChildren(className: string): any
      */
     getComponentInChildren (typeOrClassName) {
         return this.node.getComponentInChildren(typeOrClassName);
@@ -386,6 +409,9 @@ var Component = cc.Class({
      * @example
      * var sprites = node.getComponentsInChildren(cc.Sprite);
      * var tests = node.getComponentsInChildren("Test");
+     * @typescript
+     * getComponentsInChildren<T extends Component>(type: {new(): T; }): T[]
+     * getComponentsInChildren(className: string): any[]
      */
     getComponentsInChildren (typeOrClassName) {
         return this.node.getComponentsInChildren(typeOrClassName);
