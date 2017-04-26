@@ -33,7 +33,6 @@ var CCClass = require('../platform/CCClass');
  *
  * @class Vec2
  * @extends ValueType
- *
  */
 
 /**
@@ -42,10 +41,9 @@ var CCClass = require('../platform/CCClass');
  * see {{#crossLink "cc/vec2:method"}}cc.v2{{/crossLink}} or {{#crossLink "cc/p:method"}}cc.p{{/crossLink}}
  * !#zh
  * 构造函数，可查看 {{#crossLink "cc/vec2:method"}}cc.v2{{/crossLink}} 或者 {{#crossLink "cc/p:method"}}cc.p{{/crossLink}}
- * @method Vec2
+ * @method constructor
  * @param {number} [x=0]
  * @param {number} [y=0]
- * @return {Vec2}
  */
 function Vec2 (x, y) {
     if (x && typeof x === 'object') {
@@ -57,6 +55,13 @@ function Vec2 (x, y) {
 }
 JS.extend(Vec2, ValueType);
 CCClass.fastDefine('cc.Vec2', Vec2, { x: 0, y: 0 });
+
+/**
+ * @property {Number} x
+ */
+/**
+ * @property {Number} y
+ */
 
 JS.mixin(Vec2.prototype, {
 

@@ -90,8 +90,8 @@ var RigidBody = cc.Class({
          * 如果你的脚本中实现了这个函数，那么它将会在两个碰撞体开始接触时被调用。
          * @method onBeginContact
          * @param {PhysicsContact} contact - contact information
-         * @param {PhysicsColider} selfCollider - the collider belong to this rigidbody
-         * @param {PhysicsColider} otherCollider - the collider belong to another rigidbody
+         * @param {PhysicsCollider} selfCollider - the collider belong to this rigidbody
+         * @param {PhysicsCollider} otherCollider - the collider belong to another rigidbody
          */
         /**
          * !#en
@@ -102,8 +102,8 @@ var RigidBody = cc.Class({
          * 如果你的脚本中实现了这个函数，那么它将会在两个碰撞体停止接触时被调用。
          * @method onEndContact
          * @param {PhysicsContact} contact - contact information
-         * @param {PhysicsColider} selfCollider - the collider belong to this rigidbody
-         * @param {PhysicsColider} otherCollider - the collider belong to another rigidbody
+         * @param {PhysicsCollider} selfCollider - the collider belong to this rigidbody
+         * @param {PhysicsCollider} otherCollider - the collider belong to another rigidbody
          */
         /**
          * !#en
@@ -122,8 +122,8 @@ var RigidBody = cc.Class({
          * 注意：感知体(sensor)的回调不会被调用。
          * @method onPreSolve
          * @param {PhysicsContact} contact - contact information
-         * @param {PhysicsColider} selfCollider - the collider belong to this rigidbody
-         * @param {PhysicsColider} otherCollider - the collider belong to another rigidbody
+         * @param {PhysicsCollider} selfCollider - the collider belong to this rigidbody
+         * @param {PhysicsCollider} otherCollider - the collider belong to another rigidbody
          */
         /**
          * !#en
@@ -136,8 +136,8 @@ var RigidBody = cc.Class({
          * 你可以在这个回调中从接触信息中获取到冲量信息。
          * @method onEndSolve
          * @param {PhysicsContact} contact - contact information
-         * @param {PhysicsColider} selfCollider - the collider belong to this rigidbody
-         * @param {PhysicsColider} otherCollider - the collider belong to another rigidbody
+         * @param {PhysicsCollider} selfCollider - the collider belong to this rigidbody
+         * @param {PhysicsCollider} otherCollider - the collider belong to another rigidbody
          */
         
         /**

@@ -195,7 +195,7 @@ function defineGetSet (cls, name, propName, val, attrs, es6) {
             Attr.attr(cls, propName, Attr.NonSerialized);
         }
         if (ForceSerializable || CC_DEV) {
-            // 不论是否 hide in inspector 都要添加到 props，否则 asset watcher 不能正常工作
+            // 不论是否 visible 都要添加到 props，否则 asset watcher 不能正常工作
             appendProp(cls, propName);
         }
 
@@ -805,14 +805,14 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6) 
  * @param {Function[]} [options.mixins]
  *
  * @param {Object} [options.editor] - attributes for Component listed below.
- * @param {Boolean} [options.editor.executeInEditMode=false] - Makes a component execute in edit mode. By default, all components are only executed in play mode, which means they will not have their callback functions executed while the Editor is in edit mode.
+ * @param {Boolean} [options.editor.executeInEditMode=false] - Allows the current component to run in edit mode. By default, all components are executed only at runtime, meaning that they will not have their callback functions executed while the Editor is in edit mode.
  * @param {Component} [options.editor.requireComponent] - Automatically add required component as a dependency.
  * @param {String} [options.editor.menu] - The menu path to register a component to the editors "Component" menu. Eg. "Rendering/Camera".
  * @param {Number} [options.editor.executionOrder=0] - The execution order of lifecycle methods for Component. Those less than 0 will execute before while those greater than 0 will execute after. The order will only affect onLoad, onEnable, start, update and lateUpdate while onDisable and onDestroy will not be affected.
  * @param {Boolean} [options.editor.disallowMultiple] - If specified to a type, prevents Component of the same type (or subtype) to be added more than once to a Node.
- * @param {Boolean} [options.editor.playOnFocus=false] - This property is only available if executeInEditMode is true. If specified, the editor's scene view will keep updating this node in 60 fps when it is selected, otherwise, it will update only if necessary.
- * @param {String} [options.editor.inspector] - Specifying the url of the custom html to draw the component in inspector.
- * @param {String} [options.editor.icon] - Specifying the url of the icon to display in inspector.
+ * @param {Boolean} [options.editor.playOnFocus=false] - This property is only available when executeInEditMode is set. If specified, the editor's scene view will keep updating this node in 60 fps when it is selected, otherwise, it will update only if necessary.
+ * @param {String} [options.editor.inspector] - Customize the page url used by the current component to render in the Properties.
+ * @param {String} [options.editor.icon] - Customize the icon that the current component displays in the editor.
  * @param {String} [options.editor.help] - The custom documentation URL
  *
  * @param {Function} [options.update] - lifecycle method for Component, see {{#crossLink "Component/update:method"}}{{/crossLink}}
@@ -1052,7 +1052,7 @@ CCClass.getInheritanceChain = function (klass) {
 };
 
 var PrimitiveTypes = {
-    // Specify that the input value must be integer in Inspector.
+    // Specify that the input value must be integer in Properties.
     // Also used to indicates that the type of elements in array or the type of value in dictionary is integer.
     Integer: 'Number',
     // Indicates that the type of elements in array or the type of value in dictionary is double.

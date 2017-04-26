@@ -130,14 +130,14 @@ var game = {
      * !#en The container of game canvas, equals to cc.container.
      * !#zh 游戏画布的容器。
      * @property container
-     * @type {Object}
+     * @type {HTMLDivElement}
      */
     container: null,
     /**
      * !#en The canvas of the game, equals to cc._canvas.
      * !#zh 游戏的画布。
      * @property canvas
-     * @type {Object}
+     * @type {HTMLCanvasElement}
      */
     canvas: null,
 

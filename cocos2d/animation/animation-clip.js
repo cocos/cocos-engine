@@ -4,7 +4,6 @@
  * !#zh 动画剪辑，用于存储动画数据。
  * @class AnimationClip
  * @extends Asset
- *
  */
 var AnimationClip = cc.Class({
     name: 'cc.AnimationClip',
@@ -72,8 +71,9 @@ var AnimationClip = cc.Class({
          * !#en Event data.
          * !#zh 事件数据。
          * @property events
-         * @type {Array}
+         * @type {Object[]}
          * @example {@link utils/api/engine/docs/cocos2d/core/animation-clip/event-data.js}
+         * @typescript events: {frame: number, func: string, params: string[]}[]
          */
         events: {
             default: [],

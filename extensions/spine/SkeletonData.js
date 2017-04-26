@@ -125,7 +125,7 @@ var SkeletonData = cc.Class({
         // -------------------------------------------------
 
         /**
-         * @property {Texture2D} textures
+         * @property {Texture2D[]} textures
          */
         textures: {
             default: [],

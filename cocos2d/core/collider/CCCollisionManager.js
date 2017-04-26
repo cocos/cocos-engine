@@ -12,6 +12,7 @@ var tempVec2 = cc.v2();
  * 一个简单的碰撞组件管理类，用于处理节点之间的碰撞组件是否产生了碰撞，并调用相应回调函数。
  *
  * @class CollisionManager
+ * @uses EventTarget
  * @example
  *
  * // Get the collision manager.
@@ -55,9 +56,6 @@ var tempVec2 = cc.v2();
  *         this.node.color = cc.Color.WHITE;
  *     }
  * }
-});
-
- * 
  */
 var CollisionManager = cc.Class({
     mixins: [cc.EventTarget],

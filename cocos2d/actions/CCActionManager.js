@@ -26,16 +26,10 @@
 
 /*
  * @class HashElement
- * @extends cc._Class
+ * @constructor
  * @private
- * @example
- * var element = new cc.HashElement();
  */
-var HashElement = cc._Class.extend(/** @lends cc.HashElement# */{
-    /**
-     * Constructor
-     * @method HashElement
-     */
+var HashElement = cc._Class.extend({
     ctor:function () {
         this.actions = [];
         this.target = null; //ccobject
@@ -163,7 +157,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      * 移除指定对象上的所有动作。<br/>
      * 属于该目标的所有的动作将被删除。
      * @method removeAllActionsFromTarget
-     * @param {Object} target
+     * @param {Node} target
      * @param {Boolean} forceDelete
      */
     removeAllActionsFromTarget:function (target, forceDelete) {
@@ -213,7 +207,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      * !#zh 删除指定对象下特定标签的一个动作，将删除首个匹配到的动作。
      * @method removeActionByTag
      * @param {Number} tag
-     * @param {Object} target
+     * @param {Node} target
      */
     removeActionByTag:function (tag, target) {
         if(tag === cc.Action.TAG_INVALID)
@@ -240,7 +234,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      * !#zh 通过目标对象和标签获取一个动作。
      * @method getActionByTag
      * @param {Number} tag
-     * @param {Object} target
+     * @param {Node} target
      * @return {Action|Null}  return the Action with the given tag on success
      */
     getActionByTag:function (tag, target) {
@@ -277,7 +271,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      *  - 如果你正在运行 2 个序列动作（Sequence）和 5 个普通动作，这个函数将返回 7。<br/>
      *
      * @method getNumberOfRunningActionsInTarget
-     * @param {Object} target
+     * @param {Node} target
      * @return {Number}
      */
     getNumberOfRunningActionsInTarget:function (target) {
@@ -291,7 +285,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      * !#en Pauses the target: all running actions and newly added actions will be paused.
      * !#zh 暂停指定对象：所有正在运行的动作和新添加的动作都将会暂停。
      * @method pauseTarget
-     * @param {Object} target
+     * @param {Node} target
      */
     pauseTarget:function (target) {
         var element = this._hashTargets[target.__instanceId];
@@ -302,7 +296,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      * !#en Resumes the target. All queued actions will be resumed.
      * !#zh 让指定目标恢复运行。在执行序列中所有被暂停的动作将重新恢复运行。
      * @method resumeTarget
-     * @param {Object} target
+     * @param {Node} target
      */
     resumeTarget:function (target) {
         var element = this._hashTargets[target.__instanceId];

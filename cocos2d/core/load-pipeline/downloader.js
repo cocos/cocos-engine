@@ -299,14 +299,14 @@ var ID = 'Downloader';
  */
 /**
  * Constructor of Downloader, you can pass custom supported types.
+ *
+ * @method constructor
+ * @param {Object} extMap Custom supported types with corresponded handler
  * @example
  *  var downloader = new Downloader({
  *      // This will match all url with `.scene` extension or all url with `scene` type
  *      'scene' : function (url, callback) {}
  *  });
- *
- * @method Downloader
- * @param {Object} extMap Custom supported types with corresponded handler
  */
 var Downloader = function (extMap) {
     this.id = ID;

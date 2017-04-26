@@ -120,14 +120,14 @@ var ID = 'Loader';
  */
 /**
  * Constructor of Loader, you can pass custom supported types.
- * @example
- *  var loader = new Loader({
- *      // This will match all url with `.scene` extension or all url with `scene` type
- *      'scene' : function (url, callback) {}
- *  });
  *
- * @method Loader
+ * @method constructor
  * @param {Object} extMap Custom supported types with corresponded handler
+ * @example
+ *var loader = new Loader({
+ *    // This will match all url with `.scene` extension or all url with `scene` type
+ *    'scene' : function (url, callback) {}
+ *});
  */
 var Loader = function (extMap) {
     this.id = ID;

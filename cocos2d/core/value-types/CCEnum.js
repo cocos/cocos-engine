@@ -39,6 +39,7 @@
  * @param {object} obj - a JavaScript literal object containing enum names and values
  * @return {object} the defined enum type
  * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCEnum/Enum.js}
+ * @typescript Enum<T>(obj: T): T
  */
 
 cc.Enum = function (obj) {

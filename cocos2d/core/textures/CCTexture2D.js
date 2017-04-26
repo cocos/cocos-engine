@@ -68,6 +68,7 @@ var WrapMode = cc.Enum({
  * Be aware that the content of the generated textures will be upside-down! </p>
 
  * @class Texture2D
+ * @uses EventTarget
  * @extends RawAsset
  */
 var Texture2D = cc.Class(/** @lends cc.Texture2D# */{

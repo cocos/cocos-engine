@@ -36,8 +36,7 @@ var CCObject = require('../platform/CCObject');
  * - createNode (static)
  *
  * @class RawAsset
- * @extends CCObject
- * @static
+ * @extends Object
  */
 cc.RawAsset = cc.Class({
     name: 'cc.RawAsset', extends: CCObject,

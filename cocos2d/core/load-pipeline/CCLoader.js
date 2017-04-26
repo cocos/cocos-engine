@@ -180,9 +180,11 @@ JS.mixin(CCLoader.prototype, {
      * });
      *
      * @method load
-     * @param {String|Array} resources - Url list in an array
+     * @param {String|String[]|Object} resources - Url list in an array
      * @param {Function} [progressCallback] - Callback invoked when progression change
-     * @param {Function} completeCallback - Callback invoked when all resources loaded
+     * @param {Function} [completeCallback] - Callback invoked when all resources loaded
+     * @typescript
+     * load(resources: string|string[]|{uuid: string, url: string, type: string}, progressCallback?: Function, completeCallback?: Function): void
      */
     load: function(resources, progressCallback, completeCallback) {
         if (completeCallback === undefined) {
@@ -382,7 +384,7 @@ JS.mixin(CCLoader.prototype, {
      *                       The url is relative to the "resources" folder, extensions must be omitted.
      * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
      * @param {Function} [progressCallback] - Callback invoked when progression change.
-     * @param {Function} completeCallback - Callback invoked when the resource loaded.
+     * @param {Function} [completeCallback] - Callback invoked when the resource loaded.
      * @param {Error} completeCallback.error - The error info or null if loaded successfully.
      * @param {Object} completeCallback.resource - The loaded resource if it can be found otherwise returns null.
      *
@@ -405,6 +407,13 @@ JS.mixin(CCLoader.prototype, {
      *     }
      *     cc.log('Result should be a sprite frame: ' + (spriteFrame instanceof cc.SpriteFrame));
      * });
+     * @typescript
+     * loadRes(url: string, type: {new (): cc.Asset}, progressCallback: Function, completeCallback: ((error: Error, resource: any) => void)|null): void
+     * loadRes(url: string, type: {new (): cc.Asset}, completeCallback: (error: Error, resource: any) => void): void
+     * loadRes(url: string, type: {new (): cc.Asset}): void
+     * loadRes(url: string, progressCallback: Function, completeCallback: ((error: Error, resource: any) => void)|null): void
+     * loadRes(url: string, completeCallback: (error: Error, resource: any) => void): void
+     * loadRes(url: string): void
      */
     loadRes: function (url, type, progressCallback, completeCallback) {
         var args = this._parseLoadResArgs(type, progressCallback, completeCallback);
@@ -493,7 +502,7 @@ JS.mixin(CCLoader.prototype, {
      *                          The url is relative to the "resources" folder, extensions must be omitted.
      * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
      * @param {Function} [progressCallback] - Callback invoked when progression change.
-     * @param {Function} completeCallback - A callback which is called when all assets have been loaded, or an error occurs.
+     * @param {Function} [completeCallback] - A callback which is called when all assets have been loaded, or an error occurs.
      * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called
      *                                         with the error. If all assets are loaded successfully, error will be null.
      * @param {Asset[]|Array} completeCallback.assets - An array of all loaded assets.
@@ -511,6 +520,13 @@ JS.mixin(CCLoader.prototype, {
      *     spriteFrames = assets;
      *     // ...
      * });
+     * @typescript
+     * loadResArray(url: string[], type: {new (): cc.Asset}, progressCallback: Function, completeCallback: ((error: Error, resource: any[]) => void)|null): void
+     * loadResArray(url: string[], type: {new (): cc.Asset}, completeCallback: (error: Error, resource: any[]) => void): void
+     * loadResArray(url: string[], type: {new (): cc.Asset}): void
+     * loadResArray(url: string[], progressCallback: Function, completeCallback: ((error: Error, resource: any[]) => void)|null): void
+     * loadResArray(url: string[], completeCallback: (error: Error, resource: any[]) => void): void
+     * loadResArray(url: string[]): void
      */
     loadResArray: function (urls, type, progressCallback, completeCallback) {
         var args = this._parseLoadResArgs(type, progressCallback, completeCallback);
@@ -543,7 +559,7 @@ JS.mixin(CCLoader.prototype, {
      *                       The url is relative to the "resources" folder, extensions must be omitted.
      * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
      * @param {Function} [progressCallback] - Callback invoked when progression change.
-     * @param {Function} completeCallback - A callback which is called when all assets have been loaded, or an error occurs.
+     * @param {Function} [completeCallback] - A callback which is called when all assets have been loaded, or an error occurs.
      * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called
      *                                         with the error. If all assets are loaded successfully, error will be null.
      * @param {Asset[]|Array} completeCallback.assets - An array of all loaded assets.
@@ -573,6 +589,13 @@ JS.mixin(CCLoader.prototype, {
      *     var data = objects[0];
      *     var url = urls[0];
      * });
+     * @typescript
+     * loadResDir(url: string, type: {new (): cc.Asset}, progressCallback: Function, completeCallback: ((error: Error, resource: any[], urls: string[]) => void)|null): void
+     * loadResDir(url: string, type: {new (): cc.Asset}, completeCallback: (error: Error, resource: any[], urls: string[]) => void): void
+     * loadResDir(url: string, type: {new (): cc.Asset}): void
+     * loadResDir(url: string, progressCallback: Function, completeCallback: ((error: Error, resource: any[], urls: string[]) => void)|null): void
+     * loadResDir(url: string, completeCallback: (error: Error, resource: any[], urls: string[]) => void): void
+     * loadResDir(url: string): void
      */
     loadResDir: function (url, type, progressCallback, completeCallback) {
         var args = this._parseLoadResArgs(type, progressCallback, completeCallback);

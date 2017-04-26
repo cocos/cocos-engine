@@ -33,6 +33,7 @@ var PolygonSeprator = require('../CCPolygonSeprator');
  * PhysicsPolygonCollider 同样也继承自 {{#crossLink "PhysicsCollider"}}PhysicsCollider{{/crossLink}}
  * @class PhysicsPolygonCollider
  * @extends PolygonCollider
+ * @uses PhysicsCollider
  */
 var PhysicsPolygonCollider = cc.Class({
     name: 'cc.PhysicsPolygonCollider',

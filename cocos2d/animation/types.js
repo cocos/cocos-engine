@@ -131,7 +131,7 @@ function AnimationNode (animator, curves, timingInput) {
      * !#en The curves list.
      * !#zh 曲线列表。
      * @property curves
-     * @type {AnimCurve[]}
+     * @type {Object[]}
      */
     this.curves = curves || [];
 

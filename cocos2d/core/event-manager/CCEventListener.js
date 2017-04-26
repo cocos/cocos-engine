@@ -40,11 +40,10 @@
 
 /**
  * Constructor
- * @method EventListener
+ * @method constructor
  * @param {Number} type
  * @param {Number} listenerID
  * @param {Number} callback
- * @return {EventListener}
  */
 cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
     /*

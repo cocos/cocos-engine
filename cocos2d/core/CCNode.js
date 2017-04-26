@@ -51,7 +51,7 @@ var emptyFunc = function () {};
 /**
  * !#en The event type supported by Node
  * !#zh Node 支持的事件类型
- * @enum Node.EventType
+ * @class Node.EventType
  * @static
  * @namespace Node
  */
@@ -283,6 +283,8 @@ function updateOrder (node) {
  * Cocos Creator 场景中的所有节点类。节点也继承了 {{#crossLink "EventTarget"}}EventTarget{{/crossLink}}，它允许节点发送事件。<br/>
  * 支持的节点事件，请参阅 {{#crossLink "Node.EventType"}}{{/crossLink}}。
  * @class Node
+ * @constructor
+ * @param {String} name
  * @extends _BaseNode
  */
 var Node = cc.Class({
@@ -347,6 +349,14 @@ var Node = cc.Class({
         },
 
         //properties moved from base node begin
+
+        /**
+         * !#en The position (x, y) of the node in its parent's coordinates.
+         * !#zh 节点在父节点坐标系中的位置（x, y）。
+         * @property {Vec2} position
+         * @example
+         * cc.log("Node Position: " + node.position);
+         */
 
         /**
          * !#en x axis position of node.
@@ -852,6 +862,10 @@ var Node = cc.Class({
         //properties moved from base node end
     },
 
+    /**
+     * @method constructor
+     * @param {String} [name]
+     */
     ctor (name) {
 
         /**
@@ -1097,7 +1111,7 @@ var Node = cc.Class({
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param {Event} callback.param event
      * @param {Object} [target] - The target to invoke the callback, can be null
-     * @param {Boolean} useCapture - When set to true, the capture argument prevents callback
+     * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
      *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
      *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
      *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
@@ -1169,7 +1183,7 @@ var Node = cc.Class({
      * @param {String} type - A string representing the event type being removed.
      * @param {Function} callback - The callback to remove.
      * @param {Object} [target] - The target to invoke the callback, if it's not given, only callback without target will be removed
-     * @param {Boolean} useCapture - Specifies whether the callback being removed was registered as a capturing callback or not.
+     * @param {Boolean} [useCapture=false] - Specifies whether the callback being removed was registered as a capturing callback or not.
      *                              If not specified, useCapture defaults to false. If a callback was registered twice,
      *                              one with capture and one without, each must be removed separately. Removal of a capturing callback
      *                              does not affect a non-capturing version of the same listener, and vice versa.
@@ -1512,46 +1526,44 @@ var Node = cc.Class({
     },
 
     /**
-     * !#en Returns a copy of the position (x,y) of the node in cocos2d coordinates. (0,0) is the left-bottom corner.
-     * !#zh 获取在父节点坐标系中节点的位置（ x , y ）。
+     * !#en Returns a copy of the position (x, y) of the node in its parent's coordinates.
+     * !#zh 获取节点在父节点坐标系中的位置（x, y）。
      * @method getPosition
-     * @return {Vec2} The position (x,y) of the node in OpenGL coordinates
+     * @return {Vec2} The position (x, y) of the node in its parent's coordinates
      * @example
      * cc.log("Node Position: " + node.getPosition());
      */
     getPosition () {
-        return cc.p(this._position);
+        return new cc.Vec2(this._position);
     },
 
     /**
      * !#en
-     * Changes the position (x,y) of the node in cocos2d coordinates.<br/>
-     * The original point (0,0) is at the left-bottom corner of screen.<br/>
-     * Usually we use cc.v2(x,y) to compose CCVec2 object.<br/>
-     * and Passing two numbers (x,y) is more efficient than passing CCPoint object.
+     * Sets the position (x, y) of the node in its parent's coordinates.<br/>
+     * Usually we use cc.v2(x, y) to compose cc.Vec2 object.<br/>
+     * and Passing two numbers (x, y) is more efficient than passing cc.Vec2 object.
      * !#zh
-     * 设置节点在父坐标系中的位置。<br/>
-     * 可以通过 2 种方式设置坐标点：<br/>
-     * 1.传入 cc.v2(x, y) 类型为 cc.Vec2 的对象。<br/>
-     * 2.传入 2 个数值 x 和 y。
+     * 设置节点在父节点坐标系中的位置。<br/>
+     * 可以通过两种方式设置坐标点：<br/>
+     * 1. 传入 2 个数值 x 和 y。<br/>
+     * 2. 传入 cc.v2(x, y) 类型为 cc.Vec2 的对象。
      * @method setPosition
-     * @param {Vec2|Number} newPosOrxValue - The position (x,y) of the node in coordinates or the X coordinate for position
-     * @param {Number} [yValue] - Y coordinate for position
+     * @param {Vec2|Number} newPosOrX - X coordinate for position or the position (x, y) of the node in coordinates
+     * @param {Number} [y] - Y coordinate for position
      * @example {@link utils/api/engine/docs/cocos2d/core/utils/base-node/setPosition.js}
      */
-    setPosition (newPosOrxValue, yValue) {
-        var xValue;
-        if (typeof yValue === 'undefined') {
-            xValue = newPosOrxValue.x;
-            yValue = newPosOrxValue.y;
+    setPosition (newPosOrX, y) {
+        var x;
+        if (typeof y === 'undefined') {
+            x = newPosOrX.x;
+            y = newPosOrX.y;
         }
         else {
-            xValue = newPosOrxValue;
-            yValue = yValue;
+            x = newPosOrX;
         }
 
         var locPosition = this._position;
-        if (locPosition.x === xValue && locPosition.y === yValue) {
+        if (locPosition.x === x && locPosition.y === y) {
             return;
         }
 
@@ -1559,20 +1571,20 @@ var Node = cc.Class({
             var oldPosition = new cc.Vec2(locPosition);
         }
 
-        if (!CC_EDITOR || isFinite(xValue)) {
-            locPosition.x = xValue;
+        if (!CC_EDITOR || isFinite(x)) {
+            locPosition.x = x;
         }
         else {
             return cc.error(ERR_INVALID_NUMBER, 'x of new position');
         }
-        if (!CC_EDITOR || isFinite(yValue)) {
-            locPosition.y = yValue;
+        if (!CC_EDITOR || isFinite(y)) {
+            locPosition.y = y;
         }
         else {
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
 
-        this._sgNode.setPosition(xValue, yValue);
+        this._sgNode.setPosition(x, y);
 
         // fast check event
         var capListeners = this._capturingListeners &&
@@ -1611,7 +1623,7 @@ var Node = cc.Class({
      * !#zh 设置节点的缩放比例，默认值为 1.0。这个函数可以在同一时间修改 X 和 Y 缩放。
      * @method setScale
      * @param {Number|Vec2} scaleX - scaleX or scale
-     * @param {Number} [scaleY=scale]
+     * @param {Number} [scaleY]
      * @example
      * node.setScale(cc.v2(1, 1));
      * node.setScale(1, 1);

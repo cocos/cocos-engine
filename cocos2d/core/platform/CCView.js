@@ -1337,7 +1337,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
  * @class ResolutionPolicy
  */
 /**
- * @method ResolutionPolicy
+ * @method constructor
  * @param {ContainerStrategy} containerStg The container strategy
  * @param {ContentStrategy} contentStg The content strategy
  */

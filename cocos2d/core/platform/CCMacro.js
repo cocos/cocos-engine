@@ -1141,7 +1141,7 @@ cc.getImageFormatByData = function (imgData) {
 
 /**
  * Predefined constants
- * @enum Macro
+ * @enum macro
  * @type {Object}
  */
 cc.macro = {
