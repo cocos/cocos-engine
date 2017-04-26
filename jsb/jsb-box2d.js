@@ -419,6 +419,9 @@ b2.WorldManifold = function ()
 var _p = b2.Shape.prototype;
 cc.defineGetterSetter(_p, 'm_radius', _p.GetRadius, _p.SetRadius);
 
+// b2CircleShape
+_p = b2.CircleShape.prototype;
+cc.defineGetterSetter(_p, 'm_p', _p.GetPosition, _p.SetPosition);
 
 // b2Body Type
 b2.Body.b2_staticBody = 0;

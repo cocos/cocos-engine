@@ -46,10 +46,12 @@ var PhysicsBoxCollider = cc.Class({
     properties: cc.PhysicsCollider.properties,
 
     _createShape: function (scale) {
-        var width = this.size.width/2/PTM_RATIO * scale.x;
-        var height = this.size.height/2/PTM_RATIO * scale.y;
-        var offsetX = this.offset.x/PTM_RATIO *scale.x;
-        var offsetY = this.offset.y/PTM_RATIO *scale.y;
+        var scaleX = Math.abs(scale.x);
+        var scaleY = Math.abs(scale.y);
+        var width = this.size.width/2/PTM_RATIO * scaleX;
+        var height = this.size.height/2/PTM_RATIO * scaleY;
+        var offsetX = this.offset.x/PTM_RATIO *scaleX;
+        var offsetY = this.offset.y/PTM_RATIO *scaleY;
 
         var shape = new b2.PolygonShape();
         shape.SetAsBox(width, height, new b2.Vec2(offsetX, offsetY), 0);

@@ -1885,7 +1885,19 @@ cc.macro = {
      * 它的值被 native 宏 CC_ENABLE_GC_FOR_NATIVE_OBJECTS 所控制，修改 JS 宏的值不会产生任何效果。
      * @property {Number} ENABLE_GC_FOR_NATIVE_OBJECTS
      */
-    ENABLE_GC_FOR_NATIVE_OBJECTS: true
+    ENABLE_GC_FOR_NATIVE_OBJECTS: true,
+
+    /**
+     * !#en 
+     * Whether or not enabled tiled map auto culling.
+     * If you use cc.Camera as tiled map's camera, please disable this macro.
+     * !#zh
+     * 是否开启瓦片地图的自动裁减功能。
+     * 如果需要使用 cc.Camera 来作为瓦片地图的摄像机的话，那么请关闭此宏
+     * @property {Boolean} ENABLE_TILEDMAP_CULLING
+     * @default true
+     */
+    ENABLE_TILEDMAP_CULLING: true,
 };
 
 /**

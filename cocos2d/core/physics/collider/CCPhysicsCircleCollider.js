@@ -46,8 +46,15 @@ var PhysicsCircleCollider = cc.Class({
     properties: cc.PhysicsCollider.properties,
 
     _createShape: function (scale) {
+        var scaleX = Math.abs(scale.x);
+        var scaleY = Math.abs(scale.y);
+        var offsetX = this.offset.x/PTM_RATIO * scaleX;
+        var offsetY = this.offset.y/PTM_RATIO * scaleY;
+
         var shape = new b2.CircleShape();
-        shape.m_radius = this.radius / PTM_RATIO * scale.x;
+        shape.m_radius = this.radius / PTM_RATIO * scaleX;
+        shape.m_p = new b2.Vec2(offsetX, offsetY);
+
         return shape;
     }
 });
