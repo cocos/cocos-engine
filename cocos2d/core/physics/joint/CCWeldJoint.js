@@ -54,7 +54,10 @@ var WeldJoint = cc.Class({
          * @property {Number} referenceAngle
          * @default 0
          */
-        referenceAngle: 0,
+        referenceAngle: {
+            default: 0,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.referenceAngle'            
+        },
 
         _frequency: 0,
         _dampingRatio: 0,
@@ -68,6 +71,7 @@ var WeldJoint = cc.Class({
          * @default 0
          */
         frequency: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.frequency',
             get: function () {
                 return this._frequency;
             },
@@ -88,6 +92,7 @@ var WeldJoint = cc.Class({
          * @property 0
          */
         dampingRatio: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.dampingRatio',            
             get: function () {
                 return this._dampingRatio;
             },

@@ -80,6 +80,7 @@ var MouseJoint = cc.Class({
          * @default cc.v2(0, 0)
          */
         anchor: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.anchor',            
             default: cc.v2(0, 0),
             override: true,
             visible: false
@@ -93,6 +94,7 @@ var MouseJoint = cc.Class({
          * @default cc.v2(0, 0)
          */
         connectedAnchor: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.connectedAnchor',
             default: cc.v2(0, 0),
             override: true,
             visible: false
@@ -109,6 +111,7 @@ var MouseJoint = cc.Class({
          * @default null
          */
         mouseRegion: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.mouseRegion',            
             default: null,
             type: cc.Node
         },
@@ -122,6 +125,7 @@ var MouseJoint = cc.Class({
          * @property {Vec2} target
          */
         target: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.target',
             visible: false,
             get: function () {
                 return this._target;
@@ -145,6 +149,7 @@ var MouseJoint = cc.Class({
          * @default 0
          */
         frequency: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.frequency',            
             get: function () {
                 return this._frequency;
             },
@@ -165,6 +170,7 @@ var MouseJoint = cc.Class({
          * @property 0
          */
         dampingRatio: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.dampingRatio',                        
             get: function () {
                 return this._dampingRatio;
             },
@@ -185,6 +191,7 @@ var MouseJoint = cc.Class({
          * @default 1
          */
         maxForce: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.maxForce',            
             visible: false,
             get: function () {
                 return this._maxForce;

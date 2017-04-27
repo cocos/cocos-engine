@@ -64,7 +64,10 @@ var WheelJoint = cc.Class({
          * @property {Vec2} localAxisA
          * @default cc.v2(1, 0)
          */
-        localAxisA: cc.v2(1, 0),
+        localAxisA: {
+            default: cc.v2(1, 0),
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.localAxisA'
+        },
 
         /**
          * !#en
@@ -75,6 +78,7 @@ var WheelJoint = cc.Class({
          * @default 0
          */
         maxMotorTorque: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.maxMotorTorque',            
             get: function () {
                 return this._maxMotorTorque;
             },
@@ -95,6 +99,7 @@ var WheelJoint = cc.Class({
          * @default 0
          */
         motorSpeed: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.motorSpeed',
             get: function () {
                 return this._motorSpeed;
             },
@@ -115,6 +120,7 @@ var WheelJoint = cc.Class({
          * @default false
          */
         enableMotor: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.enableMotor',            
             get: function () {
                 return this._enableMotor;
             },
@@ -135,6 +141,7 @@ var WheelJoint = cc.Class({
          * @default 0
          */
         frequency: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.frequency',
             get: function () {
                 return this._frequency;
             },
@@ -155,6 +162,7 @@ var WheelJoint = cc.Class({
          * @default 0
          */
         dampingRatio: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.dampingRatio',            
             get: function () {
                 return this._dampingRatio;
             },

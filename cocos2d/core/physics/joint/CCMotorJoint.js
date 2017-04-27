@@ -62,6 +62,7 @@ var MotorJoint = cc.Class({
          * @default cc.v2(0, 0)
          */
         anchor: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.anchor',            
             default: cc.v2(0, 0),
             override: true,
             visible: false
@@ -75,6 +76,7 @@ var MotorJoint = cc.Class({
          * @default cc.v2(0, 0)
          */
         connectedAnchor: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.connectedAnchor',
             default: cc.v2(0, 0),
             override: true,
             visible: false
@@ -90,6 +92,7 @@ var MotorJoint = cc.Class({
          * @default cc.v2(0,0)
          */
         linearOffset: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.linearOffset',
             get: function () {
                 return this._linearOffset;
             },
@@ -110,6 +113,7 @@ var MotorJoint = cc.Class({
          * @default 0
          */
         angularOffset: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.angularOffset',            
             get: function () {
                 return this._angularOffset;
             },
@@ -130,6 +134,7 @@ var MotorJoint = cc.Class({
          * @default 1
          */
         maxForce: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.maxForce',
             get: function () {
                 return this._maxForce;
             },
@@ -150,6 +155,7 @@ var MotorJoint = cc.Class({
          * @default 1
          */
         maxTorque: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.maxTorque',            
             get: function () {
                 return this._maxTorque;
             },
@@ -170,6 +176,7 @@ var MotorJoint = cc.Class({
          * @default 0.3
          */
         correctionFactor: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.correctionFactor',
             get: function () {
                 return this._correctionFactor;
             },

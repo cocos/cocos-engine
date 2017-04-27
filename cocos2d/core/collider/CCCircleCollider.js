@@ -64,6 +64,7 @@ var CircleCollider = cc.Class({
          * @type {Number}
          */
         radius: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.radius',
             get: function () {
                 return this._radius;
             },

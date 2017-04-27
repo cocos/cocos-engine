@@ -58,6 +58,7 @@ var DistanceJoint = cc.Class({
          * @default 1
          */
         distance: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.distance',            
             get: function () {
                 return this._distance;
             },
@@ -78,6 +79,7 @@ var DistanceJoint = cc.Class({
          * @default 0
          */
         frequency: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.frequency',
             get: function () {
                 return this._frequency;
             },
@@ -98,6 +100,7 @@ var DistanceJoint = cc.Class({
          * @property 0
          */
         dampingRatio: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.dampingRatio',            
             get: function () {
                 return this._dampingRatio;
             },
