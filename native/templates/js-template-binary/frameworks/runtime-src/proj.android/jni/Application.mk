@@ -6,6 +6,9 @@ APP_ABI := armeabi-v7a
 APP_CPPFLAGS := -frtti -DCC_ENABLE_CHIPMUNK_INTEGRATION=1 -std=c++11 -fsigned-char -DPACKAGE_AS
 APP_LDFLAGS := -latomic
 
+# To solve windows commands char length too long
+APP_SHORT_COMMANDS := true
+
 USE_ARM_MODE := 1
 
 ifeq ($(NDK_DEBUG),1)
