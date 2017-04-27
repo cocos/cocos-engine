@@ -240,6 +240,9 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  *     &#64;property
  *     offset = new cc.Vec2(100, 100);
  *
+ *     &#64;property(cc.Vec2)
+ *     offsets = [];
+ *
  *     &#64;property(cc.Texture2D)
  *     texture = "";
  * }
@@ -302,7 +305,7 @@ function property (ctorProtoOrOptions, propName, desc) {
             prop = JS.mixin(prop || {}, fullOptions || {});
             if (desc) {
                 if (desc.initializer) {
-                    if (CC_DEV && options && 'default' in options) {
+                    if (CC_DEV && options && options.hasOwnProperty('default')) {
                         cc.warnID(3650, 'default', propName, JS.getClassName(ctorProto.constructor));
                     }
 

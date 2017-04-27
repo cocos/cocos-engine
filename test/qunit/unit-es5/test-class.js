@@ -676,8 +676,8 @@ test('simplified properties define', function () {
 
     var obj = new Type();
 
-    strictEqual(cc.Class.attr(Type, 'vec2').type, undefined, 'checking vec2 type');
-    strictEqual(cc.Class.attr(Type, 'vec2').ctor, undefined, 'checking vec2 ctor');
+    strictEqual(cc.Class.attr(Type, 'vec2').type, 'Object', 'checking vec2 type');
+    strictEqual(cc.Class.attr(Type, 'vec2').ctor, cc.Vec2, 'checking vec2 ctor');
     strictEqual(cc.Class.attr(Type, 'node').type, 'Object', 'checking node type');
     strictEqual(cc.Class.attr(Type, 'node').ctor, cc.Node, 'checking node ctor');
 

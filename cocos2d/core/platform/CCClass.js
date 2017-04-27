@@ -1108,7 +1108,10 @@ function parseAttributes (attrs, className, propName) {
                         });
                     }
                     else {
-                        result.push(Attr.ObjectType(type));
+                        result.push(attrs._short ? {
+                            type: 'Object',
+                            ctor: type
+                        } : Attr.ObjectType(type));
                     }
                 }
                 else if (CC_DEV) {
@@ -1216,7 +1219,7 @@ module.exports = {
     escapeForJS,
 };
 
-if (CC_EDITOR || CC_TEST) {
+if (CC_DEV) {
     module.exports.getDefault = getDefault;
 }
 
