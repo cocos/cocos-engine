@@ -144,6 +144,17 @@ function setClassAttr (ctor, propName, key, value) {
  * Also used to indicates that the elements in array should be type integer.
  * @property {string} Integer
  * @readonly
+ * @example
+ * // in cc.Class
+ * member: {
+ *     default: [],
+ *     type: cc.Integer
+ * }
+ * // ES6 ccclass
+ * @cc._decorator.property({
+ *     type: cc.Integer
+ * })
+ * member = [];
  */
 cc.Integer = 'Integer';
 
@@ -151,6 +162,17 @@ cc.Integer = 'Integer';
  * Indicates that the elements in array should be type double.
  * @property {string} Float
  * @readonly
+ * @example
+ * // in cc.Class
+ * member: {
+ *     default: [],
+ *     type: cc.Float
+ * }
+ * // ES6 ccclass
+ * @cc._decorator.property({
+ *     type: cc.Float
+ * })
+ * member = [];
  */
 cc.Float = 'Float';
 
@@ -165,6 +187,17 @@ if (CC_EDITOR) {
  * Indicates that the elements in array should be type boolean.
  * @property {string} Boolean
  * @readonly
+ * @example
+ * // in cc.Class
+ * member: {
+ *     default: [],
+ *     type: cc.Boolean
+ * }
+ * // ES6 ccclass
+ * @cc._decorator.property({
+ *     type: cc.Boolean
+ * })
+ * member = [];
  */
 cc.Boolean = 'Boolean';
 
@@ -172,6 +205,17 @@ cc.Boolean = 'Boolean';
  * Indicates that the elements in array should be type string.
  * @property {string} String
  * @readonly
+ * @example
+ * // in cc.Class
+ * member: {
+ *     default: [],
+ *     type: cc.String
+ * }
+ * // ES6 ccclass
+ * @cc._decorator.property({
+ *     type: cc.String
+ * })
+ * member = [];
  */
 cc.String = 'String';
 
@@ -283,15 +327,7 @@ function ObjectType (typeCtor) {
             getTypeChecker('Object', 'type')(classCtor, mainPropName);
             // check ValueType
             var defaultDef = getClassAttrs(classCtor)[mainPropName + DELIMETER + 'default'];
-            var defaultVal = defaultDef;
-            if (typeof defaultDef === 'function') {
-                try {
-                    defaultVal = defaultDef();
-                }
-                catch (e) {
-                    return;
-                }
-            }
+            var defaultVal = require('./CCClass').getDefault(defaultDef);
             if (!Array.isArray(defaultVal) && cc.isChildClassOf(typeCtor, cc.ValueType)) {
                 var typename = JS.getClassName(typeCtor);
                 var info = cc.js.formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
@@ -300,8 +336,7 @@ function ObjectType (typeCtor) {
                     cc.log(info);
                 }
                 else {
-                    cc.warnID(3612,
-                        info, typename, JS.getClassName(classCtor), mainPropName, typename);
+                    cc.warnID(3612, info, typename, JS.getClassName(classCtor), mainPropName, typename);
                 }
             }
         }

@@ -702,37 +702,41 @@ largeModule('Class ES6');
     //     }, 0);
     // });
 
-    test('lazy instantiate properties', function () {
-        var Dog = cc.Class({
-            properties: function () {
-                return {
-                    like: 'shit'
-                };
-            }
-        });
-        var Husky = cc.Class({
-            extends: Dog,
-            properties: {
-                weight: 100
-            }
-        });
-
-        var dog = new Husky();
-        deepEqual(Husky.__props__, ['like', 'weight'], 'could get properties in the correct order after instantiating');
-    });
+    // test('lazy instantiate properties', function () {
+    //     var Dog = cc.Class({
+    //         properties: function () {
+    //             return {
+    //                 like: 'shit'
+    //             };
+    //         }
+    //     });
+    //     var Husky = cc.Class({
+    //         extends: Dog,
+    //         properties: {
+    //             weight: 100
+    //         }
+    //     });
+    //
+    //     var dog = new Husky();
+    //     deepEqual(Husky.__props__, ['like', 'weight'], 'could get properties in the correct order after instantiating');
+    // });
 
     test('simplified properties define', function () {
-        var Type = cc.Class({
-            properties: {
-                bool: true,
-                string: "hello",
-                number: 2,
-                obj: null,
-                vec2: cc.Vec2,
-                vec2Val: new cc.Vec2(1, 2),
-                node: cc.Node,
-            }
-        });
+        @ccclass
+        class Type {
+            @property
+            bool = true;
+            @property
+            string = "hello";
+            @property
+            number = 2;
+            @property
+            obj = null;
+            @property
+            vec2Val = new cc.Vec2(1, 2);
+            @property(cc.Node)
+            node = null;
+        }
 
         var obj = new Type();
 
@@ -745,23 +749,45 @@ largeModule('Class ES6');
         strictEqual(obj.string, "hello", 'checking string');
         strictEqual(obj.number, 2, 'checking number');
         strictEqual(obj.obj, null, 'checking obj');
-        strictEqual(obj.vec2 instanceof cc.Vec2, true, 'checking vec2');
         deepEqual(obj.vec2Val, new cc.Vec2(1, 2), 'checking vec2 value');
         strictEqual(obj.node, null, 'checking node');
 
-        var ArrayType = cc.Class({
-            properties: {
-                empty: [],
-                bool: [cc.Boolean],
-                string: [cc.String],
-                float: [cc.Float],
-                int: [cc.Integer],
-                valueType: [cc.Vec2],
-                node: [cc.Node],
-                rawAsset: [cc.RawAsset],
-                asset: [cc.Asset],
-            }
-        });
+        @ccclass
+        class ArrayType {
+            empty = [];
+
+            @property({
+                type: cc.Boolean
+            })
+            bool = [];
+
+            @property({
+                type: cc.String
+            })
+            string = [];
+
+            @property({
+                type: cc.Float
+            })
+            float = [];
+
+            @property({
+                type: cc.Integer
+            })
+            int = [];
+
+            @property(cc.Vec2)
+            valueType = [];
+
+            @property(cc.Node)
+            node = [];
+
+            @property(cc.RawAsset)
+            rawAsset = [];
+
+            @property(cc.Asset)
+            asset = [];
+        }
 
         var arrayObj = new ArrayType();
 

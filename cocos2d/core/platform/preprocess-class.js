@@ -173,7 +173,8 @@ exports.getFullFormOfProperty = function (options) {
         if (Array.isArray(options) && options.length > 0) {
             return {
                 default: [],
-                type: options
+                type: options,
+                _short: true
             };
         }
         else if (typeof options === 'function') {
@@ -181,21 +182,22 @@ exports.getFullFormOfProperty = function (options) {
             if (cc.RawAsset.isRawAssetType(type)) {
                 return {
                     default: '',
-                    url: type
+                    url: type,
+                    _short: true
                 };
             }
             else {
-                return cc.isChildClassOf(type, cc.ValueType) ? {
-                    default: new type()
-                } : {
-                    default: null,
-                    type: options
+                return {
+                    default: cc.isChildClassOf(type, cc.ValueType) ? new type() : null,
+                    type: type,
+                    _short: true
                 };
             }
         }
         else {
             return {
-                default: options
+                default: options,
+                _short: true
             };
         }
     }
