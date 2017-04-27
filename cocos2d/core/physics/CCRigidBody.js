@@ -79,7 +79,10 @@ var RigidBody = cc.Class({
          * @property {Boolean} enabledContactListener
          * @default false
          */
-        enabledContactListener: false,
+        enabledContactListener: {
+            default: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.enabledContactListener'
+        },
 
         /**
          * !#en
@@ -155,7 +158,10 @@ var RigidBody = cc.Class({
          * @property {Boolean} bullet
          * @default false
          */
-        bullet: false,
+        bullet: {
+            default: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.bullet'
+        },
 
         /**
          * !#en
@@ -167,6 +173,7 @@ var RigidBody = cc.Class({
          */        
         type: {
             type: BodyType,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.type',
             get: function () {
                 return this._type;
             },
@@ -195,6 +202,7 @@ var RigidBody = cc.Class({
          * @default true
          */
         allowSleep: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.allowSleep',
             get: function () {
                 if (this._b2Body) {
                     return this._b2Body.IsSleepingAllowed();
@@ -219,6 +227,7 @@ var RigidBody = cc.Class({
          * @default 1
          */
         gravityScale: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.gravityScale',
             get: function () {
                 return this._gravityScale;
             },
@@ -241,6 +250,7 @@ var RigidBody = cc.Class({
          * @default 0
          */
         linearDamping: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.linearDamping',
             get: function () {
                 return this._linearDamping;
             },
@@ -263,6 +273,7 @@ var RigidBody = cc.Class({
          * @default 0
          */
         angularDamping: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.angularDamping',
             get: function () {
                 return this._angularDamping;
             },
@@ -283,6 +294,7 @@ var RigidBody = cc.Class({
          * @default cc.v2(0,0)
          */
         linearVelocity: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.linearVelocity',
             type: cc.Vec2,
             get: function () {
                 var lv = this._linearVelocity;
@@ -313,6 +325,7 @@ var RigidBody = cc.Class({
          * @default 0
          */
         angularVelocity: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.angularVelocity',
             get: function () {
                 if (this._b2Body) {
                     return this._b2Body.GetAngularVelocity() * PHYSICS_ANGLE_TO_ANGLE;
@@ -336,6 +349,7 @@ var RigidBody = cc.Class({
          * @default false
          */
         fixedRotation: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.fixedRotation',
             get: function () {
                 return this._fixedRotation;
             },
@@ -356,6 +370,7 @@ var RigidBody = cc.Class({
          * @default false
          */
         awake: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.awake',
             get: function () {
                 return this._b2Body ? this._b2Body.IsAwake() : false;
             },

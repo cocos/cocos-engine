@@ -58,6 +58,7 @@ var RopeJoint = cc.Class({
          * @default 1
          */
         maxLength: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.maxLength',
             get: function () {
                 return this._maxLength;
             },

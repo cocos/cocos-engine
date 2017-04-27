@@ -70,6 +70,7 @@ var PolygonCollider = cc.Class({
          * @type {[Vec2]}
          */
         points: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.points',
             default: function () {
                  return [cc.v2(-50,-50), cc.v2(50, -50), cc.v2(50,50), cc.v2(-50,50)];
             },

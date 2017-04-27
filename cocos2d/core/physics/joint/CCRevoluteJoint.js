@@ -67,7 +67,10 @@ var RevoluteJoint = cc.Class({
          * @property {Number} referenceAngle
          * @default 0
          */
-        referenceAngle: 0,
+        referenceAngle: {
+            default: 0,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.referenceAngle',
+        },
 
         /**
          * !#en
@@ -77,7 +80,10 @@ var RevoluteJoint = cc.Class({
          * @property {Number} lowerAngle
          * @default 0
          */
-        lowerAngle: 0,
+        lowerAngle: {
+            default: 0,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.lowerAngle'            
+        },
         /**
          * !#en
          * The upper angle.
@@ -86,7 +92,10 @@ var RevoluteJoint = cc.Class({
          * @property {Number} upperAngle
          * @default 0
          */
-        upperAngle: 0,
+        upperAngle: {
+            default: 0,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.upperAngle'
+        },
 
         /**
          * !#en
@@ -97,6 +106,7 @@ var RevoluteJoint = cc.Class({
          * @default 0
          */
         maxMotorTorque: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.maxMotorTorque',            
             get: function () {
                 return this._maxMotorTorque;
             },
@@ -117,6 +127,7 @@ var RevoluteJoint = cc.Class({
          * @default 0
          */
         motorSpeed: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.motorSpeed',
             get: function () {
                 return this._motorSpeed;
             },
@@ -137,6 +148,7 @@ var RevoluteJoint = cc.Class({
          * @default false
          */
         enableLimit: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.enableLimit',            
             get: function () {
                 return this._enableLimit;
             },
@@ -157,6 +169,7 @@ var RevoluteJoint = cc.Class({
          * @default false
          */
         enableMotor: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.enableMotor',
             get: function () {
                 return this._enableMotor;
             },

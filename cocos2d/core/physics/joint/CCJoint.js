@@ -50,7 +50,10 @@ var Joint = cc.Class({
          * @property {Vec2} anchor
          * @default cc.v2(0, 0)
          */
-        anchor: cc.v2(0, 0),
+        anchor: {
+            default: cc.v2(0, 0),
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.anchor'
+        },
         /**
          * !#en
          * The anchor of the connected rigidbody.
@@ -59,7 +62,10 @@ var Joint = cc.Class({
          * @property {Vec2} connectedAnchor
          * @default cc.v2(0, 0)
          */
-        connectedAnchor: cc.v2(0, 0),
+        connectedAnchor: {
+            default: cc.v2(0, 0),
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.connectedAnchor'            
+        },
         
         /**
          * !#en
@@ -71,7 +77,8 @@ var Joint = cc.Class({
          */
         connectedBody: {
             default: null,
-            type: cc.RigidBody
+            type: cc.RigidBody,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.connectedBody'
         },
 
         /**
@@ -82,7 +89,10 @@ var Joint = cc.Class({
          * @property {Boolean} collideConnected
          * @default false
          */
-        collideConnected: false,
+        collideConnected: {
+            default: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.collideConnected'
+        }
     },
 
     onDisable: function () {

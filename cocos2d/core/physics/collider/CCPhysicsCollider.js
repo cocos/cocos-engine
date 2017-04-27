@@ -218,6 +218,7 @@ PhysicsCollider.properties = {
      * @default 1
      */
     density: {
+        tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.density',
         get: function () {
             return this._density;
         },
@@ -235,6 +236,7 @@ PhysicsCollider.properties = {
      * @default false
      */
     sensor: {
+        tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.sensor',        
         get: function () {
             return this._sensor;
         },
@@ -252,6 +254,7 @@ PhysicsCollider.properties = {
      * @default 0.2
      */
     friction: {
+        tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.friction',        
         get: function () {
             return this._friction;
         },
@@ -269,6 +272,7 @@ PhysicsCollider.properties = {
      * @default 0
      */
     restitution: {
+        tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.restitution',
         get: function () {
             return this._restitution;
         },

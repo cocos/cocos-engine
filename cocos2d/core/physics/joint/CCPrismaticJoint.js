@@ -56,7 +56,10 @@ var PrismaticJoint = cc.Class({
          * @property {Vec2} localAxisA
          * @default cc.v2(1, 0)
          */
-        localAxisA: cc.v2(1, 0),
+        localAxisA: {
+            default: cc.v2(1, 0),
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.localAxisA'
+        },
 
         /**
          * !#en
@@ -66,7 +69,10 @@ var PrismaticJoint = cc.Class({
          * @property {Number} referenceAngle
          * @default 0
          */
-        referenceAngle: 0,
+        referenceAngle: {
+            default: 0,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.referenceAngle'            
+        },
 
         /**
          * !#en
@@ -76,7 +82,10 @@ var PrismaticJoint = cc.Class({
          * @property {Boolean} enableLimit
          * @default false
          */
-        enableLimit: false,
+        enableLimit: {
+            default: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.enableLimit'
+        },
 
         /**
          * !#en
@@ -86,7 +95,10 @@ var PrismaticJoint = cc.Class({
          * @property {Boolean} enableMotor
          * @default false
          */
-        enableMotor: false,
+        enableMotor: {
+            default: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.enableMotor'            
+        },
 
         /**
          * !#en
@@ -96,16 +108,22 @@ var PrismaticJoint = cc.Class({
          * @property {Number} lowerLimit
          * @default 0
          */
-        lowerLimit: 0,
+        lowerLimit: {
+            default: 0,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.lowerLimit'
+        },
         /**
          * !#en
          * The upper joint limit.
          * !#zh
-         * 刚体能够移动的最打值
+         * 刚体能够移动的最大值
          * @property {Number} upperLimit
          * @default 0
          */
-        upperLimit: 0,
+        upperLimit: {
+            default: 0,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.upperLimit'            
+        },
 
         _maxMotorForce: 0,
         _motorSpeed: 0,
@@ -119,6 +137,7 @@ var PrismaticJoint = cc.Class({
          * @default 0
          */
         maxMotorForce: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.maxMotorForce',
             get: function () {
                 return this._maxMotorForce;
             },
@@ -139,6 +158,7 @@ var PrismaticJoint = cc.Class({
          * @default 0
          */
         motorSpeed: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.motorSpeed',            
             get: function () {
                 return this._motorSpeed;
             },

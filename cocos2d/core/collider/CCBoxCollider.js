@@ -48,6 +48,7 @@ var BoxCollider = cc.Class({
          * @type {Vec2}
          */
         offset: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.offset',
             get: function () {
                 return this._offset;
             },
@@ -64,6 +65,7 @@ var BoxCollider = cc.Class({
          * @type {Size}
          */
         size: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.size',            
             get: function () {
                 return this._size;
             },
