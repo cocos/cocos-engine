@@ -128,13 +128,6 @@ var eventMap = {
 
 };
 
-
-var eventEmittedFlag = {
-    scrollToTopEmitted:    1 << 0,
-    scrollToBottomEmitted: 1 << 1,
-    scrollToLeftEmitted:   1 << 2,
-    scrollToRightEmitted:  1 << 3
-};
 /**
  * !#en
  * Layout container for a view hierarchy that can be scrolled by the user,
@@ -1410,44 +1403,24 @@ var ScrollView = cc.Class({
     },
 
     _dispatchEvent: function(event) {
-        var needDispatchEvent = true;
-        switch (event) {
-            case 'scroll-ended':
-                this._scrollEventEmitMask = 0;
-                break;
-            case 'scroll-to-top':
-                if (this._scrollEventEmitMask & eventEmittedFlag.scrollToTopEmitted) {
-                    needDispatchEvent = false;
-                } else {
-                    this._scrollEventEmitMask |= eventEmittedFlag.scrollToTopEmitted;
-                }
-                break;
-            case 'scroll-to-bottom':
-                if (this._scrollEventEmitMask & eventEmittedFlag.scrollToBottomEmitted) {
-                    needDispatchEvent = false;
-                } else {
-                    this._scrollEventEmitMask |= eventEmittedFlag.scrollToBottomEmitted;
-                }
-                break;
-            case 'scroll-to-left':
-                if (this._scrollEventEmitMask & eventEmittedFlag.scrollToLeftEmitted) {
-                    needDispatchEvent = false;
-                } else {
-                    this._scrollEventEmitMask |= eventEmittedFlag.scrollToLeftEmitted;
-                }
-                break;
-            case 'scroll-to-right':
-                if (this._scrollEventEmitMask & eventEmittedFlag.scrollToRightEmitted) {
-                    needDispatchEvent = false;
-                } else {
-                    this._scrollEventEmitMask |= eventEmittedFlag.scrollToRightEmitted;
-                }
-                break;
+        if (event === 'scroll-ended') {
+            this._scrollEventEmitMask = 0;
+
+        } else if (event === 'scroll-to-top'
+                   || event === 'scroll-to-bottom'
+                   || event === 'scroll-to-left'
+                   || event === 'scroll-to-right') {
+
+            var flag = (1 << eventMap[event]);
+            if (this._scrollEventEmitMask & flag) {
+                return;
+            } else {
+                this._scrollEventEmitMask |= flag;
+            }
         }
-        if (needDispatchEvent) {
-            cc.Component.EventHandler.emitEvents(this.scrollEvents, this, eventMap[event]);
-            this.node.emit(event, this);
-        }
+
+        cc.Component.EventHandler.emitEvents(this.scrollEvents, this, eventMap[event]);
+        this.node.emit(event, this);
     },
 
     //component life cycle methods
