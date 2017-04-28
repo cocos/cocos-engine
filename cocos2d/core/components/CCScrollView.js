@@ -133,11 +133,7 @@ var eventEmittedFlag = {
     scrollToTopEmitted:    1 << 0,
     scrollToBottomEmitted: 1 << 1,
     scrollToLeftEmitted:   1 << 2,
-    scrollToRightEmitted:  1 << 3,
-    bounceTopEmitted:      1 << 4,
-    bounceBottomEmitted:   1 << 5,
-    bounceLeftEmitted:     1 << 6,
-    bounceRightEmitted:    1 << 7
+    scrollToRightEmitted:  1 << 3
 };
 /**
  * !#en
@@ -1416,19 +1412,6 @@ var ScrollView = cc.Class({
     _dispatchEvent: function(event) {
         var needDispatchEvent = true;
         switch (event) {
-            case 'bounce-top':
-                if (this._scrollEventEmitMask & eventEmittedFlag.bounceTopEmitted) {
-                    needDispatchEvent = false;
-                } else {
-                    this._setEventEmitFlag(eventEmittedFlag.bounceTopEmitted);
-                }
-                break;
-            case 'bounce-bottom':
-                break;
-            case 'bounce-right':
-                break;
-            case 'bounce-left':
-                break;
             case 'scroll-ended':
                 this._resetEventEmitFlag();
                 break;
@@ -1440,10 +1423,25 @@ var ScrollView = cc.Class({
                 }
                 break;
             case 'scroll-to-bottom':
+                if (this._scrollEventEmitMask & eventEmittedFlag.scrollToBottomEmitted) {
+                    needDispatchEvent = false;
+                } else {
+                    this._setEventEmitFlag(eventEmittedFlag.scrollToBottomEmitted);
+                }
                 break;
             case 'scroll-to-left':
+                if (this._scrollEventEmitMask & eventEmittedFlag.scrollToLeftEmitted) {
+                    needDispatchEvent = false;
+                } else {
+                    this._setEventEmitFlag(eventEmittedFlag.scrollToLeftEmitted);
+                }
                 break;
             case 'scroll-to-right':
+                if (this._scrollEventEmitMask & eventEmittedFlag.scrollToRightEmitted) {
+                    needDispatchEvent = false;
+                } else {
+                    this._setEventEmitFlag(eventEmittedFlag.scrollToRightEmitted);
+                }
                 break;
         }
         if (needDispatchEvent) {
@@ -1528,10 +1526,6 @@ var ScrollView = cc.Class({
 
     _setEventEmitFlag: function (flag) {
         this._scrollEventEmitMask |= flag;
-    },
-
-    _removeEventEmitFlag: function (flag) {
-        this._scrollEventEmitMask &= ~flag;
     },
 
     _resetEventEmitFlag: function () {
