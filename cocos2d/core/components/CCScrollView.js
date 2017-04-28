@@ -127,6 +127,18 @@ var eventMap = {
     'touch-up' : EventType.TOUCH_UP
 
 };
+
+
+var eventEmittedFlag = {
+    scrollToTopEmitted:    1 << 0,
+    scrollToBottomEmitted: 1 << 1,
+    scrollToLeftEmitted:   1 << 2,
+    scrollToRightEmitted:  1 << 3,
+    bounceTopEmitted:      1 << 4,
+    bounceBottomEmitted:   1 << 5,
+    bounceLeftEmitted:     1 << 6,
+    bounceRightEmitted:    1 << 7
+};
 /**
  * !#en
  * Layout container for a view hierarchy that can be scrolled by the user,
@@ -173,6 +185,8 @@ var ScrollView = cc.Class({
         this._stopMouseWheel = false;
         this._mouseWheelEventElapsedTime = 0.0;
         this._isScrollEndedEventFired = false;
+        //use bit wise operations to indicate the direction
+        this._scrollEventEmitMask = 0;
     },
 
     properties: {
@@ -1478,6 +1492,18 @@ var ScrollView = cc.Class({
         if (this._autoScrolling) {
             this._processAutoScrolling(dt);
         }
+    },
+
+    _setEventEmitFlag: function (flag) {
+        this._scrollEventEmitMask |= flag;
+    },
+
+    _removeEventEmitFlag: function (flag) {
+        this._scrollEventEmitMask &= ~flag;
+    },
+
+    _resetEventEmitFlag: function () {
+        this._scrollEventEmitMask = 0;
     }
 });
 
