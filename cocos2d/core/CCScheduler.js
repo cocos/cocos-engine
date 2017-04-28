@@ -496,10 +496,13 @@ cc.Scheduler = cc._Class.extend({
      * @param {Object} target
      * @param {Function} callback_fn
      * @param {Number} interval
-     * @param {Number} [repeat]
-     * @param {Number} [delay]
+     * @param {Number} [repeat=cc.macro.REPEAT_FOREVER]
+     * @param {Number} [delay=0]
      * @param {Boolean} paused
      * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/scheduleCallbackForTarget.js}
+     * @typescript
+     * scheduleCallbackForTarget(target: any, callback: Function, interval: number, repeat: number, delay: number, paused?: boolean): void
+     * scheduleCallbackForTarget(target: any, callback: Function, interval: number, paused?: boolean): void
      */
     scheduleCallbackForTarget: function(target, callback_fn, interval, repeat, delay, paused){
         //cc.log("scheduleCallbackForTarget is deprecated. Please use schedule.");
@@ -513,10 +516,13 @@ cc.Scheduler = cc._Class.extend({
      * @param {Function} callback
      * @param {Object} target
      * @param {Number} interval
-     * @param {Number} [repeat]
-     * @param {Number} [delay]
+     * @param {Number} [repeat=cc.macro.REPEAT_FOREVER]
+     * @param {Number} [delay=0]
      * @param {Boolean} paused
      * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/schedule.js}
+     * @typescript
+     * schedule(callback: Function, target: any, interval: number, repeat: number, delay: number, paused?: boolean): void
+     * schedule(callback: Function, target: any, interval: number, paused?: boolean): void
      */
     schedule: function (callback, target, interval, repeat, delay, paused) {
         'use strict';
