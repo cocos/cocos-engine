@@ -127,6 +127,7 @@ var eventMap = {
     'touch-up' : EventType.TOUCH_UP
 
 };
+
 /**
  * !#en
  * Layout container for a view hierarchy that can be scrolled by the user,
@@ -173,6 +174,8 @@ var ScrollView = cc.Class({
         this._stopMouseWheel = false;
         this._mouseWheelEventElapsedTime = 0.0;
         this._isScrollEndedEventFired = false;
+        //use bit wise operations to indicate the direction
+        this._scrollEventEmitMask = 0;
     },
 
     properties: {
@@ -695,14 +698,6 @@ var ScrollView = cc.Class({
 
         this._outOfBoundaryAmountDirty = true;
 
-        if(this.elastic)
-        {
-            var outOfBoundary = this._getHowMuchOutOfBoundary();
-            if (outOfBoundary.y > 0) this._dispatchEvent('bounce-top');
-            if (outOfBoundary.y < 0) this._dispatchEvent('bounce-bottom');
-            if (outOfBoundary.x > 0) this._dispatchEvent('bounce-right');
-            if (outOfBoundary.x < 0) this._dispatchEvent('bounce-left');
-        }
     },
 
     /**
@@ -953,11 +948,12 @@ var ScrollView = cc.Class({
         if (!this.enabledInHierarchy) return;
         if (this._hasNestedViewGroup(event, captureListeners)) return;
 
+        this._dispatchEvent('touch-up');
+
         var touch = event.touch;
         if (this.content) {
             this._handleReleaseLogic(touch);
         }
-        this._dispatchEvent('touch-up');
         if (this._touchMoved) {
             event.stopPropagation();
         } else {
@@ -1099,6 +1095,11 @@ var ScrollView = cc.Class({
         var bounceBackTime = Math.max(this.bounceDuration, 0);
         this._startAutoScroll(bounceBackAmount, bounceBackTime, true);
 
+        if (bounceBackAmount.y > 0) this._dispatchEvent('bounce-top');
+        if (bounceBackAmount.y < 0) this._dispatchEvent('bounce-bottom');
+        if (bounceBackAmount.x > 0) this._dispatchEvent('bounce-right');
+        if (bounceBackAmount.x < 0) this._dispatchEvent('bounce-left');
+
         return true;
     },
 
@@ -1184,15 +1185,15 @@ var ScrollView = cc.Class({
             }
         }
 
+        var contentPos = cc.pSub(newPosition, this.getContentPosition());
+        this._moveContent(contentPos, reachedEnd);
+
         if (reachedEnd) {
             this._autoScrolling = false;
             if(!this._isScrollEndedEventFired) {
                 this._dispatchEvent('scroll-ended');
             }
         }
-
-        var contentPos = cc.pSub(newPosition, this.getContentPosition());
-        this._moveContent(contentPos, reachedEnd);
     },
 
     _startInertiaScroll: function(touchMoveVelocity) {
@@ -1402,6 +1403,22 @@ var ScrollView = cc.Class({
     },
 
     _dispatchEvent: function(event) {
+        if (event === 'scroll-ended') {
+            this._scrollEventEmitMask = 0;
+
+        } else if (event === 'scroll-to-top'
+                   || event === 'scroll-to-bottom'
+                   || event === 'scroll-to-left'
+                   || event === 'scroll-to-right') {
+
+            var flag = (1 << eventMap[event]);
+            if (this._scrollEventEmitMask & flag) {
+                return;
+            } else {
+                this._scrollEventEmitMask |= flag;
+            }
+        }
+
         cc.Component.EventHandler.emitEvents(this.scrollEvents, this, eventMap[event]);
         this.node.emit(event, this);
     },
