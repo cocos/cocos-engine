@@ -327,11 +327,24 @@ function property (ctorProtoOrOptions, propName, desc) {
                 }
             }
             else {
-                // Can not get default value for typescript...
-                if (CC_DEV && isPlainEmptyObj_DEV(prop)) {
-                    cc.error('Failed to get default value of "%s" in class "%s". ' +
-                             'If using TypeScript, you also need to pass in the "default" attribute required by the "property" decorator.',
-                             propName, JS.getClassName(ctorProto.constructor));
+                // is typescript...
+                if (CC_DEV) {
+                    // can not get default value...
+                    if (isPlainEmptyObj_DEV(prop)) {
+                        cc.error('Failed to get default value of "%s" in class "%s". ' +
+                                 'If using TypeScript, you also need to pass in the "default" attribute required by the "property" decorator.', propName, JS.getClassName(ctorProto.constructor));
+                    }
+                    else if (prop.get || prop.set) {
+                        cc.error('Can not define get set in decorator of "%s" in class "%s", please use:\n' +
+                                 '@decorator(...)\n' +
+                                 'get %s () {\n' +
+                                 '  ...\n' +
+                                 '}\n' +
+                                 '@decorator\n' +
+                                 'set %s () {\n' +
+                                 '  ...\n' +
+                                 '}', propName, JS.getClassName(ctorProto.constructor), propName, propName);
+                    }
                 }
             }
             props[propName] = prop;
