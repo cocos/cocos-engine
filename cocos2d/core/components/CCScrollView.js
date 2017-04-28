@@ -1413,34 +1413,34 @@ var ScrollView = cc.Class({
         var needDispatchEvent = true;
         switch (event) {
             case 'scroll-ended':
-                this._resetEventEmitFlag();
+                this._scrollEventEmitMask = 0;
                 break;
             case 'scroll-to-top':
                 if (this._scrollEventEmitMask & eventEmittedFlag.scrollToTopEmitted) {
                     needDispatchEvent = false;
                 } else {
-                    this._setEventEmitFlag(eventEmittedFlag.scrollToTopEmitted);
+                    this._scrollEventEmitMask |= eventEmittedFlag.scrollToTopEmitted;
                 }
                 break;
             case 'scroll-to-bottom':
                 if (this._scrollEventEmitMask & eventEmittedFlag.scrollToBottomEmitted) {
                     needDispatchEvent = false;
                 } else {
-                    this._setEventEmitFlag(eventEmittedFlag.scrollToBottomEmitted);
+                    this._scrollEventEmitMask |= eventEmittedFlag.scrollToBottomEmitted;
                 }
                 break;
             case 'scroll-to-left':
                 if (this._scrollEventEmitMask & eventEmittedFlag.scrollToLeftEmitted) {
                     needDispatchEvent = false;
                 } else {
-                    this._setEventEmitFlag(eventEmittedFlag.scrollToLeftEmitted);
+                    this._scrollEventEmitMask |= eventEmittedFlag.scrollToLeftEmitted;
                 }
                 break;
             case 'scroll-to-right':
                 if (this._scrollEventEmitMask & eventEmittedFlag.scrollToRightEmitted) {
                     needDispatchEvent = false;
                 } else {
-                    this._setEventEmitFlag(eventEmittedFlag.scrollToRightEmitted);
+                    this._scrollEventEmitMask |= eventEmittedFlag.scrollToRightEmitted;
                 }
                 break;
         }
@@ -1522,14 +1522,6 @@ var ScrollView = cc.Class({
         if (this._autoScrolling) {
             this._processAutoScrolling(dt);
         }
-    },
-
-    _setEventEmitFlag: function (flag) {
-        this._scrollEventEmitMask |= flag;
-    },
-
-    _resetEventEmitFlag: function () {
-        this._scrollEventEmitMask = 0;
     }
 });
 
