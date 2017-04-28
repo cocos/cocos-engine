@@ -709,14 +709,6 @@ var ScrollView = cc.Class({
 
         this._outOfBoundaryAmountDirty = true;
 
-        if(this.elastic)
-        {
-            var outOfBoundary = this._getHowMuchOutOfBoundary();
-            if (outOfBoundary.y > 0) this._dispatchEvent('bounce-top');
-            if (outOfBoundary.y < 0) this._dispatchEvent('bounce-bottom');
-            if (outOfBoundary.x > 0) this._dispatchEvent('bounce-right');
-            if (outOfBoundary.x < 0) this._dispatchEvent('bounce-left');
-        }
     },
 
     /**
@@ -967,11 +959,12 @@ var ScrollView = cc.Class({
         if (!this.enabledInHierarchy) return;
         if (this._hasNestedViewGroup(event, captureListeners)) return;
 
+        this._dispatchEvent('touch-up');
+
         var touch = event.touch;
         if (this.content) {
             this._handleReleaseLogic(touch);
         }
-        this._dispatchEvent('touch-up');
         if (this._touchMoved) {
             event.stopPropagation();
         } else {
@@ -1113,6 +1106,11 @@ var ScrollView = cc.Class({
         var bounceBackTime = Math.max(this.bounceDuration, 0);
         this._startAutoScroll(bounceBackAmount, bounceBackTime, true);
 
+        if (bounceBackAmount.y > 0) this._dispatchEvent('bounce-top');
+        if (bounceBackAmount.y < 0) this._dispatchEvent('bounce-bottom');
+        if (bounceBackAmount.x > 0) this._dispatchEvent('bounce-right');
+        if (bounceBackAmount.x < 0) this._dispatchEvent('bounce-left');
+
         return true;
     },
 
@@ -1198,15 +1196,15 @@ var ScrollView = cc.Class({
             }
         }
 
+        var contentPos = cc.pSub(newPosition, this.getContentPosition());
+        this._moveContent(contentPos, reachedEnd);
+
         if (reachedEnd) {
             this._autoScrolling = false;
             if(!this._isScrollEndedEventFired) {
                 this._dispatchEvent('scroll-ended');
             }
         }
-
-        var contentPos = cc.pSub(newPosition, this.getContentPosition());
-        this._moveContent(contentPos, reachedEnd);
     },
 
     _startInertiaScroll: function(touchMoveVelocity) {
@@ -1416,8 +1414,42 @@ var ScrollView = cc.Class({
     },
 
     _dispatchEvent: function(event) {
-        cc.Component.EventHandler.emitEvents(this.scrollEvents, this, eventMap[event]);
-        this.node.emit(event, this);
+        var needDispatchEvent = true;
+        switch (event) {
+            case 'bounce-top':
+                if (this._scrollEventEmitMask & eventEmittedFlag.bounceTopEmitted) {
+                    needDispatchEvent = false;
+                } else {
+                    this._setEventEmitFlag(eventEmittedFlag.bounceTopEmitted);
+                }
+                break;
+            case 'bounce-bottom':
+                break;
+            case 'bounce-right':
+                break;
+            case 'bounce-left':
+                break;
+            case 'scroll-ended':
+                this._resetEventEmitFlag();
+                break;
+            case 'scroll-to-top':
+                if (this._scrollEventEmitMask & eventEmittedFlag.scrollToTopEmitted) {
+                    needDispatchEvent = false;
+                } else {
+                    this._setEventEmitFlag(eventEmittedFlag.scrollToTopEmitted);
+                }
+                break;
+            case 'scroll-to-bottom':
+                break;
+            case 'scroll-to-left':
+                break;
+            case 'scroll-to-right':
+                break;
+        }
+        if (needDispatchEvent) {
+            cc.Component.EventHandler.emitEvents(this.scrollEvents, this, eventMap[event]);
+            this.node.emit(event, this);
+        }
     },
 
     //component life cycle methods
