@@ -31,6 +31,8 @@ android {
                         arguments 'NDK_MODULE_PATH=' + module_paths.join(':')
                     }
 
+                    arguments 'NDK_OUT=./build/obj'
+                    
                     arguments '-j' + Runtime.runtime.availableProcessors()
                     abiFilters.addAll(PROP_APP_ABI.split(':').collect{it as String})
                 }
