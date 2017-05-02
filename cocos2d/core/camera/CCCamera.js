@@ -29,6 +29,15 @@ if (!CC_JSB) {
 
 let tempTransform = cc.affineTransformMake();
 
+/**
+ * !#en
+ * Camera is usefull when making reel game or other games which need scroll screen.
+ * Using camera will be more efficient than moving node to scroll screen.
+ * Camera 
+ * !#zh
+ * 摄像机在制作卷轴或是其他需要移动屏幕的游戏时比较有用，使用摄像机将会比移动节点来移动屏幕更加高效。
+ * @class Camera
+ */
 let Camera = cc.Class({
     name: 'cc.Camera',
     extends: cc._RendererUnderSG,
@@ -45,7 +54,26 @@ let Camera = cc.Class({
             visible: true
         },
 
+        /**
+         * !#en
+         * The camera zoom ratio.
+         * !#zh
+         * 摄像机缩放比率
+         * @property {Number} zoomRatio
+         */
         zoomRatio: 1,
+    },
+
+    statics: {
+        /**
+         * !#en
+         * Current active camera, the scene should only have one active camera at the same time.
+         * !#zh
+         * 当前激活的摄像机，场景中在同一时间内只能有一个激活的摄像机。
+         * @property {Camera} main
+         * @static
+         */
+        main: null
     },
 
     _createSgNode: function () {
@@ -107,6 +135,14 @@ let Camera = cc.Class({
         }
     },
 
+    /**
+     * !#en
+     * Add the specified target to camera.
+     * !#zh
+     * 将指定的节点添加到摄像机中。
+     * @method addTarget
+     * @param {cc.Node} target 
+     */
     addTarget: function (target) {
         if (this._targets.indexOf(target) !== -1) {
             return;
@@ -116,6 +152,14 @@ let Camera = cc.Class({
         this._targets.push(target);
     },
 
+    /**
+     * !#en
+     * Remove the specified target from camera.
+     * !#zh
+     * 将指定的节点从摄像机中移除。
+     * @method removeTarget
+     * @param {cc.Node} target 
+     */
     removeTarget: function (target) {
         if (this._targets.indexOf(target) === -1) {
             return;
@@ -125,6 +169,12 @@ let Camera = cc.Class({
         cc.js.array.remove(this._targets, target);
     },
 
+    /**
+     * !#en
+     * Get all camera targets.
+     * !#zh
+     * 获取所有摄像机目标节点。
+     */
     getTargets: function () {
         return this._targets;
     },
@@ -169,7 +219,5 @@ let Camera = cc.Class({
         this._sgNode.setTransform(t.a, t.b, t.c, t.d, t.tx, t.ty);
     }
 });
-
-Camera.main = null;
 
 module.exports = cc.Camera = Camera;
