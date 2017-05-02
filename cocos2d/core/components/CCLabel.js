@@ -296,7 +296,7 @@ var Label = cc.Class({
          */
         fontFamily: {
             default: "Arial",
-            tooltip: 'i18n:COMPONENT.label.font_family',
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.font_family',
             notify: function () {
                 if (this._sgNode) {
                     this._sgNode.setFontFileOrFamily(this.fontFamily);
