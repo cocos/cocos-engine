@@ -1205,9 +1205,9 @@ var BaseNode = cc.Class({
 
     onRestore: CC_EDITOR && function () {
         // check activity state
-        var shouldActiveInHierarchy = (this._parent && this._parent._activeInHierarchy && this._active);
-        if (this._activeInHierarchy !== shouldActiveInHierarchy) {
-            cc.director._nodeActivator.activateNode(this, shouldActiveInHierarchy);
+        var shouldActiveNow = this._active && !!(this._parent && this._parent._activeInHierarchy);
+        if (this._activeInHierarchy !== shouldActiveNow) {
+            cc.director._nodeActivator.activateNode(this, shouldActiveNow);
         }
     },
 });
@@ -1234,6 +1234,24 @@ if(CC_EDITOR) {
 // Define public getter and setter methods to ensure api compatibility.
 var SameNameGetSets = ['name', 'children', 'childrenCount',];
 Misc.propertyDefine(BaseNode, SameNameGetSets, {});
+
+if (CC_DEV) {
+    // promote debug info
+    JS.get(BaseNode.prototype, ' INFO ', function () {
+        var path = '';
+        var node = this;
+        while (node && !(node instanceof cc.Scene)) {
+            if (path) {
+                path = node.name + '/' + path;
+            }
+            else {
+                path = node.name;
+            }
+            node = node._parent;
+        }
+        return this.name + ', path: ' + path;
+    });
+}
 
 /**
  * !#en
