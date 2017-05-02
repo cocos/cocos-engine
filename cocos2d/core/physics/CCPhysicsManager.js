@@ -51,6 +51,36 @@ var tempB2Vec22 = new b2.Vec2();
 var PhysicsManager = cc.Class({
     mixins: [cc.EventTarget],
 
+    statics: {
+        /**
+         * !#en
+         * The draw bits for drawing physics debug information.
+         * !#zh
+         * 指定物理系统需要绘制哪些调试信息。
+         * @property {DrawBits} DrawBits
+         * @static
+         * @example
+         * 
+         * cc.director.getPhysicsManager().debugDrawFlags = 
+            // cc.PhysicsManager.DrawBits.e_aabbBit |
+            // cc.PhysicsManager.DrawBits.e_pairBit |
+            // cc.PhysicsManager.DrawBits.e_centerOfMassBit |
+            cc.PhysicsManager.DrawBits.e_jointBit |
+            cc.PhysicsManager.DrawBits.e_shapeBit;
+        */
+        DrawBits: b2.Draw,
+
+        /**
+         * !#en
+         * The ratio transform between physics unit and pixel unit, generally is 32.
+         * !#zh
+         * 物理单位与像素单位互相转换的比率，一般是 32。
+         * @property {Number} PTM_RATIO
+         * @static
+         */
+        PTM_RATIO: PTM_RATIO
+    },
+
     ctor: function () {
         this.__instanceId = cc.ClassManager.getNewInstanceId();
 
@@ -515,11 +545,47 @@ cc.js.getset(PhysicsManager.prototype, 'gravity',
     }
 );
 
-PhysicsManager.DrawBits = b2.Draw;
-PhysicsManager.PTM_RATIO = PTM_RATIO;
 
 cc.PhysicsManager = module.exports = PhysicsManager;
 
+/**
+ * @enum DrawBits
+ */
+/**
+ * !#en
+ * Draw bounding boxes
+ * !#zh
+ * 绘制包围盒
+ * @property {Number} e_aabbBit
+ */
+/**
+ * !#en
+ * Draw broad-phase pairs
+ * !#zh
+ * 绘制粗测阶段物体
+ * @property {Number} e_pairBit
+ */
+/**
+ * !#en
+ * Draw center of mass frame
+ * !#zh
+ * 绘制物体质心
+ * @property {Number} e_centerOfMassBit
+ */
+/**
+ * !#en
+ * Draw joint connections
+ * !#zh
+ * 绘制关节链接信息
+ * @property {Number} e_jointBit
+ */
+/**
+ * !#en
+ * Draw shapes
+ * !#zh
+ * 绘制形状
+ * @property {Number} e_shapeBit
+ */
 
 /**
  * @class PhysicsRayCastResult
