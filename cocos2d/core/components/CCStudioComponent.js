@@ -228,7 +228,7 @@ var StudioComponent = cc.Class({
             readonly: true,
             default: true,
             animatable: false,
-            tooltip: 'i18n:COMPONENT.scrollview.inertia',
+            tooltip: CC_DEV && 'i18n:COMPONENT.scrollview.inertia',
         },
 
         listDirection: {

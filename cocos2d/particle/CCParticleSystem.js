@@ -102,7 +102,7 @@ var properties = {
             cc.engine.repaintInEditMode();
         },
         animatable: false,
-        tooltip: 'i18n:COMPONENT.particle_system.preview'
+        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.preview'
     },
 
     /**
@@ -136,7 +136,7 @@ var properties = {
             }
         },
         animatable: false,
-        tooltip: 'i18n:COMPONENT.particle_system.custom'
+        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.custom'
     },
 
     /**
@@ -170,7 +170,7 @@ var properties = {
         },
         animatable: false,
         url: cc.ParticleAsset,
-        tooltip: 'i18n:COMPONENT.particle_system.file'
+        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.file'
     },
 
     /**
@@ -195,7 +195,7 @@ var properties = {
             }
         },
         url: cc.Texture2D,
-        tooltip: 'i18n:COMPONENT.particle_system.texture'
+        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.texture'
     },
 
     /**
@@ -211,7 +211,7 @@ var properties = {
             this._sgNode.particleCount = value;
         },
         visible: false,
-        tooltip: 'i18n:COMPONENT.particle_system.particleCount'
+        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.particleCount'
     },
 
     /**
@@ -232,7 +232,7 @@ var properties = {
         },
         animatable: false,
         type:BlendFactor,
-        tooltip: 'i18n:COMPONENT.particle_system.srcBlendFactor'
+        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.srcBlendFactor'
     },
 
     /**
@@ -253,7 +253,7 @@ var properties = {
         },
         animatable: false,
         type: BlendFactor,
-        tooltip: 'i18n:COMPONENT.particle_system.dstBlendFactor'
+        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.dstBlendFactor'
     },
 
     /**
@@ -284,7 +284,7 @@ var properties = {
             }
         },
         animatable: false,
-        tooltip: 'i18n:COMPONENT.particle_system.autoRemoveOnFinish'
+        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.autoRemoveOnFinish'
     },
 
     /**

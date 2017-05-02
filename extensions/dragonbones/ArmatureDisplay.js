@@ -99,7 +99,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                     this._animationIndex = 0;
                 }
             },
-            tooltip: 'i18n:COMPONENT.dragon_bones.dragon_bones_asset'
+            tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.dragon_bones_asset'
         },
 
         /**
@@ -118,7 +118,7 @@ dragonBones.ArmatureDisplay = cc.Class({
 
                 this._refreshSgNode();
             },
-            tooltip: 'i18n:COMPONENT.dragon_bones.dragon_bones_atlas_asset'
+            tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.dragon_bones_atlas_asset'
         },
 
         _armatureName : '',
@@ -194,7 +194,7 @@ dragonBones.ArmatureDisplay = cc.Class({
             visible: true,
             editorOnly: true,
             displayName: "Armature",
-            tooltip: 'i18n:COMPONENT.dragon_bones.armature_name'
+            tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.armature_name'
         },
 
         // value of 0 represents no animation
@@ -227,7 +227,7 @@ dragonBones.ArmatureDisplay = cc.Class({
             visible: true,
             editorOnly: true,
             displayName: 'Animation',
-            tooltip: 'i18n:COMPONENT.dragon_bones.animation_name'
+            tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.animation_name'
         },
 
         /**
@@ -243,7 +243,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                     this._sgNode.animation().timeScale = this.timeScale;
                 }
             },
-            tooltip: 'i18n:COMPONENT.dragon_bones.time_scale'
+            tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.time_scale'
         },
 
         /**
@@ -260,7 +260,7 @@ dragonBones.ArmatureDisplay = cc.Class({
          */
         playTimes: {
             default: -1,
-            tooltip: 'i18n:COMPONENT.dragon_bones.play_times'
+            tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.play_times'
         },
 
         /**
@@ -277,7 +277,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                 }
             },
             editorOnly: true,
-            tooltip: 'i18n:COMPONENT.dragon_bones.debug_bones'
+            tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.debug_bones'
         },
     },
 

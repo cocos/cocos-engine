@@ -95,7 +95,7 @@ var MotionStreak = cc.Class({
                 }
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.motionStreak.fadeTime'
+            tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.fadeTime'
         },
 
         /**
@@ -118,7 +118,7 @@ var MotionStreak = cc.Class({
                 }
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.motionStreak.minSeg'
+            tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.minSeg'
         },
 
         /**
@@ -141,7 +141,7 @@ var MotionStreak = cc.Class({
                 }
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.motionStreak.stroke'
+            tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.stroke'
         },
 
         /**
@@ -171,7 +171,7 @@ var MotionStreak = cc.Class({
             },
             url: cc.Texture2D,
             animatable: false,
-            tooltip: 'i18n:COMPONENT.motionStreak.texture'
+            tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.texture'
         },
 
         /**
@@ -194,7 +194,7 @@ var MotionStreak = cc.Class({
                     this._motionStreak.tintWithColor(value);
                 }
             },
-            tooltip: 'i18n:COMPONENT.motionStreak.color'
+            tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.color'
         },
 
         /**
@@ -218,7 +218,7 @@ var MotionStreak = cc.Class({
                 }
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.motionStreak.fastMode'
+            tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.fastMode'
         }
     },
 

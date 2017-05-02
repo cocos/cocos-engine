@@ -143,7 +143,7 @@ sp.Skeleton = cc.Class({
                 this.defaultAnimation = '';
                 this._refresh();
             },
-            tooltip: 'i18n:COMPONENT.skeleton.skeleton_data'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.skeleton_data'
         },
 
         ///**
@@ -243,7 +243,7 @@ sp.Skeleton = cc.Class({
             type: DefaultSkinsEnum,
             visible: true,
             displayName: "Default Skin",
-            tooltip: 'i18n:COMPONENT.skeleton.default_skin'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.default_skin'
         },
 
         // value of 0 represents no animation
@@ -285,7 +285,7 @@ sp.Skeleton = cc.Class({
             type: DefaultAnimsEnum,
             visible: true,
             displayName: 'Animation',
-            tooltip: 'i18n:COMPONENT.skeleton.animation'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.animation'
         },
 
         //// for inspector
@@ -310,7 +310,7 @@ sp.Skeleton = cc.Class({
          */
         loop: {
             default: true,
-            tooltip: 'i18n:COMPONENT.skeleton.loop'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.loop'
         },
 
         /**
@@ -333,7 +333,7 @@ sp.Skeleton = cc.Class({
                     this._sgNode.setPremultipliedAlpha(value);
                 }
             },
-            tooltip: 'i18n:COMPONENT.skeleton.premultipliedAlpha'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.premultipliedAlpha'
         },
 
         /**
@@ -349,7 +349,7 @@ sp.Skeleton = cc.Class({
                     this._sgNode.setTimeScale(this.timeScale);
                 }
             },
-            tooltip: 'i18n:COMPONENT.skeleton.time_scale'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.time_scale'
         },
 
         /**
@@ -366,7 +366,7 @@ sp.Skeleton = cc.Class({
                 }
             },
             editorOnly: true,
-            tooltip: 'i18n:COMPONENT.skeleton.debug_slots'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.debug_slots'
         },
 
         /**
@@ -383,7 +383,7 @@ sp.Skeleton = cc.Class({
                 }
             },
             editorOnly: true,
-            tooltip: 'i18n:COMPONENT.skeleton.debug_bones'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.debug_bones'
         }
     },
 
