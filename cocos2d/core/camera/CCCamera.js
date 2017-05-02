@@ -37,6 +37,7 @@ let tempTransform = cc.affineTransformMake();
  * !#zh
  * 摄像机在制作卷轴或是其他需要移动屏幕的游戏时比较有用，使用摄像机将会比移动节点来移动屏幕更加高效。
  * @class Camera
+ * @extends _RendererUnderSG
  */
 let Camera = cc.Class({
     name: 'cc.Camera',
@@ -141,7 +142,7 @@ let Camera = cc.Class({
      * !#zh
      * 将指定的节点添加到摄像机中。
      * @method addTarget
-     * @param {cc.Node} target 
+     * @param {Node} target 
      */
     addTarget: function (target) {
         if (this._targets.indexOf(target) !== -1) {
@@ -158,7 +159,7 @@ let Camera = cc.Class({
      * !#zh
      * 将指定的节点从摄像机中移除。
      * @method removeTarget
-     * @param {cc.Node} target 
+     * @param {Node} target 
      */
     removeTarget: function (target) {
         if (this._targets.indexOf(target) === -1) {
@@ -174,6 +175,8 @@ let Camera = cc.Class({
      * Get all camera targets.
      * !#zh
      * 获取所有摄像机目标节点。
+     * @method getTargets
+     * @return {[Node]}
      */
     getTargets: function () {
         return this._targets;
