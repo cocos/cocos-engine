@@ -137,7 +137,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         // FPS
         self._totalFrames = 0;
         self._lastUpdate = Date.now();
-        self._secondsPerFrame = 0;
         self._deltaTime = 0.0;
 
         self._dirtyRegion = null;
@@ -1074,16 +1073,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * !#en Returns seconds per frame.
-     * !#zh 获取实际记录的上一帧执行时间，可能与单位帧执行时间（AnimationInterval）有出入。
-     * @method getSecondsPerFrame
-     * @return {Number}
-     */
-    getSecondsPerFrame: function () {
-        return this._secondsPerFrame;
-    },
-
-    /**
      * !#en Returns whether next delta time equals to zero.
      * !#zh 返回下一个 “delta time” 是否等于零。
      * @method isNextDeltaTimeZero
@@ -1241,11 +1230,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     getDeltaTime: function () {
         return this._deltaTime;
     },
-
-    _calculateMPF: function () {
-        var now = Date.now();
-        this._secondsPerFrame = (now - this._lastUpdate) / 1000;
-    }
 });
 
 // Event target
@@ -1424,8 +1408,6 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
 
             this.emit(cc.Director.EVENT_AFTER_DRAW);
             cc.eventManager.frameUpdateListeners();
-
-            this._calculateMPF();
         }
     },
 
