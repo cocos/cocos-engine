@@ -190,18 +190,8 @@ function defineGetSet (cls, name, propName, val, es6) {
         }
 
         if (!es6) {
-            if (d) {
-                Object.defineProperty(proto, propName, {
-                    get: getter
-                });
-            }
-            else {
-                Object.defineProperty(proto, propName, {
-                    get: getter,
-                    configurable: true,
-                    enumerable: true
-                });
-            }
+            var setterUndefined = !d;
+            JS.get(proto, propName, getter, setterUndefined, setterUndefined);
         }
 
         if (CC_DEV) {
@@ -215,26 +205,16 @@ function defineGetSet (cls, name, propName, val, es6) {
                 if (d && d.set) {
                     return cc.errorID(3640, name, propName);
                 }
-                Object.defineProperty(proto, propName, {
-                    set: setter,
-                    configurable: true,
-                    enumerable: true
-                });
+                JS.set(proto, propName, setter, true, true);
             }
             Attr.setClassAttr(cls, propName, 'hasSetter', true); // 方便 editor 做判断
         }
         else if (!es6) {
             if (d) {
-                Object.defineProperty(proto, propName, {
-                    set: setter
-                });
+                JS.set(proto, propName, setter);
             }
             else {
-                Object.defineProperty(proto, propName, {
-                    set: setter,
-                    configurable: true,
-                    enumerable: true
-                });
+                JS.set(proto, propName, setter, true, true);
             }
         }
     }
@@ -315,22 +295,13 @@ function doDefine (className, baseClass, mixins, options) {
         fireClass = _createCtor(ctors, baseClass, className, options);
 
         // extend - Create a new Class that inherits from this Class
-        Object.defineProperty(fireClass, 'extend', {
-            value: function (options) {
-                options.extends = this;
-                return CCClass(options);
-            },
-            writable: true,
-            configurable: true
-            // enumerable should be false
-        });
+        JS.value(fireClass, 'extend', function (options) {
+            options.extends = this;
+            return CCClass(options);
+        }, true);
     }
 
-    Object.defineProperty(fireClass, '__ctors__', {
-        value: ctors.length > 0 ? ctors : null,
-        writable: true,
-        // enumerable should be false
-    });
+    JS.value(fireClass, '__ctors__', ctors.length > 0 ? ctors : null, true);
 
 
     var prototype = fireClass.prototype;
@@ -925,13 +896,8 @@ function CCClass (options) {
         if (!preprocess.validateMethod(func, funcName, name, cls, base)) {
             continue;
         }
-        // use defineProperty to redefine some super method defined as getter
-        Object.defineProperty(cls.prototype, funcName, {
-            value: func,
-            enumerable: true,
-            configurable: true,
-            writable: true,
-        });
+        // use value to redefine some super method defined as getter
+        JS.value(cls.prototype, funcName, func, true, true);
     }
 
 

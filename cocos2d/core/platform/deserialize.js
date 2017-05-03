@@ -453,7 +453,7 @@ var _Deserializer = (function () {
             // if (CC_TEST && !isPhantomJS) {
             //     cc.log(deserialize);
             // }
-            Object.defineProperty(klass, '__deserialize__', { value: deserialize, writable: true });
+            JS.value(klass, '__deserialize__', deserialize, true);
         }
         deserialize(self, obj, serialized, klass, target);
         // if preview or build
