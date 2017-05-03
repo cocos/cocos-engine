@@ -646,19 +646,21 @@ else {
     var _tmpCanvas1 = document.createElement("canvas"),
         _tmpCanvas2 = document.createElement("canvas");
 
-    cc.create3DContext = function (canvas, opt_attribs) {
-        var names = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
-        var context = null;
-        for (var ii = 0; ii < names.length; ++ii) {
+    cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
+        if (opt_contextType) {
             try {
-                context = canvas.getContext(names[ii], opt_attribs);
+                return canvas.getContext(opt_contextType, opt_attribs);
             } catch (e) {
-            }
-            if (context) {
-                break;
+                return null;
             }
         }
-        return context;
+        else {
+            return cc.create3DContext(canvas, opt_attribs, "webgl") || 
+                   cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
+                   cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
+                   cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
+                   null;
+        }
     };
 
     //Whether or not the Canvas BlendModes are supported.
@@ -717,56 +719,48 @@ else {
     var _supportCanvas = !!_tmpCanvas1.getContext("2d");
     var _supportWebGL = false;
     if (win.WebGLRenderingContext) {
-        var tmpCanvas = document.createElement("CANVAS");
-        try{
-            var context = cc.create3DContext(tmpCanvas);
-            if (context) {
-                _supportWebGL = true;
-            }
-
-            if (_supportWebGL && sys.os === sys.OS_IOS && sys.osMainVersion === 9) {
-                // Not activating WebGL in iOS 9 UIWebView because it may crash when entering background
-                if (!window.indexedDB) {
-                    _supportWebGL = false;
-                }
-            }
-
-            if (_supportWebGL && sys.os === sys.OS_ANDROID) {
-                var browserVer = parseFloat(sys.browserVersion);
-                switch (sys.browserType) {
-                case sys.BROWSER_TYPE_MOBILE_QQ:
-                case sys.BROWSER_TYPE_BAIDU:
-                case sys.BROWSER_TYPE_BAIDU_APP:
-                    // QQ & Baidu Brwoser 6.2+ (using blink kernel)
-                    if (browserVer >= 6.2) {
-                        _supportWebGL = true;
-                    }
-                    else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_ANDROID:
-                    // Android 5+ default browser
-                    if (sys.osMainVersion && sys.osMainVersion >= 5) {
-                        _supportWebGL = true;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_CHROME:
-                    // Chrome on android supports WebGL from v. 30
-                    if(browserVer >= 30.0) {
-                      _supportWebGL = true;
-                    } else {
-                      _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_360:
-                case sys.BROWSER_TYPE_UC:
-                    _supportWebGL = false;
-                }
+        if (cc.create3DContext(document.createElement("CANVAS"))) {
+            _supportWebGL = true;
+        }
+        if (_supportWebGL && sys.os === sys.OS_IOS && sys.osMainVersion === 9) {
+            // Not activating WebGL in iOS 9 UIWebView because it may crash when entering background
+            if (!win.indexedDB) {
+                _supportWebGL = false;
             }
         }
-        catch (e) {}
-        tmpCanvas = null;
+        if (_supportWebGL && sys.os === sys.OS_ANDROID) {
+            var browserVer = parseFloat(sys.browserVersion);
+            switch (sys.browserType) {
+            case sys.BROWSER_TYPE_MOBILE_QQ:
+            case sys.BROWSER_TYPE_BAIDU:
+            case sys.BROWSER_TYPE_BAIDU_APP:
+                // QQ & Baidu Brwoser 6.2+ (using blink kernel)
+                if (browserVer >= 6.2) {
+                    _supportWebGL = true;
+                }
+                else {
+                    _supportWebGL = false;
+                }
+                break;
+            case sys.BROWSER_TYPE_ANDROID:
+                // Android 5+ default browser
+                if (sys.osMainVersion && sys.osMainVersion >= 5) {
+                    _supportWebGL = true;
+                }
+                break;
+            case sys.BROWSER_TYPE_CHROME:
+                // Chrome on android supports WebGL from v. 30
+                if(browserVer >= 30.0) {
+                    _supportWebGL = true;
+                } else {
+                    _supportWebGL = false;
+                }
+                break;
+            case sys.BROWSER_TYPE_360:
+            case sys.BROWSER_TYPE_UC:
+                _supportWebGL = false;
+            }
+        }
     }
 
     /**

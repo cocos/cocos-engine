@@ -29,6 +29,7 @@ var Utils = require('./utils');
 var _isPlainEmptyObj_DEV = Utils.isPlainEmptyObj_DEV;
 var _cloneable_DEV = Utils.cloneable_DEV;
 var Attr = require('./attribute');
+var DELIMETER = Attr.DELIMETER;
 var getTypeChecker = Attr.getTypeChecker;
 var preprocess = require('./preprocess-class');
 var Misc = require('../utils/misc');
@@ -104,7 +105,10 @@ function appendProp (cls, name) {
     pushUnique(cls.__props__, name);
 }
 
-function defineProp (cls, className, propName, defaultValue, attrs, es6) {
+var tmpArray = [];
+function defineProp (cls, className, propName, val, es6) {
+    var defaultValue = val.default;
+
     if (CC_DEV) {
         if (!es6) {
             // check default object value
@@ -141,27 +145,27 @@ function defineProp (cls, className, propName, defaultValue, attrs, es6) {
     appendProp(cls, propName);
 
     // apply attributes
+    var attrs = parseAttributes(cls, val, className, propName, false);    
     if (attrs) {
-        var onAfterProp = null;
+        var onAfterProp = tmpArray;
         for (var i = 0; i < attrs.length; i++) {
             var attr = attrs[i];
             Attr.attr(cls, propName, attr);
             // register callback
             if (attr._onAfterProp) {
-                onAfterProp = onAfterProp || [];
                 onAfterProp.push(attr._onAfterProp);
             }
         }
         // call callback
-        if (onAfterProp) {
-            for (var c = 0; c < onAfterProp.length; c++) {
-                onAfterProp[c](cls, propName);
-            }
+        for (var c = 0; c < onAfterProp.length; c++) {
+            onAfterProp[c](cls, propName);
         }
+        tmpArray.length = 0;
+        attrs.length = 0;
     }
 }
 
-function defineGetSet (cls, name, propName, val, attrs, es6) {
+function defineGetSet (cls, name, propName, val, es6) {
     var getter = val.get;
     var setter = val.set;
     var proto = cls.prototype;
@@ -173,26 +177,12 @@ function defineGetSet (cls, name, propName, val, attrs, es6) {
             return;
         }
 
-        if (attrs) {
-            for (var i = 0; i < attrs.length; ++i) {
-                var attr = attrs[i];
-                if (CC_DEV && attr._canUsedInGetter === false) {
-                    cc.errorID(3639, name, propName, i);
-                    continue;
-                }
+        var attrs = parseAttributes(cls, val, name, propName, true);
+        attrs.length = 0;
 
-                Attr.attr(cls, propName, attr);
-
-                // check attributes
-                if (CC_DEV && (attr.serializable === false || attr.editorOnly === true)) {
-                    cc.warnID(3613, name, propName);
-                }
-            }
-        }
-
-        var ForceSerializable = false;
+        const ForceSerializable = false;
         if (!ForceSerializable) {
-            Attr.attr(cls, propName, Attr.NonSerialized);
+            Attr.setClassAttr(cls, propName, 'serializable', false);
         }
         if (ForceSerializable || CC_DEV) {
             // 不论是否 visible 都要添加到 props，否则 asset watcher 不能正常工作
@@ -505,7 +495,7 @@ function compileProps (actualClass) {
 
     for (var i = 0; i < propList.length; i++) {
         var prop = propList[i];
-        var attrKey = prop + Attr.DELIMETER + 'default';
+        var attrKey = prop + DELIMETER + 'default';
         if (attrKey in attrs) {  // getter does not have default
             var statement;
             if (IDENTIFIER_RE.test(prop)) {
@@ -774,12 +764,11 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6) 
 
         for (var propName in properties) {
             var val = properties[propName];
-            var attrs = parseAttributes(val, className, propName);
             if ('default' in val) {
-                defineProp(cls, className, propName, val.default, attrs, es6);
+                defineProp(cls, className, propName, val, es6);
             }
             else {
-                defineGetSet(cls, className, propName, val, attrs, es6);
+                defineGetSet(cls, className, propName, val, es6);
             }
         }
     }
@@ -985,11 +974,11 @@ CCClass._fastDefine = function (className, constructor, serializableFields) {
     JS.setClassName(className, constructor);
     //constructor.__ctors__ = constructor.__ctors__ || null;
     var props = constructor.__props__ = Object.keys(serializableFields);
+    var attrProtos = Attr.getClassAttrsProto(constructor);
     for (var i = 0; i < props.length; i++) {
         var key = props[i];
-        var val = serializableFields[key];
-        Attr.setClassAttr(constructor, key, 'visible', false);
-        Attr.setClassAttr(constructor, key, 'default', val);
+        attrProtos[key + DELIMETER + 'visible'] = false;
+        attrProtos[key + DELIMETER + 'default'] = serializableFields[key];
     }
 };
 
@@ -1061,8 +1050,15 @@ var PrimitiveTypes = {
     String: 'String',
 };
 var tmpAttrs = [];
-function parseAttributes (attrs, className, propName) {
+function parseAttributes (cls, attrs, className, propName, usedInGetter) {
     var ERR_Type = CC_DEV ? 'The %s of %s must be type %s' : '';
+
+    var attrsProto = null;
+    var attrsProtoKey = '';
+    function getAttrsProto () {
+        attrsProtoKey = propName + DELIMETER;
+        return attrsProto = Attr.getClassAttrsProto(cls);
+    }
 
     tmpAttrs.length = 0;
     var result = tmpAttrs;
@@ -1121,18 +1117,11 @@ function parseAttributes (attrs, className, propName) {
         }
     }
 
-    function parseSimpleAttr (attrName, expectType, attrCreater) {
+    function parseSimpleAttr (attrName, expectType) {
         if (attrName in attrs) {
             var val = attrs[attrName];
             if (typeof val === expectType) {
-                if ( !attrCreater ) {
-                    var attr = {};
-                    attr[attrName] = val;
-                    result.push(attr);
-                }
-                else {
-                    result.push(typeof attrCreater === 'function' ? attrCreater(val) : attrCreater);
-                }
+                (attrsProto || getAttrsProto())[attrsProtoKey + attrName] = val;
             }
             else if (CC_DEV) {
                 cc.error(ERR_Type, attrName, className, propName, expectType);
@@ -1140,26 +1129,54 @@ function parseAttributes (attrs, className, propName) {
         }
     }
 
-    parseSimpleAttr('rawType', 'string', Attr.RawType);
-    parseSimpleAttr('editorOnly', 'boolean', Attr.EditorOnly);
+    // if (attrs.rawType) {
+    //     if (CC_DEV && usedInGetter) {
+    //         cc.errorID(3613, "rawType", name, propName);
+    //     }
+    //     else {
+    //         var val = attrs.rawType;
+    //         if (typeof val === 'string') {
+    //             result.push(Attr.RawType(val));
+    //         }
+    //         else if (CC_DEV) {
+    //             cc.error(ERR_Type, "rawType", className, propName, 'string');
+    //         }
+    //     }
+    // }
+    
+    if (attrs.editorOnly) {
+        if (CC_DEV && usedInGetter) {
+            cc.errorID(3613, "editorOnly", name, propName);
+        }
+        else {
+            (attrsProto || getAttrsProto())[attrsProtoKey + 'editorOnly'] = true;
+        }
+    }
     //parseSimpleAttr('preventDeferredLoad', 'boolean');
     if (CC_DEV) {
         parseSimpleAttr('displayName', 'string');
-        parseSimpleAttr('multiline', 'boolean', {multiline: true});
-        parseSimpleAttr('readonly', 'boolean', {readonly: true});
+        parseSimpleAttr('multiline', 'boolean');
+        if (attrs.readonly) {
+            (attrsProto || getAttrsProto())[attrsProtoKey + 'readonly'] = true;
+        }
         parseSimpleAttr('tooltip', 'string');
         parseSimpleAttr('slide', 'boolean');
     }
 
     if (attrs.url) {
-        result.push({ saveUrlAsAsset: true });
+        (attrsProto || getAttrsProto())[attrsProtoKey + 'saveUrlAsAsset'] = true;
     }
     if (attrs.serializable === false) {
-        result.push(Attr.NonSerialized);
+        if (CC_DEV && usedInGetter) {
+            cc.errorID(3613, "serializable", name, propName);
+        }
+        else {
+            (attrsProto || getAttrsProto())[attrsProtoKey + 'serializable'] = false;
+        }
     }
     if (CC_EDITOR) {
         if ('animatable' in attrs && !attrs.animatable) {
-            result.push({ animatable: false });
+            (attrsProto || getAttrsProto())[attrsProtoKey + 'animatable'] = false;
         }
     }
 
@@ -1167,29 +1184,27 @@ function parseAttributes (attrs, className, propName) {
         var visible = attrs.visible;
         if (typeof visible !== 'undefined') {
             if (!visible) {
-                result.push({visible: false});
+                (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = false;
             }
             else if (typeof visible === 'function') {
-                result.push({visible: visible});
+                (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = visible;
             }
         }
         else {
             var startsWithUS = (propName.charCodeAt(0) === 95);
             if (startsWithUS) {
-                result.push({visible: false});
+                (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = false;
             }
         }
     }
-
-    //if (attrs.custom) {
-    //    result.push( { custom: attrs.custom });
-    //}
 
     var range = attrs.range;
     if (range) {
         if (Array.isArray(range)) {
             if (range.length >= 2) {
-                result.push({ min: range[0], max: range[1], step: range[2] });
+                (attrsProto || getAttrsProto())[attrsProtoKey + 'min'] = range[0];
+                attrsProto[attrsProtoKey + 'max'] = range[1];
+                attrsProto[attrsProtoKey + 'step'] = range[2];
             }
             else if (CC_DEV) {
                 cc.errorID(3647);

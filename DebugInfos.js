@@ -266,7 +266,7 @@ if (CC_DEV) {
         "3610": "The type of %s must be cc.Float or cc.Integer, not Number.", //getTypeChecker_7
         "3611": "Can not indicate the '%s' attribute for %s, which its default value is type of %s.", //getTypeChecker_8
         "3612": "%s Just set the default value to 'new %s()' and it will be handled properly.", //getTypeChecker_9
-        "3613": "'No need to use 'serializable: false' or 'editorOnly: true' for the getter of '%s.%s', every getter is actually non-serialized.", //defineGetSet
+        "3613": "'No need to specify the '%s' attribute for the getter of '%s.%s', every getter is actually non-serialized.", //defineGetSet
         "3615": "Each script can have at most one Component.", //define_2
         "3616": "Should not specify class name %s for Component which defines in project.", //define_3
         "3617": "ctor of CCClass '%s' should not accept any arguments.", //_createCtor
@@ -291,7 +291,6 @@ if (CC_DEV) {
         "3636": "Do not set default value to non-empty object, unless the object defines its own 'clone' function. Set default value of %s.%s to null or {}, and initialize in 'onLoad' or 'ctor' please. (just like 'this.%s = {foo: bar};')", //defineProp_2        
         "3637": "Can not declare %s.%s, it is already defined in the prototype of %s", //defineProp_3        
         "3638": "'%s': the getter of '%s' is already defined!", //defineGetSet_2
-        "3639": "Can not apply the specified attribute to the getter of '%s.%s', attribute index: %s", //defineGetSet_3
         "3640": "'%s': the setter of '%s' is already defined!", //defineGetSet_4
         "3641": "Can not construct %s because it contains object property.", //getNewValueTypeCode
         "3642": "Cannot define %s.%s because static member name can not be '%s'.", //CCClass_4
