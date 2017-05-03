@@ -347,6 +347,12 @@ if (CC_DEV) {
         }
     }
 
+    // cc.director
+
+    provideClearError(cc.Director.prototype, {
+        getSecondsPerFrame : 'getDeltaTime'
+    });
+
     // cc.loader
 
     markAsRemoved(cc.Pipeline, [
