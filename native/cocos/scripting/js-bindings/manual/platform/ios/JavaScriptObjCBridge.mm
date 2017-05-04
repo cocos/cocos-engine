@@ -41,9 +41,9 @@ JS::Value JavaScriptObjCBridge::convertReturnValue(JSContext *cx, ReturnValue re
     switch (type)
     {
         case TypeInteger:
-            return INT_TO_JSVAL(retValue.intValue);
+            return JS::Int32Value(retValue.intValue);
         case TypeFloat:
-            return DOUBLE_TO_JSVAL((double)retValue.floatValue);
+            return JS::DoubleValue((double)retValue.floatValue);
         case TypeBoolean:
             return BOOLEAN_TO_JSVAL(retValue.boolValue);
         case TypeString:

@@ -56,7 +56,7 @@ public:
     void menuItemCallback(Ref *pSender);
     void controlCallback(Ref *pSender, cocos2d::extension::Control::EventType event);
     void setCallbackProperty(const char *prop);
-    void setJSOwner(jsval ownr);
+    void setJSOwner(JS::HandleValue ownr);
     jsval getJSOwner();
 };
 

@@ -70,20 +70,18 @@ CCBSelectorResolver * CCBScriptCallbackProxy::createNew() {
 }
 
 void CCBScriptCallbackProxy::menuItemCallback(Ref *pSender) {
-    jsval arg;
-    ScriptingCore::getInstance()->executeFunctionWithOwner(owner, callBackProp.c_str(), 0, &arg);
+    ScriptingCore::getInstance()->executeFunctionWithOwner(owner, callBackProp.c_str(), 0, JS::HandleValueArray::empty());
 }
 
 void CCBScriptCallbackProxy::controlCallback(Ref *pSender, Control::EventType event) {
-    jsval arg;
-    ScriptingCore::getInstance()->executeFunctionWithOwner(owner, callBackProp.c_str(), 0, &arg);
+    ScriptingCore::getInstance()->executeFunctionWithOwner(owner, callBackProp.c_str(), 0, JS::HandleValueArray::empty());
 }
 
 void CCBScriptCallbackProxy::setCallbackProperty(const char *prop) {
     callBackProp = prop;
 }
 
-void CCBScriptCallbackProxy::setJSOwner(jsval ownr) {
+void CCBScriptCallbackProxy::setJSOwner(JS::HandleValue ownr) {
     owner = ownr;
 }
 

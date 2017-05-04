@@ -564,7 +564,7 @@ public:
         jsval dataVal[2];
         dataVal[0] = OBJECT_TO_JSVAL(p->obj);
         int arg1 = (int)event;
-        dataVal[1] = INT_TO_JSVAL(arg1);
+        dataVal[1] = JS::Int32Value(arg1);
         JS::RootedValue jsRet(cx);
 
         _callback->invoke(2, dataVal, &jsRet);
@@ -1007,7 +1007,7 @@ bool js_performance_now(JSContext *cx, uint32_t argc, jsval *vp)
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 	auto now = steady_clock::now();
 	auto micro = duration_cast<microseconds>(now - ScriptingCore::getInstance()->getEngineStartTime()).count();
-	args.rval().set(DOUBLE_TO_JSVAL((double)micro * 0.001));
+	args.rval().set(JS::DoubleValue((double)micro * 0.001));
 	return true;
 }
 

@@ -45,7 +45,7 @@ void JSArmatureWrapper::movementCallbackFunc(cocostudio::Armature *armature, coc
     if (!callback.isNullOrUndefined())
     {
         int movementEventType = (int)movementType;
-        jsval movementVal = INT_TO_JSVAL(movementEventType);
+        jsval movementVal = JS::Int32Value(movementEventType);
 
         jsval idVal = std_string_to_jsval(cx, movementID);
 
@@ -68,7 +68,7 @@ void JSArmatureWrapper::addArmatureFileInfoAsyncCallbackFunc(float percent)
     JS::RootedValue retval(cx);
     if (!callback.isNullOrUndefined())
     {
-        jsval percentVal = DOUBLE_TO_JSVAL(percent);
+        jsval percentVal = JS::DoubleValue(percent);
 
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
@@ -89,8 +89,8 @@ void JSArmatureWrapper::frameCallbackFunc(cocostudio::Bone *bone, const std::str
     if (!callback.isNullOrUndefined())
     {
         jsval nameVal = std_string_to_jsval(cx, evt);
-        jsval originIndexVal = INT_TO_JSVAL(originFrameIndex);
-        jsval currentIndexVal = INT_TO_JSVAL(currentFrameIndex);
+        jsval originIndexVal = JS::Int32Value(originFrameIndex);
+        jsval currentIndexVal = JS::Int32Value(currentFrameIndex);
 
         jsval valArr[4];
         valArr[0] = OBJECT_TO_JSVAL(jsbone);
@@ -302,7 +302,7 @@ bool js_cocos2dx_studio_ColliderBody_getCalculatedVertexList(JSContext *cx, uint
         JS::RootedObject tmp(cx);
         for(const auto& point : ret)
         {
-            tmp = JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr());
+            tmp = JS_NewPlainObject(cx);
             if (!tmp) break;
             bool ok = JS_DefineProperty(cx, tmp, "x", point.x, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
                 JS_DefineProperty(cx, tmp, "y", point.y, JSPROP_ENUMERATE | JSPROP_PERMANENT);
@@ -397,7 +397,7 @@ static bool js_cocos2dx_studio_Frame_getEasingParams(JSContext *cx, uint32_t arg
 bool js_get_BaseData_x(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = DOUBLE_TO_JSVAL(cobj->x);
+        jsval ret = JS::DoubleValue(cobj->x);
 
         if (ret != JSVAL_NULL)
         {
@@ -423,7 +423,7 @@ bool js_set_BaseData_x(JSContext *cx, JS::HandleObject obj, JS::HandleId id, boo
 bool js_get_BaseData_y(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = DOUBLE_TO_JSVAL(cobj->y);
+        jsval ret = JS::DoubleValue(cobj->y);
 
         if (ret != JSVAL_NULL)
         {
@@ -449,7 +449,7 @@ bool js_set_BaseData_y(JSContext *cx, JS::HandleObject obj, JS::HandleId id, boo
 bool js_get_BaseData_zOrder(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = INT_TO_JSVAL(cobj->zOrder);
+        jsval ret = JS::Int32Value(cobj->zOrder);
 
         if (ret != JSVAL_NULL)
         {
@@ -475,7 +475,7 @@ bool js_set_BaseData_zOrder(JSContext *cx, JS::HandleObject obj, JS::HandleId id
 bool js_get_BaseData_skewX(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = DOUBLE_TO_JSVAL(cobj->skewX);
+        jsval ret = JS::DoubleValue(cobj->skewX);
 
         if (ret != JSVAL_NULL)
         {
@@ -501,7 +501,7 @@ bool js_set_BaseData_skewX(JSContext *cx, JS::HandleObject obj, JS::HandleId id,
 bool js_get_BaseData_skewY(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = DOUBLE_TO_JSVAL(cobj->skewY);
+        jsval ret = JS::DoubleValue(cobj->skewY);
 
         if (ret != JSVAL_NULL)
         {
@@ -527,7 +527,7 @@ bool js_set_BaseData_skewY(JSContext *cx, JS::HandleObject obj, JS::HandleId id,
 bool js_get_BaseData_scaleX(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = DOUBLE_TO_JSVAL(cobj->scaleX);
+        jsval ret = JS::DoubleValue(cobj->scaleX);
 
         if (ret != JSVAL_NULL)
         {
@@ -553,7 +553,7 @@ bool js_set_BaseData_scaleX(JSContext *cx, JS::HandleObject obj, JS::HandleId id
 bool js_get_BaseData_scaleY(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = DOUBLE_TO_JSVAL(cobj->scaleY);
+        jsval ret = JS::DoubleValue(cobj->scaleY);
 
         if (ret != JSVAL_NULL)
         {
@@ -579,7 +579,7 @@ bool js_set_BaseData_scaleY(JSContext *cx, JS::HandleObject obj, JS::HandleId id
 bool js_get_BaseData_tweenRotate(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = DOUBLE_TO_JSVAL(cobj->tweenRotate);
+        jsval ret = JS::DoubleValue(cobj->tweenRotate);
 
         if (ret != JSVAL_NULL)
         {
@@ -631,7 +631,7 @@ bool js_set_BaseData_isUseColorInfo(JSContext *cx, JS::HandleObject obj, JS::Han
 bool js_get_BaseData_a(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = INT_TO_JSVAL(cobj->a);
+        jsval ret = JS::Int32Value(cobj->a);
 
         if (ret != JSVAL_NULL)
         {
@@ -657,7 +657,7 @@ bool js_set_BaseData_a(JSContext *cx, JS::HandleObject obj, JS::HandleId id, boo
 bool js_get_BaseData_r(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = INT_TO_JSVAL(cobj->r);
+        jsval ret = JS::Int32Value(cobj->r);
 
         if (ret != JSVAL_NULL)
         {
@@ -683,7 +683,7 @@ bool js_set_BaseData_r(JSContext *cx, JS::HandleObject obj, JS::HandleId id, boo
 bool js_get_BaseData_g(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = INT_TO_JSVAL(cobj->g);
+        jsval ret = JS::Int32Value(cobj->g);
 
         if (ret != JSVAL_NULL)
         {
@@ -709,7 +709,7 @@ bool js_set_BaseData_g(JSContext *cx, JS::HandleObject obj, JS::HandleId id, boo
 bool js_get_BaseData_b(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = INT_TO_JSVAL(cobj->b);
+        jsval ret = JS::Int32Value(cobj->b);
 
         if (ret != JSVAL_NULL)
         {
@@ -799,7 +799,7 @@ bool js_get_AnimationData_movementDataDic(JSContext *cx, JS::HandleObject obj, J
     cocostudio::AnimationData* cobj = (cocostudio::AnimationData*)JS_GetPrivate(obj);
     if (cobj) {
         cocos2d::Map<std::string, cocostudio::MovementData*> dic = cobj->movementDataDic;
-        JS::RootedObject jsRet(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+        JS::RootedObject jsRet(cx, JS_NewPlainObject(cx));
 
         for (auto iter = dic.begin(); iter != dic.end(); ++iter)
         {
@@ -923,7 +923,7 @@ bool js_set_MovementData_name(JSContext *cx, JS::HandleObject obj, JS::HandleId 
 bool js_get_MovementData_duration(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::MovementData* cobj = (cocostudio::MovementData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = INT_TO_JSVAL(cobj->duration);
+        jsval ret = JS::Int32Value(cobj->duration);
 
         if (ret != JSVAL_NULL)
         {
@@ -949,7 +949,7 @@ bool js_set_MovementData_duration(JSContext *cx, JS::HandleObject obj, JS::Handl
 bool js_get_MovementData_scale(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::MovementData* cobj = (cocostudio::MovementData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = DOUBLE_TO_JSVAL(cobj->scale);
+        jsval ret = JS::DoubleValue(cobj->scale);
 
         if (ret != JSVAL_NULL)
         {
@@ -975,7 +975,7 @@ bool js_set_MovementData_scale(JSContext *cx, JS::HandleObject obj, JS::HandleId
 bool js_get_MovementData_durationTo(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::MovementData* cobj = (cocostudio::MovementData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = INT_TO_JSVAL(cobj->durationTo);
+        jsval ret = JS::Int32Value(cobj->durationTo);
 
         if (ret != JSVAL_NULL)
         {
@@ -1001,7 +1001,7 @@ bool js_set_MovementData_durationTo(JSContext *cx, JS::HandleObject obj, JS::Han
 bool js_get_MovementData_durationTween(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::MovementData* cobj = (cocostudio::MovementData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = INT_TO_JSVAL(cobj->durationTween);
+        jsval ret = JS::Int32Value(cobj->durationTween);
 
         if (ret != JSVAL_NULL)
         {
@@ -1053,7 +1053,7 @@ bool js_set_MovementData_loop(JSContext *cx, JS::HandleObject obj, JS::HandleId 
 bool js_get_MovementData_tweenEasing(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp) {
     cocostudio::MovementData* cobj = (cocostudio::MovementData*)JS_GetPrivate(obj);
     if (cobj) {
-        jsval ret = INT_TO_JSVAL(cobj->tweenEasing);
+        jsval ret = JS::Int32Value(cobj->tweenEasing);
 
         if (ret != JSVAL_NULL)
         {
@@ -1237,7 +1237,7 @@ bool js_get_TextureData_width(JSContext *cx, JS::HandleObject obj, JS::HandleId 
     //jsval argv;
     //cocostudio::TextureData* cobj = (cocostudio::TextureData*)JS_GetInstancePrivate(cx, obj.get(), jsb_cocostudio_TextureData_class, &argv);
     if (cobj) {
-        jsval ret = DOUBLE_TO_JSVAL(cobj->width);
+        jsval ret = JS::DoubleValue(cobj->width);
 
         if (ret != JSVAL_NULL)
         {
@@ -1269,7 +1269,7 @@ bool js_get_TextureData_height(JSContext *cx, JS::HandleObject obj, JS::HandleId
     js_proxy_t *proxy = jsb_get_js_proxy(jsobj);
     cocostudio::TextureData* cobj = (cocostudio::TextureData*)(proxy ? proxy->ptr : NULL);
     if (cobj) {
-        jsval ret = DOUBLE_TO_JSVAL(cobj->height);
+        jsval ret = JS::DoubleValue(cobj->height);
 
         if (ret != JSVAL_NULL)
         {
@@ -1301,7 +1301,7 @@ bool js_get_TextureData_pivotX(JSContext *cx, JS::HandleObject obj, JS::HandleId
     js_proxy_t *proxy = jsb_get_js_proxy(jsobj);
     cocostudio::TextureData* cobj = (cocostudio::TextureData*)(proxy ? proxy->ptr : NULL);
     if (cobj) {
-        jsval ret = DOUBLE_TO_JSVAL(cobj->pivotX);
+        jsval ret = JS::DoubleValue(cobj->pivotX);
 
         if (ret != JSVAL_NULL)
         {
@@ -1333,7 +1333,7 @@ bool js_get_TextureData_pivotY(JSContext *cx, JS::HandleObject obj, JS::HandleId
     js_proxy_t *proxy = jsb_get_js_proxy(jsobj);
     cocostudio::TextureData* cobj = (cocostudio::TextureData*)(proxy ? proxy->ptr : NULL);
     if (cobj) {
-        jsval ret = DOUBLE_TO_JSVAL(cobj->pivotY);
+        jsval ret = JS::DoubleValue(cobj->pivotY);
 
         if (ret != JSVAL_NULL)
         {

@@ -66,10 +66,6 @@ extern "C" {
     /** delts a JSObject for a given proxy */
     void jsb_del_jsobject_for_proxy(void* proxy);
 
-
-    // needed for callbacks. It does nothing.
-    bool JSB_do_nothing(JSContext *cx, uint32_t argc, jsval *vp);
-
 #ifdef __cplusplus
 }
 #endif

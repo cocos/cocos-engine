@@ -38,10 +38,10 @@ void JSB_register_opengl(JSContext *_cx, JS::HandleObject object)
     //
     // gl
     //
-    JS::RootedObject opengl(_cx, JS_NewObject(_cx, NULL, JS::NullPtr(), JS::NullPtr()));
+    JS::RootedObject opengl(_cx, JS_NewPlainObject(_cx));
 
     JS::RootedValue openglVal(_cx);
-    openglVal = OBJECT_TO_JSVAL(opengl);
+    openglVal = JS::ObjectOrNullValue(opengl);
     JS_SetProperty(_cx, object, "gl", openglVal);
 
     JS::RootedObject ccns(_cx);

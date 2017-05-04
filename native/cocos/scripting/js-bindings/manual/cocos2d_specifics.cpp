@@ -523,11 +523,11 @@ void js_add_object_reference(JS::HandleValue owner, JS::HandleValue target)
     }
 
     JS::RootedValue retval(cx);
-    jsval valArr[2];
-    valArr[0] = owner;
-    valArr[1] = target;
+    JS::AutoValueVector valArr(cx);
+    valArr.append(owner);
+    valArr.append(target);
+    JS::HandleValueArray args(valArr);
 
-    JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(2, valArr);
     engine->executeFunctionWithOwner(jsbVal, "registerNativeRef", args, &retval);
 }
 void js_remove_object_reference(JS::HandleValue owner, JS::HandleValue target)
@@ -552,11 +552,11 @@ void js_remove_object_reference(JS::HandleValue owner, JS::HandleValue target)
     }
 
     JS::RootedValue retval(cx);
-    jsval valArr[2];
-    valArr[0] = owner;
-    valArr[1] = target;
+    JS::AutoValueVector valArr(cx);
+    valArr.append(owner);
+    valArr.append(target);
+    JS::HandleValueArray args(valArr);
 
-    JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(2, valArr);
     engine->executeFunctionWithOwner(jsbVal, "unregisterNativeRef", args, &retval);
 }
 void js_add_object_root(JS::HandleValue target)
@@ -583,11 +583,11 @@ void js_add_object_root(JS::HandleValue target)
     JS::RootedValue valRoot(cx, OBJECT_TO_JSVAL(root));
 
     JS::RootedValue retval(cx);
-    jsval valArr[2];
-    valArr[0] = valRoot;
-    valArr[1] = target;
-
-    JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(2, valArr);
+    JS::AutoValueVector valArr(cx);
+    valArr.append(valRoot);
+    valArr.append(target);
+    JS::HandleValueArray args(valArr);
+    
     engine->executeFunctionWithOwner(jsbVal, "registerNativeRef", args, &retval);
 }
 void js_remove_object_root(JS::HandleValue target)
@@ -614,11 +614,11 @@ void js_remove_object_root(JS::HandleValue target)
     JS::RootedValue valRoot(cx, OBJECT_TO_JSVAL(root));
 
     JS::RootedValue retval(cx);
-    jsval valArr[2];
-    valArr[0] = valRoot;
-    valArr[1] = target;
+    JS::AutoValueVector valArr(cx);
+    valArr.append(valRoot);
+    valArr.append(target);
+    JS::HandleValueArray args(valArr);
 
-    JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(2, valArr);
     engine->executeFunctionWithOwner(jsbVal, "unregisterNativeRef", args, &retval);
 }
 
@@ -1187,7 +1187,7 @@ void JSScheduleWrapper::dump()
 
 void JSScheduleWrapper::scheduleFunc(float dt)
 {
-    jsval data = DOUBLE_TO_JSVAL(dt);
+    jsval data = JS::DoubleValue(dt);
 
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
 
@@ -1213,13 +1213,13 @@ void JSScheduleWrapper::scheduleFunc(float dt)
 
 void JSScheduleWrapper::update(float dt)
 {
-    jsval data = DOUBLE_TO_JSVAL(dt);
+    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
     
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    
-    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
+    JS::RootedValue data(cx, JS::DoubleValue(dt));
 
     JS::RootedValue targetVal(cx, getJSCallbackThis());
+    JS::HandleValueArray args(data);
     ScriptingCore::getInstance()->executeFunctionWithOwner(targetVal, "update", 1, &data);
 }
 
@@ -1957,7 +1957,7 @@ bool js_CCScheduler_schedule(JSContext *cx, uint32_t argc, jsval *vp)
             auto lambda = [=](float larg0) -> void {
                 JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                 jsval largv[1];
-                largv[0] = DOUBLE_TO_JSVAL(larg0);
+                largv[0] = JS::DoubleValue(larg0);
                 JS::RootedValue rval(cx);
                 bool invokeOk = func->invoke(1, &largv[0], &rval);
                 if (!invokeOk && JS_IsExceptionPending(cx)) {
@@ -4621,8 +4621,10 @@ bool js_cocos2dx_EventKeyboard_constructor(JSContext *cx, uint32_t argc, jsval *
 
     cocos2d::EventKeyboard::KeyCode arg0;
     ScriptingCore *core = ScriptingCore::getInstance();
+    JS::RootedValue owner(cx, JS::ObjectOrNullValue(core->getGlobalObject()));
+    JS::HandleValueArray argsv(args);
     JS::RootedValue retVal(cx);
-    core->executeFunctionWithOwner(OBJECT_TO_JSVAL(core->getGlobalObject()), "parseKeyCode", args, &retVal);
+    core->executeFunctionWithOwner(owner, "parseKeyCode", argsv, &retVal);
     ok &= jsval_to_int32(cx, retVal, (int32_t *)&arg0);
 
     bool arg1;
@@ -4767,7 +4769,7 @@ bool js_cocos2dx_PolygonInfo_getArea(JSContext *cx, uint32_t argc, jsval *vp)
     {
         const float ret = cobj->getArea();
         jsval jsret = JSVAL_NULL;
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -4905,11 +4907,15 @@ bool js_cocos2dx_PolygonInfo_constructor(JSContext *cx, uint32_t argc, jsval *vp
     JS::RootedObject proto(cx, typeClass->proto.ref());
     JS::RootedObject parent(cx, typeClass->parentProto.ref());
     JS::RootedObject obj(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
-    args.rval().set(OBJECT_TO_JSVAL(obj));
+    JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
+    args.rval().set(objVal);
     // link the native object with the javascript object
     jsb_new_proxy(cobj, obj);
     if (JS_HasProperty(cx, obj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(objVal, "_ctor", argsv);
+    }
     return true;
 }
 
@@ -5064,11 +5070,15 @@ bool js_cocos2dx_AutoPolygon_constructor(JSContext *cx, uint32_t argc, jsval *vp
     JS::RootedObject proto(cx, typeClass->proto.ref());
     JS::RootedObject parent(cx, typeClass->parentProto.ref());
     JS::RootedObject obj(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
-    args.rval().set(OBJECT_TO_JSVAL(obj));
+    JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
+    args.rval().set(objVal);
     // link the native object with the javascript object
     jsb_new_proxy(cobj, obj);
     if (JS_HasProperty(cx, obj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(objVal, "_ctor", argsv);
+    }
     return true;
 }
 

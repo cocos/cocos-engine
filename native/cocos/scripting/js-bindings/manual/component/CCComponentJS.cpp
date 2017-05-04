@@ -127,7 +127,7 @@ void ComponentJS::update(float delta)
     if (_succeedLoadingScript)
     {
         mozilla::Maybe<JS::PersistentRootedObject>* jsObj = static_cast<mozilla::Maybe<JS::PersistentRootedObject>*>(_jsObj);
-        jsval dataVal = DOUBLE_TO_JSVAL(delta);
+        jsval dataVal = JS::DoubleValue(delta);
         JS::RootedValue retval(ScriptingCore::getInstance()->getGlobalContext());
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsObj->ref().get()), ComponentJS::UPDATE.c_str(), 1, &dataVal, &retval);
     }
@@ -138,7 +138,7 @@ void ComponentJS::onEnter()
     if (_succeedLoadingScript)
     {
         mozilla::Maybe<JS::PersistentRootedObject>* jsObj = static_cast<mozilla::Maybe<JS::PersistentRootedObject>*>(_jsObj);
-        jsval dataVal = INT_TO_JSVAL(1);
+        jsval dataVal = JS::Int32Value(1);
         JS::RootedValue retval(ScriptingCore::getInstance()->getGlobalContext());
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsObj->ref().get()), ComponentJS::ON_ENTER.c_str(), 1, &dataVal, &retval);
     }
@@ -149,7 +149,7 @@ void ComponentJS::onExit()
     if (_succeedLoadingScript)
     {
         mozilla::Maybe<JS::PersistentRootedObject>* jsObj = static_cast<mozilla::Maybe<JS::PersistentRootedObject>*>(_jsObj);
-        jsval dataVal = INT_TO_JSVAL(1);
+        jsval dataVal = JS::Int32Value(1);
         JS::RootedValue retval(ScriptingCore::getInstance()->getGlobalContext());
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsObj->ref().get()), ComponentJS::ON_EXIT.c_str(), 1, &dataVal, &retval);
     }

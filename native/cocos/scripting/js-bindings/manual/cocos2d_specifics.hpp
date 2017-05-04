@@ -164,9 +164,9 @@ public:
     void setJSCallbackThis(JS::HandleValue thisObj);
     void setJSExtraData(JS::HandleValue data);
 
-    const jsval getJSCallbackFunc() const;
-    const jsval getJSCallbackThis() const;
-    const jsval getJSExtraData() const;
+    const JS::HandleValue getJSCallbackFunc() const;
+    const JS::HandleValue getJSCallbackThis() const;
+    const JS::HandleValue getJSExtraData() const;
 protected:
     JS::Heap<JS::Value> _owner;
     JS::Heap<JS::Value> _jsCallback;
@@ -294,16 +294,16 @@ private:
     std::string _currentValue;
 };
 
-bool js_cocos2dx_Node_onEnter(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_Node_onExit(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_Node_onEnterTransitionDidFinish(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_Node_onExitTransitionDidStart(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_Node_cleanup(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_Component_onEnter(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_Component_onExit(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_Node_onEnter(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_Node_onExit(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_Node_onEnterTransitionDidFinish(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_Node_onExitTransitionDidStart(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_Node_cleanup(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_Component_onEnter(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_Component_onExit(JSContext *cx, uint32_t argc, JS::Value *vp);
 
-bool js_cocos2dx_retain(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_release(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_retain(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_release(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 void get_or_create_js_obj(JSContext* cx, JS::HandleObject obj, const std::string &name, JS::MutableHandleObject jsObj);
 void get_or_create_js_obj(const std::string &name, JS::MutableHandleObject jsObj);

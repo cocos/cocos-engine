@@ -37,9 +37,10 @@ bool jsval_to_DownloaderHints(JSContext *cx, JS::HandleValue v, cocos2d::network
     JS_GetProperty(cx, tmp, "countOfMaxProcessingTasks", &jsCountOfMaxProcessingTasks) &&
     JS_GetProperty(cx, tmp, "timeoutInSeconds", &jsTimeoutInSeconds) &&
     JS_GetProperty(cx, tmp, "tempFileNameSuffix", &jsTempFileNameSuffix) &&
-    JS::ToNumber(cx, jsCountOfMaxProcessingTasks, &countOfMaxProcessingTasks) &&
-    JS::ToNumber(cx, jsTimeoutInSeconds, &timeoutInSeconds) &&
     jsval_to_std_string(cx, jsTempFileNameSuffix, &tempFileNameSuffix);
+    
+    countOfMaxProcessingTasks = jsCountOfMaxProcessingTasks.toNumber();
+    timeoutInSeconds = jsTimeoutInSeconds.toNumber();
     
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
     
@@ -49,16 +50,17 @@ bool jsval_to_DownloaderHints(JSContext *cx, JS::HandleValue v, cocos2d::network
     return true;
 }
 
-jsval downloadTask_to_jsval(JSContext *cx, const cocos2d::network::DownloadTask& v)
+JS::HandleValue downloadTask_to_jsval(JSContext *cx, const cocos2d::network::DownloadTask& v)
 {
-    JS::RootedObject tmp(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
-    if (!tmp) return JSVAL_NULL;
+    JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
+    JS::RootedValue ret(cx, JS::NullValue());
+    if (!tmp) return ret;
     bool ok = JS_DefineProperty(cx, tmp, "identifier", JS::RootedValue(cx, std_string_to_jsval(cx, v.identifier)), JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
     JS_DefineProperty(cx, tmp, "requestURL", JS::RootedValue(cx, std_string_to_jsval(cx, v.requestURL)), JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
     JS_DefineProperty(cx, tmp, "storagePath", JS::RootedValue(cx, std_string_to_jsval(cx, v.storagePath)), JSPROP_ENUMERATE | JSPROP_PERMANENT);
     if (ok) {
-        return OBJECT_TO_JSVAL(tmp);
+        ret = JS::ObjectOrNullValue(tmp);
     }
-    return JSVAL_NULL;
+    return ret;
 }
 

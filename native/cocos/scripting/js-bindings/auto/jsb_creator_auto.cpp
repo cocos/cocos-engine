@@ -13,17 +13,17 @@
 #include "scripting/js-bindings/manual/box2d/js_bindings_box2d_manual.h"
 
 template<class T>
-static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS_ReportError(cx, "Constructor for the requested class is not available, please refer to the API reference.");
     return false;
 }
 
-static bool empty_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
+static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return false;
 }
 
-static bool js_is_native_obj(JSContext *cx, uint32_t argc, jsval *vp)
+static bool js_is_native_obj(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     args.rval().setBoolean(true);
@@ -32,7 +32,7 @@ static bool js_is_native_obj(JSContext *cx, uint32_t argc, jsval *vp)
 JSClass  *jsb_creator_Scale9SpriteV2_class;
 JSObject *jsb_creator_Scale9SpriteV2_prototype;
 
-bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     creator::Scale9SpriteV2* cobj = nullptr;
 
@@ -57,7 +57,7 @@ bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, jsval *v
             } while (0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->setTexture(arg0);
-            jsval jsret = JSVAL_NULL;
+            JS::RootedValue jsret(cx, JS::NullValue());
             jsret = BOOLEAN_TO_JSVAL(ret);
             args.rval().set(jsret);
             return true;
@@ -71,7 +71,7 @@ bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, jsval *v
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->setTexture(arg0);
-            jsval jsret = JSVAL_NULL;
+            JS::RootedValue jsret(cx, JS::NullValue());
             jsret = BOOLEAN_TO_JSVAL(ret);
             args.rval().set(jsret);
             return true;
@@ -81,7 +81,7 @@ bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setTexture : wrong number of arguments");
     return false;
 }
-bool js_creator_Scale9SpriteV2_getFillType(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_getFillType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -99,7 +99,7 @@ bool js_creator_Scale9SpriteV2_getFillType(JSContext *cx, uint32_t argc, jsval *
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_getFillType : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_Scale9SpriteV2_isTrimmedContentSizeEnabled(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_isTrimmedContentSizeEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -117,7 +117,7 @@ bool js_creator_Scale9SpriteV2_isTrimmedContentSizeEnabled(JSContext *cx, uint32
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_isTrimmedContentSizeEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_Scale9SpriteV2_getState(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_getState(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -135,7 +135,7 @@ bool js_creator_Scale9SpriteV2_getState(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_getState : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_Scale9SpriteV2_setState(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setState(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -155,7 +155,7 @@ bool js_creator_Scale9SpriteV2_setState(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setState : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_Scale9SpriteV2_setInsetBottom(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setInsetBottom(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -175,7 +175,7 @@ bool js_creator_Scale9SpriteV2_setInsetBottom(JSContext *cx, uint32_t argc, jsva
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setInsetBottom : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_Scale9SpriteV2_setFillRange(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setFillRange(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -195,7 +195,7 @@ bool js_creator_Scale9SpriteV2_setFillRange(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setFillRange : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_Scale9SpriteV2_getFillStart(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_getFillStart(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -205,7 +205,7 @@ bool js_creator_Scale9SpriteV2_getFillStart(JSContext *cx, uint32_t argc, jsval 
     if (argc == 0) {
         double ret = cobj->getFillStart();
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -213,7 +213,7 @@ bool js_creator_Scale9SpriteV2_getFillStart(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_getFillStart : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_Scale9SpriteV2_getFillRange(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_getFillRange(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -223,7 +223,7 @@ bool js_creator_Scale9SpriteV2_getFillRange(JSContext *cx, uint32_t argc, jsval 
     if (argc == 0) {
         double ret = cobj->getFillRange();
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -231,7 +231,7 @@ bool js_creator_Scale9SpriteV2_getFillRange(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_getFillRange : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_Scale9SpriteV2_setInsetTop(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setInsetTop(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -251,7 +251,7 @@ bool js_creator_Scale9SpriteV2_setInsetTop(JSContext *cx, uint32_t argc, jsval *
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setInsetTop : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_Scale9SpriteV2_setRenderingType(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setRenderingType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -271,7 +271,7 @@ bool js_creator_Scale9SpriteV2_setRenderingType(JSContext *cx, uint32_t argc, js
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setRenderingType : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_Scale9SpriteV2_setDistortionOffset(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setDistortionOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -291,7 +291,7 @@ bool js_creator_Scale9SpriteV2_setDistortionOffset(JSContext *cx, uint32_t argc,
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setDistortionOffset : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_Scale9SpriteV2_setFillCenter(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setFillCenter(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     creator::Scale9SpriteV2* cobj = nullptr;
 
@@ -331,7 +331,7 @@ bool js_creator_Scale9SpriteV2_setFillCenter(JSContext *cx, uint32_t argc, jsval
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setFillCenter : wrong number of arguments");
     return false;
 }
-bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     creator::Scale9SpriteV2* cobj = nullptr;
 
@@ -356,7 +356,7 @@ bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, jsva
             } while (0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->setSpriteFrame(arg0);
-            jsval jsret = JSVAL_NULL;
+            JS::RootedValue jsret(cx, JS::NullValue());
             jsret = BOOLEAN_TO_JSVAL(ret);
             args.rval().set(jsret);
             return true;
@@ -370,7 +370,7 @@ bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, jsva
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->setSpriteFrame(arg0);
-            jsval jsret = JSVAL_NULL;
+            JS::RootedValue jsret(cx, JS::NullValue());
             jsret = BOOLEAN_TO_JSVAL(ret);
             args.rval().set(jsret);
             return true;
@@ -380,7 +380,7 @@ bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, jsva
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setSpriteFrame : wrong number of arguments");
     return false;
 }
-bool js_creator_Scale9SpriteV2_getBlendFunc(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -398,7 +398,7 @@ bool js_creator_Scale9SpriteV2_getBlendFunc(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_getBlendFunc : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_Scale9SpriteV2_initWithTexture(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_initWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     creator::Scale9SpriteV2* cobj = nullptr;
 
@@ -415,7 +415,7 @@ bool js_creator_Scale9SpriteV2_initWithTexture(JSContext *cx, uint32_t argc, jsv
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithTexture(arg0);
-            jsval jsret = JSVAL_NULL;
+            JS::RootedValue jsret(cx, JS::NullValue());
             jsret = BOOLEAN_TO_JSVAL(ret);
             args.rval().set(jsret);
             return true;
@@ -437,7 +437,7 @@ bool js_creator_Scale9SpriteV2_initWithTexture(JSContext *cx, uint32_t argc, jsv
             } while (0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithTexture(arg0);
-            jsval jsret = JSVAL_NULL;
+            JS::RootedValue jsret(cx, JS::NullValue());
             jsret = BOOLEAN_TO_JSVAL(ret);
             args.rval().set(jsret);
             return true;
@@ -447,7 +447,7 @@ bool js_creator_Scale9SpriteV2_initWithTexture(JSContext *cx, uint32_t argc, jsv
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_initWithTexture : wrong number of arguments");
     return false;
 }
-bool js_creator_Scale9SpriteV2_getInsetLeft(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_getInsetLeft(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -457,7 +457,7 @@ bool js_creator_Scale9SpriteV2_getInsetLeft(JSContext *cx, uint32_t argc, jsval 
     if (argc == 0) {
         double ret = cobj->getInsetLeft();
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -465,7 +465,7 @@ bool js_creator_Scale9SpriteV2_getInsetLeft(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_getInsetLeft : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_Scale9SpriteV2_getInsetBottom(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_getInsetBottom(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -475,7 +475,7 @@ bool js_creator_Scale9SpriteV2_getInsetBottom(JSContext *cx, uint32_t argc, jsva
     if (argc == 0) {
         double ret = cobj->getInsetBottom();
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -483,7 +483,7 @@ bool js_creator_Scale9SpriteV2_getInsetBottom(JSContext *cx, uint32_t argc, jsva
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_getInsetBottom : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_Scale9SpriteV2_setDistortionTiling(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setDistortionTiling(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -503,7 +503,7 @@ bool js_creator_Scale9SpriteV2_setDistortionTiling(JSContext *cx, uint32_t argc,
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setDistortionTiling : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_Scale9SpriteV2_getRenderingType(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_getRenderingType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -521,7 +521,7 @@ bool js_creator_Scale9SpriteV2_getRenderingType(JSContext *cx, uint32_t argc, js
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_getRenderingType : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_Scale9SpriteV2_setFillStart(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setFillStart(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -541,7 +541,7 @@ bool js_creator_Scale9SpriteV2_setFillStart(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setFillStart : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_Scale9SpriteV2_getInsetRight(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_getInsetRight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -551,7 +551,7 @@ bool js_creator_Scale9SpriteV2_getInsetRight(JSContext *cx, uint32_t argc, jsval
     if (argc == 0) {
         double ret = cobj->getInsetRight();
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -559,7 +559,7 @@ bool js_creator_Scale9SpriteV2_getInsetRight(JSContext *cx, uint32_t argc, jsval
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_getInsetRight : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_Scale9SpriteV2_setBlendFunc(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     creator::Scale9SpriteV2* cobj = nullptr;
 
@@ -599,7 +599,7 @@ bool js_creator_Scale9SpriteV2_setBlendFunc(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setBlendFunc : wrong number of arguments");
     return false;
 }
-bool js_creator_Scale9SpriteV2_getFillCenter(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_getFillCenter(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -617,7 +617,7 @@ bool js_creator_Scale9SpriteV2_getFillCenter(JSContext *cx, uint32_t argc, jsval
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_getFillCenter : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_Scale9SpriteV2_getInsetTop(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_getInsetTop(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -627,7 +627,7 @@ bool js_creator_Scale9SpriteV2_getInsetTop(JSContext *cx, uint32_t argc, jsval *
     if (argc == 0) {
         double ret = cobj->getInsetTop();
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -635,7 +635,7 @@ bool js_creator_Scale9SpriteV2_getInsetTop(JSContext *cx, uint32_t argc, jsval *
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_getInsetTop : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_Scale9SpriteV2_setInsetLeft(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setInsetLeft(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -655,7 +655,7 @@ bool js_creator_Scale9SpriteV2_setInsetLeft(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setInsetLeft : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_Scale9SpriteV2_initWithSpriteFrame(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_initWithSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     creator::Scale9SpriteV2* cobj = nullptr;
 
@@ -672,7 +672,7 @@ bool js_creator_Scale9SpriteV2_initWithSpriteFrame(JSContext *cx, uint32_t argc,
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSpriteFrame(arg0);
-            jsval jsret = JSVAL_NULL;
+            JS::RootedValue jsret(cx, JS::NullValue());
             jsret = BOOLEAN_TO_JSVAL(ret);
             args.rval().set(jsret);
             return true;
@@ -694,7 +694,7 @@ bool js_creator_Scale9SpriteV2_initWithSpriteFrame(JSContext *cx, uint32_t argc,
             } while (0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSpriteFrame(arg0);
-            jsval jsret = JSVAL_NULL;
+            JS::RootedValue jsret(cx, JS::NullValue());
             jsret = BOOLEAN_TO_JSVAL(ret);
             args.rval().set(jsret);
             return true;
@@ -704,7 +704,7 @@ bool js_creator_Scale9SpriteV2_initWithSpriteFrame(JSContext *cx, uint32_t argc,
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_initWithSpriteFrame : wrong number of arguments");
     return false;
 }
-bool js_creator_Scale9SpriteV2_setFillType(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setFillType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -724,7 +724,7 @@ bool js_creator_Scale9SpriteV2_setFillType(JSContext *cx, uint32_t argc, jsval *
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setFillType : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_Scale9SpriteV2_setInsetRight(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_setInsetRight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -744,7 +744,7 @@ bool js_creator_Scale9SpriteV2_setInsetRight(JSContext *cx, uint32_t argc, jsval
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_setInsetRight : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_Scale9SpriteV2_enableTrimmedContentSize(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_enableTrimmedContentSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -764,7 +764,7 @@ bool js_creator_Scale9SpriteV2_enableTrimmedContentSize(JSContext *cx, uint32_t 
     JS_ReportError(cx, "js_creator_Scale9SpriteV2_enableTrimmedContentSize : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_Scale9SpriteV2_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_Scale9SpriteV2_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -774,12 +774,16 @@ bool js_creator_Scale9SpriteV2_constructor(JSContext *cx, uint32_t argc, jsval *
 
     // link the native object with the javascript object
     JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "creator::Scale9SpriteV2"));
-    args.rval().set(OBJECT_TO_JSVAL(jsobj));
-    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
+    }
     return true;
 }
-static bool js_creator_Scale9SpriteV2_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+static bool js_creator_Scale9SpriteV2_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -788,7 +792,11 @@ static bool js_creator_Scale9SpriteV2_ctor(JSContext *cx, uint32_t argc, jsval *
     jsb_ref_init(cx, &p->obj, nobj, "creator::Scale9SpriteV2");
     bool isFound = false;
     if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    {
+        JS::HandleValueArray argsv(args);
+        JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
+        ScriptingCore::getInstance()->executeFunctionWithOwner(objVal, "_ctor", argsv);
+    }
     args.rval().setUndefined();
     return true;
 }
@@ -874,7 +882,7 @@ void js_register_creator_Scale9SpriteV2(JSContext *cx, JS::HandleObject global) 
 JSClass  *jsb_creator_GraphicsNode_class;
 JSObject *jsb_creator_GraphicsNode_prototype;
 
-bool js_creator_GraphicsNode_quadraticCurveTo(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_quadraticCurveTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -900,7 +908,7 @@ bool js_creator_GraphicsNode_quadraticCurveTo(JSContext *cx, uint32_t argc, jsva
     JS_ReportError(cx, "js_creator_GraphicsNode_quadraticCurveTo : wrong number of arguments: %d, was expecting %d", argc, 4);
     return false;
 }
-bool js_creator_GraphicsNode_moveTo(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_moveTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -922,7 +930,7 @@ bool js_creator_GraphicsNode_moveTo(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_moveTo : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
-bool js_creator_GraphicsNode_lineTo(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_lineTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -944,7 +952,7 @@ bool js_creator_GraphicsNode_lineTo(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_lineTo : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
-bool js_creator_GraphicsNode_stroke(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_stroke(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -960,7 +968,7 @@ bool js_creator_GraphicsNode_stroke(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_stroke : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_GraphicsNode_arc(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_arc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -990,7 +998,7 @@ bool js_creator_GraphicsNode_arc(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_arc : wrong number of arguments: %d, was expecting %d", argc, 6);
     return false;
 }
-bool js_creator_GraphicsNode_setLineJoin(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_setLineJoin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1010,7 +1018,7 @@ bool js_creator_GraphicsNode_setLineJoin(JSContext *cx, uint32_t argc, jsval *vp
     JS_ReportError(cx, "js_creator_GraphicsNode_setLineJoin : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_GraphicsNode_close(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_close(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1026,7 +1034,7 @@ bool js_creator_GraphicsNode_close(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_close : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_GraphicsNode_ellipse(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_ellipse(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1052,7 +1060,7 @@ bool js_creator_GraphicsNode_ellipse(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_ellipse : wrong number of arguments: %d, was expecting %d", argc, 4);
     return false;
 }
-bool js_creator_GraphicsNode_setLineWidth(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_setLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1072,7 +1080,7 @@ bool js_creator_GraphicsNode_setLineWidth(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_creator_GraphicsNode_setLineWidth : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_GraphicsNode_fill(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_fill(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1088,7 +1096,7 @@ bool js_creator_GraphicsNode_fill(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_fill : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_GraphicsNode_getStrokeColor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_getStrokeColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1106,7 +1114,7 @@ bool js_creator_GraphicsNode_getStrokeColor(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_creator_GraphicsNode_getStrokeColor : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_GraphicsNode_setLineCap(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_setLineCap(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1126,7 +1134,7 @@ bool js_creator_GraphicsNode_setLineCap(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_setLineCap : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_GraphicsNode_circle(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_circle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1150,7 +1158,7 @@ bool js_creator_GraphicsNode_circle(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_circle : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
-bool js_creator_GraphicsNode_roundRect(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_roundRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1178,7 +1186,7 @@ bool js_creator_GraphicsNode_roundRect(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_roundRect : wrong number of arguments: %d, was expecting %d", argc, 5);
     return false;
 }
-bool js_creator_GraphicsNode_draw(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_draw(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1210,7 +1218,7 @@ bool js_creator_GraphicsNode_draw(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_draw : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
-bool js_creator_GraphicsNode_bezierCurveTo(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_bezierCurveTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1240,7 +1248,7 @@ bool js_creator_GraphicsNode_bezierCurveTo(JSContext *cx, uint32_t argc, jsval *
     JS_ReportError(cx, "js_creator_GraphicsNode_bezierCurveTo : wrong number of arguments: %d, was expecting %d", argc, 6);
     return false;
 }
-bool js_creator_GraphicsNode_arcTo(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_arcTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1268,7 +1276,7 @@ bool js_creator_GraphicsNode_arcTo(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_arcTo : wrong number of arguments: %d, was expecting %d", argc, 5);
     return false;
 }
-bool js_creator_GraphicsNode_fillRect(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_fillRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1294,7 +1302,7 @@ bool js_creator_GraphicsNode_fillRect(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_fillRect : wrong number of arguments: %d, was expecting %d", argc, 4);
     return false;
 }
-bool js_creator_GraphicsNode_onDraw(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_onDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1316,7 +1324,7 @@ bool js_creator_GraphicsNode_onDraw(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_onDraw : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
-bool js_creator_GraphicsNode_setFillColor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_setFillColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1336,7 +1344,7 @@ bool js_creator_GraphicsNode_setFillColor(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_creator_GraphicsNode_setFillColor : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_GraphicsNode_getFillColor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_getFillColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1354,7 +1362,7 @@ bool js_creator_GraphicsNode_getFillColor(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_creator_GraphicsNode_getFillColor : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_GraphicsNode_beginPath(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_beginPath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1370,7 +1378,7 @@ bool js_creator_GraphicsNode_beginPath(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_beginPath : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_GraphicsNode_setDeviceRatio(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_setDeviceRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1390,7 +1398,7 @@ bool js_creator_GraphicsNode_setDeviceRatio(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_creator_GraphicsNode_setDeviceRatio : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_GraphicsNode_rect(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_rect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1416,7 +1424,7 @@ bool js_creator_GraphicsNode_rect(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_rect : wrong number of arguments: %d, was expecting %d", argc, 4);
     return false;
 }
-bool js_creator_GraphicsNode_getMiterLimit(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_getMiterLimit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1426,7 +1434,7 @@ bool js_creator_GraphicsNode_getMiterLimit(JSContext *cx, uint32_t argc, jsval *
     if (argc == 0) {
         double ret = cobj->getMiterLimit();
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -1434,7 +1442,7 @@ bool js_creator_GraphicsNode_getMiterLimit(JSContext *cx, uint32_t argc, jsval *
     JS_ReportError(cx, "js_creator_GraphicsNode_getMiterLimit : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_GraphicsNode_getLineJoin(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_getLineJoin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1452,7 +1460,7 @@ bool js_creator_GraphicsNode_getLineJoin(JSContext *cx, uint32_t argc, jsval *vp
     JS_ReportError(cx, "js_creator_GraphicsNode_getLineJoin : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_GraphicsNode_getLineCap(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_getLineCap(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1470,7 +1478,7 @@ bool js_creator_GraphicsNode_getLineCap(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_getLineCap : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_GraphicsNode_setMiterLimit(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_setMiterLimit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1490,7 +1498,7 @@ bool js_creator_GraphicsNode_setMiterLimit(JSContext *cx, uint32_t argc, jsval *
     JS_ReportError(cx, "js_creator_GraphicsNode_setMiterLimit : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_GraphicsNode_clear(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_clear(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1515,7 +1523,7 @@ bool js_creator_GraphicsNode_clear(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_clear : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_GraphicsNode_getDeviceRatio(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_getDeviceRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1525,7 +1533,7 @@ bool js_creator_GraphicsNode_getDeviceRatio(JSContext *cx, uint32_t argc, jsval 
     if (argc == 0) {
         double ret = cobj->getDeviceRatio();
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -1533,7 +1541,7 @@ bool js_creator_GraphicsNode_getDeviceRatio(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_creator_GraphicsNode_getDeviceRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_GraphicsNode_getLineWidth(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_getLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1543,7 +1551,7 @@ bool js_creator_GraphicsNode_getLineWidth(JSContext *cx, uint32_t argc, jsval *v
     if (argc == 0) {
         double ret = cobj->getLineWidth();
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -1551,7 +1559,7 @@ bool js_creator_GraphicsNode_getLineWidth(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_creator_GraphicsNode_getLineWidth : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_GraphicsNode_setStrokeColor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_setStrokeColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1571,7 +1579,7 @@ bool js_creator_GraphicsNode_setStrokeColor(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_creator_GraphicsNode_setStrokeColor : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_GraphicsNode_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc == 0) {
@@ -1586,7 +1594,7 @@ bool js_creator_GraphicsNode_create(JSContext *cx, uint32_t argc, jsval *vp)
     return false;
 }
 
-bool js_creator_GraphicsNode_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1596,12 +1604,16 @@ bool js_creator_GraphicsNode_constructor(JSContext *cx, uint32_t argc, jsval *vp
 
     // link the native object with the javascript object
     JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "creator::GraphicsNode"));
-    args.rval().set(OBJECT_TO_JSVAL(jsobj));
-    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
+    }
     return true;
 }
-static bool js_creator_GraphicsNode_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+static bool js_creator_GraphicsNode_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1610,7 +1622,11 @@ static bool js_creator_GraphicsNode_ctor(JSContext *cx, uint32_t argc, jsval *vp
     jsb_ref_init(cx, &p->obj, nobj, "creator::GraphicsNode");
     bool isFound = false;
     if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    {
+        JS::HandleValueArray argsv(args);
+        JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
+        ScriptingCore::getInstance()->executeFunctionWithOwner(objVal, "_ctor", argsv);
+    }
     args.rval().setUndefined();
     return true;
 }
@@ -1701,7 +1717,7 @@ void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
 JSClass  *jsb_creator_PhysicsDebugDraw_class;
 JSObject *jsb_creator_PhysicsDebugDraw_prototype;
 
-bool js_creator_PhysicsDebugDraw_getDrawer(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsDebugDraw_getDrawer(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1712,9 +1728,9 @@ bool js_creator_PhysicsDebugDraw_getDrawer(JSContext *cx, uint32_t argc, jsval *
         creator::GraphicsNode* ret = cobj->getDrawer();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<creator::GraphicsNode>(cx, (creator::GraphicsNode*)ret));
+            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<creator::GraphicsNode>(cx, (creator::GraphicsNode*)ret));
         } else {
-            jsret = JSVAL_NULL;
+            jsret = JS::NullValue();
         };
         args.rval().set(jsret);
         return true;
@@ -1723,7 +1739,7 @@ bool js_creator_PhysicsDebugDraw_getDrawer(JSContext *cx, uint32_t argc, jsval *
     JS_ReportError(cx, "js_creator_PhysicsDebugDraw_getDrawer : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_PhysicsDebugDraw_ClearDraw(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsDebugDraw_ClearDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1739,7 +1755,7 @@ bool js_creator_PhysicsDebugDraw_ClearDraw(JSContext *cx, uint32_t argc, jsval *
     JS_ReportError(cx, "js_creator_PhysicsDebugDraw_ClearDraw : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_PhysicsDebugDraw_AddDrawerToNode(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsDebugDraw_AddDrawerToNode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1767,7 +1783,7 @@ bool js_creator_PhysicsDebugDraw_AddDrawerToNode(JSContext *cx, uint32_t argc, j
     JS_ReportError(cx, "js_creator_PhysicsDebugDraw_AddDrawerToNode : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_PhysicsDebugDraw_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsDebugDraw_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1777,9 +1793,13 @@ bool js_creator_PhysicsDebugDraw_constructor(JSContext *cx, uint32_t argc, jsval
 
     // link the native object with the javascript object
     JS::RootedObject jsobj(cx, jsb_create_weak_jsobject(cx, cobj, typeClass, "creator::PhysicsDebugDraw"));
-    args.rval().set(OBJECT_TO_JSVAL(jsobj));
-    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
+    }
     return true;
 }
 
@@ -1858,7 +1878,7 @@ void js_register_creator_PhysicsDebugDraw(JSContext *cx, JS::HandleObject global
 JSClass  *jsb_creator_PhysicsWorldManifoldWrapper_class;
 JSObject *jsb_creator_PhysicsWorldManifoldWrapper_prototype;
 
-bool js_creator_PhysicsWorldManifoldWrapper_getSeparation(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsWorldManifoldWrapper_getSeparation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1872,7 +1892,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getSeparation(JSContext *cx, uint32_
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getSeparation : Error processing arguments");
         double ret = cobj->getSeparation(arg0);
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -1880,7 +1900,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getSeparation(JSContext *cx, uint32_
     JS_ReportError(cx, "js_creator_PhysicsWorldManifoldWrapper_getSeparation : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_PhysicsWorldManifoldWrapper_getX(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsWorldManifoldWrapper_getX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1894,7 +1914,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getX(JSContext *cx, uint32_t argc, j
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getX : Error processing arguments");
         double ret = cobj->getX(arg0);
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -1902,7 +1922,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getX(JSContext *cx, uint32_t argc, j
     JS_ReportError(cx, "js_creator_PhysicsWorldManifoldWrapper_getX : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_PhysicsWorldManifoldWrapper_getY(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsWorldManifoldWrapper_getY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1916,7 +1936,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getY(JSContext *cx, uint32_t argc, j
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getY : Error processing arguments");
         double ret = cobj->getY(arg0);
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -1924,7 +1944,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getY(JSContext *cx, uint32_t argc, j
     JS_ReportError(cx, "js_creator_PhysicsWorldManifoldWrapper_getY : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_PhysicsWorldManifoldWrapper_getCount(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsWorldManifoldWrapper_getCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1942,7 +1962,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getCount(JSContext *cx, uint32_t arg
     JS_ReportError(cx, "js_creator_PhysicsWorldManifoldWrapper_getCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_PhysicsWorldManifoldWrapper_getNormalY(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsWorldManifoldWrapper_getNormalY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1952,7 +1972,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getNormalY(JSContext *cx, uint32_t a
     if (argc == 0) {
         double ret = cobj->getNormalY();
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -1960,7 +1980,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getNormalY(JSContext *cx, uint32_t a
     JS_ReportError(cx, "js_creator_PhysicsWorldManifoldWrapper_getNormalY : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_PhysicsWorldManifoldWrapper_getNormalX(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsWorldManifoldWrapper_getNormalX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1970,7 +1990,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getNormalX(JSContext *cx, uint32_t a
     if (argc == 0) {
         double ret = cobj->getNormalX();
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -1978,7 +1998,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getNormalX(JSContext *cx, uint32_t a
     JS_ReportError(cx, "js_creator_PhysicsWorldManifoldWrapper_getNormalX : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_PhysicsWorldManifoldWrapper_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsWorldManifoldWrapper_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1988,9 +2008,13 @@ bool js_creator_PhysicsWorldManifoldWrapper_constructor(JSContext *cx, uint32_t 
 
     // link the native object with the javascript object
     JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "creator::PhysicsWorldManifoldWrapper"));
-    args.rval().set(OBJECT_TO_JSVAL(jsobj));
-    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
+    }
     return true;
 }
 
@@ -2045,7 +2069,7 @@ void js_register_creator_PhysicsWorldManifoldWrapper(JSContext *cx, JS::HandleOb
 JSClass  *jsb_creator_PhysicsUtils_class;
 JSObject *jsb_creator_PhysicsUtils_prototype;
 
-bool js_creator_PhysicsUtils_addB2Body(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsUtils_addB2Body(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2073,7 +2097,7 @@ bool js_creator_PhysicsUtils_addB2Body(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_PhysicsUtils_addB2Body : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_PhysicsUtils_syncNode(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsUtils_syncNode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2089,7 +2113,7 @@ bool js_creator_PhysicsUtils_syncNode(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_PhysicsUtils_syncNode : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_PhysicsUtils_removeB2Body(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsUtils_removeB2Body(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2117,7 +2141,7 @@ bool js_creator_PhysicsUtils_removeB2Body(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_creator_PhysicsUtils_removeB2Body : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_PhysicsUtils_getContactManifoldWrapper(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsUtils_getContactManifoldWrapper(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2135,11 +2159,11 @@ bool js_creator_PhysicsUtils_getContactManifoldWrapper(JSContext *cx, uint32_t a
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsUtils_getContactManifoldWrapper : Error processing arguments");
 
         const creator::PhysicsManifoldWrapper* ret = creator::PhysicsUtils::getContactManifoldWrapper(arg0);
-        jsval jsret = JSVAL_NULL;
+        JS::RootedValue jsret(cx, JS::NullValue());
         if (ret) {
-        jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<creator::PhysicsManifoldWrapper>(cx, (creator::PhysicsManifoldWrapper*)ret));
+        jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<creator::PhysicsManifoldWrapper>(cx, (creator::PhysicsManifoldWrapper*)ret));
     } else {
-        jsret = JSVAL_NULL;
+        jsret = JS::NullValue();
     };
         args.rval().set(jsret);
         return true;
@@ -2148,7 +2172,7 @@ bool js_creator_PhysicsUtils_getContactManifoldWrapper(JSContext *cx, uint32_t a
     return false;
 }
 
-bool js_creator_PhysicsUtils_getContactWorldManifoldWrapper(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsUtils_getContactWorldManifoldWrapper(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2166,11 +2190,11 @@ bool js_creator_PhysicsUtils_getContactWorldManifoldWrapper(JSContext *cx, uint3
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsUtils_getContactWorldManifoldWrapper : Error processing arguments");
 
         const creator::PhysicsWorldManifoldWrapper* ret = creator::PhysicsUtils::getContactWorldManifoldWrapper(arg0);
-        jsval jsret = JSVAL_NULL;
+        JS::RootedValue jsret(cx, JS::NullValue());
         if (ret) {
-        jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<creator::PhysicsWorldManifoldWrapper>(cx, (creator::PhysicsWorldManifoldWrapper*)ret));
+        jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<creator::PhysicsWorldManifoldWrapper>(cx, (creator::PhysicsWorldManifoldWrapper*)ret));
     } else {
-        jsret = JSVAL_NULL;
+        jsret = JS::NullValue();
     };
         args.rval().set(jsret);
         return true;
@@ -2179,7 +2203,7 @@ bool js_creator_PhysicsUtils_getContactWorldManifoldWrapper(JSContext *cx, uint3
     return false;
 }
 
-bool js_creator_PhysicsUtils_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsUtils_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2189,9 +2213,13 @@ bool js_creator_PhysicsUtils_constructor(JSContext *cx, uint32_t argc, jsval *vp
 
     // link the native object with the javascript object
     JS::RootedObject jsobj(cx, jsb_create_weak_jsobject(cx, cobj, typeClass, "creator::PhysicsUtils"));
-    args.rval().set(OBJECT_TO_JSVAL(jsobj));
-    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
+    }
     return true;
 }
 
@@ -2271,7 +2299,7 @@ void js_register_creator_PhysicsUtils(JSContext *cx, JS::HandleObject global) {
 JSClass  *jsb_creator_PhysicsContactImpulse_class;
 JSObject *jsb_creator_PhysicsContactImpulse_prototype;
 
-bool js_creator_PhysicsContactImpulse_getCount(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactImpulse_getCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2289,7 +2317,7 @@ bool js_creator_PhysicsContactImpulse_getCount(JSContext *cx, uint32_t argc, jsv
     JS_ReportError(cx, "js_creator_PhysicsContactImpulse_getCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_PhysicsContactImpulse_getNormalImpulse(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactImpulse_getNormalImpulse(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2303,7 +2331,7 @@ bool js_creator_PhysicsContactImpulse_getNormalImpulse(JSContext *cx, uint32_t a
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsContactImpulse_getNormalImpulse : Error processing arguments");
         double ret = cobj->getNormalImpulse(arg0);
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -2311,7 +2339,7 @@ bool js_creator_PhysicsContactImpulse_getNormalImpulse(JSContext *cx, uint32_t a
     JS_ReportError(cx, "js_creator_PhysicsContactImpulse_getNormalImpulse : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_PhysicsContactImpulse_getTangentImpulse(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactImpulse_getTangentImpulse(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2325,7 +2353,7 @@ bool js_creator_PhysicsContactImpulse_getTangentImpulse(JSContext *cx, uint32_t 
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsContactImpulse_getTangentImpulse : Error processing arguments");
         double ret = cobj->getTangentImpulse(arg0);
         JS::RootedValue jsret(cx);
-        jsret = DOUBLE_TO_JSVAL(ret);
+        jsret = JS::DoubleValue(ret);
         args.rval().set(jsret);
         return true;
     }
@@ -2333,7 +2361,7 @@ bool js_creator_PhysicsContactImpulse_getTangentImpulse(JSContext *cx, uint32_t 
     JS_ReportError(cx, "js_creator_PhysicsContactImpulse_getTangentImpulse : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_PhysicsContactImpulse_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactImpulse_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2343,9 +2371,13 @@ bool js_creator_PhysicsContactImpulse_constructor(JSContext *cx, uint32_t argc, 
 
     // link the native object with the javascript object
     JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "creator::PhysicsContactImpulse"));
-    args.rval().set(OBJECT_TO_JSVAL(jsobj));
-    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
+    }
     return true;
 }
 
@@ -2397,7 +2429,7 @@ void js_register_creator_PhysicsContactImpulse(JSContext *cx, JS::HandleObject g
 JSClass  *jsb_creator_PhysicsContactListener_class;
 JSObject *jsb_creator_PhysicsContactListener_prototype;
 
-bool js_creator_PhysicsContactListener_unregisterContactFixture(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactListener_unregisterContactFixture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2425,7 +2457,7 @@ bool js_creator_PhysicsContactListener_unregisterContactFixture(JSContext *cx, u
     JS_ReportError(cx, "js_creator_PhysicsContactListener_unregisterContactFixture : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_PhysicsContactListener_registerContactFixture(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactListener_registerContactFixture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2453,7 +2485,7 @@ bool js_creator_PhysicsContactListener_registerContactFixture(JSContext *cx, uin
     JS_ReportError(cx, "js_creator_PhysicsContactListener_registerContactFixture : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_PhysicsContactListener_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactListener_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2463,9 +2495,13 @@ bool js_creator_PhysicsContactListener_constructor(JSContext *cx, uint32_t argc,
 
     // link the native object with the javascript object
     JS::RootedObject jsobj(cx, jsb_create_weak_jsobject(cx, cobj, typeClass, "creator::PhysicsContactListener"));
-    args.rval().set(OBJECT_TO_JSVAL(jsobj));
-    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
+    }
     return true;
 }
 
@@ -2543,7 +2579,7 @@ void js_register_creator_PhysicsContactListener(JSContext *cx, JS::HandleObject 
 JSClass  *jsb_creator_PhysicsAABBQueryCallback_class;
 JSObject *jsb_creator_PhysicsAABBQueryCallback_prototype;
 
-bool js_creator_PhysicsAABBQueryCallback_init(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsAABBQueryCallback_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     creator::PhysicsAABBQueryCallback* cobj = nullptr;
 
@@ -2576,7 +2612,7 @@ bool js_creator_PhysicsAABBQueryCallback_init(JSContext *cx, uint32_t argc, jsva
     JS_ReportError(cx, "js_creator_PhysicsAABBQueryCallback_init : wrong number of arguments");
     return false;
 }
-bool js_creator_PhysicsAABBQueryCallback_getFixture(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsAABBQueryCallback_getFixture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2587,9 +2623,9 @@ bool js_creator_PhysicsAABBQueryCallback_getFixture(JSContext *cx, uint32_t argc
         b2Fixture* ret = cobj->getFixture();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
+            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
         } else {
-            jsret = JSVAL_NULL;
+            jsret = JS::NullValue();
         };
         args.rval().set(jsret);
         return true;
@@ -2598,7 +2634,7 @@ bool js_creator_PhysicsAABBQueryCallback_getFixture(JSContext *cx, uint32_t argc
     JS_ReportError(cx, "js_creator_PhysicsAABBQueryCallback_getFixture : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_PhysicsAABBQueryCallback_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsAABBQueryCallback_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2608,9 +2644,13 @@ bool js_creator_PhysicsAABBQueryCallback_constructor(JSContext *cx, uint32_t arg
 
     // link the native object with the javascript object
     JS::RootedObject jsobj(cx, jsb_create_weak_jsobject(cx, cobj, typeClass, "creator::PhysicsAABBQueryCallback"));
-    args.rval().set(OBJECT_TO_JSVAL(jsobj));
-    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
+    }
     return true;
 }
 
@@ -2688,7 +2728,7 @@ void js_register_creator_PhysicsAABBQueryCallback(JSContext *cx, JS::HandleObjec
 JSClass  *jsb_creator_PhysicsRayCastCallback_class;
 JSObject *jsb_creator_PhysicsRayCastCallback_prototype;
 
-bool js_creator_PhysicsRayCastCallback_getType(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsRayCastCallback_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2706,7 +2746,7 @@ bool js_creator_PhysicsRayCastCallback_getType(JSContext *cx, uint32_t argc, jsv
     JS_ReportError(cx, "js_creator_PhysicsRayCastCallback_getType : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_PhysicsRayCastCallback_init(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsRayCastCallback_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2726,7 +2766,7 @@ bool js_creator_PhysicsRayCastCallback_init(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_creator_PhysicsRayCastCallback_init : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_PhysicsRayCastCallback_getFractions(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsRayCastCallback_getFractions(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2744,7 +2784,7 @@ bool js_creator_PhysicsRayCastCallback_getFractions(JSContext *cx, uint32_t argc
     JS_ReportError(cx, "js_creator_PhysicsRayCastCallback_getFractions : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_PhysicsRayCastCallback_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsRayCastCallback_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2754,9 +2794,13 @@ bool js_creator_PhysicsRayCastCallback_constructor(JSContext *cx, uint32_t argc,
 
     // link the native object with the javascript object
     JS::RootedObject jsobj(cx, jsb_create_weak_jsobject(cx, cobj, typeClass, "creator::PhysicsRayCastCallback"));
-    args.rval().set(OBJECT_TO_JSVAL(jsobj));
-    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
+    }
     return true;
 }
 
@@ -2835,7 +2879,7 @@ void js_register_creator_PhysicsRayCastCallback(JSContext *cx, JS::HandleObject 
 JSClass  *jsb_creator_CameraNode_class;
 JSObject *jsb_creator_CameraNode_prototype;
 
-bool js_creator_CameraNode_removeTarget(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_CameraNode_removeTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2863,7 +2907,7 @@ bool js_creator_CameraNode_removeTarget(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_CameraNode_removeTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_CameraNode_setTransform(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_CameraNode_setTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2893,55 +2937,7 @@ bool js_creator_CameraNode_setTransform(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_CameraNode_setTransform : wrong number of arguments: %d, was expecting %d", argc, 6);
     return false;
 }
-bool js_creator_CameraNode_getVisibleRect(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
-    creator::CameraNode* cobj = (creator::CameraNode *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_creator_CameraNode_getVisibleRect : Invalid Native Object");
-    if (argc == 0) {
-        const cocos2d::Rect& ret = cobj->getVisibleRect();
-        JS::RootedValue jsret(cx);
-        jsret = ccrect_to_jsval(cx, ret);
-        args.rval().set(jsret);
-        return true;
-    }
-
-    JS_ReportError(cx, "js_creator_CameraNode_getVisibleRect : wrong number of arguments: %d, was expecting %d", argc, 0);
-    return false;
-}
-bool js_creator_CameraNode_containsNode(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
-    creator::CameraNode* cobj = (creator::CameraNode *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_creator_CameraNode_containsNode : Invalid Native Object");
-    if (argc == 1) {
-        cocos2d::Node* arg0 = nullptr;
-        do {
-            if (args.get(0).isNull()) { arg0 = nullptr; break; }
-            if (!args.get(0).isObject()) { ok = false; break; }
-            js_proxy_t *jsProxy;
-            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
-            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
-            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
-        } while (0);
-        JSB_PRECONDITION2(ok, cx, false, "js_creator_CameraNode_containsNode : Error processing arguments");
-        bool ret = cobj->containsNode(arg0);
-        JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
-        args.rval().set(jsret);
-        return true;
-    }
-
-    JS_ReportError(cx, "js_creator_CameraNode_containsNode : wrong number of arguments: %d, was expecting %d", argc, 1);
-    return false;
-}
-bool js_creator_CameraNode_addTarget(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_CameraNode_addTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2969,22 +2965,7 @@ bool js_creator_CameraNode_addTarget(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_CameraNode_addTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_CameraNode_getInstance(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    if (argc == 0) {
-
-        auto ret = creator::CameraNode::getInstance();
-        js_type_class_t *typeClass = js_get_type_from_native<creator::CameraNode>(ret);
-        JS::RootedObject jsret(cx, jsb_ref_get_or_create_jsobject(cx, ret, typeClass, "creator::CameraNode"));
-        args.rval().set(OBJECT_TO_JSVAL(jsret));
-        return true;
-    }
-    JS_ReportError(cx, "js_creator_CameraNode_getInstance : wrong number of arguments");
-    return false;
-}
-
-bool js_creator_CameraNode_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_CameraNode_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2994,9 +2975,13 @@ bool js_creator_CameraNode_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 
     // link the native object with the javascript object
     JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "creator::CameraNode"));
-    args.rval().set(OBJECT_TO_JSVAL(jsobj));
-    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
+    }
     return true;
 }
 
@@ -3022,16 +3007,11 @@ void js_register_creator_CameraNode(JSContext *cx, JS::HandleObject global) {
     static JSFunctionSpec funcs[] = {
         JS_FN("removeTarget", js_creator_CameraNode_removeTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setTransform", js_creator_CameraNode_setTransform, 6, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("getVisibleRect", js_creator_CameraNode_getVisibleRect, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("containsNode", js_creator_CameraNode_containsNode, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("addTarget", js_creator_CameraNode_addTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
 
-    static JSFunctionSpec st_funcs[] = {
-        JS_FN("getInstance", js_creator_CameraNode_getInstance, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FS_END
-    };
+    JSFunctionSpec *st_funcs = NULL;
 
     JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
     jsb_creator_CameraNode_prototype = JS_InitClass(

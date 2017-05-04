@@ -91,7 +91,7 @@ bool jsval_to_b2Vec2( JSContext *cx, jsval vp, b2Vec2 *ret )
 
 jsval b2Vec2_to_jsval(JSContext *cx, const b2Vec2& v)
 {
-    JS::RootedObject object(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+    JS::RootedObject object(cx, JS_NewPlainObject(cx));
     if (!object)
         return JSVAL_VOID;
 
@@ -706,7 +706,7 @@ bool jsval_to_array_of_b2Vec2(JSContext* cx, JS::HandleValue v, b2Vec2 *points, 
 
 jsval b2Manifold_to_jsval(JSContext* cx, const b2Manifold* v)
 {
-    JS::RootedObject tmp(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+    JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
     if (!tmp) return JSVAL_NULL;
     
     bool ok = JS_DefineProperty(cx, tmp, "localPoint", JS::RootedValue(cx, b2Vec2_to_jsval(cx, v->localPoint)), JSPROP_ENUMERATE | JSPROP_PERMANENT);
@@ -720,7 +720,7 @@ jsval b2Manifold_to_jsval(JSContext* cx, const b2Manifold* v)
     {
         const b2ManifoldPoint& p = v->points[i];
         
-        JS::RootedObject arrElement(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+        JS::RootedObject arrElement(cx, JS_NewPlainObject(cx));
         
         ok &= JS_DefineProperty(cx, arrElement, "normalImpulse", p.normalImpulse, JSPROP_ENUMERATE | JSPROP_PERMANENT);
         ok &= JS_DefineProperty(cx, arrElement, "tangentImpulse", p.tangentImpulse, JSPROP_ENUMERATE | JSPROP_PERMANENT);
@@ -741,7 +741,7 @@ jsval b2Manifold_to_jsval(JSContext* cx, const b2Manifold* v)
 
 jsval b2ContactImpulse_to_jsval(JSContext* cx, const b2ContactImpulse* v)
 {
-    JS::RootedObject tmp(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+    JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
     if (!tmp) return JSVAL_NULL;
     
     bool ok = true;
@@ -816,18 +816,18 @@ jsval array_of_b2Vec2_to_jsval(JSContext* cx, const std::vector<b2Vec2>& vs)
 
 jsval b2AABB_to_jsval(JSContext* cx, const b2AABB& v)
 {
-    JS::RootedObject object(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+    JS::RootedObject object(cx, JS_NewPlainObject(cx));
     if (!object) {
         return JSVAL_VOID;
     }
     
-    JS::RootedObject lowerBound(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+    JS::RootedObject lowerBound(cx, JS_NewPlainObject(cx));
     if (!JS_DefineProperty(cx, lowerBound, "x", v.lowerBound.x, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
         !JS_DefineProperty(cx, lowerBound, "y", v.lowerBound.y, JSPROP_ENUMERATE | JSPROP_PERMANENT) ) {
         return JSVAL_VOID;
     }
     
-    JS::RootedObject upperBound(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+    JS::RootedObject upperBound(cx, JS_NewPlainObject(cx));
     if (!JS_DefineProperty(cx, upperBound, "x", v.upperBound.x, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
         !JS_DefineProperty(cx, upperBound, "y", v.upperBound.y, JSPROP_ENUMERATE | JSPROP_PERMANENT) ) {
         return JSVAL_VOID;

@@ -38,7 +38,7 @@ bool JSB_glGenTextures(JSContext *cx, uint32_t argc, jsval *vp)
     GLuint texture;
     glGenTextures(1, &texture);
 
-    args.rval().set(INT_TO_JSVAL(texture));
+    args.rval().set(JS::Int32Value(texture));
     return true;
 }
 
@@ -48,7 +48,7 @@ bool JSB_glGenBuffers(JSContext *cx, uint32_t argc, jsval *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     GLuint buffer;
     glGenBuffers(1, &buffer);
-    args.rval().set(INT_TO_JSVAL(buffer));
+    args.rval().set(JS::Int32Value(buffer));
     return true;
 }
 
@@ -58,7 +58,7 @@ bool JSB_glGenRenderbuffers(JSContext *cx, uint32_t argc, jsval *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     GLuint renderbuffers;
     glGenRenderbuffers(1, &renderbuffers);
-    args.rval().set(INT_TO_JSVAL(renderbuffers));
+    args.rval().set(JS::Int32Value(renderbuffers));
     return true;
 }
 
@@ -68,7 +68,7 @@ bool JSB_glGenFramebuffers(JSContext *cx, uint32_t argc, jsval *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     GLuint framebuffers;
     glGenFramebuffers(1, &framebuffers);
-    args.rval().set(INT_TO_JSVAL(framebuffers));
+    args.rval().set(JS::Int32Value(framebuffers));
     return true;
 }
 
@@ -83,7 +83,7 @@ bool JSB_glDeleteTextures(JSContext *cx, uint32_t argc, jsval *vp)
     JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
     glDeleteTextures(1, &arg0);
-    args.rval().set(JSVAL_VOID);
+    args.rval().set(JS::NullValue());
     return true;
 }
 
@@ -98,7 +98,7 @@ bool JSB_glDeleteBuffers(JSContext *cx, uint32_t argc, jsval *vp)
     JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
     glDeleteBuffers(1, &arg0);
-    args.rval().set(JSVAL_VOID);
+    args.rval().set(JS::NullValue());
     return true;
 }
 
@@ -113,7 +113,7 @@ bool JSB_glDeleteRenderbuffers(JSContext *cx, uint32_t argc, jsval *vp)
     JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
     glDeleteRenderbuffers(1, &arg0);
-    args.rval().set(JSVAL_VOID);
+    args.rval().set(JS::NullValue());
     return true;
 }
 
@@ -128,7 +128,7 @@ bool JSB_glDeleteFramebuffers(JSContext *cx, uint32_t argc, jsval *vp)
     JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
     glDeleteFramebuffers(1, &arg0);
-    args.rval().set(JSVAL_VOID);
+    args.rval().set(JS::NullValue());
     return true;
 }
 
@@ -144,7 +144,7 @@ bool JSB_glShaderSource(JSContext *cx, uint32_t argc, jsval *vp)
     JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
     glShaderSource(arg0, 1, &arg1, NULL);
-    args.rval().set(JSVAL_VOID);
+    args.rval().set(JS::NullValue());
     return true;
 }
 
@@ -161,7 +161,7 @@ bool JSB_glGetShaderiv(JSContext *cx, uint32_t argc, jsval *vp)
 
     GLint ret;
     glGetShaderiv(arg0, arg1, &ret);
-    args.rval().set(INT_TO_JSVAL(ret));
+    args.rval().set(JS::Int32Value(ret));
     return true;
 }
 
@@ -178,7 +178,7 @@ bool JSB_glGetProgramiv(JSContext *cx, uint32_t argc, jsval *vp)
 
     GLint ret;
     glGetProgramiv(arg0, arg1, &ret);
-    args.rval().set(INT_TO_JSVAL(ret));
+    args.rval().set(JS::Int32Value(ret));
     return true;
 }
 
@@ -354,7 +354,7 @@ bool JSB_glGetAttachedShaders(JSContext *cx, uint32_t argc, jsval *vp)
     JSB_PRECONDITION2(jsobj, cx, false, "Error creating JS Object");
 
     for( int i=0; i<length; i++) {
-        JS::RootedValue e(cx, INT_TO_JSVAL(buffer[i]));
+        JS::RootedValue e(cx, JS::Int32Value(buffer[i]));
         JS_SetElement(cx, jsobj, i, e );
     }
 
@@ -416,7 +416,7 @@ bool JSB_glGetTexParameterfv(JSContext *cx, uint32_t argc, jsval *vp)
     GLfloat param;
     glGetTexParameterfv(arg0, arg1, &param);
 
-    args.rval().set(DOUBLE_TO_JSVAL(param));
+    args.rval().set(JS::DoubleValue(param));
     return true;
 }
 

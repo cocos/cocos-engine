@@ -178,6 +178,7 @@
 		BA4F598C1E28DE4A003F5096 /* js_network_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4F59891E28DE4A003F5096 /* js_network_manual.cpp */; };
 		BA4F598D1E28DE4A003F5096 /* js_network_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = BA4F598A1E28DE4A003F5096 /* js_network_manual.h */; };
 		BA4F598E1E28DE4A003F5096 /* js_network_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = BA4F598A1E28DE4A003F5096 /* js_network_manual.h */; };
+		BA539A021EB9CA48004EF002 /* libmozglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BA539A011EB9CA48004EF002 /* libmozglue.a */; };
 		BA9FD5D21BAC0A7600996C85 /* CCComponentJS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA9FD5D01BAC0A7600996C85 /* CCComponentJS.cpp */; };
 		BA9FD5D31BAC0A7600996C85 /* CCComponentJS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA9FD5D01BAC0A7600996C85 /* CCComponentJS.cpp */; };
 		BA9FD5D41BAC0A7600996C85 /* CCComponentJS.h in Headers */ = {isa = PBXBuildFile; fileRef = BA9FD5D11BAC0A7600996C85 /* CCComponentJS.h */; };
@@ -299,6 +300,7 @@
 		BA4F59831E28DCD3003F5096 /* jsb_cocos2dx_network_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_network_auto.hpp; sourceTree = "<group>"; };
 		BA4F59891E28DE4A003F5096 /* js_network_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_network_manual.cpp; sourceTree = "<group>"; };
 		BA4F598A1E28DE4A003F5096 /* js_network_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_network_manual.h; sourceTree = "<group>"; };
+		BA539A011EB9CA48004EF002 /* libmozglue.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmozglue.a; path = ../../../../external/mac/libs/libmozglue.a; sourceTree = "<group>"; };
 		BA9FD5D01BAC0A7600996C85 /* CCComponentJS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCComponentJS.cpp; path = component/CCComponentJS.cpp; sourceTree = "<group>"; };
 		BA9FD5D11BAC0A7600996C85 /* CCComponentJS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCComponentJS.h; path = component/CCComponentJS.h; sourceTree = "<group>"; };
 		BAF638DA1B5F5DC900CDB43A /* jsb_cocos2dx_audioengine_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_audioengine_auto.cpp; sourceTree = "<group>"; };
@@ -323,6 +325,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ED3057C71BEC7C8C0083C3ED /* libjs_static.a in Frameworks */,
+				BA539A021EB9CA48004EF002 /* libmozglue.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,6 +355,7 @@
 			children = (
 				ED3057C61BEC7C8C0083C3ED /* libjs_static.a */,
 				ED0F39451BEC3E8E00E70AD4 /* libjs_static.a */,
+				BA539A011EB9CA48004EF002 /* libmozglue.a */,
 				1A119E2E18BDF19200352BAA /* auto */,
 				1A5410A518B785A10016A3AF /* libjscocos2d iOS.a */,
 				1A5410A418B785A10016A3AF /* libjscocos2d Mac.a */,

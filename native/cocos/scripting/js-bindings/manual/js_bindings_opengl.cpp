@@ -74,14 +74,17 @@ bool js_cocos2dx_GLNode_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::GLNode>(cobj);
         JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::GLNode"));
-
+        
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-        args.rval().set(OBJECT_TO_JSVAL(jsobj));
+        JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
+        args.rval().set(objVal);
 
         bool ok=false;
         if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
-            ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
-
+        {
+            JS::HandleValueArray argsv(args);
+            ScriptingCore::getInstance()->executeFunctionWithOwner(objVal, "_ctor", argsv);
+        }
         return true;
     }
     JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
@@ -97,7 +100,11 @@ static bool js_cocos2dx_GLNode_ctor(JSContext *cx, uint32_t argc, jsval *vp)
     jsb_ref_init(cx, &newproxy->obj, nobj, "cocos2d::GLNode");
     bool isFound = false;
     if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    {
+        JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(objVal, "_ctor", argsv);
+    }
     args.rval().setUndefined();
     return true;
 }

@@ -599,7 +599,7 @@ JS_BINDED_PROP_SET_IMPL(MinXmlHttpRequest, responseType)
  */
 JS_BINDED_PROP_GET_IMPL(MinXmlHttpRequest, readyState)
 {
-    args.rval().set(INT_TO_JSVAL(_readyState));
+    args.rval().set(JS::Int32Value(_readyState));
     return true;
 }
 
@@ -610,7 +610,7 @@ JS_BINDED_PROP_GET_IMPL(MinXmlHttpRequest, readyState)
  */
 JS_BINDED_PROP_GET_IMPL(MinXmlHttpRequest, status)
 {
-    args.rval().set(INT_TO_JSVAL((int)_status));
+    args.rval().set(JS::Int32Value((int)_status));
     return true;
 }
 

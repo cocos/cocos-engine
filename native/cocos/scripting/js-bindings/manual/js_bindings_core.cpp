@@ -41,16 +41,6 @@ typedef struct _hashJSObject
 static tHashJSObject *hash = NULL;
 static tHashJSObject *reverse_hash = NULL;
 
-//#pragma mark JSBCore - Helper free functions
-static void reportError(JSContext *cx, const char *message, JSErrorReport *report)
-{
-    fprintf(stderr, "%s:%u:%s\n",
-            report->filename ? report->filename : "<no filename=\"filename\">",
-            (unsigned int) report->lineno,
-            message);
-};
-
-
 // Hash of JSObject -> proxy
 void* jsb_get_proxy_for_jsobject(JSObject *obj)
 {
@@ -154,14 +144,4 @@ void jsb_set_c_proxy_for_jsobject( JSObject *jsobj, void *handle, unsigned long 
     proxy->jsobj = jsobj;
 
     JS_SetPrivate(jsobj, proxy);
-}
-
-
-//#pragma mark Do Nothing - Callbacks
-
-bool JSB_do_nothing(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().setUndefined();
-    return true;
 }
