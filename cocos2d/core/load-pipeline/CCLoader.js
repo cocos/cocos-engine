@@ -726,7 +726,10 @@ JS.mixin(CCLoader.prototype, {
      */
     release: function (asset) {
         if (Array.isArray(asset)) {
-            AutoReleaseUtils.autoRelease(this, asset);
+            for (var i = 0; i < asset.length; i++) {
+                var key = asset[i];
+                this.release(key);
+            }
         }
         else if (asset) {
             var id = this._getReferenceKey(asset);
