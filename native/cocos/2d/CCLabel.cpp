@@ -238,7 +238,7 @@ Label* Label::createWithBMFont(const std::string& fntDataString,
                                const Vec2& imageOffset /* = Vec2::ZERO */)
 {
     auto ret = new (std::nothrow) Label(hAlignment);
-
+    spriteFrame->autorelease();
     if (ret && ret->setBMFontFilePath(fntDataString,
                                       spriteFrame,
                                       imageOffset))
