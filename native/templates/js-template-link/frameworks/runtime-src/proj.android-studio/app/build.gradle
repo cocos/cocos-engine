@@ -31,7 +31,7 @@ android {
                         arguments 'NDK_MODULE_PATH=' + module_paths.join(':')
                     }
 
-                    arguments 'NDK_OUT=./build/obj'
+                    arguments 'NDK_OUT=./obj'
 
                     arguments '-j' + Runtime.runtime.availableProcessors()
                     abiFilters.addAll(PROP_APP_ABI.split(':').collect{it as String})
@@ -43,6 +43,7 @@ android {
     sourceSets.main {
         java.srcDir "src"
         res.srcDir "res"
+        jniLibs.srcDir "libs"
         manifest.srcFile "AndroidManifest.xml"
     }
 
@@ -119,6 +120,17 @@ android.applicationVariants.all { variant ->
         }
     }
 }
+
+task copyNativeLibs(type: Copy) {  
+    from('./obj/local') {
+        include '**/*.so'
+        exclude '**/objs*'
+    }
+    into './libs'
+}  
+tasks.withType(JavaCompile) {  
+    compileTask -> compileTask.dependsOn copyNativeLibs  
+} 
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
