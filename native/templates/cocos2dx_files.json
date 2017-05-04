@@ -1137,7 +1137,6 @@
         "extensions/anysdk/platform/android/res/mipmap/plugin_ui_ad.png", 
         "extensions/anysdk/platform/android/res/values-en/plugin_string.xml", 
         "extensions/anysdk/platform/android/res/values/plugin_string.xml", 
-        "extensions/anysdk/platform/android/res/values/strings.xml", 
         "extensions/anysdk/platform/android/src/org/cocos2dx/javascript/SDKWrapper.java", 
         "extensions/assets-manager/AssetsManagerEx.cpp", 
         "extensions/assets-manager/AssetsManagerEx.h", 
