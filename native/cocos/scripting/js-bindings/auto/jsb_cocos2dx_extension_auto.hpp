@@ -13,13 +13,18 @@ void js_cocos2dx_extension_EventAssetsManagerEx_finalize(JSContext *cx, JSObject
 void js_register_cocos2dx_extension_EventAssetsManagerEx(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx_extension(JSContext* cx, JS::HandleObject obj);
 bool js_cocos2dx_extension_EventAssetsManagerEx_getAssetsManagerEx(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_EventAssetsManagerEx_getDownloadedFiles(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_EventAssetsManagerEx_getTotalFiles(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_EventAssetsManagerEx_getAssetId(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_EventAssetsManagerEx_getTotalBytes(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_EventAssetsManagerEx_getCURLECode(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_EventAssetsManagerEx_getMessage(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_EventAssetsManagerEx_getCURLMCode(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_EventAssetsManagerEx_getDownloadedBytes(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_EventAssetsManagerEx_getPercentByFile(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_EventAssetsManagerEx_getEventCode(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_EventAssetsManagerEx_getPercent(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_EventAssetsManagerEx_isResuming(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_EventAssetsManagerEx_EventAssetsManagerEx(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_cocos2d_extension_Manifest_class;
@@ -29,13 +34,17 @@ bool js_cocos2dx_extension_Manifest_constructor(JSContext *cx, uint32_t argc, js
 void js_cocos2dx_extension_Manifest_finalize(JSContext *cx, JSObject *obj);
 void js_register_cocos2dx_extension_Manifest(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx_extension(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_extension_Manifest_getManifestRoot(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_Manifest_getManifestFileUrl(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_Manifest_isVersionLoaded(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_Manifest_parseFile(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_Manifest_isLoaded(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_Manifest_getPackageUrl(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_Manifest_getVersion(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_Manifest_parseJSONString(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_Manifest_getVersionFileUrl(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_Manifest_getSearchPaths(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_Manifest_Manifest(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_cocos2d_extension_AssetsManagerEx_class;
 extern JSObject *jsb_cocos2d_extension_AssetsManagerEx_prototype;
@@ -44,17 +53,25 @@ bool js_cocos2dx_extension_AssetsManagerEx_constructor(JSContext *cx, uint32_t a
 void js_cocos2dx_extension_AssetsManagerEx_finalize(JSContext *cx, JSObject *obj);
 void js_register_cocos2dx_extension_AssetsManagerEx(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx_extension(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_extension_AssetsManagerEx_getDownloadedFiles(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_AssetsManagerEx_getState(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_AssetsManagerEx_getMaxConcurrentTask(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_AssetsManagerEx_getTotalFiles(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_AssetsManagerEx_loadRemoteManifest(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_AssetsManagerEx_checkUpdate(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_AssetsManagerEx_getTotalBytes(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_AssetsManagerEx_setVerifyCallback(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_AssetsManagerEx_getStoragePath(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_AssetsManagerEx_update(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_AssetsManagerEx_setMaxConcurrentTask(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_AssetsManagerEx_getDownloadedBytes(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_AssetsManagerEx_getLocalManifest(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_AssetsManagerEx_loadLocalManifest(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_AssetsManagerEx_getRemoteManifest(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_AssetsManagerEx_prepareUpdate(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_AssetsManagerEx_downloadFailedAssets(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_extension_AssetsManagerEx_isResuming(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_AssetsManagerEx_create(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_extension_AssetsManagerEx_AssetsManagerEx(JSContext *cx, uint32_t argc, jsval *vp);
 
