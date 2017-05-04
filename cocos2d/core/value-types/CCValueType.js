@@ -34,17 +34,19 @@ var JS = require('../platform/js');
 function ValueType () {}
 JS.setClassName('cc.ValueType', ValueType);
 
-JS.mixin(ValueType.prototype, {
+var proto = ValueType.prototype;
+
+if (CC_EDITOR) {
     /**
      * !#en This method returns an exact copy of current value.
      * !#zh 克隆当前值，该方法返回一个新对象，新对象的值和原对象相等。
      * @method clone
      * @return {ValueType}
      */
-    clone: CC_EDITOR && function () {
+    proto.clone = function () {
         cc.errorID(5801, JS.getClassName(this));
         return null;
-    },
+    };
 
     /**
      * !#en Compares this object with the other one.
@@ -53,20 +55,10 @@ JS.mixin(ValueType.prototype, {
      * @param {ValueType} other
      * @return {Boolean}
      */
-    equals: CC_EDITOR && function (other) {
+    proto.equals = function (other) {
         cc.errorID(5802, JS.getClassName(this));
         return false;
-    },
-
-    /**
-     * !#en TODO
-     * !#zh 转换为方便阅读的字符串。
-     * @method toString
-     * @return {string}
-     */
-    toString: function () {
-        return '' + {};
-    },
+    };
 
     /**
      * !#en
@@ -80,11 +72,21 @@ JS.mixin(ValueType.prototype, {
      * @param {number} ratio - the interpolation coefficient
      * @return {ValueType}
      */
-    lerp: CC_EDITOR && function (to, ratio) {
+    proto.lerp = function (to, ratio) {
         cc.warnID(5800, JS.getClassName(this));
         return this.clone();
-    }
-});
+    };
+}
+
+/**
+ * !#en TODO
+ * !#zh 转换为方便阅读的字符串。
+ * @method toString
+ * @return {string}
+ */
+proto.toString = function () {
+    return '' + {};
+};
 
 cc.ValueType = ValueType;
 module.exports = ValueType;

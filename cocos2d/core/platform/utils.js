@@ -88,27 +88,25 @@ module.exports = {
 };
 
 if (CC_DEV) {
-    cc.js.mixin(module.exports, {
-        ///**
-        // * @param {Object} obj
-        // * @return {Boolean} is {} ?
-        // */
-        isPlainEmptyObj_DEV: function (obj) {
-            if (!obj || obj.constructor !== Object) {
-                return false;
-            }
-            // jshint ignore: start
-            for (var k in obj) {
-                return false;
-            }
-            // jshint ignore: end
-            return true;
-        },
-        cloneable_DEV: function (obj) {
-            return obj && typeof obj.clone === 'function' &&
-                  (obj.constructor.prototype.hasOwnProperty('clone') || obj.hasOwnProperty('clone'));
+    ///**
+    // * @param {Object} obj
+    // * @return {Boolean} is {} ?
+    // */
+    module.exports.isPlainEmptyObj_DEV = function (obj) {
+        if (!obj || obj.constructor !== Object) {
+            return false;
         }
-    });
+        // jshint ignore: start
+        for (var k in obj) {
+            return false;
+        }
+        // jshint ignore: end
+        return true;
+    };
+    module.exports.cloneable_DEV = function (obj) {
+        return obj && typeof obj.clone === 'function' &&
+              (obj.constructor.prototype.hasOwnProperty('clone') || obj.hasOwnProperty('clone'));
+    };
 }
 
 if (CC_TEST) {

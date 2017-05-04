@@ -149,7 +149,7 @@ m.imagePool = {
             this.count++;
         }
     }
-}
+};
 
 module.exports = m;
 

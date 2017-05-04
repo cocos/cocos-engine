@@ -34,7 +34,7 @@
                 throw err;
             }
             var exports = {};
-            module = cache[name] = {exports};
+            module = cache[name] = {exports: exports};
             moduleData[0](function(x){
                 return newRequire(moduleData[1][x] || x);
             },module,exports);

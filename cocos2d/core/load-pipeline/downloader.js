@@ -319,47 +319,46 @@ var Downloader = function (extMap) {
     this.extMap = JS.mixin(extMap, defaultMap);
 };
 Downloader.ID = ID;
-JS.mixin(Downloader.prototype, {
-    /**
-     * Add custom supported types handler or modify existing type handler.
-     * @method addHandlers
-     * @param {Object} extMap Custom supported types with corresponded handler
-     */
-    addHandlers: function (extMap) {
-        JS.mixin(this.extMap, extMap);
-    },
 
-    handle: function (item, callback) {
-        var self = this;
-        var downloadFunc = this.extMap[item.type] || this.extMap['default'];
-        if (this._curConcurrent < this.maxConcurrent) {
-            this._curConcurrent++;
-            downloadFunc.call(this, item, function (err, result) {
-                // Concurrent logic
-                self._curConcurrent = Math.max(0, self._curConcurrent - 1);
-                while (self._curConcurrent < self.maxConcurrent) {
-                    var nextOne = self._loadQueue.shift();
-                    if (!nextOne) {
-                        break;
-                    }
-                    self.handle(nextOne.item, nextOne.callback);
+/**
+ * Add custom supported types handler or modify existing type handler.
+ * @method addHandlers
+ * @param {Object} extMap Custom supported types with corresponded handler
+ */
+Downloader.prototype.addHandlers = function (extMap) {
+    JS.mixin(this.extMap, extMap);
+};
+
+Downloader.prototype.handle = function (item, callback) {
+    var self = this;
+    var downloadFunc = this.extMap[item.type] || this.extMap['default'];
+    if (this._curConcurrent < this.maxConcurrent) {
+        this._curConcurrent++;
+        downloadFunc.call(this, item, function (err, result) {
+            // Concurrent logic
+            self._curConcurrent = Math.max(0, self._curConcurrent - 1);
+            while (self._curConcurrent < self.maxConcurrent) {
+                var nextOne = self._loadQueue.shift();
+                if (!nextOne) {
+                    break;
                 }
+                self.handle(nextOne.item, nextOne.callback);
+            }
 
-                callback && callback(err, result);
-            });
-        }
-        else if (item.ignoreMaxConcurrency) {
-            downloadFunc.call(this, item, function (err, result) {
-                callback && callback(err, result);
-            });
-        }
-        else {
-            this._loadQueue.push({
-                item: item,
-                callback: callback
-            });
-        }
+            callback && callback(err, result);
+        });
     }
-});
+    else if (item.ignoreMaxConcurrency) {
+        downloadFunc.call(this, item, function (err, result) {
+            callback && callback(err, result);
+        });
+    }
+    else {
+        this._loadQueue.push({
+            item: item,
+            callback: callback
+        });
+    }
+};
 
 Pipeline.Downloader = module.exports = Downloader;
