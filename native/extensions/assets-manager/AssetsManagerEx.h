@@ -53,6 +53,7 @@ public:
     //! Update states
     enum class State
     {
+        UNINITED,
         UNCHECKED,
         PREDOWNLOAD_VERSION,
         DOWNLOADING_VERSION,
@@ -123,7 +124,19 @@ public:
      * @param localManifest    The local manifest object to be set
      * @param storagePath    The local storage path
      */
-    bool loadLocalManifest(Manifest* localManifest, const std::string& storagePath = "");
+    bool loadLocalManifest(Manifest* localManifest, const std::string& storagePath);
+    
+    /** @brief Load a local manifest from url.
+     * You can only manually load local manifest when the update state is UNCHECKED, it will fail once the update process is began.
+     * This API will do the following things:
+     * 1. Reset storage path
+     * 2. Set local storage
+     * 3. Search for cached manifest and compare with the local manifest
+     * 4. Init temporary manifest and remote manifest
+     * If successfully load the given local manifest and inited other manifests, it will return true, otherwise it will return false
+     * @param manifestUrl    The local manifest url
+     */
+    bool loadLocalManifest(const std::string& manifestUrl);
     
     /** @brief Function for retrieving the remote manifest object
      */
@@ -186,8 +199,6 @@ protected:
     std::string get(const std::string& key) const;
     
     void initManifests();
-    
-    bool loadLocalManifest(const std::string& manifestUrl);
     
     void prepareLocalManifest();
     

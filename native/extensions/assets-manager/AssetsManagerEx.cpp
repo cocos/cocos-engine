@@ -55,13 +55,12 @@ const std::string AssetsManagerEx::MANIFEST_ID = "@manifest";
 // Implementation of AssetsManagerEx
 
 AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath, const VersionCompareHandle& handle/* = nullptr*/)
-: _updateState(State::UNCHECKED)
+: _updateState(State::UNINITED)
 , _assets(nullptr)
 , _storagePath("")
 , _tempVersionPath("")
 , _cacheManifestPath("")
 , _tempManifestPath("")
-, _manifestUrl(manifestUrl)
 , _localManifest(nullptr)
 , _tempManifest(nullptr)
 , _remoteManifest(nullptr)
@@ -110,9 +109,9 @@ AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::stri
     _cacheManifestPath = _storagePath + MANIFEST_FILENAME;
     _tempManifestPath = _tempStoragePath + TEMP_MANIFEST_FILENAME;
 
-    if (loadLocalManifest(manifestUrl))
+    if (manifestUrl.size() > 0)
     {
-        initManifests();
+        loadLocalManifest(manifestUrl);
     }
 }
 
@@ -194,9 +193,9 @@ void AssetsManagerEx::prepareLocalManifest()
     _localManifest->prependSearchPaths();
 }
 
-bool AssetsManagerEx::loadLocalManifest(Manifest* localManifest, const std::string& storagePath/* = ""*/)
+bool AssetsManagerEx::loadLocalManifest(Manifest* localManifest, const std::string& storagePath)
 {
-    if (_updateState > State::UNCHECKED)
+    if (_updateState > State::UNINITED)
     {
         return false;
     }
@@ -264,12 +263,22 @@ bool AssetsManagerEx::loadLocalManifest(Manifest* localManifest, const std::stri
     }
     else
     {
+        _updateState = State::UNCHECKED;
         return true;
     }
 }
 
-bool AssetsManagerEx::loadLocalManifest(const std::string& /*manifestUrl*/)
+bool AssetsManagerEx::loadLocalManifest(const std::string& manifestUrl)
 {
+    if (manifestUrl.size() == 0)
+    {
+        return false;
+    }
+    if (_updateState > State::UNINITED)
+    {
+        return false;
+    }
+    _manifestUrl = manifestUrl;
     // Init and load local manifest
     _localManifest = new (std::nothrow) Manifest();
     if (!_localManifest)
@@ -345,6 +354,8 @@ bool AssetsManagerEx::loadLocalManifest(const std::string& /*manifestUrl*/)
         dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ERROR_NO_LOCAL_MANIFEST);
         return false;
     }
+    initManifests();
+    _updateState = State::UNCHECKED;
     return true;
 }
 
@@ -858,7 +869,7 @@ void AssetsManagerEx::startUpdate()
     {
         prepareUpdate();
     }
-    else if (_updateState == State::READY_TO_UPDATE)
+    if (_updateState == State::READY_TO_UPDATE)
     {
         _updateState = State::UPDATING;
         std::string msg;
