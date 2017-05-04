@@ -788,32 +788,35 @@ var RigidBody = cc.Class({
         this._destroy();
     },
 
-    onLoad: function () {
-        this._ignoreNodeChanges = false;
-
+    _registerNodeEvents: function () {
         var node = this.node;
+        node.on('position-changed', this._onNodePositionChanged, this);
+        node.on('rotation-changed', this._onNodeRotationChanged, this);
+        node.on('scale-changed', this._onNodeScaleChanged, this);
+    },
 
-        node.on('position-changed', function() {
-            if (!this._ignoreNodeChanges) {
-                this.syncPosition(true);
-            }
-        }, this);
+    _unregisterNodeEvents: function () {
+        var node = this.node;
+        node.off('position-changed', this._onNodePositionChanged, this);
+        node.off('rotation-changed', this._onNodeRotationChanged, this);
+        node.off('scale-changed', this._onNodeScaleChanged, this);
+    },
 
-        node.on('rotation-changed', function() {
-            var b2body = this._b2Body;
-            if (!this._ignoreNodeChanges && b2body) {
-                this.syncRotation(true);
-            }
-        }, this);
+    _onNodePositionChanged: function () {
+        this.syncPosition(true);
+    },
 
-        node.on('scale-changed', function () {
-            if (!this._ignoreNodeChanges) {
-                var colliders = this.getComponents(cc.Collider);
-                for (var i = 0; i < colliders.length; i++) {
-                    colliders[i].apply();
-                }
+    _onNodeRotationChanged: function (event) {
+        this.syncRotation(true);
+    },
+
+    _onNodeScaleChanged: function (event) {
+        if (this._b2Body) {
+            var colliders = this.getComponents(cc.Collider);
+            for (var i = 0; i < colliders.length; i++) {
+                colliders[i].apply();
             }
-        }, this);
+        }
     },
 
    _init: function () {
@@ -825,6 +828,8 @@ var RigidBody = cc.Class({
 
     __init: function () {
         if (this._inited) return;
+
+       this._registerNodeEvents();
 
         var bodyDef = new b2.BodyDef();
         
@@ -851,7 +856,7 @@ var RigidBody = cc.Class({
         var node = this.node;
         var pos = node.convertToWorldSpaceAR(VEC2_ZERO);
         bodyDef.position = new b2.Vec2(pos.x / PTM_RATIO, pos.y / PTM_RATIO);
-        bodyDef.angle = -(Math.PI / 180) * getWorldRotation(node); 
+        bodyDef.angle = -(Math.PI / 180) * getWorldRotation(node);
 
         cc.director.getPhysicsManager()._addBody(this, bodyDef);
 
@@ -859,7 +864,10 @@ var RigidBody = cc.Class({
     },
     __destroy: function () {
         if (!this._inited) return;
+
         cc.director.getPhysicsManager()._removeBody(this);
+        this._unregisterNodeEvents();
+        
         this._inited = false;
     },
 

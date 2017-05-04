@@ -28,18 +28,24 @@ PhysicsUtils.prototype.syncNode = function () {
 
         var angle = b2body.GetAngle() * PHYSICS_ANGLE_TO_ANGLE;
 
-        body._ignoreNodeChanges = true;
-
         // When node's parent is not scene, convert position and rotation.
         if (node.parent.parent !== null) {
             tempPosition = node.parent.convertToNodeSpaceAR( tempPosition );
             angle = convertToNodeRotation( node.parent, angle );
         }
 
-        node.position = tempPosition;
-        node.rotation = angle;
+        var sgNode = node._sgNode;
 
-        body._ignoreNodeChanges = false;
+        // sync position
+        var position = node._position;
+        position.x = tempPosition.x;
+        position.y = tempPosition.y;
+
+        sgNode.setPosition(position);
+
+        // sync rotation
+        node._rotationX = node._rotationY = angle;
+        sgNode.rotation = angle;
     }
 };
 
