@@ -411,6 +411,8 @@ _ccsg.VideoPlayer.EventType = {
         video.style.left = "0px";
         video.className = "cocosVideo";
         video.setAttribute('preload', true);
+        video.setAttribute('webkit-playsinline', '');
+        video.setAttribute('playsinline', '');
         this._video = video;
         cc.game.container.appendChild(video);
     };
