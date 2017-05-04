@@ -70,7 +70,14 @@ function allowReturnOutsideFunctionInBrowserifyTransform () {
         if (typeof parse === 'function') {
             if (acorn.parse.name !== 'monkeyPatchedParse') {
                 acorn.parse = function monkeyPatchedParse(input, options) {
-                    options.allowReturnOutsideFunction = true;
+                    if (options) {
+                        options.allowReturnOutsideFunction = true;
+                    }
+                    else {
+                        options = {
+                            allowReturnOutsideFunction: true
+                        };
+                    }
                     return parse(input, options);
                 };
             }
