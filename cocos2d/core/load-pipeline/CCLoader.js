@@ -726,7 +726,7 @@ JS.mixin(CCLoader.prototype, {
      */
     release: function (asset) {
         if (Array.isArray(asset)) {
-            for (var i = 0; i < asset.length; i++) {
+            for (let i = 0; i < asset.length; i++) {
                 var key = asset[i];
                 this.release(key);
             }
@@ -744,7 +744,7 @@ JS.mixin(CCLoader.prototype, {
                         asset.release();
                     }
                     var urls = asset.rawUrls;
-                    for (var i = 0; i < urls.length; i++) {
+                    for (let i = 0; i < urls.length; i++) {
                         this.release(urls[i]);
                     }
                 }
