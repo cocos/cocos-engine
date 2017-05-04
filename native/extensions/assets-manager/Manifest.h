@@ -113,27 +113,48 @@ public:
      */
     std::vector<std::string> getSearchPaths() const;
     
-protected:
+    /** @brief Get the manifest root path, normally it should also be the local storage path.
+     */
+    const std::string& getManifestRoot() const { return _manifestRoot; };
     
-    /** @brief Constructor for Manifest class
+    /** @brief Constructor for Manifest class, create manifest by parsing a json file
      * @param manifestUrl Url of the local manifest
      */
     Manifest(const std::string& manifestUrl = "");
+    
+    /** @brief Constructor for Manifest class, create manifest by parsing a json string
+     * @param content Json string content
+     * @param manifestRoot The root path of the manifest file (It should be local path, so that we can find assets path relative to the root path)
+     */
+    Manifest(const std::string& content, const std::string& manifestRoot);
+    
+    /** @brief Parse the manifest file information into this manifest
+     * @param manifestUrl Url of the local manifest
+     */
+    void parseFile(const std::string& manifestUrl);
+    
+    /** @brief Parse the manifest from json string into this manifest
+     * @param content Json string content
+     * @param manifestRoot The root path of the manifest file (It should be local path, so that we can find assets path relative to the root path)
+     */
+    void parseJSONString(const std::string& content, const std::string& manifestRoot);
+    
+protected:
     
     /** @brief Load the json file into local json object
      * @param url Url of the json file
      */
     void loadJson(const std::string& url);
     
+    /** @brief Load the json from a string into local json object
+     * @param content The json content string
+     */
+    void loadJsonFromString(const std::string& content);
+    
     /** @brief Parse the version file information into this manifest
      * @param versionUrl Url of the local version file
      */
     void parseVersion(const std::string& versionUrl);
-    
-    /** @brief Parse the manifest file information into this manifest
-     * @param manifestUrl Url of the local manifest
-     */
-    void parse(const std::string& manifestUrl);
     
     /** @brief Check whether the version of this manifest equals to another.
      * @param b   The other manifest
