@@ -201,7 +201,15 @@ test('disable component during onEnable', function () {
     }
 
     test('could deactivate self node in onLoad', function () {
-        var node = new cc.Node();
+        var nodes = createNodes({
+            node: {
+            },
+            sibling: {
+                comps: cc.Component,
+            }
+        });
+
+        var node = nodes.node;
 
         var previousComp = createOnlyOnLoadComp(node, 'previous');
 
@@ -224,11 +232,16 @@ test('disable component during onEnable', function () {
         }
 
         node.runAction(cc.delayTime(0));
-        cc.director.getScene().addChild(node);
+
+        var siblingComp = nodes.siblingComps[0];
+        siblingComp.onLoad = new Callback().enable();
+
+        cc.director.getScene().addChild(nodes.root);
 
         strictEqual(node.active, false, 'node should be deactivated');
         strictEqual(cc.director.getActionManager().isTargetPaused_TEST(node), true, 'action should be paused');
         previousComp.onLoad.once('onLoad of previous component should be called').disable();
+        siblingComp.onLoad.once('onLoad of sibling node should still be called');
 
         if (StillInvokeRestCompsOnSameNode) {
             compShouldBeActivated(restComp, 'rest');

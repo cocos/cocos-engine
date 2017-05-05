@@ -66,12 +66,8 @@ function createActivateTask () {
         for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
             let comp = array[iterator.i];
             callOnLoadInTryCatch(comp);
-            if (!comp.node._activeInHierarchy) {
-                // deactivated during onLoad
-                break;
-            }
         }
-    } : CompScheduler.createInvokeImpl('c.onLoad();if(!c.node._activeInHierarchy)break;');
+    } : CompScheduler.createInvokeImpl('c.onLoad();');
     return {
         preload: new UnsortedInvoker(invokePreload),
         onLoad: new CompScheduler.OneOffInvoker(invokeOnLoad),

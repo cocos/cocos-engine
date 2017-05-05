@@ -179,8 +179,7 @@ function defineGetSet (cls, name, propName, val, es6) {
 
         var attrs = parseAttributes(cls, val, name, propName, true);
         for (var i = 0; i < attrs.length; i++) {
-            var attr = attrs[i];
-            Attr.attr(cls, propName, attr);
+            Attr.attr(cls, propName, attrs[i]);
         }
         attrs.length = 0;
 
