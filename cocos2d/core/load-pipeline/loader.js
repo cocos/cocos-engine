@@ -56,8 +56,10 @@ function loadImage (item, callback) {
     tex.url = url;
     tex.initWithElement(item.content);
     tex.handleLoadedTexture();
-    // Image element no longer needed
-    misc.imagePool.put(item.content);
+    if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+        // Image element no longer needed
+        misc.imagePool.put(item.content);
+    }
     cc.textureCache.cacheImage(url, tex);
     callback(null, tex);
 }

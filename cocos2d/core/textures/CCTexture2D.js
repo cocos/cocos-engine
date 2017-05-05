@@ -220,28 +220,13 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
      */
     handleLoadedTexture: function () {
         var self = this;
-        if (!self._htmlElementObj) {
-            var img = cc.loader.getRes(self.url);
-            if (!img) return;
-            self.initWithElement(img);
-        }
-        if (!self._htmlElementObj.width || !self._htmlElementObj.height)
+        if (!self._htmlElementObj || !self._htmlElementObj.width || !self._htmlElementObj.height)
             return;
 
         var locElement = self._htmlElementObj;
         self._pixelWidth = self._contentSize.width = locElement.width;
         self._pixelHeight = self._contentSize.height = locElement.height;
         self._textureLoaded = true;
-
-        // anti-alias
-        if(cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-            if (cc.view._antiAliasEnabled) {
-                self.setAntiAliasTexParameters();
-            }
-            else {
-                self.setAliasTexParameters();
-            }
-        }
 
         //dispatch load event to listener.
         self.emit("load");
@@ -385,118 +370,95 @@ var _c = Texture2D;
 
 /**
  * 32-bit texture: RGBA8888
- * @memberOf cc.Texture2D
- * @name PIXEL_FORMAT_RGBA8888
+ * @property PIXEL_FORMAT_RGBA8888
  * @static
- * @constant
  * @type {Number}
  */
 _c.PIXEL_FORMAT_RGBA8888 = 2;
 
 /**
- * 24-bit texture: RGBA888
- * @memberOf cc.Texture2D
- * @name PIXEL_FORMAT_RGB888
+ * 24-bit texture: RGB888, not supported yet
+ * @property PIXEL_FORMAT_RGB888
  * @static
- * @constant
  * @type {Number}
  */
 _c.PIXEL_FORMAT_RGB888 = 3;
 
 /**
- * 16-bit texture without Alpha channel
- * @memberOf cc.Texture2D
- * @name PIXEL_FORMAT_RGB565
+ * 16-bit texture without Alpha channel, not supported yet
+ * @property PIXEL_FORMAT_RGB565
  * @static
- * @constant
  * @type {Number}
  */
 _c.PIXEL_FORMAT_RGB565 = 4;
 
 /**
- * 8-bit textures used as masks
- * @memberOf cc.Texture2D
- * @name PIXEL_FORMAT_A8
+ * 8-bit textures used as masks, not supported yet
+ * @property PIXEL_FORMAT_A8
  * @static
- * @constant
  * @type {Number}
  */
 _c.PIXEL_FORMAT_A8 = 5;
 
 /**
- * 8-bit intensity texture
- * @memberOf cc.Texture2D
- * @name PIXEL_FORMAT_I8
+ * 8-bit intensity texture, not supported yet
+ * @property PIXEL_FORMAT_I8
  * @static
- * @constant
  * @type {Number}
  */
 _c.PIXEL_FORMAT_I8 = 6;
 
 /**
- * 16-bit textures used as masks
- * @memberOf cc.Texture2D
- * @name PIXEL_FORMAT_AI88
+ * 16-bit textures used as masks, not supported yet
+ * @property PIXEL_FORMAT_AI88
  * @static
- * @constant
  * @type {Number}
  */
 _c.PIXEL_FORMAT_AI88 = 7;
 
 /**
- * 16-bit textures: RGBA4444
- * @memberOf cc.Texture2D
- * @name PIXEL_FORMAT_RGBA4444
+ * 16-bit textures: RGBA4444, not supported yet
+ * @property PIXEL_FORMAT_RGBA4444
  * @static
- * @constant
  * @type {Number}
  */
 _c.PIXEL_FORMAT_RGBA4444 = 8;
 
 /**
- * 16-bit textures: RGB5A1
- * @memberOf cc.Texture2D
- * @name PIXEL_FORMAT_RGB5A1
+ * 16-bit textures: RGB5A1, not supported yet
+ * @property PIXEL_FORMAT_RGB5A1
  * @static
- * @constant
  * @type {Number}
  */
 _c.PIXEL_FORMAT_RGB5A1 = 7;
 
 /**
- * 4-bit PVRTC-compressed texture: PVRTC4
- * @memberOf cc.Texture2D
- * @name PIXEL_FORMAT_PVRTC4
+ * 4-bit PVRTC-compressed texture: PVRTC4, not supported yet
+ * @property PIXEL_FORMAT_PVRTC4
  * @static
- * @constant
  * @type {Number}
  */
 _c.PIXEL_FORMAT_PVRTC4 = 9;
 
 /**
- * 2-bit PVRTC-compressed texture: PVRTC2
- * @memberOf cc.Texture2D
- * @name PIXEL_FORMAT_PVRTC2
+ * 2-bit PVRTC-compressed texture: PVRTC2, not supported yet
+ * @property PIXEL_FORMAT_PVRTC2
  * @static
- * @constant
  * @type {Number}
  */
 _c.PIXEL_FORMAT_PVRTC2 = 10;
 
 /**
  * Default texture format: RGBA8888
- * @memberOf cc.Texture2D
- * @name PIXEL_FORMAT_DEFAULT
+ * @property PIXEL_FORMAT_DEFAULT
  * @static
- * @constant
  * @type {Number}
  */
 _c.PIXEL_FORMAT_DEFAULT = _c.PIXEL_FORMAT_RGBA8888;
 
 /**
  * The default pixel format
- * @memberOf cc.Texture2D
- * @name PIXEL_FORMAT_PVRTC2
+ * @property defaultPixelFormat
  * @static
  * @type {Number}
  */
@@ -1060,6 +1022,13 @@ game.once(game.EVENT_RENDERER_INITED, function () {
  * WebGLTexture Object.
  * @property name
  * @type {WebGLTexture}
+ * @readonly
+ */
+
+/**
+ * The source file's url for the texture, it could be empty if the texture wasn't created via a file.
+ * @property url
+ * @type {String}
  * @readonly
  */
 
