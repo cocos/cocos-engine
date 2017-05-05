@@ -23,19 +23,51 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var LStats = require('../../../external/lstats/lstats');
+var PStats = require('../../../external/pstats/pstats');
+var macro = require('../platform/CCMacro');
 
 var _fps = document.createElement('div');
 _fps.id = 'fps';
 
-let stats = new LStats(_fps, [
-    'fps', 'ms', 'mem'
-]);
+let stats = PStats.new(_fps, {
+    values: {
+        frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
+        fps: { desc: 'Framerate (FPS)', below: 30, average: 500 },
+        draws: { desc: 'Draw call' },
+        logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
+        render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
+        memory: { desc: 'Memory', extension : 'memory.used', average: 2000, threshold: true }
+    },
+    extensions: [
+        'memory'
+    ],
+    css: '.pstats {left: ' + macro.DIRECTOR_STATS_POSITION.x + 'px; bottom: ' + macro.DIRECTOR_STATS_POSITION.y + 'px;}'
+});
 
 let _showFPS = false;
 
-function tick () {
-    stats.tick();
+function beforeUpdate () {
+    stats('frame').start();
+    stats('logic').start();
+}
+
+function afterVisit () {
+    if (cc.director.isPaused()) {
+        stats('frame').start();
+    }
+    else {
+        stats('logic').end();
+    }
+    stats('render').start();
+}
+
+function afterDraw () {
+    stats('render').end();
+    stats('draws').value = cc.g_NumberOfDraws;
+    stats('memory').snapshot();
+    stats('frame').end();
+    stats('fps').frame();
+    stats().tick();
 }
 
 cc.profiler = module.exports = {
@@ -48,7 +80,9 @@ cc.profiler = module.exports = {
             if (_fps.parentElement === document.body) {
                 document.body.removeChild(_fps);
             }
-            cc.director.off(cc.Director.EVENT_AFTER_VISIT, tick);
+            cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, beforeUpdate);
+            cc.director.off(cc.Director.EVENT_AFTER_VISIT, afterVisit);
+            cc.director.off(cc.Director.EVENT_AFTER_DRAW, afterDraw);
             _showFPS = false;
         }
     },
@@ -58,7 +92,9 @@ cc.profiler = module.exports = {
             if (_fps.parentElement === null) {
                 document.body.appendChild(_fps);
             }
-            cc.director.on(cc.Director.EVENT_AFTER_VISIT, tick);
+            cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, beforeUpdate);
+            cc.director.on(cc.Director.EVENT_AFTER_VISIT, afterVisit);
+            cc.director.on(cc.Director.EVENT_AFTER_DRAW, afterDraw);
             _showFPS = true;
         }
     }
