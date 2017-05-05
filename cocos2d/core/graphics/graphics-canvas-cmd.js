@@ -93,128 +93,127 @@ _p.rendering = function (ctx, scaleX, scaleY) {
 };
 
 // draw api
-Js.mixin(_p, {
-    setStrokeColor: function (v) {
-        var strokeStyle = 'rgba(' + (0 | v.r) + ',' + (0 | v.g) + ',' + (0 | v.b) + ',' + v.a / 255 + ')';
-        this.cmds.push(['strokeStyle', strokeStyle]);
-        this.style.strokeStyle = strokeStyle;
-    },
 
-    setFillColor: function (v) {
-        var fillStyle = 'rgba(' + (0 | v.r) + ',' + (0 | v.g) + ',' + (0 | v.b) + ',' + v.a / 255 + ')';
-        this.cmds.push(['fillStyle', fillStyle]);
-        this.style.fillStyle = fillStyle;
-    },
+_p.setStrokeColor = function (v) {
+    var strokeStyle = 'rgba(' + (0 | v.r) + ',' + (0 | v.g) + ',' + (0 | v.b) + ',' + v.a / 255 + ')';
+    this.cmds.push(['strokeStyle', strokeStyle]);
+    this.style.strokeStyle = strokeStyle;
+};
 
-    setLineWidth: function (v) {
-        this.cmds.push(['lineWidth', v]);
-        this.style.lineWidth = v;
-    },
+_p.setFillColor = function (v) {
+    var fillStyle = 'rgba(' + (0 | v.r) + ',' + (0 | v.g) + ',' + (0 | v.b) + ',' + v.a / 255 + ')';
+    this.cmds.push(['fillStyle', fillStyle]);
+    this.style.fillStyle = fillStyle;
+};
 
-    setLineCap: function (v) {
-        var lineCap = 'butt';
-        if (v === LineCap.BUTT) {
-            lineCap = 'butt';
-        }
-        else if (v === LineCap.ROUND) {
-            lineCap = 'round';
-        }
-        else if (v === LineCap.SQUARE) {
-            lineCap = 'square';
-        }
-        this.cmds.push(['lineCap', lineCap]);
-        this.style.lineCap = lineCap;
-    },
+_p.setLineWidth = function (v) {
+    this.cmds.push(['lineWidth', v]);
+    this.style.lineWidth = v;
+};
 
-    setLineJoin: function (v) {
-        var lineJoin = 'bevel';
-        if (v === LineJoin.BEVEL) {
-            lineJoin = 'bevel';
-        }
-        else if (v === LineJoin.ROUND) {
-            lineJoin = 'round';
-        }
-        else if (v === LineJoin.MITER) {
-            lineJoin = 'miter';
-        }
-
-        this.cmds.push(['lineJoin', lineJoin]);
-        this.style.lineJoin = lineJoin;
-    },
-
-    setMiterLimit: function (v) {
-        this.cmds.push(['miterLimit', v]);
-        this.style.miterLimit = v;
-    },
-
-    // draw functions
-    
-    beginPath: function () {
-    },
-    
-    moveTo: function (x, y) {
-        this.cmds.push(['moveTo', [x, y]]);
-    },
-
-    lineTo: function (x, y) {
-        this.cmds.push(['lineTo', [x, y]]);
-    },
-
-    bezierCurveTo: function (c1x, c1y, c2x, c2y, x, y) {
-        this.cmds.push(['bezierCurveTo', [c1x, c1y, c2x, c2y, x, y]]);
-    },
-
-    quadraticCurveTo: function (cx, cy, x, y) {
-        this.cmds.push(['quadraticCurveTo', [cx, cy, x, y]]);
-    },
-
-    arc: function (cx, cy, r, startAngle, endAngle, counterclockwise) {
-        Helper.arc(this, cx, cy, r, startAngle, endAngle, counterclockwise);
-    },
-
-    ellipse: function (cx, cy, rx, ry) {
-        Helper.ellipse(this, cx, cy, rx, ry);
-    },
-
-    circle: function (cx, cy, r) {
-        Helper.ellipse(this, cx, cy, r, r);
-    },
-
-    rect: function (x, y, w, h) {
-        this.moveTo(x, y);
-        this.lineTo(x+w, y);
-        this.lineTo(x+w, y+h);
-        this.lineTo(x, y+h);
-        this.close();
-    },
-
-    roundRect: function (x, y, w, h, r) {
-        Helper.roundRect(this, x, y, w, h, r);
-    },
-
-    fillRect: function (x, y, w, h) {
-        this.cmds.push(['fillRect', [x, y, w, h]]);
-        this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
-    },
-
-    close: function () {
-        this.cmds.push(['closePath', []]);
-    },
-
-    stroke: function () {
-        this.cmds.push(['stroke', []]);
-        this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
-    },
-
-    fill: function () {
-        this.cmds.push(['fill', []]);
-        this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
-    },
-
-    clear: function () {
-        this.cmds.length = 0;
-        this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
+_p.setLineCap = function (v) {
+    var lineCap = 'butt';
+    if (v === LineCap.BUTT) {
+        lineCap = 'butt';
     }
-});
+    else if (v === LineCap.ROUND) {
+        lineCap = 'round';
+    }
+    else if (v === LineCap.SQUARE) {
+        lineCap = 'square';
+    }
+    this.cmds.push(['lineCap', lineCap]);
+    this.style.lineCap = lineCap;
+};
+
+_p.setLineJoin = function (v) {
+    var lineJoin = 'bevel';
+    if (v === LineJoin.BEVEL) {
+        lineJoin = 'bevel';
+    }
+    else if (v === LineJoin.ROUND) {
+        lineJoin = 'round';
+    }
+    else if (v === LineJoin.MITER) {
+        lineJoin = 'miter';
+    }
+
+    this.cmds.push(['lineJoin', lineJoin]);
+    this.style.lineJoin = lineJoin;
+};
+
+_p.setMiterLimit = function (v) {
+    this.cmds.push(['miterLimit', v]);
+    this.style.miterLimit = v;
+};
+
+// draw functions
+
+_p.beginPath = function () {
+};
+
+_p.moveTo = function (x, y) {
+    this.cmds.push(['moveTo', [x, y]]);
+};
+
+_p.lineTo = function (x, y) {
+    this.cmds.push(['lineTo', [x, y]]);
+};
+
+_p.bezierCurveTo = function (c1x, c1y, c2x, c2y, x, y) {
+    this.cmds.push(['bezierCurveTo', [c1x, c1y, c2x, c2y, x, y]]);
+};
+
+_p.quadraticCurveTo = function (cx, cy, x, y) {
+    this.cmds.push(['quadraticCurveTo', [cx, cy, x, y]]);
+};
+
+_p.arc = function (cx, cy, r, startAngle, endAngle, counterclockwise) {
+    Helper.arc(this, cx, cy, r, startAngle, endAngle, counterclockwise);
+};
+
+_p.ellipse = function (cx, cy, rx, ry) {
+    Helper.ellipse(this, cx, cy, rx, ry);
+};
+
+_p.circle = function (cx, cy, r) {
+    Helper.ellipse(this, cx, cy, r, r);
+};
+
+_p.rect = function (x, y, w, h) {
+    this.moveTo(x, y);
+    this.lineTo(x+w, y);
+    this.lineTo(x+w, y+h);
+    this.lineTo(x, y+h);
+    this.close();
+};
+
+_p.roundRect = function (x, y, w, h, r) {
+    Helper.roundRect(this, x, y, w, h, r);
+};
+
+_p.fillRect = function (x, y, w, h) {
+    this.cmds.push(['fillRect', [x, y, w, h]]);
+    this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
+};
+
+_p.close = function () {
+    this.cmds.push(['closePath', []]);
+};
+
+_p.stroke = function () {
+    this.cmds.push(['stroke', []]);
+    this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
+};
+
+_p.fill = function () {
+    this.cmds.push(['fill', []]);
+    this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
+};
+
+_p.clear = function () {
+    this.cmds.length = 0;
+    this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
+};
 
 module.exports = CanvasRenderCmd;

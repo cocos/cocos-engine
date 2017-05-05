@@ -234,6 +234,106 @@ var js = {
     getPropertyDescriptor: _getPropertyDescriptor
 };
 
+
+var tmpValueDesc = {
+    value: undefined,
+    enumerable: false,
+    writable: false,
+    configurable: true
+};
+
+/**
+ * Define value, just help to call Object.defineProperty.<br>
+ * The configurable will be true.
+ * @method value
+ * @param {Object} obj
+ * @param {String} prop
+ * @param {any} value
+ * @param {Boolean} [writable=false]
+ * @param {Boolean} [enumerable=false]
+ */
+js.value = function (obj, prop, value, writable, enumerable) {
+    tmpValueDesc.value = value;
+    tmpValueDesc.writable = writable;
+    tmpValueDesc.enumerable = enumerable;
+    Object.defineProperty(obj, prop, tmpValueDesc);
+    tmpValueDesc.value = undefined;
+};
+
+var tmpGetSetDesc = {
+    get: null,
+    set: null,
+    enumerable: false,
+};
+
+/**
+ * Define get set accessor, just help to call Object.defineProperty(...)
+ * @method getset
+ * @param {Object} obj
+ * @param {String} prop
+ * @param {Function} getter
+ * @param {Function} setter
+ * @param {Boolean} [enumerable=false]
+ */
+js.getset = function (obj, prop, getter, setter, enumerable) {
+    if (typeof setter !== 'function') {
+        enumerable = setter;
+        setter = undefined;
+    }
+    tmpGetSetDesc.get = getter;
+    tmpGetSetDesc.set = setter;
+    tmpGetSetDesc.enumerable = enumerable;
+    Object.defineProperty(obj, prop, tmpGetSetDesc);
+    tmpGetSetDesc.get = null;
+    tmpGetSetDesc.set = null;
+};
+
+var tmpGetDesc = {
+    get: null,
+    enumerable: false,
+    configurable: false
+};
+
+/**
+ * Define get accessor, just help to call Object.defineProperty(...)
+ * @method get
+ * @param {Object} obj
+ * @param {String} prop
+ * @param {Function} getter
+ * @param {Boolean} [enumerable=false]
+ * @param {Boolean} [configurable=false]
+ */
+js.get = function (obj, prop, getter, enumerable, configurable) {
+    tmpGetDesc.get = getter;
+    tmpGetDesc.enumerable = enumerable;
+    tmpGetDesc.configurable = configurable;
+    Object.defineProperty(obj, prop, tmpGetDesc);
+    tmpGetDesc.get = null;
+};
+
+var tmpSetDesc = {
+    set: null,
+    enumerable: false,
+    configurable: false
+};
+
+/**
+ * Define set accessor, just help to call Object.defineProperty(...)
+ * @method set
+ * @param {Object} obj
+ * @param {String} prop
+ * @param {Function} setter
+ * @param {Boolean} [enumerable=false]
+ * @param {Boolean} [configurable=false]
+ */
+js.set = function (obj, prop, setter, enumerable, configurable) {
+    tmpSetDesc.set = setter;
+    tmpSetDesc.enumerable = enumerable;
+    tmpSetDesc.configurable = configurable;
+    Object.defineProperty(obj, prop, tmpSetDesc);
+    tmpSetDesc.set = null;
+};
+
 /**
  * Get class name of the object, if object is just a {} (and which class named 'Object'), it will return "".
  * (modified from <a href="http://stackoverflow.com/questions/1249531/how-to-get-a-javascript-objects-class">the code from this stackoverflow post</a>)
@@ -429,90 +529,39 @@ cc.js.unregisterClass to remove the id of unused class';
     };
 
     if (CC_DEV) {
-        Object.defineProperty(js, '_registeredClassIds', {
-            get: function () {
+        js.getset(js, '_registeredClassIds',
+            function () {
                 var dump = {};
                 for (var id in _idToClass) {
                     dump[id] = _idToClass[id];
                 }
                 return dump;
             },
-            set: function (value) {
+            function (value) {
                 js.clear(_idToClass);
                 for (var id in value) {
                     _idToClass[id] = value[id];
                 }
             }
-        });
-        Object.defineProperty(js, '_registeredClassNames', {
-            get: function () {
+        );
+        js.getset(js, '_registeredClassNames', 
+            function () {
                 var dump = {};
                 for (var id in _nameToClass) {
                     dump[id] = _nameToClass[id];
                 }
                 return dump;
             },
-            set: function (value) {
+            function (value) {
                 js.clear(_nameToClass);
                 for (var id in value) {
                     _nameToClass[id] = value[id];
                 }
             }
-        });
+        );
     }
 
 })();
-
-/**
- * Define get set accessor, just help to call Object.defineProperty(...)
- * @method getset
- * @param {any} obj
- * @param {String} prop
- * @param {Function} getter
- * @param {Function} setter
- * @param {Boolean} [enumerable=false]
- */
-js.getset = function (obj, prop, getter, setter, enumerable) {
-    if (typeof setter !== 'function') {
-        enumerable = setter;
-        setter = undefined;
-    }
-    Object.defineProperty(obj, prop, {
-        get: getter,
-        set: setter,
-        enumerable: !!enumerable
-    });
-};
-
-/**
- * Define get accessor, just help to call Object.defineProperty(...)
- * @method get
- * @param {any} obj
- * @param {String} prop
- * @param {Function} getter
- * @param {Boolean} [enumerable=false]
- */
-js.get = function (obj, prop, getter, enumerable) {
-    Object.defineProperty(obj, prop, {
-        get: getter,
-        enumerable: !!enumerable
-    });
-};
-
-/**
- * Define set accessor, just help to call Object.defineProperty(...)
- * @method set
- * @param {any} obj
- * @param {String} prop
- * @param {Function} setter
- * @param {Boolean} [enumerable=false]
- */
-js.set = function (obj, prop, setter, enumerable) {
-    Object.defineProperty(obj, prop, {
-        set: setter,
-        enumerable: !!enumerable
-    });
-};
 
 /**
  * Defines a polyfill field for obsoleted codes.

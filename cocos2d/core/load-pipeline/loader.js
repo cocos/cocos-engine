@@ -137,27 +137,26 @@ var Loader = function (extMap) {
     this.extMap = JS.mixin(extMap, defaultMap);
 };
 Loader.ID = ID;
-JS.mixin(Loader.prototype, {
-    /**
-     * Add custom supported types handler or modify existing type handler.
-     * @method addHandlers
-     * @param {Object} extMap Custom supported types with corresponded handler
-     */
-    addHandlers: function (extMap) {
-        this.extMap = JS.mixin(this.extMap, extMap);
-    },
 
-    handle: function (item, callback) {
-        var loadFunc = this.extMap[item.type] || this.extMap['default'];
-        loadFunc.call(this, item, function (err, result) {
-            if (err) {
-                callback && callback(err);
-            }
-            else {
-                callback && callback(null, result);
-            }
-        });
-    }
-});
+/**
+ * Add custom supported types handler or modify existing type handler.
+ * @method addHandlers
+ * @param {Object} extMap Custom supported types with corresponded handler
+ */
+Loader.prototype.addHandlers = function (extMap) {
+    this.extMap = JS.mixin(this.extMap, extMap);
+};
+
+Loader.prototype.handle = function (item, callback) {
+    var loadFunc = this.extMap[item.type] || this.extMap['default'];
+    loadFunc.call(this, item, function (err, result) {
+        if (err) {
+            callback && callback(err);
+        }
+        else {
+            callback && callback(null, result);
+        }
+    });
+};
 
 Pipeline.Loader = module.exports = Loader;

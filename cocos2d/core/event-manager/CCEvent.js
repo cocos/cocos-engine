@@ -49,156 +49,156 @@ var EventMouse = function (eventType, bubbles) {
 };
 
 JS.extend(EventMouse, cc.Event);
-JS.mixin(EventMouse.prototype, {
-    /**
-     * !#en Sets scroll data.
-     * !#zh 设置鼠标的滚动数据。
-     * @method setScrollData
-     * @param {Number} scrollX
-     * @param {Number} scrollY
-     */
-    setScrollData: function (scrollX, scrollY) {
-        this._scrollX = scrollX;
-        this._scrollY = scrollY;
-    },
+var proto = EventMouse.prototype;
 
-    /**
-     * !#en Returns the x axis scroll value.
-     * !#zh 获取鼠标滚动的X轴距离，只有滚动时才有效。
-     * @method getScrollX
-     * @returns {Number}
-     */
-    getScrollX: function () {
-        return this._scrollX;
-    },
+/**
+ * !#en Sets scroll data.
+ * !#zh 设置鼠标的滚动数据。
+ * @method setScrollData
+ * @param {Number} scrollX
+ * @param {Number} scrollY
+ */
+proto.setScrollData = function (scrollX, scrollY) {
+    this._scrollX = scrollX;
+    this._scrollY = scrollY;
+};
 
-    /**
-     * !#en Returns the y axis scroll value.
-     * !#zh 获取滚轮滚动的 Y 轴距离，只有滚动时才有效。
-     * @method getScrollY
-     * @returns {Number}
-     */
-    getScrollY: function () {
-        return this._scrollY;
-    },
+/**
+ * !#en Returns the x axis scroll value.
+ * !#zh 获取鼠标滚动的X轴距离，只有滚动时才有效。
+ * @method getScrollX
+ * @returns {Number}
+ */
+proto.getScrollX = function () {
+    return this._scrollX;
+};
 
-    /**
-     * !#en Sets cursor location.
-     * !#zh 设置当前鼠标位置。
-     * @method setLocation
-     * @param {Number} x
-     * @param {Number} y
-     */
-    setLocation: function (x, y) {
-        this._x = x;
-        this._y = y;
-    },
+/**
+ * !#en Returns the y axis scroll value.
+ * !#zh 获取滚轮滚动的 Y 轴距离，只有滚动时才有效。
+ * @method getScrollY
+ * @returns {Number}
+ */
+proto.getScrollY = function () {
+    return this._scrollY;
+};
 
-    /**
-     * !#en Returns cursor location.
-     * !#zh 获取鼠标位置对象，对象包含 x 和 y 属性。
-     * @method getLocation
-     * @return {Vec2} location
-     */
-    getLocation: function () {
-        return {x: this._x, y: this._y};
-    },
+/**
+ * !#en Sets cursor location.
+ * !#zh 设置当前鼠标位置。
+ * @method setLocation
+ * @param {Number} x
+ * @param {Number} y
+ */
+proto.setLocation = function (x, y) {
+    this._x = x;
+    this._y = y;
+};
 
-    /**
-     * !#en Returns the current cursor location in screen coordinates.
-     * !#zh 获取当前事件在游戏窗口内的坐标位置对象，对象包含 x 和 y 属性。
-     * @method getLocationInView
-     * @return {Vec2}
-     */
-    getLocationInView: function() {
-        return {x: this._x, y: cc.view._designResolutionSize.height - this._y};
-    },
+/**
+ * !#en Returns cursor location.
+ * !#zh 获取鼠标位置对象，对象包含 x 和 y 属性。
+ * @method getLocation
+ * @return {Vec2} location
+ */
+proto.getLocation = function () {
+    return {x: this._x, y: this._y};
+};
 
-    _setPrevCursor: function (x, y) {
-        this._prevX = x;
-        this._prevY = y;
-    },
+/**
+ * !#en Returns the current cursor location in screen coordinates.
+ * !#zh 获取当前事件在游戏窗口内的坐标位置对象，对象包含 x 和 y 属性。
+ * @method getLocationInView
+ * @return {Vec2}
+ */
+proto.getLocationInView = function() {
+    return {x: this._x, y: cc.view._designResolutionSize.height - this._y};
+};
 
-    /**
-     * !#en Returns the previous touch location.
-     * !#zh 获取鼠标点击在上一次事件时的位置对象，对象包含 x 和 y 属性。
-     * @method getPreviousLocation
-     * @return {Vec2}
-     */
-    getPreviousLocation:function () {
-        return {x: this._prevX, y: this._prevY};
-    },
+proto._setPrevCursor = function (x, y) {
+    this._prevX = x;
+    this._prevY = y;
+};
 
-    /**
-     * !#en Returns the delta distance from the previous location to current location.
-     * !#zh 获取鼠标距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
-     * @method getDelta
-     * @return {Vec2}
-     */
-    getDelta: function () {
-        return {x: this._x - this._prevX, y: this._y - this._prevY};
-    },
+/**
+ * !#en Returns the previous touch location.
+ * !#zh 获取鼠标点击在上一次事件时的位置对象，对象包含 x 和 y 属性。
+ * @method getPreviousLocation
+ * @return {Vec2}
+ */
+proto.getPreviousLocation = function () {
+    return {x: this._prevX, y: this._prevY};
+};
 
-    /**
-     * !#en Returns the X axis delta distance from the previous location to current location.
-     * !#zh 获取鼠标距离上一次事件移动的 X 轴距离。
-     * @method getDeltaX
-     * @return {Number}
-     */
-    getDeltaX: function () {
-        return this._x - this._prevX;
-    },
+/**
+ * !#en Returns the delta distance from the previous location to current location.
+ * !#zh 获取鼠标距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
+ * @method getDelta
+ * @return {Vec2}
+ */
+proto.getDelta = function () {
+    return {x: this._x - this._prevX, y: this._y - this._prevY};
+};
 
-    /**
-     * !#en Returns the Y axis delta distance from the previous location to current location.
-     * !#zh 获取鼠标距离上一次事件移动的 Y 轴距离。
-     * @method getDeltaY
-     * @return {Number}
-     */
-    getDeltaY: function () {
-        return this._y - this._prevY;
-    },
+/**
+ * !#en Returns the X axis delta distance from the previous location to current location.
+ * !#zh 获取鼠标距离上一次事件移动的 X 轴距离。
+ * @method getDeltaX
+ * @return {Number}
+ */
+proto.getDeltaX = function () {
+    return this._x - this._prevX;
+};
 
-    /**
-     * !#en Sets mouse button.
-     * !#zh 设置鼠标按键。
-     * @method setButton
-     * @param {Number} button
-     */
-    setButton: function (button) {
-        this._button = button;
-    },
+/**
+ * !#en Returns the Y axis delta distance from the previous location to current location.
+ * !#zh 获取鼠标距离上一次事件移动的 Y 轴距离。
+ * @method getDeltaY
+ * @return {Number}
+ */
+proto.getDeltaY = function () {
+    return this._y - this._prevY;
+};
 
-    /**
-     * !#en Returns mouse button.
-     * !#zh 获取鼠标按键。
-     * @method getButton
-     * @returns {Number}
-     */
-    getButton: function () {
-        return this._button;
-    },
+/**
+ * !#en Sets mouse button.
+ * !#zh 设置鼠标按键。
+ * @method setButton
+ * @param {Number} button
+ */
+proto.setButton = function (button) {
+    this._button = button;
+};
 
-    /**
-     * !#en Returns location X axis data.
-     * !#zh 获取鼠标当前位置 X 轴。
-     * @method getLocationX
-     * @returns {Number}
-     */
-    getLocationX: function () {
-        return this._x;
-    },
+/**
+ * !#en Returns mouse button.
+ * !#zh 获取鼠标按键。
+ * @method getButton
+ * @returns {Number}
+ */
+proto.getButton = function () {
+    return this._button;
+};
 
-    /**
-     * !#en Returns location Y axis data.
-     * !#zh 获取鼠标当前位置 Y 轴。
-     * @method getLocationY
-     * @returns {Number}
-     */
-    getLocationY: function () {
-        return this._y;
-    }
-});
+/**
+ * !#en Returns location X axis data.
+ * !#zh 获取鼠标当前位置 X 轴。
+ * @method getLocationX
+ * @returns {Number}
+ */
+proto.getLocationX = function () {
+    return this._x;
+};
+
+/**
+ * !#en Returns location Y axis data.
+ * !#zh 获取鼠标当前位置 Y 轴。
+ * @method getLocationY
+ * @returns {Number}
+ */
+proto.getLocationY = function () {
+    return this._y;
+};
 
 //Inner event types of MouseEvent
 /**
@@ -334,146 +334,146 @@ var EventTouch = function (touchArr, bubbles) {
 };
 
 JS.extend(EventTouch, cc.Event);
-JS.mixin(EventTouch.prototype, {
-    /**
-     * !#en Returns event code.
-     * !#zh 获取事件类型。
-     * @method getEventCode
-     * @returns {Number}
-     */
-    getEventCode: function () {
-        return this._eventCode;
-    },
+proto = EventTouch.prototype;
 
-    /**
-     * !#en Returns touches of event.
-     * !#zh 获取触摸点的列表。
-     * @method getTouches
-     * @returns {Array}
-     */
-    getTouches: function () {
-        return this._touches;
-    },
+/**
+ * !#en Returns event code.
+ * !#zh 获取事件类型。
+ * @method getEventCode
+ * @returns {Number}
+ */
+proto.getEventCode = function () {
+    return this._eventCode;
+};
 
-    _setEventCode: function (eventCode) {
-        this._eventCode = eventCode;
-    },
+/**
+ * !#en Returns touches of event.
+ * !#zh 获取触摸点的列表。
+ * @method getTouches
+ * @returns {Array}
+ */
+proto.getTouches = function () {
+    return this._touches;
+};
 
-    _setTouches: function (touches) {
-        this._touches = touches;
-    },
+proto._setEventCode = function (eventCode) {
+    this._eventCode = eventCode;
+};
 
-    /**
-     * !#en Sets touch location.
-     * !#zh 设置当前触点位置
-     * @method setLocation
-     * @param {Number} x
-     * @param {Number} y
-     */
-    setLocation: function (x, y) {
-        this.touch && this.touch.setTouchInfo(this.touch.getID(), x, y);
-    },
+proto._setTouches = function (touches) {
+    this._touches = touches;
+};
 
-    /**
-     * !#en Returns touch location.
-     * !#zh 获取触点位置。
-     * @method getLocation
-     * @return {Vec2} location
-     */
-    getLocation: function () {
-        return this.touch ? this.touch.getLocation() : cc.v2();
-    },
+/**
+ * !#en Sets touch location.
+ * !#zh 设置当前触点位置
+ * @method setLocation
+ * @param {Number} x
+ * @param {Number} y
+ */
+proto.setLocation = function (x, y) {
+    this.touch && this.touch.setTouchInfo(this.touch.getID(), x, y);
+};
 
-    /**
-     * !#en Returns the current touch location in screen coordinates.
-     * !#zh 获取当前触点在游戏窗口中的位置。
-     * @method getLocationInView
-     * @return {Vec2}
-     */
-    getLocationInView: function() {
-        return this.touch ? this.touch.getLocationInView() : cc.v2();
-    },
+/**
+ * !#en Returns touch location.
+ * !#zh 获取触点位置。
+ * @method getLocation
+ * @return {Vec2} location
+ */
+proto.getLocation = function () {
+    return this.touch ? this.touch.getLocation() : cc.v2();
+};
 
-    /**
-     * !#en Returns the previous touch location.
-     * !#zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
-     * @method getPreviousLocation
-     * @return {Vec2}
-     */
-    getPreviousLocation:function () {
-        return this.touch ? this.touch.getPreviousLocation() : cc.v2();
-    },
+/**
+ * !#en Returns the current touch location in screen coordinates.
+ * !#zh 获取当前触点在游戏窗口中的位置。
+ * @method getLocationInView
+ * @return {Vec2}
+ */
+proto.getLocationInView = function() {
+    return this.touch ? this.touch.getLocationInView() : cc.v2();
+};
 
-    /**
-     * !#en Returns the start touch location.
-     * !#zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
-     * @method getStartLocation
-     * @returns {Vec2}
-     */
-    getStartLocation: function() {
-        return this.touch ? this.touch.getStartLocation() : cc.v2();
-    },
+/**
+ * !#en Returns the previous touch location.
+ * !#zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
+ * @method getPreviousLocation
+ * @return {Vec2}
+ */
+proto.getPreviousLocation = function () {
+    return this.touch ? this.touch.getPreviousLocation() : cc.v2();
+};
 
-    /**
-     * !#en Returns the id of cc.Touch.
-     * !#zh 触点的标识 ID，可以用来在多点触摸中跟踪触点。
-     * @method getID
-     * @return {Number}
-     */
-    getID:function () {
-        return this.touch ? this.touch.getID() : null;
-    },
+/**
+ * !#en Returns the start touch location.
+ * !#zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
+ * @method getStartLocation
+ * @returns {Vec2}
+ */
+proto.getStartLocation = function() {
+    return this.touch ? this.touch.getStartLocation() : cc.v2();
+};
 
-    /**
-     * !#en Returns the delta distance from the previous location to current location.
-     * !#zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
-     * @method getDelta
-     * @return {Vec2}
-     */
-    getDelta: function () {
-        return this.touch ? this.touch.getDelta() : cc.v2();
-    },
+/**
+ * !#en Returns the id of cc.Touch.
+ * !#zh 触点的标识 ID，可以用来在多点触摸中跟踪触点。
+ * @method getID
+ * @return {Number}
+ */
+proto.getID = function () {
+    return this.touch ? this.touch.getID() : null;
+};
 
-    /**
-     * !#en Returns the X axis delta distance from the previous location to current location.
-     * !#zh 获取触点距离上一次事件移动的 x 轴距离。
-     * @method getDeltaX
-     * @return {Number}
-     */
-    getDeltaX: function () {
-        return this.touch ? this.touch.getDelta().x : 0;
-    },
+/**
+ * !#en Returns the delta distance from the previous location to current location.
+ * !#zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
+ * @method getDelta
+ * @return {Vec2}
+ */
+proto.getDelta = function () {
+    return this.touch ? this.touch.getDelta() : cc.v2();
+};
 
-    /**
-     * !#en Returns the Y axis delta distance from the previous location to current location.
-     * !#zh 获取触点距离上一次事件移动的 y 轴距离。
-     * @method getDeltaY
-     * @return {Number}
-     */
-    getDeltaY: function () {
-        return this.touch ? this.touch.getDelta().y : 0;
-    },
+/**
+ * !#en Returns the X axis delta distance from the previous location to current location.
+ * !#zh 获取触点距离上一次事件移动的 x 轴距离。
+ * @method getDeltaX
+ * @return {Number}
+ */
+proto.getDeltaX = function () {
+    return this.touch ? this.touch.getDelta().x : 0;
+},
 
-    /**
-     * !#en Returns location X axis data.
-     * !#zh 获取当前触点 X 轴位置。
-     * @method getLocationX
-     * @returns {Number}
-     */
-    getLocationX: function () {
-        return this.touch ? this.touch.getLocationX() : 0;
-    },
+/**
+ * !#en Returns the Y axis delta distance from the previous location to current location.
+ * !#zh 获取触点距离上一次事件移动的 y 轴距离。
+ * @method getDeltaY
+ * @return {Number}
+ */
+proto.getDeltaY = function () {
+    return this.touch ? this.touch.getDelta().y : 0;
+};
 
-    /**
-     * !#en Returns location Y axis data.
-     * !#zh 获取当前触点 Y 轴位置。
-     * @method getLocationY
-     * @returns {Number}
-     */
-    getLocationY: function () {
-        return this.touch ? this.touch.getLocationY() : 0;
-    }
-});
+/**
+ * !#en Returns location X axis data.
+ * !#zh 获取当前触点 X 轴位置。
+ * @method getLocationX
+ * @returns {Number}
+ */
+proto.getLocationX = function () {
+    return this.touch ? this.touch.getLocationX() : 0;
+};
+
+/**
+ * !#en Returns location Y axis data.
+ * !#zh 获取当前触点 Y 轴位置。
+ * @method getLocationY
+ * @returns {Number}
+ */
+proto.getLocationY = function () {
+    return this.touch ? this.touch.getLocationY() : 0;
+};
 
 /**
  * !#en The maximum touch numbers

@@ -159,7 +159,7 @@ HashTimerEntry.put = function (entry) {
  * Light weight timer
  * @extends cc.Class
  */
-var CallbackTimer = function () {
+function CallbackTimer () {
     this._scheduler = null;
     this._elapsed = -1;
     this._runForever = false;
@@ -171,84 +171,85 @@ var CallbackTimer = function () {
 
     this._target = null;
     this._callback = null;
+}
+
+var proto = CallbackTimer.prototype;
+
+proto.initWithCallback = function (scheduler, callback, target, seconds, repeat, delay) {
+    this._scheduler = scheduler;
+    this._target = target;
+    this._callback = callback;
+
+    this._elapsed = -1;
+    this._interval = seconds;
+    this._delay = delay;
+    this._useDelay = (this._delay > 0);
+    this._repeat = repeat;
+    this._runForever = (this._repeat === cc.macro.REPEAT_FOREVER);
+    return true;
 };
-cc.js.mixin(CallbackTimer.prototype, {
-    initWithCallback: function (scheduler, callback, target, seconds, repeat, delay) {
-        this._scheduler = scheduler;
-        this._target = target;
-        this._callback = callback;
+/**
+ * @return {Number} returns interval of timer
+ */
+proto.getInterval = function(){return this._interval;};
+/**
+ * @param {Number} interval set interval in seconds
+ */
+proto.setInterval = function(interval){this._interval = interval;};
 
-        this._elapsed = -1;
-        this._interval = seconds;
-        this._delay = delay;
-        this._useDelay = (this._delay > 0);
-        this._repeat = repeat;
-        this._runForever = (this._repeat === cc.macro.REPEAT_FOREVER);
-        return true;
-    },
-    /**
-     * @return {Number} returns interval of timer
-     */
-    getInterval : function(){return this._interval;},
-    /**
-     * @param {Number} interval set interval in seconds
-     */
-    setInterval : function(interval){this._interval = interval;},
+/**
+ * triggers the timer
+ * @param {Number} dt delta time
+ */
+proto.update = function (dt) {
+    if (this._elapsed === -1) {
+        this._elapsed = 0;
+        this._timesExecuted = 0;
+    } else {
+        this._elapsed += dt;
+        if (this._runForever && !this._useDelay) {//standard timer usage
+            if (this._elapsed >= this._interval) {
+                this.trigger();
+                this._elapsed = 0;
+            }
+        } else {//advanced usage
+            if (this._useDelay) {
+                if (this._elapsed >= this._delay) {
+                    this.trigger();
 
-    /**
-     * triggers the timer
-     * @param {Number} dt delta time
-     */
-    update: function (dt) {
-        if (this._elapsed === -1) {
-            this._elapsed = 0;
-            this._timesExecuted = 0;
-        } else {
-            this._elapsed += dt;
-            if (this._runForever && !this._useDelay) {//standard timer usage
+                    this._elapsed -= this._delay;
+                    this._timesExecuted += 1;
+                    this._useDelay = false;
+                }
+            } else {
                 if (this._elapsed >= this._interval) {
                     this.trigger();
+
                     this._elapsed = 0;
+                    this._timesExecuted += 1;
                 }
-            } else {//advanced usage
-                if (this._useDelay) {
-                    if (this._elapsed >= this._delay) {
-                        this.trigger();
-
-                        this._elapsed -= this._delay;
-                        this._timesExecuted += 1;
-                        this._useDelay = false;
-                    }
-                } else {
-                    if (this._elapsed >= this._interval) {
-                        this.trigger();
-
-                        this._elapsed = 0;
-                        this._timesExecuted += 1;
-                    }
-                }
-
-                if (this._callback && !this._runForever && this._timesExecuted > this._repeat)
-                    this.cancel();
             }
+
+            if (this._callback && !this._runForever && this._timesExecuted > this._repeat)
+                this.cancel();
         }
-    },
-
-    getCallback: function(){
-        return this._callback;
-    },
-
-    trigger: function () {
-        if (this._target && this._callback){
-            this._callback.call(this._target, this._elapsed);
-        }
-    },
-
-    cancel: function () {
-        //override
-        this._scheduler.unschedule(this._callback, this._target);
     }
-});
+};
+
+proto.getCallback = function(){
+    return this._callback;
+};
+
+proto.trigger = function () {
+    if (this._target && this._callback){
+        this._callback.call(this._target, this._elapsed);
+    }
+};
+
+proto.cancel = function () {
+    //override
+    this._scheduler.unschedule(this._callback, this._target);
+};
 
 var _timers = [];
 CallbackTimer.get = function () {

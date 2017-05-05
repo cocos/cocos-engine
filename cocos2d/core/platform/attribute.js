@@ -29,9 +29,12 @@ var isPlainEmptyObj = require('./utils').isPlainEmptyObj_DEV;
 function createAttrsSingle (owner, ownerCtor, superAttrs) {
     var AttrsCtor;
     if (CC_DEV) {
-        var ctorName = ownerCtor.name + '_ATTRS';
-        if (owner !== ownerCtor) {
-            ctorName += '_INSTANCE';
+        var ctorName = ownerCtor.name;
+        if (owner === ownerCtor) {
+            ctorName += '_ATTRS';
+        }
+        else {
+            ctorName += '_ATTRS_INSTANCE';
         }
         AttrsCtor = Function('return (function ' + ctorName + '(){});')();
     }
@@ -42,9 +45,7 @@ function createAttrsSingle (owner, ownerCtor, superAttrs) {
         JS.extend(AttrsCtor, superAttrs.constructor);
     }
     var attrs = new AttrsCtor();
-    Object.defineProperty(owner, '__attrs__', {
-        value: attrs,
-    });
+    JS.value(owner, '__attrs__', attrs);
     return attrs;
 }
 
@@ -126,13 +127,19 @@ function attr (ctor, propName, newAttrs) {
     }
 }
 
+// returns a readonly meta object
 function getClassAttrs (ctor) {
     return (ctor.hasOwnProperty('__attrs__') && ctor.__attrs__) || createAttrs(ctor);
 }
 
+// returns a writable meta object, used to set multi attributes
+function getClassAttrsProto (ctor) {
+    return getClassAttrs(ctor).constructor.prototype;
+}
+
 function setClassAttr (ctor, propName, key, value) {
-    var attrs = getClassAttrs(ctor);
-    attrs.constructor.prototype[propName + DELIMETER + key] = value;
+    var proto = getClassAttrsProto(ctor);
+    proto[propName + DELIMETER + key] = value;
 }
 
 /**
@@ -222,7 +229,6 @@ cc.String = 'String';
 /*
 BuiltinAttributes: {
     default: defaultValue,
-    _canUsedInGetter: true, (default true)
     _canUsedInSetter: false, (default false) (NYI)
 }
 Getter or Setter: {
@@ -235,16 +241,6 @@ Callbacks: {
     _onAfterSetter: function (constructor, propName) {}, (NYI)
 }
  */
-
-var NonSerialized = {
-    serializable: false,
-    _canUsedInGetter: false
-};
-
-var EditorOnly = {
-    editorOnly: true,
-    _canUsedInGetter: false
-};
 
 function getTypeChecker (type, attrName) {
     if (CC_DEV) {
@@ -343,55 +339,53 @@ function ObjectType (typeCtor) {
     };
 }
 
-function RawType (typename) {
-    var NEED_EXT_TYPES = ['image', 'json', 'text', 'audio'];  // the types need to specify exact extname
-    return {
-        // type: 'raw',
-        rawType: typename,
-        serializable: false,
-        // hideInInspector: true,
-        _canUsedInGetter: false,
+// function RawType (typename) {
+//     var NEED_EXT_TYPES = ['image', 'json', 'text', 'audio'];  // the types need to specify exact extname
+//     return {
+//         // type: 'raw',
+//         rawType: typename,
+//         serializable: false,
+//         // hideInInspector: true,
 
-        _onAfterProp: function (constructor, mainPropName) {
-            // check raw object
-            var checked = !CC_DEV || (function checkRawType(constructor) {
-                if (! cc.isChildClassOf(constructor, cc.Asset)) {
-                    cc.errorID(3630);
-                    return false;
-                }
-                var attrs = getClassAttrs(constructor);
-                var found = false;
-                for (var p = 0; p < constructor.__props__.length; p++) {
-                    var propName = constructor.__props__[p];
-                    var rawType = attrs[propName + DELIMETER + 'rawType'];
-                    if (rawType) {
-                        var containsUppercase = (rawType.toLowerCase() !== rawType);
-                        if (containsUppercase) {
-                            cc.errorID(3631);
-                            return false;
-                        }
-                        if (found) {
-                            cc.errorID(3632);
-                            return false;
-                        }
-                        found = true;
-                    }
-                }
-                return true;
-            })(constructor);
-        }
-    };
-}
+//         _onAfterProp: function (constructor, mainPropName) {
+//             // check raw object
+//             var checked = !CC_DEV || (function checkRawType(constructor) {
+//                 if (! cc.isChildClassOf(constructor, cc.Asset)) {
+//                     cc.errorID(3630);
+//                     return false;
+//                 }
+//                 var attrs = getClassAttrs(constructor);
+//                 var found = false;
+//                 for (var p = 0; p < constructor.__props__.length; p++) {
+//                     var propName = constructor.__props__[p];
+//                     var rawType = attrs[propName + DELIMETER + 'rawType'];
+//                     if (rawType) {
+//                         var containsUppercase = (rawType.toLowerCase() !== rawType);
+//                         if (containsUppercase) {
+//                             cc.errorID(3631);
+//                             return false;
+//                         }
+//                         if (found) {
+//                             cc.errorID(3632);
+//                             return false;
+//                         }
+//                         found = true;
+//                     }
+//                 }
+//                 return true;
+//             })(constructor);
+//         }
+//     };
+// }
 
 module.exports = {
     attr: attr,
     getClassAttrs: getClassAttrs,
+    getClassAttrsProto: getClassAttrsProto,
     setClassAttr: setClassAttr,
     DELIMETER: DELIMETER,
     getTypeChecker: getTypeChecker,
-    NonSerialized: NonSerialized,
-    EditorOnly: EditorOnly,
     ObjectType: ObjectType,
-    RawType: RawType,
+    // RawType: RawType,
     ScriptUuid: {},      // the value will be represented as a uuid string
 };

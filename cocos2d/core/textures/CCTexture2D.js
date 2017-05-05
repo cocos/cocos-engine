@@ -604,455 +604,450 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             return renderCanvas;
         };
 
-        JS.mixin(Texture2D.prototype, {
-            _generateTextureCacheForColor: function(){
-                if (this.channelCache)
-                    return this.channelCache;
+        _p._generateTextureCacheForColor = function(){
+            if (this.channelCache)
+                return this.channelCache;
 
-                var textureCache = [
-                    document.createElement("canvas"),
-                    document.createElement("canvas"),
-                    document.createElement("canvas"),
-                    document.createElement("canvas")
-                ];
-                //todo texture onload
-                renderToCache(this._htmlElementObj, textureCache);
-                return this.channelCache = textureCache;
-            },
+            var textureCache = [
+                document.createElement("canvas"),
+                document.createElement("canvas"),
+                document.createElement("canvas"),
+                document.createElement("canvas")
+            ];
+            //todo texture onload
+            renderToCache(this._htmlElementObj, textureCache);
+            return this.channelCache = textureCache;
+        };
 
-            _switchToGray: function(toGray){
-                if(!this._textureLoaded || this._isGray === toGray)
-                    return;
-                this._isGray = toGray;
-                if(this._isGray){
-                    this._backupElement = this._htmlElementObj;
-                    if(!this._grayElementObj)
-                        this._grayElementObj = generateGrayTexture(this._htmlElementObj);
-                    this._htmlElementObj = this._grayElementObj;
-                } else {
-                    if(this._backupElement !== null)
-                        this._htmlElementObj = this._backupElement;
-                }
-            },
-
-            _generateGrayTexture: function() {
-                if(!this._textureLoaded)
-                    return null;
-                var grayElement = generateGrayTexture(this._htmlElementObj);;
-                var newTexture = new Texture2D();
-                newTexture.initWithElement(grayElement);
-                newTexture.handleLoadedTexture();
-                return newTexture;
-            },
-
-            //change color function
-            _generateColorTexture: sys._supportCanvasNewBlendModes ? function(r, g, b, rect, canvas) {
-                var onlyCanvas = false;
-                if(canvas)
-                    onlyCanvas = true;
-                else
-                    canvas = document.createElement("canvas");
-                var textureImage = this._htmlElementObj;
-                if(!rect)
-                    rect = cc.rect(0, 0, textureImage.width, textureImage.height);
-
-                canvas.width = rect.width;
-                canvas.height = rect.height;
-
-                if(rect.width && rect.height) {
-                    var context = canvas.getContext("2d");
-                    context.globalCompositeOperation = "source-over";
-                    context.fillStyle = "rgb(" + (r|0) + "," + (g|0) + "," + (b|0) + ")";
-                    context.fillRect(0, 0, rect.width, rect.height);
-                    context.globalCompositeOperation = "multiply";
-                    context.drawImage(
-                        textureImage,
-                        rect.x, rect.y, rect.width, rect.height,
-                        0, 0, rect.width, rect.height
-                    );
-                    context.globalCompositeOperation = "destination-atop";
-                    context.drawImage(
-                        textureImage,
-                        rect.x, rect.y, rect.width, rect.height,
-                        0, 0, rect.width, rect.height
-                    );
-                }
-
-                if(onlyCanvas)
-                    return canvas;
-                var newTexture = new Texture2D();
-                newTexture.initWithElement(canvas);
-                newTexture.handleLoadedTexture();
-                return newTexture;
-            } : function(r, g, b, rect, canvas){
-                var onlyCanvas = false;
-                if(canvas)
-                    onlyCanvas = true;
-                else
-                    canvas = document.createElement("canvas");
-                var textureImage = this._htmlElementObj;
-                if(!rect)
-                    rect = cc.rect(0, 0, textureImage.width, textureImage.height);
-
-                canvas.width = rect.width;
-                canvas.height = rect.height;
-
-                if(rect.width && rect.height) {
-                    var context = canvas.getContext("2d");
-                    context.drawImage(
-                        textureImage,
-                        rect.x, rect.y, rect.width, rect.height,
-                        0, 0, rect.width, rect.height
-                    );
-
-                    var imageData = context.getImageData(0,0,canvas.width, canvas.height);
-                    var data = imageData.data;
-                    r = r/255;
-                    g = g/255;
-                    b = b/255;
-                    for (var i = 0; i < data.length; i += 4) {
-                        data[i]     = data[i] * r;
-                        data[i + 1] = data[i+1] * g;
-                        data[i + 2] = data[i+2] * b;
-                    }
-
-                    context.putImageData(imageData, 0, 0);
-                }
-
-                if(onlyCanvas)
-                    return canvas;
-                var newTexture = new Texture2D();
-                newTexture.initWithElement(canvas);
-                newTexture.handleLoadedTexture();
-                return newTexture;
+        _p._switchToGray = function(toGray){
+            if(!this._textureLoaded || this._isGray === toGray)
+                return;
+            this._isGray = toGray;
+            if(this._isGray){
+                this._backupElement = this._htmlElementObj;
+                if(!this._grayElementObj)
+                    this._grayElementObj = generateGrayTexture(this._htmlElementObj);
+                this._htmlElementObj = this._grayElementObj;
+            } else {
+                if(this._backupElement !== null)
+                    this._htmlElementObj = this._backupElement;
             }
-        });
+        };
+
+        _p._generateGrayTexture = function() {
+            if(!this._textureLoaded)
+                return null;
+            var grayElement = generateGrayTexture(this._htmlElementObj);;
+            var newTexture = new Texture2D();
+            newTexture.initWithElement(grayElement);
+            newTexture.handleLoadedTexture();
+            return newTexture;
+        };
+
+        //change color function
+        _p._generateColorTexture = sys._supportCanvasNewBlendModes ? function(r, g, b, rect, canvas) {
+            var onlyCanvas = false;
+            if(canvas)
+                onlyCanvas = true;
+            else
+                canvas = document.createElement("canvas");
+            var textureImage = this._htmlElementObj;
+            if(!rect)
+                rect = cc.rect(0, 0, textureImage.width, textureImage.height);
+
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            if(rect.width && rect.height) {
+                var context = canvas.getContext("2d");
+                context.globalCompositeOperation = "source-over";
+                context.fillStyle = "rgb(" + (r|0) + "," + (g|0) + "," + (b|0) + ")";
+                context.fillRect(0, 0, rect.width, rect.height);
+                context.globalCompositeOperation = "multiply";
+                context.drawImage(
+                    textureImage,
+                    rect.x, rect.y, rect.width, rect.height,
+                    0, 0, rect.width, rect.height
+                );
+                context.globalCompositeOperation = "destination-atop";
+                context.drawImage(
+                    textureImage,
+                    rect.x, rect.y, rect.width, rect.height,
+                    0, 0, rect.width, rect.height
+                );
+            }
+
+            if(onlyCanvas)
+                return canvas;
+            var newTexture = new Texture2D();
+            newTexture.initWithElement(canvas);
+            newTexture.handleLoadedTexture();
+            return newTexture;
+        } : function(r, g, b, rect, canvas){
+            var onlyCanvas = false;
+            if(canvas)
+                onlyCanvas = true;
+            else
+                canvas = document.createElement("canvas");
+            var textureImage = this._htmlElementObj;
+            if(!rect)
+                rect = cc.rect(0, 0, textureImage.width, textureImage.height);
+
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            if(rect.width && rect.height) {
+                var context = canvas.getContext("2d");
+                context.drawImage(
+                    textureImage,
+                    rect.x, rect.y, rect.width, rect.height,
+                    0, 0, rect.width, rect.height
+                );
+
+                var imageData = context.getImageData(0,0,canvas.width, canvas.height);
+                var data = imageData.data;
+                r = r/255;
+                g = g/255;
+                b = b/255;
+                for (var i = 0; i < data.length; i += 4) {
+                    data[i]     = data[i] * r;
+                    data[i + 1] = data[i+1] * g;
+                    data[i + 2] = data[i+2] * b;
+                }
+
+                context.putImageData(imageData, 0, 0);
+            }
+
+            if(onlyCanvas)
+                return canvas;
+            var newTexture = new Texture2D();
+            newTexture.initWithElement(canvas);
+            newTexture.handleLoadedTexture();
+            return newTexture;
+        };
 
     } else if (cc._renderType === game.RENDER_TYPE_WEBGL) {
-        JS.mixin(Texture2D.prototype, {
+        _p.initWithData = function (data, pixelFormat, pixelsWide, pixelsHigh, contentSize) {
+            var self = this, tex2d = Texture2D;
+            var gl = cc._renderContext;
+            var format = gl.RGBA, type = gl.UNSIGNED_BYTE;
 
-            initWithData: function (data, pixelFormat, pixelsWide, pixelsHigh, contentSize) {
-                var self = this, tex2d = Texture2D;
-                var gl = cc._renderContext;
-                var format = gl.RGBA, type = gl.UNSIGNED_BYTE;
+            var bitsPerPixel = Texture2D._B[pixelFormat];
 
-                var bitsPerPixel = Texture2D._B[pixelFormat];
-
-                var bytesPerRow = pixelsWide * bitsPerPixel / 8;
-                if (bytesPerRow % 8 === 0) {
-                    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 8);
-                } else if (bytesPerRow % 4 === 0) {
-                    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
-                } else if (bytesPerRow % 2 === 0) {
-                    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 2);
-                } else {
-                    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-                }
-
-                self._webTextureObj = gl.createTexture();
-                cc.gl.bindTexture2D(self);
-
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-                // Specify OpenGL texture image
-                switch (pixelFormat) {
-                    case tex2d.PIXEL_FORMAT_RGBA8888:
-                        format = gl.RGBA;
-                        break;
-                    case tex2d.PIXEL_FORMAT_RGB888:
-                        format = gl.RGB;
-                        break;
-                    case tex2d.PIXEL_FORMAT_RGBA4444:
-                        type = gl.UNSIGNED_SHORT_4_4_4_4;
-                        break;
-                    case tex2d.PIXEL_FORMAT_RGB5A1:
-                        type = gl.UNSIGNED_SHORT_5_5_5_1;
-                        break;
-                    case tex2d.PIXEL_FORMAT_RGB565:
-                        type = gl.UNSIGNED_SHORT_5_6_5;
-                        break;
-                    case tex2d.PIXEL_FORMAT_AI88:
-                        format = gl.LUMINANCE_ALPHA;
-                        break;
-                    case tex2d.PIXEL_FORMAT_A8:
-                        format = gl.ALPHA;
-                        break;
-                    case tex2d.PIXEL_FORMAT_I8:
-                        format = gl.LUMINANCE;
-                        break;
-                    default:
-                        cc.assertID(0, 3113);
-                }
-                gl.texImage2D(gl.TEXTURE_2D, 0, format, pixelsWide, pixelsHigh, 0, format, type, data);
-
-
-                self._contentSize.width = contentSize.width;
-                self._contentSize.height = contentSize.height;
-                self._pixelWidth = pixelsWide;
-                self._pixelHeight = pixelsHigh;
-                self._pixelFormat = pixelFormat;
-
-                self._hasPremultipliedAlpha = false;
-                self._hasMipmaps = false;
-
-                self._textureLoaded = true;
-
-                return true;
-            },
-
-            initWithImage: function (uiImage) {
-                if (uiImage == null) {
-                    cc.logID(3104);
-                    return false;
-                }
-
-                var imageWidth = uiImage.getWidth();
-                var imageHeight = uiImage.getHeight();
-
-                var maxTextureSize = cc.configuration.getMaxTextureSize();
-                if (imageWidth > maxTextureSize || imageHeight > maxTextureSize) {
-                    cc.logID(3105, imageWidth, imageHeight, maxTextureSize, maxTextureSize);
-                    return false;
-                }
-                this._textureLoaded = true;
-
-                // always load premultiplied images
-                return this._initPremultipliedATextureWithImage(uiImage, imageWidth, imageHeight);
-            },
-
-            initWithElement: function (element) {
-                if (!element)
-                    return;
-                this._webTextureObj = cc._renderContext.createTexture();
-                this._htmlElementObj = element;
-                this._textureLoaded = true;
-            },
-
-            // [premultiplied=false]
-            handleLoadedTexture: function (premultiplied) {
-                premultiplied = !!premultiplied;
-                var self = this;
-                // Not sure about this ! Some texture need to be updated even after loaded
-                if (!game._rendererInitialized) {
-                    return;
-                }
-                if (!self._htmlElementObj || !self._htmlElementObj.width || !self._htmlElementObj.height) {
-                    return;
-                }
-
-                //upload image to buffer
-                var gl = cc._renderContext;
-
-                cc.gl.bindTexture2D(self);
-
+            var bytesPerRow = pixelsWide * bitsPerPixel / 8;
+            if (bytesPerRow % 8 === 0) {
+                gl.pixelStorei(gl.UNPACK_ALIGNMENT, 8);
+            } else if (bytesPerRow % 4 === 0) {
                 gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
-                if(premultiplied)
-                    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
+            } else if (bytesPerRow % 2 === 0) {
+                gl.pixelStorei(gl.UNPACK_ALIGNMENT, 2);
+            } else {
+                gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+            }
 
-                // Specify OpenGL texture image
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, self._htmlElementObj);
+            self._webTextureObj = gl.createTexture();
+            cc.gl.bindTexture2D(self);
 
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+            // Specify OpenGL texture image
+            switch (pixelFormat) {
+                case tex2d.PIXEL_FORMAT_RGBA8888:
+                    format = gl.RGBA;
+                    break;
+                case tex2d.PIXEL_FORMAT_RGB888:
+                    format = gl.RGB;
+                    break;
+                case tex2d.PIXEL_FORMAT_RGBA4444:
+                    type = gl.UNSIGNED_SHORT_4_4_4_4;
+                    break;
+                case tex2d.PIXEL_FORMAT_RGB5A1:
+                    type = gl.UNSIGNED_SHORT_5_5_5_1;
+                    break;
+                case tex2d.PIXEL_FORMAT_RGB565:
+                    type = gl.UNSIGNED_SHORT_5_6_5;
+                    break;
+                case tex2d.PIXEL_FORMAT_AI88:
+                    format = gl.LUMINANCE_ALPHA;
+                    break;
+                case tex2d.PIXEL_FORMAT_A8:
+                    format = gl.ALPHA;
+                    break;
+                case tex2d.PIXEL_FORMAT_I8:
+                    format = gl.LUMINANCE;
+                    break;
+                default:
+                    cc.assertID(0, 3113);
+            }
+            gl.texImage2D(gl.TEXTURE_2D, 0, format, pixelsWide, pixelsHigh, 0, format, type, data);
+
+
+            self._contentSize.width = contentSize.width;
+            self._contentSize.height = contentSize.height;
+            self._pixelWidth = pixelsWide;
+            self._pixelHeight = pixelsHigh;
+            self._pixelFormat = pixelFormat;
+
+            self._hasPremultipliedAlpha = false;
+            self._hasMipmaps = false;
+
+            self._textureLoaded = true;
+
+            return true;
+        };
+
+        _p.initWithImage = function (uiImage) {
+            if (uiImage == null) {
+                cc.logID(3104);
+                return false;
+            }
+
+            var imageWidth = uiImage.getWidth();
+            var imageHeight = uiImage.getHeight();
+
+            var maxTextureSize = cc.configuration.getMaxTextureSize();
+            if (imageWidth > maxTextureSize || imageHeight > maxTextureSize) {
+                cc.logID(3105, imageWidth, imageHeight, maxTextureSize, maxTextureSize);
+                return false;
+            }
+            this._textureLoaded = true;
+
+            // always load premultiplied images
+            return this._initPremultipliedATextureWithImage(uiImage, imageWidth, imageHeight);
+        };
+
+        _p.initWithElement = function (element) {
+            if (!element)
+                return;
+            this._webTextureObj = cc._renderContext.createTexture();
+            this._htmlElementObj = element;
+            this._textureLoaded = true;
+        };
+
+        // [premultiplied=false]
+        _p.handleLoadedTexture = function (premultiplied) {
+            premultiplied = !!premultiplied;
+            var self = this;
+            // Not sure about this ! Some texture need to be updated even after loaded
+            if (!game._rendererInitialized) {
+                return;
+            }
+            if (!self._htmlElementObj || !self._htmlElementObj.width || !self._htmlElementObj.height) {
+                return;
+            }
+
+            //upload image to buffer
+            var gl = cc._renderContext;
+
+            cc.gl.bindTexture2D(self);
+
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+            if(premultiplied)
+                gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
+
+            // Specify OpenGL texture image
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, self._htmlElementObj);
+
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+            cc.gl.bindTexture2D(null);
+            if(premultiplied)
+                gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 0);
+
+            var pixelsWide = self._htmlElementObj.width;
+            var pixelsHigh = self._htmlElementObj.height;
+
+            self._pixelWidth = self._contentSize.width = pixelsWide;
+            self._pixelHeight = self._contentSize.height = pixelsHigh;
+            self._pixelFormat = Texture2D.PIXEL_FORMAT_RGBA8888;
+
+            self._hasPremultipliedAlpha = premultiplied;
+            self._hasMipmaps = false;
+            self._textureLoaded = true;
+
+            if (cc.view._antiAliasEnabled) {
+                self.setAntiAliasTexParameters();
+            }
+            else {
+                self.setAliasTexParameters();
+            }
+
+            self._htmlElementObj = null;
+
+            //dispatch load event to listener.
+            self.emit("load");
+        };
+
+        _p.setTexParameters = function (texParams, magFilter, wrapS, wrapT) {
+            var _t = this;
+            var gl = cc._renderContext;
+
+            if(magFilter !== undefined)
+                texParams = {minFilter: texParams, magFilter: magFilter, wrapS: wrapS, wrapT: wrapT};
+
+            cc.assertID((_t._pixelWidth === misc.NextPOT(_t._pixelWidth) && _t._pixelHeight === misc.NextPOT(_t._pixelHeight)) ||
+                (texParams.wrapS === gl.CLAMP_TO_EDGE && texParams.wrapT === gl.CLAMP_TO_EDGE),
+                3116);
+
+            cc.gl.bindTexture2D(_t);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, texParams.minFilter);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, texParams.magFilter);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, texParams.wrapS);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, texParams.wrapT);
+        };
+
+        _p.setAntiAliasTexParameters = function () {
+            var gl = cc._renderContext;
+
+            cc.gl.bindTexture2D(this);
+            if (!this._hasMipmaps)
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            else
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        };
 
-                cc.gl.bindTexture2D(null);
-                if(premultiplied)
-                    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 0);
+        _p.setAliasTexParameters = function () {
+            var gl = cc._renderContext;
 
-                var pixelsWide = self._htmlElementObj.width;
-                var pixelsHigh = self._htmlElementObj.height;
+            cc.gl.bindTexture2D(this);
+            if (!this._hasMipmaps)
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            else
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        };
 
-                self._pixelWidth = self._contentSize.width = pixelsWide;
-                self._pixelHeight = self._contentSize.height = pixelsHigh;
-                self._pixelFormat = Texture2D.PIXEL_FORMAT_RGBA8888;
+        _p.generateMipmap = function () {
+            var _t = this;
+            cc.assertID(_t._pixelWidth === misc.NextPOT(_t._pixelWidth) && _t._pixelHeight === misc.NextPOT(_t._pixelHeight), 3117);
 
-                self._hasPremultipliedAlpha = premultiplied;
-                self._hasMipmaps = false;
-                self._textureLoaded = true;
+            cc.gl.bindTexture2D(_t);
+            cc._renderContext.generateMipmap(cc._renderContext.TEXTURE_2D);
+            _t._hasMipmaps = true;
+        };
 
-                if (cc.view._antiAliasEnabled) {
-                    self.setAntiAliasTexParameters();
+        _p.stringForFormat = function () {
+            return Texture2D._M[this._pixelFormat];
+        };
+
+        _p.bitsPerPixelForFormat = function (format) {//TODO I want to delete the format argument, use this._pixelFormat
+            format = format || this._pixelFormat;
+            var value = Texture2D._B[format];
+            if (value != null) return value;
+            cc.logID(3110, format);
+            return -1;
+        };
+
+        _p._initPremultipliedATextureWithImage = function (uiImage, width, height) {
+            var tex2d = Texture2D;
+            var tempData = uiImage.getData();
+            var inPixel32 = null;
+            var inPixel8 = null;
+            var outPixel16 = null;
+            var hasAlpha = uiImage.hasAlpha();
+            var imageSize = cc.size(uiImage.getWidth(), uiImage.getHeight());
+            var pixelFormat = tex2d.defaultPixelFormat;
+            var bpp = uiImage.getBitsPerComponent();
+            var i;
+
+            // compute pixel format
+            if (!hasAlpha) {
+                if (bpp >= 8) {
+                    pixelFormat = tex2d.PIXEL_FORMAT_RGB888;
+                } else {
+                    cc.logID(3111);
+                    pixelFormat = tex2d.PIXEL_FORMAT_RGB565;
                 }
-                else {
-                    self.setAliasTexParameters();
-                }
+            }
 
-                self._htmlElementObj = null;
+            // Repack the pixel data into the right format
+            var length = width * height;
 
-                //dispatch load event to listener.
-                self.emit("load");
-            },
-
-            setTexParameters: function (texParams, magFilter, wrapS, wrapT) {
-                var _t = this;
-                var gl = cc._renderContext;
-
-                if(magFilter !== undefined)
-                    texParams = {minFilter: texParams, magFilter: magFilter, wrapS: wrapS, wrapT: wrapT};
-
-                cc.assertID((_t._pixelWidth === misc.NextPOT(_t._pixelWidth) && _t._pixelHeight === misc.NextPOT(_t._pixelHeight)) ||
-                    (texParams.wrapS === gl.CLAMP_TO_EDGE && texParams.wrapT === gl.CLAMP_TO_EDGE),
-                    3116);
-
-                cc.gl.bindTexture2D(_t);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, texParams.minFilter);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, texParams.magFilter);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, texParams.wrapS);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, texParams.wrapT);
-            },
-
-            setAntiAliasTexParameters: function () {
-                var gl = cc._renderContext;
-
-                cc.gl.bindTexture2D(this);
-                if (!this._hasMipmaps)
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-                else
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            },
-
-            setAliasTexParameters: function () {
-                var gl = cc._renderContext;
-
-                cc.gl.bindTexture2D(this);
-                if (!this._hasMipmaps)
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-                else
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            },
-
-            generateMipmap: function () {
-                var _t = this;
-                cc.assertID(_t._pixelWidth === misc.NextPOT(_t._pixelWidth) && _t._pixelHeight === misc.NextPOT(_t._pixelHeight), 3117);
-
-                cc.gl.bindTexture2D(_t);
-                cc._renderContext.generateMipmap(cc._renderContext.TEXTURE_2D);
-                _t._hasMipmaps = true;
-            },
-
-            stringForFormat: function () {
-                return Texture2D._M[this._pixelFormat];
-            },
-
-            bitsPerPixelForFormat: function (format) {//TODO I want to delete the format argument, use this._pixelFormat
-                format = format || this._pixelFormat;
-                var value = Texture2D._B[format];
-                if (value != null) return value;
-                cc.logID(3110, format);
-                return -1;
-            },
-
-            _initPremultipliedATextureWithImage: function (uiImage, width, height) {
-                var tex2d = Texture2D;
-                var tempData = uiImage.getData();
-                var inPixel32 = null;
-                var inPixel8 = null;
-                var outPixel16 = null;
-                var hasAlpha = uiImage.hasAlpha();
-                var imageSize = cc.size(uiImage.getWidth(), uiImage.getHeight());
-                var pixelFormat = tex2d.defaultPixelFormat;
-                var bpp = uiImage.getBitsPerComponent();
-                var i;
-
-                // compute pixel format
-                if (!hasAlpha) {
-                    if (bpp >= 8) {
-                        pixelFormat = tex2d.PIXEL_FORMAT_RGB888;
-                    } else {
-                        cc.logID(3111);
-                        pixelFormat = tex2d.PIXEL_FORMAT_RGB565;
-                    }
-                }
-
-                // Repack the pixel data into the right format
-                var length = width * height;
-
-                if (pixelFormat === tex2d.PIXEL_FORMAT_RGB565) {
-                    if (hasAlpha) {
-                        // Convert "RRRRRRRRRGGGGGGGGBBBBBBBBAAAAAAAA" to "RRRRRGGGGGGBBBBB"
-                        tempData = new Uint16Array(width * height);
-                        inPixel32 = uiImage.getData();
-
-                        for (i = 0; i < length; ++i) {
-                            tempData[i] =
-                                ((((inPixel32[i] >> 0) & 0xFF) >> 3) << 11) | // R
-                                    ((((inPixel32[i] >> 8) & 0xFF) >> 2) << 5) | // G
-                                    ((((inPixel32[i] >> 16) & 0xFF) >> 3) << 0);    // B
-                        }
-                    } else {
-                        // Convert "RRRRRRRRRGGGGGGGGBBBBBBBB" to "RRRRRGGGGGGBBBBB"
-                        tempData = new Uint16Array(width * height);
-                        inPixel8 = uiImage.getData();
-
-                        for (i = 0; i < length; ++i) {
-                            tempData[i] =
-                                (((inPixel8[i] & 0xFF) >> 3) << 11) | // R
-                                    (((inPixel8[i] & 0xFF) >> 2) << 5) | // G
-                                    (((inPixel8[i] & 0xFF) >> 3) << 0);    // B
-                        }
-                    }
-                } else if (pixelFormat === tex2d.PIXEL_FORMAT_RGBA4444) {
-                    // Convert "RRRRRRRRRGGGGGGGGBBBBBBBBAAAAAAAA" to "RRRRGGGGBBBBAAAA"
-                    tempData = new Uint16Array(width * height);
-                    inPixel32 = uiImage.getData();
-
-                    for (i = 0; i < length; ++i) {
-                        tempData[i] =
-                            ((((inPixel32[i] >> 0) & 0xFF) >> 4) << 12) | // R
-                                ((((inPixel32[i] >> 8) & 0xFF) >> 4) << 8) | // G
-                                ((((inPixel32[i] >> 16) & 0xFF) >> 4) << 4) | // B
-                                ((((inPixel32[i] >> 24) & 0xFF) >> 4) << 0);  // A
-                    }
-                } else if (pixelFormat === tex2d.PIXEL_FORMAT_RGB5A1) {
-                    // Convert "RRRRRRRRRGGGGGGGGBBBBBBBBAAAAAAAA" to "RRRRRGGGGGBBBBBA"
+            if (pixelFormat === tex2d.PIXEL_FORMAT_RGB565) {
+                if (hasAlpha) {
+                    // Convert "RRRRRRRRRGGGGGGGGBBBBBBBBAAAAAAAA" to "RRRRRGGGGGGBBBBB"
                     tempData = new Uint16Array(width * height);
                     inPixel32 = uiImage.getData();
 
                     for (i = 0; i < length; ++i) {
                         tempData[i] =
                             ((((inPixel32[i] >> 0) & 0xFF) >> 3) << 11) | // R
-                                ((((inPixel32[i] >> 8) & 0xFF) >> 3) << 6) | // G
-                                ((((inPixel32[i] >> 16) & 0xFF) >> 3) << 1) | // B
-                                ((((inPixel32[i] >> 24) & 0xFF) >> 7) << 0);  // A
+                                ((((inPixel32[i] >> 8) & 0xFF) >> 2) << 5) | // G
+                                ((((inPixel32[i] >> 16) & 0xFF) >> 3) << 0);    // B
                     }
-                } else if (pixelFormat === tex2d.PIXEL_FORMAT_A8) {
-                    // Convert "RRRRRRRRRGGGGGGGGBBBBBBBBAAAAAAAA" to "AAAAAAAA"
-                    tempData = new Uint8Array(width * height);
-                    inPixel32 = uiImage.getData();
+                } else {
+                    // Convert "RRRRRRRRRGGGGGGGGBBBBBBBB" to "RRRRRGGGGGGBBBBB"
+                    tempData = new Uint16Array(width * height);
+                    inPixel8 = uiImage.getData();
 
                     for (i = 0; i < length; ++i) {
-                        tempData[i] = (inPixel32 >> 24) & 0xFF;  // A
+                        tempData[i] =
+                            (((inPixel8[i] & 0xFF) >> 3) << 11) | // R
+                                (((inPixel8[i] & 0xFF) >> 2) << 5) | // G
+                                (((inPixel8[i] & 0xFF) >> 3) << 0);    // B
                     }
                 }
+            } else if (pixelFormat === tex2d.PIXEL_FORMAT_RGBA4444) {
+                // Convert "RRRRRRRRRGGGGGGGGBBBBBBBBAAAAAAAA" to "RRRRGGGGBBBBAAAA"
+                tempData = new Uint16Array(width * height);
+                inPixel32 = uiImage.getData();
 
-                if (hasAlpha && pixelFormat === tex2d.PIXEL_FORMAT_RGB888) {
-                    // Convert "RRRRRRRRRGGGGGGGGBBBBBBBBAAAAAAAA" to "RRRRRRRRGGGGGGGGBBBBBBBB"
-                    inPixel32 = uiImage.getData();
-                    tempData = new Uint8Array(width * height * 3);
-
-                    for (i = 0; i < length; ++i) {
-                        tempData[i * 3] = (inPixel32 >> 0) & 0xFF; // R
-                        tempData[i * 3 + 1] = (inPixel32 >> 8) & 0xFF; // G
-                        tempData[i * 3 + 2] = (inPixel32 >> 16) & 0xFF; // B
-                    }
+                for (i = 0; i < length; ++i) {
+                    tempData[i] =
+                        ((((inPixel32[i] >> 0) & 0xFF) >> 4) << 12) | // R
+                            ((((inPixel32[i] >> 8) & 0xFF) >> 4) << 8) | // G
+                            ((((inPixel32[i] >> 16) & 0xFF) >> 4) << 4) | // B
+                            ((((inPixel32[i] >> 24) & 0xFF) >> 4) << 0);  // A
                 }
+            } else if (pixelFormat === tex2d.PIXEL_FORMAT_RGB5A1) {
+                // Convert "RRRRRRRRRGGGGGGGGBBBBBBBBAAAAAAAA" to "RRRRRGGGGGBBBBBA"
+                tempData = new Uint16Array(width * height);
+                inPixel32 = uiImage.getData();
 
-                this.initWithData(tempData, pixelFormat, width, height, imageSize);
+                for (i = 0; i < length; ++i) {
+                    tempData[i] =
+                        ((((inPixel32[i] >> 0) & 0xFF) >> 3) << 11) | // R
+                            ((((inPixel32[i] >> 8) & 0xFF) >> 3) << 6) | // G
+                            ((((inPixel32[i] >> 16) & 0xFF) >> 3) << 1) | // B
+                            ((((inPixel32[i] >> 24) & 0xFF) >> 7) << 0);  // A
+                }
+            } else if (pixelFormat === tex2d.PIXEL_FORMAT_A8) {
+                // Convert "RRRRRRRRRGGGGGGGGBBBBBBBBAAAAAAAA" to "AAAAAAAA"
+                tempData = new Uint8Array(width * height);
+                inPixel32 = uiImage.getData();
 
-                if (tempData != uiImage.getData())
-                    tempData = null;
-
-                this._hasPremultipliedAlpha = uiImage.isPremultipliedAlpha();
-                return true;
+                for (i = 0; i < length; ++i) {
+                    tempData[i] = (inPixel32 >> 24) & 0xFF;  // A
+                }
             }
-        });
+
+            if (hasAlpha && pixelFormat === tex2d.PIXEL_FORMAT_RGB888) {
+                // Convert "RRRRRRRRRGGGGGGGGBBBBBBBBAAAAAAAA" to "RRRRRRRRGGGGGGGGBBBBBBBB"
+                inPixel32 = uiImage.getData();
+                tempData = new Uint8Array(width * height * 3);
+
+                for (i = 0; i < length; ++i) {
+                    tempData[i * 3] = (inPixel32 >> 0) & 0xFF; // R
+                    tempData[i * 3 + 1] = (inPixel32 >> 8) & 0xFF; // G
+                    tempData[i * 3 + 2] = (inPixel32 >> 16) & 0xFF; // B
+                }
+            }
+
+            this.initWithData(tempData, pixelFormat, width, height, imageSize);
+
+            if (tempData != uiImage.getData())
+                tempData = null;
+
+            this._hasPremultipliedAlpha = uiImage.isPremultipliedAlpha();
+            return true;
+        };
     }
 });
 

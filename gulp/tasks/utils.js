@@ -3,6 +3,10 @@
 const Path = require('path');
 allowReturnOutsideFunctionInBrowserifyTransform();
 const Browserify = require('browserify');
+const Fs = require('fs');
+
+const preludePath = Path.resolve(__dirname, '../browserify_prelude.js');
+const prelude = Fs.readFileSync(preludePath, 'utf8');
 
 exports.uglifyOptions = function (minify, global_defs) {
     if (minify) {
@@ -66,7 +70,14 @@ function allowReturnOutsideFunctionInBrowserifyTransform () {
         if (typeof parse === 'function') {
             if (acorn.parse.name !== 'monkeyPatchedParse') {
                 acorn.parse = function monkeyPatchedParse(input, options) {
-                    options.allowReturnOutsideFunction = true;
+                    if (options) {
+                        options.allowReturnOutsideFunction = true;
+                    }
+                    else {
+                        options = {
+                            allowReturnOutsideFunction: true
+                        };
+                    }
                     return parse(input, options);
                 };
             }
@@ -98,6 +109,10 @@ exports.createBundler = function createBundler(entryFiles, babelifyOpt) {
         bundleExternal: false,   // dont bundle external modules
         //standalone: 'engine-framework',
         //basedir: tempScriptDir
+
+        // define custom prelude to optimize script evaluate time
+        prelude: prelude,
+        preludePath: Path.relative(process.cwd(), preludePath),
     };
 
     // var presets = [

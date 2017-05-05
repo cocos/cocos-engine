@@ -294,37 +294,37 @@ var EventCustom = function (type, bubbles) {
 };
 
 JS.extend(EventCustom, cc.Event);
-JS.mixin(EventCustom.prototype, {
-    reset: EventCustom,
 
-    /**
-     * !#en Sets user data
-     * !#zh 设置用户数据
-     * @method setUserData
-     * @param {*} data
-     */
-    setUserData: function (data) {
-        this.detail = data;
-    },
+EventCustom.prototype.reset = EventCustom;
 
-    /**
-     * !#en Gets user data
-     * !#zh 获取用户数据
-     * @method getUserData
-     * @returns {*}
-     */
-    getUserData: function () {
-        return this.detail;
-    },
+/**
+ * !#en Sets user data
+ * !#zh 设置用户数据
+ * @method setUserData
+ * @param {*} data
+ */
+EventCustom.prototype.setUserData = function (data) {
+    this.detail = data;
+};
 
-    /**
-     * !#en Gets event name
-     * !#zh 获取事件名称
-     * @method getEventName
-     * @returns {String}
-     */
-    getEventName: cc.Event.prototype.getType
-});
+/**
+ * !#en Gets user data
+ * !#zh 获取用户数据
+ * @method getUserData
+ * @returns {*}
+ */
+EventCustom.prototype.getUserData = function () {
+    return this.detail;
+};
+
+/**
+ * !#en Gets event name
+ * !#zh 获取事件名称
+ * @method getEventName
+ * @returns {String}
+ */
+EventCustom.prototype.getEventName = cc.Event.prototype.getType;
+
 
 var _eventPool = [];
 var MAX_POOL_SIZE = 10;

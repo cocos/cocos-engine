@@ -215,13 +215,13 @@ proto.toString = function () {
  * @property xMin
  * @type {Number}
  */
-Object.defineProperty(proto, 'xMin', {
-    get: function () { return this.x; },
-    set: function (value) {
+JS.getset(proto, 'xMin',
+    function () { return this.x; },
+    function (value) {
         this.width += this.x - value;
         this.x = value;
     }
-});
+);
 
 /**
  * !#en TODO
@@ -229,13 +229,13 @@ Object.defineProperty(proto, 'xMin', {
  * @property yMin
  * @type {Number}
  */
-Object.defineProperty(proto, 'yMin', {
-    get: function () { return this.y; },
-    set: function (value) {
+JS.getset(proto, 'yMin',
+    function () { return this.y; },
+    function (value) {
         this.height += this.y - value;
         this.y = value;
     }
-});
+);
 
 /**
  * !#en TODO
@@ -243,10 +243,10 @@ Object.defineProperty(proto, 'yMin', {
  * @property xMax
  * @type {Number}
  */
-Object.defineProperty(proto, 'xMax', {
-    get: function () { return this.x + this.width; },
-    set: function (value) { this.width = value - this.x; }
-});
+JS.getset(proto, 'xMax',
+    function () { return this.x + this.width; },
+    function (value) { this.width = value - this.x; }
+);
 
 /**
  * !#en TODO
@@ -254,56 +254,56 @@ Object.defineProperty(proto, 'xMax', {
  * @property yMax
  * @type {Number}
  */
-Object.defineProperty(proto, 'yMax', {
-    get: function () { return this.y + this.height; },
-    set: function (value) { this.height = value - this.y; }
-});
+JS.getset(proto, 'yMax',
+    function () { return this.y + this.height; },
+    function (value) { this.height = value - this.y; }
+);
 
 /**
  * !#en The position of the center of the rectangle.
  * !#zh 矩形的中心点。
  * @property {Vec2} center
  */
-Object.defineProperty(proto, 'center', {
-    get: function () {
+JS.getset(proto, 'center',
+    function () {
         return new cc.Vec2(this.x + this.width * 0.5,
             this.y + this.height * 0.5);
     },
-    set: function (value) {
+    function (value) {
         this.x = value.x - this.width * 0.5;
         this.y = value.y - this.height * 0.5;
     }
-});
+);
 
 /**
  * !#en The X and Y position of the rectangle.
  * !#zh 矩形的 x 和 y 坐标。
  * @property {Vec2} origin
  */
-Object.defineProperty(proto, 'origin', {
-    get () {
+JS.getset(proto, 'origin',
+    function () {
         return new cc.Vec2(this.x, this.y);
     },
-    set (value) {
+    function (value) {
         this.x = value.x;
         this.y = value.y;
     }
-});
+);
 
 /**
  * !#en Width and height of the rectangle.
  * !#zh 矩形的大小。
  * @property {Size} size
  */
-Object.defineProperty(proto, 'size', {
-    get: function () {
+JS.getset(proto, 'size',
+    function () {
         return new cc.Size(this.width, this.height);
     },
-    set: function (value) {
+    function (value) {
         this.width = value.width;
         this.height = value.height;
     }
-});
+);
 
 /**
  * !#en TODO

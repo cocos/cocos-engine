@@ -161,12 +161,11 @@ var Color = (function () {
         MAGENTA:    [255, 0, 255]
     };
     for (var colorName in DefaultColors) {
-        var colorGetter = (function (r, g, b, a) {
+        JS.get(Color, colorName, (function (rgba) {
             return function () {
-                return new Color(r, g, b, a);
+                return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
             };
-        }).apply(null, DefaultColors[colorName]);
-        Object.defineProperty(Color, colorName, { get: colorGetter });
+        })(DefaultColors[colorName]));
     }
 
     var proto = Color.prototype;

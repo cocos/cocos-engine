@@ -59,21 +59,13 @@ function CCObject () {
 }
 CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
 
-function defineNotInheritable (obj, prop, value, writable) {
-    Object.defineProperty(obj, prop, {
-        value: value,
-        writable: !!writable
-        // enumerable is false by default
-    });
-}
-
 /**
  * Bit mask that controls object states.
  * @enum Flags
  * @static
  * @private
  */
-defineNotInheritable(CCObject, 'Flags', {
+JS.value(CCObject, 'Flags', {
 
     Destroyed: Destroyed,
     //ToDestroy: ToDestroy,
@@ -189,10 +181,10 @@ function deferredDestroy () {
     }
 }
 
-defineNotInheritable(CCObject, '_deferredDestroy', deferredDestroy);
+JS.value(CCObject, '_deferredDestroy', deferredDestroy);
 
 if (CC_EDITOR) {
-    defineNotInheritable(CCObject, '_clearDeferredDestroyTimer', function () {
+    JS.value(CCObject, '_clearDeferredDestroyTimer', function () {
         if (deferredDestroyTimer !== null) {
             clearImmediate(deferredDestroyTimer);
             deferredDestroyTimer = null;
@@ -394,7 +386,7 @@ prototype._destruct = function () {
     var destruct = ctor.__destruct__;
     if (!destruct) {
         destruct = compileDestruct(this, ctor);
-        defineNotInheritable(ctor, '__destruct__', destruct, true);
+        JS.value(ctor, '__destruct__', destruct, true);
     }
     destruct(this);
 };
@@ -466,10 +458,10 @@ cc.isValid = function (value) {
 };
 
 if (CC_EDITOR || CC_TEST) {
-    defineNotInheritable(CCObject, '_willDestroy', function (obj) {
+    JS.value(CCObject, '_willDestroy', function (obj) {
         return !(obj._objFlags & Destroyed) && (obj._objFlags & ToDestroy) > 0;
     });
-    defineNotInheritable(CCObject, '_cancelDestroy', function (obj) {
+    JS.value(CCObject, '_cancelDestroy', function (obj) {
         obj._objFlags &= ~ToDestroy;
         JS.array.fastRemove(objectsToDestroy, obj);
     });

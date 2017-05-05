@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 var CCObject = require('../platform/CCObject');
+var JS = require('../platform/js');
 var idGenerater = new (require('../platform/id-generater'))('Comp');
 
 var IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
@@ -624,8 +625,8 @@ if (CC_EDITOR || CC_TEST) {
 
     // NON-INHERITED STATIC MEMBERS
 
-    Object.defineProperty(Component, '_inspector', { value: '', writable: true });
-    Object.defineProperty(Component, '_icon', { value: '', writable: true });
+    JS.value(Component, '_inspector', '', true);
+    JS.value(Component, '_icon', '', true);
 
     // COMPONENT HELPERS
 
@@ -640,67 +641,65 @@ if (CC_EDITOR || CC_TEST) {
     };
 }
 
-// use defineProperty to prevent inherited by sub classes
-Object.defineProperty(Component, '_registerEditorProps', {
-    value (cls, props) {
-        var reqComp = props.requireComponent;
-        if (reqComp) {
-            cls._requireComponent = reqComp;
-        }
-        var order = props.executionOrder;
-        if (order && typeof order === 'number') {
-            cls._executionOrder = order;
-        }
-        if (CC_EDITOR || CC_TEST) {
-            var name = cc.js.getClassName(cls);
-            for (var key in props) {
-                var val = props[key];
-                switch (key) {
-                    case 'executeInEditMode':
-                        cls._executeInEditMode = !!val;
-                        break;
+// we make this non-enumerable, to prevent inherited by sub classes.
+JS.value(Component, '_registerEditorProps', function (cls, props) {
+    var reqComp = props.requireComponent;
+    if (reqComp) {
+        cls._requireComponent = reqComp;
+    }
+    var order = props.executionOrder;
+    if (order && typeof order === 'number') {
+        cls._executionOrder = order;
+    }
+    if (CC_EDITOR || CC_TEST) {
+        var name = cc.js.getClassName(cls);
+        for (var key in props) {
+            var val = props[key];
+            switch (key) {
+                case 'executeInEditMode':
+                    cls._executeInEditMode = !!val;
+                    break;
 
-                    case 'playOnFocus':
-                        if (val) {
-                            var willExecuteInEditMode = ('executeInEditMode' in props) ? props.executeInEditMode : cls._executeInEditMode;
-                            if (willExecuteInEditMode) {
-                                cls._playOnFocus = true;
-                            }
-                            else {
-                                cc.warnID(3601, name);
-                            }
+                case 'playOnFocus':
+                    if (val) {
+                        var willExecuteInEditMode = ('executeInEditMode' in props) ? props.executeInEditMode : cls._executeInEditMode;
+                        if (willExecuteInEditMode) {
+                            cls._playOnFocus = true;
                         }
-                        break;
+                        else {
+                            cc.warnID(3601, name);
+                        }
+                    }
+                    break;
 
-                    case 'inspector':
-                        Object.defineProperty(cls, '_inspector', { value: val, writable: true });
-                        break;
+                case 'inspector':
+                    JS.value(cls, '_inspector', val, true);
+                    break;
 
-                    case 'icon':
-                        Object.defineProperty(cls, '_icon', { value: val, writable: true });
-                        break;
+                case 'icon':
+                    JS.value(cls, '_icon', val, true);
+                    break;
 
-                    case 'menu':
-                        Component._addMenuItem(cls, val, props.menuPriority);
-                        break;
+                case 'menu':
+                    Component._addMenuItem(cls, val, props.menuPriority);
+                    break;
 
-                    case 'disallowMultiple':
-                        cls._disallowMultiple = cls;
-                        break;
+                case 'disallowMultiple':
+                    cls._disallowMultiple = cls;
+                    break;
 
-                    case 'requireComponent':
-                    case 'executionOrder':
-                        // skip here
-                        break;
+                case 'requireComponent':
+                case 'executionOrder':
+                    // skip here
+                    break;
 
-                    case 'help':
-                        cls._help = val;
-                        break;
+                case 'help':
+                    cls._help = val;
+                    break;
 
-                    default:
-                        cc.warnID(3602, key, name);
-                        break;
-                }
+                default:
+                    cc.warnID(3602, key, name);
+                    break;
             }
         }
     }
