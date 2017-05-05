@@ -753,11 +753,7 @@ var RigidBody = cc.Class({
         var b2body = this._b2Body;
         if (!b2body) return;
 
-        var node = this.node;
-        var rotation = ANGLE_TO_PHYSICS_ANGLE * getWorldRotation(node);
-        b2body.SetTransform(b2body.GetPosition(), rotation);
-
-        var rotation = ANGLE_TO_PHYSICS_ANGLE * getWorldRotation(node);
+        var rotation = ANGLE_TO_PHYSICS_ANGLE * getWorldRotation(this.node);
         if (this.type === BodyType.Animated && enableAnimated) {
             var b2Rotation = b2body.GetAngle();
             var timeStep = cc.game.config['frameRate'];
