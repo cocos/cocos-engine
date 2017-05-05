@@ -1140,6 +1140,9 @@
     <ClCompile Include="..\audio\AudioEngine.cpp">
       <Filter>audioengine</Filter>
     </ClCompile>
+    <ClCompile Include="..\ui\UIEditBox\UIEditBoxImpl-common.cpp">
+      <Filter>ui\UIWidgets\EditBox</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cocos2d.h" />
@@ -2204,6 +2207,9 @@
     </ClInclude>
     <ClInclude Include="..\audio\include\AudioEngine.h">
       <Filter>audioengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ui\UIEditBox\UIEditBoxImpl-common.h">
+      <Filter>ui\UIWidgets\EditBox</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

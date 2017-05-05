@@ -1,6 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013 Jozef Pridavok
+ Copyright (c) 2017 zilongshanren
 
  http://www.cocos2d-x.org
 
@@ -625,16 +626,7 @@ EditBoxImpl* __createSystemEditBox(EditBox* pEditBox)
 }
 
 EditBoxImplWin::EditBoxImplWin(EditBox* pEditText)
-: EditBoxImpl(pEditText)
-, _label(nullptr)
-, _labelPlaceHolder(nullptr)
-, _editBoxInputMode(EditBox::InputMode::SINGLE_LINE)
-, _editBoxInputFlag(EditBox::InputFlag::INITIAL_CAPS_ALL_CHARACTERS)
-, _keyboardReturnType(EditBox::KeyboardReturnType::DEFAULT)
-, _colText(Color3B::WHITE)
-, _colPlaceHolder(Color3B::GRAY)
-, _maxLength(-1)
-, _isEditing(false)
+: EditBoxImplCommon(pEditText)
 {
 
 }
@@ -643,312 +635,77 @@ EditBoxImplWin::~EditBoxImplWin()
 {
 }
 
-void EditBoxImplWin::doAnimationWhenKeyboardMove(float duration, float distance)
-{
-}
-
-static const int CC_EDIT_BOX_PADDING = 5;
-
-bool EditBoxImplWin::initWithSize(const Size& size)
-{
-    //! int fontSize = getFontSizeAccordingHeightJni(size.height-12);
-    _label = Label::create();
-    _label->setSystemFontSize(size.height-12);
-    // align the text vertically center
-    _label->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
-    _label->setPosition(Vec2(CC_EDIT_BOX_PADDING, size.height / 2.0f));
-    _label->setTextColor(_colText);
-    _editBox->addChild(_label);
-
-    _labelPlaceHolder = Label::create();
-    _labelPlaceHolder->setSystemFontSize(size.height-12);
-    // align the text vertically center
-    _labelPlaceHolder->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
-    _labelPlaceHolder->setPosition(CC_EDIT_BOX_PADDING, size.height / 2.0f);
-    _labelPlaceHolder->setVisible(false);
-    _labelPlaceHolder->setTextColor(_colPlaceHolder);
-    _editBox->addChild(_labelPlaceHolder);
-
-    _editSize = size;
-    return true;
-}
-
-void EditBoxImplWin::setFont(const char* pFontName, int fontSize)
-{
-    if (_label != nullptr)
-  {
-        if (pFontName[0] != '\0')  // To determine whether a string is empty quickly
-      {
-          _label->setSystemFontName(pFontName);
-      }
-      if(fontSize > 0)
-      {
-          _label->setSystemFontSize(fontSize);
-      }
-  }
-
-    if (_labelPlaceHolder != nullptr)
-  {
-        if (pFontName[0] != '\0')  // To determine whether a string is empty quickly
-      {
-          _labelPlaceHolder->setSystemFontName(pFontName);
-      }
-      if(fontSize > 0)
-      {
-          _labelPlaceHolder->setSystemFontSize(fontSize);
-      }
-  }
-}
-
-void EditBoxImplWin::setFontColor(const Color4B& color)
-{
-    _colText = color;
-    _label->setTextColor(color);
-}
-
-void EditBoxImplWin::setPlaceholderFont(const char* pFontName, int fontSize)
-{
-    if (_labelPlaceHolder != nullptr)
-  {
-        if (pFontName[0] != '\0')  // To determine whether a string is empty quickly
-      {
-          _labelPlaceHolder->setSystemFontName(pFontName);
-      }
-      if(fontSize > 0)
-      {
-          _labelPlaceHolder->setSystemFontSize(fontSize);
-      }
-  }
-}
-
-void EditBoxImplWin::setPlaceholderFontColor(const Color4B& color)
-{
-    _colPlaceHolder = color;
-    _labelPlaceHolder->setTextColor(color);
-}
-
-void EditBoxImplWin::setInputMode(EditBox::InputMode inputMode)
-{
-    _editBoxInputMode = inputMode;
-}
-
-void EditBoxImplWin::setMaxLength(int maxLength)
-{
-    _maxLength = maxLength;
-}
-
-int EditBoxImplWin::getMaxLength()
-{
-    return _maxLength;
-}
-
-void EditBoxImplWin::setInputFlag(EditBox::InputFlag inputFlag)
-{
-    _editBoxInputFlag = inputFlag;
-}
-
-void EditBoxImplWin::setReturnType(EditBox::KeyboardReturnType returnType)
-{
-    _keyboardReturnType = returnType;
-}
-
 bool EditBoxImplWin::isEditing()
 {
-    return _isEditing;
+    return false;
 }
 
-void EditBoxImplWin::setText(const char* pText)
-{
-    if (pText != nullptr)
-    {
-        if (strcmp(_text.c_str(), pText) == 0)  // do nothing if the text is not changed
-        {
-            return;
-        }
-
-        _text = pText;
-        if (_isEditing && s_win32InputBox != nullptr)  // set text for the running Win32InputBox
-        {
-            s_win32InputBox->SetText(pText);
-        }
-
-        if (_text.length() > 0)
-        {
-            _labelPlaceHolder->setVisible(false);
-
-            if (EditBox::InputFlag::PASSWORD == _editBoxInputFlag)
-            {
-                long length = StringUtils::getCharacterCountInUTF8String(_text);
-                std::string strToShow(length, '*');  // Fills strToShow with length consecutive copies of character '*'
-                _label->setString(strToShow);
-            }
-            else
-            {
-                _label->setString(_text);
-            }
-
-            float maxWidth = _editSize.width - 2 * CC_EDIT_BOX_PADDING;
-            auto labelSize = _label->getContentSize();
-            if (labelSize.width > maxWidth)
-            {
-                _label->setDimensions(maxWidth, labelSize.height);
-            }
-        }
-        else
-        {
-            _labelPlaceHolder->setVisible(true);
-            _label->setString("");
-        }
-
-    }
-}
-
-const char*  EditBoxImplWin::getText()
-{
-    return _text.c_str();
-}
-
-void EditBoxImplWin::setPlaceHolder(const char* pText)
-{
-    if (pText != nullptr)
-    {
-        _placeHolder = pText;
-        if (_placeHolder.length() > 0 && _text.length() == 0)
-        {
-            _labelPlaceHolder->setVisible(true);
-        }
-
-        _labelPlaceHolder->setString(_placeHolder);
-    }
-}
-
-void EditBoxImplWin::setPosition(const Vec2& pos)
-{
-    //_label->setPosition(pos);
-    //_labelPlaceHolder->setPosition(pos);
-}
-
-void EditBoxImplWin::setVisible(bool visible)
-{ // don't need to be implemented on win32 platform.
-}
-
-void EditBoxImplWin::setContentSize(const Size& size)
+void EditBoxImplWin::createNativeControl(const Rect & frame)
 {
 }
 
-void EditBoxImplWin::setAnchorPoint(const Vec2& anchorPoint)
-{ // don't need to be implemented on win32 platform.
-
-}
-
-void EditBoxImplWin::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
+void EditBoxImplWin::setNativeFont(const char * pFontName, int fontSize)
 {
 }
 
-void EditBoxImplWin::openKeyboard()
+
+
+void EditBoxImplWin::setNativeFontColor(const Color4B & color)
 {
-    if (s_win32InputBox != nullptr)
-    {
-        return;
-    }
-
-    if (_delegate != nullptr)
-    {
-        _delegate->editBoxEditingDidBegin(_editBox);
-    }
-
-    _isEditing = true;
-#if CC_ENABLE_SCRIPT_BINDING
-    auto editBox = this->getEditBox();
-    if (nullptr != editBox && 0 != editBox->getScriptEditBoxHandler())
-    {
-        CommonScriptData data(editBox->getScriptEditBoxHandler(), "began",editBox);
-        ScriptEvent event(kCommonEvent,(void*)&data);
-        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
-    }
-#endif
-
-    std::string placeHolder = _labelPlaceHolder->getString();
-    if (placeHolder.length() == 0)
-        placeHolder = "Enter value";
-
-    _editingText = getText();
-    _originalText = _editingText;
-    auto glView = Director::getInstance()->getOpenGLView();
-    HWND hwnd = glView->getWin32Window();
-    CWin32InputBox::InputBox("Input", placeHolder.c_str(), &_editingText, _maxLength, false, hwnd,
-        _keyboardReturnType, _editBoxInputMode, _editBoxInputFlag,
-        std::bind(&EditBoxImplWin::onWin32InputBoxTextChange, this, std::placeholders::_1),
-        std::bind(&EditBoxImplWin::onWin32InputBoxClose, this, std::placeholders::_1));
 }
 
-void EditBoxImplWin::onWin32InputBoxClose(INT_PTR buttonId)
+void EditBoxImplWin::setNativePlaceholderFont(const char * pFontName, int fontSize)
 {
-    bool didChange = buttonId == IDOK;
-    CC_SAFE_DELETE(s_win32InputBox);
-    _isEditing = false;
-
-    setText(didChange ? _editingText.c_str() : _originalText.c_str());
-
-    if (_delegate != nullptr)
-    {
-        _delegate->editBoxTextChanged(_editBox, getText());
-        _delegate->editBoxEditingDidEnd(_editBox);
-        _delegate->editBoxEditingReturn(_editBox);
-    }
-
-#if CC_ENABLE_SCRIPT_BINDING
-    if (nullptr != _editBox && 0 != _editBox->getScriptEditBoxHandler())
-    {
-        CommonScriptData data(_editBox->getScriptEditBoxHandler(), "changed",_editBox);
-        ScriptEvent event(kCommonEvent,(void*)&data);
-        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
-        memset(data.eventName,0,sizeof(data.eventName));
-        strncpy(data.eventName,"ended",sizeof(data.eventName));
-        event.data = (void*)&data;
-        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
-        memset(data.eventName,0,sizeof(data.eventName));
-        strncpy(data.eventName,"return",sizeof(data.eventName));
-        event.data = (void*)&data;
-        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
-    }
-#endif // #if CC_ENABLE_SCRIPT_BINDING
 }
 
-void EditBoxImplWin::onWin32InputBoxTextChange(const char *pText)
+void EditBoxImplWin::setNativePlaceholderFontColor(const Color4B& color)
 {
-    _isEditing = false;  // Prevent recursive calls
-    setText(pText);
-    _isEditing = true;
 
-    if (_delegate != nullptr)
-    {
-        _delegate->editBoxTextChanged(_editBox, _text);
-    }
-
-#if CC_ENABLE_SCRIPT_BINDING
-    if (nullptr != _editBox && 0 != _editBox->getScriptEditBoxHandler())
-    {
-        CommonScriptData data(_editBox->getScriptEditBoxHandler(), "changed", _editBox);
-        ScriptEvent event(kCommonEvent, (void*)&data);
-        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
-    }
-#endif // #if CC_ENABLE_SCRIPT_BINDING
 }
 
-void EditBoxImplWin::closeKeyboard()
+void EditBoxImplWin::setNativeInputMode(EditBox::InputMode inputMode)
 {
-    // close the running Win32InputBox
-    if (s_win32InputBox != nullptr)
-    {
-        s_win32InputBox->Close(IDCANCEL);
-        CC_SAFE_DELETE(s_win32InputBox);
-        _isEditing = false;
-    }
-}
 
-void EditBoxImplWin::onEnter()
+}
+void EditBoxImplWin::setNativeInputFlag(EditBox::InputFlag inputFlag)
 {
+
+}
+void EditBoxImplWin::setNativeReturnType(EditBox::KeyboardReturnType returnType)
+{
+
+}
+void EditBoxImplWin::setNativeText(const char* pText)
+{
+
+}
+void EditBoxImplWin::setNativePlaceHolder(const char* pText)
+{
+
+}
+void EditBoxImplWin::setNativeVisible(bool visible)
+{
+
+}
+void EditBoxImplWin::updateNativeFrame(const Rect& rect)
+{
+
+}
+const char* EditBoxImplWin::getNativeDefaultFontName()
+{
+    return "Arial";
+}
+void EditBoxImplWin::nativeOpenKeyboard()
+{
+
+}
+void EditBoxImplWin::nativeCloseKeyboard()
+{
+
+}
+void EditBoxImplWin::setNativeMaxLength(int maxLength)
+{
+
 }
 
 }
