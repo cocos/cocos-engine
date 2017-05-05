@@ -35,12 +35,8 @@ let stats = PStats.new(_fps, {
         fps: { desc: 'Framerate (FPS)', below: 30, average: 500 },
         draws: { desc: 'Draw call' },
         logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
-        render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
-        memory: { desc: 'Memory', extension : 'memory.used', average: 2000, threshold: true }
+        render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' }
     },
-    extensions: [
-        'memory'
-    ],
     css: '.pstats {left: ' + macro.DIRECTOR_STATS_POSITION.x + 'px; bottom: ' + macro.DIRECTOR_STATS_POSITION.y + 'px;}'
 });
 
@@ -64,7 +60,6 @@ function afterVisit () {
 function afterDraw () {
     stats('render').end();
     stats('draws').value = cc.g_NumberOfDraws;
-    stats('memory').snapshot();
     stats('frame').end();
     stats('fps').frame();
     stats().tick();
