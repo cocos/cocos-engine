@@ -178,6 +178,10 @@ function defineGetSet (cls, name, propName, val, es6) {
         }
 
         var attrs = parseAttributes(cls, val, name, propName, true);
+        for (var i = 0; i < attrs.length; i++) {
+            var attr = attrs[i];
+            Attr.attr(cls, propName, attr);
+        }
         attrs.length = 0;
 
         const ForceSerializable = false;
