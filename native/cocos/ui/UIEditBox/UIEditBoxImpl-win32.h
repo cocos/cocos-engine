@@ -63,7 +63,12 @@ public:
     virtual void setNativeMaxLength(int maxLength);
 
 private:
-    static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+    void  _WindowProc(HWND, UINT, WPARAM, LPARAM);
+    
+    WNDPROC _prevWndProc;
+    static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+
     HWND hwndEdit;
     HWND hwndCocos;
     HINSTANCE hInstance;
