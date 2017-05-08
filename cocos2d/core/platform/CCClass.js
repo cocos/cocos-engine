@@ -313,7 +313,7 @@ function doDefine (className, baseClass, mixins, options) {
             JS.extend(fireClass, baseClass);    // 这里会把父类的 __props__ 复制给子类
             prototype = fireClass.prototype;    // get extended prototype
         }
-        fireClass.$super = baseClass;
+        JS.value(fireClass, '$super', baseClass);
         if (CC_DEV && shouldAddProtoCtor) {
             prototype.ctor = function () {};
         }
