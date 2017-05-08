@@ -86,13 +86,21 @@ void EditBoxImplWin::createNativeControl(const Rect & frame)
     hwndEdit = CreateWindowEx(
         WS_EX_CLIENTEDGE, L"EDIT",   // predefined class 
         NULL,         // no window title 
-        WS_CHILD |
-        ES_LEFT | WS_BORDER | ES_AUTOHSCROLL | ES_AUTOVSCROLL | WS_EX_TRANSPARENT,
-        2, 14, 200, 50,   // set size in WM_SIZE message 
+        WS_CHILD | ES_LEFT | WS_BORDER  | WS_EX_TRANSPARENT,
+        frame.origin.x, 
+        frame.origin.y,
+        frame.size.width,
+        frame.size.height,   // set size in WM_SIZE message 
         hwndCocos,         // parent window 
         (HMENU)s_editboxChildID,   // edit control ID 
         hInstance,
         NULL);        // pointer not needed 
+
+    // Clear the password style
+    SendMessage(hwndEdit, EM_SETPASSWORDCHAR, (WPARAM)0, (LPARAM)0);
+
+   
+
 }
 
 void EditBoxImplWin::setNativeFont(const char * pFontName, int fontSize)
@@ -124,6 +132,15 @@ void EditBoxImplWin::setNativeInputMode(EditBox::InputMode inputMode)
 }
 void EditBoxImplWin::setNativeInputFlag(EditBox::InputFlag inputFlag)
 {
+    if (inputFlag == EditBox::InputFlag::PASSWORD)
+    {
+        SendMessage(hwndEdit, EM_SETPASSWORDCHAR, (WPARAM)'*', (LPARAM)0);
+
+    }
+    else if (inputFlag == EditBox::InputFlag::INITIAL_CAPS_ALL_CHARACTERS)
+    {
+
+    }
 
     // // Converts all characters to lowercase as they are typed into the edit control.
     // // Please refer to https://msdn.microsoft.com/en-us/library/bb775464%28v=vs.85%29.aspx
@@ -156,14 +173,14 @@ void EditBoxImplWin::setNativeVisible(bool visible)
 void EditBoxImplWin::updateNativeFrame(const Rect& rect)
 
 {
-    // ::SetWindowPos(
-    //     hwndEdit2,
-    //     HWND_NOTOPMOST,
-    //     rectEdit1.left - rectDlg.left,
-    //     (rectEdit1.top - rectDlg.top) - (rectEdit1.bottom - rectEdit1.top),
-    //     0,
-    //     0,
-    //     SWP_NOSIZE | SWP_NOZORDER);
+     ::SetWindowPos(
+         hwndEdit,
+         HWND_NOTOPMOST,
+         rect.origin.x,
+         rect.origin.y,
+         rect.size.width,
+         rect.size.height,
+         SWP_NOZORDER);
 
 }
 const char* EditBoxImplWin::getNativeDefaultFontName()
