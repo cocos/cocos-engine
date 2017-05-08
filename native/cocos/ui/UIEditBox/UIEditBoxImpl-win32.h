@@ -29,7 +29,6 @@
 #include "platform/CCPlatformConfig.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
-
 #include "UIEditBoxImpl-common.h"
 
 NS_CC_BEGIN
@@ -62,8 +61,16 @@ public:
     virtual void nativeOpenKeyboard() override;
     virtual void nativeCloseKeyboard() override;
     virtual void setNativeMaxLength(int maxLength);
-private:
 
+private:
+    static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+    HWND hwndEdit;
+    HWND hwndCocos;
+    HINSTANCE hInstance;
+
+    static bool s_isInitialized;
+    static int s_editboxChildID;
+    static void lazyInit();
 };
 
 }
