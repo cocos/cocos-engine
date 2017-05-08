@@ -1029,6 +1029,69 @@ bool js_box2dclasses_b2Body_CreateFixture(JSContext *cx, uint32_t argc, JS::Valu
     return false;
 }
 
+bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    b2Body* cobj = nullptr;
+    
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx);
+    obj.set(args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cobj = (b2Body *)(proxy ? proxy->ptr : nullptr);
+    JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetJointList : Invalid Native Object");
+    do {
+        if (argc == 0) {
+            jsval jsret = JSVAL_NULL;
+            
+            b2JointEdge* list = cobj->GetJointList();
+            do
+            {
+                if (!list) {
+                    break;
+                }
+                
+                JS::RootedObject array(cx, JS_NewArrayObject(cx, 0));
+                int i = 0;
+                JS::RootedValue item(cx);
+                
+                item = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Joint>(cx, list->joint));
+                if (!JS_SetElement(cx, array, i++, item)) {
+                    break;
+                }
+                
+                b2JointEdge* prev = list->prev;
+                while (prev) {
+                    item = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Joint>(cx, prev->joint));
+                    if (!JS_SetElement(cx, array, i++, item)) {
+                        break;
+                    }
+                    
+                    prev = prev->prev;
+                }
+                
+                b2JointEdge* next = list->next;
+                while (next) {
+                    item = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Joint>(cx, next->joint));
+                    if (!JS_SetElement(cx, array, i++, item)) {
+                        break;
+                    }
+                    
+                    next = next->next;
+                }
+                
+                jsret = OBJECT_TO_JSVAL(array);
+            }
+            while(0);
+            
+            args.rval().set( jsret );
+            return true;
+        }
+    } while(0);
+    
+    JS_ReportError(cx, "js_box2dclasses_b2Body_GetJointList : wrong number of arguments");
+    return false;
+}
+
 bool js_box2dclasses_b2PolygonShape_Set(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1226,6 +1289,7 @@ void register_all_box2dclasses_manual(JSContext* cx, JS::HandleObject obj) {
     JS_DefineFunction(cx, tmpObj, "CreateFixture", js_box2dclasses_b2Body_CreateFixture, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "SetUserData", js_box2dclasses_b2Body_SetUserData, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "GetUserData", js_box2dclasses_b2Body_GetUserData, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, tmpObj, "GetJointList", js_box2dclasses_b2Body_GetJointList, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
     tmpObj.set(jsb_b2PolygonShape_prototype);
     JS_DefineFunction(cx, tmpObj, "Set", js_box2dclasses_b2PolygonShape_Set, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
