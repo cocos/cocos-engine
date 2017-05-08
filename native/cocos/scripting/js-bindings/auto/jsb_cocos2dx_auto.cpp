@@ -23,6 +23,183 @@ static bool js_is_native_obj(JSContext *cx, uint32_t argc, jsval *vp)
     args.rval().setBoolean(true);
     return true;
 }
+JSClass  *jsb_cocos2d_Acceleration_class;
+JSObject *jsb_cocos2d_Acceleration_prototype;
+
+bool js_cocos2dx_Acceleration_get_x(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_get_x : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = DOUBLE_TO_JSVAL(cobj->x);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_Acceleration_set_x(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_set_x : Invalid Native Object");
+
+    bool ok = true;
+    double arg0 = 0;
+    ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_set_x : Error processing new value");
+    cobj->x = arg0;
+    return true;
+}
+bool js_cocos2dx_Acceleration_get_y(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_get_y : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = DOUBLE_TO_JSVAL(cobj->y);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_Acceleration_set_y(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_set_y : Invalid Native Object");
+
+    bool ok = true;
+    double arg0 = 0;
+    ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_set_y : Error processing new value");
+    cobj->y = arg0;
+    return true;
+}
+bool js_cocos2dx_Acceleration_get_z(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_get_z : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = DOUBLE_TO_JSVAL(cobj->z);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_Acceleration_set_z(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_set_z : Invalid Native Object");
+
+    bool ok = true;
+    double arg0 = 0;
+    ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_set_z : Error processing new value");
+    cobj->z = arg0;
+    return true;
+}
+bool js_cocos2dx_Acceleration_get_timestamp(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_get_timestamp : Invalid Native Object");
+
+    JS::RootedValue jsret(cx);
+    jsret = DOUBLE_TO_JSVAL(cobj->timestamp);
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_Acceleration_set_timestamp(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_set_timestamp : Invalid Native Object");
+
+    bool ok = true;
+    double arg0 = 0;
+    ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_set_timestamp : Error processing new value");
+    cobj->timestamp = arg0;
+    return true;
+}
+bool js_cocos2dx_Acceleration_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::Acceleration* cobj = new (std::nothrow) cocos2d::Acceleration();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Acceleration>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::Acceleration"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
+    return true;
+}
+
+
+void js_register_cocos2dx_Acceleration(JSContext *cx, JS::HandleObject global) {
+    jsb_cocos2d_Acceleration_class = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_cocos2d_Acceleration_class->name = "Acceleration";
+    jsb_cocos2d_Acceleration_class->addProperty = JS_PropertyStub;
+    jsb_cocos2d_Acceleration_class->delProperty = JS_DeletePropertyStub;
+    jsb_cocos2d_Acceleration_class->getProperty = JS_PropertyStub;
+    jsb_cocos2d_Acceleration_class->setProperty = JS_StrictPropertyStub;
+    jsb_cocos2d_Acceleration_class->enumerate = JS_EnumerateStub;
+    jsb_cocos2d_Acceleration_class->resolve = JS_ResolveStub;
+    jsb_cocos2d_Acceleration_class->convert = JS_ConvertStub;
+    jsb_cocos2d_Acceleration_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+
+    static JSPropertySpec properties[] = {
+        JS_PSGS("x", js_cocos2dx_Acceleration_get_x, js_cocos2dx_Acceleration_set_x, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PSGS("y", js_cocos2dx_Acceleration_get_y, js_cocos2dx_Acceleration_set_y, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PSGS("z", js_cocos2dx_Acceleration_get_z, js_cocos2dx_Acceleration_set_z, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PSGS("timestamp", js_cocos2dx_Acceleration_get_timestamp, js_cocos2dx_Acceleration_set_timestamp, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    jsb_cocos2d_Acceleration_prototype = JS_InitClass(
+        cx, global,
+        JS::NullPtr(),
+        jsb_cocos2d_Acceleration_class,
+        js_cocos2dx_Acceleration_constructor, 0, // constructor
+        properties,
+        funcs,
+        NULL, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_Acceleration_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "Acceleration"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::Acceleration>(cx, jsb_cocos2d_Acceleration_class, proto, JS::NullPtr());
+}
+
 JSClass  *jsb_cocos2d_Texture2D_class;
 JSObject *jsb_cocos2d_Texture2D_prototype;
 
@@ -47672,6 +47849,7 @@ void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj) {
     JS::RootedObject ns(cx);
     get_or_create_js_obj(cx, obj, "cc", &ns);
 
+    js_register_cocos2dx_Acceleration(cx, ns);
     js_register_cocos2dx_RenderState(cx, ns);
     js_register_cocos2dx_Material(cx, ns);
     js_register_cocos2dx_Action(cx, ns);

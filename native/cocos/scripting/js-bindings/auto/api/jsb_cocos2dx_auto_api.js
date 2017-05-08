@@ -4,6 +4,22 @@
 var cc = cc || {};
 
 /**
+ * @class Acceleration
+ */
+cc.Acceleration = {
+
+/**
+ * @method Acceleration
+ * @constructor
+ */
+Acceleration : function (
+)
+{
+},
+
+};
+
+/**
  * @class Texture2D
  */
 cc.Texture2D = {
