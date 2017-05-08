@@ -178,7 +178,7 @@ exports.buildJsb = function (sourceFile, outputFile, jsbSkipModules, callback) {
         .pipe(Buffer())
         .pipe(Minifier(Utils.uglifyOptions(false, {
             CC_EDITOR: false,
-            CC_DEV: false,
+            CC_DEV: false,  // CC_DEV should be false after build
             CC_TEST: false,
             CC_JSB: true
         }), UglifyHarmony))
