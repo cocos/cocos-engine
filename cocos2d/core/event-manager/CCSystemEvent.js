@@ -120,6 +120,9 @@ var SystemEvent = cc.Class({
                     event: cc.EventListener.ACCELERATION,
                     callback: function (acc, event) {
                         event.type = EventType.DEVICEMOTION;
+                        if (CC_JSB) {
+                            event.acc = acc;
+                        }
                         cc.systemEvent.dispatchEvent(event);
                     }
                 });
