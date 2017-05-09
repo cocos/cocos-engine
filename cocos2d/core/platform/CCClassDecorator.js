@@ -85,7 +85,7 @@ var checkCompArgument = _checkNormalArgument.bind(null, CC_DEV && function (arg,
     }
 });
 
-function _checkArgumentFunctor (type) {
+function _argumentChecker (type) {
     return _checkNormalArgument.bind(null, CC_DEV && function (arg, decoratorName) {
         if (arg instanceof cc.Component || arg === undefined) {
             cc.error('The parameter for %s is missing.', decoratorName);
@@ -97,9 +97,9 @@ function _checkArgumentFunctor (type) {
         }
     });
 }
-var checkStringArgument = _checkArgumentFunctor('string');
-var checkNumberArgument = _checkArgumentFunctor('number');
-// var checkBooleanArgument = _checkArgumentFunctor('boolean');
+var checkStringArgument = _argumentChecker('string');
+var checkNumberArgument = _argumentChecker('number');
+// var checkBooleanArgument = _argumentChecker('boolean');
 
 
 function getClassProto (ctor, decoratorName) {

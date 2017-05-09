@@ -89,7 +89,7 @@ cc.textureCache.removeTextureForKey = function (key) {
 // cc.Texture2D
 
 cc.Class._fastDefine('cc.Texture2D', cc.Texture2D, []);
-cc.js.value(cc.Texture2D, '$super', cc.RawAsset);   // not inheritable in JSB && TypeScript
+cc.js.value(cc.Texture2D, '$super', cc.RawAsset);   // not inheritable in JSB and TypeScript
 
 cc.Texture2D.WrapMode = cc.Enum({
     REPEAT: 0x2901,
@@ -111,7 +111,7 @@ cc.js.get(prototype, 'pixelHeight', prototype.getPixelHeight);
 // cc.SpriteFrame
 
 cc.Class._fastDefine('cc.SpriteFrame', cc.SpriteFrame, []);
-cc.js.value(cc.SpriteFrame, '$super', cc.Asset);    // not inheritable in JSB && TypeScript
+cc.js.value(cc.SpriteFrame, '$super', cc.Asset);    // not inheritable in JSB and TypeScript
 
 prototype = cc.SpriteFrame.prototype;
 
