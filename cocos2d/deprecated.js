@@ -628,7 +628,6 @@ if (CC_DEV) {
     }
 
     markAsRemoved(cc.Scale9Sprite, [
-        'init',
         'resizableSpriteWithCapInsets',
         'updateWithSprite',
         'getOriginalSize',
