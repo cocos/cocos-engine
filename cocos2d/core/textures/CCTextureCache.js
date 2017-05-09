@@ -29,6 +29,7 @@ var Texture2D = require('./CCTexture2D');
 /**
  * cc.textureCache is a singleton object, it's the global cache for cc.Texture2D
  * @class textureCache
+ * @static
  */
 var textureCache = /** @lends cc.textureCache# */{
     _textures: {},

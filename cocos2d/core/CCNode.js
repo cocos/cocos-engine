@@ -2635,24 +2635,6 @@ if (CC_JSB) {
  * node.setCascadeOpacityEnabled(true);
  */
 
-/*
- * !#en Returns whether node's color value affect its child nodes.
- * !#zh 返回节点的颜色值是否影响其子节点。
- * @method isCascadeColorEnabled
- * @returns {Boolean}
- * @example
- * cc.log(node.isCascadeColorEnabled());
- */
-
-/**
- * !#en Enable or disable cascade color, if cascade enabled, child nodes' opacity will be the cascade value of parent color and its own color.
- * !#zh 启用或禁用级连颜色，如果级连启用，子节点的颜色将是父颜色和它自己的颜色的级连值。
- * @method setCascadeColorEnabled
- * @param {Boolean} cascadeColorEnabled
- * @example
- * node.setCascadeColorEnabled(true);
- */
-
 var SameNameGetSets = ['parent', 'tag', 'skewX', 'skewY', 'position', 'rotation', 'rotationX', 'rotationY',
     'scale', 'scaleX', 'scaleY', 'opacity', 'color',];
 
