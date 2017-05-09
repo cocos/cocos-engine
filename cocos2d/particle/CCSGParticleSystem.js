@@ -2228,20 +2228,3 @@ _ccsg.ParticleSystem.Type = cc.Enum({
      */
     GROUPED: 2
 });
-
-// fireball#2856
-
-var particleSystemPro = _ccsg.ParticleSystem.prototype;
-Object.defineProperty(particleSystemPro, 'visible', {
-    get: _ccsg.Node.prototype.isVisible,
-    set: particleSystemPro.setVisible
-});
-
-Object.defineProperty(particleSystemPro, 'ignoreAnchor', {
-    get: _ccsg.Node.prototype.isIgnoreAnchorPointForPosition,
-    set: particleSystemPro.ignoreAnchorPointForPosition
-});
-
-Object.defineProperty(particleSystemPro, 'opacityModifyRGB', {
-    get: particleSystemPro.isOpacityModifyRGB
-});
