@@ -44,12 +44,14 @@ namespace ui {
 
     bool EditBoxImplWin::s_isInitialized = false;
     int EditBoxImplWin::s_editboxChildID = 100;
+    HWND EditBoxImplWin::s_previousFocusWnd = 0;
     void EditBoxImplWin::lazyInit()
     {
         HWND hwnd = cocos2d::Director::getInstance()->getOpenGLView()->getWin32Window();
         LONG style = GetWindowLong(hwnd, GWL_STYLE);
         SetWindowLong(hwnd, GWL_STYLE, style | WS_CLIPCHILDREN);
         s_isInitialized = true;
+        s_previousFocusWnd = hwnd;
     }
 
     EditBoxImpl* __createSystemEditBox(EditBox* pEditBox)
@@ -91,7 +93,7 @@ namespace ui {
         hwndEdit = CreateWindowEx(
             WS_EX_CLIENTEDGE, L"EDIT",   // predefined class 
             NULL,         // no window title 
-            WS_CHILD | ES_LEFT | WS_BORDER | WS_EX_TRANSPARENT,
+            WS_CHILD | ES_LEFT | WS_BORDER | WS_EX_TRANSPARENT | WS_TABSTOP,
             frame.origin.x,
             frame.origin.y,
             frame.size.width,
@@ -197,11 +199,17 @@ namespace ui {
     }
     void EditBoxImplWin::nativeOpenKeyboard()
     {
+        if (s_previousFocusWnd != hwndCocos) {
+            ::ShowWindow(s_previousFocusWnd, SW_HIDE);
+        }
 
+        ::PostMessage(hwndEdit, WM_SETFOCUS, (WPARAM)s_previousFocusWnd, 0);
+        s_previousFocusWnd = hwndEdit;
+       
     }
     void EditBoxImplWin::nativeCloseKeyboard()
     {
-
+       // ::PostMessage(hwndEdit, WM_KILLFOCUS, 0, 0);
     }
     void EditBoxImplWin::setNativeMaxLength(int maxLength)
     {
@@ -226,10 +234,19 @@ namespace ui {
                 CCLOG("return key pressed");
             }
             break;
+        case WM_SETFOCUS:
+            ::PostMessage(hwnd, WM_ACTIVATE, (WPARAM)s_previousFocusWnd, 0);
+            ::PostMessage(hwnd, WM_SETCURSOR, (WPARAM)s_previousFocusWnd, 0);
+            s_previousFocusWnd = hwndEdit;
+            break;
+        case WM_KILLFOCUS:          
+            break;
         case WM_KEYUP:
         {
+
                 std::u16string wstrResult;
                 std::string utf8Result;
+              
 
                 int inputLength = ::GetWindowTextLengthW(this->hwndEdit);
                 wstrResult.resize(inputLength);

@@ -73,6 +73,7 @@ private:
     HWND hwndCocos;
     HINSTANCE hInstance;
 
+    static HWND s_previousFocusWnd;
     static bool s_isInitialized;
     static int s_editboxChildID;
     static void lazyInit();
