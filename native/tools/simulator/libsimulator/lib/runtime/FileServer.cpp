@@ -34,6 +34,10 @@ THE SOFTWARE.
 #include <sys/stat.h>
 #endif
 
+#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#define bzero(a, b) memset(a, 0, b);
+#endif
+
 USING_NS_CC;
 
 //1M size
