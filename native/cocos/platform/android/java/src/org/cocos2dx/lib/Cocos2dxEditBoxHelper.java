@@ -51,6 +51,7 @@ public class Cocos2dxEditBoxHelper {
 
     private static SparseArray<Cocos2dxEditBox> mEditBoxArray;
     private static int mViewTag = 0;
+    private static float mPadding = 5.0f;
 
     //Call native methods
     private static native void editBoxEditingDidBegin(int index);
@@ -80,14 +81,9 @@ public class Cocos2dxEditBoxHelper {
         Cocos2dxEditBoxHelper.mEditBoxArray = new SparseArray<Cocos2dxEditBox>();
     }
 
-    public static int convertToSP(float point){
+    public static int getPadding(float scaleX) {
         Resources r = mCocos2dxActivity.getResources();
-
-        int convertedValue = (int)TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_SP, point, r.getDisplayMetrics());
-
-        return  convertedValue;
-
+        return (int) (mPadding * scaleX);
     }
 
     public static int createEditBox(final int left, final int top, final int width, final int height, final float scaleX) {
@@ -102,21 +98,13 @@ public class Cocos2dxEditBoxHelper {
                 editBox.setInputMode(6); //kEditBoxInputModeSingleLine
                 editBox.setReturnType(0);  //kKeyboardReturnTypeDefault
                 editBox.setHintTextColor(Color.GRAY);
-                editBox.setVisibility(View.INVISIBLE);
+                editBox.setVisibility(View.GONE);
                 editBox.setBackgroundColor(Color.TRANSPARENT);
                 editBox.setTextColor(Color.WHITE);
                 editBox.setSingleLine();
                 editBox.setOpenGLViewScaleX(scaleX);
-                Resources r = mCocos2dxActivity.getResources();
-                float density =  r.getDisplayMetrics().density;
-                int paddingBottom = (int)(height * 0.33f / density);
-                paddingBottom = convertToSP(paddingBottom  - 5 * scaleX / density);
-                paddingBottom = paddingBottom / 2;
-                int paddingTop = paddingBottom;
-                int paddingLeft = (int)(5 * scaleX / density);
-                paddingLeft = convertToSP(paddingLeft);
 
-                editBox.setPadding(paddingLeft,paddingTop, 0, paddingBottom);
+                editBox.setPadding(getPadding(scaleX),0, 0, 0);
 
                 FrameLayout.LayoutParams lParams = new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -276,12 +264,8 @@ public class Cocos2dxEditBoxHelper {
                     }else{
                         tf = Typeface.DEFAULT;
                     }
-                    // TODO: The font size is not the same across all the android devices...
                     if (fontSize >= 0){
-                        float density =  mCocos2dxActivity.getResources().getDisplayMetrics().density;
-//                        Log.e("XXX", "density is " + density);
-                        editBox.setTextSize(TypedValue.COMPLEX_UNIT_SP,
-                                fontSize / density );
+                        editBox.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
                     }
                     editBox.setTypeface(tf);
                 }
