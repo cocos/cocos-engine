@@ -196,7 +196,7 @@ var BaseNode = cc.Class({
 
         /**
          * !#en The uuid for editor, will be stripped before building project.
-         * !#zh 用于编辑器使用的 uuid，在构建项目之前将会被剔除。
+         * !#zh 主要用于编辑器的 uuid，在编辑器下可用于持久化存储，在项目构建之后将变成自增的 id。
          * @property uuid
          * @type {String}
          * @readOnly
