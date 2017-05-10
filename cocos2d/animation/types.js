@@ -125,6 +125,14 @@ AnimationNodeBase.prototype.update = function (deltaTime) {};
 function AnimationNode (animator, curves, timingInput) {
     AnimationNodeBase.call(this);
 
+    this._firstFramePlayed = false;
+
+    this._delay = 0;
+    this._delayTime = 0;
+
+    this._wrappedInfo = new WrappedInfo();
+    this._lastWrappedInfo = null;
+
     this.animator = animator;
 
     /**
@@ -240,20 +248,6 @@ function AnimationNode (animator, curves, timingInput) {
      * @default 0
      */
     this.time = 0;
-
-    this._timeNoScale = 0;
-    this._firstFramePlayed = false;
-
-    this._duringDelay = false;
-
-    // play
-
-    if (this.delay > 0) {
-        this._duringDelay = true;
-    }
-
-    this._wrappedInfo = new WrappedInfo();
-    this._lastWrappedInfo = null;
 }
 JS.extend(AnimationNode, AnimationNodeBase);
 
@@ -263,17 +257,12 @@ proto.update = function (delta) {
 
     // calculate delay time
 
-    if (this._duringDelay) {
-        this._timeNoScale += delta;
-        if (this._timeNoScale < this.delay) {
+    if (this._delayTime > 0) {
+        this._delayTime -= delta;
+        if (this._delayTime > 0) {
             // still waiting
             return;
         }
-        else {
-            this._duringDelay = false;
-        }
-        //// start play
-        // delta -= (this._timeNoScale - this.delay);
     }
 
     // make first frame perfect
@@ -405,6 +394,7 @@ proto.onStop = function () {
 };
 
 proto.onPlay = function () {
+    this._delayTime = this._delay
     this.emit('play', this);
 };
 
@@ -434,6 +424,15 @@ JS.getset(proto, 'wrapMode',
         else {
             this.repeatCount = 1;
         }
+    }
+);
+
+JS.getset(proto, 'delay', 
+    function () {
+        return this._delay;
+    },
+    function (value) {
+        this._delayTime = this._delay = value;
     }
 );
 

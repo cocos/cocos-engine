@@ -1411,3 +1411,43 @@ test('animation callback', function () {
     strictEqual(entity.x, 70, 'entity.x should be 70');
 });
 
+test('animation delay', function () {
+    var entity = new cc.Node();
+
+    var animation = entity.addComponent(cc.Animation);
+
+    clip = new cc.AnimationClip();
+    clip._name = 'test';
+    clip._duration = 1;
+    clip.curveData = {
+        props: {
+            x: [
+                {frame: 0, value: 0},
+                {frame: 1, value: 100}
+            ]
+        }
+    };
+
+    animation.addClip(clip);
+
+    var state = animation.play('test');
+
+    state.delay = 5;
+
+    strictEqual(state._delayTime, 5, 'delay time should be 5');
+    
+    state.update(3);
+    strictEqual(state._delayTime, 2, 'delay time should be 2');
+    strictEqual(entity.x, 0, 'entity should not changed during delay');
+
+    state.update(2);
+    strictEqual(state._delayTime === 0, true, 'delay time should be 0');
+
+    state.update(1);
+    strictEqual(entity.x, 100, 'entity should move to end');
+    strictEqual(state.isPlaying, false, 'animation should end.');
+
+    state = animation.play('test');
+
+    strictEqual(state._delayTime, 5, 'delay time should reset when replay');
+});
