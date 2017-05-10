@@ -10,7 +10,7 @@
 using namespace cocos2d;
 
 
-static bool jsb_cocos2dx_experimental_ui_VideoPlayer_addEventListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_cocos2dx_experimental_ui_VideoPlayer_addEventListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -23,7 +23,7 @@ static bool jsb_cocos2dx_experimental_ui_VideoPlayer_addEventListener(JSContext 
         cobj->addEventListener([=](Ref* widget, experimental::ui::VideoPlayer::EventType type)->void{
             jsval arg[2];
             JS::RootedObject jsobj(cx, js_get_or_create_jsobject<Ref>(cx, widget));
-            arg[0] = OBJECT_TO_JSVAL(jsobj);
+            arg[0] = JS::ObjectOrNullValue(jsobj);
             arg[1] = int32_to_jsval(cx, (int32_t)type);
             JS::RootedValue rval(cx);
 
@@ -35,7 +35,7 @@ static bool jsb_cocos2dx_experimental_ui_VideoPlayer_addEventListener(JSContext 
         return true;
     }
 
-    JS_ReportError(cx, "jsb_cocos2dx_experimental_ui_VideoPlayer_addEventListener : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "jsb_cocos2dx_experimental_ui_VideoPlayer_addEventListener : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 

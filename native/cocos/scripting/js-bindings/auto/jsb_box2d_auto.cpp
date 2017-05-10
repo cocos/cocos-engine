@@ -6,7 +6,7 @@
 template<class T>
 static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
-    JS_ReportError(cx, "Constructor for the requested class is not available, please refer to the API reference.");
+    JS_ReportErrorUTF8(cx, "Constructor for the requested class is not available, please refer to the API reference.");
     return false;
 }
 
@@ -33,14 +33,14 @@ bool js_box2dclasses_b2Draw_AppendFlags(JSContext *cx, uint32_t argc, JS::Value 
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Draw_AppendFlags : Invalid Native Object");
     if (argc == 1) {
         unsigned int arg0 = 0;
-        ok &= jsval_to_uint32(cx, args.get(0), &arg0);
+        arg0 = (uint32_t)(args.get(0).toInt32());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Draw_AppendFlags : Error processing arguments");
         cobj->AppendFlags(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Draw_AppendFlags : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Draw_AppendFlags : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Draw_DrawTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -61,7 +61,7 @@ bool js_box2dclasses_b2Draw_DrawTransform(JSContext *cx, uint32_t argc, JS::Valu
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Draw_DrawTransform : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Draw_DrawTransform : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Draw_ClearFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -74,14 +74,14 @@ bool js_box2dclasses_b2Draw_ClearFlags(JSContext *cx, uint32_t argc, JS::Value *
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Draw_ClearFlags : Invalid Native Object");
     if (argc == 1) {
         unsigned int arg0 = 0;
-        ok &= jsval_to_uint32(cx, args.get(0), &arg0);
+        arg0 = (uint32_t)(args.get(0).toInt32());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Draw_ClearFlags : Error processing arguments");
         cobj->ClearFlags(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Draw_ClearFlags : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Draw_ClearFlags : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Draw_DrawPolygon(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -107,7 +107,7 @@ bool js_box2dclasses_b2Draw_DrawPolygon(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Draw_DrawPolygon : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Draw_DrawPolygon : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2Draw_ClearDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -123,7 +123,7 @@ bool js_box2dclasses_b2Draw_ClearDraw(JSContext *cx, uint32_t argc, JS::Value *v
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Draw_ClearDraw : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Draw_ClearDraw : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Draw_DrawSolidPolygon(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -149,7 +149,7 @@ bool js_box2dclasses_b2Draw_DrawSolidPolygon(JSContext *cx, uint32_t argc, JS::V
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Draw_DrawSolidPolygon : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Draw_DrawSolidPolygon : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2Draw_DrawCircle(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -165,7 +165,7 @@ bool js_box2dclasses_b2Draw_DrawCircle(JSContext *cx, uint32_t argc, JS::Value *
         double arg1 = 0;
         b2Color arg2;
         ok &= jsval_to_b2Vec2(cx, args.get(0), &arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        arg1 = (float)(args.get(1).toNumber());
         #pragma warning NO CONVERSION TO NATIVE FOR b2Color
 		ok = false;
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Draw_DrawCircle : Error processing arguments");
@@ -174,7 +174,7 @@ bool js_box2dclasses_b2Draw_DrawCircle(JSContext *cx, uint32_t argc, JS::Value *
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Draw_DrawCircle : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Draw_DrawCircle : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2Draw_SetFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -187,14 +187,14 @@ bool js_box2dclasses_b2Draw_SetFlags(JSContext *cx, uint32_t argc, JS::Value *vp
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Draw_SetFlags : Invalid Native Object");
     if (argc == 1) {
         unsigned int arg0 = 0;
-        ok &= jsval_to_uint32(cx, args.get(0), &arg0);
+        arg0 = (uint32_t)(args.get(0).toInt32());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Draw_SetFlags : Error processing arguments");
         cobj->SetFlags(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Draw_SetFlags : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Draw_SetFlags : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Draw_DrawSegment(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -219,7 +219,7 @@ bool js_box2dclasses_b2Draw_DrawSegment(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Draw_DrawSegment : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Draw_DrawSegment : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2Draw_DrawSolidCircle(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -236,7 +236,7 @@ bool js_box2dclasses_b2Draw_DrawSolidCircle(JSContext *cx, uint32_t argc, JS::Va
         b2Vec2 arg2;
         b2Color arg3;
         ok &= jsval_to_b2Vec2(cx, args.get(0), &arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        arg1 = (float)(args.get(1).toNumber());
         ok &= jsval_to_b2Vec2(cx, args.get(2), &arg2);
         #pragma warning NO CONVERSION TO NATIVE FOR b2Color
 		ok = false;
@@ -246,7 +246,7 @@ bool js_box2dclasses_b2Draw_DrawSolidCircle(JSContext *cx, uint32_t argc, JS::Va
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Draw_DrawSolidCircle : wrong number of arguments: %d, was expecting %d", argc, 4);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Draw_DrawSolidCircle : wrong number of arguments: %d, was expecting %d", argc, 4);
     return false;
 }
 bool js_box2dclasses_b2Draw_GetFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -259,26 +259,29 @@ bool js_box2dclasses_b2Draw_GetFlags(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         unsigned int ret = cobj->GetFlags();
         JS::RootedValue jsret(cx);
-        jsret = uint32_to_jsval(cx, ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Draw_GetFlags : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Draw_GetFlags : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 void js_register_box2dclasses_b2Draw(JSContext *cx, JS::HandleObject global) {
-    jsb_b2Draw_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2Draw_class->name = "Draw";
-    jsb_b2Draw_class->addProperty = JS_PropertyStub;
-    jsb_b2Draw_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2Draw_class->getProperty = JS_PropertyStub;
-    jsb_b2Draw_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2Draw_class->enumerate = JS_EnumerateStub;
-    jsb_b2Draw_class->resolve = JS_ResolveStub;
-    jsb_b2Draw_class->convert = JS_ConvertStub;
-    jsb_b2Draw_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2Draw_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2Draw_class = {
+        "Draw",
+        JSCLASS_HAS_PRIVATE,
+        &b2Draw_classOps
+    };
+    jsb_b2Draw_class = &b2Draw_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -303,12 +306,12 @@ void js_register_box2dclasses_b2Draw(JSContext *cx, JS::HandleObject global) {
 
     jsb_b2Draw_prototype = JS_InitClass(
         cx, global,
-        JS::NullPtr(),
+        nullptr,
         jsb_b2Draw_class,
         empty_constructor, 0,
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2Draw_prototype);
@@ -317,7 +320,7 @@ void js_register_box2dclasses_b2Draw(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2Draw>(cx, jsb_b2Draw_class, proto, JS::NullPtr());
+    jsb_register_class<b2Draw>(cx, jsb_b2Draw_class, proto);
 }
 
 JSClass  *jsb_b2Shape_class;
@@ -336,14 +339,14 @@ bool js_box2dclasses_b2Shape_ComputeMass(JSContext *cx, uint32_t argc, JS::Value
         double arg1 = 0;
         #pragma warning NO CONVERSION TO NATIVE FOR b2MassData*
 		ok = false;
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        arg1 = (float)(args.get(1).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Shape_ComputeMass : Error processing arguments");
         cobj->ComputeMass(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Shape_ComputeMass : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Shape_ComputeMass : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2Shape_Clone(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -377,7 +380,7 @@ bool js_box2dclasses_b2Shape_Clone(JSContext *cx, uint32_t argc, JS::Value *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Shape_Clone : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Shape_Clone : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Shape_GetType(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -390,12 +393,12 @@ bool js_box2dclasses_b2Shape_GetType(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         int ret = (int)cobj->GetType();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Shape_GetType : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Shape_GetType : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Shape_RayCast(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -421,12 +424,12 @@ bool js_box2dclasses_b2Shape_RayCast(JSContext *cx, uint32_t argc, JS::Value *vp
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Shape_RayCast : Error processing arguments");
         bool ret = cobj->RayCast(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Shape_RayCast : wrong number of arguments: %d, was expecting %d", argc, 4);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Shape_RayCast : wrong number of arguments: %d, was expecting %d", argc, 4);
     return false;
 }
 bool js_box2dclasses_b2Shape_ComputeAABB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -452,7 +455,7 @@ bool js_box2dclasses_b2Shape_ComputeAABB(JSContext *cx, uint32_t argc, JS::Value
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Shape_ComputeAABB : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Shape_ComputeAABB : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2Shape_GetChildCount(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -465,12 +468,12 @@ bool js_box2dclasses_b2Shape_GetChildCount(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         int ret = cobj->GetChildCount();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Shape_GetChildCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Shape_GetChildCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Shape_TestPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -490,26 +493,29 @@ bool js_box2dclasses_b2Shape_TestPoint(JSContext *cx, uint32_t argc, JS::Value *
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Shape_TestPoint : Error processing arguments");
         bool ret = cobj->TestPoint(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Shape_TestPoint : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Shape_TestPoint : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 
 void js_register_box2dclasses_b2Shape(JSContext *cx, JS::HandleObject global) {
-    jsb_b2Shape_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2Shape_class->name = "Shape";
-    jsb_b2Shape_class->addProperty = JS_PropertyStub;
-    jsb_b2Shape_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2Shape_class->getProperty = JS_PropertyStub;
-    jsb_b2Shape_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2Shape_class->enumerate = JS_EnumerateStub;
-    jsb_b2Shape_class->resolve = JS_ResolveStub;
-    jsb_b2Shape_class->convert = JS_ConvertStub;
-    jsb_b2Shape_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2Shape_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2Shape_class = {
+        "Shape",
+        JSCLASS_HAS_PRIVATE,
+        &b2Shape_classOps
+    };
+    jsb_b2Shape_class = &b2Shape_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -530,12 +536,12 @@ void js_register_box2dclasses_b2Shape(JSContext *cx, JS::HandleObject global) {
 
     jsb_b2Shape_prototype = JS_InitClass(
         cx, global,
-        JS::NullPtr(),
+        nullptr,
         jsb_b2Shape_class,
         dummy_constructor<b2Shape>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2Shape_prototype);
@@ -544,7 +550,7 @@ void js_register_box2dclasses_b2Shape(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2Shape>(cx, jsb_b2Shape_class, proto, JS::NullPtr());
+    jsb_register_class<b2Shape>(cx, jsb_b2Shape_class, proto);
 }
 
 JSClass  *jsb_b2CircleShape_class;
@@ -563,14 +569,14 @@ bool js_box2dclasses_b2CircleShape_ComputeMass(JSContext *cx, uint32_t argc, JS:
         double arg1 = 0;
         #pragma warning NO CONVERSION TO NATIVE FOR b2MassData*
 		ok = false;
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        arg1 = (float)(args.get(1).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_ComputeMass : Error processing arguments");
         cobj->ComputeMass(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2CircleShape_ComputeMass : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2CircleShape_ComputeMass : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2CircleShape_GetVertex(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -592,7 +598,7 @@ bool js_box2dclasses_b2CircleShape_GetVertex(JSContext *cx, uint32_t argc, JS::V
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2CircleShape_GetVertex : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2CircleShape_GetVertex : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2CircleShape_Clone(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -626,7 +632,7 @@ bool js_box2dclasses_b2CircleShape_Clone(JSContext *cx, uint32_t argc, JS::Value
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2CircleShape_Clone : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2CircleShape_Clone : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2CircleShape_RayCast(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -652,12 +658,12 @@ bool js_box2dclasses_b2CircleShape_RayCast(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_RayCast : Error processing arguments");
         bool ret = cobj->RayCast(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2CircleShape_RayCast : wrong number of arguments: %d, was expecting %d", argc, 4);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2CircleShape_RayCast : wrong number of arguments: %d, was expecting %d", argc, 4);
     return false;
 }
 bool js_box2dclasses_b2CircleShape_ComputeAABB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -683,7 +689,7 @@ bool js_box2dclasses_b2CircleShape_ComputeAABB(JSContext *cx, uint32_t argc, JS:
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2CircleShape_ComputeAABB : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2CircleShape_ComputeAABB : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2CircleShape_GetVertexCount(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -696,12 +702,12 @@ bool js_box2dclasses_b2CircleShape_GetVertexCount(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         int ret = cobj->GetVertexCount();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2CircleShape_GetVertexCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2CircleShape_GetVertexCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2CircleShape_GetChildCount(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -714,12 +720,12 @@ bool js_box2dclasses_b2CircleShape_GetChildCount(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         int ret = cobj->GetChildCount();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2CircleShape_GetChildCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2CircleShape_GetChildCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2CircleShape_TestPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -739,12 +745,12 @@ bool js_box2dclasses_b2CircleShape_TestPoint(JSContext *cx, uint32_t argc, JS::V
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_TestPoint : Error processing arguments");
         bool ret = cobj->TestPoint(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2CircleShape_TestPoint : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2CircleShape_TestPoint : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2CircleShape_GetSupportVertex(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -766,7 +772,7 @@ bool js_box2dclasses_b2CircleShape_GetSupportVertex(JSContext *cx, uint32_t argc
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2CircleShape_GetSupportVertex : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2CircleShape_GetSupportVertex : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2CircleShape_GetSupport(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -783,12 +789,12 @@ bool js_box2dclasses_b2CircleShape_GetSupport(JSContext *cx, uint32_t argc, JS::
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_GetSupport : Error processing arguments");
         int ret = cobj->GetSupport(arg0);
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2CircleShape_GetSupport : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2CircleShape_GetSupport : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2CircleShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -838,17 +844,19 @@ void js_b2CircleShape_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_box2dclasses_b2CircleShape(JSContext *cx, JS::HandleObject global) {
-    jsb_b2CircleShape_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2CircleShape_class->name = "CircleShape";
-    jsb_b2CircleShape_class->addProperty = JS_PropertyStub;
-    jsb_b2CircleShape_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2CircleShape_class->getProperty = JS_PropertyStub;
-    jsb_b2CircleShape_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2CircleShape_class->enumerate = JS_EnumerateStub;
-    jsb_b2CircleShape_class->resolve = JS_ResolveStub;
-    jsb_b2CircleShape_class->convert = JS_ConvertStub;
-    jsb_b2CircleShape_class->finalize = js_b2CircleShape_finalize;
-    jsb_b2CircleShape_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2CircleShape_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        js_b2CircleShape_finalize,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2CircleShape_class = {
+        "CircleShape",
+        JSCLASS_HAS_PRIVATE,
+        &b2CircleShape_classOps
+    };
+    jsb_b2CircleShape_class = &b2CircleShape_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -878,7 +886,7 @@ void js_register_box2dclasses_b2CircleShape(JSContext *cx, JS::HandleObject glob
         js_box2dclasses_b2CircleShape_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2CircleShape_prototype);
@@ -887,7 +895,7 @@ void js_register_box2dclasses_b2CircleShape(JSContext *cx, JS::HandleObject glob
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2CircleShape>(cx, jsb_b2CircleShape_class, proto, parent_proto);
+    jsb_register_class<b2CircleShape>(cx, jsb_b2CircleShape_class, proto);
 }
 
 JSClass  *jsb_b2EdgeShape_class;
@@ -912,7 +920,7 @@ bool js_box2dclasses_b2EdgeShape_Set(JSContext *cx, uint32_t argc, JS::Value *vp
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2EdgeShape_Set : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2EdgeShape_Set : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2EdgeShape_ComputeMass(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -928,14 +936,14 @@ bool js_box2dclasses_b2EdgeShape_ComputeMass(JSContext *cx, uint32_t argc, JS::V
         double arg1 = 0;
         #pragma warning NO CONVERSION TO NATIVE FOR b2MassData*
 		ok = false;
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        arg1 = (float)(args.get(1).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2EdgeShape_ComputeMass : Error processing arguments");
         cobj->ComputeMass(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2EdgeShape_ComputeMass : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2EdgeShape_ComputeMass : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2EdgeShape_Clone(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -969,7 +977,7 @@ bool js_box2dclasses_b2EdgeShape_Clone(JSContext *cx, uint32_t argc, JS::Value *
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2EdgeShape_Clone : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2EdgeShape_Clone : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2EdgeShape_RayCast(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -995,12 +1003,12 @@ bool js_box2dclasses_b2EdgeShape_RayCast(JSContext *cx, uint32_t argc, JS::Value
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2EdgeShape_RayCast : Error processing arguments");
         bool ret = cobj->RayCast(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2EdgeShape_RayCast : wrong number of arguments: %d, was expecting %d", argc, 4);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2EdgeShape_RayCast : wrong number of arguments: %d, was expecting %d", argc, 4);
     return false;
 }
 bool js_box2dclasses_b2EdgeShape_ComputeAABB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1026,7 +1034,7 @@ bool js_box2dclasses_b2EdgeShape_ComputeAABB(JSContext *cx, uint32_t argc, JS::V
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2EdgeShape_ComputeAABB : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2EdgeShape_ComputeAABB : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2EdgeShape_GetChildCount(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1039,12 +1047,12 @@ bool js_box2dclasses_b2EdgeShape_GetChildCount(JSContext *cx, uint32_t argc, JS:
     if (argc == 0) {
         int ret = cobj->GetChildCount();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2EdgeShape_GetChildCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2EdgeShape_GetChildCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2EdgeShape_TestPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1064,12 +1072,12 @@ bool js_box2dclasses_b2EdgeShape_TestPoint(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2EdgeShape_TestPoint : Error processing arguments");
         bool ret = cobj->TestPoint(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2EdgeShape_TestPoint : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2EdgeShape_TestPoint : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2EdgeShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1119,17 +1127,19 @@ void js_b2EdgeShape_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_box2dclasses_b2EdgeShape(JSContext *cx, JS::HandleObject global) {
-    jsb_b2EdgeShape_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2EdgeShape_class->name = "EdgeShape";
-    jsb_b2EdgeShape_class->addProperty = JS_PropertyStub;
-    jsb_b2EdgeShape_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2EdgeShape_class->getProperty = JS_PropertyStub;
-    jsb_b2EdgeShape_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2EdgeShape_class->enumerate = JS_EnumerateStub;
-    jsb_b2EdgeShape_class->resolve = JS_ResolveStub;
-    jsb_b2EdgeShape_class->convert = JS_ConvertStub;
-    jsb_b2EdgeShape_class->finalize = js_b2EdgeShape_finalize;
-    jsb_b2EdgeShape_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2EdgeShape_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        js_b2EdgeShape_finalize,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2EdgeShape_class = {
+        "EdgeShape",
+        JSCLASS_HAS_PRIVATE,
+        &b2EdgeShape_classOps
+    };
+    jsb_b2EdgeShape_class = &b2EdgeShape_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -1156,7 +1166,7 @@ void js_register_box2dclasses_b2EdgeShape(JSContext *cx, JS::HandleObject global
         js_box2dclasses_b2EdgeShape_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2EdgeShape_prototype);
@@ -1165,7 +1175,7 @@ void js_register_box2dclasses_b2EdgeShape(JSContext *cx, JS::HandleObject global
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2EdgeShape>(cx, jsb_b2EdgeShape_class, proto, parent_proto);
+    jsb_register_class<b2EdgeShape>(cx, jsb_b2EdgeShape_class, proto);
 }
 
 JSClass  *jsb_b2ChainShape_class;
@@ -1184,14 +1194,14 @@ bool js_box2dclasses_b2ChainShape_ComputeMass(JSContext *cx, uint32_t argc, JS::
         double arg1 = 0;
         #pragma warning NO CONVERSION TO NATIVE FOR b2MassData*
 		ok = false;
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        arg1 = (float)(args.get(1).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2ChainShape_ComputeMass : Error processing arguments");
         cobj->ComputeMass(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2ChainShape_ComputeMass : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ChainShape_ComputeMass : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2ChainShape_Clear(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1207,7 +1217,7 @@ bool js_box2dclasses_b2ChainShape_Clear(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2ChainShape_Clear : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ChainShape_Clear : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2ChainShape_TestPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1227,12 +1237,12 @@ bool js_box2dclasses_b2ChainShape_TestPoint(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2ChainShape_TestPoint : Error processing arguments");
         bool ret = cobj->TestPoint(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2ChainShape_TestPoint : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ChainShape_TestPoint : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2ChainShape_GetChildEdge(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1262,7 +1272,7 @@ bool js_box2dclasses_b2ChainShape_GetChildEdge(JSContext *cx, uint32_t argc, JS:
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2ChainShape_GetChildEdge : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ChainShape_GetChildEdge : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2ChainShape_RayCast(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1288,12 +1298,12 @@ bool js_box2dclasses_b2ChainShape_RayCast(JSContext *cx, uint32_t argc, JS::Valu
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2ChainShape_RayCast : Error processing arguments");
         bool ret = cobj->RayCast(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2ChainShape_RayCast : wrong number of arguments: %d, was expecting %d", argc, 4);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ChainShape_RayCast : wrong number of arguments: %d, was expecting %d", argc, 4);
     return false;
 }
 bool js_box2dclasses_b2ChainShape_ComputeAABB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1319,7 +1329,7 @@ bool js_box2dclasses_b2ChainShape_ComputeAABB(JSContext *cx, uint32_t argc, JS::
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2ChainShape_ComputeAABB : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ChainShape_ComputeAABB : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2ChainShape_GetChildCount(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1332,12 +1342,12 @@ bool js_box2dclasses_b2ChainShape_GetChildCount(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         int ret = cobj->GetChildCount();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2ChainShape_GetChildCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ChainShape_GetChildCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2ChainShape_SetPrevVertex(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1357,7 +1367,7 @@ bool js_box2dclasses_b2ChainShape_SetPrevVertex(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2ChainShape_SetPrevVertex : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ChainShape_SetPrevVertex : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2ChainShape_SetNextVertex(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1377,7 +1387,7 @@ bool js_box2dclasses_b2ChainShape_SetNextVertex(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2ChainShape_SetNextVertex : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ChainShape_SetNextVertex : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2ChainShape_Clone(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1411,7 +1421,7 @@ bool js_box2dclasses_b2ChainShape_Clone(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2ChainShape_Clone : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ChainShape_Clone : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2ChainShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1461,17 +1471,19 @@ void js_b2ChainShape_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_box2dclasses_b2ChainShape(JSContext *cx, JS::HandleObject global) {
-    jsb_b2ChainShape_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2ChainShape_class->name = "ChainShape";
-    jsb_b2ChainShape_class->addProperty = JS_PropertyStub;
-    jsb_b2ChainShape_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2ChainShape_class->getProperty = JS_PropertyStub;
-    jsb_b2ChainShape_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2ChainShape_class->enumerate = JS_EnumerateStub;
-    jsb_b2ChainShape_class->resolve = JS_ResolveStub;
-    jsb_b2ChainShape_class->convert = JS_ConvertStub;
-    jsb_b2ChainShape_class->finalize = js_b2ChainShape_finalize;
-    jsb_b2ChainShape_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2ChainShape_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        js_b2ChainShape_finalize,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2ChainShape_class = {
+        "ChainShape",
+        JSCLASS_HAS_PRIVATE,
+        &b2ChainShape_classOps
+    };
+    jsb_b2ChainShape_class = &b2ChainShape_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -1501,7 +1513,7 @@ void js_register_box2dclasses_b2ChainShape(JSContext *cx, JS::HandleObject globa
         js_box2dclasses_b2ChainShape_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2ChainShape_prototype);
@@ -1510,7 +1522,7 @@ void js_register_box2dclasses_b2ChainShape(JSContext *cx, JS::HandleObject globa
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2ChainShape>(cx, jsb_b2ChainShape_class, proto, parent_proto);
+    jsb_register_class<b2ChainShape>(cx, jsb_b2ChainShape_class, proto);
 }
 
 JSClass  *jsb_b2PolygonShape_class;
@@ -1529,14 +1541,14 @@ bool js_box2dclasses_b2PolygonShape_ComputeMass(JSContext *cx, uint32_t argc, JS
         double arg1 = 0;
         #pragma warning NO CONVERSION TO NATIVE FOR b2MassData*
 		ok = false;
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        arg1 = (float)(args.get(1).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PolygonShape_ComputeMass : Error processing arguments");
         cobj->ComputeMass(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PolygonShape_ComputeMass : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PolygonShape_ComputeMass : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2PolygonShape_GetVertex(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1558,7 +1570,7 @@ bool js_box2dclasses_b2PolygonShape_GetVertex(JSContext *cx, uint32_t argc, JS::
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PolygonShape_GetVertex : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PolygonShape_GetVertex : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2PolygonShape_Clone(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1592,7 +1604,7 @@ bool js_box2dclasses_b2PolygonShape_Clone(JSContext *cx, uint32_t argc, JS::Valu
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PolygonShape_Clone : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PolygonShape_Clone : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2PolygonShape_RayCast(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1618,12 +1630,12 @@ bool js_box2dclasses_b2PolygonShape_RayCast(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PolygonShape_RayCast : Error processing arguments");
         bool ret = cobj->RayCast(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PolygonShape_RayCast : wrong number of arguments: %d, was expecting %d", argc, 4);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PolygonShape_RayCast : wrong number of arguments: %d, was expecting %d", argc, 4);
     return false;
 }
 bool js_box2dclasses_b2PolygonShape_ComputeAABB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1649,7 +1661,7 @@ bool js_box2dclasses_b2PolygonShape_ComputeAABB(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PolygonShape_ComputeAABB : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PolygonShape_ComputeAABB : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2PolygonShape_GetVertexCount(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1662,12 +1674,12 @@ bool js_box2dclasses_b2PolygonShape_GetVertexCount(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         int ret = cobj->GetVertexCount();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PolygonShape_GetVertexCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PolygonShape_GetVertexCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PolygonShape_GetChildCount(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1680,12 +1692,12 @@ bool js_box2dclasses_b2PolygonShape_GetChildCount(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         int ret = cobj->GetChildCount();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PolygonShape_GetChildCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PolygonShape_GetChildCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PolygonShape_TestPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1705,12 +1717,12 @@ bool js_box2dclasses_b2PolygonShape_TestPoint(JSContext *cx, uint32_t argc, JS::
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PolygonShape_TestPoint : Error processing arguments");
         bool ret = cobj->TestPoint(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PolygonShape_TestPoint : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PolygonShape_TestPoint : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2PolygonShape_Validate(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1723,12 +1735,12 @@ bool js_box2dclasses_b2PolygonShape_Validate(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         bool ret = cobj->Validate();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PolygonShape_Validate : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PolygonShape_Validate : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PolygonShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1778,17 +1790,19 @@ void js_b2PolygonShape_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_box2dclasses_b2PolygonShape(JSContext *cx, JS::HandleObject global) {
-    jsb_b2PolygonShape_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2PolygonShape_class->name = "PolygonShape";
-    jsb_b2PolygonShape_class->addProperty = JS_PropertyStub;
-    jsb_b2PolygonShape_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2PolygonShape_class->getProperty = JS_PropertyStub;
-    jsb_b2PolygonShape_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2PolygonShape_class->enumerate = JS_EnumerateStub;
-    jsb_b2PolygonShape_class->resolve = JS_ResolveStub;
-    jsb_b2PolygonShape_class->convert = JS_ConvertStub;
-    jsb_b2PolygonShape_class->finalize = js_b2PolygonShape_finalize;
-    jsb_b2PolygonShape_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2PolygonShape_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        js_b2PolygonShape_finalize,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2PolygonShape_class = {
+        "PolygonShape",
+        JSCLASS_HAS_PRIVATE,
+        &b2PolygonShape_classOps
+    };
+    jsb_b2PolygonShape_class = &b2PolygonShape_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -1817,7 +1831,7 @@ void js_register_box2dclasses_b2PolygonShape(JSContext *cx, JS::HandleObject glo
         js_box2dclasses_b2PolygonShape_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2PolygonShape_prototype);
@@ -1826,7 +1840,7 @@ void js_register_box2dclasses_b2PolygonShape(JSContext *cx, JS::HandleObject glo
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2PolygonShape>(cx, jsb_b2PolygonShape_class, proto, parent_proto);
+    jsb_register_class<b2PolygonShape>(cx, jsb_b2PolygonShape_class, proto);
 }
 
 JSClass  *jsb_b2Body_class;
@@ -1842,12 +1856,12 @@ bool js_box2dclasses_b2Body_GetAngle(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         double ret = cobj->GetAngle();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetAngle : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetAngle : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_IsSleepingAllowed(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1860,12 +1874,12 @@ bool js_box2dclasses_b2Body_IsSleepingAllowed(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         bool ret = cobj->IsSleepingAllowed();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_IsSleepingAllowed : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_IsSleepingAllowed : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_SetAngularDamping(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1878,14 +1892,14 @@ bool js_box2dclasses_b2Body_SetAngularDamping(JSContext *cx, uint32_t argc, JS::
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetAngularDamping : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_SetAngularDamping : Error processing arguments");
         cobj->SetAngularDamping(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_SetAngularDamping : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_SetAngularDamping : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_SetActive(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1898,14 +1912,14 @@ bool js_box2dclasses_b2Body_SetActive(JSContext *cx, uint32_t argc, JS::Value *v
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetActive : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_SetActive : Error processing arguments");
         cobj->SetActive(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_SetActive : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_SetActive : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_SetGravityScale(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1918,14 +1932,14 @@ bool js_box2dclasses_b2Body_SetGravityScale(JSContext *cx, uint32_t argc, JS::Va
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetGravityScale : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_SetGravityScale : Error processing arguments");
         cobj->SetGravityScale(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_SetGravityScale : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_SetGravityScale : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_GetAngularVelocity(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1938,12 +1952,12 @@ bool js_box2dclasses_b2Body_GetAngularVelocity(JSContext *cx, uint32_t argc, JS:
     if (argc == 0) {
         double ret = cobj->GetAngularVelocity();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetAngularVelocity : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetAngularVelocity : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_GetFixtureList(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1984,7 +1998,7 @@ bool js_box2dclasses_b2Body_GetFixtureList(JSContext *cx, uint32_t argc, JS::Val
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetFixtureList : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetFixtureList : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2Body_ApplyForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2001,14 +2015,14 @@ bool js_box2dclasses_b2Body_ApplyForce(JSContext *cx, uint32_t argc, JS::Value *
         bool arg2;
         ok &= jsval_to_b2Vec2(cx, args.get(0), &arg0);
         ok &= jsval_to_b2Vec2(cx, args.get(1), &arg1);
-        arg2 = JS::ToBoolean(args.get(2));
+        arg2 = args.get(2).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_ApplyForce : Error processing arguments");
         cobj->ApplyForce(arg0, arg1, arg2);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_ApplyForce : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_ApplyForce : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2Body_GetLocalPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2030,7 +2044,7 @@ bool js_box2dclasses_b2Body_GetLocalPoint(JSContext *cx, uint32_t argc, JS::Valu
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetLocalPoint : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetLocalPoint : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_SetLinearVelocity(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2050,7 +2064,7 @@ bool js_box2dclasses_b2Body_SetLinearVelocity(JSContext *cx, uint32_t argc, JS::
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_SetLinearVelocity : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_SetLinearVelocity : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2083,7 +2097,7 @@ bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, JS::Value
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetJointList : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetJointList : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2Body_GetLinearVelocity(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2101,7 +2115,7 @@ bool js_box2dclasses_b2Body_GetLinearVelocity(JSContext *cx, uint32_t argc, JS::
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetLinearVelocity : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetLinearVelocity : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2142,7 +2156,7 @@ bool js_box2dclasses_b2Body_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp)
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetNext : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetNext : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2Body_SetSleepingAllowed(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2155,14 +2169,14 @@ bool js_box2dclasses_b2Body_SetSleepingAllowed(JSContext *cx, uint32_t argc, JS:
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetSleepingAllowed : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_SetSleepingAllowed : Error processing arguments");
         cobj->SetSleepingAllowed(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_SetSleepingAllowed : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_SetSleepingAllowed : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_SetTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2177,14 +2191,14 @@ bool js_box2dclasses_b2Body_SetTransform(JSContext *cx, uint32_t argc, JS::Value
         b2Vec2 arg0;
         double arg1 = 0;
         ok &= jsval_to_b2Vec2(cx, args.get(0), &arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        arg1 = (float)(args.get(1).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_SetTransform : Error processing arguments");
         cobj->SetTransform(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_SetTransform : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_SetTransform : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2Body_GetMass(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2197,12 +2211,12 @@ bool js_box2dclasses_b2Body_GetMass(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         double ret = cobj->GetMass();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetMass : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetMass : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_SetAngularVelocity(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2215,14 +2229,14 @@ bool js_box2dclasses_b2Body_SetAngularVelocity(JSContext *cx, uint32_t argc, JS:
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetAngularVelocity : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_SetAngularVelocity : Error processing arguments");
         cobj->SetAngularVelocity(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_SetAngularVelocity : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_SetAngularVelocity : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_GetMassData(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2243,7 +2257,7 @@ bool js_box2dclasses_b2Body_GetMassData(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetMassData : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetMassData : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_GetLinearVelocityFromWorldPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2265,7 +2279,7 @@ bool js_box2dclasses_b2Body_GetLinearVelocityFromWorldPoint(JSContext *cx, uint3
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetLinearVelocityFromWorldPoint : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetLinearVelocityFromWorldPoint : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_ResetMassData(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2281,7 +2295,7 @@ bool js_box2dclasses_b2Body_ResetMassData(JSContext *cx, uint32_t argc, JS::Valu
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_ResetMassData : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_ResetMassData : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_ApplyForceToCenter(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2296,14 +2310,14 @@ bool js_box2dclasses_b2Body_ApplyForceToCenter(JSContext *cx, uint32_t argc, JS:
         b2Vec2 arg0;
         bool arg1;
         ok &= jsval_to_b2Vec2(cx, args.get(0), &arg0);
-        arg1 = JS::ToBoolean(args.get(1));
+        arg1 = args.get(1).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_ApplyForceToCenter : Error processing arguments");
         cobj->ApplyForceToCenter(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_ApplyForceToCenter : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_ApplyForceToCenter : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2Body_ApplyTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2317,15 +2331,15 @@ bool js_box2dclasses_b2Body_ApplyTorque(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 2) {
         double arg0 = 0;
         bool arg1;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
-        arg1 = JS::ToBoolean(args.get(1));
+        arg0 = (float)(args.get(0).toNumber());
+        arg1 = args.get(1).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_ApplyTorque : Error processing arguments");
         cobj->ApplyTorque(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_ApplyTorque : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_ApplyTorque : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2Body_IsAwake(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2338,12 +2352,12 @@ bool js_box2dclasses_b2Body_IsAwake(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         bool ret = cobj->IsAwake();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_IsAwake : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_IsAwake : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_SetType(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2363,7 +2377,7 @@ bool js_box2dclasses_b2Body_SetType(JSContext *cx, uint32_t argc, JS::Value *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_SetType : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_SetType : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_SetMassData(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2384,7 +2398,7 @@ bool js_box2dclasses_b2Body_SetMassData(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_SetMassData : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_SetMassData : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_GetTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2402,7 +2416,7 @@ bool js_box2dclasses_b2Body_GetTransform(JSContext *cx, uint32_t argc, JS::Value
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetTransform : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetTransform : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_GetWorldCenter(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2420,7 +2434,7 @@ bool js_box2dclasses_b2Body_GetWorldCenter(JSContext *cx, uint32_t argc, JS::Val
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetWorldCenter : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetWorldCenter : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_GetAngularDamping(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2433,12 +2447,12 @@ bool js_box2dclasses_b2Body_GetAngularDamping(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         double ret = cobj->GetAngularDamping();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetAngularDamping : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetAngularDamping : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_ApplyLinearImpulse(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2455,14 +2469,14 @@ bool js_box2dclasses_b2Body_ApplyLinearImpulse(JSContext *cx, uint32_t argc, JS:
         bool arg2;
         ok &= jsval_to_b2Vec2(cx, args.get(0), &arg0);
         ok &= jsval_to_b2Vec2(cx, args.get(1), &arg1);
-        arg2 = JS::ToBoolean(args.get(2));
+        arg2 = args.get(2).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_ApplyLinearImpulse : Error processing arguments");
         cobj->ApplyLinearImpulse(arg0, arg1, arg2);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_ApplyLinearImpulse : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_ApplyLinearImpulse : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2Body_IsFixedRotation(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2475,12 +2489,12 @@ bool js_box2dclasses_b2Body_IsFixedRotation(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         bool ret = cobj->IsFixedRotation();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_IsFixedRotation : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_IsFixedRotation : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_GetLocalCenter(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2498,7 +2512,7 @@ bool js_box2dclasses_b2Body_GetLocalCenter(JSContext *cx, uint32_t argc, JS::Val
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetLocalCenter : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetLocalCenter : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_GetWorldVector(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2520,7 +2534,7 @@ bool js_box2dclasses_b2Body_GetWorldVector(JSContext *cx, uint32_t argc, JS::Val
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetWorldVector : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetWorldVector : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_GetLinearVelocityFromLocalPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2542,7 +2556,7 @@ bool js_box2dclasses_b2Body_GetLinearVelocityFromLocalPoint(JSContext *cx, uint3
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetLinearVelocityFromLocalPoint : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetLinearVelocityFromLocalPoint : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_GetContactList(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2575,7 +2589,7 @@ bool js_box2dclasses_b2Body_GetContactList(JSContext *cx, uint32_t argc, JS::Val
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetContactList : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetContactList : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2Body_GetWorldPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2597,7 +2611,7 @@ bool js_box2dclasses_b2Body_GetWorldPoint(JSContext *cx, uint32_t argc, JS::Valu
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetWorldPoint : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetWorldPoint : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_SetAwake(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2610,14 +2624,14 @@ bool js_box2dclasses_b2Body_SetAwake(JSContext *cx, uint32_t argc, JS::Value *vp
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetAwake : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_SetAwake : Error processing arguments");
         cobj->SetAwake(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_SetAwake : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_SetAwake : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_GetLinearDamping(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2630,12 +2644,12 @@ bool js_box2dclasses_b2Body_GetLinearDamping(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         double ret = cobj->GetLinearDamping();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetLinearDamping : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetLinearDamping : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_IsBullet(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2648,12 +2662,12 @@ bool js_box2dclasses_b2Body_IsBullet(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         bool ret = cobj->IsBullet();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_IsBullet : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_IsBullet : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_GetWorld(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2694,7 +2708,7 @@ bool js_box2dclasses_b2Body_GetWorld(JSContext *cx, uint32_t argc, JS::Value *vp
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetWorld : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetWorld : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2Body_GetLocalVector(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2716,7 +2730,7 @@ bool js_box2dclasses_b2Body_GetLocalVector(JSContext *cx, uint32_t argc, JS::Val
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetLocalVector : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetLocalVector : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_SetLinearDamping(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2729,14 +2743,14 @@ bool js_box2dclasses_b2Body_SetLinearDamping(JSContext *cx, uint32_t argc, JS::V
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetLinearDamping : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_SetLinearDamping : Error processing arguments");
         cobj->SetLinearDamping(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_SetLinearDamping : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_SetLinearDamping : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2752,7 +2766,7 @@ bool js_box2dclasses_b2Body_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_SetBullet(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2765,14 +2779,14 @@ bool js_box2dclasses_b2Body_SetBullet(JSContext *cx, uint32_t argc, JS::Value *v
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetBullet : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_SetBullet : Error processing arguments");
         cobj->SetBullet(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_SetBullet : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_SetBullet : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_GetType(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2785,12 +2799,12 @@ bool js_box2dclasses_b2Body_GetType(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         int ret = (int)cobj->GetType();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetType : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetType : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_GetGravityScale(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2803,12 +2817,12 @@ bool js_box2dclasses_b2Body_GetGravityScale(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         double ret = cobj->GetGravityScale();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetGravityScale : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetGravityScale : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_DestroyFixture(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2836,7 +2850,7 @@ bool js_box2dclasses_b2Body_DestroyFixture(JSContext *cx, uint32_t argc, JS::Val
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_DestroyFixture : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_DestroyFixture : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_GetInertia(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2849,12 +2863,12 @@ bool js_box2dclasses_b2Body_GetInertia(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         double ret = cobj->GetInertia();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetInertia : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetInertia : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_IsActive(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2867,12 +2881,12 @@ bool js_box2dclasses_b2Body_IsActive(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         bool ret = cobj->IsActive();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_IsActive : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_IsActive : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Body_SetFixedRotation(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2885,14 +2899,14 @@ bool js_box2dclasses_b2Body_SetFixedRotation(JSContext *cx, uint32_t argc, JS::V
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetFixedRotation : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_SetFixedRotation : Error processing arguments");
         cobj->SetFixedRotation(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_SetFixedRotation : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_SetFixedRotation : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Body_ApplyAngularImpulse(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2906,15 +2920,15 @@ bool js_box2dclasses_b2Body_ApplyAngularImpulse(JSContext *cx, uint32_t argc, JS
     if (argc == 2) {
         double arg0 = 0;
         bool arg1;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
-        arg1 = JS::ToBoolean(args.get(1));
+        arg0 = (float)(args.get(0).toNumber());
+        arg1 = args.get(1).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_ApplyAngularImpulse : Error processing arguments");
         cobj->ApplyAngularImpulse(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_ApplyAngularImpulse : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_ApplyAngularImpulse : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2Body_GetPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2932,21 +2946,24 @@ bool js_box2dclasses_b2Body_GetPosition(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetPosition : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetPosition : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 void js_register_box2dclasses_b2Body(JSContext *cx, JS::HandleObject global) {
-    jsb_b2Body_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2Body_class->name = "Body";
-    jsb_b2Body_class->addProperty = JS_PropertyStub;
-    jsb_b2Body_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2Body_class->getProperty = JS_PropertyStub;
-    jsb_b2Body_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2Body_class->enumerate = JS_EnumerateStub;
-    jsb_b2Body_class->resolve = JS_ResolveStub;
-    jsb_b2Body_class->convert = JS_ConvertStub;
-    jsb_b2Body_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2Body_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2Body_class = {
+        "Body",
+        JSCLASS_HAS_PRIVATE,
+        &b2Body_classOps
+    };
+    jsb_b2Body_class = &b2Body_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -3011,12 +3028,12 @@ void js_register_box2dclasses_b2Body(JSContext *cx, JS::HandleObject global) {
 
     jsb_b2Body_prototype = JS_InitClass(
         cx, global,
-        JS::NullPtr(),
+        nullptr,
         jsb_b2Body_class,
         dummy_constructor<b2Body>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2Body_prototype);
@@ -3025,7 +3042,7 @@ void js_register_box2dclasses_b2Body(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2Body>(cx, jsb_b2Body_class, proto, JS::NullPtr());
+    jsb_register_class<b2Body>(cx, jsb_b2Body_class, proto);
 }
 
 JSClass  *jsb_b2Fixture_class;
@@ -3041,12 +3058,12 @@ bool js_box2dclasses_b2Fixture_GetRestitution(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         double ret = cobj->GetRestitution();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_GetRestitution : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_GetRestitution : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Fixture_SetFilterData(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3067,7 +3084,7 @@ bool js_box2dclasses_b2Fixture_SetFilterData(JSContext *cx, uint32_t argc, JS::V
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_SetFilterData : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_SetFilterData : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Fixture_SetFriction(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3080,14 +3097,14 @@ bool js_box2dclasses_b2Fixture_SetFriction(JSContext *cx, uint32_t argc, JS::Val
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_SetFriction : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_SetFriction : Error processing arguments");
         cobj->SetFriction(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_SetFriction : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_SetFriction : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Fixture_GetShape(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3128,7 +3145,7 @@ bool js_box2dclasses_b2Fixture_GetShape(JSContext *cx, uint32_t argc, JS::Value 
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_GetShape : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_GetShape : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2Fixture_SetRestitution(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3141,14 +3158,14 @@ bool js_box2dclasses_b2Fixture_SetRestitution(JSContext *cx, uint32_t argc, JS::
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_SetRestitution : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_SetRestitution : Error processing arguments");
         cobj->SetRestitution(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_SetRestitution : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_SetRestitution : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Fixture_GetBody(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3189,7 +3206,7 @@ bool js_box2dclasses_b2Fixture_GetBody(JSContext *cx, uint32_t argc, JS::Value *
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_GetBody : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_GetBody : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2Fixture_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3230,7 +3247,7 @@ bool js_box2dclasses_b2Fixture_GetNext(JSContext *cx, uint32_t argc, JS::Value *
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_GetNext : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_GetNext : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2Fixture_GetFriction(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3243,12 +3260,12 @@ bool js_box2dclasses_b2Fixture_GetFriction(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         double ret = cobj->GetFriction();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_GetFriction : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_GetFriction : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Fixture_SetDensity(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3261,14 +3278,14 @@ bool js_box2dclasses_b2Fixture_SetDensity(JSContext *cx, uint32_t argc, JS::Valu
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_SetDensity : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_SetDensity : Error processing arguments");
         cobj->SetDensity(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_SetDensity : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_SetDensity : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Fixture_GetMassData(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3289,7 +3306,7 @@ bool js_box2dclasses_b2Fixture_GetMassData(JSContext *cx, uint32_t argc, JS::Val
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_GetMassData : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_GetMassData : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Fixture_SetSensor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3302,14 +3319,14 @@ bool js_box2dclasses_b2Fixture_SetSensor(JSContext *cx, uint32_t argc, JS::Value
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_SetSensor : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_SetSensor : Error processing arguments");
         cobj->SetSensor(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_SetSensor : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_SetSensor : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Fixture_GetAABB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3331,7 +3348,7 @@ bool js_box2dclasses_b2Fixture_GetAABB(JSContext *cx, uint32_t argc, JS::Value *
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_GetAABB : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_GetAABB : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Fixture_TestPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3348,12 +3365,12 @@ bool js_box2dclasses_b2Fixture_TestPoint(JSContext *cx, uint32_t argc, JS::Value
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_TestPoint : Error processing arguments");
         bool ret = cobj->TestPoint(arg0);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_TestPoint : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_TestPoint : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Fixture_RayCast(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3376,12 +3393,12 @@ bool js_box2dclasses_b2Fixture_RayCast(JSContext *cx, uint32_t argc, JS::Value *
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_RayCast : Error processing arguments");
         bool ret = cobj->RayCast(arg0, arg1, arg2);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_RayCast : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_RayCast : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2Fixture_Refilter(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3397,7 +3414,7 @@ bool js_box2dclasses_b2Fixture_Refilter(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_Refilter : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_Refilter : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Fixture_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3417,7 +3434,7 @@ bool js_box2dclasses_b2Fixture_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_Dump : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_Dump : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Fixture_GetFilterData(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3435,7 +3452,7 @@ bool js_box2dclasses_b2Fixture_GetFilterData(JSContext *cx, uint32_t argc, JS::V
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_GetFilterData : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_GetFilterData : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Fixture_IsSensor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3448,12 +3465,12 @@ bool js_box2dclasses_b2Fixture_IsSensor(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         bool ret = cobj->IsSensor();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_IsSensor : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_IsSensor : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Fixture_GetType(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3466,12 +3483,12 @@ bool js_box2dclasses_b2Fixture_GetType(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         int ret = (int)cobj->GetType();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_GetType : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_GetType : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Fixture_GetDensity(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3484,26 +3501,29 @@ bool js_box2dclasses_b2Fixture_GetDensity(JSContext *cx, uint32_t argc, JS::Valu
     if (argc == 0) {
         double ret = cobj->GetDensity();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Fixture_GetDensity : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Fixture_GetDensity : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 void js_register_box2dclasses_b2Fixture(JSContext *cx, JS::HandleObject global) {
-    jsb_b2Fixture_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2Fixture_class->name = "Fixture";
-    jsb_b2Fixture_class->addProperty = JS_PropertyStub;
-    jsb_b2Fixture_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2Fixture_class->getProperty = JS_PropertyStub;
-    jsb_b2Fixture_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2Fixture_class->enumerate = JS_EnumerateStub;
-    jsb_b2Fixture_class->resolve = JS_ResolveStub;
-    jsb_b2Fixture_class->convert = JS_ConvertStub;
-    jsb_b2Fixture_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2Fixture_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2Fixture_class = {
+        "Fixture",
+        JSCLASS_HAS_PRIVATE,
+        &b2Fixture_classOps
+    };
+    jsb_b2Fixture_class = &b2Fixture_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -3537,12 +3557,12 @@ void js_register_box2dclasses_b2Fixture(JSContext *cx, JS::HandleObject global) 
 
     jsb_b2Fixture_prototype = JS_InitClass(
         cx, global,
-        JS::NullPtr(),
+        nullptr,
         jsb_b2Fixture_class,
         dummy_constructor<b2Fixture>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2Fixture_prototype);
@@ -3551,7 +3571,7 @@ void js_register_box2dclasses_b2Fixture(JSContext *cx, JS::HandleObject global) 
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2Fixture>(cx, jsb_b2Fixture_class, proto, JS::NullPtr());
+    jsb_register_class<b2Fixture>(cx, jsb_b2Fixture_class, proto);
 }
 
 JSClass  *jsb_b2ContactListener_class;
@@ -3582,7 +3602,7 @@ bool js_box2dclasses_b2ContactListener_EndContact(JSContext *cx, uint32_t argc, 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2ContactListener_EndContact : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ContactListener_EndContact : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2ContactListener_PreSolve(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3613,7 +3633,7 @@ bool js_box2dclasses_b2ContactListener_PreSolve(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2ContactListener_PreSolve : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ContactListener_PreSolve : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2ContactListener_BeginContact(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3641,7 +3661,7 @@ bool js_box2dclasses_b2ContactListener_BeginContact(JSContext *cx, uint32_t argc
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2ContactListener_BeginContact : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ContactListener_BeginContact : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2ContactListener_PostSolve(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3672,21 +3692,24 @@ bool js_box2dclasses_b2ContactListener_PostSolve(JSContext *cx, uint32_t argc, J
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2ContactListener_PostSolve : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ContactListener_PostSolve : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 
 void js_register_box2dclasses_b2ContactListener(JSContext *cx, JS::HandleObject global) {
-    jsb_b2ContactListener_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2ContactListener_class->name = "b2ContactListener";
-    jsb_b2ContactListener_class->addProperty = JS_PropertyStub;
-    jsb_b2ContactListener_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2ContactListener_class->getProperty = JS_PropertyStub;
-    jsb_b2ContactListener_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2ContactListener_class->enumerate = JS_EnumerateStub;
-    jsb_b2ContactListener_class->resolve = JS_ResolveStub;
-    jsb_b2ContactListener_class->convert = JS_ConvertStub;
-    jsb_b2ContactListener_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2ContactListener_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2ContactListener_class = {
+        "b2ContactListener",
+        JSCLASS_HAS_PRIVATE,
+        &b2ContactListener_classOps
+    };
+    jsb_b2ContactListener_class = &b2ContactListener_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -3704,12 +3727,12 @@ void js_register_box2dclasses_b2ContactListener(JSContext *cx, JS::HandleObject 
 
     jsb_b2ContactListener_prototype = JS_InitClass(
         cx, global,
-        JS::NullPtr(),
+        nullptr,
         jsb_b2ContactListener_class,
         empty_constructor, 0,
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2ContactListener_prototype);
@@ -3718,7 +3741,7 @@ void js_register_box2dclasses_b2ContactListener(JSContext *cx, JS::HandleObject 
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2ContactListener>(cx, jsb_b2ContactListener_class, proto, JS::NullPtr());
+    jsb_register_class<b2ContactListener>(cx, jsb_b2ContactListener_class, proto);
 }
 
 JSClass  *jsb_b2QueryCallback_class;
@@ -3746,26 +3769,29 @@ bool js_box2dclasses_b2QueryCallback_ReportFixture(JSContext *cx, uint32_t argc,
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2QueryCallback_ReportFixture : Error processing arguments");
         bool ret = cobj->ReportFixture(arg0);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2QueryCallback_ReportFixture : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2QueryCallback_ReportFixture : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
 void js_register_box2dclasses_b2QueryCallback(JSContext *cx, JS::HandleObject global) {
-    jsb_b2QueryCallback_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2QueryCallback_class->name = "b2QueryCallback";
-    jsb_b2QueryCallback_class->addProperty = JS_PropertyStub;
-    jsb_b2QueryCallback_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2QueryCallback_class->getProperty = JS_PropertyStub;
-    jsb_b2QueryCallback_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2QueryCallback_class->enumerate = JS_EnumerateStub;
-    jsb_b2QueryCallback_class->resolve = JS_ResolveStub;
-    jsb_b2QueryCallback_class->convert = JS_ConvertStub;
-    jsb_b2QueryCallback_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2QueryCallback_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2QueryCallback_class = {
+        "b2QueryCallback",
+        JSCLASS_HAS_PRIVATE,
+        &b2QueryCallback_classOps
+    };
+    jsb_b2QueryCallback_class = &b2QueryCallback_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -3780,12 +3806,12 @@ void js_register_box2dclasses_b2QueryCallback(JSContext *cx, JS::HandleObject gl
 
     jsb_b2QueryCallback_prototype = JS_InitClass(
         cx, global,
-        JS::NullPtr(),
+        nullptr,
         jsb_b2QueryCallback_class,
         empty_constructor, 0,
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2QueryCallback_prototype);
@@ -3794,7 +3820,7 @@ void js_register_box2dclasses_b2QueryCallback(JSContext *cx, JS::HandleObject gl
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2QueryCallback>(cx, jsb_b2QueryCallback_class, proto, JS::NullPtr());
+    jsb_register_class<b2QueryCallback>(cx, jsb_b2QueryCallback_class, proto);
 }
 
 JSClass  *jsb_b2RayCastCallback_class;
@@ -3824,30 +3850,33 @@ bool js_box2dclasses_b2RayCastCallback_ReportFixture(JSContext *cx, uint32_t arg
         } while (0);
         ok &= jsval_to_b2Vec2(cx, args.get(1), &arg1);
         ok &= jsval_to_b2Vec2(cx, args.get(2), &arg2);
-        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
+        arg3 = (float)(args.get(3).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RayCastCallback_ReportFixture : Error processing arguments");
         double ret = cobj->ReportFixture(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RayCastCallback_ReportFixture : wrong number of arguments: %d, was expecting %d", argc, 4);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RayCastCallback_ReportFixture : wrong number of arguments: %d, was expecting %d", argc, 4);
     return false;
 }
 
 void js_register_box2dclasses_b2RayCastCallback(JSContext *cx, JS::HandleObject global) {
-    jsb_b2RayCastCallback_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2RayCastCallback_class->name = "b2RayCastCallback";
-    jsb_b2RayCastCallback_class->addProperty = JS_PropertyStub;
-    jsb_b2RayCastCallback_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2RayCastCallback_class->getProperty = JS_PropertyStub;
-    jsb_b2RayCastCallback_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2RayCastCallback_class->enumerate = JS_EnumerateStub;
-    jsb_b2RayCastCallback_class->resolve = JS_ResolveStub;
-    jsb_b2RayCastCallback_class->convert = JS_ConvertStub;
-    jsb_b2RayCastCallback_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2RayCastCallback_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2RayCastCallback_class = {
+        "b2RayCastCallback",
+        JSCLASS_HAS_PRIVATE,
+        &b2RayCastCallback_classOps
+    };
+    jsb_b2RayCastCallback_class = &b2RayCastCallback_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -3862,12 +3891,12 @@ void js_register_box2dclasses_b2RayCastCallback(JSContext *cx, JS::HandleObject 
 
     jsb_b2RayCastCallback_prototype = JS_InitClass(
         cx, global,
-        JS::NullPtr(),
+        nullptr,
         jsb_b2RayCastCallback_class,
         empty_constructor, 0,
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2RayCastCallback_prototype);
@@ -3876,7 +3905,7 @@ void js_register_box2dclasses_b2RayCastCallback(JSContext *cx, JS::HandleObject 
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2RayCastCallback>(cx, jsb_b2RayCastCallback_class, proto, JS::NullPtr());
+    jsb_register_class<b2RayCastCallback>(cx, jsb_b2RayCastCallback_class, proto);
 }
 
 JSClass  *jsb_b2World_class;
@@ -3899,7 +3928,7 @@ bool js_box2dclasses_b2World_ShiftOrigin(JSContext *cx, uint32_t argc, JS::Value
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_ShiftOrigin : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_ShiftOrigin : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2World_QueryAABB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3929,7 +3958,7 @@ bool js_box2dclasses_b2World_QueryAABB(JSContext *cx, uint32_t argc, JS::Value *
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_QueryAABB : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_QueryAABB : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2World_SetSubStepping(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3942,14 +3971,14 @@ bool js_box2dclasses_b2World_SetSubStepping(JSContext *cx, uint32_t argc, JS::Va
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetSubStepping : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_SetSubStepping : Error processing arguments");
         cobj->SetSubStepping(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_SetSubStepping : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_SetSubStepping : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2World_GetTreeQuality(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3962,12 +3991,12 @@ bool js_box2dclasses_b2World_GetTreeQuality(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         double ret = cobj->GetTreeQuality();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetTreeQuality : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetTreeQuality : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_GetTreeHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3980,12 +4009,12 @@ bool js_box2dclasses_b2World_GetTreeHeight(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         int ret = cobj->GetTreeHeight();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetTreeHeight : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetTreeHeight : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_GetProfile(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4003,7 +4032,7 @@ bool js_box2dclasses_b2World_GetProfile(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetProfile : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetProfile : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_GetTreeBalance(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4016,12 +4045,12 @@ bool js_box2dclasses_b2World_GetTreeBalance(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         int ret = cobj->GetTreeBalance();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetTreeBalance : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetTreeBalance : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_GetSubStepping(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4034,12 +4063,12 @@ bool js_box2dclasses_b2World_GetSubStepping(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         bool ret = cobj->GetSubStepping();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetSubStepping : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetSubStepping : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_SetContactListener(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4067,7 +4096,7 @@ bool js_box2dclasses_b2World_SetContactListener(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_SetContactListener : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_SetContactListener : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2World_DrawDebugData(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4083,7 +4112,7 @@ bool js_box2dclasses_b2World_DrawDebugData(JSContext *cx, uint32_t argc, JS::Val
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_DrawDebugData : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_DrawDebugData : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_SetContinuousPhysics(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4096,14 +4125,14 @@ bool js_box2dclasses_b2World_SetContinuousPhysics(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetContinuousPhysics : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_SetContinuousPhysics : Error processing arguments");
         cobj->SetContinuousPhysics(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_SetContinuousPhysics : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_SetContinuousPhysics : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2World_SetGravity(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4123,7 +4152,7 @@ bool js_box2dclasses_b2World_SetGravity(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_SetGravity : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_SetGravity : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2World_GetBodyCount(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4136,12 +4165,12 @@ bool js_box2dclasses_b2World_GetBodyCount(JSContext *cx, uint32_t argc, JS::Valu
     if (argc == 0) {
         int ret = cobj->GetBodyCount();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetBodyCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetBodyCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_GetAutoClearForces(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4154,12 +4183,12 @@ bool js_box2dclasses_b2World_GetAutoClearForces(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         bool ret = cobj->GetAutoClearForces();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetAutoClearForces : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetAutoClearForces : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_GetContinuousPhysics(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4172,12 +4201,12 @@ bool js_box2dclasses_b2World_GetContinuousPhysics(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         bool ret = cobj->GetContinuousPhysics();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetContinuousPhysics : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetContinuousPhysics : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_GetJointList(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4218,7 +4247,7 @@ bool js_box2dclasses_b2World_GetJointList(JSContext *cx, uint32_t argc, JS::Valu
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetJointList : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetJointList : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2World_GetBodyList(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4259,7 +4288,7 @@ bool js_box2dclasses_b2World_GetBodyList(JSContext *cx, uint32_t argc, JS::Value
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetBodyList : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetBodyList : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2World_SetDestructionListener(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4287,7 +4316,7 @@ bool js_box2dclasses_b2World_SetDestructionListener(JSContext *cx, uint32_t argc
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_SetDestructionListener : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_SetDestructionListener : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2World_DestroyJoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4315,7 +4344,7 @@ bool js_box2dclasses_b2World_DestroyJoint(JSContext *cx, uint32_t argc, JS::Valu
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_DestroyJoint : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_DestroyJoint : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2World_GetJointCount(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4328,12 +4357,12 @@ bool js_box2dclasses_b2World_GetJointCount(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         int ret = cobj->GetJointCount();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetJointCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetJointCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_Step(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4348,7 +4377,7 @@ bool js_box2dclasses_b2World_Step(JSContext *cx, uint32_t argc, JS::Value *vp)
         double arg0 = 0;
         int arg1 = 0;
         int arg2 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         ok &= jsval_to_int32(cx, args.get(1), (int32_t *)&arg1);
         ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_Step : Error processing arguments");
@@ -4357,7 +4386,7 @@ bool js_box2dclasses_b2World_Step(JSContext *cx, uint32_t argc, JS::Value *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_Step : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_Step : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2World_ClearForces(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4373,7 +4402,7 @@ bool js_box2dclasses_b2World_ClearForces(JSContext *cx, uint32_t argc, JS::Value
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_ClearForces : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_ClearForces : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_GetWarmStarting(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4386,12 +4415,12 @@ bool js_box2dclasses_b2World_GetWarmStarting(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         bool ret = cobj->GetWarmStarting();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetWarmStarting : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetWarmStarting : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_SetAllowSleeping(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4404,14 +4433,14 @@ bool js_box2dclasses_b2World_SetAllowSleeping(JSContext *cx, uint32_t argc, JS::
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetAllowSleeping : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_SetAllowSleeping : Error processing arguments");
         cobj->SetAllowSleeping(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_SetAllowSleeping : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_SetAllowSleeping : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2World_DestroyBody(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4439,7 +4468,7 @@ bool js_box2dclasses_b2World_DestroyBody(JSContext *cx, uint32_t argc, JS::Value
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_DestroyBody : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_DestroyBody : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2World_GetAllowSleeping(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4452,12 +4481,12 @@ bool js_box2dclasses_b2World_GetAllowSleeping(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         bool ret = cobj->GetAllowSleeping();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetAllowSleeping : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetAllowSleeping : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_GetProxyCount(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4470,12 +4499,12 @@ bool js_box2dclasses_b2World_GetProxyCount(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         int ret = cobj->GetProxyCount();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetProxyCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetProxyCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_RayCast(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4507,7 +4536,7 @@ bool js_box2dclasses_b2World_RayCast(JSContext *cx, uint32_t argc, JS::Value *vp
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_RayCast : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_RayCast : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2World_IsLocked(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4520,12 +4549,12 @@ bool js_box2dclasses_b2World_IsLocked(JSContext *cx, uint32_t argc, JS::Value *v
     if (argc == 0) {
         bool ret = cobj->IsLocked();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_IsLocked : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_IsLocked : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_GetContactList(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4566,7 +4595,7 @@ bool js_box2dclasses_b2World_GetContactList(JSContext *cx, uint32_t argc, JS::Va
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetContactList : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetContactList : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2World_SetDebugDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4594,7 +4623,7 @@ bool js_box2dclasses_b2World_SetDebugDraw(JSContext *cx, uint32_t argc, JS::Valu
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_SetDebugDraw : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_SetDebugDraw : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2World_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4610,7 +4639,7 @@ bool js_box2dclasses_b2World_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_SetAutoClearForces(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4623,14 +4652,14 @@ bool js_box2dclasses_b2World_SetAutoClearForces(JSContext *cx, uint32_t argc, JS
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetAutoClearForces : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_SetAutoClearForces : Error processing arguments");
         cobj->SetAutoClearForces(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_SetAutoClearForces : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_SetAutoClearForces : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2World_GetGravity(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4648,7 +4677,7 @@ bool js_box2dclasses_b2World_GetGravity(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetGravity : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetGravity : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_GetContactCount(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4661,12 +4690,12 @@ bool js_box2dclasses_b2World_GetContactCount(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         int ret = cobj->GetContactCount();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_GetContactCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_GetContactCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2World_SetWarmStarting(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4679,14 +4708,14 @@ bool js_box2dclasses_b2World_SetWarmStarting(JSContext *cx, uint32_t argc, JS::V
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetWarmStarting : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_SetWarmStarting : Error processing arguments");
         cobj->SetWarmStarting(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_SetWarmStarting : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_SetWarmStarting : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2World_SetContactFilter(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4714,7 +4743,7 @@ bool js_box2dclasses_b2World_SetContactFilter(JSContext *cx, uint32_t argc, JS::
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2World_SetContactFilter : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_SetContactFilter : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2World_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4765,17 +4794,19 @@ void js_b2World_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_box2dclasses_b2World(JSContext *cx, JS::HandleObject global) {
-    jsb_b2World_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2World_class->name = "World";
-    jsb_b2World_class->addProperty = JS_PropertyStub;
-    jsb_b2World_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2World_class->getProperty = JS_PropertyStub;
-    jsb_b2World_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2World_class->enumerate = JS_EnumerateStub;
-    jsb_b2World_class->resolve = JS_ResolveStub;
-    jsb_b2World_class->convert = JS_ConvertStub;
-    jsb_b2World_class->finalize = js_b2World_finalize;
-    jsb_b2World_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2World_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        js_b2World_finalize,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2World_class = {
+        "World",
+        JSCLASS_HAS_PRIVATE,
+        &b2World_classOps
+    };
+    jsb_b2World_class = &b2World_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -4826,12 +4857,12 @@ void js_register_box2dclasses_b2World(JSContext *cx, JS::HandleObject global) {
 
     jsb_b2World_prototype = JS_InitClass(
         cx, global,
-        JS::NullPtr(),
+        nullptr,
         jsb_b2World_class,
         js_box2dclasses_b2World_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2World_prototype);
@@ -4840,7 +4871,7 @@ void js_register_box2dclasses_b2World(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2World>(cx, jsb_b2World_class, proto, JS::NullPtr());
+    jsb_register_class<b2World>(cx, jsb_b2World_class, proto);
 }
 
 JSClass  *jsb_b2Contact_class;
@@ -4884,7 +4915,7 @@ bool js_box2dclasses_b2Contact_GetNext(JSContext *cx, uint32_t argc, JS::Value *
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_GetNext : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_GetNext : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2Contact_SetEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4897,14 +4928,14 @@ bool js_box2dclasses_b2Contact_SetEnabled(JSContext *cx, uint32_t argc, JS::Valu
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_SetEnabled : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_SetEnabled : Error processing arguments");
         cobj->SetEnabled(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_SetEnabled : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_SetEnabled : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Contact_GetWorldManifold(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4925,7 +4956,7 @@ bool js_box2dclasses_b2Contact_GetWorldManifold(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_GetWorldManifold : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_GetWorldManifold : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Contact_GetRestitution(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4938,12 +4969,12 @@ bool js_box2dclasses_b2Contact_GetRestitution(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         double ret = cobj->GetRestitution();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_GetRestitution : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_GetRestitution : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Contact_ResetFriction(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4959,7 +4990,7 @@ bool js_box2dclasses_b2Contact_ResetFriction(JSContext *cx, uint32_t argc, JS::V
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_ResetFriction : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_ResetFriction : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Contact_GetFriction(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4972,12 +5003,12 @@ bool js_box2dclasses_b2Contact_GetFriction(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         double ret = cobj->GetFriction();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_GetFriction : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_GetFriction : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Contact_IsTouching(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4990,12 +5021,12 @@ bool js_box2dclasses_b2Contact_IsTouching(JSContext *cx, uint32_t argc, JS::Valu
     if (argc == 0) {
         bool ret = cobj->IsTouching();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_IsTouching : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_IsTouching : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Contact_IsEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5008,12 +5039,12 @@ bool js_box2dclasses_b2Contact_IsEnabled(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         bool ret = cobj->IsEnabled();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_IsEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_IsEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Contact_GetFixtureB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5054,7 +5085,7 @@ bool js_box2dclasses_b2Contact_GetFixtureB(JSContext *cx, uint32_t argc, JS::Val
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_GetFixtureB : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_GetFixtureB : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2Contact_SetFriction(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5067,14 +5098,14 @@ bool js_box2dclasses_b2Contact_SetFriction(JSContext *cx, uint32_t argc, JS::Val
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_SetFriction : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_SetFriction : Error processing arguments");
         cobj->SetFriction(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_SetFriction : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_SetFriction : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Contact_GetFixtureA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5115,7 +5146,7 @@ bool js_box2dclasses_b2Contact_GetFixtureA(JSContext *cx, uint32_t argc, JS::Val
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_GetFixtureA : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_GetFixtureA : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2Contact_GetChildIndexA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5128,12 +5159,12 @@ bool js_box2dclasses_b2Contact_GetChildIndexA(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         int ret = cobj->GetChildIndexA();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_GetChildIndexA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_GetChildIndexA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Contact_GetChildIndexB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5146,12 +5177,12 @@ bool js_box2dclasses_b2Contact_GetChildIndexB(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         int ret = cobj->GetChildIndexB();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_GetChildIndexB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_GetChildIndexB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Contact_SetTangentSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5164,14 +5195,14 @@ bool js_box2dclasses_b2Contact_SetTangentSpeed(JSContext *cx, uint32_t argc, JS:
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_SetTangentSpeed : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_SetTangentSpeed : Error processing arguments");
         cobj->SetTangentSpeed(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_SetTangentSpeed : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_SetTangentSpeed : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Contact_GetTangentSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5184,12 +5215,12 @@ bool js_box2dclasses_b2Contact_GetTangentSpeed(JSContext *cx, uint32_t argc, JS:
     if (argc == 0) {
         double ret = cobj->GetTangentSpeed();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_GetTangentSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_GetTangentSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Contact_SetRestitution(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5202,14 +5233,14 @@ bool js_box2dclasses_b2Contact_SetRestitution(JSContext *cx, uint32_t argc, JS::
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_SetRestitution : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_SetRestitution : Error processing arguments");
         cobj->SetRestitution(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_SetRestitution : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_SetRestitution : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Contact_GetManifold(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5242,7 +5273,7 @@ bool js_box2dclasses_b2Contact_GetManifold(JSContext *cx, uint32_t argc, JS::Val
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_GetManifold : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_GetManifold : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2Contact_Evaluate(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5269,7 +5300,7 @@ bool js_box2dclasses_b2Contact_Evaluate(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_Evaluate : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_Evaluate : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_box2dclasses_b2Contact_ResetRestitution(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5285,21 +5316,24 @@ bool js_box2dclasses_b2Contact_ResetRestitution(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Contact_ResetRestitution : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Contact_ResetRestitution : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 void js_register_box2dclasses_b2Contact(JSContext *cx, JS::HandleObject global) {
-    jsb_b2Contact_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2Contact_class->name = "Contact";
-    jsb_b2Contact_class->addProperty = JS_PropertyStub;
-    jsb_b2Contact_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2Contact_class->getProperty = JS_PropertyStub;
-    jsb_b2Contact_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2Contact_class->enumerate = JS_EnumerateStub;
-    jsb_b2Contact_class->resolve = JS_ResolveStub;
-    jsb_b2Contact_class->convert = JS_ConvertStub;
-    jsb_b2Contact_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2Contact_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2Contact_class = {
+        "Contact",
+        JSCLASS_HAS_PRIVATE,
+        &b2Contact_classOps
+    };
+    jsb_b2Contact_class = &b2Contact_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -5332,12 +5366,12 @@ void js_register_box2dclasses_b2Contact(JSContext *cx, JS::HandleObject global) 
 
     jsb_b2Contact_prototype = JS_InitClass(
         cx, global,
-        JS::NullPtr(),
+        nullptr,
         jsb_b2Contact_class,
         dummy_constructor<b2Contact>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2Contact_prototype);
@@ -5346,7 +5380,7 @@ void js_register_box2dclasses_b2Contact(JSContext *cx, JS::HandleObject global) 
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2Contact>(cx, jsb_b2Contact_class, proto, JS::NullPtr());
+    jsb_register_class<b2Contact>(cx, jsb_b2Contact_class, proto);
 }
 
 JSClass  *jsb_b2Joint_class;
@@ -5390,7 +5424,7 @@ bool js_box2dclasses_b2Joint_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp
         }
     } while(0);
 
-    JS_ReportError(cx, "js_box2dclasses_b2Joint_GetNext : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Joint_GetNext : wrong number of arguments");
     return false;
 }
 bool js_box2dclasses_b2Joint_GetBodyA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5412,7 +5446,7 @@ bool js_box2dclasses_b2Joint_GetBodyA(JSContext *cx, uint32_t argc, JS::Value *v
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Joint_GetBodyA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Joint_GetBodyA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Joint_GetBodyB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5434,7 +5468,7 @@ bool js_box2dclasses_b2Joint_GetBodyB(JSContext *cx, uint32_t argc, JS::Value *v
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Joint_GetBodyB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Joint_GetBodyB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Joint_GetReactionTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5447,16 +5481,16 @@ bool js_box2dclasses_b2Joint_GetReactionTorque(JSContext *cx, uint32_t argc, JS:
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Joint_GetReactionTorque : Error processing arguments");
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Joint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Joint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Joint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5474,7 +5508,7 @@ bool js_box2dclasses_b2Joint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Joint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Joint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Joint_ShiftOrigin(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5494,7 +5528,7 @@ bool js_box2dclasses_b2Joint_ShiftOrigin(JSContext *cx, uint32_t argc, JS::Value
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Joint_ShiftOrigin : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Joint_ShiftOrigin : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Joint_GetType(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5507,12 +5541,12 @@ bool js_box2dclasses_b2Joint_GetType(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         int ret = (int)cobj->GetType();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Joint_GetType : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Joint_GetType : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Joint_GetCollideConnected(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5525,12 +5559,12 @@ bool js_box2dclasses_b2Joint_GetCollideConnected(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         bool ret = cobj->GetCollideConnected();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Joint_GetCollideConnected : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Joint_GetCollideConnected : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Joint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5546,7 +5580,7 @@ bool js_box2dclasses_b2Joint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Joint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Joint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Joint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5564,7 +5598,7 @@ bool js_box2dclasses_b2Joint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Joint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Joint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2Joint_GetReactionForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5577,7 +5611,7 @@ bool js_box2dclasses_b2Joint_GetReactionForce(JSContext *cx, uint32_t argc, JS::
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Joint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
@@ -5586,7 +5620,7 @@ bool js_box2dclasses_b2Joint_GetReactionForce(JSContext *cx, uint32_t argc, JS::
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Joint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Joint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2Joint_IsActive(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5599,26 +5633,29 @@ bool js_box2dclasses_b2Joint_IsActive(JSContext *cx, uint32_t argc, JS::Value *v
     if (argc == 0) {
         bool ret = cobj->IsActive();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2Joint_IsActive : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Joint_IsActive : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 void js_register_box2dclasses_b2Joint(JSContext *cx, JS::HandleObject global) {
-    jsb_b2Joint_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2Joint_class->name = "Joint";
-    jsb_b2Joint_class->addProperty = JS_PropertyStub;
-    jsb_b2Joint_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2Joint_class->getProperty = JS_PropertyStub;
-    jsb_b2Joint_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2Joint_class->enumerate = JS_EnumerateStub;
-    jsb_b2Joint_class->resolve = JS_ResolveStub;
-    jsb_b2Joint_class->convert = JS_ConvertStub;
-    jsb_b2Joint_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2Joint_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2Joint_class = {
+        "Joint",
+        JSCLASS_HAS_PRIVATE,
+        &b2Joint_classOps
+    };
+    jsb_b2Joint_class = &b2Joint_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -5644,12 +5681,12 @@ void js_register_box2dclasses_b2Joint(JSContext *cx, JS::HandleObject global) {
 
     jsb_b2Joint_prototype = JS_InitClass(
         cx, global,
-        JS::NullPtr(),
+        nullptr,
         jsb_b2Joint_class,
         dummy_constructor<b2Joint>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2Joint_prototype);
@@ -5658,7 +5695,7 @@ void js_register_box2dclasses_b2Joint(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2Joint>(cx, jsb_b2Joint_class, proto, JS::NullPtr());
+    jsb_register_class<b2Joint>(cx, jsb_b2Joint_class, proto);
 }
 
 JSClass  *jsb_b2DistanceJoint_class;
@@ -5674,14 +5711,14 @@ bool js_box2dclasses_b2DistanceJoint_SetDampingRatio(JSContext *cx, uint32_t arg
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_SetDampingRatio : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_SetDampingRatio : Error processing arguments");
         cobj->SetDampingRatio(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2DistanceJoint_SetDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2DistanceJoint_SetDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2DistanceJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5699,7 +5736,7 @@ bool js_box2dclasses_b2DistanceJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2DistanceJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2DistanceJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2DistanceJoint_GetReactionTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5712,16 +5749,16 @@ bool js_box2dclasses_b2DistanceJoint_GetReactionTorque(JSContext *cx, uint32_t a
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_GetReactionTorque : Error processing arguments");
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2DistanceJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2DistanceJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2DistanceJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5737,7 +5774,7 @@ bool js_box2dclasses_b2DistanceJoint_Dump(JSContext *cx, uint32_t argc, JS::Valu
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2DistanceJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2DistanceJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2DistanceJoint_SetFrequency(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5750,14 +5787,14 @@ bool js_box2dclasses_b2DistanceJoint_SetFrequency(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_SetFrequency : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_SetFrequency : Error processing arguments");
         cobj->SetFrequency(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2DistanceJoint_SetFrequency : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2DistanceJoint_SetFrequency : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2DistanceJoint_GetLength(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5770,12 +5807,12 @@ bool js_box2dclasses_b2DistanceJoint_GetLength(JSContext *cx, uint32_t argc, JS:
     if (argc == 0) {
         double ret = cobj->GetLength();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2DistanceJoint_GetLength : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2DistanceJoint_GetLength : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2DistanceJoint_GetDampingRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5788,12 +5825,12 @@ bool js_box2dclasses_b2DistanceJoint_GetDampingRatio(JSContext *cx, uint32_t arg
     if (argc == 0) {
         double ret = cobj->GetDampingRatio();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2DistanceJoint_GetDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2DistanceJoint_GetDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2DistanceJoint_GetFrequency(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5806,12 +5843,12 @@ bool js_box2dclasses_b2DistanceJoint_GetFrequency(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         double ret = cobj->GetFrequency();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2DistanceJoint_GetFrequency : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2DistanceJoint_GetFrequency : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2DistanceJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5829,7 +5866,7 @@ bool js_box2dclasses_b2DistanceJoint_GetLocalAnchorA(JSContext *cx, uint32_t arg
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2DistanceJoint_GetLocalAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2DistanceJoint_GetLocalAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2DistanceJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5847,7 +5884,7 @@ bool js_box2dclasses_b2DistanceJoint_GetLocalAnchorB(JSContext *cx, uint32_t arg
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2DistanceJoint_GetLocalAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2DistanceJoint_GetLocalAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2DistanceJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5865,7 +5902,7 @@ bool js_box2dclasses_b2DistanceJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2DistanceJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2DistanceJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2DistanceJoint_GetReactionForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5878,7 +5915,7 @@ bool js_box2dclasses_b2DistanceJoint_GetReactionForce(JSContext *cx, uint32_t ar
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
@@ -5887,7 +5924,7 @@ bool js_box2dclasses_b2DistanceJoint_GetReactionForce(JSContext *cx, uint32_t ar
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2DistanceJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2DistanceJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2DistanceJoint_SetLength(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5900,30 +5937,33 @@ bool js_box2dclasses_b2DistanceJoint_SetLength(JSContext *cx, uint32_t argc, JS:
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_SetLength : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_SetLength : Error processing arguments");
         cobj->SetLength(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2DistanceJoint_SetLength : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2DistanceJoint_SetLength : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2DistanceJoint(JSContext *cx, JS::HandleObject global) {
-    jsb_b2DistanceJoint_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2DistanceJoint_class->name = "b2DistanceJoint";
-    jsb_b2DistanceJoint_class->addProperty = JS_PropertyStub;
-    jsb_b2DistanceJoint_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2DistanceJoint_class->getProperty = JS_PropertyStub;
-    jsb_b2DistanceJoint_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2DistanceJoint_class->enumerate = JS_EnumerateStub;
-    jsb_b2DistanceJoint_class->resolve = JS_ResolveStub;
-    jsb_b2DistanceJoint_class->convert = JS_ConvertStub;
-    jsb_b2DistanceJoint_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2DistanceJoint_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2DistanceJoint_class = {
+        "b2DistanceJoint",
+        JSCLASS_HAS_PRIVATE,
+        &b2DistanceJoint_classOps
+    };
+    jsb_b2DistanceJoint_class = &b2DistanceJoint_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -5956,7 +5996,7 @@ void js_register_box2dclasses_b2DistanceJoint(JSContext *cx, JS::HandleObject gl
         dummy_constructor<b2DistanceJoint>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2DistanceJoint_prototype);
@@ -5965,7 +6005,7 @@ void js_register_box2dclasses_b2DistanceJoint(JSContext *cx, JS::HandleObject gl
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2DistanceJoint>(cx, jsb_b2DistanceJoint_class, proto, parent_proto);
+    jsb_register_class<b2DistanceJoint>(cx, jsb_b2DistanceJoint_class, proto);
 }
 
 JSClass  *jsb_b2FrictionJoint_class;
@@ -5981,14 +6021,14 @@ bool js_box2dclasses_b2FrictionJoint_SetMaxTorque(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_SetMaxTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2FrictionJoint_SetMaxTorque : Error processing arguments");
         cobj->SetMaxTorque(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2FrictionJoint_SetMaxTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2FrictionJoint_SetMaxTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2FrictionJoint_GetMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6001,12 +6041,12 @@ bool js_box2dclasses_b2FrictionJoint_GetMaxForce(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         double ret = cobj->GetMaxForce();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2FrictionJoint_GetMaxForce : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2FrictionJoint_GetMaxForce : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2FrictionJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6024,7 +6064,7 @@ bool js_box2dclasses_b2FrictionJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2FrictionJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2FrictionJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2FrictionJoint_GetReactionTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6037,16 +6077,16 @@ bool js_box2dclasses_b2FrictionJoint_GetReactionTorque(JSContext *cx, uint32_t a
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2FrictionJoint_GetReactionTorque : Error processing arguments");
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2FrictionJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2FrictionJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2FrictionJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6062,7 +6102,7 @@ bool js_box2dclasses_b2FrictionJoint_Dump(JSContext *cx, uint32_t argc, JS::Valu
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2FrictionJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2FrictionJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2FrictionJoint_SetMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6075,14 +6115,14 @@ bool js_box2dclasses_b2FrictionJoint_SetMaxForce(JSContext *cx, uint32_t argc, J
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_SetMaxForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2FrictionJoint_SetMaxForce : Error processing arguments");
         cobj->SetMaxForce(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2FrictionJoint_SetMaxForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2FrictionJoint_SetMaxForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2FrictionJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6100,7 +6140,7 @@ bool js_box2dclasses_b2FrictionJoint_GetLocalAnchorA(JSContext *cx, uint32_t arg
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2FrictionJoint_GetLocalAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2FrictionJoint_GetLocalAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2FrictionJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6118,7 +6158,7 @@ bool js_box2dclasses_b2FrictionJoint_GetLocalAnchorB(JSContext *cx, uint32_t arg
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2FrictionJoint_GetLocalAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2FrictionJoint_GetLocalAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2FrictionJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6136,7 +6176,7 @@ bool js_box2dclasses_b2FrictionJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2FrictionJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2FrictionJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2FrictionJoint_GetReactionForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6149,7 +6189,7 @@ bool js_box2dclasses_b2FrictionJoint_GetReactionForce(JSContext *cx, uint32_t ar
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2FrictionJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
@@ -6158,7 +6198,7 @@ bool js_box2dclasses_b2FrictionJoint_GetReactionForce(JSContext *cx, uint32_t ar
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2FrictionJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2FrictionJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2FrictionJoint_GetMaxTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6171,28 +6211,31 @@ bool js_box2dclasses_b2FrictionJoint_GetMaxTorque(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         double ret = cobj->GetMaxTorque();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2FrictionJoint_GetMaxTorque : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2FrictionJoint_GetMaxTorque : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2FrictionJoint(JSContext *cx, JS::HandleObject global) {
-    jsb_b2FrictionJoint_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2FrictionJoint_class->name = "b2FrictionJoint";
-    jsb_b2FrictionJoint_class->addProperty = JS_PropertyStub;
-    jsb_b2FrictionJoint_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2FrictionJoint_class->getProperty = JS_PropertyStub;
-    jsb_b2FrictionJoint_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2FrictionJoint_class->enumerate = JS_EnumerateStub;
-    jsb_b2FrictionJoint_class->resolve = JS_ResolveStub;
-    jsb_b2FrictionJoint_class->convert = JS_ConvertStub;
-    jsb_b2FrictionJoint_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2FrictionJoint_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2FrictionJoint_class = {
+        "b2FrictionJoint",
+        JSCLASS_HAS_PRIVATE,
+        &b2FrictionJoint_classOps
+    };
+    jsb_b2FrictionJoint_class = &b2FrictionJoint_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -6223,7 +6266,7 @@ void js_register_box2dclasses_b2FrictionJoint(JSContext *cx, JS::HandleObject gl
         dummy_constructor<b2FrictionJoint>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2FrictionJoint_prototype);
@@ -6232,7 +6275,7 @@ void js_register_box2dclasses_b2FrictionJoint(JSContext *cx, JS::HandleObject gl
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2FrictionJoint>(cx, jsb_b2FrictionJoint_class, proto, parent_proto);
+    jsb_register_class<b2FrictionJoint>(cx, jsb_b2FrictionJoint_class, proto);
 }
 
 JSClass  *jsb_b2GearJoint_class;
@@ -6257,7 +6300,7 @@ bool js_box2dclasses_b2GearJoint_GetJoint1(JSContext *cx, uint32_t argc, JS::Val
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2GearJoint_GetJoint1 : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2GearJoint_GetJoint1 : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2GearJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6275,7 +6318,7 @@ bool js_box2dclasses_b2GearJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Va
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2GearJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2GearJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2GearJoint_GetJoint2(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6297,7 +6340,7 @@ bool js_box2dclasses_b2GearJoint_GetJoint2(JSContext *cx, uint32_t argc, JS::Val
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2GearJoint_GetJoint2 : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2GearJoint_GetJoint2 : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2GearJoint_GetReactionTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6310,16 +6353,16 @@ bool js_box2dclasses_b2GearJoint_GetReactionTorque(JSContext *cx, uint32_t argc,
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2GearJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2GearJoint_GetReactionTorque : Error processing arguments");
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2GearJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2GearJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2GearJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6335,7 +6378,7 @@ bool js_box2dclasses_b2GearJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *v
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2GearJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2GearJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2GearJoint_SetRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6348,14 +6391,14 @@ bool js_box2dclasses_b2GearJoint_SetRatio(JSContext *cx, uint32_t argc, JS::Valu
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2GearJoint_SetRatio : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2GearJoint_SetRatio : Error processing arguments");
         cobj->SetRatio(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2GearJoint_SetRatio : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2GearJoint_SetRatio : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2GearJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6373,7 +6416,7 @@ bool js_box2dclasses_b2GearJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Va
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2GearJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2GearJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2GearJoint_GetReactionForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6386,7 +6429,7 @@ bool js_box2dclasses_b2GearJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2GearJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2GearJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
@@ -6395,7 +6438,7 @@ bool js_box2dclasses_b2GearJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2GearJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2GearJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2GearJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6408,28 +6451,31 @@ bool js_box2dclasses_b2GearJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Valu
     if (argc == 0) {
         double ret = cobj->GetRatio();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2GearJoint_GetRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2GearJoint_GetRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2GearJoint(JSContext *cx, JS::HandleObject global) {
-    jsb_b2GearJoint_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2GearJoint_class->name = "b2GearJoint";
-    jsb_b2GearJoint_class->addProperty = JS_PropertyStub;
-    jsb_b2GearJoint_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2GearJoint_class->getProperty = JS_PropertyStub;
-    jsb_b2GearJoint_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2GearJoint_class->enumerate = JS_EnumerateStub;
-    jsb_b2GearJoint_class->resolve = JS_ResolveStub;
-    jsb_b2GearJoint_class->convert = JS_ConvertStub;
-    jsb_b2GearJoint_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2GearJoint_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2GearJoint_class = {
+        "b2GearJoint",
+        JSCLASS_HAS_PRIVATE,
+        &b2GearJoint_classOps
+    };
+    jsb_b2GearJoint_class = &b2GearJoint_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -6458,7 +6504,7 @@ void js_register_box2dclasses_b2GearJoint(JSContext *cx, JS::HandleObject global
         dummy_constructor<b2GearJoint>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2GearJoint_prototype);
@@ -6467,7 +6513,7 @@ void js_register_box2dclasses_b2GearJoint(JSContext *cx, JS::HandleObject global
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2GearJoint>(cx, jsb_b2GearJoint_class, proto, parent_proto);
+    jsb_register_class<b2GearJoint>(cx, jsb_b2GearJoint_class, proto);
 }
 
 JSClass  *jsb_b2MotorJoint_class;
@@ -6483,14 +6529,14 @@ bool js_box2dclasses_b2MotorJoint_SetMaxTorque(JSContext *cx, uint32_t argc, JS:
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_SetMaxTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_SetMaxTorque : Error processing arguments");
         cobj->SetMaxTorque(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_SetMaxTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_SetMaxTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2MotorJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6508,7 +6554,7 @@ bool js_box2dclasses_b2MotorJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::V
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MotorJoint_GetReactionTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6521,16 +6567,16 @@ bool js_box2dclasses_b2MotorJoint_GetReactionTorque(JSContext *cx, uint32_t argc
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_GetReactionTorque : Error processing arguments");
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2MotorJoint_GetCorrectionFactor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6543,12 +6589,12 @@ bool js_box2dclasses_b2MotorJoint_GetCorrectionFactor(JSContext *cx, uint32_t ar
     if (argc == 0) {
         double ret = cobj->GetCorrectionFactor();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_GetCorrectionFactor : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_GetCorrectionFactor : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MotorJoint_SetMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6561,14 +6607,14 @@ bool js_box2dclasses_b2MotorJoint_SetMaxForce(JSContext *cx, uint32_t argc, JS::
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_SetMaxForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_SetMaxForce : Error processing arguments");
         cobj->SetMaxForce(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_SetMaxForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_SetMaxForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2MotorJoint_SetLinearOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6588,7 +6634,7 @@ bool js_box2dclasses_b2MotorJoint_SetLinearOffset(JSContext *cx, uint32_t argc, 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_SetLinearOffset : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_SetLinearOffset : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2MotorJoint_GetMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6601,12 +6647,12 @@ bool js_box2dclasses_b2MotorJoint_GetMaxForce(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         double ret = cobj->GetMaxForce();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_GetMaxForce : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_GetMaxForce : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MotorJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6622,7 +6668,7 @@ bool js_box2dclasses_b2MotorJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MotorJoint_SetAngularOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6635,14 +6681,14 @@ bool js_box2dclasses_b2MotorJoint_SetAngularOffset(JSContext *cx, uint32_t argc,
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_SetAngularOffset : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_SetAngularOffset : Error processing arguments");
         cobj->SetAngularOffset(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_SetAngularOffset : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_SetAngularOffset : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2MotorJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6660,7 +6706,7 @@ bool js_box2dclasses_b2MotorJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::V
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MotorJoint_GetReactionForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6673,7 +6719,7 @@ bool js_box2dclasses_b2MotorJoint_GetReactionForce(JSContext *cx, uint32_t argc,
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
@@ -6682,7 +6728,7 @@ bool js_box2dclasses_b2MotorJoint_GetReactionForce(JSContext *cx, uint32_t argc,
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2MotorJoint_GetAngularOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6695,12 +6741,12 @@ bool js_box2dclasses_b2MotorJoint_GetAngularOffset(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         double ret = cobj->GetAngularOffset();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_GetAngularOffset : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_GetAngularOffset : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MotorJoint_GetLinearOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6718,7 +6764,7 @@ bool js_box2dclasses_b2MotorJoint_GetLinearOffset(JSContext *cx, uint32_t argc, 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_GetLinearOffset : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_GetLinearOffset : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MotorJoint_GetMaxTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6731,12 +6777,12 @@ bool js_box2dclasses_b2MotorJoint_GetMaxTorque(JSContext *cx, uint32_t argc, JS:
     if (argc == 0) {
         double ret = cobj->GetMaxTorque();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_GetMaxTorque : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_GetMaxTorque : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MotorJoint_SetCorrectionFactor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6749,30 +6795,33 @@ bool js_box2dclasses_b2MotorJoint_SetCorrectionFactor(JSContext *cx, uint32_t ar
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_SetCorrectionFactor : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_SetCorrectionFactor : Error processing arguments");
         cobj->SetCorrectionFactor(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MotorJoint_SetCorrectionFactor : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MotorJoint_SetCorrectionFactor : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2MotorJoint(JSContext *cx, JS::HandleObject global) {
-    jsb_b2MotorJoint_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2MotorJoint_class->name = "b2MotorJoint";
-    jsb_b2MotorJoint_class->addProperty = JS_PropertyStub;
-    jsb_b2MotorJoint_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2MotorJoint_class->getProperty = JS_PropertyStub;
-    jsb_b2MotorJoint_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2MotorJoint_class->enumerate = JS_EnumerateStub;
-    jsb_b2MotorJoint_class->resolve = JS_ResolveStub;
-    jsb_b2MotorJoint_class->convert = JS_ConvertStub;
-    jsb_b2MotorJoint_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2MotorJoint_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2MotorJoint_class = {
+        "b2MotorJoint",
+        JSCLASS_HAS_PRIVATE,
+        &b2MotorJoint_classOps
+    };
+    jsb_b2MotorJoint_class = &b2MotorJoint_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -6807,7 +6856,7 @@ void js_register_box2dclasses_b2MotorJoint(JSContext *cx, JS::HandleObject globa
         dummy_constructor<b2MotorJoint>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2MotorJoint_prototype);
@@ -6816,7 +6865,7 @@ void js_register_box2dclasses_b2MotorJoint(JSContext *cx, JS::HandleObject globa
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2MotorJoint>(cx, jsb_b2MotorJoint_class, proto, parent_proto);
+    jsb_register_class<b2MotorJoint>(cx, jsb_b2MotorJoint_class, proto);
 }
 
 JSClass  *jsb_b2MouseJoint_class;
@@ -6832,14 +6881,14 @@ bool js_box2dclasses_b2MouseJoint_SetDampingRatio(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_SetDampingRatio : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MouseJoint_SetDampingRatio : Error processing arguments");
         cobj->SetDampingRatio(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MouseJoint_SetDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MouseJoint_SetDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2MouseJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6857,7 +6906,7 @@ bool js_box2dclasses_b2MouseJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::V
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MouseJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MouseJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MouseJoint_GetReactionTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6870,16 +6919,16 @@ bool js_box2dclasses_b2MouseJoint_GetReactionTorque(JSContext *cx, uint32_t argc
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MouseJoint_GetReactionTorque : Error processing arguments");
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MouseJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MouseJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2MouseJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6895,7 +6944,7 @@ bool js_box2dclasses_b2MouseJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MouseJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MouseJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MouseJoint_SetFrequency(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6908,14 +6957,14 @@ bool js_box2dclasses_b2MouseJoint_SetFrequency(JSContext *cx, uint32_t argc, JS:
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_SetFrequency : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MouseJoint_SetFrequency : Error processing arguments");
         cobj->SetFrequency(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MouseJoint_SetFrequency : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MouseJoint_SetFrequency : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2MouseJoint_GetDampingRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6928,12 +6977,12 @@ bool js_box2dclasses_b2MouseJoint_GetDampingRatio(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         double ret = cobj->GetDampingRatio();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MouseJoint_GetDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MouseJoint_GetDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MouseJoint_SetTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6953,7 +7002,7 @@ bool js_box2dclasses_b2MouseJoint_SetTarget(JSContext *cx, uint32_t argc, JS::Va
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MouseJoint_SetTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MouseJoint_SetTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2MouseJoint_SetMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6966,14 +7015,14 @@ bool js_box2dclasses_b2MouseJoint_SetMaxForce(JSContext *cx, uint32_t argc, JS::
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_SetMaxForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MouseJoint_SetMaxForce : Error processing arguments");
         cobj->SetMaxForce(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MouseJoint_SetMaxForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MouseJoint_SetMaxForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2MouseJoint_GetFrequency(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6986,12 +7035,12 @@ bool js_box2dclasses_b2MouseJoint_GetFrequency(JSContext *cx, uint32_t argc, JS:
     if (argc == 0) {
         double ret = cobj->GetFrequency();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MouseJoint_GetFrequency : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MouseJoint_GetFrequency : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MouseJoint_GetTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7009,7 +7058,7 @@ bool js_box2dclasses_b2MouseJoint_GetTarget(JSContext *cx, uint32_t argc, JS::Va
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MouseJoint_GetTarget : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MouseJoint_GetTarget : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MouseJoint_GetMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7022,12 +7071,12 @@ bool js_box2dclasses_b2MouseJoint_GetMaxForce(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         double ret = cobj->GetMaxForce();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MouseJoint_GetMaxForce : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MouseJoint_GetMaxForce : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MouseJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7045,7 +7094,7 @@ bool js_box2dclasses_b2MouseJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::V
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MouseJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MouseJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2MouseJoint_GetReactionForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7058,7 +7107,7 @@ bool js_box2dclasses_b2MouseJoint_GetReactionForce(JSContext *cx, uint32_t argc,
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MouseJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
@@ -7067,7 +7116,7 @@ bool js_box2dclasses_b2MouseJoint_GetReactionForce(JSContext *cx, uint32_t argc,
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MouseJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MouseJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2MouseJoint_ShiftOrigin(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7087,23 +7136,26 @@ bool js_box2dclasses_b2MouseJoint_ShiftOrigin(JSContext *cx, uint32_t argc, JS::
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2MouseJoint_ShiftOrigin : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2MouseJoint_ShiftOrigin : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2MouseJoint(JSContext *cx, JS::HandleObject global) {
-    jsb_b2MouseJoint_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2MouseJoint_class->name = "b2MouseJoint";
-    jsb_b2MouseJoint_class->addProperty = JS_PropertyStub;
-    jsb_b2MouseJoint_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2MouseJoint_class->getProperty = JS_PropertyStub;
-    jsb_b2MouseJoint_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2MouseJoint_class->enumerate = JS_EnumerateStub;
-    jsb_b2MouseJoint_class->resolve = JS_ResolveStub;
-    jsb_b2MouseJoint_class->convert = JS_ConvertStub;
-    jsb_b2MouseJoint_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2MouseJoint_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2MouseJoint_class = {
+        "b2MouseJoint",
+        JSCLASS_HAS_PRIVATE,
+        &b2MouseJoint_classOps
+    };
+    jsb_b2MouseJoint_class = &b2MouseJoint_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -7137,7 +7189,7 @@ void js_register_box2dclasses_b2MouseJoint(JSContext *cx, JS::HandleObject globa
         dummy_constructor<b2MouseJoint>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2MouseJoint_prototype);
@@ -7146,7 +7198,7 @@ void js_register_box2dclasses_b2MouseJoint(JSContext *cx, JS::HandleObject globa
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2MouseJoint>(cx, jsb_b2MouseJoint_class, proto, parent_proto);
+    jsb_register_class<b2MouseJoint>(cx, jsb_b2MouseJoint_class, proto);
 }
 
 JSClass  *jsb_b2PrismaticJoint_class;
@@ -7167,7 +7219,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetLocalAxisA(JSContext *cx, uint32_t argc
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetLocalAxisA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetLocalAxisA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_GetLowerLimit(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7180,12 +7232,12 @@ bool js_box2dclasses_b2PrismaticJoint_GetLowerLimit(JSContext *cx, uint32_t argc
     if (argc == 0) {
         double ret = cobj->GetLowerLimit();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetLowerLimit : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetLowerLimit : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7203,7 +7255,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetAnchorA(JSContext *cx, uint32_t argc, J
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7221,7 +7273,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetLocalAnchorA(JSContext *cx, uint32_t ar
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetLocalAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetLocalAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_SetMotorSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7234,14 +7286,14 @@ bool js_box2dclasses_b2PrismaticJoint_SetMotorSpeed(JSContext *cx, uint32_t argc
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_SetMotorSpeed : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_SetMotorSpeed : Error processing arguments");
         cobj->SetMotorSpeed(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_SetMotorSpeed : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_SetMotorSpeed : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7259,7 +7311,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetLocalAnchorB(JSContext *cx, uint32_t ar
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetLocalAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetLocalAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_GetMotorSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7272,12 +7324,12 @@ bool js_box2dclasses_b2PrismaticJoint_GetMotorSpeed(JSContext *cx, uint32_t argc
     if (argc == 0) {
         double ret = cobj->GetMotorSpeed();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetMotorSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetMotorSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_SetMaxMotorForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7290,14 +7342,14 @@ bool js_box2dclasses_b2PrismaticJoint_SetMaxMotorForce(JSContext *cx, uint32_t a
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_SetMaxMotorForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_SetMaxMotorForce : Error processing arguments");
         cobj->SetMaxMotorForce(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_SetMaxMotorForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_SetMaxMotorForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_EnableLimit(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7310,14 +7362,14 @@ bool js_box2dclasses_b2PrismaticJoint_EnableLimit(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_EnableLimit : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_EnableLimit : Error processing arguments");
         cobj->EnableLimit(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_EnableLimit : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_EnableLimit : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_IsMotorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7330,12 +7382,12 @@ bool js_box2dclasses_b2PrismaticJoint_IsMotorEnabled(JSContext *cx, uint32_t arg
     if (argc == 0) {
         bool ret = cobj->IsMotorEnabled();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_IsMotorEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_IsMotorEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_GetReactionForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7348,7 +7400,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetReactionForce(JSContext *cx, uint32_t a
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
@@ -7357,7 +7409,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetReactionForce(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_GetMaxMotorForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7370,12 +7422,12 @@ bool js_box2dclasses_b2PrismaticJoint_GetMaxMotorForce(JSContext *cx, uint32_t a
     if (argc == 0) {
         double ret = cobj->GetMaxMotorForce();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetMaxMotorForce : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetMaxMotorForce : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_GetJointSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7388,12 +7440,12 @@ bool js_box2dclasses_b2PrismaticJoint_GetJointSpeed(JSContext *cx, uint32_t argc
     if (argc == 0) {
         double ret = cobj->GetJointSpeed();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetJointSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetJointSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_EnableMotor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7406,14 +7458,14 @@ bool js_box2dclasses_b2PrismaticJoint_EnableMotor(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_EnableMotor : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_EnableMotor : Error processing arguments");
         cobj->EnableMotor(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_EnableMotor : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_EnableMotor : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_GetReferenceAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7426,12 +7478,12 @@ bool js_box2dclasses_b2PrismaticJoint_GetReferenceAngle(JSContext *cx, uint32_t 
     if (argc == 0) {
         double ret = cobj->GetReferenceAngle();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetReferenceAngle : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetReferenceAngle : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7447,7 +7499,7 @@ bool js_box2dclasses_b2PrismaticJoint_Dump(JSContext *cx, uint32_t argc, JS::Val
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_GetMotorForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7460,16 +7512,16 @@ bool js_box2dclasses_b2PrismaticJoint_GetMotorForce(JSContext *cx, uint32_t argc
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetMotorForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetMotorForce : Error processing arguments");
         double ret = cobj->GetMotorForce(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetMotorForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetMotorForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_GetJointTranslation(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7482,12 +7534,12 @@ bool js_box2dclasses_b2PrismaticJoint_GetJointTranslation(JSContext *cx, uint32_
     if (argc == 0) {
         double ret = cobj->GetJointTranslation();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetJointTranslation : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetJointTranslation : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_IsLimitEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7500,12 +7552,12 @@ bool js_box2dclasses_b2PrismaticJoint_IsLimitEnabled(JSContext *cx, uint32_t arg
     if (argc == 0) {
         bool ret = cobj->IsLimitEnabled();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_IsLimitEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_IsLimitEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_GetReactionTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7518,16 +7570,16 @@ bool js_box2dclasses_b2PrismaticJoint_GetReactionTorque(JSContext *cx, uint32_t 
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetReactionTorque : Error processing arguments");
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_SetLimits(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7541,15 +7593,15 @@ bool js_box2dclasses_b2PrismaticJoint_SetLimits(JSContext *cx, uint32_t argc, JS
     if (argc == 2) {
         double arg0 = 0;
         double arg1 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        arg0 = (float)(args.get(0).toNumber());
+        arg1 = (float)(args.get(1).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_SetLimits : Error processing arguments");
         cobj->SetLimits(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_SetLimits : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_SetLimits : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_GetUpperLimit(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7562,12 +7614,12 @@ bool js_box2dclasses_b2PrismaticJoint_GetUpperLimit(JSContext *cx, uint32_t argc
     if (argc == 0) {
         double ret = cobj->GetUpperLimit();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetUpperLimit : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetUpperLimit : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PrismaticJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7585,23 +7637,26 @@ bool js_box2dclasses_b2PrismaticJoint_GetAnchorB(JSContext *cx, uint32_t argc, J
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PrismaticJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PrismaticJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2PrismaticJoint(JSContext *cx, JS::HandleObject global) {
-    jsb_b2PrismaticJoint_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2PrismaticJoint_class->name = "b2PrismaticJoint";
-    jsb_b2PrismaticJoint_class->addProperty = JS_PropertyStub;
-    jsb_b2PrismaticJoint_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2PrismaticJoint_class->getProperty = JS_PropertyStub;
-    jsb_b2PrismaticJoint_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2PrismaticJoint_class->enumerate = JS_EnumerateStub;
-    jsb_b2PrismaticJoint_class->resolve = JS_ResolveStub;
-    jsb_b2PrismaticJoint_class->convert = JS_ConvertStub;
-    jsb_b2PrismaticJoint_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2PrismaticJoint_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2PrismaticJoint_class = {
+        "b2PrismaticJoint",
+        JSCLASS_HAS_PRIVATE,
+        &b2PrismaticJoint_classOps
+    };
+    jsb_b2PrismaticJoint_class = &b2PrismaticJoint_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -7644,7 +7699,7 @@ void js_register_box2dclasses_b2PrismaticJoint(JSContext *cx, JS::HandleObject g
         dummy_constructor<b2PrismaticJoint>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2PrismaticJoint_prototype);
@@ -7653,7 +7708,7 @@ void js_register_box2dclasses_b2PrismaticJoint(JSContext *cx, JS::HandleObject g
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2PrismaticJoint>(cx, jsb_b2PrismaticJoint_class, proto, parent_proto);
+    jsb_register_class<b2PrismaticJoint>(cx, jsb_b2PrismaticJoint_class, proto);
 }
 
 JSClass  *jsb_b2PulleyJoint_class;
@@ -7669,12 +7724,12 @@ bool js_box2dclasses_b2PulleyJoint_GetCurrentLengthA(JSContext *cx, uint32_t arg
     if (argc == 0) {
         double ret = cobj->GetCurrentLengthA();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PulleyJoint_GetCurrentLengthA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PulleyJoint_GetCurrentLengthA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PulleyJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7692,7 +7747,7 @@ bool js_box2dclasses_b2PulleyJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PulleyJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PulleyJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PulleyJoint_GetGroundAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7710,7 +7765,7 @@ bool js_box2dclasses_b2PulleyJoint_GetGroundAnchorB(JSContext *cx, uint32_t argc
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PulleyJoint_GetGroundAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PulleyJoint_GetGroundAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PulleyJoint_GetReactionTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7723,16 +7778,16 @@ bool js_box2dclasses_b2PulleyJoint_GetReactionTorque(JSContext *cx, uint32_t arg
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PulleyJoint_GetReactionTorque : Error processing arguments");
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PulleyJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PulleyJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2PulleyJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7748,7 +7803,7 @@ bool js_box2dclasses_b2PulleyJoint_Dump(JSContext *cx, uint32_t argc, JS::Value 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PulleyJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PulleyJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PulleyJoint_GetGroundAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7766,7 +7821,7 @@ bool js_box2dclasses_b2PulleyJoint_GetGroundAnchorA(JSContext *cx, uint32_t argc
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PulleyJoint_GetGroundAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PulleyJoint_GetGroundAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PulleyJoint_GetLengthB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7779,12 +7834,12 @@ bool js_box2dclasses_b2PulleyJoint_GetLengthB(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         double ret = cobj->GetLengthB();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PulleyJoint_GetLengthB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PulleyJoint_GetLengthB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PulleyJoint_GetLengthA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7797,12 +7852,12 @@ bool js_box2dclasses_b2PulleyJoint_GetLengthA(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         double ret = cobj->GetLengthA();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PulleyJoint_GetLengthA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PulleyJoint_GetLengthA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PulleyJoint_GetCurrentLengthB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7815,12 +7870,12 @@ bool js_box2dclasses_b2PulleyJoint_GetCurrentLengthB(JSContext *cx, uint32_t arg
     if (argc == 0) {
         double ret = cobj->GetCurrentLengthB();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PulleyJoint_GetCurrentLengthB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PulleyJoint_GetCurrentLengthB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PulleyJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7838,7 +7893,7 @@ bool js_box2dclasses_b2PulleyJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PulleyJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PulleyJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2PulleyJoint_GetReactionForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7851,7 +7906,7 @@ bool js_box2dclasses_b2PulleyJoint_GetReactionForce(JSContext *cx, uint32_t argc
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PulleyJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
@@ -7860,7 +7915,7 @@ bool js_box2dclasses_b2PulleyJoint_GetReactionForce(JSContext *cx, uint32_t argc
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PulleyJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PulleyJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2PulleyJoint_ShiftOrigin(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7880,7 +7935,7 @@ bool js_box2dclasses_b2PulleyJoint_ShiftOrigin(JSContext *cx, uint32_t argc, JS:
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PulleyJoint_ShiftOrigin : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PulleyJoint_ShiftOrigin : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2PulleyJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7893,28 +7948,31 @@ bool js_box2dclasses_b2PulleyJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         double ret = cobj->GetRatio();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2PulleyJoint_GetRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PulleyJoint_GetRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2PulleyJoint(JSContext *cx, JS::HandleObject global) {
-    jsb_b2PulleyJoint_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2PulleyJoint_class->name = "b2PulleyJoint";
-    jsb_b2PulleyJoint_class->addProperty = JS_PropertyStub;
-    jsb_b2PulleyJoint_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2PulleyJoint_class->getProperty = JS_PropertyStub;
-    jsb_b2PulleyJoint_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2PulleyJoint_class->enumerate = JS_EnumerateStub;
-    jsb_b2PulleyJoint_class->resolve = JS_ResolveStub;
-    jsb_b2PulleyJoint_class->convert = JS_ConvertStub;
-    jsb_b2PulleyJoint_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2PulleyJoint_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2PulleyJoint_class = {
+        "b2PulleyJoint",
+        JSCLASS_HAS_PRIVATE,
+        &b2PulleyJoint_classOps
+    };
+    jsb_b2PulleyJoint_class = &b2PulleyJoint_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -7947,7 +8005,7 @@ void js_register_box2dclasses_b2PulleyJoint(JSContext *cx, JS::HandleObject glob
         dummy_constructor<b2PulleyJoint>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2PulleyJoint_prototype);
@@ -7956,7 +8014,7 @@ void js_register_box2dclasses_b2PulleyJoint(JSContext *cx, JS::HandleObject glob
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2PulleyJoint>(cx, jsb_b2PulleyJoint_class, proto, parent_proto);
+    jsb_register_class<b2PulleyJoint>(cx, jsb_b2PulleyJoint_class, proto);
 }
 
 JSClass  *jsb_b2RevoluteJoint_class;
@@ -7972,12 +8030,12 @@ bool js_box2dclasses_b2RevoluteJoint_GetLowerLimit(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         double ret = cobj->GetLowerLimit();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_GetLowerLimit : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_GetLowerLimit : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7995,7 +8053,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8013,7 +8071,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetLocalAnchorA(JSContext *cx, uint32_t arg
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_GetLocalAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_GetLocalAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_SetMotorSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8026,14 +8084,14 @@ bool js_box2dclasses_b2RevoluteJoint_SetMotorSpeed(JSContext *cx, uint32_t argc,
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_SetMotorSpeed : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_SetMotorSpeed : Error processing arguments");
         cobj->SetMotorSpeed(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_SetMotorSpeed : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_SetMotorSpeed : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8051,7 +8109,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetLocalAnchorB(JSContext *cx, uint32_t arg
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_GetLocalAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_GetLocalAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_GetJointAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8064,12 +8122,12 @@ bool js_box2dclasses_b2RevoluteJoint_GetJointAngle(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         double ret = cobj->GetJointAngle();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_GetJointAngle : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_GetJointAngle : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_GetMotorSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8082,12 +8140,12 @@ bool js_box2dclasses_b2RevoluteJoint_GetMotorSpeed(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         double ret = cobj->GetMotorSpeed();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_GetMotorSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_GetMotorSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_GetMotorTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8100,16 +8158,16 @@ bool js_box2dclasses_b2RevoluteJoint_GetMotorTorque(JSContext *cx, uint32_t argc
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetMotorTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetMotorTorque : Error processing arguments");
         double ret = cobj->GetMotorTorque(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_GetMotorTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_GetMotorTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_IsLimitEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8122,12 +8180,12 @@ bool js_box2dclasses_b2RevoluteJoint_IsLimitEnabled(JSContext *cx, uint32_t argc
     if (argc == 0) {
         bool ret = cobj->IsLimitEnabled();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_IsLimitEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_IsLimitEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_EnableLimit(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8140,14 +8198,14 @@ bool js_box2dclasses_b2RevoluteJoint_EnableLimit(JSContext *cx, uint32_t argc, J
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_EnableLimit : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_EnableLimit : Error processing arguments");
         cobj->EnableLimit(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_EnableLimit : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_EnableLimit : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_IsMotorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8160,12 +8218,12 @@ bool js_box2dclasses_b2RevoluteJoint_IsMotorEnabled(JSContext *cx, uint32_t argc
     if (argc == 0) {
         bool ret = cobj->IsMotorEnabled();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_IsMotorEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_IsMotorEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_GetReactionForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8178,7 +8236,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetReactionForce(JSContext *cx, uint32_t ar
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
@@ -8187,7 +8245,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetReactionForce(JSContext *cx, uint32_t ar
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_SetMaxMotorTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8200,14 +8258,14 @@ bool js_box2dclasses_b2RevoluteJoint_SetMaxMotorTorque(JSContext *cx, uint32_t a
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_SetMaxMotorTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_SetMaxMotorTorque : Error processing arguments");
         cobj->SetMaxMotorTorque(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_SetMaxMotorTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_SetMaxMotorTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_GetJointSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8220,12 +8278,12 @@ bool js_box2dclasses_b2RevoluteJoint_GetJointSpeed(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         double ret = cobj->GetJointSpeed();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_GetJointSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_GetJointSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_EnableMotor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8238,14 +8296,14 @@ bool js_box2dclasses_b2RevoluteJoint_EnableMotor(JSContext *cx, uint32_t argc, J
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_EnableMotor : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_EnableMotor : Error processing arguments");
         cobj->EnableMotor(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_EnableMotor : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_EnableMotor : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_GetReferenceAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8258,12 +8316,12 @@ bool js_box2dclasses_b2RevoluteJoint_GetReferenceAngle(JSContext *cx, uint32_t a
     if (argc == 0) {
         double ret = cobj->GetReferenceAngle();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_GetReferenceAngle : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_GetReferenceAngle : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8279,7 +8337,7 @@ bool js_box2dclasses_b2RevoluteJoint_Dump(JSContext *cx, uint32_t argc, JS::Valu
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_SetLimits(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8293,15 +8351,15 @@ bool js_box2dclasses_b2RevoluteJoint_SetLimits(JSContext *cx, uint32_t argc, JS:
     if (argc == 2) {
         double arg0 = 0;
         double arg1 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        arg0 = (float)(args.get(0).toNumber());
+        arg1 = (float)(args.get(1).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_SetLimits : Error processing arguments");
         cobj->SetLimits(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_SetLimits : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_SetLimits : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_GetMaxMotorTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8314,12 +8372,12 @@ bool js_box2dclasses_b2RevoluteJoint_GetMaxMotorTorque(JSContext *cx, uint32_t a
     if (argc == 0) {
         double ret = cobj->GetMaxMotorTorque();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_GetMaxMotorTorque : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_GetMaxMotorTorque : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_GetReactionTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8332,16 +8390,16 @@ bool js_box2dclasses_b2RevoluteJoint_GetReactionTorque(JSContext *cx, uint32_t a
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetReactionTorque : Error processing arguments");
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_GetUpperLimit(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8354,12 +8412,12 @@ bool js_box2dclasses_b2RevoluteJoint_GetUpperLimit(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         double ret = cobj->GetUpperLimit();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_GetUpperLimit : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_GetUpperLimit : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RevoluteJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8377,23 +8435,26 @@ bool js_box2dclasses_b2RevoluteJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RevoluteJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RevoluteJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2RevoluteJoint(JSContext *cx, JS::HandleObject global) {
-    jsb_b2RevoluteJoint_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2RevoluteJoint_class->name = "b2RevoluteJoint";
-    jsb_b2RevoluteJoint_class->addProperty = JS_PropertyStub;
-    jsb_b2RevoluteJoint_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2RevoluteJoint_class->getProperty = JS_PropertyStub;
-    jsb_b2RevoluteJoint_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2RevoluteJoint_class->enumerate = JS_EnumerateStub;
-    jsb_b2RevoluteJoint_class->resolve = JS_ResolveStub;
-    jsb_b2RevoluteJoint_class->convert = JS_ConvertStub;
-    jsb_b2RevoluteJoint_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2RevoluteJoint_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2RevoluteJoint_class = {
+        "b2RevoluteJoint",
+        JSCLASS_HAS_PRIVATE,
+        &b2RevoluteJoint_classOps
+    };
+    jsb_b2RevoluteJoint_class = &b2RevoluteJoint_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -8435,7 +8496,7 @@ void js_register_box2dclasses_b2RevoluteJoint(JSContext *cx, JS::HandleObject gl
         dummy_constructor<b2RevoluteJoint>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2RevoluteJoint_prototype);
@@ -8444,7 +8505,7 @@ void js_register_box2dclasses_b2RevoluteJoint(JSContext *cx, JS::HandleObject gl
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2RevoluteJoint>(cx, jsb_b2RevoluteJoint_class, proto, parent_proto);
+    jsb_register_class<b2RevoluteJoint>(cx, jsb_b2RevoluteJoint_class, proto);
 }
 
 JSClass  *jsb_b2RopeJoint_class;
@@ -8465,7 +8526,7 @@ bool js_box2dclasses_b2RopeJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Va
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RopeJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RopeJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RopeJoint_GetReactionTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8478,16 +8539,16 @@ bool js_box2dclasses_b2RopeJoint_GetReactionTorque(JSContext *cx, uint32_t argc,
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RopeJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RopeJoint_GetReactionTorque : Error processing arguments");
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RopeJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RopeJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2RopeJoint_GetMaxLength(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8500,12 +8561,12 @@ bool js_box2dclasses_b2RopeJoint_GetMaxLength(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         double ret = cobj->GetMaxLength();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RopeJoint_GetMaxLength : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RopeJoint_GetMaxLength : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RopeJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8523,7 +8584,7 @@ bool js_box2dclasses_b2RopeJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, J
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RopeJoint_GetLocalAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RopeJoint_GetLocalAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RopeJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8539,7 +8600,7 @@ bool js_box2dclasses_b2RopeJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *v
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RopeJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RopeJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RopeJoint_SetMaxLength(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8552,14 +8613,14 @@ bool js_box2dclasses_b2RopeJoint_SetMaxLength(JSContext *cx, uint32_t argc, JS::
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RopeJoint_SetMaxLength : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RopeJoint_SetMaxLength : Error processing arguments");
         cobj->SetMaxLength(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RopeJoint_SetMaxLength : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RopeJoint_SetMaxLength : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2RopeJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8577,7 +8638,7 @@ bool js_box2dclasses_b2RopeJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, J
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RopeJoint_GetLocalAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RopeJoint_GetLocalAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RopeJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8595,7 +8656,7 @@ bool js_box2dclasses_b2RopeJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Va
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RopeJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RopeJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2RopeJoint_GetReactionForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8608,7 +8669,7 @@ bool js_box2dclasses_b2RopeJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RopeJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RopeJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
@@ -8617,7 +8678,7 @@ bool js_box2dclasses_b2RopeJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RopeJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RopeJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2RopeJoint_GetLimitState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8630,28 +8691,31 @@ bool js_box2dclasses_b2RopeJoint_GetLimitState(JSContext *cx, uint32_t argc, JS:
     if (argc == 0) {
         int ret = (int)cobj->GetLimitState();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2RopeJoint_GetLimitState : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2RopeJoint_GetLimitState : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2RopeJoint(JSContext *cx, JS::HandleObject global) {
-    jsb_b2RopeJoint_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2RopeJoint_class->name = "b2RopeJoint";
-    jsb_b2RopeJoint_class->addProperty = JS_PropertyStub;
-    jsb_b2RopeJoint_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2RopeJoint_class->getProperty = JS_PropertyStub;
-    jsb_b2RopeJoint_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2RopeJoint_class->enumerate = JS_EnumerateStub;
-    jsb_b2RopeJoint_class->resolve = JS_ResolveStub;
-    jsb_b2RopeJoint_class->convert = JS_ConvertStub;
-    jsb_b2RopeJoint_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2RopeJoint_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2RopeJoint_class = {
+        "b2RopeJoint",
+        JSCLASS_HAS_PRIVATE,
+        &b2RopeJoint_classOps
+    };
+    jsb_b2RopeJoint_class = &b2RopeJoint_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -8681,7 +8745,7 @@ void js_register_box2dclasses_b2RopeJoint(JSContext *cx, JS::HandleObject global
         dummy_constructor<b2RopeJoint>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2RopeJoint_prototype);
@@ -8690,7 +8754,7 @@ void js_register_box2dclasses_b2RopeJoint(JSContext *cx, JS::HandleObject global
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2RopeJoint>(cx, jsb_b2RopeJoint_class, proto, parent_proto);
+    jsb_register_class<b2RopeJoint>(cx, jsb_b2RopeJoint_class, proto);
 }
 
 JSClass  *jsb_b2WeldJoint_class;
@@ -8706,14 +8770,14 @@ bool js_box2dclasses_b2WeldJoint_SetDampingRatio(JSContext *cx, uint32_t argc, J
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_SetDampingRatio : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WeldJoint_SetDampingRatio : Error processing arguments");
         cobj->SetDampingRatio(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WeldJoint_SetDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WeldJoint_SetDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2WeldJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8731,7 +8795,7 @@ bool js_box2dclasses_b2WeldJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Va
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WeldJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WeldJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WeldJoint_GetReactionTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8744,16 +8808,16 @@ bool js_box2dclasses_b2WeldJoint_GetReactionTorque(JSContext *cx, uint32_t argc,
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WeldJoint_GetReactionTorque : Error processing arguments");
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WeldJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WeldJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2WeldJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8769,7 +8833,7 @@ bool js_box2dclasses_b2WeldJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *v
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WeldJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WeldJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WeldJoint_SetFrequency(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8782,14 +8846,14 @@ bool js_box2dclasses_b2WeldJoint_SetFrequency(JSContext *cx, uint32_t argc, JS::
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_SetFrequency : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WeldJoint_SetFrequency : Error processing arguments");
         cobj->SetFrequency(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WeldJoint_SetFrequency : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WeldJoint_SetFrequency : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2WeldJoint_GetDampingRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8802,12 +8866,12 @@ bool js_box2dclasses_b2WeldJoint_GetDampingRatio(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         double ret = cobj->GetDampingRatio();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WeldJoint_GetDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WeldJoint_GetDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WeldJoint_GetFrequency(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8820,12 +8884,12 @@ bool js_box2dclasses_b2WeldJoint_GetFrequency(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         double ret = cobj->GetFrequency();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WeldJoint_GetFrequency : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WeldJoint_GetFrequency : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WeldJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8843,7 +8907,7 @@ bool js_box2dclasses_b2WeldJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, J
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WeldJoint_GetLocalAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WeldJoint_GetLocalAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WeldJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8861,7 +8925,7 @@ bool js_box2dclasses_b2WeldJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, J
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WeldJoint_GetLocalAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WeldJoint_GetLocalAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WeldJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8879,7 +8943,7 @@ bool js_box2dclasses_b2WeldJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Va
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WeldJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WeldJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WeldJoint_GetReactionForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8892,7 +8956,7 @@ bool js_box2dclasses_b2WeldJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WeldJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
@@ -8901,7 +8965,7 @@ bool js_box2dclasses_b2WeldJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WeldJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WeldJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2WeldJoint_GetReferenceAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8914,28 +8978,31 @@ bool js_box2dclasses_b2WeldJoint_GetReferenceAngle(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         double ret = cobj->GetReferenceAngle();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WeldJoint_GetReferenceAngle : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WeldJoint_GetReferenceAngle : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2WeldJoint(JSContext *cx, JS::HandleObject global) {
-    jsb_b2WeldJoint_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2WeldJoint_class->name = "b2WeldJoint";
-    jsb_b2WeldJoint_class->addProperty = JS_PropertyStub;
-    jsb_b2WeldJoint_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2WeldJoint_class->getProperty = JS_PropertyStub;
-    jsb_b2WeldJoint_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2WeldJoint_class->enumerate = JS_EnumerateStub;
-    jsb_b2WeldJoint_class->resolve = JS_ResolveStub;
-    jsb_b2WeldJoint_class->convert = JS_ConvertStub;
-    jsb_b2WeldJoint_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2WeldJoint_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2WeldJoint_class = {
+        "b2WeldJoint",
+        JSCLASS_HAS_PRIVATE,
+        &b2WeldJoint_classOps
+    };
+    jsb_b2WeldJoint_class = &b2WeldJoint_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -8967,7 +9034,7 @@ void js_register_box2dclasses_b2WeldJoint(JSContext *cx, JS::HandleObject global
         dummy_constructor<b2WeldJoint>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2WeldJoint_prototype);
@@ -8976,7 +9043,7 @@ void js_register_box2dclasses_b2WeldJoint(JSContext *cx, JS::HandleObject global
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2WeldJoint>(cx, jsb_b2WeldJoint_class, proto, parent_proto);
+    jsb_register_class<b2WeldJoint>(cx, jsb_b2WeldJoint_class, proto);
 }
 
 JSClass  *jsb_b2WheelJoint_class;
@@ -8992,12 +9059,12 @@ bool js_box2dclasses_b2WheelJoint_IsMotorEnabled(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         bool ret = cobj->IsMotorEnabled();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_IsMotorEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_IsMotorEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_GetMotorSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9010,12 +9077,12 @@ bool js_box2dclasses_b2WheelJoint_GetMotorSpeed(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         double ret = cobj->GetMotorSpeed();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_GetMotorSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_GetMotorSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9033,7 +9100,7 @@ bool js_box2dclasses_b2WheelJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::V
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_GetAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_GetReactionTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9046,16 +9113,16 @@ bool js_box2dclasses_b2WheelJoint_GetReactionTorque(JSContext *cx, uint32_t argc
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetReactionTorque : Error processing arguments");
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_GetReactionTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9071,7 +9138,7 @@ bool js_box2dclasses_b2WheelJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_Dump : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_SetSpringDampingRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9084,14 +9151,14 @@ bool js_box2dclasses_b2WheelJoint_SetSpringDampingRatio(JSContext *cx, uint32_t 
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_SetSpringDampingRatio : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_SetSpringDampingRatio : Error processing arguments");
         cobj->SetSpringDampingRatio(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_SetSpringDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_SetSpringDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_GetSpringFrequencyHz(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9104,12 +9171,12 @@ bool js_box2dclasses_b2WheelJoint_GetSpringFrequencyHz(JSContext *cx, uint32_t a
     if (argc == 0) {
         double ret = cobj->GetSpringFrequencyHz();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_GetSpringFrequencyHz : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_GetSpringFrequencyHz : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_GetJointTranslation(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9122,12 +9189,12 @@ bool js_box2dclasses_b2WheelJoint_GetJointTranslation(JSContext *cx, uint32_t ar
     if (argc == 0) {
         double ret = cobj->GetJointTranslation();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_GetJointTranslation : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_GetJointTranslation : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_GetSpringDampingRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9140,12 +9207,12 @@ bool js_box2dclasses_b2WheelJoint_GetSpringDampingRatio(JSContext *cx, uint32_t 
     if (argc == 0) {
         double ret = cobj->GetSpringDampingRatio();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_GetSpringDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_GetSpringDampingRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_GetLocalAxisA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9163,7 +9230,7 @@ bool js_box2dclasses_b2WheelJoint_GetLocalAxisA(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_GetLocalAxisA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_GetLocalAxisA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_SetSpringFrequencyHz(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9176,14 +9243,14 @@ bool js_box2dclasses_b2WheelJoint_SetSpringFrequencyHz(JSContext *cx, uint32_t a
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_SetSpringFrequencyHz : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_SetSpringFrequencyHz : Error processing arguments");
         cobj->SetSpringFrequencyHz(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_SetSpringFrequencyHz : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_SetSpringFrequencyHz : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9201,7 +9268,7 @@ bool js_box2dclasses_b2WheelJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_GetLocalAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_GetLocalAnchorA : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_SetMotorSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9214,14 +9281,14 @@ bool js_box2dclasses_b2WheelJoint_SetMotorSpeed(JSContext *cx, uint32_t argc, JS
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_SetMotorSpeed : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_SetMotorSpeed : Error processing arguments");
         cobj->SetMotorSpeed(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_SetMotorSpeed : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_SetMotorSpeed : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9239,7 +9306,7 @@ bool js_box2dclasses_b2WheelJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, 
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_GetLocalAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_GetLocalAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_SetMaxMotorTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9252,14 +9319,14 @@ bool js_box2dclasses_b2WheelJoint_SetMaxMotorTorque(JSContext *cx, uint32_t argc
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_SetMaxMotorTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_SetMaxMotorTorque : Error processing arguments");
         cobj->SetMaxMotorTorque(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_SetMaxMotorTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_SetMaxMotorTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9277,7 +9344,7 @@ bool js_box2dclasses_b2WheelJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::V
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_GetAnchorB : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_GetReactionForce(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9290,7 +9357,7 @@ bool js_box2dclasses_b2WheelJoint_GetReactionForce(JSContext *cx, uint32_t argc,
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
@@ -9299,7 +9366,7 @@ bool js_box2dclasses_b2WheelJoint_GetReactionForce(JSContext *cx, uint32_t argc,
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_GetReactionForce : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_GetMotorTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9312,16 +9379,16 @@ bool js_box2dclasses_b2WheelJoint_GetMotorTorque(JSContext *cx, uint32_t argc, J
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetMotorTorque : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetMotorTorque : Error processing arguments");
         double ret = cobj->GetMotorTorque(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_GetMotorTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_GetMotorTorque : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_GetJointSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9334,12 +9401,12 @@ bool js_box2dclasses_b2WheelJoint_GetJointSpeed(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         double ret = cobj->GetJointSpeed();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_GetJointSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_GetJointSpeed : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_GetMaxMotorTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9352,12 +9419,12 @@ bool js_box2dclasses_b2WheelJoint_GetMaxMotorTorque(JSContext *cx, uint32_t argc
     if (argc == 0) {
         double ret = cobj->GetMaxMotorTorque();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_GetMaxMotorTorque : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_GetMaxMotorTorque : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_box2dclasses_b2WheelJoint_EnableMotor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -9370,30 +9437,33 @@ bool js_box2dclasses_b2WheelJoint_EnableMotor(JSContext *cx, uint32_t argc, JS::
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_EnableMotor : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_EnableMotor : Error processing arguments");
         cobj->EnableMotor(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_box2dclasses_b2WheelJoint_EnableMotor : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2WheelJoint_EnableMotor : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2WheelJoint(JSContext *cx, JS::HandleObject global) {
-    jsb_b2WheelJoint_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_b2WheelJoint_class->name = "b2WheelJoint";
-    jsb_b2WheelJoint_class->addProperty = JS_PropertyStub;
-    jsb_b2WheelJoint_class->delProperty = JS_DeletePropertyStub;
-    jsb_b2WheelJoint_class->getProperty = JS_PropertyStub;
-    jsb_b2WheelJoint_class->setProperty = JS_StrictPropertyStub;
-    jsb_b2WheelJoint_class->enumerate = JS_EnumerateStub;
-    jsb_b2WheelJoint_class->resolve = JS_ResolveStub;
-    jsb_b2WheelJoint_class->convert = JS_ConvertStub;
-    jsb_b2WheelJoint_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps b2WheelJoint_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass b2WheelJoint_class = {
+        "b2WheelJoint",
+        JSCLASS_HAS_PRIVATE,
+        &b2WheelJoint_classOps
+    };
+    jsb_b2WheelJoint_class = &b2WheelJoint_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -9434,7 +9504,7 @@ void js_register_box2dclasses_b2WheelJoint(JSContext *cx, JS::HandleObject globa
         dummy_constructor<b2WheelJoint>, 0, // no constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_b2WheelJoint_prototype);
@@ -9443,7 +9513,7 @@ void js_register_box2dclasses_b2WheelJoint(JSContext *cx, JS::HandleObject globa
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2WheelJoint>(cx, jsb_b2WheelJoint_class, proto, parent_proto);
+    jsb_register_class<b2WheelJoint>(cx, jsb_b2WheelJoint_class, proto);
 }
 
 void register_all_box2dclasses(JSContext* cx, JS::HandleObject obj) {

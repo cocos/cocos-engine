@@ -73,7 +73,6 @@ private:
 typedef struct js_type_class {
     JSClass *jsclass;
     ScriptingRootHolder proto;
-    ScriptingRootHolder parentProto;
 } js_type_class_t;
 
 extern std::unordered_map<std::string, js_type_class_t*> _js_global_type_map;
@@ -93,8 +92,26 @@ public:
 
 #define TEST_NATIVE_OBJECT(cx, native_obj) \
 if (!native_obj) { \
-    JS_ReportError(cx, "Invalid Native Object"); \
+    JS_ReportErrorUTF8(cx, "Invalid Native Object"); \
     return false; \
+}
+
+void handlePendingException(JSContext *cx)
+{
+    JS::RootedValue err(cx);
+    if (JS_GetPendingException(cx, &err) && err.isObject())
+    {
+        JS_ClearPendingException(cx);
+        
+        JS::RootedObject errObj(cx, err.toObjectOrNull());
+        JS::RootedValue stack(cx);
+        if (JS_GetProperty(cx, errObj, "stack", &stack) && stack.isString())
+        {
+            JS::RootedString jsstackStr(cx, stack.toString());
+            char *stackStr = JS_EncodeStringToUTF8(cx, jsstackStr);
+            JS_ReportErrorUTF8(cx, "%s", stackStr);
+        }
+    }
 }
 
 #endif

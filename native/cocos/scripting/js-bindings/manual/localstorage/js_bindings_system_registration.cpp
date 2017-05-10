@@ -35,18 +35,16 @@ void jsb_register_system( JSContext *_cx,  JS::HandleObject object)
     //
     // sys
     //
-    JS::RootedObject proto(_cx);
-    JS::RootedObject parent(_cx);
-    JS::RootedObject sys(_cx, JS_NewObject(_cx, nullptr, proto, parent));
+    JS::RootedObject sys(_cx, JS_NewPlainObject(_cx));
     JS::RootedValue systemVal(_cx);
-    systemVal.set(OBJECT_TO_JSVAL(sys));
+    systemVal.set(JS::ObjectOrNullValue(sys));
     JS_SetProperty(_cx, object, "sys", systemVal);
 
 
     // sys.localStorage
-    JSObject *ls = JS_NewObject(_cx, nullptr, proto, parent);
+    JSObject *ls = JS_NewPlainObject(_cx);
     JS::RootedValue lsVal(_cx);
-    lsVal.set(OBJECT_TO_JSVAL(ls));
+    lsVal.set(JS::ObjectOrNullValue(ls));
     JS_SetProperty(_cx, sys, "localStorage", lsVal);
 
     // sys.localStorage functions

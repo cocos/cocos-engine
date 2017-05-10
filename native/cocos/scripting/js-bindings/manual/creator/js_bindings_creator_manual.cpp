@@ -44,7 +44,7 @@ USING_NS_CC_EXT;
 
 #pragma mark - conversions
 
-bool js_creator_PhysicsContactListener_setEndContact(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactListener_setEndContact(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -63,9 +63,9 @@ bool js_creator_PhysicsContactListener_setEndContact(JSContext *cx, uint32_t arg
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                     jsval largv[1];
                     if (larg0) {
-                        largv[0] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
+                        largv[0] = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
                     } else {
-                        largv[0] = JSVAL_NULL;
+                        largv[0] = JS::NullValue();
                     };
                     JS::RootedValue rval(cx);
                     bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
@@ -87,10 +87,10 @@ bool js_creator_PhysicsContactListener_setEndContact(JSContext *cx, uint32_t arg
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsContactListener_setEndContact : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsContactListener_setEndContact : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_PhysicsContactListener_setBeginContact(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactListener_setBeginContact(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -114,9 +114,9 @@ bool js_creator_PhysicsContactListener_setBeginContact(JSContext *cx, uint32_t a
                         if (larg0Proxy) {
                             jsb_remove_proxy(larg0Proxy);
                         }
-                        largv[0] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
+                        largv[0] = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
                     } else {
-                        largv[0] = JSVAL_NULL;
+                        largv[0] = JS::NullValue();
                     };
                     JS::RootedValue rval(cx);
                     bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
@@ -138,11 +138,11 @@ bool js_creator_PhysicsContactListener_setBeginContact(JSContext *cx, uint32_t a
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsContactListener_setBeginContact : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsContactListener_setBeginContact : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_creator_PhysicsContactListener_setPreSolve(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactListener_setPreSolve(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -161,9 +161,9 @@ bool js_creator_PhysicsContactListener_setPreSolve(JSContext *cx, uint32_t argc,
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                     jsval largv[1];
                     if (larg0) {
-                        largv[0] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
+                        largv[0] = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
                     } else {
-                        largv[0] = JSVAL_NULL;
+                        largv[0] = JS::NullValue();
                     };
                     JS::RootedValue rval(cx);
                     bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
@@ -185,11 +185,11 @@ bool js_creator_PhysicsContactListener_setPreSolve(JSContext *cx, uint32_t argc,
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsContactListener_setPreSolve : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsContactListener_setPreSolve : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_creator_PhysicsContactListener_setPostSolve(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactListener_setPostSolve(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -208,14 +208,14 @@ bool js_creator_PhysicsContactListener_setPostSolve(JSContext *cx, uint32_t argc
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                     jsval largv[2];
                     if (larg0) {
-                        largv[0] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
+                        largv[0] = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
                     } else {
-                        largv[0] = JSVAL_NULL;
+                        largv[0] = JS::NullValue();
                     };
                     if (larg1) {
-                        largv[1] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<creator::PhysicsContactImpulse>(cx, (creator::PhysicsContactImpulse*)larg1));
+                        largv[1] = JS::ObjectOrNullValue(js_get_or_create_jsobject<creator::PhysicsContactImpulse>(cx, (creator::PhysicsContactImpulse*)larg1));
                     } else {
-                        largv[1] = JSVAL_NULL;
+                        largv[1] = JS::NullValue();
                     };
                     JS::RootedValue rval(cx);
                     bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(2, largv), &rval);
@@ -237,11 +237,11 @@ bool js_creator_PhysicsContactListener_setPostSolve(JSContext *cx, uint32_t argc
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsContactListener_setPostSolve : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsContactListener_setPostSolve : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_creator_PhysicsAABBQueryCallback_getFixtures(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsAABBQueryCallback_getFixtures(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -258,11 +258,11 @@ bool js_creator_PhysicsAABBQueryCallback_getFixtures(JSContext *cx, uint32_t arg
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsAABBQueryCallback_getFixtures : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsAABBQueryCallback_getFixtures : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_creator_PhysicsRayCastCallback_getFixtures(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsRayCastCallback_getFixtures(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -278,11 +278,11 @@ bool js_creator_PhysicsRayCastCallback_getFixtures(JSContext *cx, uint32_t argc,
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsRayCastCallback_getFixtures : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsRayCastCallback_getFixtures : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_creator_PhysicsRayCastCallback_getPoints(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsRayCastCallback_getPoints(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -298,10 +298,10 @@ bool js_creator_PhysicsRayCastCallback_getPoints(JSContext *cx, uint32_t argc, j
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsRayCastCallback_getPoints : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsRayCastCallback_getPoints : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_PhysicsRayCastCallback_getNormals(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsRayCastCallback_getNormals(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -317,7 +317,7 @@ bool js_creator_PhysicsRayCastCallback_getNormals(JSContext *cx, uint32_t argc, 
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsRayCastCallback_getNormals : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsRayCastCallback_getNormals : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 

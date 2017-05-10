@@ -430,13 +430,11 @@ bool JSB_cpArbiterSetFriction(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpArbiter* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+    arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpArbiterSetFriction((cpArbiter*)arg0 , (cpFloat)arg1  );
-
 	args.rval().set(JS::NullValue());
-
 	return true;
 }
 
@@ -450,14 +448,12 @@ bool JSB_cpArbiterSetRestitution(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	cpArbiter* arg0; double arg1; 
 
-	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+    ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
+    arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpArbiterSetRestitution((cpArbiter*)arg0 , (cpFloat)arg1  );
-
 	args.rval().set(JS::NullValue());
-
 	return true;
 }
 
@@ -476,9 +472,7 @@ bool JSB_cpArbiterSetSurfaceVelocity(JSContext *cx, uint32_t argc, JS::Value *vp
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpArbiterSetSurfaceVelocity((cpArbiter*)arg0 , (cpVect)arg1  );
-
 	args.rval().set(JS::NullValue());
-
 	return true;
 }
 
@@ -533,9 +527,9 @@ bool JSB_cpAreaForCircle(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	int arg_idx=0; // #001
 	bool ok = true;
 	double arg0; double arg1; 
-
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+    
+	arg0 = args.get(arg_idx++).toNumber();
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpFloat ret_val;
 
@@ -558,7 +552,7 @@ bool JSB_cpAreaForSegment(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg0 );
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpFloat ret_val;
 
@@ -798,10 +792,10 @@ bool JSB_cpBBNew(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; double arg1; double arg2; double arg3; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg3 );
+	arg0 = args.get(arg_idx++).toNumber();
+	arg1 = args.get(arg_idx++).toNumber();
+	arg2 = args.get(arg_idx++).toNumber();
+	arg3 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpBB ret_val;
 
@@ -823,7 +817,7 @@ bool JSB_cpBBNewForCircle(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpVect arg0; double arg1; 
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpBB ret_val;
 
@@ -845,8 +839,8 @@ bool JSB_cpBBNewForExtents(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpVect arg0; double arg1; double arg2; 
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg1 = args.get(arg_idx++).toNumber();
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpBB ret_val;
 
@@ -1400,8 +1394,8 @@ bool JSB_cpBodyInit(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpBody* arg0; double arg1; double arg2; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg1 = args.get(arg_idx++).toNumber();
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpBody* ret_val;
 
@@ -1486,8 +1480,8 @@ bool JSB_cpBodyNew(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; double arg1; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg0 = args.get(arg_idx++).toNumber();
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpBody* ret_val;
 
@@ -1537,7 +1531,7 @@ bool JSB_cpBodySetAngle(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpBody* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpBodySetAngle((cpBody*)arg0 , (cpFloat)arg1  );
@@ -1558,7 +1552,7 @@ bool JSB_cpBodySetAngularVelocity(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpBody* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpBodySetAngularVelocity((cpBody*)arg0 , (cpFloat)arg1  );
@@ -1621,7 +1615,7 @@ bool JSB_cpBodySetMass(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpBody* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpBodySetMass((cpBody*)arg0 , (cpFloat)arg1  );
@@ -1642,7 +1636,7 @@ bool JSB_cpBodySetMoment(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpBody* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpBodySetMoment((cpBody*)arg0 , (cpFloat)arg1  );
@@ -1684,7 +1678,7 @@ bool JSB_cpBodySetTorque(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpBody* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpBodySetTorque((cpBody*)arg0 , (cpFloat)arg1  );
@@ -1788,7 +1782,7 @@ bool JSB_cpBodyUpdatePosition(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpBody* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpBodyUpdatePosition((cpBody*)arg0 , (cpFloat)arg1  );
@@ -1810,8 +1804,8 @@ bool JSB_cpBodyUpdateVelocity(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg3 );
+	arg2 = args.get(arg_idx++).toNumber();
+	arg3 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpBodyUpdateVelocity((cpBody*)arg0 , (cpVect)arg1 , (cpFloat)arg2 , (cpFloat)arg3  );
@@ -1854,9 +1848,9 @@ bool JSB_cpBoxShapeNew(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpBody* arg0; double arg1; double arg2; double arg3; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg3 );
+	arg1 = args.get(arg_idx++).toNumber();
+	arg2 = args.get(arg_idx++).toNumber();
+	arg3 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpShape* ret_val;
 
@@ -1879,7 +1873,7 @@ bool JSB_cpBoxShapeNew2(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
 	ok &= jsval_to_cpBB( cx, args.get(arg_idx++), (cpBB*) &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpShape* ret_val;
 
@@ -1943,7 +1937,7 @@ bool JSB_cpCircleShapeNew(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpBody* arg0; double arg1; cpVect arg2; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg2 );
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpShape* ret_val;
@@ -2405,7 +2399,7 @@ bool JSB_cpConstraintSetErrorBias(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpConstraintSetErrorBias((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -2426,7 +2420,7 @@ bool JSB_cpConstraintSetMaxBias(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpConstraintSetMaxBias((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -2447,7 +2441,7 @@ bool JSB_cpConstraintSetMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpConstraintSetMaxForce((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -2532,9 +2526,9 @@ bool JSB_cpDampedRotarySpringNew(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg3 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg4 );
+	arg2 = args.get(arg_idx++).toNumber();
+	arg3 = args.get(arg_idx++).toNumber();
+	arg4 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpConstraint* ret_val;
 
@@ -2556,7 +2550,7 @@ bool JSB_cpDampedRotarySpringSetDamping(JSContext *cx, uint32_t argc, JS::Value 
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpDampedRotarySpringSetDamping((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -2577,7 +2571,7 @@ bool JSB_cpDampedRotarySpringSetRestAngle(JSContext *cx, uint32_t argc, JS::Valu
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpDampedRotarySpringSetRestAngle((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -2598,7 +2592,7 @@ bool JSB_cpDampedRotarySpringSetStiffness(JSContext *cx, uint32_t argc, JS::Valu
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpDampedRotarySpringSetStiffness((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -2727,9 +2721,9 @@ bool JSB_cpDampedSpringNew(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg1 );
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg2 );
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg3 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg4 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg5 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg6 );
+	arg4 = args.get(arg_idx++).toNumber();
+	arg5 = args.get(arg_idx++).toNumber();
+	arg6 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpConstraint* ret_val;
 
@@ -2793,7 +2787,7 @@ bool JSB_cpDampedSpringSetDamping(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpDampedSpringSetDamping((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -2814,7 +2808,7 @@ bool JSB_cpDampedSpringSetRestLength(JSContext *cx, uint32_t argc, JS::Value *vp
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpDampedSpringSetRestLength((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -2835,7 +2829,7 @@ bool JSB_cpDampedSpringSetStiffness(JSContext *cx, uint32_t argc, JS::Value *vp)
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpDampedSpringSetStiffness((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -2899,8 +2893,8 @@ bool JSB_cpGearJointNew(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg3 );
+	arg2 = args.get(arg_idx++).toNumber();
+	arg3 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpConstraint* ret_val;
 
@@ -2922,7 +2916,7 @@ bool JSB_cpGearJointSetPhase(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpGearJointSetPhase((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -2943,7 +2937,7 @@ bool JSB_cpGearJointSetRatio(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpGearJointSetRatio((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -3139,9 +3133,9 @@ bool JSB_cpMomentForBox(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; double arg1; double arg2; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg0 = args.get(arg_idx++).toNumber();
+	arg1 = args.get(arg_idx++).toNumber();
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpFloat ret_val;
 
@@ -3162,7 +3156,7 @@ bool JSB_cpMomentForBox2(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; cpBB arg1; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
+	arg0 = args.get(arg_idx++).toNumber();
 	ok &= jsval_to_cpBB( cx, args.get(arg_idx++), (cpBB*) &arg1 );
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpFloat ret_val;
@@ -3184,9 +3178,9 @@ bool JSB_cpMomentForCircle(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; double arg1; double arg2; cpVect arg3; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg0 = args.get(arg_idx++).toNumber();
+	arg1 = args.get(arg_idx++).toNumber();
+	arg2 = args.get(arg_idx++).toNumber();
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg3 );
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpFloat ret_val;
@@ -3338,7 +3332,7 @@ bool JSB_cpPinJointSetDist(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpPinJointSetDist((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -3618,8 +3612,8 @@ bool JSB_cpRatchetJointNew(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg3 );
+	arg2 = args.get(arg_idx++).toNumber();
+	arg3 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpConstraint* ret_val;
 
@@ -3641,7 +3635,7 @@ bool JSB_cpRatchetJointSetAngle(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpRatchetJointSetAngle((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -3662,7 +3656,7 @@ bool JSB_cpRatchetJointSetPhase(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpRatchetJointSetPhase((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -3683,7 +3677,7 @@ bool JSB_cpRatchetJointSetRatchet(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpRatchetJointSetRatchet((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -3747,8 +3741,8 @@ bool JSB_cpRotaryLimitJointNew(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg3 );
+	arg2 = args.get(arg_idx++).toNumber();
+	arg3 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpConstraint* ret_val;
 
@@ -3770,7 +3764,7 @@ bool JSB_cpRotaryLimitJointSetMax(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpRotaryLimitJointSetMax((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -3791,7 +3785,7 @@ bool JSB_cpRotaryLimitJointSetMin(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpRotaryLimitJointSetMin((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -3898,7 +3892,7 @@ bool JSB_cpSegmentShapeNew(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg1 );
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg2 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg3 );
+	arg3 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpShape* ret_val;
 
@@ -4362,7 +4356,7 @@ bool JSB_cpShapeSetDensity(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpShape* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpShapeSetDensity((cpShape*)arg0 , (cpFloat)arg1  );
@@ -4383,7 +4377,7 @@ bool JSB_cpShapeSetElasticity(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpShape* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpShapeSetElasticity((cpShape*)arg0 , (cpFloat)arg1  );
@@ -4425,7 +4419,7 @@ bool JSB_cpShapeSetFriction(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpShape* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpShapeSetFriction((cpShape*)arg0 , (cpFloat)arg1  );
@@ -4446,7 +4440,7 @@ bool JSB_cpShapeSetMass(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpShape* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpShapeSetMass((cpShape*)arg0 , (cpFloat)arg1  );
@@ -4553,7 +4547,7 @@ bool JSB_cpSimpleMotorNew(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpConstraint* ret_val;
 
@@ -4575,7 +4569,7 @@ bool JSB_cpSimpleMotorSetRate(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpSimpleMotorSetRate((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -4683,8 +4677,8 @@ bool JSB_cpSlideJointNew(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg1 );
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg2 );
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg3 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg4 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg5 );
+	arg4 = args.get(arg_idx++).toNumber();
+	arg5 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpConstraint* ret_val;
 
@@ -4748,7 +4742,7 @@ bool JSB_cpSlideJointSetMax(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpSlideJointSetMax((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -4769,7 +4763,7 @@ bool JSB_cpSlideJointSetMin(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpConstraint* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpSlideJointSetMin((cpConstraint*)arg0 , (cpFloat)arg1  );
@@ -4987,9 +4981,7 @@ bool JSB_cpSpaceGetCollisionPersistence(JSContext *cx, uint32_t argc, JS::Value 
 	cpTimestamp ret_val;
 
 	ret_val = cpSpaceGetCollisionPersistence((cpSpace*)arg0  );
-
-	args.rval().set(UINT_TO_JSVAL((uint32_t)ret_val));
-
+    args.rval().set(JS::Int32Value((uint32_t)ret_val));
 	return true;
 }
 
@@ -5353,7 +5345,7 @@ bool JSB_cpSpaceSetCollisionBias(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpSpace* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpSpaceSetCollisionBias((cpSpace*)arg0 , (cpFloat)arg1  );
@@ -5395,7 +5387,7 @@ bool JSB_cpSpaceSetCollisionSlop(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpSpace* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpSpaceSetCollisionSlop((cpSpace*)arg0 , (cpFloat)arg1  );
@@ -5416,7 +5408,7 @@ bool JSB_cpSpaceSetDamping(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpSpace* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpSpaceSetDamping((cpSpace*)arg0 , (cpFloat)arg1  );
@@ -5458,7 +5450,7 @@ bool JSB_cpSpaceSetIdleSpeedThreshold(JSContext *cx, uint32_t argc, JS::Value *v
 	cpSpace* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpSpaceSetIdleSpeedThreshold((cpSpace*)arg0 , (cpFloat)arg1  );
@@ -5500,7 +5492,7 @@ bool JSB_cpSpaceSetSleepTimeThreshold(JSContext *cx, uint32_t argc, JS::Value *v
 	cpSpace* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpSpaceSetSleepTimeThreshold((cpSpace*)arg0 , (cpFloat)arg1  );
@@ -5521,7 +5513,7 @@ bool JSB_cpSpaceStep(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpSpace* arg0; double arg1; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpSpaceStep((cpSpace*)arg0 , (cpFloat)arg1  );
@@ -5542,7 +5534,7 @@ bool JSB_cpSpaceUseSpatialHash(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpSpace* arg0; double arg1; int32_t arg2; 
 
 	ok &= jsval_to_opaque( cx, args.get(arg_idx++), (void**)&arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	ok &= jsval_to_int32( cx, args.get(arg_idx++), &arg2 );
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
@@ -5565,7 +5557,7 @@ bool JSB_cpTransformAxialScale(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg0 );
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpTransform ret_val;
 
@@ -5651,12 +5643,12 @@ bool JSB_cpTransformNew(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; double arg1; double arg2; double arg3; double arg4; double arg5; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg3 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg4 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg5 );
+	arg0 = args.get(arg_idx++).toNumber();
+	arg1 = args.get(arg_idx++).toNumber();
+	arg2 = args.get(arg_idx++).toNumber();
+	arg3 = args.get(arg_idx++).toNumber();
+	arg4 = args.get(arg_idx++).toNumber();
+	arg5 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpTransform ret_val;
 
@@ -5677,12 +5669,12 @@ bool JSB_cpTransformNewTranspose(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; double arg1; double arg2; double arg3; double arg4; double arg5; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg3 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg4 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg5 );
+	arg0 = args.get(arg_idx++).toNumber();
+	arg1 = args.get(arg_idx++).toNumber();
+	arg2 = args.get(arg_idx++).toNumber();
+	arg3 = args.get(arg_idx++).toNumber();
+	arg4 = args.get(arg_idx++).toNumber();
+	arg5 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpTransform ret_val;
 
@@ -5747,7 +5739,7 @@ bool JSB_cpTransformRigid(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpVect arg0; double arg1; 
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpTransform ret_val;
 
@@ -5789,7 +5781,7 @@ bool JSB_cpTransformRotate(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
+	arg0 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpTransform ret_val;
 
@@ -5810,8 +5802,8 @@ bool JSB_cpTransformScale(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; double arg1; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg0 = args.get(arg_idx++).toNumber();
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpTransform ret_val;
 
@@ -5941,7 +5933,7 @@ bool JSB_cpfabs(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
+	arg0 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpFloat ret_val;
 
@@ -5962,9 +5954,9 @@ bool JSB_cpfclamp(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; double arg1; double arg2; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg0 = args.get(arg_idx++).toNumber();
+	arg1 = args.get(arg_idx++).toNumber();
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpFloat ret_val;
 
@@ -5985,7 +5977,7 @@ bool JSB_cpfclamp01(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
+	arg0 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpFloat ret_val;
 
@@ -6006,9 +5998,9 @@ bool JSB_cpflerp(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; double arg1; double arg2; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg0 = args.get(arg_idx++).toNumber();
+	arg1 = args.get(arg_idx++).toNumber();
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpFloat ret_val;
 
@@ -6029,9 +6021,9 @@ bool JSB_cpflerpconst(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; double arg1; double arg2; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg0 = args.get(arg_idx++).toNumber();
+	arg1 = args.get(arg_idx++).toNumber();
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpFloat ret_val;
 
@@ -6052,8 +6044,8 @@ bool JSB_cpfmax(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; double arg1; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg0 = args.get(arg_idx++).toNumber();
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpFloat ret_val;
 
@@ -6074,8 +6066,8 @@ bool JSB_cpfmin(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; double arg1; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg0 = args.get(arg_idx++).toNumber();
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpFloat ret_val;
 
@@ -6119,7 +6111,7 @@ bool JSB_cpvclamp(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpVect arg0; double arg1; 
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpVect ret_val;
 
@@ -6250,7 +6242,7 @@ bool JSB_cpvforangle(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	bool ok = true;
 	double arg0; 
 
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg0 );
+	arg0 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpVect ret_val;
 
@@ -6315,7 +6307,7 @@ bool JSB_cpvlerp(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg0 );
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpVect ret_val;
 
@@ -6338,7 +6330,7 @@ bool JSB_cpvlerpconst(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg0 );
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpVect ret_val;
 
@@ -6360,7 +6352,7 @@ bool JSB_cpvmult(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpVect arg0; double arg1; 
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg0 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg1 );
+	arg1 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpVect ret_val;
 
@@ -6383,7 +6375,7 @@ bool JSB_cpvnear(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg0 );
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpBool ret_val;
 
@@ -6534,7 +6526,7 @@ bool JSB_cpvslerp(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg0 );
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpVect ret_val;
 
@@ -6557,7 +6549,7 @@ bool JSB_cpvslerpconst(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg0 );
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg1 );
-	ok &= JS::ToNumber( cx, args.get(arg_idx++), &arg2 );
+	arg2 = args.get(arg_idx++).toNumber();
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	cpVect ret_val;
 

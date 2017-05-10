@@ -9,7 +9,7 @@
 using namespace cocos2d;
 
 
-static bool jsb_cocos2dx_experimental_webView_setOnShouldStartLoading(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_cocos2dx_experimental_webView_setOnShouldStartLoading(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -23,7 +23,7 @@ static bool jsb_cocos2dx_experimental_webView_setOnShouldStartLoading(JSContext 
             JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
             jsval arg[2];
             JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
-            arg[0] = OBJECT_TO_JSVAL(jsobj);
+            arg[0] = JS::ObjectOrNullValue(jsobj);
             arg[1] = std_string_to_jsval(cx, url);
             JS::RootedValue rval(cx);
 
@@ -36,11 +36,11 @@ static bool jsb_cocos2dx_experimental_webView_setOnShouldStartLoading(JSContext 
         return true;
     }
 
-    JS_ReportError(cx, "jsb_cocos2dx_experimental_webView_setOnShouldStartLoading : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "jsb_cocos2dx_experimental_webView_setOnShouldStartLoading : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-static bool jsb_cocos2dx_experimental_webView_setOnDidFinishLoading(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_cocos2dx_experimental_webView_setOnDidFinishLoading(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -54,7 +54,7 @@ static bool jsb_cocos2dx_experimental_webView_setOnDidFinishLoading(JSContext *c
             JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
             jsval arg[2];
             JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
-            arg[0] = OBJECT_TO_JSVAL(jsobj);
+            arg[0] = JS::ObjectOrNullValue(jsobj);
             arg[1] = std_string_to_jsval(cx, url);
             JS::RootedValue rval(cx);
 
@@ -66,11 +66,11 @@ static bool jsb_cocos2dx_experimental_webView_setOnDidFinishLoading(JSContext *c
         return true;
     }
 
-    JS_ReportError(cx, "jsb_cocos2dx_experimental_webView_setOnDidFinishLoading : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "jsb_cocos2dx_experimental_webView_setOnDidFinishLoading : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-static bool jsb_cocos2dx_experimental_webView_setOnDidFailLoading(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_cocos2dx_experimental_webView_setOnDidFailLoading(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -84,7 +84,7 @@ static bool jsb_cocos2dx_experimental_webView_setOnDidFailLoading(JSContext *cx,
             JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
             jsval arg[2];
             JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
-            arg[0] = OBJECT_TO_JSVAL(jsobj);
+            arg[0] = JS::ObjectOrNullValue(jsobj);
             arg[1] = std_string_to_jsval(cx, url);
             JS::RootedValue rval(cx);
 
@@ -96,11 +96,11 @@ static bool jsb_cocos2dx_experimental_webView_setOnDidFailLoading(JSContext *cx,
         return true;
     }
 
-    JS_ReportError(cx, "jsb_cocos2dx_experimental_webView_setOnDidFailLoading : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "jsb_cocos2dx_experimental_webView_setOnDidFailLoading : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-static bool jsb_cocos2dx_experimental_webView_setOnJSCallback(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_cocos2dx_experimental_webView_setOnJSCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -114,7 +114,7 @@ static bool jsb_cocos2dx_experimental_webView_setOnJSCallback(JSContext *cx, uin
             JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
             jsval arg[2];
             JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
-            arg[0] = OBJECT_TO_JSVAL(jsobj);
+            arg[0] = JS::ObjectOrNullValue(jsobj);
             arg[1] = std_string_to_jsval(cx, url);
             JS::RootedValue rval(cx);
 
@@ -126,7 +126,7 @@ static bool jsb_cocos2dx_experimental_webView_setOnJSCallback(JSContext *cx, uin
         return true;
     }
 
-    JS_ReportError(cx, "jsb_cocos2dx_experimental_webView_setOnJSCallback : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "jsb_cocos2dx_experimental_webView_setOnJSCallback : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 extern JSObject* jsb_cocos2d_experimental_ui_WebView_prototype;

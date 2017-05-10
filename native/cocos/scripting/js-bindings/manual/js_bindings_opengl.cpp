@@ -67,7 +67,7 @@ NS_CC_END
 JSClass  *js_cocos2dx_GLNode_class;
 JSObject *js_cocos2dx_GLNode_prototype;
 
-bool js_cocos2dx_GLNode_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_GLNode_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc == 0) {
         cocos2d::GLNode* cobj = new (std::nothrow) cocos2d::GLNode;
@@ -76,7 +76,7 @@ bool js_cocos2dx_GLNode_constructor(JSContext *cx, uint32_t argc, jsval *vp)
         JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::GLNode"));
         
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-        JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
+        JS::RootedValue objVal(cx, JS::ObjectOrNullValue(jsobj));
         args.rval().set(objVal);
 
         bool ok=false;
@@ -87,11 +87,11 @@ bool js_cocos2dx_GLNode_constructor(JSContext *cx, uint32_t argc, jsval *vp)
         }
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-static bool js_cocos2dx_GLNode_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+static bool js_cocos2dx_GLNode_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -109,17 +109,17 @@ static bool js_cocos2dx_GLNode_ctor(JSContext *cx, uint32_t argc, jsval *vp)
     return true;
 }
 
-bool js_cocos2dx_GLNode_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_GLNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     cocos2d::GLNode* ret = new (std::nothrow) cocos2d::GLNode;
-    jsval jsret = JSVAL_NULL;
+    JS::RootedValue jsret(cx);
 
     if (ret) {
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::GLNode>(ret);
 
         auto jsobj = jsb_ref_create_jsobject(cx, ret, typeClass, "cocos2d::GLNode");
-        jsret = OBJECT_TO_JSVAL(jsobj);
+        jsret = JS::ObjectOrNullValue(jsobj);
     }
 
     args.rval().set(jsret);
@@ -128,17 +128,21 @@ bool js_cocos2dx_GLNode_create(JSContext *cx, uint32_t argc, jsval *vp)
 
 extern JSObject* jsb_cocos2d_Node_prototype;
 
-void js_register_cocos2dx_GLNode(JSContext *cx, JS::HandleObject global) {
-    js_cocos2dx_GLNode_class = (JSClass *)calloc(1, sizeof(JSClass));
-    js_cocos2dx_GLNode_class->name = "GLNode";
-    js_cocos2dx_GLNode_class->addProperty = JS_PropertyStub;
-    js_cocos2dx_GLNode_class->delProperty = JS_DeletePropertyStub;
-    js_cocos2dx_GLNode_class->getProperty = JS_PropertyStub;
-    js_cocos2dx_GLNode_class->setProperty = JS_StrictPropertyStub;
-    js_cocos2dx_GLNode_class->enumerate = JS_EnumerateStub;
-    js_cocos2dx_GLNode_class->resolve = JS_ResolveStub;
-    js_cocos2dx_GLNode_class->convert = JS_ConvertStub;
-    js_cocos2dx_GLNode_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+void js_register_cocos2dx_GLNode(JSContext *cx, JS::HandleObject global)
+{
+    static const JSClassOps GLNode_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass GLNode_class = {
+        "GLNode",
+        JSCLASS_HAS_PRIVATE,
+        &GLNode_classOps
+    };
+    js_cocos2dx_GLNode_class = &GLNode_class;
 
     static JSPropertySpec properties[] = {
         {0, 0, 0, 0, 0}
@@ -167,7 +171,7 @@ void js_register_cocos2dx_GLNode(JSContext *cx, JS::HandleObject global) {
 
     // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, js_cocos2dx_GLNode_prototype);
-    jsb_register_class<cocos2d::GLNode>(cx, js_cocos2dx_GLNode_class, proto, parentProto);
+    jsb_register_class<cocos2d::GLNode>(cx, js_cocos2dx_GLNode_class, proto);
 
     anonEvaluate(cx, global, "(function () { cc.GLNode.extend = cc.Class.extend; })()");
 }

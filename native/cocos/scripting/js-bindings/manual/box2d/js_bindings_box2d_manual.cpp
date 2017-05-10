@@ -52,13 +52,8 @@ bool jsval_get_b2Vec2( JSContext *cx, JS::RootedObject& obj, const char* name, b
     ok &= JS_GetProperty(cx, jsobj, "y", &valy);
     JSB_PRECONDITION( ok, "Error obtaining %s properties", name);
     
-    double x, y;
-    ok &= JS::ToNumber(cx, valx, &x);
-    ok &= JS::ToNumber(cx, valy, &y);
-    JSB_PRECONDITION( ok, "Error converting value to numbers");
-    
-    v->x = x;
-    v->y = y;
+    v->x = valx.toNumber();
+    v->y = valy.toNumber();
     
     return true;
 }
@@ -78,13 +73,8 @@ bool jsval_to_b2Vec2( JSContext *cx, jsval vp, b2Vec2 *ret )
     ok &= JS_GetProperty(cx, jsobj, "y", &valy);
     JSB_PRECONDITION( ok, "Error obtaining point properties");
 
-    double x = 0, y = 0;
-    ok &= JS::ToNumber(cx, valx, &x);
-    ok &= JS::ToNumber(cx, valy, &y);
-    JSB_PRECONDITION( ok, "Error converting value to numbers");
-
-    ret->x = x;
-    ret->y = y;
+    ret->x = valx.toNumber();
+    ret->y = valy.toNumber();
 
     return true;
 }
@@ -99,7 +89,7 @@ jsval b2Vec2_to_jsval(JSContext *cx, const b2Vec2& v)
         !JS_DefineProperty(cx, object, "y", v.y, JSPROP_ENUMERATE | JSPROP_PERMANENT) )
         return JSVAL_VOID;
 
-    return OBJECT_TO_JSVAL(object);
+    return JS::ObjectOrNullValue(object);
 }
 
 
@@ -158,21 +148,13 @@ bool jsval_to_b2FixtureDef( JSContext *cx, jsval vp, b2FixtureDef *ret )
     ok &= JS_GetProperty(cx, js_filter_obj, "maskBits", &valmaskBits);
     JSB_PRECONDITION( ok, "Error obtaining fixture filter properties");
     
-    double friction = 0.2f, restitution = 0.0f, density = 0.0f;
-    bool isSensor = false;
-    uint16 categoryBits = 0x0001;
-    uint16 maskBits = 0xFFFF;
-    int16 groupIndex = 0;
-    
-    ok &= JS::ToNumber(cx, valfriction, &friction);
-    ok &= JS::ToNumber(cx, valrestitution, &restitution);
-    ok &= JS::ToNumber(cx, valdensity, &density);
-    
-    JSB_PRECONDITION( ok, "Error converting value to numbers");
-    isSensor = valisSensor.toBoolean();
-    categoryBits = valcategoryBits.toInt32();
-    maskBits = valmaskBits.toInt32();
-    groupIndex = valgroupIndex.toInt32();
+    double friction = valfriction.isNumber() ? valfriction.toNumber() : 0.2f;
+    double restitution = valrestitution.toNumber();
+    double density = valdensity.toNumber();
+    bool isSensor = valisSensor.toBoolean();
+    uint16 categoryBits = valcategoryBits.isNumber() ? valcategoryBits.toInt32() : 0x0001;
+    uint16 maskBits = valmaskBits.isNumber() ? valmaskBits.toInt32() : 0xFFFF;
+    int16 groupIndex = valgroupIndex.toInt32();
     
     ret->filter.categoryBits = categoryBits;
     ret->filter.groupIndex = groupIndex;
@@ -257,26 +239,21 @@ bool jsval_to_b2BodyDef( JSContext *cx, jsval vp, b2BodyDef *ret )
     
     JSB_PRECONDITION( ok, "Error obtaining body def linearVelocity properties");
     
-    double x, y, velocityx, velocityy, angle = 0.0f, angularVelocity = 0.0f, linearDamping = 0.0f, angularDamping = 0.0f, gravityScale = 1.0f;
-    bool allowSleep = true, awake = true, fixedRotation = false, bullet = false, active = true;
-    b2BodyType type = b2_staticBody;
-    
-    ok &= JS::ToNumber(cx, valx, &x);
-    ok &= JS::ToNumber(cx, valy, &y);
-    ok &= JS::ToNumber(cx, valVelocityx, &velocityx);
-    ok &= JS::ToNumber(cx, valVelocityy, &velocityy);
-    ok &= JS::ToNumber(cx, valangle, &angle);
-    ok &= JS::ToNumber(cx, valangularVelocity, &angularVelocity);
-    ok &= JS::ToNumber(cx, vallinearDamping, &linearDamping);
-    ok &= JS::ToNumber(cx, valangularDamping, &angularDamping);
-    ok &= JS::ToNumber(cx, valgravityScale, &gravityScale);
-    JSB_PRECONDITION( ok, "Error converting value to numbers");
-    allowSleep = valallowSleep.toBoolean();
-    awake = valawake.toBoolean();
-    fixedRotation = valfixedRotation.toBoolean();
-    bullet = valbullet.toBoolean();
-    active = valactive.toBoolean();
-    type = (b2BodyType)valtype.toInt32();
+    double x = valx.toNumber();
+    double y = valy.toNumber();
+    double velocityx = valVelocityx.toNumber();
+    double velocityy = valVelocityy.toNumber();
+    double angle = valangle.toNumber();
+    double angularVelocity = valangularVelocity.toNumber();
+    double linearDamping = vallinearDamping.toNumber();
+    double angularDamping = valangularDamping.toNumber();
+    double gravityScale = valgravityScale.isNumber() ? valgravityScale.toNumber() : 1.0f;
+    bool allowSleep = valallowSleep.isBoolean() ? valallowSleep.toBoolean() : true;
+    bool awake = valawake.isBoolean() ? valawake.toBoolean() : true;
+    bool fixedRotation = valfixedRotation.toBoolean();
+    bool bullet = valbullet.toBoolean();
+    bool active = valactive.isBoolean() ? valactive.toBoolean() : true;
+    b2BodyType type = (b2BodyType)valtype.toInt32();
     
     ret->position.Set(x, y);
     ret->linearVelocity.Set(velocityx, velocityy);
@@ -335,16 +312,9 @@ bool jsval_to_b2JointDef( JSContext *cx, jsval vp, b2JointType type, b2JointDef 
             ok &= JS_GetProperty(cx, jsobj, "dampingRatio", &valdampingRatio);
             JSB_PRECONDITION( ok, "Error obtaining b2DistanceJointDef properties");
             
-            double length, frequencyHz, dampingRatio;
-            
-            ok &= JS::ToNumber(cx, vallength, &length);
-            ok &= JS::ToNumber(cx, valfrequencyHz, &frequencyHz);
-            ok &= JS::ToNumber(cx, valdampingRatio, &dampingRatio);
-            JSB_PRECONDITION( ok, "Error converting value to numbers");
-            
-            def->length = length;
-            def->frequencyHz = frequencyHz;
-            def->dampingRatio = dampingRatio;
+            def->length = vallength.toNumber();
+            def->frequencyHz = valfrequencyHz.toNumber();
+            def->dampingRatio = valdampingRatio.toNumber();
             
             break;
         }
@@ -362,13 +332,8 @@ bool jsval_to_b2JointDef( JSContext *cx, jsval vp, b2JointType type, b2JointDef 
             ok &= JS_GetProperty(cx, jsobj, "maxTorque", &valmaxTorque);
             JSB_PRECONDITION( ok, "Error obtaining b2FrictionJointDef properties");
             
-            double maxForce, maxTorque;
-            ok &= JS::ToNumber(cx, valmaxForce, &maxForce);
-            ok &= JS::ToNumber(cx, valmaxTorque, &maxTorque);
-            JSB_PRECONDITION( ok, "Error converting value to numbers");
-            
-            def->maxForce = maxForce;
-            def->maxTorque = maxTorque;
+            def->maxForce = valmaxForce.toNumber();
+            def->maxTorque = valmaxTorque.toNumber();
             
             break;
         }
@@ -393,11 +358,7 @@ bool jsval_to_b2JointDef( JSContext *cx, jsval vp, b2JointType type, b2JointDef 
             proxy = jsb_get_js_proxy(joint2obj);
             def->joint2 = (b2Joint *)(proxy ? proxy->ptr : nullptr);
             
-            double ratio;
-            ok &= JS::ToNumber(cx, valratio, &ratio);
-            JSB_PRECONDITION( ok, "Error converting value to numbers");
-            
-            def->ratio = ratio;
+            def->ratio = valratio.toNumber();
             
             break;
         }
@@ -417,17 +378,10 @@ bool jsval_to_b2JointDef( JSContext *cx, jsval vp, b2JointType type, b2JointDef 
             ok &= JS_GetProperty(cx, jsobj, "correctionFactor", &valcorrectionFactor);
             JSB_PRECONDITION( ok, "Error obtaining b2GearJointDef properties");
             
-            double angularOffset, maxForce, maxTorque, correctionFactor;
-            ok &= JS::ToNumber(cx, valangularOffset, &angularOffset);
-            ok &= JS::ToNumber(cx, valmaxForce, &maxForce);
-            ok &= JS::ToNumber(cx, valmaxTorque, &maxTorque);
-            ok &= JS::ToNumber(cx, valcorrectionFactor, &correctionFactor);
-            JSB_PRECONDITION( ok, "Error converting value to numbers");
-            
-            def->angularOffset = angularOffset;
-            def->maxForce = maxForce;
-            def->maxTorque = maxTorque;
-            def->correctionFactor = correctionFactor;
+            def->angularOffset = valangularOffset.toNumber();
+            def->maxForce = valmaxForce.toNumber();
+            def->maxTorque = valmaxTorque.toNumber();
+            def->correctionFactor = valcorrectionFactor.toNumber();
             
             break;
         }
@@ -446,15 +400,9 @@ bool jsval_to_b2JointDef( JSContext *cx, jsval vp, b2JointType type, b2JointDef 
             ok &= JS_GetProperty(cx, jsobj, "dampingRatio", &valdampingRatio);
             JSB_PRECONDITION( ok, "Error obtaining b2GearJointDef properties");
             
-            double frequencyHz, maxForce, dampingRatio;
-            ok &= JS::ToNumber(cx, valfrequencyHz, &frequencyHz);
-            ok &= JS::ToNumber(cx, valmaxForce, &maxForce);
-            ok &= JS::ToNumber(cx, valdampingRatio, &dampingRatio);
-            JSB_PRECONDITION( ok, "Error converting value to numbers");
-            
-            def->frequencyHz = frequencyHz;
-            def->maxForce = maxForce;
-            def->dampingRatio = dampingRatio;
+            def->frequencyHz = valfrequencyHz.toNumber();
+            def->maxForce = valmaxForce.toNumber();
+            def->dampingRatio = valdampingRatio.toNumber();
             
             break;
         }
@@ -483,26 +431,14 @@ bool jsval_to_b2JointDef( JSContext *cx, jsval vp, b2JointType type, b2JointDef 
             ok &= JS_GetProperty(cx, jsobj, "enableLimit", &valenableLimit);
             ok &= JS_GetProperty(cx, jsobj, "enableMotor", &valenableMotor);
             JSB_PRECONDITION( ok, "Error obtaining b2GearJointDef properties");
-            
-            double lowerTranslation, referenceAngle, upperTranslation, maxMotorForce, motorSpeed;
-            bool enableLimit, enableMotor;
 
-            ok &= JS::ToNumber(cx, vallowerTranslation, &lowerTranslation);
-            ok &= JS::ToNumber(cx, valreferenceAngle, &referenceAngle);
-            ok &= JS::ToNumber(cx, valupperTranslation, &upperTranslation);
-            ok &= JS::ToNumber(cx, valmaxMotorForce, &maxMotorForce);
-            ok &= JS::ToNumber(cx, valmotorSpeed, &motorSpeed);
-            JSB_PRECONDITION( ok, "Error converting value to numbers");
-            enableLimit = valenableLimit.toBoolean();
-            enableMotor = valenableMotor.toBoolean();
-
-            def->lowerTranslation = lowerTranslation;
-            def->referenceAngle = referenceAngle;
-            def->upperTranslation = upperTranslation;
-            def->maxMotorForce = maxMotorForce;
-            def->motorSpeed = motorSpeed;
-            def->enableLimit = enableLimit;
-            def->enableMotor = enableMotor;
+            def->lowerTranslation = vallowerTranslation.toNumber();
+            def->referenceAngle = valreferenceAngle.toNumber();
+            def->upperTranslation = valupperTranslation.toNumber();
+            def->maxMotorForce = valmaxMotorForce.toNumber();
+            def->motorSpeed = valmotorSpeed.toNumber();
+            def->enableLimit = valenableLimit.toBoolean();
+            def->enableMotor = valenableMotor.toBoolean();
 
             break;
         }
@@ -527,18 +463,10 @@ bool jsval_to_b2JointDef( JSContext *cx, jsval vp, b2JointType type, b2JointDef 
             ok &= JS_GetProperty(cx, jsobj, "collideConnected", &valcollideConnected);
             JSB_PRECONDITION( ok, "Error obtaining b2GearJointDef properties");
 
-            double lengthB, lengthA, ratio;
-            bool collideConnected;
-            ok &= JS::ToNumber(cx, vallengthB, &lengthB);
-            ok &= JS::ToNumber(cx, vallengthA, &lengthA);
-            ok &= JS::ToNumber(cx, valratio, &ratio);
-            JSB_PRECONDITION( ok, "Error converting value to numbers");
-            collideConnected = valcollideConnected.toBoolean();
-
-            def->lengthB = lengthB;
-            def->lengthA = lengthA;
-            def->ratio = ratio;
-            def->collideConnected = collideConnected;
+            def->lengthB = vallengthB.toNumber();
+            def->lengthA = vallengthA.toNumber();
+            def->ratio = valratio.toNumber();
+            def->collideConnected = valcollideConnected.toBoolean();
 
             break;
         }
@@ -565,26 +493,14 @@ bool jsval_to_b2JointDef( JSContext *cx, jsval vp, b2JointType type, b2JointDef 
             ok &= JS_GetProperty(cx, jsobj, "enableLimit", &valenableLimit);
             ok &= JS_GetProperty(cx, jsobj, "enableMotor", &valenableMotor);
             JSB_PRECONDITION( ok, "Error obtaining b2GearJointDef properties");
-            
-            double lowerAngle, referenceAngle, upperAngle, maxMotorTorque, motorSpeed;
-            bool enableLimit, enableMotor;
 
-            ok &= JS::ToNumber(cx, vallowerAngle, &lowerAngle);
-            ok &= JS::ToNumber(cx, valreferenceAngle, &referenceAngle);
-            ok &= JS::ToNumber(cx, valupperAngle, &upperAngle);
-            ok &= JS::ToNumber(cx, valmaxMotorTorque, &maxMotorTorque);
-            ok &= JS::ToNumber(cx, valmotorSpeed, &motorSpeed);
-            JSB_PRECONDITION( ok, "Error converting value to numbers");
-            enableLimit = valenableLimit.toBoolean();
-            enableMotor = valenableMotor.toBoolean();
-
-            def->lowerAngle = lowerAngle;
-            def->referenceAngle = referenceAngle;
-            def->upperAngle = upperAngle;
-            def->maxMotorTorque = maxMotorTorque;
-            def->motorSpeed = motorSpeed;
-            def->enableLimit = enableLimit;
-            def->enableMotor = enableMotor;
+            def->lowerAngle = vallowerAngle.toNumber();
+            def->referenceAngle = valreferenceAngle.toNumber();
+            def->upperAngle = valupperAngle.toNumber();
+            def->maxMotorTorque = valmaxMotorTorque.toNumber();
+            def->motorSpeed = valmotorSpeed.toNumber();
+            def->enableLimit = valenableLimit.toBoolean();
+            def->enableMotor = valenableMotor.toBoolean();
             
             break;
         }
@@ -598,13 +514,9 @@ bool jsval_to_b2JointDef( JSContext *cx, jsval vp, b2JointType type, b2JointDef 
             JS::RootedValue valmaxLength(cx);
 
             ok &= JS_GetProperty(cx, jsobj, "maxLength", &valmaxLength);
-            JSB_PRECONDITION( ok, "Error obtaining b2GearJointDef properties");            
+            JSB_PRECONDITION( ok, "Error obtaining b2GearJointDef properties");
 
-            double maxLength;
-            ok &= JS::ToNumber(cx, valmaxLength, &maxLength);
-            JSB_PRECONDITION( ok, "Error converting value to numbers");
-
-            def->maxLength = maxLength;
+            def->maxLength = valmaxLength.toNumber();
 
             break;
         }
@@ -624,16 +536,9 @@ bool jsval_to_b2JointDef( JSContext *cx, jsval vp, b2JointType type, b2JointDef 
             ok &= JS_GetProperty(cx, jsobj, "dampingRatio", &valdampingRatio);
             JSB_PRECONDITION( ok, "Error obtaining b2DistanceJointDef properties");
             
-            double referenceAngle, frequencyHz, dampingRatio;
-            
-            ok &= JS::ToNumber(cx, valreferenceAngle, &referenceAngle);
-            ok &= JS::ToNumber(cx, valfrequencyHz, &frequencyHz);
-            ok &= JS::ToNumber(cx, valdampingRatio, &dampingRatio);
-            JSB_PRECONDITION( ok, "Error converting value to numbers");
-            
-            def->referenceAngle = referenceAngle;
-            def->frequencyHz = frequencyHz;
-            def->dampingRatio = dampingRatio;
+            def->referenceAngle = valreferenceAngle.toNumber();
+            def->frequencyHz = valfrequencyHz.toNumber();
+            def->dampingRatio = valdampingRatio.toNumber();
 
             break;
         }
@@ -658,23 +563,12 @@ bool jsval_to_b2JointDef( JSContext *cx, jsval vp, b2JointType type, b2JointDef 
             ok &= JS_GetProperty(cx, jsobj, "motorSpeed", &valmotorSpeed);
             ok &= JS_GetProperty(cx, jsobj, "enableMotor", &valenableMotor);
             JSB_PRECONDITION( ok, "Error obtaining b2GearJointDef properties");
-            
-            double frequencyHz, maxMotorTorque, dampingRatio, maxMotorForce, motorSpeed;
-            bool enableMotor;
 
-            ok &= JS::ToNumber(cx, valfrequencyHz, &frequencyHz);
-            ok &= JS::ToNumber(cx, valmaxMotorTorque, &maxMotorTorque);
-            ok &= JS::ToNumber(cx, valdampingRatio, &dampingRatio);
-            ok &= JS::ToNumber(cx, valmotorSpeed, &motorSpeed);
-            JSB_PRECONDITION( ok, "Error converting value to numbers");
-            enableMotor = valenableMotor.toBoolean();
-
-            def->frequencyHz = frequencyHz;
-            def->maxMotorTorque = maxMotorTorque;
-            def->dampingRatio = dampingRatio;
-            def->motorSpeed = motorSpeed;
-            def->enableMotor = enableMotor;            
-
+            def->frequencyHz = valfrequencyHz.toNumber();
+            def->maxMotorTorque = valmaxMotorTorque.toNumber();
+            def->dampingRatio = valdampingRatio.toNumber();
+            def->motorSpeed = valmotorSpeed.toNumber();
+            def->enableMotor = valenableMotor.toBoolean();
             break;
         }
         default:
@@ -707,7 +601,7 @@ bool jsval_to_array_of_b2Vec2(JSContext* cx, JS::HandleValue v, b2Vec2 *points, 
 jsval b2Manifold_to_jsval(JSContext* cx, const b2Manifold* v)
 {
     JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
-    if (!tmp) return JSVAL_NULL;
+    if (!tmp) return JS::NullValue();
     
     bool ok = JS_DefineProperty(cx, tmp, "localPoint", JS::RootedValue(cx, b2Vec2_to_jsval(cx, v->localPoint)), JSPROP_ENUMERATE | JSPROP_PERMANENT);
     ok &= JS_DefineProperty(cx, tmp, "localNormal", JS::RootedValue(cx, b2Vec2_to_jsval(cx, v->localNormal)), JSPROP_ENUMERATE | JSPROP_PERMANENT);
@@ -734,15 +628,15 @@ jsval b2Manifold_to_jsval(JSContext* cx, const b2Manifold* v)
     ok &= JS_DefineProperty(cx, tmp, "points", jsretArr, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
     if (ok) {
-        return OBJECT_TO_JSVAL(tmp);
+        return JS::ObjectOrNullValue(tmp);
     }
-    return JSVAL_NULL;
+    return JS::NullValue();
 }
 
 jsval b2ContactImpulse_to_jsval(JSContext* cx, const b2ContactImpulse* v)
 {
     JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
-    if (!tmp) return JSVAL_NULL;
+    if (!tmp) return JS::NullValue();
     
     bool ok = true;
     
@@ -769,9 +663,9 @@ jsval b2ContactImpulse_to_jsval(JSContext* cx, const b2ContactImpulse* v)
     ok &= JS_DefineProperty(cx, tmp, "tangentImpulses", jsretTangent, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
     if (ok) {
-        return OBJECT_TO_JSVAL(tmp);
+        return JS::ObjectOrNullValue(tmp);
     }
-    return JSVAL_NULL;
+    return JS::NullValue();
 }
 
 jsval array_of_b2Fixture_to_jsval(JSContext* cx, const std::vector<b2Fixture*>& fixtures)
@@ -784,14 +678,14 @@ jsval array_of_b2Fixture_to_jsval(JSContext* cx, const std::vector<b2Fixture*>& 
         b2Fixture* f = fixtures[i];
         
         JS::RootedValue arrElement(cx);
-        arrElement = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Fixture>(cx, f));
+        arrElement = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, f));
         
         if (!JS_SetElement(cx, jsret, i, arrElement)) {
             break;
         }
     }
     
-    return OBJECT_TO_JSVAL(jsret);
+    return JS::ObjectOrNullValue(jsret);
 }
 
 jsval array_of_b2Vec2_to_jsval(JSContext* cx, const std::vector<b2Vec2>& vs)
@@ -811,7 +705,7 @@ jsval array_of_b2Vec2_to_jsval(JSContext* cx, const std::vector<b2Vec2>& vs)
         }
     }
     
-    return OBJECT_TO_JSVAL(jsret);
+    return JS::ObjectOrNullValue(jsret);
 }
 
 jsval b2AABB_to_jsval(JSContext* cx, const b2AABB& v)
@@ -838,14 +732,14 @@ jsval b2AABB_to_jsval(JSContext* cx, const b2AABB& v)
         return JSVAL_VOID;
     }
     
-    return OBJECT_TO_JSVAL(object);
+    return JS::ObjectOrNullValue(object);
 }
 
 
 extern JSClass  *jsb_b2Shape_class;
 extern JSObject *jsb_b2Shape_prototype;
 
-bool js_box2dclasses_b2Shape_GetRadius(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_box2dclasses_b2Shape_GetRadius(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -860,27 +754,23 @@ bool js_box2dclasses_b2Shape_GetRadius(JSContext *cx, uint32_t argc, jsval *vp)
         return true;
     }
     
-    JS_ReportError(cx, "js_box2dclasses_b2Shape_GetRadius : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Shape_GetRadius : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_box2dclasses_b2Shape_SetRadius(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_box2dclasses_b2Shape_SetRadius(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     b2Shape* cobj = (b2Shape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Shape_SetRadius : Invalid Native Object");
     if (argc == 1) {
-        double arg0;
-        ok &= JS::ToNumber(cx, args.get(0), &arg0);
-        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Shape_SetRadius : Error processing arguments");
-        cobj->m_radius = arg0;
+        cobj->m_radius = args.get(0).toNumber();
         args.rval().setUndefined();
         return true;
     }
     
-    JS_ReportError(cx, "js_box2dclasses_b2Shape_SetRadius : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Shape_SetRadius : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
@@ -888,7 +778,7 @@ bool js_box2dclasses_b2Shape_SetRadius(JSContext *cx, uint32_t argc, jsval *vp)
 extern JSClass  *jsb_b2CircleShape_class;
 extern JSObject *jsb_b2CircleShape_prototype;
 
-bool js_box2dclasses_b2CircleShape_GetPosition(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_box2dclasses_b2CircleShape_GetPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -903,10 +793,10 @@ bool js_box2dclasses_b2CircleShape_GetPosition(JSContext *cx, uint32_t argc, jsv
         return true;
     }
     
-    JS_ReportError(cx, "js_box2dclasses_b2CircleShape_GetPosition : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2CircleShape_GetPosition : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_box2dclasses_b2CircleShape_SetPosition(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_box2dclasses_b2CircleShape_SetPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -923,11 +813,11 @@ bool js_box2dclasses_b2CircleShape_SetPosition(JSContext *cx, uint32_t argc, jsv
         return true;
     }
     
-    JS_ReportError(cx, "js_box2dclasses_b2Shape_SetRadius : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Shape_SetRadius : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_box2dclasses_b2World_CreateJoint(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_box2dclasses_b2World_CreateJoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1029,18 +919,16 @@ bool js_box2dclasses_b2World_CreateJoint(JSContext *cx, uint32_t argc, jsval *vp
             if (retProxy) {
                 jsb_remove_proxy(retProxy);
             }
-            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Joint>(cx, (b2Joint*)ret));
-        } else {
-            jsret = JSVAL_NULL;
-        };
+            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Joint>(cx, (b2Joint*)ret));
+        }
         args.rval().set(jsret);
         return true;
     }
     
-    JS_ReportError(cx, "js_box2dclasses_b2World_CreateJoint : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_CreateJoint : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_box2dclasses_b2World_CreateBody(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_box2dclasses_b2World_CreateBody(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1060,20 +948,18 @@ bool js_box2dclasses_b2World_CreateBody(JSContext *cx, uint32_t argc, jsval *vp)
             if (retProxy) {
                 jsb_remove_proxy(retProxy);
             }
-            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Body>(cx, (b2Body*)ret));
-        } else {
-            jsret = JSVAL_NULL;
-        };
+            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Body>(cx, (b2Body*)ret));
+        }
         args.rval().set(jsret);
         return true;
     }
     
-    JS_ReportError(cx, "js_box2dclasses_b2World_CreateBody : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2World_CreateBody : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
 
-bool js_box2dclasses_b2Body_CreateFixture(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_box2dclasses_b2Body_CreateFixture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     b2Body* cobj = nullptr;
     
@@ -1097,21 +983,17 @@ bool js_box2dclasses_b2Body_CreateFixture(JSContext *cx, uint32_t argc, jsval *v
                 JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
             } while (0);
             if (!ok) { ok = true; break; }
-            double arg1 = 0;
-            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
-            if (!ok) { ok = true; break; }
+            double arg1 = args.get(1).toNumber();
             b2Fixture* ret = cobj->CreateFixture(arg0, arg1);
-            jsval jsret = JSVAL_NULL;
+            JS::RootedValue jsret(cx);
             if (ret) {
                 // box2d will reuse cached memory, need first remove old proxy when create new jsobject
                 auto retProxy = jsb_get_native_proxy(ret);
                 if (retProxy) {
                     jsb_remove_proxy(retProxy);
                 }
-                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
-            } else {
-                jsret = JSVAL_NULL;
-            };
+                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
+            }
             args.rval().set(jsret);
             return true;
         }
@@ -1124,85 +1006,20 @@ bool js_box2dclasses_b2Body_CreateFixture(JSContext *cx, uint32_t argc, jsval *v
             b2FixtureDef tmpDef; arg0=&tmpDef; ok &= jsval_to_b2FixtureDef(cx, args.get(0), &tmpDef);
             if (!ok) { ok = true; break; }
             b2Fixture* ret = cobj->CreateFixture(arg0);
-            jsval jsret = JSVAL_NULL;
+            JS::RootedValue jsret(cx);
             if (ret) {
-                jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
-            } else {
-                jsret = JSVAL_NULL;
-            };
+                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
+            }
             args.rval().set(jsret);
             return true;
         }
     } while(0);
     
-    JS_ReportError(cx, "js_box2dclasses_b2Body_CreateFixture : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_CreateFixture : wrong number of arguments");
     return false;
 }
 
-bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    b2Body* cobj = nullptr;
-    
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx);
-    obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
-    cobj = (b2Body *)(proxy ? proxy->ptr : nullptr);
-    JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetJointList : Invalid Native Object");
-    do {
-        if (argc == 0) {
-            jsval jsret = JSVAL_NULL;
-            
-            b2JointEdge* list = cobj->GetJointList();
-            do
-            {
-                if (!list) {
-                    break;
-                }
-                
-                JS::RootedObject array(cx, JS_NewArrayObject(cx, 0));
-                int i = 0;
-                JS::RootedValue item(cx);
-                
-                item = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Joint>(cx, list->joint));
-                if (!JS_SetElement(cx, array, i++, item)) {
-                    break;
-                }
-                
-                b2JointEdge* prev = list->prev;
-                while (prev) {
-                    item = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Joint>(cx, prev->joint));
-                    if (!JS_SetElement(cx, array, i++, item)) {
-                        break;
-                    }
-                    
-                    prev = prev->prev;
-                }
-                
-                b2JointEdge* next = list->next;
-                while (next) {
-                    item = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Joint>(cx, next->joint));
-                    if (!JS_SetElement(cx, array, i++, item)) {
-                        break;
-                    }
-                    
-                    next = next->next;
-                }
-                
-                jsret = OBJECT_TO_JSVAL(array);
-            }
-            while(0);
-            
-            args.rval().set( jsret );
-            return true;
-        }
-    } while(0);
-    
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetJointList : wrong number of arguments");
-    return false;
-}
-
-bool js_box2dclasses_b2PolygonShape_Set(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_box2dclasses_b2PolygonShape_Set(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1229,10 +1046,10 @@ bool js_box2dclasses_b2PolygonShape_Set(JSContext *cx, uint32_t argc, jsval *vp)
         return true;
     }
     
-    JS_ReportError(cx, "js_box2dclasses_b2PolygonShape_Set : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PolygonShape_Set : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
-bool js_box2dclasses_b2PolygonShape_SetAsBox(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_box2dclasses_b2PolygonShape_SetAsBox(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     b2PolygonShape* cobj = nullptr;
     
@@ -1243,20 +1060,13 @@ bool js_box2dclasses_b2PolygonShape_SetAsBox(JSContext *cx, uint32_t argc, jsval
     cobj = (b2PolygonShape *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PolygonShape_SetAsBox : Invalid Native Object");
     do {
-        bool ok = true;
         if (argc == 4) {
-            double arg0 = 0;
-            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
-            if (!ok) { ok = true; break; }
-            double arg1 = 0;
-            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
-            if (!ok) { ok = true; break; }
+            double arg0 = args.get(0).toNumber();
+            double arg1 = args.get(1).toNumber();
             b2Vec2 arg2;
-            ok &= jsval_to_b2Vec2(cx, args.get(2), &arg2);
+            bool ok = jsval_to_b2Vec2(cx, args.get(2), &arg2);
             if (!ok) { ok = true; break; }
-            double arg3 = 0;
-            ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
-            if (!ok) { ok = true; break; }
+            double arg3 = args.get(3).toNumber();
             cobj->SetAsBox(arg0, arg1, arg2, arg3);
             args.rval().setUndefined();
             return true;
@@ -1264,25 +1074,20 @@ bool js_box2dclasses_b2PolygonShape_SetAsBox(JSContext *cx, uint32_t argc, jsval
     } while(0);
     
     do {
-        bool ok = true;
         if (argc == 2) {
-            double arg0 = 0;
-            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
-            if (!ok) { ok = true; break; }
-            double arg1 = 0;
-            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
-            if (!ok) { ok = true; break; }
+            double arg0 = args.get(0).toNumber();
+            double arg1 = args.get(1).toNumber();
             cobj->SetAsBox(arg0, arg1);
             args.rval().setUndefined();
             return true;
         }
     } while(0);
     
-    JS_ReportError(cx, "js_box2dclasses_b2PolygonShape_SetAsBox : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2PolygonShape_SetAsBox : wrong number of arguments");
     return false;
 }
 
-bool js_box2dclasses_b2Body_SetUserData(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_box2dclasses_b2Body_SetUserData(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1307,11 +1112,11 @@ bool js_box2dclasses_b2Body_SetUserData(JSContext *cx, uint32_t argc, jsval *vp)
         return true;
     }
     
-    JS_ReportError(cx, "js_box2dclasses_b2Body_SetUserData : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_SetUserData : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_box2dclasses_b2Body_GetUserData(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_box2dclasses_b2Body_GetUserData(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1322,19 +1127,17 @@ bool js_box2dclasses_b2Body_GetUserData(JSContext *cx, uint32_t argc, jsval *vp)
         void* ret = cobj->GetUserData();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
-        } else {
-            jsret = JSVAL_NULL;
-        };
+            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
+        }
         args.rval().set(jsret);
         return true;
     }
     
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetUserData : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetUserData : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_box2dclasses_b2ChainShape_CreateChain(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_box2dclasses_b2ChainShape_CreateChain(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1358,11 +1161,11 @@ bool js_box2dclasses_b2ChainShape_CreateChain(JSContext *cx, uint32_t argc, jsva
         return true;
     }
     
-    JS_ReportError(cx, "js_box2dclasses_b2ChainShape_CreateChain : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ChainShape_CreateChain : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 
-bool js_box2dclasses_b2ChainShape_CreateLoop(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_box2dclasses_b2ChainShape_CreateLoop(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1385,7 +1188,7 @@ bool js_box2dclasses_b2ChainShape_CreateLoop(JSContext *cx, uint32_t argc, jsval
         return true;
     }
     
-    JS_ReportError(cx, "js_box2dclasses_b2ChainShape_CreateLoop : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2ChainShape_CreateLoop : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 
@@ -1408,7 +1211,6 @@ void register_all_box2dclasses_manual(JSContext* cx, JS::HandleObject obj) {
     JS_DefineFunction(cx, tmpObj, "CreateFixture", js_box2dclasses_b2Body_CreateFixture, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "SetUserData", js_box2dclasses_b2Body_SetUserData, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "GetUserData", js_box2dclasses_b2Body_GetUserData, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-    JS_DefineFunction(cx, tmpObj, "GetJointList", js_box2dclasses_b2Body_GetJointList, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
     tmpObj.set(jsb_b2PolygonShape_prototype);
     JS_DefineFunction(cx, tmpObj, "Set", js_box2dclasses_b2PolygonShape_Set, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);

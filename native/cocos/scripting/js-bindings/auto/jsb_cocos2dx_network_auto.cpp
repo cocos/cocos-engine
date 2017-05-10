@@ -6,7 +6,7 @@
 template<class T>
 static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
-    JS_ReportError(cx, "Constructor for the requested class is not available, please refer to the API reference.");
+    JS_ReportErrorUTF8(cx, "Constructor for the requested class is not available, please refer to the API reference.");
     return false;
 }
 
@@ -48,9 +48,9 @@ bool js_cocos2dx_network_Downloader_setOnTaskError(JSContext *cx, uint32_t argc,
 		            JS::RootedValue largv(cx);
 		            largv = downloadTask_to_jsval(cx, larg0);
 		            valArr.append(largv);
-		            largv = int32_to_jsval(cx, larg1);
+		            largv = JS::Int32Value(larg1);
 		            valArr.append(largv);
-		            largv = int32_to_jsval(cx, larg2);
+		            largv = JS::Int32Value(larg2);
 		            valArr.append(largv);
 		            largv = std_string_to_jsval(cx, larg3);
 		            valArr.append(largv);
@@ -58,7 +58,7 @@ bool js_cocos2dx_network_Downloader_setOnTaskError(JSContext *cx, uint32_t argc,
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
-		                JS_ReportPendingException(cx);
+		                handlePendingException(cx);
 		            }
 		        };
 		        arg0 = lambda;
@@ -75,7 +75,7 @@ bool js_cocos2dx_network_Downloader_setOnTaskError(JSContext *cx, uint32_t argc,
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_network_Downloader_setOnTaskError : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_network_Downloader_setOnTaskError : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_network_Downloader_setOnTaskProgress(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -113,7 +113,7 @@ bool js_cocos2dx_network_Downloader_setOnTaskProgress(JSContext *cx, uint32_t ar
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
-		                JS_ReportPendingException(cx);
+		                handlePendingException(cx);
 		            }
 		        };
 		        arg0 = lambda;
@@ -130,7 +130,7 @@ bool js_cocos2dx_network_Downloader_setOnTaskProgress(JSContext *cx, uint32_t ar
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_network_Downloader_setOnTaskProgress : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_network_Downloader_setOnTaskProgress : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_network_Downloader_createDownloadFileTask(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -168,7 +168,7 @@ bool js_cocos2dx_network_Downloader_createDownloadFileTask(JSContext *cx, uint32
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_network_Downloader_createDownloadFileTask : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_network_Downloader_createDownloadFileTask : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_network_Downloader_setOnFileTaskSuccess(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -200,7 +200,7 @@ bool js_cocos2dx_network_Downloader_setOnFileTaskSuccess(JSContext *cx, uint32_t
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
-		                JS_ReportPendingException(cx);
+		                handlePendingException(cx);
 		            }
 		        };
 		        arg0 = lambda;
@@ -217,7 +217,7 @@ bool js_cocos2dx_network_Downloader_setOnFileTaskSuccess(JSContext *cx, uint32_t
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_network_Downloader_setOnFileTaskSuccess : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_network_Downloader_setOnFileTaskSuccess : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -236,9 +236,8 @@ bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS
             cobj = new (std::nothrow) cocos2d::network::Downloader(arg0);
 
             js_type_class_t *typeClass = js_get_type_from_native<cocos2d::network::Downloader>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto.ref());
-            JS::RootedObject parent(cx, typeClass->parentProto.ref());
-            obj = JS_NewObject(cx, typeClass->jsclass, proto, parent);
+            JS::RootedObject proto(cx, typeClass->proto);
+            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
             js_proxy_t* p = jsb_new_proxy(cobj, obj);
             jsb_non_ref_init(cx, &p->obj, cobj, "cocos2d::network::Downloader");
         }
@@ -250,9 +249,8 @@ bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS
             cobj = new (std::nothrow) cocos2d::network::Downloader();
 
             js_type_class_t *typeClass = js_get_type_from_native<cocos2d::network::Downloader>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto.ref());
-            JS::RootedObject parent(cx, typeClass->parentProto.ref());
-            obj = JS_NewObject(cx, typeClass->jsclass, proto, parent);
+            JS::RootedObject proto(cx, typeClass->proto);
+            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
             js_proxy_t* p = jsb_new_proxy(cobj, obj);
             jsb_non_ref_init(cx, &p->obj, cobj, "cocos2d::network::Downloader");
         }
@@ -269,7 +267,7 @@ bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS
         args.rval().set(objVal);
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_network_Downloader_constructor : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_network_Downloader_constructor : wrong number of arguments");
     return false;
 }
 
@@ -298,17 +296,19 @@ void js_cocos2d_network_Downloader_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_network_Downloader(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_network_Downloader_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_network_Downloader_class->name = "Downloader";
-    jsb_cocos2d_network_Downloader_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_network_Downloader_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_network_Downloader_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_network_Downloader_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_network_Downloader_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_network_Downloader_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_network_Downloader_class->convert = JS_ConvertStub;
-    jsb_cocos2d_network_Downloader_class->finalize = js_cocos2d_network_Downloader_finalize;
-    jsb_cocos2d_network_Downloader_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_network_Downloader_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        js_cocos2d_network_Downloader_finalize,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_network_Downloader_class = {
+        "Downloader",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_network_Downloader_classOps
+    };
+    jsb_cocos2d_network_Downloader_class = &cocos2d_network_Downloader_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -326,12 +326,12 @@ void js_register_cocos2dx_network_Downloader(JSContext *cx, JS::HandleObject glo
 
     jsb_cocos2d_network_Downloader_prototype = JS_InitClass(
         cx, global,
-        JS::NullPtr(),
+        nullptr,
         jsb_cocos2d_network_Downloader_class,
         js_cocos2dx_network_Downloader_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_network_Downloader_prototype);
@@ -340,7 +340,7 @@ void js_register_cocos2dx_network_Downloader(JSContext *cx, JS::HandleObject glo
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::network::Downloader>(cx, jsb_cocos2d_network_Downloader_class, proto, JS::NullPtr());
+    jsb_register_class<cocos2d::network::Downloader>(cx, jsb_cocos2d_network_Downloader_class, proto);
 }
 
 void register_all_cocos2dx_network(JSContext* cx, JS::HandleObject obj) {

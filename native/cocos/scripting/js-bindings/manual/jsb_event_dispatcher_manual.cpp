@@ -35,7 +35,7 @@
 
 USING_NS_CC;
 
-bool js_EventListenerTouchOneByOne_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventListenerTouchOneByOne_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc == 0) {
@@ -72,16 +72,16 @@ bool js_EventListenerTouchOneByOne_create(JSContext *cx, uint32_t argc, jsval *v
             ScriptingCore::getInstance()->handleTouchEvent(ret, EventTouch::EventCode::CANCELLED, touch, event);
         };
 
-        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerTouchOneByOne>(cx, ret)));
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerTouchOneByOne>(cx, ret)));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_EventListenerTouchAllAtOnce_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventListenerTouchAllAtOnce_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc == 0) {
@@ -103,16 +103,16 @@ bool js_EventListenerTouchAllAtOnce_create(JSContext *cx, uint32_t argc, jsval *
             ScriptingCore::getInstance()->handleTouchesEvent(ret, EventTouch::EventCode::CANCELLED, touches, event);
         };
 
-        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerTouchAllAtOnce>(cx, ret)));
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerTouchAllAtOnce>(cx, ret)));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_EventListenerMouse_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventListenerMouse_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc == 0) {
@@ -134,16 +134,16 @@ bool js_EventListenerMouse_create(JSContext *cx, uint32_t argc, jsval *vp)
             ScriptingCore::getInstance()->handleMouseEvent(ret, EventMouse::MouseEventType::MOUSE_SCROLL, event);
         };
 
-        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerMouse>(cx, ret)));
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerMouse>(cx, ret)));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_EventListenerKeyboard_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventListenerKeyboard_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc == 0) {
@@ -157,16 +157,16 @@ bool js_EventListenerKeyboard_create(JSContext *cx, uint32_t argc, jsval *vp)
             ScriptingCore::getInstance()->handleKeyboardEvent(ret, keyCode, false, event);
         };
 
-        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerKeyboard>(cx, ret)));
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerKeyboard>(cx, ret)));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -185,7 +185,7 @@ bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, jsval *vp
                     largv[0] = ccacceleration_to_jsval(cx, *acc);
                     if (event) {
                         js_type_class_t *typeClassEvent = js_get_type_from_native<Event>(event);
-                        largv[1] = OBJECT_TO_JSVAL(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
+                        largv[1] = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
                     } else {
                         largv[1] = JSVAL_NULL;
                     };
@@ -205,7 +205,7 @@ bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, jsval *vp
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerAcceleration_create : Error processing arguments");
         
         auto ret = EventListenerAcceleration::create(arg0);
-        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerAcceleration>(cx, ret)));
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerAcceleration>(cx, ret)));
         if (wrapper)
         {
             wrapper->setOwner(cx, jsret);
@@ -213,11 +213,11 @@ bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, jsval *vp
         args.rval().set(jsret);
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_EventListenerAcceleration_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_EventListenerAcceleration_create : wrong number of arguments");
     return false;
 }
 
-bool js_EventListenerFocus_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventListenerFocus_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if(argc == 0)
     {
@@ -226,18 +226,18 @@ bool js_EventListenerFocus_create(JSContext *cx, uint32_t argc, jsval *vp)
             ScriptingCore::getInstance()->handleFocusEvent(ret, widgetLoseFocus, widgetGetFocus);
         };
         
-        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerFocus>(cx, ret)));
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerFocus>(cx, ret)));
 
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -257,7 +257,7 @@ bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, jsval *vp)
                     jsval largv[1];
                     if (event) {
                         js_type_class_t *typeClassEvent = js_get_type_from_native<EventCustom>(event);
-                        largv[0] = OBJECT_TO_JSVAL(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
+                        largv[0] = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
                     } else {
                         largv[0] = JSVAL_NULL;
                     };
@@ -278,7 +278,7 @@ bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, jsval *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerCustom_create : Error processing arguments");
 
         auto ret = EventListenerCustom::create(arg0, arg1);
-        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerCustom>(cx, ret)));
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerCustom>(cx, ret)));
         if (wrapper)
         {
             wrapper->setOwner(cx, jsret);
@@ -286,12 +286,12 @@ bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, jsval *vp)
         args.rval().set(jsret);
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_EventListenerCustom_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_EventListenerCustom_create : wrong number of arguments");
     return false;
 }
 
 
-bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -313,7 +313,7 @@ bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, jsv
                     jsval largv[1];
                     if (event) {
                         js_type_class_t *typeClassEvent = js_get_type_from_native<EventCustom>(event);
-                        largv[0] = OBJECT_TO_JSVAL(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
+                        largv[0] = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
                     } else {
                         largv[0] = JSVAL_NULL;
                     };
@@ -334,7 +334,7 @@ bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, jsv
         cocos2d::EventListenerCustom* ret = cobj->addCustomEventListener(arg0, arg1);
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerCustom>(cx, ret));
+            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerCustom>(cx, ret));
             args.rval().set(jsret);
         } else {
             jsret = JSVAL_NULL;
@@ -343,6 +343,6 @@ bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, jsv
         return true;
     }
     
-    JS_ReportError(cx, "js_cocos2dx_EventDispatcher_addCustomEventListener : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_EventDispatcher_addCustomEventListener : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }

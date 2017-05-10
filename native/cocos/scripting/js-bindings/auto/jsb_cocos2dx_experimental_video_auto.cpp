@@ -6,7 +6,7 @@
 template<class T>
 static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
-    JS_ReportError(cx, "Constructor for the requested class is not available, please refer to the API reference.");
+    JS_ReportErrorUTF8(cx, "Constructor for the requested class is not available, please refer to the API reference.");
     return false;
 }
 
@@ -38,7 +38,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_getFileName(JSContext *cx, uint3
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_getFileName : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_getFileName : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_getURL(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -56,7 +56,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_getURL(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_getURL : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_getURL : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_play(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -72,7 +72,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_play(JSContext *cx, uint32_t arg
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_play : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_play : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -85,14 +85,14 @@ bool js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled(JSCont
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled : Error processing arguments");
         cobj->setKeepAspectRatioEnabled(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_currentTime(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -105,12 +105,12 @@ bool js_cocos2dx_experimental_video_VideoPlayer_currentTime(JSContext *cx, uint3
     if (argc == 0) {
         double ret = cobj->currentTime();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_currentTime : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_currentTime : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_stop(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -126,7 +126,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_stop(JSContext *cx, uint32_t arg
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_stop : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_stop : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -139,14 +139,14 @@ bool js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled(JSContext *
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled : Error processing arguments");
         cobj->setFullScreenEnabled(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_setFileName(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -166,7 +166,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_setFileName(JSContext *cx, uint3
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_setFileName : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_setFileName : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_setURL(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -186,7 +186,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_setURL(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_setURL : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_setURL : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -199,12 +199,12 @@ bool js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled(JSConte
     if (argc == 0) {
         bool ret = cobj->isKeepAspectRatioEnabled();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -224,7 +224,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent(JSContext *cx, uint3
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -237,12 +237,12 @@ bool js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled(JSContext *c
     if (argc == 0) {
         bool ret = cobj->isFullScreenEnabled();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_duration(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -255,12 +255,12 @@ bool js_cocos2dx_experimental_video_VideoPlayer_duration(JSContext *cx, uint32_t
     if (argc == 0) {
         double ret = cobj->duration();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_duration : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_duration : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_isPlaying(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -273,12 +273,12 @@ bool js_cocos2dx_experimental_video_VideoPlayer_isPlaying(JSContext *cx, uint32_
     if (argc == 0) {
         bool ret = cobj->isPlaying();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_isPlaying : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_isPlaying : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_seekTo(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -291,14 +291,14 @@ bool js_cocos2dx_experimental_video_VideoPlayer_seekTo(JSContext *cx, uint32_t a
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_seekTo : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_seekTo : Error processing arguments");
         cobj->seekTo(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_seekTo : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_seekTo : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_experimental_video_VideoPlayer_create(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -309,10 +309,10 @@ bool js_cocos2dx_experimental_video_VideoPlayer_create(JSContext *cx, uint32_t a
         auto ret = cocos2d::experimental::ui::VideoPlayer::create();
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::experimental::ui::VideoPlayer>(ret);
         JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::experimental::ui::VideoPlayer"));
-        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_video_VideoPlayer_create : wrong number of arguments");
     return false;
 }
 
@@ -340,16 +340,19 @@ bool js_cocos2dx_experimental_video_VideoPlayer_constructor(JSContext *cx, uint3
 extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
 void js_register_cocos2dx_experimental_video_VideoPlayer(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_experimental_ui_VideoPlayer_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_experimental_ui_VideoPlayer_class->name = "VideoPlayer";
-    jsb_cocos2d_experimental_ui_VideoPlayer_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_experimental_ui_VideoPlayer_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_experimental_ui_VideoPlayer_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_experimental_ui_VideoPlayer_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_experimental_ui_VideoPlayer_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_experimental_ui_VideoPlayer_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_experimental_ui_VideoPlayer_class->convert = JS_ConvertStub;
-    jsb_cocos2d_experimental_ui_VideoPlayer_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_experimental_ui_VideoPlayer_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_experimental_ui_VideoPlayer_class = {
+        "VideoPlayer",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_experimental_ui_VideoPlayer_classOps
+    };
+    jsb_cocos2d_experimental_ui_VideoPlayer_class = &cocos2d_experimental_ui_VideoPlayer_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -387,7 +390,7 @@ void js_register_cocos2dx_experimental_video_VideoPlayer(JSContext *cx, JS::Hand
         js_cocos2dx_experimental_video_VideoPlayer_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_experimental_ui_VideoPlayer_prototype);
@@ -396,7 +399,7 @@ void js_register_cocos2dx_experimental_video_VideoPlayer(JSContext *cx, JS::Hand
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::experimental::ui::VideoPlayer>(cx, jsb_cocos2d_experimental_ui_VideoPlayer_class, proto, parent_proto);
+    jsb_register_class<cocos2d::experimental::ui::VideoPlayer>(cx, jsb_cocos2d_experimental_ui_VideoPlayer_class, proto);
 }
 
 void register_all_cocos2dx_experimental_video(JSContext* cx, JS::HandleObject obj) {

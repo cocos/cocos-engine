@@ -27,11 +27,11 @@
 
 void register_all_cocos2dx_dragonbones_manual(JSContext* cx, JS::HandleObject global);
 
-bool js_cocos2dx_dragonbones_Armature_getAnimation(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_Armature_getArmatureData(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_Armature_getDisplay(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_CCArmatureDisplay_getAnimation(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_AnimationState_getAnimationData(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_Armature_getAnimation(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_dragonbones_Armature_getArmatureData(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_dragonbones_Armature_getDisplay(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_dragonbones_CCArmatureDisplay_getAnimation(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_dragonbones_AnimationState_getAnimationData(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 bool js_cocos2dx_dragonbones_ArmatureData_get_animations(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
 bool js_cocos2dx_dragonbones_ArmatureData_get_bones(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
@@ -40,8 +40,8 @@ bool js_cocos2dx_dragonbones_ArmatureData_get_slots(JSContext *cx, JS::HandleObj
 bool js_cocos2dx_dragonbones_DragonBonesData_get_armatureNames(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
 
 bool js_cocos2dx_dragonbones_WorldClock_getClock(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
-bool js_cocos2dx_dragonbones_WorldClock_add(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_WorldClock_remove(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_WorldClock_add(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_dragonbones_WorldClock_remove(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 bool js_cocos2dx_dragonbones_CCFactory_getFactory(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
 
@@ -49,9 +49,9 @@ bool js_cocos2dx_dragonbones_TransformObject_getGlobal(JSContext *cx, JS::Handle
 bool js_cocos2dx_dragonbones_TransformObject_getOrigin(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
 bool js_cocos2dx_dragonbones_TransformObject_getOffset(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
 
-bool js_cocos2dx_dragonbones_Slot_getRawDisplay(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_Slot_getDisplay(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_Slot_getMeshDisplay(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_Slot_setDisplay(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_dragonbones_Slot_getRawDisplay(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_dragonbones_Slot_getDisplay(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_dragonbones_Slot_getMeshDisplay(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_dragonbones_Slot_setDisplay(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 #endif /* defined(__jsb_cocos2dx_dragonbones_manual__) */

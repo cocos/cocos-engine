@@ -151,7 +151,7 @@ void js_remove_object_reference(JS::HandleValue owner, JS::HandleValue target);
 void js_add_object_root(JS::HandleValue target);
 void js_remove_object_root(JS::HandleValue target);
 
-JS::Value anonEvaluate(JSContext *cx, JS::HandleObject thisObj, const char* string);
+JS::HandleValue anonEvaluate(JSContext *cx, JS::HandleObject thisObj, const char* string);
 void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject obj);
 
 

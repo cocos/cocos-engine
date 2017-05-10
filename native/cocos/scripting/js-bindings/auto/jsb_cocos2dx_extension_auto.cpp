@@ -5,7 +5,7 @@
 template<class T>
 static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
-    JS_ReportError(cx, "Constructor for the requested class is not available, please refer to the API reference.");
+    JS_ReportErrorUTF8(cx, "Constructor for the requested class is not available, please refer to the API reference.");
     return false;
 }
 
@@ -41,7 +41,7 @@ bool js_cocos2dx_extension_EventAssetsManagerEx_getAssetsManagerEx(JSContext *cx
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getAssetsManagerEx : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getAssetsManagerEx : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_EventAssetsManagerEx_getAssetId(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -59,7 +59,7 @@ bool js_cocos2dx_extension_EventAssetsManagerEx_getAssetId(JSContext *cx, uint32
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getAssetId : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getAssetId : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_EventAssetsManagerEx_getCURLECode(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -72,12 +72,12 @@ bool js_cocos2dx_extension_EventAssetsManagerEx_getCURLECode(JSContext *cx, uint
     if (argc == 0) {
         int ret = cobj->getCURLECode();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getCURLECode : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getCURLECode : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_EventAssetsManagerEx_getMessage(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -95,7 +95,7 @@ bool js_cocos2dx_extension_EventAssetsManagerEx_getMessage(JSContext *cx, uint32
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getMessage : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getMessage : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_EventAssetsManagerEx_getCURLMCode(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -108,12 +108,12 @@ bool js_cocos2dx_extension_EventAssetsManagerEx_getCURLMCode(JSContext *cx, uint
     if (argc == 0) {
         int ret = cobj->getCURLMCode();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getCURLMCode : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getCURLMCode : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_EventAssetsManagerEx_getPercentByFile(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -126,12 +126,12 @@ bool js_cocos2dx_extension_EventAssetsManagerEx_getPercentByFile(JSContext *cx, 
     if (argc == 0) {
         double ret = cobj->getPercentByFile();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getPercentByFile : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getPercentByFile : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_EventAssetsManagerEx_getEventCode(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -144,12 +144,12 @@ bool js_cocos2dx_extension_EventAssetsManagerEx_getEventCode(JSContext *cx, uint
     if (argc == 0) {
         int ret = (int)cobj->getEventCode();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getEventCode : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getEventCode : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_EventAssetsManagerEx_getPercent(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -162,12 +162,12 @@ bool js_cocos2dx_extension_EventAssetsManagerEx_getPercent(JSContext *cx, uint32
     if (argc == 0) {
         double ret = cobj->getPercent();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getPercent : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_EventAssetsManagerEx_getPercent : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_EventAssetsManagerEx_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -209,16 +209,19 @@ bool js_cocos2dx_extension_EventAssetsManagerEx_constructor(JSContext *cx, uint3
 extern JSObject *jsb_cocos2d_EventCustom_prototype;
 
 void js_register_cocos2dx_extension_EventAssetsManagerEx(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_EventAssetsManagerEx_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_EventAssetsManagerEx_class->name = "EventAssetsManager";
-    jsb_cocos2d_extension_EventAssetsManagerEx_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_EventAssetsManagerEx_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_EventAssetsManagerEx_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_EventAssetsManagerEx_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_EventAssetsManagerEx_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_EventAssetsManagerEx_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_EventAssetsManagerEx_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_EventAssetsManagerEx_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_EventAssetsManagerEx_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_EventAssetsManagerEx_class = {
+        "EventAssetsManager",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_EventAssetsManagerEx_classOps
+    };
+    jsb_cocos2d_extension_EventAssetsManagerEx_class = &cocos2d_extension_EventAssetsManagerEx_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -246,7 +249,7 @@ void js_register_cocos2dx_extension_EventAssetsManagerEx(JSContext *cx, JS::Hand
         js_cocos2dx_extension_EventAssetsManagerEx_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_EventAssetsManagerEx_prototype);
@@ -255,7 +258,7 @@ void js_register_cocos2dx_extension_EventAssetsManagerEx(JSContext *cx, JS::Hand
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::EventAssetsManagerEx>(cx, jsb_cocos2d_extension_EventAssetsManagerEx_class, proto, parent_proto);
+    jsb_register_class<cocos2d::extension::EventAssetsManagerEx>(cx, jsb_cocos2d_extension_EventAssetsManagerEx_class, proto);
 }
 
 JSClass  *jsb_cocos2d_extension_Manifest_class;
@@ -276,7 +279,7 @@ bool js_cocos2dx_extension_Manifest_getManifestFileUrl(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Manifest_getManifestFileUrl : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Manifest_getManifestFileUrl : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_Manifest_isVersionLoaded(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -289,12 +292,12 @@ bool js_cocos2dx_extension_Manifest_isVersionLoaded(JSContext *cx, uint32_t argc
     if (argc == 0) {
         bool ret = cobj->isVersionLoaded();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Manifest_isVersionLoaded : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Manifest_isVersionLoaded : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_Manifest_isLoaded(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -307,12 +310,12 @@ bool js_cocos2dx_extension_Manifest_isLoaded(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         bool ret = cobj->isLoaded();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Manifest_isLoaded : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Manifest_isLoaded : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_Manifest_getPackageUrl(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -330,7 +333,7 @@ bool js_cocos2dx_extension_Manifest_getPackageUrl(JSContext *cx, uint32_t argc, 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Manifest_getPackageUrl : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Manifest_getPackageUrl : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_Manifest_getVersion(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -348,7 +351,7 @@ bool js_cocos2dx_extension_Manifest_getVersion(JSContext *cx, uint32_t argc, JS:
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Manifest_getVersion : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Manifest_getVersion : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_Manifest_getVersionFileUrl(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -366,7 +369,7 @@ bool js_cocos2dx_extension_Manifest_getVersionFileUrl(JSContext *cx, uint32_t ar
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Manifest_getVersionFileUrl : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Manifest_getVersionFileUrl : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_Manifest_getSearchPaths(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -384,21 +387,24 @@ bool js_cocos2dx_extension_Manifest_getSearchPaths(JSContext *cx, uint32_t argc,
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Manifest_getSearchPaths : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Manifest_getSearchPaths : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 void js_register_cocos2dx_extension_Manifest(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_Manifest_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_Manifest_class->name = "Manifest";
-    jsb_cocos2d_extension_Manifest_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_Manifest_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_Manifest_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_Manifest_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_Manifest_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_Manifest_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_Manifest_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_Manifest_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_Manifest_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_Manifest_class = {
+        "Manifest",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_Manifest_classOps
+    };
+    jsb_cocos2d_extension_Manifest_class = &cocos2d_extension_Manifest_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -419,12 +425,12 @@ void js_register_cocos2dx_extension_Manifest(JSContext *cx, JS::HandleObject glo
 
     jsb_cocos2d_extension_Manifest_prototype = JS_InitClass(
         cx, global,
-        JS::NullPtr(),
+        nullptr,
         jsb_cocos2d_extension_Manifest_class,
         empty_constructor, 0,
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_Manifest_prototype);
@@ -433,7 +439,7 @@ void js_register_cocos2dx_extension_Manifest(JSContext *cx, JS::HandleObject glo
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::Manifest>(cx, jsb_cocos2d_extension_Manifest_class, proto, JS::NullPtr());
+    jsb_register_class<cocos2d::extension::Manifest>(cx, jsb_cocos2d_extension_Manifest_class, proto);
 }
 
 JSClass  *jsb_cocos2d_extension_AssetsManagerEx_class;
@@ -449,12 +455,12 @@ bool js_cocos2dx_extension_AssetsManagerEx_getState(JSContext *cx, uint32_t argc
     if (argc == 0) {
         int ret = (int)cobj->getState();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_AssetsManagerEx_getState : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_AssetsManagerEx_getState : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_AssetsManagerEx_getMaxConcurrentTask(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -467,12 +473,12 @@ bool js_cocos2dx_extension_AssetsManagerEx_getMaxConcurrentTask(JSContext *cx, u
     if (argc == 0) {
         const int ret = cobj->getMaxConcurrentTask();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_AssetsManagerEx_getMaxConcurrentTask : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_AssetsManagerEx_getMaxConcurrentTask : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_AssetsManagerEx_checkUpdate(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -488,7 +494,7 @@ bool js_cocos2dx_extension_AssetsManagerEx_checkUpdate(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_AssetsManagerEx_checkUpdate : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_AssetsManagerEx_checkUpdate : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_AssetsManagerEx_setVerifyCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -518,11 +524,11 @@ bool js_cocos2dx_extension_AssetsManagerEx_setVerifyCallback(JSContext *cx, uint
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
-		                JS_ReportPendingException(cx);
+		                handlePendingException(cx);
 		            }
 		            bool ok = true;
 		            bool ret;
-		            ret = JS::ToBoolean(rval);
+		            ret = rval.toBoolean();
 		            JSB_PRECONDITION2(ok, cx, false, "lambda function : Error processing return value with type bool");
 		            return ret;
 		        };
@@ -540,7 +546,7 @@ bool js_cocos2dx_extension_AssetsManagerEx_setVerifyCallback(JSContext *cx, uint
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_AssetsManagerEx_setVerifyCallback : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_AssetsManagerEx_setVerifyCallback : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_AssetsManagerEx_getStoragePath(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -558,7 +564,7 @@ bool js_cocos2dx_extension_AssetsManagerEx_getStoragePath(JSContext *cx, uint32_
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_AssetsManagerEx_getStoragePath : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_AssetsManagerEx_getStoragePath : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_AssetsManagerEx_update(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -574,7 +580,7 @@ bool js_cocos2dx_extension_AssetsManagerEx_update(JSContext *cx, uint32_t argc, 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_AssetsManagerEx_update : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_AssetsManagerEx_update : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -604,7 +610,7 @@ bool js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle(JSContext *cx
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
-		                JS_ReportPendingException(cx);
+		                handlePendingException(cx);
 		            }
 		            bool ok = true;
 		            int ret;
@@ -626,7 +632,7 @@ bool js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle(JSContext *cx
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_AssetsManagerEx_setMaxConcurrentTask(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -646,7 +652,7 @@ bool js_cocos2dx_extension_AssetsManagerEx_setMaxConcurrentTask(JSContext *cx, u
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_AssetsManagerEx_setMaxConcurrentTask : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_AssetsManagerEx_setMaxConcurrentTask : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_AssetsManagerEx_getLocalManifest(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -668,7 +674,7 @@ bool js_cocos2dx_extension_AssetsManagerEx_getLocalManifest(JSContext *cx, uint3
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_AssetsManagerEx_getLocalManifest : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_AssetsManagerEx_getLocalManifest : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_AssetsManagerEx_getRemoteManifest(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -690,7 +696,7 @@ bool js_cocos2dx_extension_AssetsManagerEx_getRemoteManifest(JSContext *cx, uint
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_AssetsManagerEx_getRemoteManifest : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_AssetsManagerEx_getRemoteManifest : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_AssetsManagerEx_downloadFailedAssets(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -706,7 +712,7 @@ bool js_cocos2dx_extension_AssetsManagerEx_downloadFailedAssets(JSContext *cx, u
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_AssetsManagerEx_downloadFailedAssets : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_AssetsManagerEx_downloadFailedAssets : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_AssetsManagerEx_create(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -723,10 +729,10 @@ bool js_cocos2dx_extension_AssetsManagerEx_create(JSContext *cx, uint32_t argc, 
         auto ret = cocos2d::extension::AssetsManagerEx::create(arg0, arg1);
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::AssetsManagerEx>(ret);
         JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::AssetsManagerEx"));
-        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_extension_AssetsManagerEx_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_AssetsManagerEx_create : wrong number of arguments");
     return false;
 }
 
@@ -757,16 +763,19 @@ bool js_cocos2dx_extension_AssetsManagerEx_constructor(JSContext *cx, uint32_t a
 
 
 void js_register_cocos2dx_extension_AssetsManagerEx(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_AssetsManagerEx_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_AssetsManagerEx_class->name = "AssetsManager";
-    jsb_cocos2d_extension_AssetsManagerEx_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_AssetsManagerEx_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_AssetsManagerEx_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_AssetsManagerEx_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_AssetsManagerEx_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_AssetsManagerEx_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_AssetsManagerEx_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_AssetsManagerEx_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_AssetsManagerEx_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_AssetsManagerEx_class = {
+        "AssetsManager",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_AssetsManagerEx_classOps
+    };
+    jsb_cocos2d_extension_AssetsManagerEx_class = &cocos2d_extension_AssetsManagerEx_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -794,12 +803,12 @@ void js_register_cocos2dx_extension_AssetsManagerEx(JSContext *cx, JS::HandleObj
 
     jsb_cocos2d_extension_AssetsManagerEx_prototype = JS_InitClass(
         cx, global,
-        JS::NullPtr(),
+        nullptr,
         jsb_cocos2d_extension_AssetsManagerEx_class,
         js_cocos2dx_extension_AssetsManagerEx_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_AssetsManagerEx_prototype);
@@ -808,7 +817,7 @@ void js_register_cocos2dx_extension_AssetsManagerEx(JSContext *cx, JS::HandleObj
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::AssetsManagerEx>(cx, jsb_cocos2d_extension_AssetsManagerEx_class, proto, JS::NullPtr());
+    jsb_register_class<cocos2d::extension::AssetsManagerEx>(cx, jsb_cocos2d_extension_AssetsManagerEx_class, proto);
 }
 
 JSClass  *jsb_cocos2d_extension_EventListenerAssetsManagerEx_class;
@@ -838,16 +847,19 @@ bool js_cocos2dx_extension_EventListenerAssetsManagerEx_constructor(JSContext *c
 extern JSObject *jsb_cocos2d_EventListenerCustom_prototype;
 
 void js_register_cocos2dx_extension_EventListenerAssetsManagerEx(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_EventListenerAssetsManagerEx_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_EventListenerAssetsManagerEx_class->name = "EventListenerAssetsManager";
-    jsb_cocos2d_extension_EventListenerAssetsManagerEx_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_EventListenerAssetsManagerEx_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_EventListenerAssetsManagerEx_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_EventListenerAssetsManagerEx_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_EventListenerAssetsManagerEx_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_EventListenerAssetsManagerEx_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_EventListenerAssetsManagerEx_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_EventListenerAssetsManagerEx_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_EventListenerAssetsManagerEx_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_EventListenerAssetsManagerEx_class = {
+        "EventListenerAssetsManager",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_EventListenerAssetsManagerEx_classOps
+    };
+    jsb_cocos2d_extension_EventListenerAssetsManagerEx_class = &cocos2d_extension_EventListenerAssetsManagerEx_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -867,7 +879,7 @@ void js_register_cocos2dx_extension_EventListenerAssetsManagerEx(JSContext *cx, 
         js_cocos2dx_extension_EventListenerAssetsManagerEx_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_EventListenerAssetsManagerEx_prototype);
@@ -876,7 +888,7 @@ void js_register_cocos2dx_extension_EventListenerAssetsManagerEx(JSContext *cx, 
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::EventListenerAssetsManagerEx>(cx, jsb_cocos2d_extension_EventListenerAssetsManagerEx_class, proto, parent_proto);
+    jsb_register_class<cocos2d::extension::EventListenerAssetsManagerEx>(cx, jsb_cocos2d_extension_EventListenerAssetsManagerEx_class, proto);
 }
 
 JSClass  *jsb_cocos2d_extension_Control_class;
@@ -892,14 +904,14 @@ bool js_cocos2dx_extension_Control_setEnabled(JSContext *cx, uint32_t argc, JS::
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_Control_setEnabled : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_Control_setEnabled : Error processing arguments");
         cobj->setEnabled(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Control_setEnabled : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Control_setEnabled : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_Control_getState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -912,12 +924,12 @@ bool js_cocos2dx_extension_Control_getState(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         int ret = (int)cobj->getState();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Control_getState : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Control_getState : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_Control_sendActionsForControlEvents(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -937,7 +949,7 @@ bool js_cocos2dx_extension_Control_sendActionsForControlEvents(JSContext *cx, ui
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Control_sendActionsForControlEvents : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Control_sendActionsForControlEvents : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_Control_setSelected(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -950,14 +962,14 @@ bool js_cocos2dx_extension_Control_setSelected(JSContext *cx, uint32_t argc, JS:
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_Control_setSelected : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_Control_setSelected : Error processing arguments");
         cobj->setSelected(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Control_setSelected : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Control_setSelected : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_Control_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -970,12 +982,12 @@ bool js_cocos2dx_extension_Control_isEnabled(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         bool ret = cobj->isEnabled();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Control_isEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Control_isEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_Control_needsLayout(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -991,7 +1003,7 @@ bool js_cocos2dx_extension_Control_needsLayout(JSContext *cx, uint32_t argc, JS:
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Control_needsLayout : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Control_needsLayout : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_Control_hasVisibleParents(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1004,12 +1016,12 @@ bool js_cocos2dx_extension_Control_hasVisibleParents(JSContext *cx, uint32_t arg
     if (argc == 0) {
         bool ret = cobj->hasVisibleParents();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Control_hasVisibleParents : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Control_hasVisibleParents : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_Control_isSelected(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1022,12 +1034,12 @@ bool js_cocos2dx_extension_Control_isSelected(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         bool ret = cobj->isSelected();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Control_isSelected : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Control_isSelected : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_Control_isTouchInside(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1052,12 +1064,12 @@ bool js_cocos2dx_extension_Control_isTouchInside(JSContext *cx, uint32_t argc, J
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_Control_isTouchInside : Error processing arguments");
         bool ret = cobj->isTouchInside(arg0);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Control_isTouchInside : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Control_isTouchInside : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_Control_setHighlighted(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1070,14 +1082,14 @@ bool js_cocos2dx_extension_Control_setHighlighted(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_Control_setHighlighted : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_Control_setHighlighted : Error processing arguments");
         cobj->setHighlighted(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Control_setHighlighted : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Control_setHighlighted : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_Control_getTouchLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1107,7 +1119,7 @@ bool js_cocos2dx_extension_Control_getTouchLocation(JSContext *cx, uint32_t argc
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Control_getTouchLocation : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Control_getTouchLocation : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_Control_isHighlighted(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1120,12 +1132,12 @@ bool js_cocos2dx_extension_Control_isHighlighted(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         bool ret = cobj->isHighlighted();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_Control_isHighlighted : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Control_isHighlighted : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_Control_create(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1136,10 +1148,10 @@ bool js_cocos2dx_extension_Control_create(JSContext *cx, uint32_t argc, JS::Valu
         auto ret = cocos2d::extension::Control::create();
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::Control>(ret);
         JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::Control"));
-        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_extension_Control_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_Control_create : wrong number of arguments");
     return false;
 }
 
@@ -1167,16 +1179,19 @@ bool js_cocos2dx_extension_Control_constructor(JSContext *cx, uint32_t argc, JS:
 extern JSObject *jsb_cocos2d_Layer_prototype;
 
 void js_register_cocos2dx_extension_Control(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_Control_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_Control_class->name = "Control";
-    jsb_cocos2d_extension_Control_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_Control_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_Control_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_Control_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_Control_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_Control_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_Control_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_Control_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_Control_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_Control_class = {
+        "Control",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_Control_classOps
+    };
+    jsb_cocos2d_extension_Control_class = &cocos2d_extension_Control_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -1211,7 +1226,7 @@ void js_register_cocos2dx_extension_Control(JSContext *cx, JS::HandleObject glob
         js_cocos2dx_extension_Control_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_Control_prototype);
@@ -1220,7 +1235,7 @@ void js_register_cocos2dx_extension_Control(JSContext *cx, JS::HandleObject glob
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::Control>(cx, jsb_cocos2d_extension_Control_class, proto, parent_proto);
+    jsb_register_class<cocos2d::extension::Control>(cx, jsb_cocos2d_extension_Control_class, proto);
 }
 
 JSClass  *jsb_cocos2d_extension_ControlButton_class;
@@ -1236,12 +1251,12 @@ bool js_cocos2dx_extension_ControlButton_isPushed(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         bool ret = cobj->isPushed();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_isPushed : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_isPushed : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setTitleLabelForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1271,7 +1286,7 @@ bool js_cocos2dx_extension_ControlButton_setTitleLabelForState(JSContext *cx, ui
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setTitleLabelForState : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setTitleLabelForState : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setAdjustBackgroundImage(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1284,14 +1299,14 @@ bool js_cocos2dx_extension_ControlButton_setAdjustBackgroundImage(JSContext *cx,
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlButton_setAdjustBackgroundImage : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlButton_setAdjustBackgroundImage : Error processing arguments");
         cobj->setAdjustBackgroundImage(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setAdjustBackgroundImage : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setAdjustBackgroundImage : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setTitleForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1313,7 +1328,7 @@ bool js_cocos2dx_extension_ControlButton_setTitleForState(JSContext *cx, uint32_
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setTitleForState : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setTitleForState : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setLabelAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1333,7 +1348,7 @@ bool js_cocos2dx_extension_ControlButton_setLabelAnchorPoint(JSContext *cx, uint
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setLabelAnchorPoint : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setLabelAnchorPoint : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getLabelAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1351,7 +1366,7 @@ bool js_cocos2dx_extension_ControlButton_getLabelAnchorPoint(JSContext *cx, uint
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getLabelAnchorPoint : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getLabelAnchorPoint : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_initWithBackgroundSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1376,12 +1391,12 @@ bool js_cocos2dx_extension_ControlButton_initWithBackgroundSprite(JSContext *cx,
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlButton_initWithBackgroundSprite : Error processing arguments");
         bool ret = cobj->initWithBackgroundSprite(arg0);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_initWithBackgroundSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_initWithBackgroundSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getTitleTTFSizeForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1398,12 +1413,12 @@ bool js_cocos2dx_extension_ControlButton_getTitleTTFSizeForState(JSContext *cx, 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlButton_getTitleTTFSizeForState : Error processing arguments");
         double ret = cobj->getTitleTTFSizeForState(arg0);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getTitleTTFSizeForState : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getTitleTTFSizeForState : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setTitleTTFForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1425,7 +1440,7 @@ bool js_cocos2dx_extension_ControlButton_setTitleTTFForState(JSContext *cx, uint
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setTitleTTFForState : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setTitleTTFForState : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setTitleTTFSizeForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1439,7 +1454,7 @@ bool js_cocos2dx_extension_ControlButton_setTitleTTFSizeForState(JSContext *cx, 
     if (argc == 2) {
         double arg0 = 0;
         cocos2d::extension::Control::State arg1;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         ok &= jsval_to_int32(cx, args.get(1), (int32_t *)&arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlButton_setTitleTTFSizeForState : Error processing arguments");
         cobj->setTitleTTFSizeForState(arg0, arg1);
@@ -1447,7 +1462,7 @@ bool js_cocos2dx_extension_ControlButton_setTitleTTFSizeForState(JSContext *cx, 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setTitleTTFSizeForState : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setTitleTTFSizeForState : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setTitleLabel(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1475,7 +1490,7 @@ bool js_cocos2dx_extension_ControlButton_setTitleLabel(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setTitleLabel : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setTitleLabel : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setPreferredSize(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1495,7 +1510,7 @@ bool js_cocos2dx_extension_ControlButton_setPreferredSize(JSContext *cx, uint32_
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setPreferredSize : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setPreferredSize : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getCurrentTitleColor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1513,7 +1528,7 @@ bool js_cocos2dx_extension_ControlButton_getCurrentTitleColor(JSContext *cx, uin
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getCurrentTitleColor : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getCurrentTitleColor : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setZoomOnTouchDown(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1526,14 +1541,14 @@ bool js_cocos2dx_extension_ControlButton_setZoomOnTouchDown(JSContext *cx, uint3
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlButton_setZoomOnTouchDown : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlButton_setZoomOnTouchDown : Error processing arguments");
         cobj->setZoomOnTouchDown(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setZoomOnTouchDown : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setZoomOnTouchDown : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setBackgroundSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1561,7 +1576,7 @@ bool js_cocos2dx_extension_ControlButton_setBackgroundSprite(JSContext *cx, uint
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setBackgroundSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setBackgroundSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getBackgroundSpriteForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1587,7 +1602,7 @@ bool js_cocos2dx_extension_ControlButton_getBackgroundSpriteForState(JSContext *
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getBackgroundSpriteForState : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getBackgroundSpriteForState : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getHorizontalOrigin(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1600,12 +1615,12 @@ bool js_cocos2dx_extension_ControlButton_getHorizontalOrigin(JSContext *cx, uint
     if (argc == 0) {
         int ret = cobj->getHorizontalOrigin();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getHorizontalOrigin : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getHorizontalOrigin : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_initWithTitleAndFontNameAndFontSize(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1622,16 +1637,16 @@ bool js_cocos2dx_extension_ControlButton_initWithTitleAndFontNameAndFontSize(JSC
         double arg2 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
         ok &= jsval_to_std_string(cx, args.get(1), &arg1);
-        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        arg2 = (float)(args.get(2).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlButton_initWithTitleAndFontNameAndFontSize : Error processing arguments");
         bool ret = cobj->initWithTitleAndFontNameAndFontSize(arg0, arg1, arg2);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_initWithTitleAndFontNameAndFontSize : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_initWithTitleAndFontNameAndFontSize : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setTitleBMFontForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1653,7 +1668,7 @@ bool js_cocos2dx_extension_ControlButton_setTitleBMFontForState(JSContext *cx, u
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setTitleBMFontForState : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setTitleBMFontForState : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getScaleRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1666,12 +1681,12 @@ bool js_cocos2dx_extension_ControlButton_getScaleRatio(JSContext *cx, uint32_t a
     if (argc == 0) {
         double ret = cobj->getScaleRatio();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getScaleRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getScaleRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getTitleTTFForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1693,7 +1708,7 @@ bool js_cocos2dx_extension_ControlButton_getTitleTTFForState(JSContext *cx, uint
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getTitleTTFForState : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getTitleTTFForState : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getBackgroundSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1715,7 +1730,7 @@ bool js_cocos2dx_extension_ControlButton_getBackgroundSprite(JSContext *cx, uint
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getBackgroundSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getBackgroundSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getTitleColorForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1737,7 +1752,7 @@ bool js_cocos2dx_extension_ControlButton_getTitleColorForState(JSContext *cx, ui
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getTitleColorForState : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getTitleColorForState : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setTitleColorForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1759,7 +1774,7 @@ bool js_cocos2dx_extension_ControlButton_setTitleColorForState(JSContext *cx, ui
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setTitleColorForState : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setTitleColorForState : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_doesAdjustBackgroundImage(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1772,12 +1787,12 @@ bool js_cocos2dx_extension_ControlButton_doesAdjustBackgroundImage(JSContext *cx
     if (argc == 0) {
         bool ret = cobj->doesAdjustBackgroundImage();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_doesAdjustBackgroundImage : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_doesAdjustBackgroundImage : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setBackgroundSpriteFrameForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1807,7 +1822,7 @@ bool js_cocos2dx_extension_ControlButton_setBackgroundSpriteFrameForState(JSCont
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setBackgroundSpriteFrameForState : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setBackgroundSpriteFrameForState : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setBackgroundSpriteForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1837,7 +1852,7 @@ bool js_cocos2dx_extension_ControlButton_setBackgroundSpriteForState(JSContext *
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setBackgroundSpriteForState : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setBackgroundSpriteForState : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setScaleRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1850,14 +1865,14 @@ bool js_cocos2dx_extension_ControlButton_setScaleRatio(JSContext *cx, uint32_t a
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlButton_setScaleRatio : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlButton_setScaleRatio : Error processing arguments");
         cobj->setScaleRatio(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setScaleRatio : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setScaleRatio : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getTitleBMFontForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1879,7 +1894,7 @@ bool js_cocos2dx_extension_ControlButton_getTitleBMFontForState(JSContext *cx, u
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getTitleBMFontForState : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getTitleBMFontForState : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getTitleLabel(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1901,7 +1916,7 @@ bool js_cocos2dx_extension_ControlButton_getTitleLabel(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getTitleLabel : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getTitleLabel : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getPreferredSize(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1919,7 +1934,7 @@ bool js_cocos2dx_extension_ControlButton_getPreferredSize(JSContext *cx, uint32_
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getPreferredSize : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getPreferredSize : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getVerticalMargin(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1932,12 +1947,12 @@ bool js_cocos2dx_extension_ControlButton_getVerticalMargin(JSContext *cx, uint32
     if (argc == 0) {
         int ret = cobj->getVerticalMargin();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getVerticalMargin : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getVerticalMargin : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getTitleLabelForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1963,7 +1978,7 @@ bool js_cocos2dx_extension_ControlButton_getTitleLabelForState(JSContext *cx, ui
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getTitleLabelForState : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getTitleLabelForState : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_setMargins(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1985,7 +2000,7 @@ bool js_cocos2dx_extension_ControlButton_setMargins(JSContext *cx, uint32_t argc
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_setMargins : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_setMargins : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getCurrentTitle(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2018,7 +2033,7 @@ bool js_cocos2dx_extension_ControlButton_getCurrentTitle(JSContext *cx, uint32_t
         }
     } while(0);
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getCurrentTitle : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getCurrentTitle : wrong number of arguments");
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_initWithLabelAndBackgroundSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2051,16 +2066,16 @@ bool js_cocos2dx_extension_ControlButton_initWithLabelAndBackgroundSprite(JSCont
             arg1 = (cocos2d::ui::Scale9Sprite*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg1, cx, false, "Invalid Native Object");
         } while (0);
-        arg2 = JS::ToBoolean(args.get(2));
+        arg2 = args.get(2).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlButton_initWithLabelAndBackgroundSprite : Error processing arguments");
         bool ret = cobj->initWithLabelAndBackgroundSprite(arg0, arg1, arg2);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_initWithLabelAndBackgroundSprite : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_initWithLabelAndBackgroundSprite : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getZoomOnTouchDown(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2073,12 +2088,12 @@ bool js_cocos2dx_extension_ControlButton_getZoomOnTouchDown(JSContext *cx, uint3
     if (argc == 0) {
         bool ret = cobj->getZoomOnTouchDown();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getZoomOnTouchDown : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getZoomOnTouchDown : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_getTitleForState(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2100,7 +2115,7 @@ bool js_cocos2dx_extension_ControlButton_getTitleForState(JSContext *cx, uint32_
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_getTitleForState : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_getTitleForState : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2194,7 +2209,7 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, JS
             ok &= jsval_to_std_string(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             double arg2 = 0;
-            ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+            arg2 = (float)(args.get(2).toNumber());
             if (!ok) { ok = true; break; }
             cocos2d::extension::ControlButton* ret = cocos2d::extension::ControlButton::create(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullValue());
@@ -2234,7 +2249,7 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, JS
             } while (0);
             if (!ok) { ok = true; break; }
             bool arg2;
-            arg2 = JS::ToBoolean(args.get(2));
+            arg2 = args.get(2).toBoolean();
             if (!ok) { ok = true; break; }
             cocos2d::extension::ControlButton* ret = cocos2d::extension::ControlButton::create(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullValue());
@@ -2247,7 +2262,7 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, JS
             return true;
         }
     } while (0);
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlButton_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlButton_create : wrong number of arguments");
     return false;
 }
 bool js_cocos2dx_extension_ControlButton_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2292,16 +2307,19 @@ extern JSObject *jsb_cocos2d_extension_Control_prototype;
 
     
 void js_register_cocos2dx_extension_ControlButton(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_ControlButton_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_ControlButton_class->name = "ControlButton";
-    jsb_cocos2d_extension_ControlButton_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlButton_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_ControlButton_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlButton_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_ControlButton_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_ControlButton_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_ControlButton_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_ControlButton_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_ControlButton_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_ControlButton_class = {
+        "ControlButton",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_ControlButton_classOps
+    };
+    jsb_cocos2d_extension_ControlButton_class = &cocos2d_extension_ControlButton_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -2363,7 +2381,7 @@ void js_register_cocos2dx_extension_ControlButton(JSContext *cx, JS::HandleObjec
         js_cocos2dx_extension_ControlButton_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_ControlButton_prototype);
@@ -2372,7 +2390,7 @@ void js_register_cocos2dx_extension_ControlButton(JSContext *cx, JS::HandleObjec
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::ControlButton>(cx, jsb_cocos2d_extension_ControlButton_class, proto, parent_proto);
+    jsb_register_class<cocos2d::extension::ControlButton>(cx, jsb_cocos2d_extension_ControlButton_class, proto);
     anonEvaluate(cx, global, "(function () { cc.ControlButton.extend = cc.Class.extend; })()");
 }
 
@@ -2403,12 +2421,12 @@ bool js_cocos2dx_extension_ControlHuePicker_initWithTargetAndPos(JSContext *cx, 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlHuePicker_initWithTargetAndPos : Error processing arguments");
         bool ret = cobj->initWithTargetAndPos(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlHuePicker_initWithTargetAndPos : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlHuePicker_initWithTargetAndPos : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlHuePicker_setHue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2421,14 +2439,14 @@ bool js_cocos2dx_extension_ControlHuePicker_setHue(JSContext *cx, uint32_t argc,
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlHuePicker_setHue : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlHuePicker_setHue : Error processing arguments");
         cobj->setHue(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlHuePicker_setHue : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlHuePicker_setHue : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlHuePicker_getStartPos(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2446,7 +2464,7 @@ bool js_cocos2dx_extension_ControlHuePicker_getStartPos(JSContext *cx, uint32_t 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlHuePicker_getStartPos : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlHuePicker_getStartPos : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlHuePicker_getHue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2459,12 +2477,12 @@ bool js_cocos2dx_extension_ControlHuePicker_getHue(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         double ret = cobj->getHue();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlHuePicker_getHue : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlHuePicker_getHue : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlHuePicker_getSlider(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2486,7 +2504,7 @@ bool js_cocos2dx_extension_ControlHuePicker_getSlider(JSContext *cx, uint32_t ar
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlHuePicker_getSlider : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlHuePicker_getSlider : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlHuePicker_setBackground(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2514,7 +2532,7 @@ bool js_cocos2dx_extension_ControlHuePicker_setBackground(JSContext *cx, uint32_
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlHuePicker_setBackground : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlHuePicker_setBackground : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlHuePicker_setHuePercentage(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2527,14 +2545,14 @@ bool js_cocos2dx_extension_ControlHuePicker_setHuePercentage(JSContext *cx, uint
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlHuePicker_setHuePercentage : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlHuePicker_setHuePercentage : Error processing arguments");
         cobj->setHuePercentage(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlHuePicker_setHuePercentage : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlHuePicker_setHuePercentage : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlHuePicker_getBackground(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2556,7 +2574,7 @@ bool js_cocos2dx_extension_ControlHuePicker_getBackground(JSContext *cx, uint32_
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlHuePicker_getBackground : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlHuePicker_getBackground : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlHuePicker_getHuePercentage(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2569,12 +2587,12 @@ bool js_cocos2dx_extension_ControlHuePicker_getHuePercentage(JSContext *cx, uint
     if (argc == 0) {
         double ret = cobj->getHuePercentage();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlHuePicker_getHuePercentage : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlHuePicker_getHuePercentage : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlHuePicker_setSlider(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2602,7 +2620,7 @@ bool js_cocos2dx_extension_ControlHuePicker_setSlider(JSContext *cx, uint32_t ar
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlHuePicker_setSlider : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlHuePicker_setSlider : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlHuePicker_create(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2627,10 +2645,10 @@ bool js_cocos2dx_extension_ControlHuePicker_create(JSContext *cx, uint32_t argc,
         auto ret = cocos2d::extension::ControlHuePicker::create(arg0, arg1);
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlHuePicker>(ret);
         JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::ControlHuePicker"));
-        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlHuePicker_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlHuePicker_create : wrong number of arguments");
     return false;
 }
 
@@ -2658,16 +2676,19 @@ bool js_cocos2dx_extension_ControlHuePicker_constructor(JSContext *cx, uint32_t 
 extern JSObject *jsb_cocos2d_extension_Control_prototype;
 
 void js_register_cocos2dx_extension_ControlHuePicker(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_ControlHuePicker_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_ControlHuePicker_class->name = "ControlHuePicker";
-    jsb_cocos2d_extension_ControlHuePicker_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlHuePicker_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_ControlHuePicker_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlHuePicker_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_ControlHuePicker_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_ControlHuePicker_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_ControlHuePicker_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_ControlHuePicker_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_ControlHuePicker_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_ControlHuePicker_class = {
+        "ControlHuePicker",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_ControlHuePicker_classOps
+    };
+    jsb_cocos2d_extension_ControlHuePicker_class = &cocos2d_extension_ControlHuePicker_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -2700,7 +2721,7 @@ void js_register_cocos2dx_extension_ControlHuePicker(JSContext *cx, JS::HandleOb
         js_cocos2dx_extension_ControlHuePicker_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_ControlHuePicker_prototype);
@@ -2709,7 +2730,7 @@ void js_register_cocos2dx_extension_ControlHuePicker(JSContext *cx, JS::HandleOb
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::ControlHuePicker>(cx, jsb_cocos2d_extension_ControlHuePicker_class, proto, parent_proto);
+    jsb_register_class<cocos2d::extension::ControlHuePicker>(cx, jsb_cocos2d_extension_ControlHuePicker_class, proto);
 }
 
 JSClass  *jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class;
@@ -2734,7 +2755,7 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getShadow(JSContext
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_getShadow : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_getShadow : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_initWithTargetAndPos(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2761,12 +2782,12 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_initWithTargetAndPo
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_initWithTargetAndPos : Error processing arguments");
         bool ret = cobj->initWithTargetAndPos(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_initWithTargetAndPos : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_initWithTargetAndPos : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getStartPos(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2784,7 +2805,7 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getStartPos(JSConte
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_getStartPos : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_getStartPos : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getOverlay(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2806,7 +2827,7 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getOverlay(JSContex
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_getOverlay : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_getOverlay : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getSlider(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2828,7 +2849,7 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getSlider(JSContext
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_getSlider : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_getSlider : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getBackground(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2850,7 +2871,7 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getBackground(JSCon
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_getBackground : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_getBackground : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getSaturation(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2863,12 +2884,12 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getSaturation(JSCon
     if (argc == 0) {
         double ret = cobj->getSaturation();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_getSaturation : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_getSaturation : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getBrightness(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2881,12 +2902,12 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getBrightness(JSCon
     if (argc == 0) {
         double ret = cobj->getBrightness();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_getBrightness : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_getBrightness : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_create(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2911,10 +2932,10 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_create(JSContext *c
         auto ret = cocos2d::extension::ControlSaturationBrightnessPicker::create(arg0, arg1);
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlSaturationBrightnessPicker>(ret);
         JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::ControlSaturationBrightnessPicker"));
-        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_create : wrong number of arguments");
     return false;
 }
 
@@ -2942,16 +2963,19 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_constructor(JSConte
 extern JSObject *jsb_cocos2d_extension_Control_prototype;
 
 void js_register_cocos2dx_extension_ControlSaturationBrightnessPicker(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class->name = "ControlSaturationBrightnessPicker";
-    jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_ControlSaturationBrightnessPicker_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_ControlSaturationBrightnessPicker_class = {
+        "ControlSaturationBrightnessPicker",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_ControlSaturationBrightnessPicker_classOps
+    };
+    jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class = &cocos2d_extension_ControlSaturationBrightnessPicker_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -2982,7 +3006,7 @@ void js_register_cocos2dx_extension_ControlSaturationBrightnessPicker(JSContext 
         js_cocos2dx_extension_ControlSaturationBrightnessPicker_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_ControlSaturationBrightnessPicker_prototype);
@@ -2991,7 +3015,7 @@ void js_register_cocos2dx_extension_ControlSaturationBrightnessPicker(JSContext 
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::ControlSaturationBrightnessPicker>(cx, jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class, proto, parent_proto);
+    jsb_register_class<cocos2d::extension::ControlSaturationBrightnessPicker>(cx, jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class, proto);
 }
 
 JSClass  *jsb_cocos2d_extension_ControlColourPicker_class;
@@ -3024,7 +3048,7 @@ bool js_cocos2dx_extension_ControlColourPicker_hueSliderValueChanged(JSContext *
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlColourPicker_hueSliderValueChanged : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlColourPicker_hueSliderValueChanged : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlColourPicker_getHuePicker(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3046,7 +3070,7 @@ bool js_cocos2dx_extension_ControlColourPicker_getHuePicker(JSContext *cx, uint3
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlColourPicker_getHuePicker : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlColourPicker_getHuePicker : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlColourPicker_getcolourPicker(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3068,7 +3092,7 @@ bool js_cocos2dx_extension_ControlColourPicker_getcolourPicker(JSContext *cx, ui
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlColourPicker_getcolourPicker : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlColourPicker_getcolourPicker : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlColourPicker_setBackground(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3096,7 +3120,7 @@ bool js_cocos2dx_extension_ControlColourPicker_setBackground(JSContext *cx, uint
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlColourPicker_setBackground : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlColourPicker_setBackground : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlColourPicker_setcolourPicker(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3124,7 +3148,7 @@ bool js_cocos2dx_extension_ControlColourPicker_setcolourPicker(JSContext *cx, ui
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlColourPicker_setcolourPicker : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlColourPicker_setcolourPicker : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlColourPicker_colourSliderValueChanged(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3154,7 +3178,7 @@ bool js_cocos2dx_extension_ControlColourPicker_colourSliderValueChanged(JSContex
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlColourPicker_colourSliderValueChanged : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlColourPicker_colourSliderValueChanged : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlColourPicker_setHuePicker(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3182,7 +3206,7 @@ bool js_cocos2dx_extension_ControlColourPicker_setHuePicker(JSContext *cx, uint3
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlColourPicker_setHuePicker : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlColourPicker_setHuePicker : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlColourPicker_getBackground(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3204,7 +3228,7 @@ bool js_cocos2dx_extension_ControlColourPicker_getBackground(JSContext *cx, uint
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlColourPicker_getBackground : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlColourPicker_getBackground : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlColourPicker_create(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3215,10 +3239,10 @@ bool js_cocos2dx_extension_ControlColourPicker_create(JSContext *cx, uint32_t ar
         auto ret = cocos2d::extension::ControlColourPicker::create();
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlColourPicker>(ret);
         JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::ControlColourPicker"));
-        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlColourPicker_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlColourPicker_create : wrong number of arguments");
     return false;
 }
 
@@ -3264,16 +3288,19 @@ extern JSObject *jsb_cocos2d_extension_Control_prototype;
 
     
 void js_register_cocos2dx_extension_ControlColourPicker(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_ControlColourPicker_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_ControlColourPicker_class->name = "ControlColourPicker";
-    jsb_cocos2d_extension_ControlColourPicker_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlColourPicker_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_ControlColourPicker_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlColourPicker_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_ControlColourPicker_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_ControlColourPicker_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_ControlColourPicker_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_ControlColourPicker_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_ControlColourPicker_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_ControlColourPicker_class = {
+        "ControlColourPicker",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_ControlColourPicker_classOps
+    };
+    jsb_cocos2d_extension_ControlColourPicker_class = &cocos2d_extension_ControlColourPicker_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -3305,7 +3332,7 @@ void js_register_cocos2dx_extension_ControlColourPicker(JSContext *cx, JS::Handl
         js_cocos2dx_extension_ControlColourPicker_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_ControlColourPicker_prototype);
@@ -3314,7 +3341,7 @@ void js_register_cocos2dx_extension_ControlColourPicker(JSContext *cx, JS::Handl
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::ControlColourPicker>(cx, jsb_cocos2d_extension_ControlColourPicker_class, proto, parent_proto);
+    jsb_register_class<cocos2d::extension::ControlColourPicker>(cx, jsb_cocos2d_extension_ControlColourPicker_class, proto);
     anonEvaluate(cx, global, "(function () { cc.ControlColourPicker.extend = cc.Class.extend; })()");
 }
 
@@ -3338,7 +3365,7 @@ bool js_cocos2dx_extension_ControlPotentiometer_setPreviousLocation(JSContext *c
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_setPreviousLocation : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_setPreviousLocation : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_setValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3351,14 +3378,14 @@ bool js_cocos2dx_extension_ControlPotentiometer_setValue(JSContext *cx, uint32_t
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlPotentiometer_setValue : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlPotentiometer_setValue : Error processing arguments");
         cobj->setValue(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_setValue : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_setValue : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_getProgressTimer(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3380,7 +3407,7 @@ bool js_cocos2dx_extension_ControlPotentiometer_getProgressTimer(JSContext *cx, 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_getProgressTimer : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_getProgressTimer : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_getMaximumValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3393,12 +3420,12 @@ bool js_cocos2dx_extension_ControlPotentiometer_getMaximumValue(JSContext *cx, u
     if (argc == 0) {
         double ret = cobj->getMaximumValue();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_getMaximumValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_getMaximumValue : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_angleInDegreesBetweenLineFromPoint_toPoint_toLineFromPoint_toPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3421,12 +3448,12 @@ bool js_cocos2dx_extension_ControlPotentiometer_angleInDegreesBetweenLineFromPoi
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlPotentiometer_angleInDegreesBetweenLineFromPoint_toPoint_toLineFromPoint_toPoint : Error processing arguments");
         double ret = cobj->angleInDegreesBetweenLineFromPoint_toPoint_toLineFromPoint_toPoint(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_angleInDegreesBetweenLineFromPoint_toPoint_toLineFromPoint_toPoint : wrong number of arguments: %d, was expecting %d", argc, 4);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_angleInDegreesBetweenLineFromPoint_toPoint_toLineFromPoint_toPoint : wrong number of arguments: %d, was expecting %d", argc, 4);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_potentiometerBegan(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3446,7 +3473,7 @@ bool js_cocos2dx_extension_ControlPotentiometer_potentiometerBegan(JSContext *cx
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_potentiometerBegan : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_potentiometerBegan : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_setMaximumValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3459,14 +3486,14 @@ bool js_cocos2dx_extension_ControlPotentiometer_setMaximumValue(JSContext *cx, u
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlPotentiometer_setMaximumValue : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlPotentiometer_setMaximumValue : Error processing arguments");
         cobj->setMaximumValue(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_setMaximumValue : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_setMaximumValue : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_getMinimumValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3479,12 +3506,12 @@ bool js_cocos2dx_extension_ControlPotentiometer_getMinimumValue(JSContext *cx, u
     if (argc == 0) {
         double ret = cobj->getMinimumValue();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_getMinimumValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_getMinimumValue : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_setThumbSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3512,7 +3539,7 @@ bool js_cocos2dx_extension_ControlPotentiometer_setThumbSprite(JSContext *cx, ui
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_setThumbSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_setThumbSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_getValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3525,12 +3552,12 @@ bool js_cocos2dx_extension_ControlPotentiometer_getValue(JSContext *cx, uint32_t
     if (argc == 0) {
         double ret = cobj->getValue();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_getValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_getValue : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_getPreviousLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3548,7 +3575,7 @@ bool js_cocos2dx_extension_ControlPotentiometer_getPreviousLocation(JSContext *c
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_getPreviousLocation : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_getPreviousLocation : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_distanceBetweenPointAndPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3567,12 +3594,12 @@ bool js_cocos2dx_extension_ControlPotentiometer_distanceBetweenPointAndPoint(JSC
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlPotentiometer_distanceBetweenPointAndPoint : Error processing arguments");
         double ret = cobj->distanceBetweenPointAndPoint(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_distanceBetweenPointAndPoint : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_distanceBetweenPointAndPoint : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_potentiometerEnded(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3592,7 +3619,7 @@ bool js_cocos2dx_extension_ControlPotentiometer_potentiometerEnded(JSContext *cx
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_potentiometerEnded : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_potentiometerEnded : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_setProgressTimer(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3620,7 +3647,7 @@ bool js_cocos2dx_extension_ControlPotentiometer_setProgressTimer(JSContext *cx, 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_setProgressTimer : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_setProgressTimer : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_setMinimumValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3633,14 +3660,14 @@ bool js_cocos2dx_extension_ControlPotentiometer_setMinimumValue(JSContext *cx, u
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlPotentiometer_setMinimumValue : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlPotentiometer_setMinimumValue : Error processing arguments");
         cobj->setMinimumValue(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_setMinimumValue : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_setMinimumValue : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_getThumbSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3662,7 +3689,7 @@ bool js_cocos2dx_extension_ControlPotentiometer_getThumbSprite(JSContext *cx, ui
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_getThumbSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_getThumbSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_initWithTrackSprite_ProgressTimer_ThumbSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3707,12 +3734,12 @@ bool js_cocos2dx_extension_ControlPotentiometer_initWithTrackSprite_ProgressTime
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlPotentiometer_initWithTrackSprite_ProgressTimer_ThumbSprite : Error processing arguments");
         bool ret = cobj->initWithTrackSprite_ProgressTimer_ThumbSprite(arg0, arg1, arg2);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_initWithTrackSprite_ProgressTimer_ThumbSprite : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_initWithTrackSprite_ProgressTimer_ThumbSprite : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_potentiometerMoved(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3732,7 +3759,7 @@ bool js_cocos2dx_extension_ControlPotentiometer_potentiometerMoved(JSContext *cx
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_potentiometerMoved : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_potentiometerMoved : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlPotentiometer_create(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3751,10 +3778,10 @@ bool js_cocos2dx_extension_ControlPotentiometer_create(JSContext *cx, uint32_t a
         auto ret = cocos2d::extension::ControlPotentiometer::create(arg0, arg1, arg2);
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlPotentiometer>(ret);
         JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::ControlPotentiometer"));
-        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlPotentiometer_create : wrong number of arguments");
     return false;
 }
 
@@ -3800,16 +3827,19 @@ extern JSObject *jsb_cocos2d_extension_Control_prototype;
 
     
 void js_register_cocos2dx_extension_ControlPotentiometer(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_ControlPotentiometer_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_ControlPotentiometer_class->name = "ControlPotentiometer";
-    jsb_cocos2d_extension_ControlPotentiometer_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlPotentiometer_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_ControlPotentiometer_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlPotentiometer_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_ControlPotentiometer_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_ControlPotentiometer_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_ControlPotentiometer_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_ControlPotentiometer_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_ControlPotentiometer_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_ControlPotentiometer_class = {
+        "ControlPotentiometer",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_ControlPotentiometer_classOps
+    };
+    jsb_cocos2d_extension_ControlPotentiometer_class = &cocos2d_extension_ControlPotentiometer_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -3851,7 +3881,7 @@ void js_register_cocos2dx_extension_ControlPotentiometer(JSContext *cx, JS::Hand
         js_cocos2dx_extension_ControlPotentiometer_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_ControlPotentiometer_prototype);
@@ -3860,7 +3890,7 @@ void js_register_cocos2dx_extension_ControlPotentiometer(JSContext *cx, JS::Hand
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::ControlPotentiometer>(cx, jsb_cocos2d_extension_ControlPotentiometer_class, proto, parent_proto);
+    jsb_register_class<cocos2d::extension::ControlPotentiometer>(cx, jsb_cocos2d_extension_ControlPotentiometer_class, proto);
     anonEvaluate(cx, global, "(function () { cc.ControlPotentiometer.extend = cc.Class.extend; })()");
 }
 
@@ -3892,7 +3922,7 @@ bool js_cocos2dx_extension_ControlSlider_setBackgroundSprite(JSContext *cx, uint
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_setBackgroundSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_setBackgroundSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_getMaximumAllowedValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3905,12 +3935,12 @@ bool js_cocos2dx_extension_ControlSlider_getMaximumAllowedValue(JSContext *cx, u
     if (argc == 0) {
         double ret = cobj->getMaximumAllowedValue();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_getMaximumAllowedValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_getMaximumAllowedValue : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_initWithSprites(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -3972,7 +4002,7 @@ bool js_cocos2dx_extension_ControlSlider_initWithSprites(JSContext *cx, uint32_t
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSprites(arg0, arg1, arg2, arg3);
             JS::RootedValue jsret(cx, JS::NullValue());
-            jsret = BOOLEAN_TO_JSVAL(ret);
+            jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
         }
@@ -4016,13 +4046,13 @@ bool js_cocos2dx_extension_ControlSlider_initWithSprites(JSContext *cx, uint32_t
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSprites(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullValue());
-            jsret = BOOLEAN_TO_JSVAL(ret);
+            jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_initWithSprites : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_initWithSprites : wrong number of arguments");
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_getMinimumAllowedValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4035,12 +4065,12 @@ bool js_cocos2dx_extension_ControlSlider_getMinimumAllowedValue(JSContext *cx, u
     if (argc == 0) {
         double ret = cobj->getMinimumAllowedValue();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_getMinimumAllowedValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_getMinimumAllowedValue : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_getMaximumValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4053,12 +4083,12 @@ bool js_cocos2dx_extension_ControlSlider_getMaximumValue(JSContext *cx, uint32_t
     if (argc == 0) {
         double ret = cobj->getMaximumValue();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_getMaximumValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_getMaximumValue : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_getSelectedThumbSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4080,7 +4110,7 @@ bool js_cocos2dx_extension_ControlSlider_getSelectedThumbSprite(JSContext *cx, u
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_getSelectedThumbSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_getSelectedThumbSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_setProgressSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4108,7 +4138,7 @@ bool js_cocos2dx_extension_ControlSlider_setProgressSprite(JSContext *cx, uint32
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_setProgressSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_setProgressSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_setMaximumValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4121,14 +4151,14 @@ bool js_cocos2dx_extension_ControlSlider_setMaximumValue(JSContext *cx, uint32_t
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlSlider_setMaximumValue : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlSlider_setMaximumValue : Error processing arguments");
         cobj->setMaximumValue(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_setMaximumValue : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_setMaximumValue : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_getMinimumValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4141,12 +4171,12 @@ bool js_cocos2dx_extension_ControlSlider_getMinimumValue(JSContext *cx, uint32_t
     if (argc == 0) {
         double ret = cobj->getMinimumValue();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_getMinimumValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_getMinimumValue : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_setThumbSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4174,7 +4204,7 @@ bool js_cocos2dx_extension_ControlSlider_setThumbSprite(JSContext *cx, uint32_t 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_setThumbSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_setThumbSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_getValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4187,12 +4217,12 @@ bool js_cocos2dx_extension_ControlSlider_getValue(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         double ret = cobj->getValue();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_getValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_getValue : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_getBackgroundSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4214,7 +4244,7 @@ bool js_cocos2dx_extension_ControlSlider_getBackgroundSprite(JSContext *cx, uint
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_getBackgroundSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_getBackgroundSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_getThumbSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4236,7 +4266,7 @@ bool js_cocos2dx_extension_ControlSlider_getThumbSprite(JSContext *cx, uint32_t 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_getThumbSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_getThumbSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_setValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4249,14 +4279,14 @@ bool js_cocos2dx_extension_ControlSlider_setValue(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlSlider_setValue : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlSlider_setValue : Error processing arguments");
         cobj->setValue(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_setValue : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_setValue : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_locationFromTouch(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4286,7 +4316,7 @@ bool js_cocos2dx_extension_ControlSlider_locationFromTouch(JSContext *cx, uint32
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_locationFromTouch : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_locationFromTouch : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_setMinimumValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4299,14 +4329,14 @@ bool js_cocos2dx_extension_ControlSlider_setMinimumValue(JSContext *cx, uint32_t
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlSlider_setMinimumValue : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlSlider_setMinimumValue : Error processing arguments");
         cobj->setMinimumValue(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_setMinimumValue : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_setMinimumValue : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_setMinimumAllowedValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4319,14 +4349,14 @@ bool js_cocos2dx_extension_ControlSlider_setMinimumAllowedValue(JSContext *cx, u
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlSlider_setMinimumAllowedValue : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlSlider_setMinimumAllowedValue : Error processing arguments");
         cobj->setMinimumAllowedValue(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_setMinimumAllowedValue : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_setMinimumAllowedValue : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_getProgressSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4348,7 +4378,7 @@ bool js_cocos2dx_extension_ControlSlider_getProgressSprite(JSContext *cx, uint32
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_getProgressSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_getProgressSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_setSelectedThumbSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4376,7 +4406,7 @@ bool js_cocos2dx_extension_ControlSlider_setSelectedThumbSprite(JSContext *cx, u
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_setSelectedThumbSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_setSelectedThumbSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_setMaximumAllowedValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4389,14 +4419,14 @@ bool js_cocos2dx_extension_ControlSlider_setMaximumAllowedValue(JSContext *cx, u
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlSlider_setMaximumAllowedValue : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlSlider_setMaximumAllowedValue : Error processing arguments");
         cobj->setMaximumAllowedValue(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_setMaximumAllowedValue : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_setMaximumAllowedValue : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_create(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4560,7 +4590,7 @@ bool js_cocos2dx_extension_ControlSlider_create(JSContext *cx, uint32_t argc, JS
             return true;
         }
     } while (0);
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSlider_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSlider_create : wrong number of arguments");
     return false;
 }
 bool js_cocos2dx_extension_ControlSlider_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4605,16 +4635,19 @@ extern JSObject *jsb_cocos2d_extension_Control_prototype;
 
     
 void js_register_cocos2dx_extension_ControlSlider(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_ControlSlider_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_ControlSlider_class->name = "ControlSlider";
-    jsb_cocos2d_extension_ControlSlider_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlSlider_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_ControlSlider_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlSlider_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_ControlSlider_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_ControlSlider_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_ControlSlider_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_ControlSlider_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_ControlSlider_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_ControlSlider_class = {
+        "ControlSlider",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_ControlSlider_classOps
+    };
+    jsb_cocos2d_extension_ControlSlider_class = &cocos2d_extension_ControlSlider_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -4658,7 +4691,7 @@ void js_register_cocos2dx_extension_ControlSlider(JSContext *cx, JS::HandleObjec
         js_cocos2dx_extension_ControlSlider_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_ControlSlider_prototype);
@@ -4667,7 +4700,7 @@ void js_register_cocos2dx_extension_ControlSlider(JSContext *cx, JS::HandleObjec
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::ControlSlider>(cx, jsb_cocos2d_extension_ControlSlider_class, proto, parent_proto);
+    jsb_register_class<cocos2d::extension::ControlSlider>(cx, jsb_cocos2d_extension_ControlSlider_class, proto);
     anonEvaluate(cx, global, "(function () { cc.ControlSlider.extend = cc.Class.extend; })()");
 }
 
@@ -4693,7 +4726,7 @@ bool js_cocos2dx_extension_ControlStepper_getMinusSprite(JSContext *cx, uint32_t
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_getMinusSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_getMinusSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_setValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4706,14 +4739,14 @@ bool js_cocos2dx_extension_ControlStepper_setValue(JSContext *cx, uint32_t argc,
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlStepper_setValue : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = args.get(0).toDouble();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlStepper_setValue : Error processing arguments");
         cobj->setValue(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_setValue : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_setValue : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_setStepValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4726,14 +4759,14 @@ bool js_cocos2dx_extension_ControlStepper_setStepValue(JSContext *cx, uint32_t a
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlStepper_setStepValue : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = args.get(0).toDouble();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlStepper_setStepValue : Error processing arguments");
         cobj->setStepValue(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_setStepValue : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_setStepValue : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_initWithMinusSpriteAndPlusSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4768,12 +4801,12 @@ bool js_cocos2dx_extension_ControlStepper_initWithMinusSpriteAndPlusSprite(JSCon
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlStepper_initWithMinusSpriteAndPlusSprite : Error processing arguments");
         bool ret = cobj->initWithMinusSpriteAndPlusSprite(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_initWithMinusSpriteAndPlusSprite : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_initWithMinusSpriteAndPlusSprite : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_setValueWithSendingEvent(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4787,15 +4820,15 @@ bool js_cocos2dx_extension_ControlStepper_setValueWithSendingEvent(JSContext *cx
     if (argc == 2) {
         double arg0 = 0;
         bool arg1;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
-        arg1 = JS::ToBoolean(args.get(1));
+        arg0 = args.get(0).toDouble();
+        arg1 = args.get(1).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlStepper_setValueWithSendingEvent : Error processing arguments");
         cobj->setValueWithSendingEvent(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_setValueWithSendingEvent : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_setValueWithSendingEvent : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_setMaximumValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4808,14 +4841,14 @@ bool js_cocos2dx_extension_ControlStepper_setMaximumValue(JSContext *cx, uint32_
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlStepper_setMaximumValue : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = args.get(0).toDouble();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlStepper_setMaximumValue : Error processing arguments");
         cobj->setMaximumValue(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_setMaximumValue : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_setMaximumValue : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_getMinusLabel(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4837,7 +4870,7 @@ bool js_cocos2dx_extension_ControlStepper_getMinusLabel(JSContext *cx, uint32_t 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_getMinusLabel : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_getMinusLabel : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_getPlusLabel(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4859,7 +4892,7 @@ bool js_cocos2dx_extension_ControlStepper_getPlusLabel(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_getPlusLabel : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_getPlusLabel : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_setWraps(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4872,14 +4905,14 @@ bool js_cocos2dx_extension_ControlStepper_setWraps(JSContext *cx, uint32_t argc,
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlStepper_setWraps : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlStepper_setWraps : Error processing arguments");
         cobj->setWraps(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_setWraps : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_setWraps : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_setMinusLabel(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4907,7 +4940,7 @@ bool js_cocos2dx_extension_ControlStepper_setMinusLabel(JSContext *cx, uint32_t 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_setMinusLabel : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_setMinusLabel : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_startAutorepeat(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4923,7 +4956,7 @@ bool js_cocos2dx_extension_ControlStepper_startAutorepeat(JSContext *cx, uint32_
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_startAutorepeat : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_startAutorepeat : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_updateLayoutUsingTouchLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4943,7 +4976,7 @@ bool js_cocos2dx_extension_ControlStepper_updateLayoutUsingTouchLocation(JSConte
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_updateLayoutUsingTouchLocation : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_updateLayoutUsingTouchLocation : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_isContinuous(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4956,12 +4989,12 @@ bool js_cocos2dx_extension_ControlStepper_isContinuous(JSContext *cx, uint32_t a
     if (argc == 0) {
         bool ret = cobj->isContinuous();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_isContinuous : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_isContinuous : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_stopAutorepeat(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4977,7 +5010,7 @@ bool js_cocos2dx_extension_ControlStepper_stopAutorepeat(JSContext *cx, uint32_t
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_stopAutorepeat : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_stopAutorepeat : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_setMinimumValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -4990,14 +5023,14 @@ bool js_cocos2dx_extension_ControlStepper_setMinimumValue(JSContext *cx, uint32_
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ControlStepper_setMinimumValue : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = args.get(0).toDouble();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ControlStepper_setMinimumValue : Error processing arguments");
         cobj->setMinimumValue(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_setMinimumValue : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_setMinimumValue : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_setPlusLabel(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5025,7 +5058,7 @@ bool js_cocos2dx_extension_ControlStepper_setPlusLabel(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_setPlusLabel : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_setPlusLabel : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_getValue(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5043,7 +5076,7 @@ bool js_cocos2dx_extension_ControlStepper_getValue(JSContext *cx, uint32_t argc,
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_getValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_getValue : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_getPlusSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5065,7 +5098,7 @@ bool js_cocos2dx_extension_ControlStepper_getPlusSprite(JSContext *cx, uint32_t 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_getPlusSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_getPlusSprite : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_setPlusSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5093,7 +5126,7 @@ bool js_cocos2dx_extension_ControlStepper_setPlusSprite(JSContext *cx, uint32_t 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_setPlusSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_setPlusSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_setMinusSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5121,7 +5154,7 @@ bool js_cocos2dx_extension_ControlStepper_setMinusSprite(JSContext *cx, uint32_t
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_setMinusSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_setMinusSprite : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlStepper_create(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5154,10 +5187,10 @@ bool js_cocos2dx_extension_ControlStepper_create(JSContext *cx, uint32_t argc, J
         auto ret = cocos2d::extension::ControlStepper::create(arg0, arg1);
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlStepper>(ret);
         JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::ControlStepper"));
-        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlStepper_create : wrong number of arguments");
     return false;
 }
 
@@ -5203,16 +5236,19 @@ extern JSObject *jsb_cocos2d_extension_Control_prototype;
 
     
 void js_register_cocos2dx_extension_ControlStepper(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_ControlStepper_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_ControlStepper_class->name = "ControlStepper";
-    jsb_cocos2d_extension_ControlStepper_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlStepper_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_ControlStepper_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlStepper_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_ControlStepper_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_ControlStepper_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_ControlStepper_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_ControlStepper_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_ControlStepper_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_ControlStepper_class = {
+        "ControlStepper",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_ControlStepper_classOps
+    };
+    jsb_cocos2d_extension_ControlStepper_class = &cocos2d_extension_ControlStepper_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -5256,7 +5292,7 @@ void js_register_cocos2dx_extension_ControlStepper(JSContext *cx, JS::HandleObje
         js_cocos2dx_extension_ControlStepper_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_ControlStepper_prototype);
@@ -5265,7 +5301,7 @@ void js_register_cocos2dx_extension_ControlStepper(JSContext *cx, JS::HandleObje
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::ControlStepper>(cx, jsb_cocos2d_extension_ControlStepper_class, proto, parent_proto);
+    jsb_register_class<cocos2d::extension::ControlStepper>(cx, jsb_cocos2d_extension_ControlStepper_class, proto);
     anonEvaluate(cx, global, "(function () { cc.ControlStepper.extend = cc.Class.extend; })()");
 }
 
@@ -5286,7 +5322,7 @@ bool js_cocos2dx_extension_ControlSwitch_setOn(JSContext *cx, uint32_t argc, JS:
         bool ok = true;
         if (argc == 1) {
             bool arg0;
-            arg0 = JS::ToBoolean(args.get(0));
+            arg0 = args.get(0).toBoolean();
             cobj->setOn(arg0);
             args.rval().setUndefined();
             return true;
@@ -5297,16 +5333,16 @@ bool js_cocos2dx_extension_ControlSwitch_setOn(JSContext *cx, uint32_t argc, JS:
         bool ok = true;
         if (argc == 2) {
             bool arg0;
-            arg0 = JS::ToBoolean(args.get(0));
+            arg0 = args.get(0).toBoolean();
             bool arg1;
-            arg1 = JS::ToBoolean(args.get(1));
+            arg1 = args.get(1).toBoolean();
             cobj->setOn(arg0, arg1);
             args.rval().setUndefined();
             return true;
         }
     } while(0);
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSwitch_setOn : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSwitch_setOn : wrong number of arguments");
     return false;
 }
 bool js_cocos2dx_extension_ControlSwitch_locationFromTouch(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5336,7 +5372,7 @@ bool js_cocos2dx_extension_ControlSwitch_locationFromTouch(JSContext *cx, uint32
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSwitch_locationFromTouch : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSwitch_locationFromTouch : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ControlSwitch_isOn(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5349,12 +5385,12 @@ bool js_cocos2dx_extension_ControlSwitch_isOn(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         bool ret = cobj->isOn();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSwitch_isOn : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSwitch_isOn : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSwitch_initWithMaskSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5438,7 +5474,7 @@ bool js_cocos2dx_extension_ControlSwitch_initWithMaskSprite(JSContext *cx, uint3
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithMaskSprite(arg0, arg1, arg2, arg3, arg4, arg5);
             JS::RootedValue jsret(cx, JS::NullValue());
-            jsret = BOOLEAN_TO_JSVAL(ret);
+            jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
         }
@@ -5493,13 +5529,13 @@ bool js_cocos2dx_extension_ControlSwitch_initWithMaskSprite(JSContext *cx, uint3
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithMaskSprite(arg0, arg1, arg2, arg3);
             JS::RootedValue jsret(cx, JS::NullValue());
-            jsret = BOOLEAN_TO_JSVAL(ret);
+            jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSwitch_initWithMaskSprite : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSwitch_initWithMaskSprite : wrong number of arguments");
     return false;
 }
 bool js_cocos2dx_extension_ControlSwitch_hasMoved(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5512,12 +5548,12 @@ bool js_cocos2dx_extension_ControlSwitch_hasMoved(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         bool ret = cobj->hasMoved();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSwitch_hasMoved : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSwitch_hasMoved : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ControlSwitch_create(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5663,7 +5699,7 @@ bool js_cocos2dx_extension_ControlSwitch_create(JSContext *cx, uint32_t argc, JS
             return true;
         }
     } while (0);
-    JS_ReportError(cx, "js_cocos2dx_extension_ControlSwitch_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ControlSwitch_create : wrong number of arguments");
     return false;
 }
 bool js_cocos2dx_extension_ControlSwitch_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5708,16 +5744,19 @@ extern JSObject *jsb_cocos2d_extension_Control_prototype;
 
     
 void js_register_cocos2dx_extension_ControlSwitch(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_ControlSwitch_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_ControlSwitch_class->name = "ControlSwitch";
-    jsb_cocos2d_extension_ControlSwitch_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlSwitch_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_ControlSwitch_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ControlSwitch_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_ControlSwitch_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_ControlSwitch_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_ControlSwitch_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_ControlSwitch_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_ControlSwitch_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_ControlSwitch_class = {
+        "ControlSwitch",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_ControlSwitch_classOps
+    };
+    jsb_cocos2d_extension_ControlSwitch_class = &cocos2d_extension_ControlSwitch_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -5746,7 +5785,7 @@ void js_register_cocos2dx_extension_ControlSwitch(JSContext *cx, JS::HandleObjec
         js_cocos2dx_extension_ControlSwitch_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_ControlSwitch_prototype);
@@ -5755,7 +5794,7 @@ void js_register_cocos2dx_extension_ControlSwitch(JSContext *cx, JS::HandleObjec
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::ControlSwitch>(cx, jsb_cocos2d_extension_ControlSwitch_class, proto, parent_proto);
+    jsb_register_class<cocos2d::extension::ControlSwitch>(cx, jsb_cocos2d_extension_ControlSwitch_class, proto);
     anonEvaluate(cx, global, "(function () { cc.ControlSwitch.extend = cc.Class.extend; })()");
 }
 
@@ -5772,12 +5811,12 @@ bool js_cocos2dx_extension_ScrollView_isClippingToBounds(JSContext *cx, uint32_t
     if (argc == 0) {
         bool ret = cobj->isClippingToBounds();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_isClippingToBounds : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_isClippingToBounds : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_setContainer(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5805,7 +5844,7 @@ bool js_cocos2dx_extension_ScrollView_setContainer(JSContext *cx, uint32_t argc,
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_setContainer : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_setContainer : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_setContentOffsetInDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5820,14 +5859,14 @@ bool js_cocos2dx_extension_ScrollView_setContentOffsetInDuration(JSContext *cx, 
         cocos2d::Vec2 arg0;
         double arg1 = 0;
         ok &= jsval_to_vector2(cx, args.get(0), &arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        arg1 = (float)(args.get(1).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ScrollView_setContentOffsetInDuration : Error processing arguments");
         cobj->setContentOffsetInDuration(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_setContentOffsetInDuration : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_setContentOffsetInDuration : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_setZoomScaleInDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5841,15 +5880,15 @@ bool js_cocos2dx_extension_ScrollView_setZoomScaleInDuration(JSContext *cx, uint
     if (argc == 2) {
         double arg0 = 0;
         double arg1 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        arg0 = (float)(args.get(0).toNumber());
+        arg1 = (float)(args.get(1).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ScrollView_setZoomScaleInDuration : Error processing arguments");
         cobj->setZoomScaleInDuration(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_setZoomScaleInDuration : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_setZoomScaleInDuration : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_updateTweenAction(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5863,7 +5902,7 @@ bool js_cocos2dx_extension_ScrollView_updateTweenAction(JSContext *cx, uint32_t 
     if (argc == 2) {
         double arg0 = 0;
         std::string arg1;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         ok &= jsval_to_std_string(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ScrollView_updateTweenAction : Error processing arguments");
         cobj->updateTweenAction(arg0, arg1);
@@ -5871,7 +5910,7 @@ bool js_cocos2dx_extension_ScrollView_updateTweenAction(JSContext *cx, uint32_t 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_updateTweenAction : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_updateTweenAction : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_setMaxScale(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5884,14 +5923,14 @@ bool js_cocos2dx_extension_ScrollView_setMaxScale(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ScrollView_setMaxScale : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ScrollView_setMaxScale : Error processing arguments");
         cobj->setMaxScale(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_setMaxScale : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_setMaxScale : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_hasVisibleParents(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5904,12 +5943,12 @@ bool js_cocos2dx_extension_ScrollView_hasVisibleParents(JSContext *cx, uint32_t 
     if (argc == 0) {
         bool ret = cobj->hasVisibleParents();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_hasVisibleParents : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_hasVisibleParents : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_getDirection(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5922,12 +5961,12 @@ bool js_cocos2dx_extension_ScrollView_getDirection(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         int ret = (int)cobj->getDirection();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_getDirection : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_getDirection : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_getContainer(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5949,7 +5988,7 @@ bool js_cocos2dx_extension_ScrollView_getContainer(JSContext *cx, uint32_t argc,
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_getContainer : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_getContainer : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_setMinScale(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5962,14 +6001,14 @@ bool js_cocos2dx_extension_ScrollView_setMinScale(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ScrollView_setMinScale : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        arg0 = (float)(args.get(0).toNumber());
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ScrollView_setMinScale : Error processing arguments");
         cobj->setMinScale(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_setMinScale : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_setMinScale : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_getZoomScale(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -5982,12 +6021,12 @@ bool js_cocos2dx_extension_ScrollView_getZoomScale(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         double ret = cobj->getZoomScale();
         JS::RootedValue jsret(cx);
-        jsret = JS::DoubleValue(ret);
+        jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_getZoomScale : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_getZoomScale : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_updateInset(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6003,7 +6042,7 @@ bool js_cocos2dx_extension_ScrollView_updateInset(JSContext *cx, uint32_t argc, 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_updateInset : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_updateInset : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_initWithViewSize(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6030,12 +6069,12 @@ bool js_cocos2dx_extension_ScrollView_initWithViewSize(JSContext *cx, uint32_t a
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ScrollView_initWithViewSize : Error processing arguments");
         bool ret = cobj->initWithViewSize(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_initWithViewSize : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_initWithViewSize : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_pause(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6063,7 +6102,7 @@ bool js_cocos2dx_extension_ScrollView_pause(JSContext *cx, uint32_t argc, JS::Va
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_pause : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_pause : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_setDirection(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6083,7 +6122,7 @@ bool js_cocos2dx_extension_ScrollView_setDirection(JSContext *cx, uint32_t argc,
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_setDirection : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_setDirection : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_stopAnimatedContentOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6099,7 +6138,7 @@ bool js_cocos2dx_extension_ScrollView_stopAnimatedContentOffset(JSContext *cx, u
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_stopAnimatedContentOffset : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_stopAnimatedContentOffset : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_setContentOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6122,14 +6161,14 @@ bool js_cocos2dx_extension_ScrollView_setContentOffset(JSContext *cx, uint32_t a
         cocos2d::Vec2 arg0;
         bool arg1;
         ok &= jsval_to_vector2(cx, args.get(0), &arg0);
-        arg1 = JS::ToBoolean(args.get(1));
+        arg1 = args.get(1).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ScrollView_setContentOffset : Error processing arguments");
         cobj->setContentOffset(arg0, arg1);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_setContentOffset : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_setContentOffset : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_isDragging(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6142,12 +6181,12 @@ bool js_cocos2dx_extension_ScrollView_isDragging(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         bool ret = cobj->isDragging();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_isDragging : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_isDragging : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_isTouchEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6160,12 +6199,12 @@ bool js_cocos2dx_extension_ScrollView_isTouchEnabled(JSContext *cx, uint32_t arg
     if (argc == 0) {
         bool ret = cobj->isTouchEnabled();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_isTouchEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_isTouchEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_isBounceable(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6178,12 +6217,12 @@ bool js_cocos2dx_extension_ScrollView_isBounceable(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         bool ret = cobj->isBounceable();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_isBounceable : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_isBounceable : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_setTouchEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6196,14 +6235,14 @@ bool js_cocos2dx_extension_ScrollView_setTouchEnabled(JSContext *cx, uint32_t ar
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ScrollView_setTouchEnabled : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ScrollView_setTouchEnabled : Error processing arguments");
         cobj->setTouchEnabled(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_setTouchEnabled : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_setTouchEnabled : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_getContentOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6221,7 +6260,7 @@ bool js_cocos2dx_extension_ScrollView_getContentOffset(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_getContentOffset : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_getContentOffset : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_resume(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6249,7 +6288,7 @@ bool js_cocos2dx_extension_ScrollView_resume(JSContext *cx, uint32_t argc, JS::V
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_resume : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_resume : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_setClippingToBounds(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6262,14 +6301,14 @@ bool js_cocos2dx_extension_ScrollView_setClippingToBounds(JSContext *cx, uint32_
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ScrollView_setClippingToBounds : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ScrollView_setClippingToBounds : Error processing arguments");
         cobj->setClippingToBounds(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_setClippingToBounds : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_setClippingToBounds : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_setViewSize(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6289,7 +6328,7 @@ bool js_cocos2dx_extension_ScrollView_setViewSize(JSContext *cx, uint32_t argc, 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_setViewSize : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_setViewSize : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_getViewSize(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6307,7 +6346,7 @@ bool js_cocos2dx_extension_ScrollView_getViewSize(JSContext *cx, uint32_t argc, 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_getViewSize : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_getViewSize : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_maxContainerOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6325,7 +6364,7 @@ bool js_cocos2dx_extension_ScrollView_maxContainerOffset(JSContext *cx, uint32_t
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_maxContainerOffset : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_maxContainerOffset : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_setBounceable(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6338,14 +6377,14 @@ bool js_cocos2dx_extension_ScrollView_setBounceable(JSContext *cx, uint32_t argc
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_ScrollView_setBounceable : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
+        arg0 = args.get(0).toBoolean();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ScrollView_setBounceable : Error processing arguments");
         cobj->setBounceable(arg0);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_setBounceable : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_setBounceable : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_isTouchMoved(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6358,12 +6397,12 @@ bool js_cocos2dx_extension_ScrollView_isTouchMoved(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         bool ret = cobj->isTouchMoved();
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_isTouchMoved : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_isTouchMoved : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_isNodeVisible(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6388,12 +6427,12 @@ bool js_cocos2dx_extension_ScrollView_isNodeVisible(JSContext *cx, uint32_t argc
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_ScrollView_isNodeVisible : Error processing arguments");
         bool ret = cobj->isNodeVisible(arg0);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_isNodeVisible : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_isNodeVisible : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_minContainerOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6411,7 +6450,7 @@ bool js_cocos2dx_extension_ScrollView_minContainerOffset(JSContext *cx, uint32_t
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_minContainerOffset : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_minContainerOffset : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_setZoomScale(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6428,10 +6467,10 @@ bool js_cocos2dx_extension_ScrollView_setZoomScale(JSContext *cx, uint32_t argc,
         bool ok = true;
         if (argc == 2) {
             double arg0 = 0;
-            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            arg0 = (float)(args.get(0).toNumber());
             if (!ok) { ok = true; break; }
             bool arg1;
-            arg1 = JS::ToBoolean(args.get(1));
+            arg1 = args.get(1).toBoolean();
             cobj->setZoomScale(arg0, arg1);
             args.rval().setUndefined();
             return true;
@@ -6442,7 +6481,7 @@ bool js_cocos2dx_extension_ScrollView_setZoomScale(JSContext *cx, uint32_t argc,
         bool ok = true;
         if (argc == 1) {
             double arg0 = 0;
-            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            arg0 = (float)(args.get(0).toNumber());
             if (!ok) { ok = true; break; }
             cobj->setZoomScale(arg0);
             args.rval().setUndefined();
@@ -6450,7 +6489,7 @@ bool js_cocos2dx_extension_ScrollView_setZoomScale(JSContext *cx, uint32_t argc,
         }
     } while(0);
 
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_setZoomScale : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_setZoomScale : wrong number of arguments");
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_create(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6499,7 +6538,7 @@ bool js_cocos2dx_extension_ScrollView_create(JSContext *cx, uint32_t argc, JS::V
             return true;
         }
     } while (0);
-    JS_ReportError(cx, "js_cocos2dx_extension_ScrollView_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_ScrollView_create : wrong number of arguments");
     return false;
 }
 bool js_cocos2dx_extension_ScrollView_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6544,16 +6583,19 @@ extern JSObject *jsb_cocos2d_Layer_prototype;
 
     
 void js_register_cocos2dx_extension_ScrollView(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_ScrollView_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_ScrollView_class->name = "ScrollView";
-    jsb_cocos2d_extension_ScrollView_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ScrollView_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_ScrollView_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_ScrollView_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_ScrollView_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_ScrollView_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_ScrollView_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_ScrollView_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_ScrollView_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_ScrollView_class = {
+        "ScrollView",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_ScrollView_classOps
+    };
+    jsb_cocos2d_extension_ScrollView_class = &cocos2d_extension_ScrollView_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -6609,7 +6651,7 @@ void js_register_cocos2dx_extension_ScrollView(JSContext *cx, JS::HandleObject g
         js_cocos2dx_extension_ScrollView_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_ScrollView_prototype);
@@ -6618,7 +6660,7 @@ void js_register_cocos2dx_extension_ScrollView(JSContext *cx, JS::HandleObject g
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::ScrollView>(cx, jsb_cocos2d_extension_ScrollView_class, proto, parent_proto);
+    jsb_register_class<cocos2d::extension::ScrollView>(cx, jsb_cocos2d_extension_ScrollView_class, proto);
     anonEvaluate(cx, global, "(function () { cc.ScrollView.extend = cc.Class.extend; })()");
 }
 
@@ -6638,7 +6680,7 @@ bool js_cocos2dx_extension_TableViewCell_reset(JSContext *cx, uint32_t argc, JS:
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableViewCell_reset : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableViewCell_reset : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_TableViewCell_getIdx(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6656,7 +6698,7 @@ bool js_cocos2dx_extension_TableViewCell_getIdx(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableViewCell_getIdx : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableViewCell_getIdx : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_TableViewCell_setIdx(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6676,7 +6718,7 @@ bool js_cocos2dx_extension_TableViewCell_setIdx(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableViewCell_setIdx : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableViewCell_setIdx : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_TableViewCell_create(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6687,10 +6729,10 @@ bool js_cocos2dx_extension_TableViewCell_create(JSContext *cx, uint32_t argc, JS
         auto ret = cocos2d::extension::TableViewCell::create();
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::TableViewCell>(ret);
         JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::TableViewCell"));
-        args.rval().set(OBJECT_TO_JSVAL(jsret));
+        args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_extension_TableViewCell_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableViewCell_create : wrong number of arguments");
     return false;
 }
 
@@ -6736,16 +6778,19 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_extension_TableViewCell(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_TableViewCell_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_TableViewCell_class->name = "TableViewCell";
-    jsb_cocos2d_extension_TableViewCell_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_TableViewCell_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_TableViewCell_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_TableViewCell_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_TableViewCell_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_TableViewCell_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_TableViewCell_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_TableViewCell_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_TableViewCell_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_TableViewCell_class = {
+        "TableViewCell",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_TableViewCell_classOps
+    };
+    jsb_cocos2d_extension_TableViewCell_class = &cocos2d_extension_TableViewCell_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -6772,7 +6817,7 @@ void js_register_cocos2dx_extension_TableViewCell(JSContext *cx, JS::HandleObjec
         js_cocos2dx_extension_TableViewCell_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_TableViewCell_prototype);
@@ -6781,7 +6826,7 @@ void js_register_cocos2dx_extension_TableViewCell(JSContext *cx, JS::HandleObjec
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::TableViewCell>(cx, jsb_cocos2d_extension_TableViewCell_class, proto, parent_proto);
+    jsb_register_class<cocos2d::extension::TableViewCell>(cx, jsb_cocos2d_extension_TableViewCell_class, proto);
     anonEvaluate(cx, global, "(function () { cc.TableViewCell.extend = cc.Class.extend; })()");
 }
 
@@ -6805,7 +6850,7 @@ bool js_cocos2dx_extension_TableView_updateCellAtIndex(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableView_updateCellAtIndex : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableView_updateCellAtIndex : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_TableView_setVerticalFillOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6825,7 +6870,7 @@ bool js_cocos2dx_extension_TableView_setVerticalFillOrder(JSContext *cx, uint32_
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableView_setVerticalFillOrder : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableView_setVerticalFillOrder : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_TableView_scrollViewDidZoom(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6853,7 +6898,7 @@ bool js_cocos2dx_extension_TableView_scrollViewDidZoom(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableView_scrollViewDidZoom : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableView_scrollViewDidZoom : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_TableView__updateContentSize(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6869,7 +6914,7 @@ bool js_cocos2dx_extension_TableView__updateContentSize(JSContext *cx, uint32_t 
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableView__updateContentSize : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableView__updateContentSize : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_TableView_getVerticalFillOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6882,12 +6927,12 @@ bool js_cocos2dx_extension_TableView_getVerticalFillOrder(JSContext *cx, uint32_
     if (argc == 0) {
         int ret = (int)cobj->getVerticalFillOrder();
         JS::RootedValue jsret(cx);
-        jsret = int32_to_jsval(cx, ret);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableView_getVerticalFillOrder : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableView_getVerticalFillOrder : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_TableView_removeCellAtIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6907,7 +6952,7 @@ bool js_cocos2dx_extension_TableView_removeCellAtIndex(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableView_removeCellAtIndex : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableView_removeCellAtIndex : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_TableView_initWithViewSize(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6934,12 +6979,12 @@ bool js_cocos2dx_extension_TableView_initWithViewSize(JSContext *cx, uint32_t ar
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_TableView_initWithViewSize : Error processing arguments");
         bool ret = cobj->initWithViewSize(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        jsret = JS::BooleanValue(ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableView_initWithViewSize : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableView_initWithViewSize : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_cocos2dx_extension_TableView_scrollViewDidScroll(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6967,7 +7012,7 @@ bool js_cocos2dx_extension_TableView_scrollViewDidScroll(JSContext *cx, uint32_t
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableView_scrollViewDidScroll : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableView_scrollViewDidScroll : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_TableView_reloadData(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -6983,7 +7028,7 @@ bool js_cocos2dx_extension_TableView_reloadData(JSContext *cx, uint32_t argc, JS
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableView_reloadData : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableView_reloadData : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_TableView_insertCellAtIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7003,7 +7048,7 @@ bool js_cocos2dx_extension_TableView_insertCellAtIndex(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableView_insertCellAtIndex : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableView_insertCellAtIndex : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_TableView_cellAtIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7029,7 +7074,7 @@ bool js_cocos2dx_extension_TableView_cellAtIndex(JSContext *cx, uint32_t argc, J
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableView_cellAtIndex : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableView_cellAtIndex : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_extension_TableView_dequeueCell(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7051,7 +7096,7 @@ bool js_cocos2dx_extension_TableView_dequeueCell(JSContext *cx, uint32_t argc, J
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_extension_TableView_dequeueCell : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_extension_TableView_dequeueCell : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_TableView_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -7096,16 +7141,19 @@ extern JSObject *jsb_cocos2d_extension_ScrollView_prototype;
 
     
 void js_register_cocos2dx_extension_TableView(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_extension_TableView_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_extension_TableView_class->name = "TableView";
-    jsb_cocos2d_extension_TableView_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_TableView_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_extension_TableView_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_extension_TableView_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_extension_TableView_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_extension_TableView_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_extension_TableView_class->convert = JS_ConvertStub;
-    jsb_cocos2d_extension_TableView_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    const JSClassOps cocos2d_extension_TableView_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass cocos2d_extension_TableView_class = {
+        "TableView",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_extension_TableView_classOps
+    };
+    jsb_cocos2d_extension_TableView_class = &cocos2d_extension_TableView_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
@@ -7138,7 +7186,7 @@ void js_register_cocos2dx_extension_TableView(JSContext *cx, JS::HandleObject gl
         js_cocos2dx_extension_TableView_constructor, 0, // constructor
         properties,
         funcs,
-        NULL, // no static properties
+        nullptr, // no static properties
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_TableView_prototype);
@@ -7147,7 +7195,7 @@ void js_register_cocos2dx_extension_TableView(JSContext *cx, JS::HandleObject gl
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::extension::TableView>(cx, jsb_cocos2d_extension_TableView_class, proto, parent_proto);
+    jsb_register_class<cocos2d::extension::TableView>(cx, jsb_cocos2d_extension_TableView_class, proto);
     anonEvaluate(cx, global, "(function () { cc.TableView.extend = cc.Class.extend; })()");
 }
 

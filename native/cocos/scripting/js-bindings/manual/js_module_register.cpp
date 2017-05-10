@@ -2,16 +2,12 @@
 
 #include "scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_ui_auto.hpp"
-#include "scripting/js-bindings/auto/jsb_cocos2dx_studio_auto.hpp"
-#include "scripting/js-bindings/auto/jsb_cocos2dx_builder_auto.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_dragonbones_auto.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp"
 #include "jsb_creator_auto.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
 #include "scripting/js-bindings/manual/ui/jsb_cocos2dx_ui_manual.h"
-#include "scripting/js-bindings/manual/cocostudio/jsb_cocos2dx_studio_manual.h"
-#include "scripting/js-bindings/manual/cocosbuilder/js_bindings_ccbreader.h"
 #include "scripting/js-bindings/manual/spine/jsb_cocos2dx_spine_manual.h"
 #include "scripting/js-bindings/manual/dragonbones/jsb_cocos2dx_dragonbones_manual.h"
 #include "scripting/js-bindings/manual/extension/jsb_cocos2dx_extension_manual.h"
@@ -63,11 +59,7 @@ int js_module_register()
     // opengl can be commented out to reduce the package
     sc->addRegisterCallback(JSB_register_opengl);
     
-    // builder can be commented out to reduce the package
-    sc->addRegisterCallback(register_all_cocos2dx_builder);
-    sc->addRegisterCallback(register_CCBuilderReader);
-    
-    // ui can be commented out to reduce the package, attention studio need ui module
+    // ui can be commented out to reduce the package
     sc->addRegisterCallback(register_all_cocos2dx_ui);
     sc->addRegisterCallback(register_all_cocos2dx_ui_manual);
     
@@ -91,12 +83,6 @@ int js_module_register()
     sc->addRegisterCallback(register_jsb_socketio);
     // Downloader
     sc->addRegisterCallback(register_all_cocos2dx_network);
-    
-#if CC_USE_3D_PHYSICS && CC_ENABLE_BULLET_INTEGRATION
-    // Physics 3d can be commented out to reduce the package
-    sc->addRegisterCallback(register_all_cocos2dx_physics3d);
-    sc->addRegisterCallback(register_all_cocos2dx_physics3d_manual);
-#endif
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && !defined(CC_TARGET_OS_TVOS)
     sc->addRegisterCallback(register_all_cocos2dx_experimental_video);

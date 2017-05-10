@@ -45,7 +45,6 @@
 #include "scripting/js-bindings/manual/js_bindings_config.h"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 #include "scripting/js-bindings/manual/jsb_event_dispatcher_manual.h"
-#include "scripting/js-bindings/manual/component/CCComponentJS.h"
 using namespace cocos2d;
 
 schedFunc_proxy_t *_schedFunc_target_ht = nullptr;
@@ -66,7 +65,7 @@ JSTouchDelegate::~JSTouchDelegate()
     if (_obj)
     {
         JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-        JS::RootedValue objVal(cx, OBJECT_TO_JSVAL(_obj));
+        JS::RootedValue objVal(cx, JS::ObjectOrNullValue(_obj));
         if (!objVal.isNullOrUndefined())
         {
             js_remove_object_root(objVal);
@@ -107,7 +106,7 @@ void JSTouchDelegate::setJSObject(JS::HandleObject obj)
     JS::RootedValue objVal(cx);
     if (_obj)
     {
-        objVal.set(OBJECT_TO_JSVAL(_obj));
+        objVal.set(JS::ObjectOrNullValue(_obj));
         if (!objVal.isNullOrUndefined())
         {
             js_remove_object_root(objVal);
@@ -116,7 +115,7 @@ void JSTouchDelegate::setJSObject(JS::HandleObject obj)
 
     _obj = obj;
 
-    objVal.set(OBJECT_TO_JSVAL(obj));
+    objVal.set(JS::ObjectOrNullValue(obj));
     if (!objVal.isNullOrUndefined())
     {
         js_add_object_root(objVal);
@@ -228,7 +227,7 @@ void JSTouchDelegate::onTouchesCancelled(const std::vector<Touch*>& touches, Eve
 }
 
 // cc.EventTouch#getTouches
-bool js_cocos2dx_EventTouch_getTouches(JSContext *cx, uint32_t argc, jsval *vp) {
+bool js_cocos2dx_EventTouch_getTouches(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
@@ -246,23 +245,23 @@ bool js_cocos2dx_EventTouch_getTouches(JSContext *cx, uint32_t argc, jsval *vp) 
             //First, check whether object is associated with js object.
             auto jsobj = js_get_or_create_jsobject<cocos2d::Touch>(cx, touchObj);
             if (jsobj)
-                arrElement = OBJECT_TO_JSVAL(jsobj);
+                arrElement = JS::ObjectOrNullValue(jsobj);
             if (!JS_SetElement(cx, jsretArr, i, arrElement)) {
                 break;
             }
             ++i;
         }
 
-        args.rval().set(OBJECT_TO_JSVAL(jsretArr));
+        args.rval().set(JS::ObjectOrNullValue(jsretArr));
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_EventTouch_getTouches : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_EventTouch_getTouches : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 // cc.EventTouch#setTouches
-bool js_cocos2dx_EventTouch_setTouches(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_EventTouch_setTouches(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -274,7 +273,8 @@ bool js_cocos2dx_EventTouch_setTouches(JSContext *cx, uint32_t argc, jsval *vp)
         std::vector<Touch*> arg0;
         JS::RootedObject jsobj(cx, args.get(0).toObjectOrNull());
         JSB_PRECONDITION3( ok, cx, false, "Error converting value to object");
-        JSB_PRECONDITION3( jsobj && JS_IsArrayObject( cx, jsobj),  cx, false, "Object must be an array");
+        bool isArray;
+        JSB_PRECONDITION3(JS_IsArrayObject( cx, jsobj, &isArray) && isArray,  cx, false, "Object must be an array");
 
         uint32_t len = 0;
         JS_GetArrayLength(cx, jsobj, &len);
@@ -297,13 +297,13 @@ bool js_cocos2dx_EventTouch_setTouches(JSContext *cx, uint32_t argc, jsval *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_EventTouch_setTouches : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_EventTouch_setTouches : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
 // TODO: This function is deprecated. The new API is "new Menu" instead of "Menu.create"
 // There are not js tests for this function. Impossible to know wether it works Ok.
-bool js_cocos2dx_CCMenu_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCMenu_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
@@ -338,17 +338,17 @@ bool js_cocos2dx_CCMenu_create(JSContext *cx, uint32_t argc, jsval *vp)
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Menu>(menu);
         // link the native object with the javascript object
         JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, menu, typeClass, "cocos2d::Menu"));
-        args.rval().set(OBJECT_TO_JSVAL(jsobj));
+        args.rval().set(JS::ObjectOrNullValue(jsobj));
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "wrong number of arguments");
     return false;
 }
 
 // TODO: This function is deprecated. The new API is "new MenuItemToggle" instead of "MenuItemToggle.create"
 // There are not js tests for this function. Impossible to know weather it works Ok.
-bool js_cocos2dx_CCMenuItemToggle_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCMenuItemToggle_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc >= 1) {
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -370,15 +370,15 @@ bool js_cocos2dx_CCMenuItemToggle_create(JSContext *cx, uint32_t argc, jsval *vp
             js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MenuItemToggle>(ret);
             // link the native object with the javascript object
             JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, ret, typeClass, "cocos2d::MenuItemToggle"));
-            args.rval().set(OBJECT_TO_JSVAL(jsobj));
+            args.rval().set(JS::ObjectOrNullValue(jsobj));
             return true;
         }
     }
-    JS_ReportError(cx, "wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "wrong number of arguments");
     return false;
 }
 
-bool js_cocos2dx_CCScene_init(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCScene_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -387,17 +387,16 @@ bool js_cocos2dx_CCScene_init(JSContext *cx, uint32_t argc, jsval *vp)
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Scene_init : Invalid Native Object");
     if (argc == 0) {
         bool ret = cobj->init();
-        jsval jsret = JSVAL_NULL;
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        JS::RootedValue jsret(cx, JS::BooleanValue(ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_Scene_init : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Scene_init : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_cocos2dx_JSTouchDelegate_registerStandardDelegate(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_JSTouchDelegate_registerStandardDelegate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc == 1 || argc == 2)
     {
@@ -418,11 +417,11 @@ bool js_cocos2dx_JSTouchDelegate_registerStandardDelegate(JSContext *cx, uint32_
         JSTouchDelegate::setDelegateForJSObject(jsobj, touch);
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 
-bool js_cocos2dx_JSTouchDelegate_registerTargetedDelegate(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_JSTouchDelegate_registerTargetedDelegate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc == 3)
     {
@@ -437,11 +436,11 @@ bool js_cocos2dx_JSTouchDelegate_registerTargetedDelegate(JSContext *cx, uint32_
 
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 
-bool js_cocos2dx_JSTouchDelegate_unregisterTouchDelegate(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_JSTouchDelegate_unregisterTouchDelegate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc == 1) {
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -455,7 +454,7 @@ bool js_cocos2dx_JSTouchDelegate_unregisterTouchDelegate(JSContext *cx, uint32_t
 
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
@@ -481,26 +480,25 @@ void js_add_FinalizeHook(JSContext *cx, JS::HandleObject target, bool isRef)
     if (isRef)
     {
         JS::RootedObject proto(cx, jsb_RefFinalizeHook_prototype);
-        hook = JS_NewObject(cx, jsb_RefFinalizeHook_class, proto, JS::NullPtr());
+        hook = JS_NewObjectWithGivenProto(cx, jsb_RefFinalizeHook_class, proto);
     }
     else
     {
         JS::RootedObject proto(cx, jsb_ObjFinalizeHook_prototype);
-        hook = JS_NewObject(cx, jsb_ObjFinalizeHook_class, proto, JS::NullPtr());
+        hook = JS_NewObjectWithGivenProto(cx, jsb_ObjFinalizeHook_class, proto);
     }
     jsb_register_finalize_hook(hook.get(), target.get());
-    JS::RootedValue hookVal(cx, OBJECT_TO_JSVAL(hook));
+    JS::RootedValue hookVal(cx, JS::ObjectOrNullValue(hook));
     JS_SetProperty(cx, target, "__hook", hookVal);
 }
 
-jsval anonEvaluate(JSContext *cx, JS::HandleObject thisObj, const char* string)
+JS::HandleValue anonEvaluate(JSContext *cx, JS::HandleObject thisObj, const char* string)
 {
+    JS::CompileOptions opts(cx);
     JS::RootedValue out(cx);
     //JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-    if (JS_EvaluateScript(cx, thisObj, string, (unsigned int)strlen(string), "(string)", 1, &out) == true) {
-        return out.get();
-    }
-    return JSVAL_VOID;
+    JS::Evaluate(cx, opts, string, (unsigned int)strlen(string), &out);
+    return out;
 }
 
 void js_add_object_reference(JS::HandleValue owner, JS::HandleValue target)
@@ -516,7 +514,7 @@ void js_add_object_reference(JS::HandleValue owner, JS::HandleValue target)
     JSAutoCompartment(cx, global);
     JS::RootedObject jsbObj(cx);
     get_or_create_js_obj(cx, global, "jsb", &jsbObj);
-    JS::RootedValue jsbVal(cx, OBJECT_TO_JSVAL(jsbObj));
+    JS::RootedValue jsbVal(cx, JS::ObjectOrNullValue(jsbObj));
     if (jsbVal.isNullOrUndefined())
     {
         return;
@@ -545,7 +543,7 @@ void js_remove_object_reference(JS::HandleValue owner, JS::HandleValue target)
 
     JS::RootedObject jsbObj(cx);
     get_or_create_js_obj(cx, global, "jsb", &jsbObj);
-    JS::RootedValue jsbVal(cx, OBJECT_TO_JSVAL(jsbObj));
+    JS::RootedValue jsbVal(cx, JS::ObjectOrNullValue(jsbObj));
     if (jsbVal.isNullOrUndefined())
     {
         return;
@@ -572,15 +570,15 @@ void js_add_object_root(JS::HandleValue target)
     JSAutoCompartment(cx, global);
     JS::RootedObject jsbObj(cx);
     get_or_create_js_obj(cx, global, "jsb", &jsbObj);
-    JS::RootedValue jsbVal(cx, OBJECT_TO_JSVAL(jsbObj));
+    JS::RootedValue jsbVal(cx, JS::ObjectOrNullValue(jsbObj));
     if (jsbVal.isNullOrUndefined())
     {
         return;
     }
 
     JS::RootedObject root(cx);
-    get_or_create_js_obj(cx, jsbObj, "_root", &root);
-    JS::RootedValue valRoot(cx, OBJECT_TO_JSVAL(root));
+    get_or_create_js_obj(cx, jsbObj, "jsb._root", &root);
+    JS::RootedValue valRoot(cx, JS::ObjectOrNullValue(root));
 
     JS::RootedValue retval(cx);
     JS::AutoValueVector valArr(cx);
@@ -600,10 +598,16 @@ void js_remove_object_root(JS::HandleValue target)
     JSContext *cx = engine->getGlobalContext();
     JS::RootedObject global(cx, engine->getGlobalObject());
     JSAutoCompartment(cx, global);
+    JS::RootedObject targetObj(cx, target.toObjectOrNull());
+    js_proxy_t *pTarget = jsb_get_js_proxy(targetObj);
+    if (!pTarget)
+    {
+        return;
+    }
 
     JS::RootedObject jsbObj(cx);
     get_or_create_js_obj(cx, global, "jsb", &jsbObj);
-    JS::RootedValue jsbVal(cx, OBJECT_TO_JSVAL(jsbObj));
+    JS::RootedValue jsbVal(cx, JS::ObjectOrNullValue(jsbObj));
     if (jsbVal.isNullOrUndefined())
     {
         return;
@@ -611,7 +615,7 @@ void js_remove_object_root(JS::HandleValue target)
 
     JS::RootedObject root(cx);
     get_or_create_js_obj(cx, jsbObj, "_root", &root);
-    JS::RootedValue valRoot(cx, OBJECT_TO_JSVAL(root));
+    JS::RootedValue valRoot(cx, JS::ObjectOrNullValue(root));
 
     JS::RootedValue retval(cx);
     JS::AutoValueVector valArr(cx);
@@ -629,7 +633,7 @@ JSCallbackWrapper::JSCallbackWrapper()
 
     JS::RootedObject root(cx);
     get_or_create_js_obj("jsb._root", &root);
-    JS::RootedValue valRoot(cx, OBJECT_TO_JSVAL(root));
+    JS::RootedValue valRoot(cx, JS::ObjectOrNullValue(root));
     _owner = valRoot;
 }
 
@@ -742,24 +746,27 @@ void JSCallbackWrapper::setJSExtraData(JS::HandleValue data) {
     }
 }
 
-const jsval JSCallbackWrapper::getJSCallbackFunc() const
+const JS::HandleValue JSCallbackWrapper::getJSCallbackFunc() const
 {
-    return _jsCallback;
+    JS::RootedValue callback(ScriptingCore::getInstance()->getGlobalContext(), _jsCallback);
+    return callback;
 }
 
-const jsval JSCallbackWrapper::getJSCallbackThis() const
+const JS::HandleValue JSCallbackWrapper::getJSCallbackThis() const
 {
-    return _jsThisObj;
+    JS::RootedValue thisObj(ScriptingCore::getInstance()->getGlobalContext(), _jsThisObj);
+    return thisObj;
 }
 
-const jsval JSCallbackWrapper::getJSExtraData() const
+const JS::HandleValue JSCallbackWrapper::getJSExtraData() const
 {
-    return _extraData;
+    JS::RootedValue extraData(ScriptingCore::getInstance()->getGlobalContext(), _extraData);
+    return extraData;
 }
 
 // cc.CallFunc.create( func, this, [data])
 // cc.CallFunc.create( func )
-static bool js_callFunc(JSContext *cx, uint32_t argc, jsval *vp)
+static bool js_callFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc >= 1 && argc <= 3) {
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -769,7 +776,7 @@ static bool js_callFunc(JSContext *cx, uint32_t argc, jsval *vp)
         // link the native object with the javascript object
         JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, ret, typeClass, "cocos2d::CallFuncN"));
 
-        JS::RootedValue retVal(cx, OBJECT_TO_JSVAL(jsobj));
+        JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
         std::shared_ptr<JSCallbackWrapper> tmpCobj(new JSCallbackWrapper(retVal));
 
         JS::RootedValue callback(cx, args.get(0));
@@ -802,7 +809,7 @@ static bool js_callFunc(JSContext *cx, uint32_t argc, jsval *vp)
             {
                 js_type_class_t *nodeClass = js_get_type_from_native<cocos2d::Node>(sender);
                 auto nodeObj = jsb_ref_get_or_create_jsobject(cx, sender, nodeClass, "cocos2d::Node");
-                senderVal.set(OBJECT_TO_JSVAL(nodeObj));
+                senderVal.set(JS::ObjectOrNullValue(nodeObj));
             }
             else
             {
@@ -812,11 +819,10 @@ static bool js_callFunc(JSContext *cx, uint32_t argc, jsval *vp)
             if (!jsvalCallback.isNullOrUndefined())
             {
                 JS::RootedValue retval(cx);
-                jsval valArr[2];
-                valArr[0] = senderVal;
-                valArr[1] = jsvalExtraData;
-
-                JS::HandleValueArray callArgs = JS::HandleValueArray::fromMarkedLocation(2, valArr);
+                JS::AutoValueVector valArr(cx);
+                valArr.append(senderVal);
+                valArr.append(jsvalExtraData);
+                JS::HandleValueArray callArgs(valArr);
                 JS_CallFunctionValue(cx, thisObj, jsvalCallback, callArgs, &retval);
             }
         });
@@ -827,13 +833,13 @@ static bool js_callFunc(JSContext *cx, uint32_t argc, jsval *vp)
         }
         return true;
     }
-    JS_ReportError(cx, "js_callFunc: Invalid number of arguments");
+    JS_ReportErrorUTF8(cx, "js_callFunc: Invalid number of arguments");
     return false;
 }
 
 // callFunc.initWithFunction( func, this, [data])
 // callFunc.initWithFunction( func )
-bool js_cocos2dx_CallFunc_initWithFunction(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CallFunc_initWithFunction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc >= 1 && argc <= 3) {
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -867,7 +873,7 @@ bool js_cocos2dx_CallFunc_initWithFunction(JSContext *cx, uint32_t argc, jsval *
             {
                 js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Node>(sender);
                 auto jsobj = jsb_ref_get_or_create_jsobject(cx, sender, typeClass, "cocos2d::Node");
-                senderVal.set(OBJECT_TO_JSVAL(jsobj));
+                senderVal.set(JS::ObjectOrNullValue(jsobj));
             }
             else
             {
@@ -877,17 +883,16 @@ bool js_cocos2dx_CallFunc_initWithFunction(JSContext *cx, uint32_t argc, jsval *
             if (!jsvalCallback.isNullOrUndefined())
             {
                 JS::RootedValue retval(cx);
-                jsval valArr[2];
-                valArr[0] = senderVal;
-                valArr[1] = jsvalExtraData;
-
-                JS::HandleValueArray callArgs = JS::HandleValueArray::fromMarkedLocation(2, valArr);
+                JS::AutoValueVector valArr(cx);
+                valArr.append(senderVal);
+                valArr.append(jsvalExtraData);
+                JS::HandleValueArray callArgs(valArr);
                 JS_CallFunctionValue(cx, thisObj, jsvalCallback, callArgs, &retval);
             }
         });
         return true;
     }
-    JS_ReportError(cx, "Invalid number of arguments");
+    JS_ReportErrorUTF8(cx, "Invalid number of arguments");
     return false;
 }
 
@@ -1187,19 +1192,18 @@ void JSScheduleWrapper::dump()
 
 void JSScheduleWrapper::scheduleFunc(float dt)
 {
-    jsval data = JS::DoubleValue(dt);
-
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
 
     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-
+    
+    JS::RootedValue data(cx, JS::DoubleValue(dt));
     JS::RootedValue callback(cx, getJSCallbackFunc());
     if(!callback.isNullOrUndefined()) 
     {
         auto exist = JSScheduleWrapper::getTargetForSchedule(callback);
         if (exist)
         {
-            JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(1, &data);
+            JS::HandleValueArray args(data);
             JS::RootedValue retval(cx);
             JS::RootedValue targetVal(cx, getJSCallbackThis());
             if (!targetVal.isNullOrUndefined())
@@ -1220,7 +1224,7 @@ void JSScheduleWrapper::update(float dt)
 
     JS::RootedValue targetVal(cx, getJSCallbackThis());
     JS::HandleValueArray args(data);
-    ScriptingCore::getInstance()->executeFunctionWithOwner(targetVal, "update", 1, &data);
+    ScriptingCore::getInstance()->executeFunctionWithOwner(targetVal, "update", args);
 }
 
 Ref* JSScheduleWrapper::getTarget()
@@ -1263,7 +1267,7 @@ bool JSScheduleWrapper::isUpdateSchedule()
     return _isUpdateSchedule;
 }
 
-bool js_CCNode_unschedule(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_CCNode_unschedule(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc == 1) {
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1296,7 +1300,7 @@ bool js_CCNode_unschedule(JSContext *cx, uint32_t argc, jsval *vp)
     return true;
 }
 
-bool js_cocos2dx_CCNode_unscheduleAllSelectors(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCNode_unscheduleAllSelectors(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1327,11 +1331,11 @@ bool js_cocos2dx_CCNode_unscheduleAllSelectors(JSContext *cx, uint32_t argc, jsv
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_CCNode_scheduleOnce(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_CCNode_scheduleOnce(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc >= 1) {
         bool ok = true;
@@ -1356,9 +1360,7 @@ bool js_CCNode_scheduleOnce(JSContext *cx, uint32_t argc, jsval *vp)
         //
         double delay;
         if( argc >= 2 ) {
-            JS::RootedValue jsdelay(cx, args.get(1));
-            ok &= JS::ToNumber(cx, jsdelay, &delay);
-            JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+            delay = args.get(1).toNumber();
         }
 
         bool bFound = false;
@@ -1415,14 +1417,13 @@ bool js_CCNode_scheduleOnce(JSContext *cx, uint32_t argc, jsval *vp)
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "wrong number of arguments");
     return false;
 }
 
-bool js_CCNode_schedule(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_CCNode_schedule(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc >= 1) {
-        bool ok = true;
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
         JS::RootedValue thisValue(cx, args.thisv());
@@ -1435,8 +1436,7 @@ bool js_CCNode_schedule(JSContext *cx, uint32_t argc, jsval *vp)
 
         double interval = 0.0;
         if( argc >= 2 ) {
-            JS::RootedValue jsinterval(cx, args.get(1));
-            ok &= JS::ToNumber(cx, jsinterval, &interval);
+            interval = args.get(1).toNumber();
         }
 
         //
@@ -1444,8 +1444,7 @@ bool js_CCNode_schedule(JSContext *cx, uint32_t argc, jsval *vp)
         //
         double repeat = 0.0;
         if( argc >= 3 ) {
-            JS::RootedValue jsrepeat(cx, args.get(2));
-            ok &= JS::ToNumber(cx, jsrepeat, &repeat);
+            repeat = args.get(2).toNumber();
         }
 
         //
@@ -1453,11 +1452,8 @@ bool js_CCNode_schedule(JSContext *cx, uint32_t argc, jsval *vp)
         //
         double delay = 0.0;
         if( argc >= 4 ) {
-            JS::RootedValue jsdelay(cx, args.get(3));
-            ok &= JS::ToNumber(cx, jsdelay, &delay);
+            delay = args.get(3).toNumber();
         }
-
-        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         bool bFound = false;
         auto targetArray = JSScheduleWrapper::getTargetForJSObject(obj);
@@ -1502,11 +1498,11 @@ bool js_CCNode_schedule(JSContext *cx, uint32_t argc, jsval *vp)
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "wrong number of arguments");
     return false;
 }
 
-bool js_cocos2dx_CCNode_scheduleUpdateWithPriority(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCNode_scheduleUpdateWithPriority(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1570,11 +1566,11 @@ bool js_cocos2dx_CCNode_scheduleUpdateWithPriority(JSContext *cx, uint32_t argc,
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCNode_unscheduleUpdate(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCNode_unscheduleUpdate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1598,7 +1594,7 @@ bool js_cocos2dx_CCNode_unscheduleUpdate(JSContext *cx, uint32_t argc, jsval *vp
                 wrapper = (JSScheduleWrapper*)arr->at(i);
                 if(wrapper && wrapper->isUpdateSchedule()) {
                     cobj->getScheduler()->unscheduleUpdate(wrapper);
-                    CCASSERT(OBJECT_TO_JSVAL(obj) == wrapper->getJSCallbackThis(), "Wrong target object.");
+                    CCASSERT(JS::ObjectOrNullValue(obj) == wrapper->getJSCallbackThis(), "Wrong target object.");
                     JSScheduleWrapper::removeTargetForJSObject(obj, wrapper);
                     break;
                 }
@@ -1608,11 +1604,11 @@ bool js_cocos2dx_CCNode_unscheduleUpdate(JSContext *cx, uint32_t argc, jsval *vp
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_cocos2dx_CCNode_scheduleUpdate(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCNode_scheduleUpdate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1671,11 +1667,11 @@ bool js_cocos2dx_CCNode_scheduleUpdate(JSContext *cx, uint32_t argc, jsval *vp)
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCScheduler_unscheduleAllSelectorsForTarget(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCScheduler_unscheduleAllSelectorsForTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1708,11 +1704,11 @@ bool js_cocos2dx_CCScheduler_unscheduleAllSelectorsForTarget(JSContext *cx, uint
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_CCScheduler_scheduleUpdateForTarget(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_CCScheduler_scheduleUpdateForTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc >= 1) {
         bool ok = true;
@@ -1749,7 +1745,7 @@ bool js_CCScheduler_scheduleUpdateForTarget(JSContext *cx, uint32_t argc, jsval 
 
         if( argc >= 3 ) {
             JS::RootedValue jspaused(cx, args.get(2));
-            paused = JS::ToBoolean(jspaused);
+            paused = jspaused.toBoolean();
         }
 
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
@@ -1790,11 +1786,11 @@ bool js_CCScheduler_scheduleUpdateForTarget(JSContext *cx, uint32_t argc, jsval 
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "wrong number of arguments");
     return false;
 }
 
-bool js_CCScheduler_unscheduleUpdateForTarget(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_CCScheduler_unscheduleUpdateForTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -1828,14 +1824,13 @@ bool js_CCScheduler_unscheduleUpdateForTarget(JSContext *cx, uint32_t argc, jsva
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_CCScheduler_scheduleCallbackForTarget(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_CCScheduler_scheduleCallbackForTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc >= 2) {
-        bool ok = true;
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
         JS::RootedObject obj(cx);
@@ -1851,8 +1846,7 @@ bool js_CCScheduler_scheduleCallbackForTarget(JSContext *cx, uint32_t argc, jsva
 
         double interval = 0;
         if( argc >= 3 ) {
-            JS::RootedValue jsinterval(cx, args.get(2));
-            ok &= JS::ToNumber(cx, jsinterval, &interval);
+            interval = args.get(2).toNumber();
         }
 
         //
@@ -1860,8 +1854,7 @@ bool js_CCScheduler_scheduleCallbackForTarget(JSContext *cx, uint32_t argc, jsva
         //
         double repeat = kRepeatForever;
         if( argc >= 4 ) {
-            JS::RootedValue jsrepeat(cx, args.get(3));
-            ok &= JS::ToNumber(cx, jsrepeat, &repeat);
+            repeat = args.get(3).toNumber();
         }
 
         //
@@ -1869,18 +1862,14 @@ bool js_CCScheduler_scheduleCallbackForTarget(JSContext *cx, uint32_t argc, jsva
         //
         double delay = 0;
         if( argc >= 5 ) {
-            JS::RootedValue jsdelay(cx, args.get(4));
-            ok &= JS::ToNumber(cx, jsdelay, &delay);
+            delay = args.get(4).toNumber();
         }
 
         bool paused = false;
 
         if( argc >= 6 ) {
-            JS::RootedValue jspaused(cx, args.get(5));
-            paused = JS::ToBoolean(jspaused);
+            paused = args.get(5).toBoolean();
         }
-
-        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         bool bFound = false;
         auto pTargetArr = JSScheduleWrapper::getTargetForJSObject(tmpObj);
@@ -1917,14 +1906,13 @@ bool js_CCScheduler_scheduleCallbackForTarget(JSContext *cx, uint32_t argc, jsva
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "wrong number of arguments");
     return false;
 }
 
-bool js_CCScheduler_schedule(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_CCScheduler_schedule(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc >= 2) {
-        bool ok = true;
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
         JS::RootedObject obj(cx);
@@ -1948,20 +1936,19 @@ bool js_CCScheduler_schedule(JSContext *cx, uint32_t argc, jsval *vp)
             }
             else
             {
-                ok = false;
                 callback = nullptr;
-                break;
+                JSB_PRECONDITION2(false, cx, false, "Error processing arguments");
             }
 
             std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, targetObj, callbackVal, args.thisv()));
             auto lambda = [=](float larg0) -> void {
                 JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                jsval largv[1];
-                largv[0] = JS::DoubleValue(larg0);
+                JS::RootedValue largv(cx, JS::DoubleValue(larg0));
                 JS::RootedValue rval(cx);
-                bool invokeOk = func->invoke(1, &largv[0], &rval);
+                JS::HandleValueArray args(largv);
+                bool invokeOk = func->invoke(args, &rval);
                 if (!invokeOk && JS_IsExceptionPending(cx)) {
-                    JS_ReportPendingException(cx);
+                    handlePendingException(cx);
                 }
             };
             callback = lambda;
@@ -1969,8 +1956,7 @@ bool js_CCScheduler_schedule(JSContext *cx, uint32_t argc, jsval *vp)
 
         double interval = 0;
         if( argc >= 3 ) {
-            JS::RootedValue jsinterval(cx, args.get(2));
-            ok &= JS::ToNumber(cx, jsinterval, &interval);
+            interval = args.get(2).toNumber();
         }
 
         //
@@ -1978,8 +1964,7 @@ bool js_CCScheduler_schedule(JSContext *cx, uint32_t argc, jsval *vp)
         //
         double repeat = kRepeatForever;
         if( argc >= 4 ) {
-            JS::RootedValue jsrepeat(cx, args.get(3));
-            ok &= JS::ToNumber(cx, jsrepeat, &repeat);
+            repeat = args.get(3).toNumber();
         }
 
         //
@@ -1987,14 +1972,12 @@ bool js_CCScheduler_schedule(JSContext *cx, uint32_t argc, jsval *vp)
         //
         double delay = 0;
         if( argc >= 5 ) {
-            JS::RootedValue jsdelay(cx, args.get(4));
-            ok &= JS::ToNumber(cx, jsdelay, &delay);
+            delay = args.get(4).toNumber();
         }
 
         bool paused = false;
         if( argc >= 6 ) {
-            JS::RootedValue jspaused(cx, args.get(5));
-            paused = JS::ToBoolean(jspaused);
+            paused = args.get(5).toBoolean();
         }
 
         std::string key;
@@ -2002,18 +1985,16 @@ bool js_CCScheduler_schedule(JSContext *cx, uint32_t argc, jsval *vp)
             jsval_to_std_string(cx, args.get(6), &key);
         }
 
-        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-
         sched->schedule(callback, targetObj, interval, repeat, delay, paused, key);
 
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "wrong number of arguments");
     return false;
 }
 
-bool js_CCScheduler_unscheduleCallbackForTarget(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_CCScheduler_unscheduleCallbackForTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2056,11 +2037,11 @@ bool js_CCScheduler_unscheduleCallbackForTarget(JSContext *cx, uint32_t argc, js
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCScheduler_unscheduleAll(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCScheduler_unscheduleAll(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2074,11 +2055,11 @@ bool js_cocos2dx_CCScheduler_unscheduleAll(JSContext *cx, uint32_t argc, jsval *
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCScheduler_unscheduleAllCallbacksWithMinPriority(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCScheduler_unscheduleAllCallbacksWithMinPriority(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2096,12 +2077,12 @@ bool js_cocos2dx_CCScheduler_unscheduleAllCallbacksWithMinPriority(JSContext *cx
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
 
-bool js_cocos2dx_CCScheduler_pauseTarget(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCScheduler_pauseTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2123,11 +2104,11 @@ bool js_cocos2dx_CCScheduler_pauseTarget(JSContext *cx, uint32_t argc, jsval *vp
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCScheduler_resumeTarget(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCScheduler_resumeTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2149,11 +2130,11 @@ bool js_cocos2dx_CCScheduler_resumeTarget(JSContext *cx, uint32_t argc, jsval *v
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCScheduler_isTargetPaused(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCScheduler_isTargetPaused(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2174,15 +2155,15 @@ bool js_cocos2dx_CCScheduler_isTargetPaused(JSContext *cx, uint32_t argc, jsval 
                 }
             }
         } while (0);
-        args.rval().set(BOOLEAN_TO_JSVAL(ret));
+        args.rval().set(JS::BooleanValue(ret));
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCScheduler_isScheduled(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCScheduler_isScheduled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2196,7 +2177,7 @@ bool js_cocos2dx_CCScheduler_isScheduled(JSContext *cx, uint32_t argc, jsval *vp
 
         auto arr = JSScheduleWrapper::getTargetForJSObject(tmpObj);
         if(! arr) {
-    	    args.rval().set(BOOLEAN_TO_JSVAL(isScheduled));
+    	    args.rval().set(JS::BooleanValue(isScheduled));
     	    return true;
         };
         JSScheduleWrapper* wrapper = nullptr;
@@ -2207,14 +2188,14 @@ bool js_cocos2dx_CCScheduler_isScheduled(JSContext *cx, uint32_t argc, jsval *vp
                 break;
             }
         }
-        args.rval().set(BOOLEAN_TO_JSVAL(isScheduled));
+        args.rval().set(JS::BooleanValue(isScheduled));
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCScheduler_pauseAllTargets(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCScheduler_pauseAllTargets(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2228,11 +2209,11 @@ bool js_cocos2dx_CCScheduler_pauseAllTargets(JSContext *cx, uint32_t argc, jsval
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCScheduler_pauseAllTargetsWithMinPriority(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCScheduler_pauseAllTargetsWithMinPriority(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2249,11 +2230,11 @@ bool js_cocos2dx_CCScheduler_pauseAllTargetsWithMinPriority(JSContext *cx, uint3
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCScheduler_resumeTargets(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCScheduler_resumeTargets(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2266,7 +2247,7 @@ bool js_cocos2dx_CCScheduler_resumeTargets(JSContext *cx, uint32_t argc, jsval *
 
         bool ok = v.isObject() && JS_ValueToObject(cx, v, &obj);
         JSB_PRECONDITION3(ok, cx, false, "Error converting value to object");
-        JSB_PRECONDITION3(obj && JS_IsArrayObject(cx, obj), cx, false, "Object must be an array");
+        JSB_PRECONDITION3(JS_IsArrayObject(cx, obj, &ok) && ok, cx, false, "Object must be an array");
 
         uint32_t len = 0;
         JS_GetArrayLength(cx, obj, &len);
@@ -2288,17 +2269,16 @@ bool js_cocos2dx_CCScheduler_resumeTargets(JSContext *cx, uint32_t argc, jsval *
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_forceGC(JSContext *cx, uint32_t argc, jsval *vp) {
-    JSRuntime *rt = JS_GetRuntime(cx);
-    JS_GC(rt);
+bool js_forceGC(JSContext *cx, uint32_t argc, JS::Value *vp) {
+    JS_GC(cx);
     return true;
 }
 
-bool js_cocos2dx_retain(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_retain(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 #if ! CC_ENABLE_GC_FOR_NATIVE_OBJECTS
@@ -2313,7 +2293,7 @@ bool js_cocos2dx_retain(JSContext *cx, uint32_t argc, jsval *vp)
     return true;
 }
 
-bool js_cocos2dx_release(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_release(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 #if ! CC_ENABLE_GC_FOR_NATIVE_OBJECTS
@@ -2328,7 +2308,7 @@ bool js_cocos2dx_release(JSContext *cx, uint32_t argc, jsval *vp)
     return true;
 }
 
-bool js_cocos2dx_Node_onEnter(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_Node_onEnter(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2342,7 +2322,7 @@ bool js_cocos2dx_Node_onEnter(JSContext *cx, uint32_t argc, jsval *vp)
     return true;
 }
 
-bool js_cocos2dx_Node_onExit(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_Node_onExit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2356,7 +2336,7 @@ bool js_cocos2dx_Node_onExit(JSContext *cx, uint32_t argc, jsval *vp)
     return true;
 }
 
-bool js_cocos2dx_Node_onEnterTransitionDidFinish(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_Node_onEnterTransitionDidFinish(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2370,7 +2350,7 @@ bool js_cocos2dx_Node_onEnterTransitionDidFinish(JSContext *cx, uint32_t argc, j
     return true;
 }
 
-bool js_cocos2dx_Node_onExitTransitionDidStart(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_Node_onExitTransitionDidStart(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2384,7 +2364,7 @@ bool js_cocos2dx_Node_onExitTransitionDidStart(JSContext *cx, uint32_t argc, jsv
     return true;
 }
 
-bool js_cocos2dx_Node_cleanup(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_Node_cleanup(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2398,7 +2378,7 @@ bool js_cocos2dx_Node_cleanup(JSContext *cx, uint32_t argc, jsval *vp)
     return true;
 }
 
-bool js_cocos2dx_CCNode_setPosition(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCNode_setPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2416,23 +2396,18 @@ bool js_cocos2dx_CCNode_setPosition(JSContext *cx, uint32_t argc, jsval *vp)
         args.rval().setUndefined();
         return true;
     } if (argc == 2) {
-        double x;
-        JS::RootedValue jsx(cx, args.get(0));
-        ok &= JS::ToNumber(cx, jsx, &x);
-        double y;
-        JS::RootedValue jsy(cx, args.get(1));
-        ok &= JS::ToNumber(cx, jsy, &y);
-        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-
+        double x = args.get(0).toNumber();
+        double y = args.get(1).toNumber();
+        
         cobj->setPosition(Point(x,y));
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCNode_setContentSize(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCNode_setContentSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2450,23 +2425,18 @@ bool js_cocos2dx_CCNode_setContentSize(JSContext *cx, uint32_t argc, jsval *vp)
         args.rval().setUndefined();
         return true;
     } if (argc == 2) {
-        double width;
-        JS::RootedValue jsw(cx, args.get(0));
-        ok &= JS::ToNumber(cx, jsw, &width);
-        double height;
-        JS::RootedValue jsh(cx, args.get(1));
-        ok &= JS::ToNumber(cx, jsh, &height);
-        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+        double width = args.get(0).toNumber();
+        double height = args.get(1).toNumber();
 
         cobj->setContentSize(Size(width,height));
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCNode_setAnchorPoint(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCNode_setAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2484,21 +2454,18 @@ bool js_cocos2dx_CCNode_setAnchorPoint(JSContext *cx, uint32_t argc, jsval *vp)
         args.rval().setUndefined();
         return true;
     } if (argc == 2) {
-        double x;
-        ok &= JS::ToNumber(cx, args.get(0), &x );
-        double y;
-        ok &= JS::ToNumber(cx, args.get(1), &y );
-        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-
+        double x = args.get(0).toNumber();
+        double y = args.get(1).toNumber();
+        
         cobj->setAnchorPoint(Point(x,y));
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCNode_setColor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCNode_setColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2516,11 +2483,11 @@ bool js_cocos2dx_CCNode_setColor(JSContext *cx, uint32_t argc, jsval *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_Node_setColor : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Node_setColor : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCNode_pause(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCNode_pause(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2546,11 +2513,11 @@ bool js_cocos2dx_CCNode_pause(JSContext *cx, uint32_t argc, jsval *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_Node_pause : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Node_pause : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_cocos2dx_CCNode_resume(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCNode_resume(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2576,11 +2543,11 @@ bool js_cocos2dx_CCNode_resume(JSContext *cx, uint32_t argc, jsval *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_Node_resume : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Node_resume : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_cocos2dx_CCNode_convertToWorldSpace(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCNode_convertToWorldSpace(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2594,18 +2561,18 @@ bool js_cocos2dx_CCNode_convertToWorldSpace(JSContext *cx, uint32_t argc, jsval 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_CCNode_convertToWorldSpace : Error processing arguments");
     }
     else if (argc != 0) {
-        JS_ReportError(cx, "js_cocos2dx_CCNode_convertToWorldSpace : wrong number of arguments: %d, was expecting 0 or 1", argc);
+        JS_ReportErrorUTF8(cx, "js_cocos2dx_CCNode_convertToWorldSpace : wrong number of arguments: %d, was expecting 0 or 1", argc);
         return false;
     }
 
     cocos2d::Vec2 ret = cobj->convertToWorldSpace(arg0);
-    jsval jsret = JSVAL_NULL;
+    JS::RootedValue jsret(cx);
     jsret = vector2_to_jsval(cx, ret);
     args.rval().set(jsret);
     return true;
 }
 
-bool js_cocos2dx_CCNode_convertToWorldSpaceAR(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCNode_convertToWorldSpaceAR(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2619,18 +2586,17 @@ bool js_cocos2dx_CCNode_convertToWorldSpaceAR(JSContext *cx, uint32_t argc, jsva
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_CCNode_convertToWorldSpaceAR : Error processing arguments");
     }
     else if (argc != 0) {
-        JS_ReportError(cx, "js_cocos2dx_CCNode_convertToWorldSpaceAR : wrong number of arguments: %d, was expecting 0 or 1", argc);
+        JS_ReportErrorUTF8(cx, "js_cocos2dx_CCNode_convertToWorldSpaceAR : wrong number of arguments: %d, was expecting 0 or 1", argc);
         return false;
     }
 
     cocos2d::Vec2 ret = cobj->convertToWorldSpaceAR(arg0);
-    jsval jsret = JSVAL_NULL;
-    jsret = vector2_to_jsval(cx, ret);
+    JS::RootedValue jsret(cx, vector2_to_jsval(cx, ret));
     args.rval().set(jsret);
     return true;
 }
 
-bool js_cocos2dx_CCTMXLayer_getTiles(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCTMXLayer_getTiles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2643,24 +2609,25 @@ bool js_cocos2dx_CCTMXLayer_getTiles(JSContext *cx, uint32_t argc, jsval *vp)
         int count = size.width * size.height;
         JS::RootedObject array(cx, JS_NewUint32Array(cx, count));
         if (nullptr == array) {
-            JS_ReportError(cx, "Can't allocate enough memory.");
+            JS_ReportErrorUTF8(cx, "Can't allocate enough memory.");
             return false;
         }
-        uint32_t* bufdata = (uint32_t*)JS_GetArrayBufferViewData(array);
+        bool flag;
+        uint32_t* bufdata = (uint32_t*)JS_GetArrayBufferViewData(array, &flag, JS::AutoCheckCannotGC());
         memcpy(bufdata, ret, count*sizeof(int32_t));
 
-        args.rval().set(OBJECT_TO_JSVAL(array));
+        args.rval().set(JS::ObjectOrNullValue(array));
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 
 // Actions
 
-bool js_cocos2dx_ActionInterval_repeat(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_ActionInterval_repeat(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2670,28 +2637,25 @@ bool js_cocos2dx_ActionInterval_repeat(JSContext *cx, uint32_t argc, jsval *vp)
 
     if (argc == 1)
     {
-        double times;
-        if( ! JS::ToNumber(cx, args.get(0), &times) ) {
-            return false;
-        }
+        double times = args.get(0).toNumber();
         int timesInt = (int)times;
         if (timesInt <= 0) {
-            JS_ReportError(cx, "js_cocos2dx_ActionInterval_repeat : Repeat times must be greater than 0");
+            JS_ReportErrorUTF8(cx, "js_cocos2dx_ActionInterval_repeat : Repeat times must be greater than 0");
         }
 
         cocos2d::Repeat* action = new (std::nothrow) cocos2d::Repeat;
         action->initWithAction(cobj, timesInt);
         jsb_ref_rebind(cx, obj, proxy, cobj, action, "cocos2d::Repeat");
 
-        args.rval().set(OBJECT_TO_JSVAL(obj));
+        args.rval().set(JS::ObjectOrNullValue(obj));
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_ActionInterval_repeat : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_ActionInterval_repeat : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_ActionInterval_repeatForever(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_ActionInterval_repeatForever(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsobj(cx, args.thisv().toObjectOrNull());
@@ -2703,15 +2667,15 @@ bool js_cocos2dx_ActionInterval_repeatForever(JSContext *cx, uint32_t argc, jsva
         cocos2d::RepeatForever* action = new (std::nothrow) cocos2d::RepeatForever;
         action->initWithAction(cobj);
         jsb_ref_rebind(cx, jsobj, proxy, cobj, action, "cocos2d::RepeatForever");
-        args.rval().set(OBJECT_TO_JSVAL(jsobj));
+        args.rval().set(JS::ObjectOrNullValue(jsobj));
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_ActionInterval_repeatForever : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_ActionInterval_repeatForever : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_cocos2dx_ActionInterval_speed(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_ActionInterval_speed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -2721,12 +2685,9 @@ bool js_cocos2dx_ActionInterval_speed(JSContext *cx, uint32_t argc, jsval *vp)
 
     if (argc == 1)
     {
-        double speed;
-        if( ! JS::ToNumber(cx, args.get(0), &speed) ) {
-            return false;
-        }
+        double speed = args.get(0).toNumber();
         if (speed < 0) {
-            JS_ReportError(cx, "js_cocos2dx_ActionInterval_speed : Speed must not be negative");
+            JS_ReportErrorUTF8(cx, "js_cocos2dx_ActionInterval_speed : Speed must not be negative");
             return false;
         }
 
@@ -2734,11 +2695,11 @@ bool js_cocos2dx_ActionInterval_speed(JSContext *cx, uint32_t argc, jsval *vp)
         action->initWithAction(cobj, speed);
         jsb_ref_rebind(cx, obj, proxy, cobj, action, "cocos2d::Speed");
 
-        args.rval().set(OBJECT_TO_JSVAL(obj));
+        args.rval().set(JS::ObjectOrNullValue(obj));
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_ActionInterval_speed : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_ActionInterval_speed : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
@@ -2780,7 +2741,7 @@ enum ACTION_TAG {
     EASE_CUBIC_INOUT
 };
 
-bool js_cocos2dx_ActionInterval_easing(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_ActionInterval_easing(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsobj(cx, args.thisv().toObjectOrNull());
@@ -2801,10 +2762,11 @@ bool js_cocos2dx_ActionInterval_easing(JSContext *cx, uint32_t argc, jsval *vp)
         bool ok = vpi.isObject() &&
         JS_ValueToObject(cx, vpi, &tmp) &&
         JS_GetProperty(cx, tmp, "tag", &jsTag) &&
-        JS::ToNumber(cx, jsTag, &tag);
-        JS_GetProperty(cx, tmp, "param", &jsParam) && JS::ToNumber(cx, jsParam, &parameter);
-        bool hasParam = (parameter == parameter);
+        JS_GetProperty(cx, tmp, "param", &jsParam);
         if (!ok) continue;
+        tag = jsTag.toNumber();
+        parameter = jsParam.toNumber();
+        bool hasParam = (parameter == parameter);
 
         ok = true;
         if (tag == EASE_IN)
@@ -3017,13 +2979,13 @@ bool js_cocos2dx_ActionInterval_easing(JSContext *cx, uint32_t argc, jsval *vp)
             JS::RootedValue jsParam3(cx);
             JS::RootedValue jsParam4(cx);
             double parameter2, parameter3, parameter4;
-            ok &= JS_GetProperty(cx, tmp, "param2", &jsParam2);
-            ok &= JS::ToNumber(cx, jsParam2, &parameter2);
-            ok &= JS_GetProperty(cx, tmp, "param3", &jsParam3);
-            ok &= JS::ToNumber(cx, jsParam3, &parameter3);
-            ok &= JS_GetProperty(cx, tmp, "param4", &jsParam4);
-            ok &= JS::ToNumber(cx, jsParam4, &parameter4);
+            ok &= JS_GetProperty(cx, tmp, "param2", &jsParam2) &&
+                  JS_GetProperty(cx, tmp, "param3", &jsParam3) &&
+                  JS_GetProperty(cx, tmp, "param4", &jsParam4);
             if (!ok) continue;
+            parameter2 = jsParam2.toNumber();
+            parameter3 = jsParam3.toNumber();
+            parameter4 = jsParam4.toNumber();
 
             auto tmpaction = new (std::nothrow) cocos2d::EaseBezierAction;
             tmpaction->initWithAction(oldAction);
@@ -3034,7 +2996,7 @@ bool js_cocos2dx_ActionInterval_easing(JSContext *cx, uint32_t argc, jsval *vp)
             continue;
 
         if (!ok || !newAction) {
-            JS_ReportError(cx, "js_cocos2dx_ActionInterval_easing : Invalid action: At least one action was expecting parameter");
+            JS_ReportErrorUTF8(cx, "js_cocos2dx_ActionInterval_easing : Invalid action: At least one action was expecting parameter");
             return false;
         }
     }
@@ -3042,20 +3004,17 @@ bool js_cocos2dx_ActionInterval_easing(JSContext *cx, uint32_t argc, jsval *vp)
     // Unbind existing proxy binding with cobj, and rebind with the new action
     jsb_ref_rebind(cx, jsobj, proxy, oldAction, newAction, "cocos2d::EaseAction");
 
-    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    args.rval().set(JS::ObjectOrNullValue(jsobj));
     return true;
 }
 
 
 template<class T>
-bool js_BezierActions_create(JSContext *cx, uint32_t argc, jsval *vp) {
+bool js_BezierActions_create(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
     if (argc == 2) {
-        double t;
-        if( ! JS::ToNumber(cx, args.get(0), &t) ) {
-            return false;
-        }
+        double t = args.get(0).toNumber();
 
         int num;
         Point *arr;
@@ -3074,15 +3033,15 @@ bool js_BezierActions_create(JSContext *cx, uint32_t argc, jsval *vp) {
         JSObject* jsobj;
         js_type_class_t *typeProxy = js_get_type_from_native<T>(ret);
         jsobj = jsb_ref_create_jsobject(cx, ret, typeProxy, typeid(*ret).name());
-        args.rval().set(OBJECT_TO_JSVAL(jsobj));
+        args.rval().set(JS::ObjectOrNullValue(jsobj));
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
 template<class T>
-bool js_BezierActions_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_BezierActions_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -3091,9 +3050,8 @@ bool js_BezierActions_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
     T* cobj = (T *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Bezier_initWithDuration : Invalid Native Object");
     if (argc == 2) {
-        double arg0;
+        double arg0 = args.get(0).toNumber();
         cocos2d::_ccBezierConfig arg1;
-        ok &= JS::ToNumber(cx, args.get(0), &arg0);
 
         int num;
         cocos2d::Vec2 *arr;
@@ -3106,33 +3064,28 @@ bool js_BezierActions_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Bezier_initWithDuration : Error processing arguments");
         bool ret = cobj->initWithDuration(arg0, arg1);
         delete [] arr;
-        jsval jsret = JSVAL_NULL;
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        JS::RootedValue jsret(cx, JS::BooleanValue(ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_BezierTo_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_BezierTo_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 
 template<class T>
-bool js_CardinalSplineActions_create(JSContext *cx, uint32_t argc, jsval *vp) {
+bool js_CardinalSplineActions_create(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
 
     if (argc == 3) {
-        double dur;
-        ok &= JS::ToNumber(cx, args.get(0), &dur);
-
         int num;
         Point *arr;
         ok &= jsval_to_ccarray_of_CCPoint(cx, args.get(1), &arr, &num);
-
-        double ten;
-        ok &= JS::ToNumber(cx, args.get(2), &ten);
-
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+        
+        double dur = args.get(0).toNumber();
+        double ten = args.get(2).toNumber();
 
         PointArray *points = PointArray::create(num);
 
@@ -3148,27 +3101,25 @@ bool js_CardinalSplineActions_create(JSContext *cx, uint32_t argc, jsval *vp) {
         JSObject* jsobj;
         js_type_class_t *typeProxy = js_get_type_from_native<T>(ret);
         jsobj = jsb_ref_create_jsobject(cx, ret, typeProxy, typeid(*ret).name());
-        args.rval().set(OBJECT_TO_JSVAL(jsobj));
+        args.rval().set(JS::ObjectOrNullValue(jsobj));
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
 template<class T>
-bool js_CatmullRomActions_create(JSContext *cx, uint32_t argc, jsval *vp) {
+bool js_CatmullRomActions_create(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
 
     if (argc == 2) {
-        double dur;
-        ok &= JS::ToNumber(cx, args.get(0), &dur);
-
         int num;
         Point *arr;
         ok &= jsval_to_ccarray_of_CCPoint(cx, args.get(1), &arr, &num);
-
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+        
+        double dur = args.get(0).toNumber();
 
         PointArray *points = PointArray::create(num);
 
@@ -3184,15 +3135,15 @@ bool js_CatmullRomActions_create(JSContext *cx, uint32_t argc, jsval *vp) {
         JSObject* jsobj;
         js_type_class_t *typeProxy = js_get_type_from_native<T>(ret);
         jsobj = jsb_ref_create_jsobject(cx, ret, typeProxy, typeid(*ret).name());
-        args.rval().set(OBJECT_TO_JSVAL(jsobj));
+        args.rval().set(JS::ObjectOrNullValue(jsobj));
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
 template<class T>
-bool js_CatmullRomActions_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp) {
+bool js_CatmullRomActions_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -3200,9 +3151,7 @@ bool js_CatmullRomActions_initWithDuration(JSContext *cx, uint32_t argc, jsval *
     T* cobj = (T *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_CatmullRom_initWithDuration : Invalid Native Object");
     if (argc == 2) {
-        double arg0;
-        JS::RootedValue jsarg0(cx, args.get(0));
-        ok &= JS::ToNumber(cx, jsarg0, &arg0);
+        double arg0 = args.get(0).toNumber();
 
         int num;
         Point *arr;
@@ -3216,43 +3165,42 @@ bool js_CatmullRomActions_initWithDuration(JSContext *cx, uint32_t argc, jsval *
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_CatmullRom_initWithDuration : Error processing arguments");
         bool ret = cobj->initWithDuration(arg0, arg1);
         delete [] arr;
-        jsval jsret = JSVAL_NULL;
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        JS::RootedValue jsret(cx, JS::BooleanValue(ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_CatmullRom_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_CatmullRom_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 
-bool JSB_CCBezierBy_actionWithDuration(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_CCBezierBy_actionWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return js_BezierActions_create<cocos2d::BezierBy>(cx, argc, vp);
 }
 
-bool JSB_CCBezierTo_actionWithDuration(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_CCBezierTo_actionWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return js_BezierActions_create<cocos2d::BezierTo>(cx, argc, vp);
 }
 
-bool JSB_CCBezierBy_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+bool JSB_CCBezierBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     return js_BezierActions_initWithDuration<cocos2d::BezierBy>(cx, argc, vp);
 }
 
-bool JSB_CCBezierTo_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+bool JSB_CCBezierTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     return js_BezierActions_initWithDuration<cocos2d::BezierTo>(cx, argc, vp);
 }
 
-bool JSB_CCCardinalSplineBy_actionWithDuration(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_CCCardinalSplineBy_actionWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return js_CardinalSplineActions_create<cocos2d::CardinalSplineBy>(cx, argc, vp);
 }
 
-bool JSB_CCCardinalSplineTo_actionWithDuration(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_CCCardinalSplineTo_actionWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return js_CardinalSplineActions_create<cocos2d::CardinalSplineTo>(cx, argc, vp);
 }
 
-bool js_cocos2dx_CardinalSplineTo_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CardinalSplineTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -3261,12 +3209,6 @@ bool js_cocos2dx_CardinalSplineTo_initWithDuration(JSContext *cx, uint32_t argc,
     cocos2d::CardinalSplineTo* cobj = (cocos2d::CardinalSplineTo *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_CardinalSplineTo_initWithDuration : Invalid Native Object");
     if (argc == 3) {
-        double arg0;
-
-        double arg2;
-        JS::RootedValue jsarg0(cx, args.get(0));
-        ok &= JS::ToNumber(cx, jsarg0, &arg0);
-
         int num;
         Point *arr;
         ok &= jsval_to_ccarray_of_CCPoint(cx, args.get(1), &arr, &num);
@@ -3274,44 +3216,44 @@ bool js_cocos2dx_CardinalSplineTo_initWithDuration(JSContext *cx, uint32_t argc,
         for( int i=0; i < num;i++) {
             arg1->addControlPoint(arr[i]);
         }
-
-        JS::RootedValue jsarg2(cx, args.get(2));
-        ok &= JS::ToNumber(cx, jsarg2, &arg2);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_CardinalSplineTo_initWithDuration : Error processing arguments");
+        
+        double arg0 = args.get(0).toNumber();
+        double arg2 = args.get(2).toNumber();
+        
         bool ret = cobj->initWithDuration(arg0, arg1, arg2);
 
         delete [] arr;
-        jsval jsret = JSVAL_NULL;
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        JS::RootedValue jsret(cx, JS::BooleanValue(ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_CardinalSplineTo_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_CardinalSplineTo_initWithDuration : wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 
-bool JSB_CCCatmullRomBy_actionWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+bool JSB_CCCatmullRomBy_actionWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     return js_CatmullRomActions_create<cocos2d::CatmullRomBy>(cx, argc, vp);
 }
 
-bool JSB_CCCatmullRomTo_actionWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+bool JSB_CCCatmullRomTo_actionWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     return js_CatmullRomActions_create<cocos2d::CatmullRomTo>(cx, argc, vp);
 }
 
-bool JSB_CatmullRomBy_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+bool JSB_CatmullRomBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     return js_CatmullRomActions_initWithDuration<cocos2d::CatmullRomBy>(cx, argc, vp);
 }
 
-bool JSB_CatmullRomTo_initWithDuration(JSContext *cx, uint32_t argc, jsval *vp)
+bool JSB_CatmullRomTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     return js_CatmullRomActions_initWithDuration<cocos2d::CatmullRomTo>(cx, argc, vp);
 }
 
-bool js_cocos2dx_ccGLEnableVertexAttribs(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_ccGLEnableVertexAttribs(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     bool ok = true;
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -3326,11 +3268,11 @@ bool js_cocos2dx_ccGLEnableVertexAttribs(JSContext *cx, uint32_t argc, jsval *vp
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_ccmat4CreateTranslation(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_ccmat4CreateTranslation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if(argc == 1)
@@ -3341,17 +3283,16 @@ bool js_cocos2dx_ccmat4CreateTranslation(JSContext *cx, uint32_t argc, jsval *vp
 
         cocos2d::Mat4 ret;
         cocos2d::Mat4::createTranslation(arg0, &ret);
-        jsval jsret = matrix_to_jsval(cx, ret);
-
+        JS::RootedValue jsret(cx, matrix_to_jsval(cx, ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_ccmat4CreateRotation(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_ccmat4CreateRotation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if(argc == 1)
@@ -3362,17 +3303,17 @@ bool js_cocos2dx_ccmat4CreateRotation(JSContext *cx, uint32_t argc, jsval *vp)
 
         cocos2d::Mat4 ret;
         cocos2d::Mat4::createRotation(arg0, &ret);
-        jsval jsret = matrix_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx, matrix_to_jsval(cx, ret));
 
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_ccmat4Multiply(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_ccmat4Multiply(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if(argc == 2)
@@ -3384,17 +3325,17 @@ bool js_cocos2dx_ccmat4Multiply(JSContext *cx, uint32_t argc, jsval *vp)
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         cocos2d::Mat4 ret = arg0 * arg1;
-        jsval jsret = matrix_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx, matrix_to_jsval(cx, ret));
 
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 
-bool js_cocos2dx_ccmat4MultiplyVec3(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_ccmat4MultiplyVec3(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if(argc == 2)
@@ -3406,17 +3347,17 @@ bool js_cocos2dx_ccmat4MultiplyVec3(JSContext *cx, uint32_t argc, jsval *vp)
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         cocos2d::Vec3 ret = arg0 * arg1;
-        jsval jsret = vector3_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx, vector3_to_jsval(cx, ret));
 
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 
-bool js_cocos2dx_ccmat4GetInversed(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_ccmat4GetInversed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if(argc == 1)
@@ -3425,17 +3366,16 @@ bool js_cocos2dx_ccmat4GetInversed(JSContext *cx, uint32_t argc, jsval *vp)
         bool ok = jsval_to_matrix(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
-        jsval jsret = matrix_to_jsval(cx, arg0.getInversed());
-
+        JS::RootedValue jsret(cx, matrix_to_jsval(cx, arg0.getInversed()));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_ccmat4TransformVector(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_ccmat4TransformVector(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if(argc >= 2)
@@ -3449,34 +3389,35 @@ bool js_cocos2dx_ccmat4TransformVector(JSContext *cx, uint32_t argc, jsval *vp)
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         arg0.transformVector(arg1, &ret);
-        jsval jsret = vector4_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx, vector4_to_jsval(cx, ret));
         args.rval().set(jsret);
         return true;
     }
     else if (argc >= 5)
     {
         cocos2d::Mat4 arg0;
-        double arg1 = 0.0,arg2 = 0.0,arg3 = 0.0, arg4 = 0.0;
+        double arg1 = 0.0, arg2 = 0.0, arg3 = 0.0, arg4 = 0.0;
         cocos2d::Vec3 ret;
 
-        bool ok = jsval_to_matrix(cx, args.get(0), &arg0) &&
-                  JS::ToNumber(cx, args.get(1), &arg1) &&
-                  JS::ToNumber(cx, args.get(2), &arg2) &&
-                  JS::ToNumber(cx, args.get(3), &arg3) &&
-                  JS::ToNumber(cx, args.get(4), &arg4);
-
+        bool ok = jsval_to_matrix(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+        
+        arg1 = args.get(1).toNumber();
+        arg2 = args.get(2).toNumber();
+        arg3 = args.get(3).toNumber();
+        arg4 = args.get(4).toNumber();
+
         arg0.transformVector(arg1, arg2, arg3, arg4, &ret);
-        jsval jsret = vector3_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx, vector3_to_jsval(cx, ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 
-bool js_cocos2dx_ccmat4TransformPoint(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_ccmat4TransformPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if(argc >= 2)
@@ -3490,16 +3431,16 @@ bool js_cocos2dx_ccmat4TransformPoint(JSContext *cx, uint32_t argc, jsval *vp)
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         arg0.transformPoint(arg1, &ret);
-        jsval jsret = vector3_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx, vector3_to_jsval(cx, ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 
-bool js_cocos2dx_ccquatMultiply(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_ccquatMultiply(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if(argc == 2)
@@ -3511,17 +3452,16 @@ bool js_cocos2dx_ccquatMultiply(JSContext *cx, uint32_t argc, jsval *vp)
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         cocos2d::Quaternion ret = arg0 * arg1;
-        jsval jsret = quaternion_to_jsval(cx, ret);
-
+        JS::RootedValue jsret(cx, quaternion_to_jsval(cx, ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 
-bool js_cocos2dx_Sprite_initWithPolygon(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_Sprite_initWithPolygon(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -3542,17 +3482,16 @@ bool js_cocos2dx_Sprite_initWithPolygon(JSContext *cx, uint32_t argc, jsval *vp)
         } while (0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_initWithPolygon : Error processing arguments");
         bool ret = cobj->initWithPolygon(*arg0);
-        jsval jsret = JSVAL_NULL;
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        JS::RootedValue jsret(cx, JS::BooleanValue(ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_Sprite_initWithPolygon : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Sprite_initWithPolygon : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_Sprite_setPolygonInfo(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_Sprite_setPolygonInfo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -3577,11 +3516,11 @@ bool js_cocos2dx_Sprite_setPolygonInfo(JSContext *cx, uint32_t argc, jsval *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_Sprite_setPolygonInfo : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Sprite_setPolygonInfo : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_Sprite_textureLoaded(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_Sprite_textureLoaded(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -3593,11 +3532,11 @@ bool js_cocos2dx_Sprite_textureLoaded(JSContext *cx, uint32_t argc, jsval *vp)
     if( cobj->getTexture() )
         ret = true;
 
-    args.rval().set(BOOLEAN_TO_JSVAL(ret));
+    args.rval().set(JS::BooleanValue(ret));
     return true;
 }
 
-bool js_cocos2dx_CCTexture2D_setTexParameters(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCTexture2D_setTexParameters(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -3626,11 +3565,11 @@ bool js_cocos2dx_CCTexture2D_setTexParameters(JSContext *cx, uint32_t argc, jsva
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 4);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 4);
     return false;
 }
 
-bool js_cocos2dx_CCMenu_alignItemsInRows(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCMenu_alignItemsInRows(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
@@ -3647,11 +3586,11 @@ bool js_cocos2dx_CCMenu_alignItemsInRows(JSContext *cx, uint32_t argc, jsval *vp
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "Error in js_cocos2dx_CCMenu_alignItemsInRows");
+    JS_ReportErrorUTF8(cx, "Error in js_cocos2dx_CCMenu_alignItemsInRows");
     return false;
 }
 
-bool js_cocos2dx_CCMenu_alignItemsInColumns(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCMenu_alignItemsInColumns(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
@@ -3669,11 +3608,11 @@ bool js_cocos2dx_CCMenu_alignItemsInColumns(JSContext *cx, uint32_t argc, jsval 
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "Error in js_cocos2dx_CCMenu_alignItemsInColumns");
+    JS_ReportErrorUTF8(cx, "Error in js_cocos2dx_CCMenu_alignItemsInColumns");
     return false;
 }
 
-bool js_cocos2dx_CCLayer_init(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCLayer_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -3682,19 +3621,18 @@ bool js_cocos2dx_CCLayer_init(JSContext *cx, uint32_t argc, jsval *vp)
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_CCLayer_init : Invalid Native Object");
     if (argc == 0) {
         bool ret = cobj->init();
-        jsval jsret = JSVAL_NULL;
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        JS::RootedValue jsret(cx, JS::BooleanValue(ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_CCLayer_init : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_CCLayer_init : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 
 // TMXLayer
-bool js_cocos2dx_CCTMXLayer_getTileFlagsAt(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCTMXLayer_getTileFlagsAt(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -3710,19 +3648,19 @@ bool js_cocos2dx_CCTMXLayer_getTileFlagsAt(JSContext *cx, uint32_t argc, jsval *
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
         cobj->getTileGIDAt(arg0, &flags);
 
-        args.rval().set(UINT_TO_JSVAL((uint32_t)flags));
+        args.rval().set(JS::Int32Value((uint32_t)flags));
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 
-static bool jsval_to_string_vector(JSContext* cx, jsval v, std::vector<std::string>& ret) {
+static bool jsval_to_string_vector(JSContext* cx, JS::HandleValue v, std::vector<std::string>& ret) {
     JS::RootedObject jsobj(cx);
     JS::RootedValue jsv(cx, v);
     bool ok = JS_ValueToObject(cx, jsv, &jsobj);
-    JSB_PRECONDITION2( ok, cx, false, "Error converting value to object");
-    JSB_PRECONDITION2( jsobj && JS_IsArrayObject( cx, jsobj),  cx, false, "Object must be an array");
+    JSB_PRECONDITION2(ok, cx, false, "Error converting value to object");
+    JSB_PRECONDITION2(JS_IsArrayObject( cx, jsobj, &ok) && ok,  cx, false, "Object must be an array");
 
     uint32_t len = 0;
     JS_GetArrayLength(cx, jsobj, &len);
@@ -3743,7 +3681,7 @@ static bool jsval_to_string_vector(JSContext* cx, jsval v, std::vector<std::stri
 }
 
 
-static jsval string_vector_to_jsval(JSContext* cx, const std::vector<std::string>& arr) {
+static JS::HandleValue string_vector_to_jsval(JSContext* cx, const std::vector<std::string>& arr) {
 
     JS::RootedObject jsretArr(cx, JS_NewArrayObject(cx, 0));
 
@@ -3754,10 +3692,11 @@ static jsval string_vector_to_jsval(JSContext* cx, const std::vector<std::string
             break;
         }
     }
-    return OBJECT_TO_JSVAL(jsretArr);
+    JS::RootedValue jsret(cx, JS::ObjectOrNullValue(jsretArr));
+    return jsret;
 }
 
-bool js_cocos2dx_CCFileUtils_setSearchResolutionsOrder(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCFileUtils_setSearchResolutionsOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -3774,11 +3713,11 @@ bool js_cocos2dx_CCFileUtils_setSearchResolutionsOrder(JSContext *cx, uint32_t a
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCFileUtils_setSearchPaths(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCFileUtils_setSearchPaths(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -3795,10 +3734,10 @@ bool js_cocos2dx_CCFileUtils_setSearchPaths(JSContext *cx, uint32_t argc, jsval 
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_cocos2dx_CCFileUtils_getSearchPaths(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCFileUtils_getSearchPaths(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -3808,16 +3747,15 @@ bool js_cocos2dx_CCFileUtils_getSearchPaths(JSContext *cx, uint32_t argc, jsval 
 
     if (argc == 0) {
         std::vector<std::string> ret = cobj->getSearchPaths();
-        jsval jsret;
-        jsret = string_vector_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx, string_vector_to_jsval(cx, ret));
         args.rval().set(jsret);
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_cocos2dx_CCFileUtils_getDataFromFile(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCFileUtils_getDataFromFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -3841,23 +3779,24 @@ bool js_cocos2dx_CCFileUtils_getDataFromFile(JSContext *cx, uint32_t argc, jsval
                 if (nullptr == array)
                     break;
 
-                uint8_t* bufdata = (uint8_t*)JS_GetArrayBufferViewData(array);
+                bool flag;
+                uint8_t* bufdata = (uint8_t*)JS_GetArrayBufferViewData(array, &flag, JS::AutoCheckCannotGC());
                 memcpy(bufdata, data.getBytes(), size*sizeof(uint8_t));
 
-                args.rval().set(OBJECT_TO_JSVAL(array));
+                args.rval().set(JS::ObjectOrNullValue(array));
                 return true;
             }
         } while(false);
 
         // return null if read failed.
-        args.rval().set(JSVAL_NULL);
+        args.rval().set(JS::NullValue());
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 3);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 3);
     return false;
 }
 
-bool js_cocos2dx_CCFileUtils_writeDataToFile(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCFileUtils_writeDataToFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -3873,7 +3812,8 @@ bool js_cocos2dx_CCFileUtils_writeDataToFile(JSContext *cx, uint32_t argc, jsval
         JSObject &obj0 = args.get(0).toObject();
         if( JS_IsUint8Array(&obj0) ) {
             uint32_t len = JS_GetArrayBufferViewByteLength(&obj0);
-            uint8_t* bufdata = (uint8_t*)JS_GetArrayBufferViewData(&obj0);
+            bool flag;
+            uint8_t* bufdata = (uint8_t*)JS_GetArrayBufferViewData(&obj0, &flag, JS::AutoCheckCannotGC());
             arg0.copy(bufdata, len);
         } else {
             ok = false;
@@ -3882,17 +3822,16 @@ bool js_cocos2dx_CCFileUtils_writeDataToFile(JSContext *cx, uint32_t argc, jsval
         ok &= jsval_to_std_string(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_CCFileUtils_writeDataToFile : Error processing arguments");
         bool ret = cobj->writeDataToFile(arg0, arg1);
-        jsval jsret = JSVAL_NULL;
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        JS::RootedValue jsret(cx, JS::BooleanValue(ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_CCFileUtils_writeDataToFile : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_CCFileUtils_writeDataToFile : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 
-bool js_cocos2dx_CCFileUtils_getSearchResolutionsOrder(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCFileUtils_getSearchResolutionsOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -3902,16 +3841,15 @@ bool js_cocos2dx_CCFileUtils_getSearchResolutionsOrder(JSContext *cx, uint32_t a
 
     if (argc == 0) {
         std::vector<std::string> ret = cobj->getSearchResolutionsOrder();
-        jsval jsret;
-        jsret = string_vector_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx, string_vector_to_jsval(cx, ret));
         args.rval().set(jsret);
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-static bool js_cocos2dx_FileUtils_createDictionaryWithContentsOfFile(JSContext *cx, uint32_t argc, jsval *vp)
+static bool js_cocos2dx_FileUtils_createDictionaryWithContentsOfFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -3924,52 +3862,41 @@ static bool js_cocos2dx_FileUtils_createDictionaryWithContentsOfFile(JSContext *
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
         cocos2d::ValueMap ret = FileUtils::getInstance()->getValueMapFromFile(arg0);
-        jsval jsret;
-        jsret = ccvaluemap_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx, ccvaluemap_to_jsval(cx, ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_cocos2dx_CCGLProgram_setUniformLocationWith4f(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCGLProgram_setUniformLocationWith4f(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
-    int arg0;
-    double arg1;
-    double arg2;
-    double arg3;
-    double arg4;
-    ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
-    ok &= JS::ToNumber(cx, args.get(1), &arg1);
+    int arg0 = args.get(0).toInt32();
+    double arg1 = args.get(1).toNumber();
 
     if(argc == 2) {
-        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
         cobj->setUniformLocationWith1f(arg0, arg1);
     }
     if (argc == 3) {
-        ok &= JS::ToNumber(cx, args.get(2), &arg2);
-        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+        double arg2 = args.get(2).toNumber();
         cobj->setUniformLocationWith2f(arg0, arg1, arg2);
     }
     if(argc == 4) {
-        ok &= JS::ToNumber(cx, args.get(2), &arg2);
-        ok &= JS::ToNumber(cx, args.get(3), &arg3);
-        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+        double arg2 = args.get(2).toNumber();
+        double arg3 = args.get(3).toNumber();
         cobj->setUniformLocationWith3f(arg0, arg1, arg2, arg3);
     }
     if(argc == 5) {
-        ok &= JS::ToNumber(cx, args.get(2), &arg2);
-        ok &= JS::ToNumber(cx, args.get(3), &arg3);
-        ok &= JS::ToNumber(cx, args.get(4), &arg4);
-        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+        double arg2 = args.get(2).toNumber();
+        double arg3 = args.get(3).toNumber();
+        double arg4 = args.get(4).toNumber();
         cobj->setUniformLocationWith4f(arg0, arg1, arg2, arg3, arg4);
     }
 
@@ -3977,7 +3904,7 @@ bool js_cocos2dx_CCGLProgram_setUniformLocationWith4f(JSContext *cx, uint32_t ar
     return true;
 }
 
-bool js_cocos2dx_CCGLProgram_setUniformLocationWithMatrixfvUnion(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCGLProgram_setUniformLocationWithMatrixfvUnion(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -4016,11 +3943,11 @@ bool js_cocos2dx_CCGLProgram_setUniformLocationWithMatrixfvUnion(JSContext *cx, 
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 4);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 4);
     return false;
 }
 
-bool js_cocos2dx_CCGLProgram_getProgram(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_CCGLProgram_getProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -4029,15 +3956,15 @@ bool js_cocos2dx_CCGLProgram_getProgram(JSContext *cx, uint32_t argc, jsval *vp)
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (argc == 0) {
         GLuint ret = cobj->getProgram();
-        args.rval().set(UINT_TO_JSVAL((uint32_t)ret));
+        args.rval().set(JS::Int32Value((uint32_t)ret));
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_cocos2dx_GLProgramState_setVertexAttribPointer(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_GLProgramState_setVertexAttribPointer(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -4065,11 +3992,11 @@ bool js_cocos2dx_GLProgramState_setVertexAttribPointer(JSContext *cx, uint32_t a
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_GLProgramState_setVertexAttribPointer : wrong number of arguments: %d, was expecting %d", argc, 6);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_GLProgramState_setVertexAttribPointer : wrong number of arguments: %d, was expecting %d", argc, 6);
     return false;
 }
 
-bool js_cocos2dx_GLProgramState_setUniformVec4(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_GLProgramState_setUniformVec4(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -4107,11 +4034,11 @@ bool js_cocos2dx_GLProgramState_setUniformVec4(JSContext *cx, uint32_t argc, jsv
             }
         } while(0);
     }
-    JS_ReportError(cx, "js_cocos2dx_GLProgramState_setUniformVec4 : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_GLProgramState_setUniformVec4 : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 
-bool js_cocos2dx_SpriteBatchNode_getDescendants(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_SpriteBatchNode_getDescendants(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -4131,14 +4058,14 @@ bool js_cocos2dx_SpriteBatchNode_getDescendants(JSContext *cx, uint32_t argc, js
         for (size_t i = 0; i < vSize; i++)
         {
             auto jsobj = jsb_ref_get_or_create_jsobject(cx, ret[i], typeClass, "cocos2d::Sprite");
-            jsret = OBJECT_TO_JSVAL(jsobj);
+            jsret = JS::ObjectOrNullValue(jsobj);
             JS_SetElement(cx, jsretArr, static_cast<uint32_t>(i), jsret);
         }
-        args.rval().set(OBJECT_TO_JSVAL(jsretArr));
+        args.rval().set(JS::ObjectOrNullValue(jsretArr));
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_SpriteBatchNode_getDescendants : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_SpriteBatchNode_getDescendants : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
@@ -4149,20 +4076,17 @@ bool js_PlistParser_getInstance(JSContext *cx, unsigned argc, JS::Value *vp)
     __JSPlistDelegator* delegator = __JSPlistDelegator::getInstance();
     SAXParser* parser = delegator->getParser();
 
-    jsval jsret;
+    JS::RootedValue jsret(cx);
     if (parser) {
         js_proxy_t *p = jsb_get_native_proxy(parser);
         if (p) {
-            jsret = OBJECT_TO_JSVAL(p->obj);
+            jsret = JS::ObjectOrNullValue(p->obj);
         } else {
             // create a new js obj of that class
-            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<SAXParser>(cx, parser));
+            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<SAXParser>(cx, parser));
         }
-    } else {
-        jsret = JSVAL_NULL;
     }
     args.rval().set(jsret);
-
     return true;
 }
 // cc.PlistParser.getInstance().parse(text)
@@ -4179,7 +4103,7 @@ bool js_PlistParser_parse(JSContext *cx, unsigned argc, JS::Value *vp) {
         std::string parsedStr = delegator->parseText(arg0);
         std::replace(parsedStr.begin(), parsedStr.end(), '\n', ' ');
 
-        jsval strVal = std_string_to_jsval(cx, parsedStr);
+        JS::RootedValue strVal(cx, std_string_to_jsval(cx, parsedStr));
         // create a new js obj of the parsed string
         JS::RootedValue outVal(cx);
 
@@ -4191,11 +4115,11 @@ bool js_PlistParser_parse(JSContext *cx, unsigned argc, JS::Value *vp) {
             args.rval().set(outVal);
         else {
             args.rval().setUndefined();
-            JS_ReportError(cx, "js_PlistParser_parse : parse error");
+            JS_ReportErrorUTF8(cx, "js_PlistParser_parse : parse error");
         }
         return true;
     }
-    JS_ReportError(cx, "js_PlistParser_parse : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_PlistParser_parse : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
@@ -4288,7 +4212,7 @@ void __JSPlistDelegator::textHandler(void *ctx, const char *ch, int len) {
 
 // TODO: This function is deprecated. The new API is "new Label" instead of "Label.create"
 // There are not js tests for this function. Impossible to know weather it works Ok.
-bool js_cocos2dx_Label_createWithTTF(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_Label_createWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc < 2)
         return false;
@@ -4334,17 +4258,17 @@ bool js_cocos2dx_Label_createWithTTF(JSContext *cx, uint32_t argc, jsval *vp)
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Label>(label);
         // link the native object with the javascript object
         JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, label, typeClass, "cocos2d::Label"));
-        args.rval().set(OBJECT_TO_JSVAL(jsobj));
+        args.rval().set(JS::ObjectOrNullValue(jsobj));
         return true;
     }
 
     // else
 
-    JS_ReportError(cx, "js_cocos2dx_Label_createWithTTF : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Label_createWithTTF : wrong number of arguments");
     return false;
 }
 
-bool js_cocos2dx_Label_setTTFConfig(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_Label_setTTFConfig(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -4365,11 +4289,11 @@ bool js_cocos2dx_Label_setTTFConfig(JSContext *cx, uint32_t argc, jsval *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_Label_setTTFConfig : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Label_setTTFConfig : wrong number of arguments");
     return false;
 }
 
-bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -4388,8 +4312,7 @@ bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, jsval *v
             ok &= jsval_to_int32(cx, args.get(1), (int32_t *)&arg1);
             if (!ok) { ok = true; break; }
             bool ret = cobj->saveToFile(arg0, arg1);
-            jsval jsret = JSVAL_NULL;
-            jsret = BOOLEAN_TO_JSVAL(ret);
+            JS::RootedValue jsret(cx, JS::BooleanValue(ret));
             args.rval().set(jsret);
             return true;
         }
@@ -4405,10 +4328,9 @@ bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, jsval *v
             if (!ok) { ok = true; break; }
             bool arg2;
             JS::RootedValue jsarg2(cx, args.get(2));
-            arg2 = JS::ToBoolean(jsarg2);
+            arg2 = jsarg2.toBoolean();
             bool ret = cobj->saveToFile(arg0, arg1, arg2);
-            jsval jsret = JSVAL_NULL;
-            jsret = BOOLEAN_TO_JSVAL(ret);
+            JS::RootedValue jsret(cx, JS::BooleanValue(ret));
             args.rval().set(jsret);
             return true;
         }
@@ -4424,27 +4346,28 @@ bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, jsval *v
             if (!ok) { ok = true; break; }
             bool arg2;
             JS::RootedValue jsarg2(cx, args.get(2));
-            arg2 = JS::ToBoolean(jsarg2);
+            arg2 = jsarg2.toBoolean();
             std::function<void (cocos2d::RenderTexture *, const std::basic_string<char> &)> arg3;
             do {
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, args.get(3), args.thisv()));
                 auto lambda = [=](cocos2d::RenderTexture* larg0, const std::string& larg1) -> void {
-                    jsval largv[2];
+                    JS::AutoValueVector largv(cx);
                     do {
                         if (larg0) {
                             JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                            largv[0] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::RenderTexture>(cx, (cocos2d::RenderTexture*)larg0));
+                            largv.append(JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::RenderTexture>(cx, (cocos2d::RenderTexture*)larg0)));
                         } else {
-                            largv[0] = JSVAL_NULL;
+                            largv.append(JS::NullValue());
                         }
                     } while (0);
                     do {
-                        largv[1] = std_string_to_jsval(cx, larg1);
+                        largv.append(std_string_to_jsval(cx, larg1));
                     } while (0);
                     JS::RootedValue rval(cx);
-                    bool invokeOk = func->invoke(2, largv, &rval);
+                    JS::HandleValueArray largs(largv);
+                    bool invokeOk = func->invoke(largs, &rval);
                     if (!invokeOk && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg3 = lambda;
@@ -4452,8 +4375,7 @@ bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, jsval *v
                 ;
             if (!ok) { ok = true; break; }
             bool ret = cobj->saveToFile(arg0, arg1, arg2, arg3);
-            jsval jsret = JSVAL_NULL;
-            jsret = BOOLEAN_TO_JSVAL(ret);
+            JS::RootedValue jsret(cx, JS::BooleanValue(ret));
             args.rval().set(jsret);
             return true;
         }
@@ -4465,8 +4387,7 @@ bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, jsval *v
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->saveToFile(arg0);
-            jsval jsret = JSVAL_NULL;
-            jsret = BOOLEAN_TO_JSVAL(ret);
+            JS::RootedValue jsret(cx, JS::BooleanValue(ret));
             args.rval().set(jsret);
             return true;
         }
@@ -4477,12 +4398,9 @@ bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, jsval *v
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
-            bool arg1;
-            JS::RootedValue jsarg1(cx, args.get(1));
-            arg1 = JS::ToBoolean(jsarg1);
+            bool arg1 = args.get(1).toBoolean();
             bool ret = cobj->saveToFile(arg0, arg1);
-            jsval jsret = JSVAL_NULL;
-            jsret = BOOLEAN_TO_JSVAL(ret);
+            JS::RootedValue jsret(cx, JS::BooleanValue(ret));
             args.rval().set(jsret);
             return true;
         }
@@ -4493,29 +4411,28 @@ bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, jsval *v
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
-            bool arg1;
-            JS::RootedValue jsarg1(cx, args.get(1));
-            arg1 = JS::ToBoolean(jsarg1);
+            bool arg1 = args.get(1).toBoolean();
             std::function<void (cocos2d::RenderTexture *, const std::basic_string<char> &)> arg2;
             do {
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, args.get(2), args.thisv()));
                 auto lambda = [=](cocos2d::RenderTexture* larg0, const std::string& larg1) -> void {
-                    jsval largv[2];
+                    JS::AutoValueVector largv(cx);
                     do {
                         if (larg0) {
                             JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                            largv[0] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::RenderTexture>(cx, (cocos2d::RenderTexture*)larg0));
+                            largv.append(JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::RenderTexture>(cx, (cocos2d::RenderTexture*)larg0)));
                         } else {
-                            largv[0] = JSVAL_NULL;
+                            largv.append(JS::NullValue());
                         }
                     } while (0);
                     do {
-                        largv[1] = std_string_to_jsval(cx, larg1);
+                        largv.append(std_string_to_jsval(cx, larg1));
                     } while (0);
                     JS::RootedValue rval(cx);
-                    bool invokeOk = func->invoke(2, largv, &rval);
+                    JS::HandleValueArray largs(largv);
+                    bool invokeOk = func->invoke(largs, &rval);
                     if (!invokeOk && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg2 = lambda;
@@ -4523,18 +4440,17 @@ bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, jsval *v
                 ;
             if (!ok) { ok = true; break; }
             bool ret = cobj->saveToFile(arg0, arg1, arg2);
-            jsval jsret = JSVAL_NULL;
-            jsret = BOOLEAN_TO_JSVAL(ret);
+            JS::RootedValue jsret(cx, JS::BooleanValue(ret));
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
-    JS_ReportError(cx, "js_cocos2dx_RenderTexture_saveToFile : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_RenderTexture_saveToFile : wrong number of arguments");
     return false;
 }
 
-bool js_cocos2dx_Node_setAdditionalTransform(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_Node_setAdditionalTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -4568,11 +4484,11 @@ bool js_cocos2dx_Node_setAdditionalTransform(JSContext *cx, uint32_t argc, jsval
         }
     } while(0);
 
-    JS_ReportError(cx, "js_cocos2dx_Node_setAdditionalTransform : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Node_setAdditionalTransform : wrong number of arguments");
     return false;
 }
 
-bool js_cocos2dx_ClippingNode_init(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_ClippingNode_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -4582,8 +4498,7 @@ bool js_cocos2dx_ClippingNode_init(JSContext *cx, uint32_t argc, jsval *vp)
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ClippingNode_init : Invalid Native Object");
     if (argc == 0) {
         bool ret = cobj->init();
-        jsval jsret = JSVAL_NULL;
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        JS::RootedValue jsret(cx, JS::BooleanValue(ret));
         args.rval().set(jsret);
         return true;
     }
@@ -4599,13 +4514,12 @@ bool js_cocos2dx_ClippingNode_init(JSContext *cx, uint32_t argc, jsval *vp)
         } while (0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ClippingNode_init : Error processing arguments");
         bool ret = cobj->init(arg0);
-        jsval jsret = JSVAL_NULL;
-        jsret = BOOLEAN_TO_JSVAL(ret);
+        JS::RootedValue jsret(cx, JS::BooleanValue(ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_ClippingNode_init : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_ClippingNode_init : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
@@ -4614,7 +4528,7 @@ bool js_cocos2dx_ClippingNode_init(JSContext *cx, uint32_t argc, jsval *vp)
 JSClass  *jsb_cocos2d_EventKeyboard_class;
 JSObject *jsb_cocos2d_EventKeyboard_prototype;
 
-bool js_cocos2dx_EventKeyboard_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_EventKeyboard_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -4627,9 +4541,7 @@ bool js_cocos2dx_EventKeyboard_constructor(JSContext *cx, uint32_t argc, jsval *
     core->executeFunctionWithOwner(owner, "parseKeyCode", argsv, &retVal);
     ok &= jsval_to_int32(cx, retVal, (int32_t *)&arg0);
 
-    bool arg1;
-    JS::RootedValue jsarg1(cx, args.get(1));
-    arg1 = JS::ToBoolean(jsarg1);
+    bool arg1 = args.get(1).toBoolean();
 
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventKeyboard_constructor : Error processing arguments");
 
@@ -4637,32 +4549,34 @@ bool js_cocos2dx_EventKeyboard_constructor(JSContext *cx, uint32_t argc, jsval *
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventKeyboard>(cobj);
     auto jsobj = jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::EventKeyboard");
 
-    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    args.rval().set(JS::ObjectOrNullValue(jsobj));
     return true;
 }
 
 
 extern JSObject *jsb_cocos2d_Event_prototype;
 
-static bool js_is_native_obj(JSContext *cx, uint32_t argc, jsval *vp)
+static bool js_is_native_obj(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().set(BOOLEAN_TO_JSVAL(true));
+    args.rval().set(JS::BooleanValue(true));
     return true;
 }
 
 void js_register_cocos2dx_EventKeyboard(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_EventKeyboard_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_EventKeyboard_class->name = "EventKeyboard";
-    jsb_cocos2d_EventKeyboard_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_EventKeyboard_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_EventKeyboard_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_EventKeyboard_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_EventKeyboard_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_EventKeyboard_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_EventKeyboard_class->convert = JS_ConvertStub;
-    jsb_cocos2d_EventKeyboard_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
-
+    const JSClassOps EventKeyboard_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    static JSClass EventKeyboard_class = {
+        "EventKeyboard",
+        JSCLASS_HAS_PRIVATE,
+        &EventKeyboard_classOps
+    };
+    jsb_cocos2d_EventKeyboard_class = &EventKeyboard_class;
+    
     static JSPropertySpec properties[] = {
         JS_PSG("__nativeObj", js_is_native_obj, JSPROP_ENUMERATE | JSPROP_PERMANENT),
         JS_PS_END
@@ -4675,8 +4589,7 @@ void js_register_cocos2dx_EventKeyboard(JSContext *cx, JS::HandleObject global) 
     JSFunctionSpec *st_funcs = nullptr;
 
     JS::RootedObject parentProto(cx, jsb_cocos2d_Event_prototype);
-    jsb_cocos2d_EventKeyboard_prototype = JS_InitClass(
-                                                       cx, global,
+    jsb_cocos2d_EventKeyboard_prototype = JS_InitClass(cx, global,
                                                        parentProto,
                                                        jsb_cocos2d_EventKeyboard_class,
                                                        js_cocos2dx_EventKeyboard_constructor, 0, // constructor
@@ -4687,11 +4600,11 @@ void js_register_cocos2dx_EventKeyboard(JSContext *cx, JS::HandleObject global) 
 
     // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_cocos2d_EventKeyboard_prototype);
-    jsb_register_class<cocos2d::EventKeyboard>(cx, jsb_cocos2d_EventKeyboard_class, proto, parentProto);
+    jsb_register_class<cocos2d::EventKeyboard>(cx, jsb_cocos2d_EventKeyboard_class, proto);
 }
 
 // console.log("Message");
-bool js_console_log(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_console_log(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc >= 1) {
@@ -4707,7 +4620,7 @@ bool js_console_log(JSContext *cx, uint32_t argc, jsval *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_console_log : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_console_log : wrong number of arguments");
     return false;
 }
 
@@ -4715,9 +4628,9 @@ void get_or_create_js_obj(JSContext* cx, JS::HandleObject obj, const std::string
 {
     JS::RootedValue nsval(cx);
     JS_GetProperty(cx, obj, name.c_str(), &nsval);
-    if (nsval == JSVAL_VOID) {
-        jsObj.set(JS_NewObject(cx, nullptr, JS::NullPtr(), JS::NullPtr()));
-        nsval = OBJECT_TO_JSVAL(jsObj);
+    if (nsval.isUndefined()) {
+        jsObj.set(JS_NewPlainObject(cx));
+        nsval = JS::ObjectOrNullValue(jsObj);
         JS_SetProperty(cx, obj, name.c_str(), nsval);
     } else {
         jsObj.set(nsval.toObjectOrNull());
@@ -4758,7 +4671,7 @@ void get_or_create_js_obj(const std::string &name, JS::MutableHandleObject jsObj
 JSClass  *jsb_cocos2d_PolygonInfo_class;
 JSObject *jsb_cocos2d_PolygonInfo_prototype;
 
-bool js_cocos2dx_PolygonInfo_getArea(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_PolygonInfo_getArea(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -4768,16 +4681,15 @@ bool js_cocos2dx_PolygonInfo_getArea(JSContext *cx, uint32_t argc, jsval *vp)
     if (argc == 0)
     {
         const float ret = cobj->getArea();
-        jsval jsret = JSVAL_NULL;
-        jsret = JS::DoubleValue(ret);
+        JS::RootedValue jsret(cx, JS::DoubleValue(ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_PolygonInfo_getArea : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_PolygonInfo_getArea : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_cocos2dx_PolygonInfo_getTrianglesCount(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_PolygonInfo_getTrianglesCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -4787,16 +4699,15 @@ bool js_cocos2dx_PolygonInfo_getTrianglesCount(JSContext *cx, uint32_t argc, jsv
     if (argc == 0)
     {
         const unsigned int ret = cobj->getTrianglesCount();
-        jsval jsret = JSVAL_NULL;
-        jsret = uint32_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx, uint32_to_jsval(cx, ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_PolygonInfo_getTrianglesCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_PolygonInfo_getTrianglesCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_cocos2dx_PolygonInfo_getVertCount(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_PolygonInfo_getVertCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -4806,18 +4717,17 @@ bool js_cocos2dx_PolygonInfo_getVertCount(JSContext *cx, uint32_t argc, jsval *v
     if (argc == 0)
     {
         const unsigned int ret = cobj->getVertCount();
-        jsval jsret = JSVAL_NULL;
-        jsret = uint32_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx, uint32_to_jsval(cx, ret));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_PolygonInfo_getVertCount : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_PolygonInfo_getVertCount : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 // PolygonInfo.rect
-bool js_get_PolygonInfo_rect(JSContext* cx, uint32_t argc, jsval* vp)
+bool js_get_PolygonInfo_rect(JSContext* cx, uint32_t argc, JS::Value* vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -4825,9 +4735,9 @@ bool js_get_PolygonInfo_rect(JSContext* cx, uint32_t argc, jsval* vp)
     cocos2d::PolygonInfo* cobj = (cocos2d::PolygonInfo *)(proxy ? proxy->ptr : nullptr);
     if (cobj)
     {
-        jsval ret = ccrect_to_jsval(cx, cobj->rect);
+        JS::RootedValue ret(cx, ccrect_to_jsval(cx, cobj->rect));
 
-        if (ret != JSVAL_NULL)
+        if (!ret.isNullOrUndefined())
         {
             args.rval().set(ret);
             return true;
@@ -4835,10 +4745,10 @@ bool js_get_PolygonInfo_rect(JSContext* cx, uint32_t argc, jsval* vp)
         CCLOGERROR("js_get_PolygonInfo_rect : Fail to retrieve property from PolygonInfo.");
         return false;
     }
-    JS_ReportError(cx, "js_get_PolygonInfo_rect : Invalid native object.");
+    JS_ReportErrorUTF8(cx, "js_get_PolygonInfo_rect : Invalid native object.");
     return false;
 }
-bool js_set_PolygonInfo_rect(JSContext* cx, uint32_t argc, jsval* vp)
+bool js_set_PolygonInfo_rect(JSContext* cx, uint32_t argc, JS::Value* vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -4850,12 +4760,12 @@ bool js_set_PolygonInfo_rect(JSContext* cx, uint32_t argc, jsval* vp)
         jsval_to_ccrect(cx, jsrect, &cobj->rect);
         return true;
     }
-    JS_ReportError(cx, "js_set_PolygonInfo_rect : Invalid native object.");
+    JS_ReportErrorUTF8(cx, "js_set_PolygonInfo_rect : Invalid native object.");
     return false;
 }
 
 // PolygonInfo.filename
-bool js_get_PolygonInfo_filename(JSContext* cx, uint32_t argc, jsval* vp)
+bool js_get_PolygonInfo_filename(JSContext* cx, uint32_t argc, JS::Value* vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -4863,9 +4773,9 @@ bool js_get_PolygonInfo_filename(JSContext* cx, uint32_t argc, jsval* vp)
     cocos2d::PolygonInfo* cobj = (cocos2d::PolygonInfo *)(proxy ? proxy->ptr : nullptr);
     if (cobj)
     {
-        jsval ret = std_string_to_jsval(cx, cobj->filename);
+        JS::RootedValue ret(cx, std_string_to_jsval(cx, cobj->filename));
 
-        if (ret != JSVAL_NULL)
+        if (!ret.isNullOrUndefined())
         {
             args.rval().set(ret);
             return true;
@@ -4873,10 +4783,10 @@ bool js_get_PolygonInfo_filename(JSContext* cx, uint32_t argc, jsval* vp)
         CCLOGERROR("js_get_PolygonInfo_filename : Fail to retrieve property from PolygonInfo.");
         return false;
     }
-    JS_ReportError(cx, "js_get_PolygonInfo_filename : Invalid native object.");
+    JS_ReportErrorUTF8(cx, "js_get_PolygonInfo_filename : Invalid native object.");
     return false;
 }
-bool js_set_PolygonInfo_filename(JSContext* cx, uint32_t argc, jsval* vp)
+bool js_set_PolygonInfo_filename(JSContext* cx, uint32_t argc, JS::Value* vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -4888,11 +4798,11 @@ bool js_set_PolygonInfo_filename(JSContext* cx, uint32_t argc, jsval* vp)
         jsval_to_std_string(cx, jsstr, &cobj->filename);
         return true;
     }
-    JS_ReportError(cx, "js_set_PolygonInfo_filename : Invalid native object.");
+    JS_ReportErrorUTF8(cx, "js_set_PolygonInfo_filename : Invalid native object.");
     return false;
 }
 
-bool js_cocos2dx_PolygonInfo_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_PolygonInfo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -4905,8 +4815,7 @@ bool js_cocos2dx_PolygonInfo_constructor(JSContext *cx, uint32_t argc, jsval *vp
     typeClass = typeMapIter->second;
     CCASSERT(typeClass, "The value is null.");
     JS::RootedObject proto(cx, typeClass->proto.ref());
-    JS::RootedObject parent(cx, typeClass->parentProto.ref());
-    JS::RootedObject obj(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
+    JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
     JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
     args.rval().set(objVal);
     // link the native object with the javascript object
@@ -4935,18 +4844,19 @@ void js_cocos2d_PolygonInfo_finalize(JSFreeOp *fop, JSObject *obj) {
 
 void js_register_cocos2dx_PolygonInfo(JSContext *cx, JS::HandleObject global)
 {
-    jsb_cocos2d_PolygonInfo_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_PolygonInfo_class->name = "PolygonInfo";
-    jsb_cocos2d_PolygonInfo_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_PolygonInfo_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_PolygonInfo_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_PolygonInfo_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_PolygonInfo_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_PolygonInfo_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_PolygonInfo_class->convert = JS_ConvertStub;
-    jsb_cocos2d_PolygonInfo_class->finalize = js_cocos2d_PolygonInfo_finalize;
-    jsb_cocos2d_PolygonInfo_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
-
+    const JSClassOps PolygonInfo_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        js_cocos2d_PolygonInfo_finalize,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    static JSClass PolygonInfo_class = {
+        "PolygonInfo",
+        JSCLASS_HAS_PRIVATE,
+        &PolygonInfo_classOps
+    };
+    jsb_cocos2d_PolygonInfo_class = &PolygonInfo_class;
+    
     static JSPropertySpec properties[] =
     {
         JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -4966,9 +4876,8 @@ void js_register_cocos2dx_PolygonInfo(JSContext *cx, JS::HandleObject global)
 
     JSFunctionSpec *st_funcs = nullptr;
 
-    jsb_cocos2d_PolygonInfo_prototype = JS_InitClass(
-                                                     cx, global,
-                                                     JS::NullPtr(), // parent proto
+    jsb_cocos2d_PolygonInfo_prototype = JS_InitClass(cx, global,
+                                                     nullptr, // parent proto
                                                      jsb_cocos2d_PolygonInfo_class,
                                                      js_cocos2dx_PolygonInfo_constructor, 0, // constructor
                                                      properties,
@@ -4978,13 +4887,13 @@ void js_register_cocos2dx_PolygonInfo(JSContext *cx, JS::HandleObject global)
 
     // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_cocos2d_PolygonInfo_prototype);
-    jsb_register_class<cocos2d::PolygonInfo>(cx, jsb_cocos2d_PolygonInfo_class, proto, JS::NullPtr());
+    jsb_register_class<cocos2d::PolygonInfo>(cx, jsb_cocos2d_PolygonInfo_class, proto);
 }
 
 JSClass  *jsb_cocos2d_AutoPolygon_class;
 JSObject *jsb_cocos2d_AutoPolygon_prototype;
 
-bool js_cocos2dx_AutoPolygon_generatePolygon(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_AutoPolygon_generatePolygon(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -4993,9 +4902,9 @@ bool js_cocos2dx_AutoPolygon_generatePolygon(JSContext *cx, uint32_t argc, jsval
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_AutoPolygon_generatePolygon : Error processing arguments");
         cocos2d::PolygonInfo* ret = new (std::nothrow) cocos2d::PolygonInfo(cocos2d::AutoPolygon::generatePolygon(arg0));
-        jsval jsret = JSVAL_NULL;
+        JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::PolygonInfo>(cx, ret));
+            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::PolygonInfo>(cx, ret));
         }
         args.rval().set(jsret);
         return true;
@@ -5007,9 +4916,9 @@ bool js_cocos2dx_AutoPolygon_generatePolygon(JSContext *cx, uint32_t argc, jsval
         ok &= jsval_to_ccrect(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_AutoPolygon_generatePolygon : Error processing arguments");
         cocos2d::PolygonInfo* ret = new (std::nothrow) cocos2d::PolygonInfo(cocos2d::AutoPolygon::generatePolygon(arg0, arg1));
-        jsval jsret = JSVAL_NULL;
+        JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::PolygonInfo>(cx, ret));
+            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::PolygonInfo>(cx, ret));
         }
         args.rval().set(jsret);
         return true;
@@ -5017,15 +4926,14 @@ bool js_cocos2dx_AutoPolygon_generatePolygon(JSContext *cx, uint32_t argc, jsval
     if (argc == 3) {
         std::string arg0;
         cocos2d::Rect arg1;
-        double arg2;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
         ok &= jsval_to_ccrect(cx, args.get(1), &arg1);
-        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        double arg2 = args.get(2).toNumber();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_AutoPolygon_generatePolygon : Error processing arguments");
         cocos2d::PolygonInfo* ret = new (std::nothrow) cocos2d::PolygonInfo(cocos2d::AutoPolygon::generatePolygon(arg0, arg1, arg2));
-        jsval jsret = JSVAL_NULL;
+        JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::PolygonInfo>(cx, ret));
+            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::PolygonInfo>(cx, ret));
         }
         args.rval().set(jsret);
         return true;
@@ -5033,26 +4941,24 @@ bool js_cocos2dx_AutoPolygon_generatePolygon(JSContext *cx, uint32_t argc, jsval
     if (argc == 4) {
         std::string arg0;
         cocos2d::Rect arg1;
-        double arg2;
-        double arg3;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
         ok &= jsval_to_ccrect(cx, args.get(1), &arg1);
-        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
-        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
+        double arg2 = args.get(2).toNumber();
+        double arg3 = args.get(3).toNumber();
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_AutoPolygon_generatePolygon : Error processing arguments");
         cocos2d::PolygonInfo* ret = new (std::nothrow) cocos2d::PolygonInfo(cocos2d::AutoPolygon::generatePolygon(arg0, arg1, arg2, arg3));
-        jsval jsret = JSVAL_NULL;
+        JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<cocos2d::PolygonInfo>(cx, ret));
+            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::PolygonInfo>(cx, ret));
         }
         args.rval().set(jsret);
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_AutoPolygon_generatePolygon : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_AutoPolygon_generatePolygon : wrong number of arguments");
     return false;
 }
 
-bool js_cocos2dx_AutoPolygon_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_AutoPolygon_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -5068,8 +4974,7 @@ bool js_cocos2dx_AutoPolygon_constructor(JSContext *cx, uint32_t argc, jsval *vp
     typeClass = typeMapIter->second;
     CCASSERT(typeClass, "The value is null.");
     JS::RootedObject proto(cx, typeClass->proto.ref());
-    JS::RootedObject parent(cx, typeClass->parentProto.ref());
-    JS::RootedObject obj(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
+    JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
     JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
     args.rval().set(objVal);
     // link the native object with the javascript object
@@ -5095,18 +5000,20 @@ void js_cocos2d_AutoPolygon_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 
-void js_register_cocos2dx_AutoPolygon(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_AutoPolygon_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_AutoPolygon_class->name = "AutoPolygon";
-    jsb_cocos2d_AutoPolygon_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_AutoPolygon_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_AutoPolygon_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_AutoPolygon_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_AutoPolygon_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_AutoPolygon_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_AutoPolygon_class->convert = JS_ConvertStub;
-    jsb_cocos2d_AutoPolygon_class->finalize = js_cocos2d_AutoPolygon_finalize;
-    jsb_cocos2d_AutoPolygon_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+void js_register_cocos2dx_AutoPolygon(JSContext *cx, JS::HandleObject global)
+{
+    const JSClassOps AutoPolygon_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        js_cocos2d_AutoPolygon_finalize,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    static JSClass AutoPolygon_class = {
+        "AutoPolygon",
+        JSCLASS_HAS_PRIVATE,
+        &AutoPolygon_classOps
+    };
+    jsb_cocos2d_AutoPolygon_class = &AutoPolygon_class;
 
     static JSPropertySpec properties[] = {
         JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -5122,9 +5029,8 @@ void js_register_cocos2dx_AutoPolygon(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    jsb_cocos2d_AutoPolygon_prototype = JS_InitClass(
-                                                     cx, global,
-                                                     JS::NullPtr(), // parent proto
+    jsb_cocos2d_AutoPolygon_prototype = JS_InitClass(cx, global,
+                                                     nullptr, // parent proto
                                                      jsb_cocos2d_AutoPolygon_class,
                                                      js_cocos2dx_AutoPolygon_constructor, 0, // constructor
                                                      properties,
@@ -5134,25 +5040,7 @@ void js_register_cocos2dx_AutoPolygon(JSContext *cx, JS::HandleObject global) {
 
     // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_cocos2d_AutoPolygon_prototype);
-    jsb_register_class<cocos2d::AutoPolygon>(cx, jsb_cocos2d_AutoPolygon_class, proto, JS::NullPtr());
-}
-
-bool js_cocos2dx_ComponentJS_getScriptObject(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
-    cocos2d::ComponentJS* cobj = (cocos2d::ComponentJS *)(proxy ? proxy->ptr : nullptr);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ComponentJS_getScriptObject : Invalid Native Object");
-    if (argc == 0) {
-        JS::RootedObject ret(cx, static_cast<JSObject*>(cobj->getScriptObject()));
-        jsval jsret = OBJECT_TO_JSVAL(ret);
-        args.rval().set(jsret);
-        return true;
-    }
-
-    JS_ReportError(cx, "js_cocos2dx_ComponentJS_getScriptObject : wrong number of arguments: %d, was expecting %d", argc, 0);
-    return false;
+    jsb_register_class<cocos2d::AutoPolygon>(cx, jsb_cocos2d_AutoPolygon_class, proto);
 }
 
 JSClass  *jsb_RefFinalizeHook_class;
@@ -5160,18 +5048,18 @@ JSObject *jsb_RefFinalizeHook_prototype;
 JSClass  *jsb_ObjFinalizeHook_class;
 JSObject *jsb_ObjFinalizeHook_prototype;
 
-static bool jsb_RefFinalizeHook_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_RefFinalizeHook_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     // Create new object
     JS::RootedObject proto(cx, jsb_RefFinalizeHook_prototype);
-    JS::RootedObject obj(cx, JS_NewObject(cx, jsb_RefFinalizeHook_class, proto, JS::NullPtr()));
+    JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, jsb_RefFinalizeHook_class, proto));
     // Register arguments[0] as owner
     if (!args.get(0).isNullOrUndefined())
     {
         jsb_register_finalize_hook(obj.get(), args.get(0).toObjectOrNull());
     }
-    args.rval().set(OBJECT_TO_JSVAL(obj));
+    args.rval().set(JS::ObjectOrNullValue(obj));
     return true;
 }
 void jsb_RefFinalizeHook_finalize(JSFreeOp *fop, JSObject *obj)
@@ -5221,18 +5109,18 @@ void jsb_RefFinalizeHook_finalize(JSFreeOp *fop, JSObject *obj)
 #endif // COCOS2D_DEBUG
     }
 }
-static bool jsb_ObjFinalizeHook_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_ObjFinalizeHook_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     // Create new object
     JS::RootedObject proto(cx, jsb_ObjFinalizeHook_prototype);
-    JS::RootedObject obj(cx, JS_NewObject(cx, jsb_ObjFinalizeHook_class, proto, JS::NullPtr()));
+    JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, jsb_ObjFinalizeHook_class, proto));
     // Register arguments[0] as owner
     if (!args.get(0).isNullOrUndefined())
     {
         jsb_register_finalize_hook(obj.get(), args.get(0).toObjectOrNull());
     }
-    args.rval().set(OBJECT_TO_JSVAL(obj));
+    args.rval().set(JS::ObjectOrNullValue(obj));
     return true;
 }
 void jsb_ObjFinalizeHook_finalize(JSFreeOp *fop, JSObject *obj)
@@ -5262,43 +5150,47 @@ void jsb_ObjFinalizeHook_finalize(JSFreeOp *fop, JSObject *obj)
     }
 }
 
-void jsb_register_RefFinalizeHook(JSContext *cx, JS::HandleObject global) {
-    jsb_RefFinalizeHook_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_RefFinalizeHook_class->name = "RefFinalizeHook";
-    jsb_RefFinalizeHook_class->addProperty = JS_PropertyStub;
-    jsb_RefFinalizeHook_class->delProperty = JS_DeletePropertyStub;
-    jsb_RefFinalizeHook_class->getProperty = JS_PropertyStub;
-    jsb_RefFinalizeHook_class->setProperty = JS_StrictPropertyStub;
-    jsb_RefFinalizeHook_class->enumerate = JS_EnumerateStub;
-    jsb_RefFinalizeHook_class->resolve = JS_ResolveStub;
-    jsb_RefFinalizeHook_class->convert = JS_ConvertStub;
-    jsb_RefFinalizeHook_class->finalize = jsb_RefFinalizeHook_finalize;
-    jsb_RefFinalizeHook_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+void jsb_register_RefFinalizeHook(JSContext *cx, JS::HandleObject global)
+{
+    const JSClassOps RefFinalizeHook_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        jsb_RefFinalizeHook_finalize,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    static JSClass RefFinalizeHook_class = {
+        "RefFinalizeHook",
+        JSCLASS_HAS_PRIVATE,
+        &RefFinalizeHook_classOps
+    };
+    jsb_RefFinalizeHook_class = &RefFinalizeHook_class;
 
     jsb_RefFinalizeHook_prototype = JS_InitClass(cx, global,
-                                              JS::NullPtr(), // parent proto
+                                              nullptr, // parent proto
                                               jsb_RefFinalizeHook_class,
                                               jsb_RefFinalizeHook_constructor, 0, // constructor
-                                              NULL, NULL, NULL, NULL);
+                                              nullptr, nullptr, nullptr, nullptr);
 }
-void jsb_register_ObjFinalizeHook(JSContext *cx, JS::HandleObject global) {
-    jsb_ObjFinalizeHook_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_ObjFinalizeHook_class->name = "ObjFinalizeHook";
-    jsb_ObjFinalizeHook_class->addProperty = JS_PropertyStub;
-    jsb_ObjFinalizeHook_class->delProperty = JS_DeletePropertyStub;
-    jsb_ObjFinalizeHook_class->getProperty = JS_PropertyStub;
-    jsb_ObjFinalizeHook_class->setProperty = JS_StrictPropertyStub;
-    jsb_ObjFinalizeHook_class->enumerate = JS_EnumerateStub;
-    jsb_ObjFinalizeHook_class->resolve = JS_ResolveStub;
-    jsb_ObjFinalizeHook_class->convert = JS_ConvertStub;
-    jsb_ObjFinalizeHook_class->finalize = jsb_ObjFinalizeHook_finalize;
-    jsb_ObjFinalizeHook_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+void jsb_register_ObjFinalizeHook(JSContext *cx, JS::HandleObject global)
+{
+    const JSClassOps ObjFinalizeHook_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        jsb_ObjFinalizeHook_finalize,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    static JSClass ObjFinalizeHook_class = {
+        "ObjFinalizeHook",
+        JSCLASS_HAS_PRIVATE,
+        &ObjFinalizeHook_classOps
+    };
+    jsb_ObjFinalizeHook_class = &ObjFinalizeHook_class;
     
     jsb_ObjFinalizeHook_prototype = JS_InitClass(cx, global,
-                                              JS::NullPtr(), // parent proto
+                                              nullptr, // parent proto
                                               jsb_ObjFinalizeHook_class,
                                               jsb_ObjFinalizeHook_constructor, 0, // constructor
-                                              NULL, NULL, NULL, NULL);
+                                              nullptr, nullptr, nullptr, nullptr);
 }
 
 void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)

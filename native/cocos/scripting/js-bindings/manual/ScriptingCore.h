@@ -558,22 +558,19 @@ public:
 JSObject* NewGlobalObject(JSContext* cx, bool debug = false);
 
 template <class T>
-js_type_class_t *jsb_register_class(JSContext *cx, JSClass *jsClass, JS::HandleObject proto, JS::HandleObject parentProto)
+js_type_class_t *jsb_register_class(JSContext *cx, JSClass *jsClass, JS::HandleObject proto)
 {
     js_type_class_t *p = nullptr;
     std::string typeName = TypeTest<T>::s_name();
     if (_js_global_type_map.find(typeName) == _js_global_type_map.end())
     {
         JS::RootedObject protoRoot(cx, proto);
-        JS::RootedObject protoParentRoot(cx, parentProto);
         p = (js_type_class_t *)malloc(sizeof(js_type_class_t));
         memset(p, 0, sizeof(js_type_class_t));
         p->jsclass = jsClass;
         auto persistentProtoRoot = new (std::nothrow) JS::PersistentRootedObject(cx, protoRoot);
         p->proto.set(persistentProtoRoot);
         
-        auto persistentProtoParentRoot = new (std::nothrow) JS::PersistentRootedObject(cx, protoParentRoot);
-        p->parentProto.set(persistentProtoParentRoot);
         _js_global_type_map.insert(std::make_pair(typeName, p));
     }
     return p;

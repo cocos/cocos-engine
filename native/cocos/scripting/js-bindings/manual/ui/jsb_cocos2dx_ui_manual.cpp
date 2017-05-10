@@ -29,7 +29,7 @@
 using namespace cocos2d;
 using namespace cocos2d::ui;
 
-static bool js_cocos2dx_LayoutParameter_setMargin(JSContext *cx, uint32_t argc, jsval *vp)
+static bool js_cocos2dx_LayoutParameter_setMargin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -62,24 +62,24 @@ static bool js_cocos2dx_LayoutParameter_setMargin(JSContext *cx, uint32_t argc, 
         bool ok = true;
         double left, top,right,bottom;
         JS::RootedValue jsv(cx, args[0]);
-        ok &= JS::ToNumber(cx, jsv, &left);
+        left = jsv.toNumber();
         jsv.set(args[1]);
-        ok &= JS::ToNumber(cx, jsv, &top);
+        top = jsv.toNumber();
         jsv.set(args[2]);
-        ok &= JS::ToNumber(cx, jsv, &right);
+        right = jsv.toNumber();
         jsv.set(args[3]);
-        ok &= JS::ToNumber(cx, jsv, &bottom);
+        bottom = jsv.toNumber();
 
         JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
         cobj->setMargin(ui::Margin(left,top,right,bottom));
         return true;
     }
-    JS_ReportError(cx, "Invalid number of arguments");
+    JS_ReportErrorUTF8(cx, "Invalid number of arguments");
     return false;
 }
 
-static bool js_cocos2dx_LayoutParameter_getMargin(JSContext *cx, uint32_t argc, jsval *vp)
+static bool js_cocos2dx_LayoutParameter_getMargin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -97,7 +97,7 @@ static bool js_cocos2dx_LayoutParameter_getMargin(JSContext *cx, uint32_t argc, 
             JS_DefineProperty(cx, tmp, "bottom", margin.bottom, JSPROP_ENUMERATE | JSPROP_PERMANENT);
         if (ok)
         {
-            args.rval().set(OBJECT_TO_JSVAL(tmp));
+            args.rval().set(JS::ObjectOrNullValue(tmp));
         }
         else
         {
@@ -105,7 +105,7 @@ static bool js_cocos2dx_LayoutParameter_getMargin(JSContext *cx, uint32_t argc, 
         }
         return true;
     }
-    JS_ReportError(cx, "Invalid number of arguments");
+    JS_ReportErrorUTF8(cx, "Invalid number of arguments");
     return false;
 }
 
@@ -176,7 +176,7 @@ private:
     JS::Heap<JS::Value> _JSDelegate;
 };
 
-static bool js_cocos2dx_CCEditBox_setDelegate(JSContext *cx, uint32_t argc, jsval *vp)
+static bool js_cocos2dx_CCEditBox_setDelegate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
@@ -200,7 +200,7 @@ static bool js_cocos2dx_CCEditBox_setDelegate(JSContext *cx, uint32_t argc, jsva
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
