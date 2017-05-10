@@ -310,10 +310,10 @@ function doDefine (className, baseClass, mixins, options) {
     var prototype = fireClass.prototype;
     if (baseClass) {
         if (!__es6__) {
-            JS.extend(fireClass, baseClass);    // 这里会把父类的 __props__ 复制给子类
-            prototype = fireClass.prototype;    // get extended prototype
+            JS.extend(fireClass, baseClass);        // 这里会把父类的 __props__ 复制给子类
+            prototype = fireClass.prototype;        // get extended prototype
         }
-        JS.value(fireClass, '$super', baseClass);
+        JS.value(fireClass, '$super', baseClass);   // not inheritable in JSB and TypeScript
         if (CC_DEV && shouldAddProtoCtor) {
             prototype.ctor = function () {};
         }

@@ -519,7 +519,8 @@ var _Deserializer = (function () {
                 obj.r = serialized.r || 0;
                 obj.g = serialized.g || 0;
                 obj.b = serialized.b || 0;
-                obj.a = serialized.a || 255;
+                var a = serialized.a;
+                obj.a = (a === undefined ? 255 : a);
             }
             else {
                 _deserializeTypedObject(self, obj, serialized, klass);
