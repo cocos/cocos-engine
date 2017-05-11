@@ -29,8 +29,7 @@
 #include "platform/CCPlatformConfig.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
-
-#include "UIEditBoxImpl.h"
+#include "UIEditBoxImpl-common.h"
 
 NS_CC_BEGIN
 
@@ -38,74 +37,54 @@ namespace ui {
 
 class EditBox;
 
-class CC_GUI_DLL EditBoxImplWin : public EditBoxImpl
+class CC_GUI_DLL EditBoxImplWin : public EditBoxImplCommon
 {
 public:
-    /**
-     * @js NA
-     */
+
     EditBoxImplWin(EditBox* pEditText);
-    /**
-     * @js NA
-     * @lua NA
-     */
     virtual ~EditBoxImplWin();
 
-    virtual bool initWithSize(const Size& size);
-    virtual void setFont(const char* pFontName, int fontSize);
-    virtual void setFontColor(const Color4B& color);
-    virtual void setPlaceholderFont(const char* pFontName, int fontSize);
-    virtual void setPlaceholderFontColor(const Color4B& color);
-    virtual void setInputMode(EditBox::InputMode inputMode);
-    virtual void setInputFlag(EditBox::InputFlag inputFlag);
-    virtual void setMaxLength(int maxLength);
-    virtual int  getMaxLength();
-    virtual void setReturnType(EditBox::KeyboardReturnType returnType);
-    virtual bool isEditing();
+    virtual bool isEditing() override;
+    virtual void createNativeControl(const Rect& frame) override;
+    virtual void setNativeFont(const char* pFontName, int fontSize) override;
+    virtual void setNativeFontColor(const Color4B& color) override;
+    virtual void setNativePlaceholderFont(const char* pFontName, int fontSize) override;
+    virtual void setNativePlaceholderFontColor(const Color4B& color) override;
+    virtual void setNativeInputMode(EditBox::InputMode inputMode) override;
+    virtual void setNativeInputFlag(EditBox::InputFlag inputFlag) override;
+    virtual void setNativeReturnType(EditBox::KeyboardReturnType returnType)override;
+    virtual void setNativeText(const char* pText) override;
+    virtual void setNativePlaceHolder(const char* pText) override;
+    virtual void setNativeVisible(bool visible) override;
+    virtual void updateNativeFrame(const Rect& rect) override;
+    virtual const char* getNativeDefaultFontName() override;
+    virtual void nativeOpenKeyboard() override;
+    virtual void nativeCloseKeyboard() override;
+    virtual void setNativeMaxLength(int maxLength);
 
-    virtual void setText(const char* pText);
-    virtual const char* getText();
-    virtual void setPlaceHolder(const char* pText);
-    virtual void setPosition(const Vec2& pos);
-    virtual void setVisible(bool visible);
-    virtual void setContentSize(const Size& size);
-    virtual void setAnchorPoint(const Vec2& anchorPoint);
-    /**
-     * @js NA
-     * @lua NA
-     */
-    virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)override;
-    virtual void doAnimationWhenKeyboardMove(float duration, float distance);
-    virtual void openKeyboard();
-    virtual void closeKeyboard();
-    /**
-     * @js NA
-     * @lua NA
-     */
-    virtual void onEnter();
 private:
+    void createSingleLineEditCtrl();
+    void createMultilineEditCtrl();
+    void cleanupEditCtrl();
+    std::string getText() const;
+    void  _WindowProc(HWND, UINT, WPARAM, LPARAM);
+    
+    WNDPROC _prevWndProc;
+    static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK hookGLFWWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    Label* _label;
-    Label* _labelPlaceHolder;
-    EditBox::InputMode    _editBoxInputMode;
-    EditBox::InputFlag    _editBoxInputFlag;
-    EditBox::KeyboardReturnType  _keyboardReturnType;
+    HWND hwndEdit;
+    //FIXME: fontSize should be in parent class
+    int _fontSize;
+    bool _changedTextManually;
+    static WNDPROC s_prevCocosWndProc;
 
-    std::string _text;
-    std::string _placeHolder;
-
-    Color4B _colText;
-    Color4B _colPlaceHolder;
-
-    int   _maxLength;
-    Size _editSize;
-
-    std::string _editingText;
-    std::string _originalText;
-    bool _isEditing;
-
-    void onWin32InputBoxTextChange(const char *pText);
-    void onWin32InputBoxClose(INT_PTR buttonId);
+    static HINSTANCE s_hInstance;
+    static HWND s_hwndCocos;
+    static HWND s_previousFocusWnd;
+    static bool s_isInitialized;
+    static int s_editboxChildID;
+    static void lazyInit();
 };
 
 }

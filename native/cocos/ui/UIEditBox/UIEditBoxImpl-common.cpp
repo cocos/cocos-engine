@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2012 James Chen
- Copyright (c) 2013-2015 zilongshanren
+ Copyright (c) 2013-2017 zilongshanren
 
  http://www.cocos2d-x.org
 
@@ -26,6 +26,12 @@
 #include "UIEditBoxImpl-common.h"
 
 #define kLabelZOrder  9999
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#define PASSWORD_CHAR "*"
+#else
+#define PASSWORD_CHAR "\u25CF"
+#endif
 
 #include "UIEditBox.h"
 #include "base/CCDirector.h"
@@ -127,7 +133,7 @@ void EditBoxImplCommon::setInactiveText(const char* pText)
     {
         std::string passwordString;
         for(int i = 0; i < strlen(pText); ++i)
-            passwordString.append("\u25CF");
+            passwordString.append(PASSWORD_CHAR);
         _label->setString(passwordString);
     }
     else
