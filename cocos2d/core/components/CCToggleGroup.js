@@ -81,9 +81,7 @@ var ToggleGroup = cc.Class({
 
     addToggle: function (toggle) {
         var index = this._toggleItems.indexOf(toggle);
-        if (index > -1) {
-            cc.warnID(4500);
-        } else {
+        if (index === -1) {
             this._toggleItems.push(toggle);
         }
         this._allowOnlyOneToggleChecked();
@@ -93,8 +91,6 @@ var ToggleGroup = cc.Class({
         var index = this._toggleItems.indexOf(toggle);
         if(index > -1) {
             this._toggleItems.splice(index, 1);
-        } else {
-            cc.warnID(4501);
         }
         this._makeAtLeastOneToggleChecked();
     },
