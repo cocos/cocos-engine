@@ -364,9 +364,6 @@ if (CC_DEV) {
         "4300": "can not found the %s page.", //removePage
         //RichText: 4400
         "4400": "Invalid RichText img tag! The sprite frame name can\'t be found in the ImageAtlas!", //_addRichTextImageElement
-        //ToggleGroup: 4500
-        "4500": "Toggle alreay in ToggleGroup. Something bad happened, please report this issue to the Creator developer, thanks.", //addToggle
-        "4501": "Toggle is not in ToggleGroup. Something bad happened, please report this issue to the Creator developer, thanks.", //removeToggle
         //MissingScript: 4600
         "4600": "Script attached to '%s' is missing or invalid.", //onLoad
         //EditBox: 4700
