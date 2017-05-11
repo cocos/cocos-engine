@@ -57,6 +57,7 @@ namespace ui {
 
         s_hInstance = GetModuleHandle(NULL);
 
+
         s_prevCocosWndProc = (WNDPROC)SetWindowLongPtr(s_hwndCocos, GWL_WNDPROC, (LONG_PTR)hookGLFWWindowProc);
 
     }
@@ -73,7 +74,7 @@ namespace ui {
         {
             lazyInit();
         }
-
+        
         s_editboxChildID++;
 
     }
@@ -210,6 +211,7 @@ namespace ui {
 
         ::PostMessage(hwndEdit, WM_SETFOCUS, (WPARAM)s_previousFocusWnd, 0);
         s_previousFocusWnd = hwndEdit;
+        this->editBoxEditingDidBegin();
        
     }
     void EditBoxImplWin::nativeCloseKeyboard()
@@ -236,7 +238,6 @@ namespace ui {
         case WM_CHAR:
             if (wParam == VK_RETURN)
             {
-                CCLOG("return key pressed");
                 this->editBoxEditingReturn();
                 this->editBoxEditingDidEnd(this->getText());
             }
@@ -246,24 +247,15 @@ namespace ui {
             ::PostMessage(hwnd, WM_SETCURSOR, (WPARAM)s_previousFocusWnd, 0);
             s_previousFocusWnd = hwndEdit;
             break;
-        case WM_PARENTNOTIFY:
-            if (wParam == WM_LBUTTONDOWN)
-            {
-                //do you staff
-                CCLOG("WM_PARENTNOTIFY");
-            }
-            break;
         case WM_KILLFOCUS:
             //when app enter background, this message also be called.
-            if (!this->_editingMode) {
-                s_previousFocusWnd = s_hwndCocos;
+            if (this->_editingMode && !IsWindowVisible(hwnd))
+            {
+                this->editBoxEditingReturn();
+                this->editBoxEditingDidEnd(this->getText());
             }
             break;
-        case WM_KEYUP:
-        {
-                std::string utf8Result = this->getText();
-                CCLOG("%s", utf8Result.c_str());
-        }
+        default:
         break;
 
         }
@@ -291,16 +283,25 @@ namespace ui {
     {
         switch (uMsg)
         {
+        case WM_COMMAND:
+            if (HIWORD(wParam) == EN_CHANGE) {
+                EditBoxImplWin* pThis = (EditBoxImplWin*)GetWindowLongPtr((HWND)lParam, GWLP_USERDATA);
+                if (pThis)
+                {
+                    pThis->editBoxEditingChanged(pThis->getText());
+                }
 
-        case WM_PARENTNOTIFY:
-            if (wParam == WM_LBUTTONDOWN)
-            {
-                //do you staff
-                CCLOG("WM_PARENTNOTIFY");
             }
             break;
         case WM_LBUTTONDOWN:
-            CCLOG("WM_LBUTTONDOWN");
+            if (s_previousFocusWnd != s_hwndCocos) {
+                ::ShowWindow(s_previousFocusWnd, SW_HIDE);
+                ::PostMessage(s_hwndCocos, WM_SETFOCUS, (WPARAM)s_previousFocusWnd, 0);
+                ::PostMessage(s_hwndCocos, WM_ACTIVATE, (WPARAM)s_previousFocusWnd, 0);
+                ::PostMessage(s_hwndCocos, WM_SETCURSOR, (WPARAM)s_previousFocusWnd, 0);
+                s_previousFocusWnd = s_hwndCocos;
+            }
+          
             break;
         default:
             break;
@@ -312,7 +313,10 @@ namespace ui {
     LRESULT EditBoxImplWin::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         EditBoxImplWin* pThis = (EditBoxImplWin*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-        pThis->_WindowProc(hwnd, uMsg, wParam, lParam);
+        if (pThis)
+        {
+            pThis->_WindowProc(hwnd, uMsg, wParam, lParam);
+        }
 
         return CallWindowProc(pThis->_prevWndProc, hwnd, uMsg, wParam, lParam);
 
