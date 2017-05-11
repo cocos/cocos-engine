@@ -68,7 +68,9 @@ namespace ui {
     }
 
     EditBoxImplWin::EditBoxImplWin(EditBox* pEditText)
-        : EditBoxImplCommon(pEditText)
+        : EditBoxImplCommon(pEditText),
+        _fontSize(40),
+        _changedTextManually(false)
     {
         if (!s_isInitialized)
         {
@@ -122,6 +124,8 @@ namespace ui {
             _prevWndProc = (WNDPROC)SetWindowLongPtr(hwndEdit, GWL_WNDPROC, (LONG_PTR)WindowProc);
 
             ::SendMessageW(hwndEdit, EM_LIMITTEXT, this->_maxLength, 0);
+
+            this->setNativeFont(this->getNativeDefaultFontName(), this->_fontSize);
         }
     }
 
@@ -148,7 +152,7 @@ namespace ui {
             _prevWndProc = (WNDPROC)SetWindowLongPtr(hwndEdit, GWL_WNDPROC, (LONG_PTR)WindowProc);
 
             ::SendMessageW(hwndEdit, EM_LIMITTEXT, this->_maxLength, 0);
-
+            this->setNativeFont(this->getNativeDefaultFontName(), this->_fontSize);
 
         }
     }
@@ -161,21 +165,31 @@ namespace ui {
 
     void EditBoxImplWin::setNativeFont(const char * pFontName, int fontSize)
     {
+        //not implemented yet
+        this->_fontSize = fontSize;
+        HFONT hFont = CreateFontW(fontSize, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
+            CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, VARIABLE_PITCH, TEXT("Arial"));
+
+        SendMessage(hwndEdit,             // Handle of edit control
+            WM_SETFONT,         // Message to change the font
+            (WPARAM)hFont,     // handle of the font
+            MAKELPARAM(TRUE, 0) // Redraw text
+        );
     }
-
-
 
     void EditBoxImplWin::setNativeFontColor(const Color4B & color)
     {
+        //not implemented yet
     }
 
     void EditBoxImplWin::setNativePlaceholderFont(const char * pFontName, int fontSize)
     {
+        //not implemented yet
     }
 
     void EditBoxImplWin::setNativePlaceholderFontColor(const Color4B& color)
     {
-
+        //not implemented yet
     }
 
     void EditBoxImplWin::setNativeInputMode(EditBox::InputMode inputMode)
@@ -216,15 +230,19 @@ namespace ui {
     }
     void EditBoxImplWin::setNativeReturnType(EditBox::KeyboardReturnType returnType)
     {
-
+        //not implemented yet
     }
     void EditBoxImplWin::setNativeText(const char* pText)
     {
-
+        std::u16string utf16Result;
+        std::string text(pText);
+        cocos2d::StringUtils::UTF8ToUTF16(text, utf16Result);
+        ::SetWindowTextW(hwndEdit, (LPCWSTR)utf16Result.c_str());
+        this->_changedTextManually = true;
     }
     void EditBoxImplWin::setNativePlaceHolder(const char* pText)
     {
-
+        //not implemented yet
     }
     void EditBoxImplWin::setNativeVisible(bool visible)
     {
@@ -267,7 +285,7 @@ namespace ui {
     }
     void EditBoxImplWin::nativeCloseKeyboard()
     {
-       // ::PostMessage(hwndEdit, WM_KILLFOCUS, 0, 0);
+       //don't need to implement
     }
     void EditBoxImplWin::setNativeMaxLength(int maxLength)
     {
@@ -300,6 +318,7 @@ namespace ui {
             ::PostMessage(hwnd, WM_ACTIVATE, (WPARAM)s_previousFocusWnd, 0);
             ::PostMessage(hwnd, WM_SETCURSOR, (WPARAM)s_previousFocusWnd, 0);
             s_previousFocusWnd = hwndEdit;
+            this->_changedTextManually = false;
             break;
         case WM_KILLFOCUS:
             //when app enter background, this message also be called.
@@ -340,9 +359,10 @@ namespace ui {
         case WM_COMMAND:
             if (HIWORD(wParam) == EN_CHANGE) {
                 EditBoxImplWin* pThis = (EditBoxImplWin*)GetWindowLongPtr((HWND)lParam, GWLP_USERDATA);
-                if (pThis)
+                if (pThis && !pThis->_changedTextManually)
                 {
                     pThis->editBoxEditingChanged(pThis->getText());
+                    pThis->_changedTextManually = false;
                 }
 
             }
@@ -351,8 +371,6 @@ namespace ui {
             if (s_previousFocusWnd != s_hwndCocos) {
                 ::ShowWindow(s_previousFocusWnd, SW_HIDE);
                 ::PostMessage(s_hwndCocos, WM_SETFOCUS, (WPARAM)s_previousFocusWnd, 0);
-                //::PostMessage(s_hwndCocos, WM_ACTIVATE, (WPARAM)s_previousFocusWnd, 0);
-               // ::PostMessage(s_hwndCocos, WM_SETCURSOR, (WPARAM)s_previousFocusWnd, 0);
                 s_previousFocusWnd = s_hwndCocos;
             }
           

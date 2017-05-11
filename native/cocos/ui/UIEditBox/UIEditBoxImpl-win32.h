@@ -74,7 +74,9 @@ private:
     static LRESULT CALLBACK hookGLFWWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     HWND hwndEdit;
-
+    //FIXME: fontSize should be in parent class
+    int _fontSize;
+    bool _changedTextManually;
     static WNDPROC s_prevCocosWndProc;
 
     static HINSTANCE s_hInstance;
