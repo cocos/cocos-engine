@@ -1451,3 +1451,40 @@ test('animation delay', function () {
 
     strictEqual(state._delayTime, 5, 'delay time should reset when replay');
 });
+
+test('animation pause/resume', function () {
+    var entity = new cc.Node();
+    entity.parent = cc.director.getScene();
+
+    var animation = entity.addComponent(cc.Animation);
+
+    clip = new cc.AnimationClip();
+    clip._name = 'test';
+    clip._duration = 1;
+    clip.curveData = {
+        props: {
+            x: [
+                {frame: 0, value: 0},
+                {frame: 1, value: 100}
+            ]
+        }
+    };
+
+    animation.addClip(clip);
+
+    animation.play('test');
+
+    animation.pause();
+    strictEqual(animation._animator._isPaused, true, 'animation should be paused');
+
+    entity.active = false;
+    strictEqual(animation._animator._isPaused, true, 'animation should be paused');
+
+    entity.active = true;
+    strictEqual(animation._animator._isPaused, true, 'animation should be paused');
+
+    animation.resume();
+    strictEqual(animation._animator._isPaused, false, 'animation should not be paused');
+    
+    entity.parent = null;
+});

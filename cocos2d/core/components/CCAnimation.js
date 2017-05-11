@@ -176,11 +176,15 @@ var Animation = cc.Class({
     },
 
     onEnable: function () {
-        this.resume();
+        if (this._animator) {
+            this._animator.resume();
+        }
     },
 
     onDisable: function () {
-        this.pause();
+        if (this._animator) {
+            this._animator.pause();
+        }
     },
 
     onDestroy: function () {
@@ -305,7 +309,7 @@ var Animation = cc.Class({
             }
         }
         else {
-            this._animator.pause();
+            this.enabled = false;
         }
     },
 
@@ -326,7 +330,7 @@ var Animation = cc.Class({
             }
         }
         else {
-            this._animator.resume();
+            this.enabled = true;
         }
     },
 
