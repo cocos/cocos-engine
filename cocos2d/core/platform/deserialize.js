@@ -136,10 +136,10 @@ var _Deserializer = (function () {
                 if (jsonArray[i]) {
                     if (CC_EDITOR || CC_TEST) {
                         var mainTarget = (i === 0 && target);
-                        this.deserializedList[i] = _deserializeObject(this, jsonArray[i], mainTarget, this.deserializedList, '' + i);
+                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], mainTarget, this.deserializedList, '' + i);
                     }
                     else {
-                        this.deserializedList[i] = _deserializeObject(this, jsonArray[i]);
+                        this.deserializedList[i] = this._deserializeObject(jsonArray[i]);
                     }
                 }
             }
@@ -155,10 +155,10 @@ var _Deserializer = (function () {
         else {
             this.deserializedList = [null];
             if (CC_EDITOR || CC_TEST) {
-                this.deserializedData = jsonObj ? _deserializeObject(this, jsonObj, target, this.deserializedList, '0') : null;
+                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj, target, this.deserializedList, '0') : null;
             }
             else {
-                this.deserializedData = jsonObj ? _deserializeObject(this, jsonObj) : null;
+                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj) : null;
             }
             this.deserializedList[0] = this.deserializedData;
 
@@ -199,6 +199,94 @@ var _Deserializer = (function () {
 
     var prototype = _Deserializer.prototype;
 
+    ///**
+    // * @param {Object} serialized - The obj to deserialize, must be non-nil
+    // * @param {Object} [target=null] - editor only
+    // * @param {Object} [owner] - debug only
+    // * @param {String} [propName] - debug only
+    // */
+    prototype._deserializeObject = function (serialized, target, owner, propName) {
+        var prop;
+        var obj = null;     // the obj to return
+        var klass = null;
+        if (serialized.__type__) {
+
+            // Type Object (including CCClass)
+
+            var type = serialized.__type__;
+            klass = this._classFinder(type, serialized, owner, propName);
+            if (!klass) {
+                var notReported = this._classFinder === JS._getClassById;
+                if (notReported) {
+                    cc.deserialize.reportMissingClass(type);
+                }
+                return null;
+            }
+
+            if ((CC_EDITOR || CC_TEST) && target) {
+                // use target
+                if ( !(target instanceof klass) ) {
+                    cc.warnID(5300, JS.getClassName(target), klass);
+                }
+                obj = target;
+            }
+            else {
+                // instantiate a new object
+                obj = new klass();
+                // Temporary solution
+                if (CC_JSB && klass === cc.SpriteFrame) {
+                    obj.retain();
+                }
+            }
+
+            if (obj._deserialize) {
+                obj._deserialize(serialized.content, this);
+                return obj;
+            }
+            if (cc.Class._isCCClass(klass)) {
+                _deserializeFireClass(this, obj, serialized, klass, target);
+            }
+            else {
+                this._deserializeTypedObject(obj, serialized, klass);
+            }
+        }
+        else if ( !Array.isArray(serialized) ) {
+
+            // embedded primitive javascript object
+
+            obj = ((CC_EDITOR || CC_TEST) && target) || {};
+            this._deserializePrimitiveObject(obj, serialized);
+        }
+        else {
+
+            // Array
+
+            if ((CC_EDITOR || CC_TEST) && target) {
+                target.length = serialized.length;
+                obj = target;
+            }
+            else {
+                obj = new Array(serialized.length);
+            }
+
+            for (var i = 0; i < serialized.length; i++) {
+                prop = serialized[i];
+                if (typeof prop === 'object' && prop) {
+                    if (CC_EDITOR || CC_TEST) {
+                        this._deserializeObjField(obj, prop, '' + i, target && obj);
+                    }
+                    else {
+                        this._deserializeObjField(obj, prop, '' + i);
+                    }
+                }
+                else {
+                    obj[i] = prop;
+                }
+            }
+        }
+        return obj;
+    };
+
     // 和 _deserializeObject 不同的地方在于会判断 id 和 uuid
     prototype._deserializeObjField = function (obj, jsonObj, propName, target) {
         var id = jsonObj.__id__;
@@ -220,10 +308,10 @@ var _Deserializer = (function () {
             }
             else {
                 if (CC_EDITOR || CC_TEST) {
-                    obj[propName] = _deserializeObject(this, jsonObj, target && target[propName], obj, propName);
+                    obj[propName] = this._deserializeObject(jsonObj, target && target[propName], obj, propName);
                 }
                 else {
-                    obj[propName] = _deserializeObject(this, jsonObj);
+                    obj[propName] = this._deserializeObject(jsonObj);
                 }
             }
         }
@@ -268,7 +356,21 @@ var _Deserializer = (function () {
         }
     };
 
-    function _deserializeTypedObject (self, instance, serialized, klass) {
+    prototype._deserializeTypedObject = function (instance, serialized, klass) {
+        if (klass === cc.Vec2) {
+            instance.x = serialized.x || 0;
+            instance.y = serialized.y || 0;
+            return;
+        }
+        else if (klass === cc.Color) {
+            instance.r = serialized.r || 0;
+            instance.g = serialized.g || 0;
+            instance.b = serialized.b || 0;
+            var a = serialized.a;
+            instance.a = (a === undefined ? 255 : a);
+            return;
+        }
+
         var fastDefinedProps = klass.__props__;
         if (!fastDefinedProps) {
             fastDefinedProps = Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
@@ -282,10 +384,10 @@ var _Deserializer = (function () {
                 }
                 else if (prop) {
                     if (CC_EDITOR || CC_TEST) {
-                        self._deserializeObjField(instance, prop, propName, self._target && instance);
+                        this._deserializeObjField(instance, prop, propName, this._target && instance);
                     }
                     else {
-                        self._deserializeObjField(instance, prop, propName);
+                        this._deserializeObjField(instance, prop, propName);
                     }
                 }
                 else {
@@ -293,7 +395,7 @@ var _Deserializer = (function () {
                 }
             }
         }
-    }
+    };
 
     // function _deserializeFireClass(self, obj, serialized, klass, target) {
     //     var RAW_TYPE = Attr.DELIMETER + 'rawType';
@@ -356,6 +458,7 @@ var _Deserializer = (function () {
         var RAW_TYPE = Attr.DELIMETER + 'rawType';
         var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
         var SERIALIZABLE = Attr.DELIMETER + 'serializable';
+        var DEFAULT = Attr.DELIMETER + 'default';
         var attrs = Attr.getClassAttrs(klass);
 
         var props = klass.__props__;
@@ -389,21 +492,41 @@ var _Deserializer = (function () {
                     propNameLiteral = CCClass.escapeForJS(propName);
                     accessor = '[' + propNameLiteral + ']';
                 }
+
                 sources.push('prop=d' + accessor + ';');
                 sources.push('if(typeof prop!=="undefined"){');
-                sources.push(   'if(typeof prop!=="object"){' +
-                                    'o' + accessor + '=prop;');
-                sources.push(   '}else{' +
-                                    'if(prop)');
-                if (CC_EDITOR || CC_TEST) {
-                    sources.push(       's._deserializeObjField(o,prop,' + propNameLiteral + ',t&&o);');
+                sources.push(    'if(typeof prop!=="object"){' +
+                                     'o' + accessor + '=prop;');
+                sources.push(    '}else{' +
+                                     'if(prop){');
+
+                var defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
+                if (defaultValue instanceof cc.ValueType) {
+                    // fast case
+                    var ctorCode = JS.getClassName(defaultValue);
+                    if (CC_EDITOR || CC_TEST) {
+                        sources.push(    'if(!t)' +    // if has default value
+                                             `s._deserializeTypedObject(o${accessor},prop,${ctorCode});`);
+                        sources.push(    'else ' +     // slow case
+                                             's._deserializeObjField(o,prop,' + propNameLiteral + ',o);');
+                    }
+                    else {
+                        sources.push(    `s._deserializeTypedObject(o${accessor},prop,${ctorCode});`);
+                    }
                 }
                 else {
-                    sources.push(       's._deserializeObjField(o,prop,' + propNameLiteral + ');');
+                    // slow case
+                    if (CC_EDITOR || CC_TEST) {
+                        sources.push(    's._deserializeObjField(o,prop,' + propNameLiteral + ',t&&o);');
+                    }
+                    else {
+                        sources.push(    's._deserializeObjField(o,prop,' + propNameLiteral + ');');
+                    }
                 }
-                sources.push(       'else o' + accessor + '=null;' +
-                                '}' +
-                            '}');
+
+                sources.push(        '}else o' + accessor + '=null;' +
+                                 '}' +
+                             '}');
             }
             else {
                 if (CCClass.IDENTIFIER_RE.test(propName)) {
@@ -462,105 +585,6 @@ var _Deserializer = (function () {
                 unlinkUnusedPrefab(self, serialized, obj);
             }
         }
-    }
-
-    ///**
-    // * @param {Object} serialized - The obj to deserialize, must be non-nil
-    // * @param {Object} [target=null] - editor only
-    // * @param {Object} [owner] - debug only
-    // * @param {String} [propName] - debug only
-    // */
-    function _deserializeObject (self, serialized, target, owner, propName) {
-        var prop;
-        var obj = null;     // the obj to return
-        var klass = null;
-        if (serialized.__type__) {
-
-            // Type Object (including CCClass)
-
-            var type = serialized.__type__;
-            klass = self._classFinder(type, serialized, owner, propName);
-            if (!klass) {
-                var notReported = self._classFinder === JS._getClassById;
-                if (notReported) {
-                    cc.deserialize.reportMissingClass(type);
-                }
-                return null;
-            }
-
-            if ((CC_EDITOR || CC_TEST) && target) {
-                // use target
-                if ( !(target instanceof klass) ) {
-                    cc.warnID(5300, JS.getClassName(target), klass);
-                }
-                obj = target;
-            }
-            else {
-                // instantiate a new object
-                obj = new klass();
-                // Temporary solution
-                if (CC_JSB && klass === cc.SpriteFrame) {
-                    obj.retain();
-                }
-            }
-
-            if (obj._deserialize) {
-                obj._deserialize(serialized.content, self);
-                return obj;
-            }
-            if (cc.Class._isCCClass(klass)) {
-                _deserializeFireClass(self, obj, serialized, klass, target);
-            }
-            else if (type === 'cc.Vec2') {
-                obj.x = serialized.x || 0;
-                obj.y = serialized.y || 0;
-            }
-            else if (type === 'cc.Color') {
-                obj.r = serialized.r || 0;
-                obj.g = serialized.g || 0;
-                obj.b = serialized.b || 0;
-                var a = serialized.a;
-                obj.a = (a === undefined ? 255 : a);
-            }
-            else {
-                _deserializeTypedObject(self, obj, serialized, klass);
-            }
-        }
-        else if ( !Array.isArray(serialized) ) {
-
-            // embedded primitive javascript object
-
-            obj = ((CC_EDITOR || CC_TEST) && target) || {};
-            self._deserializePrimitiveObject(obj, serialized);
-        }
-        else {
-
-            // Array
-
-            if ((CC_EDITOR || CC_TEST) && target) {
-                target.length = serialized.length;
-                obj = target;
-            }
-            else {
-                obj = new Array(serialized.length);
-            }
-
-            for (var i = 0; i < serialized.length; i++) {
-                prop = serialized[i];
-                if (typeof prop === 'object' && prop) {
-                    if (CC_EDITOR || CC_TEST) {
-                        self._deserializeObjField(obj, prop, '' + i, target && obj);
-                    }
-                    else {
-                        self._deserializeObjField(obj, prop, '' + i);
-                    }
-                }
-                else {
-                    obj[i] = prop;
-                }
-            }
-        }
-        return obj;
     }
 
     return _Deserializer;

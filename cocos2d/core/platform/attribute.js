@@ -26,6 +26,8 @@
 var JS = require('./js');
 var isPlainEmptyObj = require('./utils').isPlainEmptyObj_DEV;
 
+const DELIMETER = '$_$';
+
 function createAttrsSingle (owner, ownerCtor, superAttrs) {
     var AttrsCtor;
     if (CC_DEV) {
@@ -65,8 +67,6 @@ function createAttrs (subclass) {
     createAttrsSingle(subclass, subclass, superClass && superClass.__attrs__);
     return subclass.__attrs__;
 }
-
-var DELIMETER = '$_$';
 
 // /**
 //  * @class Class
