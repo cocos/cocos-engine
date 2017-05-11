@@ -107,7 +107,6 @@ void js_register_cocos2dx_ui_LayoutParameter(JSContext *cx, JS::HandleObject glo
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_LayoutParameter_class = {
         "LayoutParameter",
         JSCLASS_HAS_PRIVATE,
@@ -235,7 +234,6 @@ void js_register_cocos2dx_ui_LinearLayoutParameter(JSContext *cx, JS::HandleObje
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_LinearLayoutParameter_class = {
         "LinearLayoutParameter",
         JSCLASS_HAS_PRIVATE,
@@ -440,7 +438,6 @@ void js_register_cocos2dx_ui_RelativeLayoutParameter(JSContext *cx, JS::HandleOb
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_RelativeLayoutParameter_class = {
         "RelativeLayoutParameter",
         JSCLASS_HAS_PRIVATE,
@@ -2126,7 +2123,6 @@ void js_register_cocos2dx_ui_Widget(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_Widget_class = {
         "Widget",
         JSCLASS_HAS_PRIVATE,
@@ -2970,7 +2966,6 @@ void js_register_cocos2dx_ui_Layout(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_Layout_class = {
         "Layout",
         JSCLASS_HAS_PRIVATE,
@@ -4037,7 +4032,6 @@ void js_register_cocos2dx_ui_Button(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_Button_class = {
         "Button",
         JSCLASS_HAS_PRIVATE,
@@ -4652,7 +4646,6 @@ void js_register_cocos2dx_ui_AbstractCheckButton(JSContext *cx, JS::HandleObject
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_AbstractCheckButton_class = {
         "AbstractCheckButton",
         JSCLASS_HAS_PRIVATE,
@@ -4943,7 +4936,6 @@ void js_register_cocos2dx_ui_CheckBox(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_CheckBox_class = {
         "CheckBox",
         JSCLASS_HAS_PRIVATE,
@@ -5219,7 +5211,6 @@ void js_register_cocos2dx_ui_RadioButton(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_RadioButton_class = {
         "RadioButton",
         JSCLASS_HAS_PRIVATE,
@@ -5648,7 +5639,6 @@ void js_register_cocos2dx_ui_RadioButtonGroup(JSContext *cx, JS::HandleObject gl
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_RadioButtonGroup_class = {
         "RadioButtonGroup",
         JSCLASS_HAS_PRIVATE,
@@ -5989,7 +5979,6 @@ void js_register_cocos2dx_ui_ImageView(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_ImageView_class = {
         "ImageView",
         JSCLASS_HAS_PRIVATE,
@@ -6775,7 +6764,6 @@ void js_register_cocos2dx_ui_Text(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_Text_class = {
         "Text",
         JSCLASS_HAS_PRIVATE,
@@ -7068,7 +7056,6 @@ void js_register_cocos2dx_ui_TextAtlas(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_TextAtlas_class = {
         "TextAtlas",
         JSCLASS_HAS_PRIVATE,
@@ -7470,7 +7457,6 @@ void js_register_cocos2dx_ui_LoadingBar(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_LoadingBar_class = {
         "LoadingBar",
         JSCLASS_HAS_PRIVATE,
@@ -8670,7 +8656,6 @@ void js_register_cocos2dx_ui_ScrollView(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_ScrollView_class = {
         "ScrollView",
         JSCLASS_HAS_PRIVATE,
@@ -9604,7 +9589,6 @@ void js_register_cocos2dx_ui_ListView(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_ListView_class = {
         "ListView",
         JSCLASS_HAS_PRIVATE,
@@ -10394,7 +10378,6 @@ void js_register_cocos2dx_ui_Slider(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_Slider_class = {
         "Slider",
         JSCLASS_HAS_PRIVATE,
@@ -11040,7 +11023,6 @@ void js_register_cocos2dx_ui_UICCTextField(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_UICCTextField_class = {
         "UICCTextField",
         JSCLASS_HAS_PRIVATE,
@@ -12107,7 +12089,6 @@ void js_register_cocos2dx_ui_TextField(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_TextField_class = {
         "TextField",
         JSCLASS_HAS_PRIVATE,
@@ -12397,7 +12378,6 @@ void js_register_cocos2dx_ui_TextBMFont(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_TextBMFont_class = {
         "TextBMFont",
         JSCLASS_HAS_PRIVATE,
@@ -13083,7 +13063,6 @@ void js_register_cocos2dx_ui_PageView(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_PageView_class = {
         "PageView",
         JSCLASS_HAS_PRIVATE,
@@ -13373,7 +13352,6 @@ void js_register_cocos2dx_ui_Helper(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_Helper_class = {
         "Helper",
         JSCLASS_HAS_PRIVATE,
@@ -13537,7 +13515,6 @@ void js_register_cocos2dx_ui_RichElement(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_RichElement_class = {
         "RichElement",
         JSCLASS_HAS_PRIVATE,
@@ -14121,7 +14098,6 @@ void js_register_cocos2dx_ui_RichElementText(JSContext *cx, JS::HandleObject glo
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_RichElementText_class = {
         "RichElementText",
         JSCLASS_HAS_PRIVATE,
@@ -14366,7 +14342,6 @@ void js_register_cocos2dx_ui_RichElementImage(JSContext *cx, JS::HandleObject gl
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_RichElementImage_class = {
         "RichElementImage",
         JSCLASS_HAS_PRIVATE,
@@ -14533,7 +14508,6 @@ void js_register_cocos2dx_ui_RichElementCustomNode(JSContext *cx, JS::HandleObje
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_RichElementCustomNode_class = {
         "RichElementCustomNode",
         JSCLASS_HAS_PRIVATE,
@@ -14651,7 +14625,6 @@ void js_register_cocos2dx_ui_RichElementNewLine(JSContext *cx, JS::HandleObject 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_RichElementNewLine_class = {
         "RichElementNewLine",
         JSCLASS_HAS_PRIVATE,
@@ -15823,7 +15796,6 @@ void js_register_cocos2dx_ui_RichText(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_RichText_class = {
         "RichText",
         JSCLASS_HAS_PRIVATE,
@@ -16022,7 +15994,6 @@ void js_register_cocos2dx_ui_HBox(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_HBox_class = {
         "HBox",
         JSCLASS_HAS_PRIVATE,
@@ -16177,7 +16148,6 @@ void js_register_cocos2dx_ui_VBox(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_VBox_class = {
         "VBox",
         JSCLASS_HAS_PRIVATE,
@@ -16332,7 +16302,6 @@ void js_register_cocos2dx_ui_RelativeBox(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_RelativeBox_class = {
         "RelativeBox",
         JSCLASS_HAS_PRIVATE,
@@ -17624,7 +17593,6 @@ void js_register_cocos2dx_ui_Scale9Sprite(JSContext *cx, JS::HandleObject global
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_Scale9Sprite_class = {
         "Scale9Sprite",
         JSCLASS_HAS_PRIVATE,
@@ -18393,7 +18361,6 @@ void js_register_cocos2dx_ui_EditBox(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_EditBox_class = {
         "EditBox",
         JSCLASS_HAS_PRIVATE,
@@ -19482,7 +19449,6 @@ void js_register_cocos2dx_ui_LayoutComponent(JSContext *cx, JS::HandleObject glo
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_LayoutComponent_class = {
         "LayoutComponent",
         JSCLASS_HAS_PRIVATE,
@@ -19918,7 +19884,6 @@ void js_register_cocos2dx_ui_TabHeader(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_TabHeader_class = {
         "TabHeader",
         JSCLASS_HAS_PRIVATE,
@@ -20462,7 +20427,6 @@ void js_register_cocos2dx_ui_TabControl(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_TabControl_class = {
         "TabControl",
         JSCLASS_HAS_PRIVATE,
@@ -20802,7 +20766,6 @@ void js_register_cocos2dx_ui_ScrollViewBar(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ui_ScrollViewBar_class = {
         "ScrollViewBar",
         JSCLASS_HAS_PRIVATE,

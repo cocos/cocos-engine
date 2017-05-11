@@ -43,13 +43,10 @@ public:
     {
         std::string s = "default";
         _eventRegistry[s] = nullptr;
-        JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
-        _JSDelegate.construct(cx);
     }
     
     ~JSB_SocketIODelegate()
     {
-        _JSDelegate.destroyIfConstructed();
     }
     
     virtual void onConnect(SIOClient* client)
@@ -101,8 +98,9 @@ public:
             std::shared_ptr<JSFunctionWrapper> callback = it->second;
             if (callback != nullptr)
             {
+                JS::HandleValueArray argsv(args);
                 JS::RootedValue rval(cx);
-                callback->invoke(1, &args, &rval);
+                callback->invoke(argsv, &rval);
             }
         }
         
@@ -138,7 +136,7 @@ bool js_cocos2dx_SocketIO_constructor(JSContext *cx, uint32_t argc, JS::Value *v
     return false;
 }
 
-bool js_cocos2dx_SocketIO_connect(JSContext* cx, uint32_t argc, jsval* vp)
+bool js_cocos2dx_SocketIO_connect(JSContext* cx, uint32_t argc, JS::Value* vp)
 {
     CCLOG("JSB SocketIO.connect method called");
 
@@ -210,7 +208,7 @@ bool js_cocos2dx_SocketIO_connect(JSContext* cx, uint32_t argc, jsval* vp)
     return false;
 }
 
-bool js_cocos2dx_SocketIO_send(JSContext* cx, uint32_t argc, jsval* vp)
+bool js_cocos2dx_SocketIO_send(JSContext* cx, uint32_t argc, JS::Value* vp)
 {
     CCLOG("JSB SocketIO.send method called");
 
@@ -240,7 +238,7 @@ bool js_cocos2dx_SocketIO_send(JSContext* cx, uint32_t argc, jsval* vp)
     return false;
 }
 
-bool js_cocos2dx_SocketIO_emit(JSContext* cx, uint32_t argc, jsval* vp)
+bool js_cocos2dx_SocketIO_emit(JSContext* cx, uint32_t argc, JS::Value* vp)
 {
     CCLOG("JSB SocketIO.emit method called");
 
@@ -274,7 +272,7 @@ bool js_cocos2dx_SocketIO_emit(JSContext* cx, uint32_t argc, jsval* vp)
     return false;
 }
 
-bool js_cocos2dx_SocketIO_disconnect(JSContext* cx, uint32_t argc, jsval* vp)
+bool js_cocos2dx_SocketIO_disconnect(JSContext* cx, uint32_t argc, JS::Value* vp)
 {
     CCLOG("JSB SocketIO.disconnect method called");
 
@@ -295,7 +293,7 @@ bool js_cocos2dx_SocketIO_disconnect(JSContext* cx, uint32_t argc, jsval* vp)
     return false;
 }
 
-bool js_cocos2dx_SocketIO_close(JSContext* cx, uint32_t argc, jsval* vp)
+bool js_cocos2dx_SocketIO_close(JSContext* cx, uint32_t argc, JS::Value* vp)
 {
     CCLOG("JSB SocketIO.close method called");
 
@@ -313,7 +311,7 @@ bool js_cocos2dx_SocketIO_close(JSContext* cx, uint32_t argc, jsval* vp)
     return false;
 }
 
-static bool _js_set_SIOClient_tag(JSContext* cx, uint32_t argc, jsval* vp)
+static bool _js_set_SIOClient_tag(JSContext* cx, uint32_t argc, JS::Value* vp)
 {
     CCLOG("JSB SocketIO.setTag method called");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -336,7 +334,7 @@ static bool _js_set_SIOClient_tag(JSContext* cx, uint32_t argc, jsval* vp)
     }
 }
 
-static bool _js_get_SIOClient_tag(JSContext* cx, uint32_t argc, jsval* vp)
+static bool _js_get_SIOClient_tag(JSContext* cx, uint32_t argc, JS::Value* vp)
 {
     CCLOG("JSB SocketIO.getTag method called");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -357,7 +355,7 @@ static bool _js_get_SIOClient_tag(JSContext* cx, uint32_t argc, jsval* vp)
 }
 
 
-bool js_cocos2dx_SocketIO_on(JSContext* cx, uint32_t argc, jsval* vp)
+bool js_cocos2dx_SocketIO_on(JSContext* cx, uint32_t argc, JS::Value* vp)
 {
     CCLOG("JSB SocketIO.on method called");
 
@@ -392,18 +390,19 @@ bool js_cocos2dx_SocketIO_on(JSContext* cx, uint32_t argc, jsval* vp)
 
 void register_jsb_socketio(JSContext *cx, JS::HandleObject global)
 {
-    js_cocos2dx_socketio_class = (JSClass *)calloc(1, sizeof(JSClass));
-    js_cocos2dx_socketio_class->name = "SocketIO";
-    js_cocos2dx_socketio_class->addProperty = JS_PropertyStub;
-    js_cocos2dx_socketio_class->delProperty = JS_DeletePropertyStub;
-    js_cocos2dx_socketio_class->getProperty = JS_PropertyStub;
-    js_cocos2dx_socketio_class->setProperty = JS_StrictPropertyStub;
-    js_cocos2dx_socketio_class->enumerate = JS_EnumerateStub;
-    js_cocos2dx_socketio_class->resolve = JS_ResolveStub;
-    js_cocos2dx_socketio_class->convert = JS_ConvertStub;
-    js_cocos2dx_socketio_class->finalize = js_cocos2dx_SocketIO_finalize;
-    js_cocos2dx_socketio_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
-
+    const JSClassOps SocketIO_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        js_cocos2dx_SocketIO_finalize,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    static JSClass SocketIO_class = {
+        "SocketIO",
+        JSCLASS_HAS_PRIVATE,
+        &SocketIO_classOps
+    };
+    js_cocos2dx_socketio_class = &SocketIO_class;
+    
     static JSPropertySpec properties[] =
     {
         JS_PSGS("tag", _js_get_SIOClient_tag, _js_set_SIOClient_tag, JSPROP_PERMANENT | JSPROP_ENUMERATE),

@@ -215,7 +215,6 @@ void js_register_cocos2dx_extension_EventAssetsManagerEx(JSContext *cx, JS::Hand
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_EventAssetsManagerEx_class = {
         "EventAssetsManager",
         JSCLASS_HAS_PRIVATE,
@@ -398,7 +397,6 @@ void js_register_cocos2dx_extension_Manifest(JSContext *cx, JS::HandleObject glo
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_Manifest_class = {
         "Manifest",
         JSCLASS_HAS_PRIVATE,
@@ -769,7 +767,6 @@ void js_register_cocos2dx_extension_AssetsManagerEx(JSContext *cx, JS::HandleObj
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_AssetsManagerEx_class = {
         "AssetsManager",
         JSCLASS_HAS_PRIVATE,
@@ -853,7 +850,6 @@ void js_register_cocos2dx_extension_EventListenerAssetsManagerEx(JSContext *cx, 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_EventListenerAssetsManagerEx_class = {
         "EventListenerAssetsManager",
         JSCLASS_HAS_PRIVATE,
@@ -1185,7 +1181,6 @@ void js_register_cocos2dx_extension_Control(JSContext *cx, JS::HandleObject glob
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_Control_class = {
         "Control",
         JSCLASS_HAS_PRIVATE,
@@ -2313,7 +2308,6 @@ void js_register_cocos2dx_extension_ControlButton(JSContext *cx, JS::HandleObjec
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_ControlButton_class = {
         "ControlButton",
         JSCLASS_HAS_PRIVATE,
@@ -2682,7 +2676,6 @@ void js_register_cocos2dx_extension_ControlHuePicker(JSContext *cx, JS::HandleOb
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_ControlHuePicker_class = {
         "ControlHuePicker",
         JSCLASS_HAS_PRIVATE,
@@ -2969,7 +2962,6 @@ void js_register_cocos2dx_extension_ControlSaturationBrightnessPicker(JSContext 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_ControlSaturationBrightnessPicker_class = {
         "ControlSaturationBrightnessPicker",
         JSCLASS_HAS_PRIVATE,
@@ -3294,7 +3286,6 @@ void js_register_cocos2dx_extension_ControlColourPicker(JSContext *cx, JS::Handl
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_ControlColourPicker_class = {
         "ControlColourPicker",
         JSCLASS_HAS_PRIVATE,
@@ -3833,7 +3824,6 @@ void js_register_cocos2dx_extension_ControlPotentiometer(JSContext *cx, JS::Hand
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_ControlPotentiometer_class = {
         "ControlPotentiometer",
         JSCLASS_HAS_PRIVATE,
@@ -4641,7 +4631,6 @@ void js_register_cocos2dx_extension_ControlSlider(JSContext *cx, JS::HandleObjec
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_ControlSlider_class = {
         "ControlSlider",
         JSCLASS_HAS_PRIVATE,
@@ -5242,7 +5231,6 @@ void js_register_cocos2dx_extension_ControlStepper(JSContext *cx, JS::HandleObje
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_ControlStepper_class = {
         "ControlStepper",
         JSCLASS_HAS_PRIVATE,
@@ -5750,7 +5738,6 @@ void js_register_cocos2dx_extension_ControlSwitch(JSContext *cx, JS::HandleObjec
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_ControlSwitch_class = {
         "ControlSwitch",
         JSCLASS_HAS_PRIVATE,
@@ -6589,7 +6576,6 @@ void js_register_cocos2dx_extension_ScrollView(JSContext *cx, JS::HandleObject g
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_ScrollView_class = {
         "ScrollView",
         JSCLASS_HAS_PRIVATE,
@@ -6784,7 +6770,6 @@ void js_register_cocos2dx_extension_TableViewCell(JSContext *cx, JS::HandleObjec
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_TableViewCell_class = {
         "TableViewCell",
         JSCLASS_HAS_PRIVATE,
@@ -7147,7 +7132,6 @@ void js_register_cocos2dx_extension_TableView(JSContext *cx, JS::HandleObject gl
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_extension_TableView_class = {
         "TableView",
         JSCLASS_HAS_PRIVATE,

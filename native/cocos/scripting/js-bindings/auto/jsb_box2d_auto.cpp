@@ -275,7 +275,6 @@ void js_register_box2dclasses_b2Draw(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2Draw_class = {
         "Draw",
         JSCLASS_HAS_PRIVATE,
@@ -509,7 +508,6 @@ void js_register_box2dclasses_b2Shape(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2Shape_class = {
         "Shape",
         JSCLASS_HAS_PRIVATE,
@@ -850,7 +848,6 @@ void js_register_box2dclasses_b2CircleShape(JSContext *cx, JS::HandleObject glob
         js_b2CircleShape_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2CircleShape_class = {
         "CircleShape",
         JSCLASS_HAS_PRIVATE,
@@ -1133,7 +1130,6 @@ void js_register_box2dclasses_b2EdgeShape(JSContext *cx, JS::HandleObject global
         js_b2EdgeShape_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2EdgeShape_class = {
         "EdgeShape",
         JSCLASS_HAS_PRIVATE,
@@ -1477,7 +1473,6 @@ void js_register_box2dclasses_b2ChainShape(JSContext *cx, JS::HandleObject globa
         js_b2ChainShape_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2ChainShape_class = {
         "ChainShape",
         JSCLASS_HAS_PRIVATE,
@@ -1796,7 +1791,6 @@ void js_register_box2dclasses_b2PolygonShape(JSContext *cx, JS::HandleObject glo
         js_b2PolygonShape_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2PolygonShape_class = {
         "PolygonShape",
         JSCLASS_HAS_PRIVATE,
@@ -2957,7 +2951,6 @@ void js_register_box2dclasses_b2Body(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2Body_class = {
         "Body",
         JSCLASS_HAS_PRIVATE,
@@ -3517,7 +3510,6 @@ void js_register_box2dclasses_b2Fixture(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2Fixture_class = {
         "Fixture",
         JSCLASS_HAS_PRIVATE,
@@ -3703,7 +3695,6 @@ void js_register_box2dclasses_b2ContactListener(JSContext *cx, JS::HandleObject 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2ContactListener_class = {
         "b2ContactListener",
         JSCLASS_HAS_PRIVATE,
@@ -3785,7 +3776,6 @@ void js_register_box2dclasses_b2QueryCallback(JSContext *cx, JS::HandleObject gl
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2QueryCallback_class = {
         "b2QueryCallback",
         JSCLASS_HAS_PRIVATE,
@@ -3870,7 +3860,6 @@ void js_register_box2dclasses_b2RayCastCallback(JSContext *cx, JS::HandleObject 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2RayCastCallback_class = {
         "b2RayCastCallback",
         JSCLASS_HAS_PRIVATE,
@@ -4800,7 +4789,6 @@ void js_register_box2dclasses_b2World(JSContext *cx, JS::HandleObject global) {
         js_b2World_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2World_class = {
         "World",
         JSCLASS_HAS_PRIVATE,
@@ -5327,7 +5315,6 @@ void js_register_box2dclasses_b2Contact(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2Contact_class = {
         "Contact",
         JSCLASS_HAS_PRIVATE,
@@ -5649,7 +5636,6 @@ void js_register_box2dclasses_b2Joint(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2Joint_class = {
         "Joint",
         JSCLASS_HAS_PRIVATE,
@@ -5957,7 +5943,6 @@ void js_register_box2dclasses_b2DistanceJoint(JSContext *cx, JS::HandleObject gl
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2DistanceJoint_class = {
         "b2DistanceJoint",
         JSCLASS_HAS_PRIVATE,
@@ -6229,7 +6214,6 @@ void js_register_box2dclasses_b2FrictionJoint(JSContext *cx, JS::HandleObject gl
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2FrictionJoint_class = {
         "b2FrictionJoint",
         JSCLASS_HAS_PRIVATE,
@@ -6469,7 +6453,6 @@ void js_register_box2dclasses_b2GearJoint(JSContext *cx, JS::HandleObject global
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2GearJoint_class = {
         "b2GearJoint",
         JSCLASS_HAS_PRIVATE,
@@ -6815,7 +6798,6 @@ void js_register_box2dclasses_b2MotorJoint(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2MotorJoint_class = {
         "b2MotorJoint",
         JSCLASS_HAS_PRIVATE,
@@ -7149,7 +7131,6 @@ void js_register_box2dclasses_b2MouseJoint(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2MouseJoint_class = {
         "b2MouseJoint",
         JSCLASS_HAS_PRIVATE,
@@ -7650,7 +7631,6 @@ void js_register_box2dclasses_b2PrismaticJoint(JSContext *cx, JS::HandleObject g
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2PrismaticJoint_class = {
         "b2PrismaticJoint",
         JSCLASS_HAS_PRIVATE,
@@ -7966,7 +7946,6 @@ void js_register_box2dclasses_b2PulleyJoint(JSContext *cx, JS::HandleObject glob
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2PulleyJoint_class = {
         "b2PulleyJoint",
         JSCLASS_HAS_PRIVATE,
@@ -8448,7 +8427,6 @@ void js_register_box2dclasses_b2RevoluteJoint(JSContext *cx, JS::HandleObject gl
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2RevoluteJoint_class = {
         "b2RevoluteJoint",
         JSCLASS_HAS_PRIVATE,
@@ -8709,7 +8687,6 @@ void js_register_box2dclasses_b2RopeJoint(JSContext *cx, JS::HandleObject global
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2RopeJoint_class = {
         "b2RopeJoint",
         JSCLASS_HAS_PRIVATE,
@@ -8996,7 +8973,6 @@ void js_register_box2dclasses_b2WeldJoint(JSContext *cx, JS::HandleObject global
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2WeldJoint_class = {
         "b2WeldJoint",
         JSCLASS_HAS_PRIVATE,
@@ -9457,7 +9433,6 @@ void js_register_box2dclasses_b2WheelJoint(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass b2WheelJoint_class = {
         "b2WheelJoint",
         JSCLASS_HAS_PRIVATE,

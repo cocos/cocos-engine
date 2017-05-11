@@ -120,7 +120,7 @@ JS_PSGS(#propName, _js_get_##klass##_##propName, _js_set_##klass##_##propName, J
 #define JS_CREATE_UINT_WRAPPED(valOut, propName, val) \
 do { \
 JSObject* jsobj = JS_NewPlainObject(cx); \
-jsval propVal = UINT_TO_JSVAL(val); \
+jsval propVal = JS::Int32Value(val); \
 JS_SetProperty(cx, jsobj, "__" propName, &propVal); \
 valOut = JS::ObjectOrNullValue(jsobj); \
 } while(0)

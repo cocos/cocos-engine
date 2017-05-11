@@ -58,7 +58,7 @@ bool jsval_get_b2Vec2( JSContext *cx, JS::RootedObject& obj, const char* name, b
     return true;
 }
 
-bool jsval_to_b2Vec2( JSContext *cx, jsval vp, b2Vec2 *ret )
+bool jsval_to_b2Vec2( JSContext *cx, JS::HandleValue vp, b2Vec2 *ret )
 {
     JS::RootedObject jsobj(cx);
     JS::RootedValue jsv(cx, vp);
@@ -79,22 +79,21 @@ bool jsval_to_b2Vec2( JSContext *cx, jsval vp, b2Vec2 *ret )
     return true;
 }
 
-jsval b2Vec2_to_jsval(JSContext *cx, const b2Vec2& v)
+JS::HandleValue b2Vec2_to_jsval(JSContext *cx, const b2Vec2& v)
 {
     JS::RootedObject object(cx, JS_NewPlainObject(cx));
-    if (!object)
-        return JSVAL_VOID;
+    JS::RootedValue ret(cx);
 
-    if (!JS_DefineProperty(cx, object, "x", v.x, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
-        !JS_DefineProperty(cx, object, "y", v.y, JSPROP_ENUMERATE | JSPROP_PERMANENT) )
-        return JSVAL_VOID;
-
-    return JS::ObjectOrNullValue(object);
+    if (JS_DefineProperty(cx, object, "x", v.x, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, object, "y", v.y, JSPROP_ENUMERATE | JSPROP_PERMANENT) )
+        ret = JS::ObjectOrNullValue(object);
+    
+    return ret;
 }
 
 
 
-bool jsval_to_b2AABB( JSContext *cx, jsval vp, b2AABB *ret )
+bool jsval_to_b2AABB( JSContext *cx, JS::HandleValue vp, b2AABB *ret )
 {
     JS::RootedObject jsobj(cx);
     JS::RootedValue jsv(cx, vp);
@@ -109,7 +108,7 @@ bool jsval_to_b2AABB( JSContext *cx, jsval vp, b2AABB *ret )
     return true;
 }
 
-bool jsval_to_b2FixtureDef( JSContext *cx, jsval vp, b2FixtureDef *ret )
+bool jsval_to_b2FixtureDef( JSContext *cx, JS::HandleValue vp, b2FixtureDef *ret )
 {
     JS::RootedObject jsobj(cx);
     JS::RootedValue jsv(cx, vp);
@@ -171,7 +170,7 @@ bool jsval_to_b2FixtureDef( JSContext *cx, jsval vp, b2FixtureDef *ret )
     return true;
 }
 
-bool jsval_to_b2BodyDef( JSContext *cx, jsval vp, b2BodyDef *ret )
+bool jsval_to_b2BodyDef( JSContext *cx, JS::HandleValue vp, b2BodyDef *ret )
 {
     JS::RootedObject jsobj(cx);
     JS::RootedValue jsv(cx, vp);
@@ -273,7 +272,7 @@ bool jsval_to_b2BodyDef( JSContext *cx, jsval vp, b2BodyDef *ret )
 }
 
 
-bool jsval_to_b2JointDef( JSContext *cx, jsval vp, b2JointType type, b2JointDef *ret )
+bool jsval_to_b2JointDef( JSContext *cx, JS::HandleValue vp, b2JointType type, b2JointDef *ret )
 {
     JS::RootedObject jsobj(cx);
     JS::RootedValue jsv(cx, vp);
@@ -455,7 +454,6 @@ bool jsval_to_b2JointDef( JSContext *cx, jsval vp, b2JointType type, b2JointDef 
             JS::RootedValue vallengthA(cx);
             JS::RootedValue vallengthB(cx);
             JS::RootedValue valratio(cx);
-            JS::RootedValue valcollideConnected(cx);
 
             ok &= JS_GetProperty(cx, jsobj, "lengthB", &vallengthB);
             ok &= JS_GetProperty(cx, jsobj, "lengthA", &vallengthA);
@@ -583,8 +581,8 @@ bool jsval_to_array_of_b2Vec2(JSContext* cx, JS::HandleValue v, b2Vec2 *points, 
     // Parsing sequence
     JS::RootedObject jsobj(cx);
     bool ok = v.isObject() && JS_ValueToObject( cx, v, &jsobj );
-    JSB_PRECONDITION3( ok, cx, false, "Error converting value to object");
-    JSB_PRECONDITION3( jsobj && JS_IsArrayObject( cx, jsobj), cx, false, "Object must be an array");
+    JSB_PRECONDITION3(ok, cx, false, "Error converting value to object");
+    JSB_PRECONDITION3(JS_IsArrayObject( cx, jsobj, &ok) && ok, cx, false, "Object must be an array");
     
     for( uint32_t i=0; i<numPoints; i++ ) {
         JS::RootedValue valarg(cx);
@@ -598,10 +596,10 @@ bool jsval_to_array_of_b2Vec2(JSContext* cx, JS::HandleValue v, b2Vec2 *points, 
 }
 
 
-jsval b2Manifold_to_jsval(JSContext* cx, const b2Manifold* v)
+JS::HandleValue b2Manifold_to_jsval(JSContext* cx, const b2Manifold* v)
 {
     JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
-    if (!tmp) return JS::NullValue();
+    JS::RootedValue ret(cx);
     
     bool ok = JS_DefineProperty(cx, tmp, "localPoint", JS::RootedValue(cx, b2Vec2_to_jsval(cx, v->localPoint)), JSPROP_ENUMERATE | JSPROP_PERMANENT);
     ok &= JS_DefineProperty(cx, tmp, "localNormal", JS::RootedValue(cx, b2Vec2_to_jsval(cx, v->localNormal)), JSPROP_ENUMERATE | JSPROP_PERMANENT);
@@ -628,15 +626,15 @@ jsval b2Manifold_to_jsval(JSContext* cx, const b2Manifold* v)
     ok &= JS_DefineProperty(cx, tmp, "points", jsretArr, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
     if (ok) {
-        return JS::ObjectOrNullValue(tmp);
+        ret = JS::ObjectOrNullValue(tmp);
     }
-    return JS::NullValue();
+    return ret;
 }
 
-jsval b2ContactImpulse_to_jsval(JSContext* cx, const b2ContactImpulse* v)
+JS::HandleValue b2ContactImpulse_to_jsval(JSContext* cx, const b2ContactImpulse* v)
 {
     JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
-    if (!tmp) return JS::NullValue();
+    JS::RootedValue ret(cx);
     
     bool ok = true;
     
@@ -663,14 +661,15 @@ jsval b2ContactImpulse_to_jsval(JSContext* cx, const b2ContactImpulse* v)
     ok &= JS_DefineProperty(cx, tmp, "tangentImpulses", jsretTangent, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
     if (ok) {
-        return JS::ObjectOrNullValue(tmp);
+        ret = JS::ObjectOrNullValue(tmp);
     }
-    return JS::NullValue();
+    return ret;
 }
 
-jsval array_of_b2Fixture_to_jsval(JSContext* cx, const std::vector<b2Fixture*>& fixtures)
+JS::HandleValue array_of_b2Fixture_to_jsval(JSContext* cx, const std::vector<b2Fixture*>& fixtures)
 {
     JS::RootedObject jsret(cx, JS_NewArrayObject(cx, 0));
+    JS::RootedValue ret(cx);
     
     auto count = fixtures.size();
     for (int i = 0; i < count; i++)
@@ -685,12 +684,14 @@ jsval array_of_b2Fixture_to_jsval(JSContext* cx, const std::vector<b2Fixture*>& 
         }
     }
     
-    return JS::ObjectOrNullValue(jsret);
+    ret = JS::ObjectOrNullValue(jsret);
+    return ret;
 }
 
-jsval array_of_b2Vec2_to_jsval(JSContext* cx, const std::vector<b2Vec2>& vs)
+JS::HandleValue array_of_b2Vec2_to_jsval(JSContext* cx, const std::vector<b2Vec2>& vs)
 {
     JS::RootedObject jsret(cx, JS_NewArrayObject(cx, 0));
+    JS::RootedValue ret(cx);
     
     auto count = vs.size();
     for (int i = 0; i < count; i++)
@@ -705,34 +706,34 @@ jsval array_of_b2Vec2_to_jsval(JSContext* cx, const std::vector<b2Vec2>& vs)
         }
     }
     
-    return JS::ObjectOrNullValue(jsret);
+    ret = JS::ObjectOrNullValue(jsret);
+    return ret;
 }
 
-jsval b2AABB_to_jsval(JSContext* cx, const b2AABB& v)
+JS::HandleValue b2AABB_to_jsval(JSContext* cx, const b2AABB& v)
 {
     JS::RootedObject object(cx, JS_NewPlainObject(cx));
-    if (!object) {
-        return JSVAL_VOID;
-    }
+    JS::RootedValue ret(cx);
     
     JS::RootedObject lowerBound(cx, JS_NewPlainObject(cx));
     if (!JS_DefineProperty(cx, lowerBound, "x", v.lowerBound.x, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
         !JS_DefineProperty(cx, lowerBound, "y", v.lowerBound.y, JSPROP_ENUMERATE | JSPROP_PERMANENT) ) {
-        return JSVAL_VOID;
+        return ret;
     }
     
     JS::RootedObject upperBound(cx, JS_NewPlainObject(cx));
     if (!JS_DefineProperty(cx, upperBound, "x", v.upperBound.x, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
         !JS_DefineProperty(cx, upperBound, "y", v.upperBound.y, JSPROP_ENUMERATE | JSPROP_PERMANENT) ) {
-        return JSVAL_VOID;
+        return ret;
     }
     
     if (!JS_DefineProperty(cx, object, "lowerBound", lowerBound, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
         !JS_DefineProperty(cx, object, "upperBound", upperBound, JSPROP_ENUMERATE | JSPROP_PERMANENT) ) {
-        return JSVAL_VOID;
+        return ret;
     }
     
-    return JS::ObjectOrNullValue(object);
+    ret = JS::ObjectOrNullValue(object);
+    return ret;
 }
 
 
@@ -830,15 +831,10 @@ bool js_box2dclasses_b2World_CreateJoint(JSContext *cx, uint32_t argc, JS::Value
         b2JointDef* tmpDef = nullptr;
         b2JointType type = e_unknownJoint;
         {
-            JS::RootedObject jsobj(cx);
             JS::RootedValue jsv(cx, args.get(0));
-            bool ok = JS_ValueToObject(cx, jsv, &jsobj);
-            JSB_PRECONDITION( ok, "Error converting value to object");
-            JSB_PRECONDITION( jsobj, "Not a valid JS object");
-            
+            JS::RootedObject jsobj(cx, jsv.toObjectOrNull());
             JS::RootedValue valtype(cx);
             
-            ok = true;
             ok &= JS_GetProperty(cx, jsobj, "type", &valtype);
             JSB_PRECONDITION( ok, "Error obtaining type properties");
             

@@ -80,10 +80,9 @@ public:
 class CC_JS_DLL ScriptingCore : public cocos2d::ScriptEngineProtocol
 {
 private:
-    JSRuntime *_rt;
     JSContext *_cx;
-    JS::PersistentRootedObject *_global;
-    JS::PersistentRootedObject *_debugGlobal;
+    JS::PersistentRootedObject _global;
+    JS::PersistentRootedObject _debugGlobal;
     SimpleRunLoop* _runLoop;
     bool _jsInited;
     bool _needCleanup;
@@ -271,7 +270,7 @@ public:
      @param path @~english The script file path
      @return @~english Script object
      */
-    JS::PersistentRootedScript* getScript(const std::string& path);
+    bool getScript(const std::string& path, JS::MutableHandleScript script);
 
     /**@~english
      * Compile the specified js file
@@ -279,7 +278,7 @@ public:
      * @param global    @~english The js global object
      * @param cx        @~english The js context
      */
-    JS::PersistentRootedScript* compileScript(const std::string& path, JS::HandleObject global, JSContext* cx = nullptr);
+    bool compileScript(const std::string& path, JS::HandleObject global, JS::MutableHandleScript script);
 
     /**@~english
      * Run the specified js file
@@ -327,7 +326,7 @@ public:
      * Gets the cached script objects for all executed js file
      * @return @~english The cached script object map
      */
-    std::unordered_map<std::string, JS::PersistentRootedScript*>& getFileScript();
+    std::unordered_map<std::string, JSScript*>& getFileScript();
     /**@~english
      * Clean all script objects
      */
@@ -413,7 +412,7 @@ public:
      * @param message @~english The error message
      * @param report @~english The js error report object
      */
-    static void reportError(JSContext *cx, const char *message, JSErrorReport *report);
+    static void reportError(JSContext *cx, JSErrorReport *report);
 
     /**@~english
      * Log something to the js context using CCLog.
@@ -482,12 +481,12 @@ public:
      * Gets the debug environment's global object
      * @return @~english The debug environment's global object
      */
-    JSObject* getDebugGlobal() { return _debugGlobal->get(); }
+    JSObject* getDebugGlobal() { return _debugGlobal.get(); }
     /**@~english
      * Gets the global object
      * @return @~english The global object
      */
-    JSObject* getGlobalObject() { return _global->get(); }
+    JSObject* getGlobalObject() { return _global.get(); }
     
     /**@~english
      * Checks whether a C++ function is overrided in js prototype chain
@@ -555,8 +554,6 @@ public:
     void restartVM();
 };
 
-JSObject* NewGlobalObject(JSContext* cx, bool debug = false);
-
 template <class T>
 js_type_class_t *jsb_register_class(JSContext *cx, JSClass *jsClass, JS::HandleObject proto)
 {
@@ -564,12 +561,10 @@ js_type_class_t *jsb_register_class(JSContext *cx, JSClass *jsClass, JS::HandleO
     std::string typeName = TypeTest<T>::s_name();
     if (_js_global_type_map.find(typeName) == _js_global_type_map.end())
     {
-        JS::RootedObject protoRoot(cx, proto);
         p = (js_type_class_t *)malloc(sizeof(js_type_class_t));
         memset(p, 0, sizeof(js_type_class_t));
         p->jsclass = jsClass;
-        auto persistentProtoRoot = new (std::nothrow) JS::PersistentRootedObject(cx, protoRoot);
-        p->proto.set(persistentProtoRoot);
+        p->proto = proto;
         
         _js_global_type_map.insert(std::make_pair(typeName, p));
     }

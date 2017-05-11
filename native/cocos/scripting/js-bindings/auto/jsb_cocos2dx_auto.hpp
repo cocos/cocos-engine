@@ -97,6 +97,37 @@ bool js_cocos2dx_EventTouch_getEventCode(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_EventTouch_setEventCode(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_EventTouch_EventTouch(JSContext *cx, uint32_t argc, JS::Value *vp);
 
+extern JSClass  *jsb_cocos2d_ComponentContainer_class;
+extern JSObject *jsb_cocos2d_ComponentContainer_prototype;
+
+bool js_cocos2dx_ComponentContainer_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
+void js_cocos2dx_ComponentContainer_finalize(JSContext *cx, JSObject *obj);
+void js_register_cocos2dx_ComponentContainer(JSContext *cx, JS::HandleObject global);
+void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_ComponentContainer_visit(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_ComponentContainer_remove(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_ComponentContainer_removeAll(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_ComponentContainer_add(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_ComponentContainer_isEmpty(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_ComponentContainer_get(JSContext *cx, uint32_t argc, JS::Value *vp);
+
+extern JSClass  *jsb_cocos2d_Component_class;
+extern JSObject *jsb_cocos2d_Component_prototype;
+
+bool js_cocos2dx_Component_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
+void js_cocos2dx_Component_finalize(JSContext *cx, JSObject *obj);
+void js_register_cocos2dx_Component(JSContext *cx, JS::HandleObject global);
+void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_Component_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_Component_setName(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_Component_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_Component_getOwner(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_Component_init(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_Component_setOwner(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_Component_getName(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_Component_create(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_cocos2dx_Component_Component(JSContext *cx, uint32_t argc, JS::Value *vp);
+
 extern JSClass  *jsb_cocos2d_Node_class;
 extern JSObject *jsb_cocos2d_Node_prototype;
 

@@ -52,17 +52,23 @@ public:
         js_proxy_t * p = jsb_get_native_proxy(view);
         if (!p) return;
 
-        jsval arg = JS::ObjectOrNullValue(p->obj);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(JS::ObjectOrNullValue(_JSDelegate), "scrollViewDidScroll", 1, &arg);
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue owner(cx, JS::ObjectOrNullValue(_JSDelegate));
+        JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
+        JS::HandleValueArray args(arg);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(owner, "scrollViewDidScroll", args);
     }
 
     virtual void scrollViewDidZoom(ScrollView* view) override
     {
         js_proxy_t * p = jsb_get_native_proxy(view);
         if (!p) return;
-
-        jsval arg = JS::ObjectOrNullValue(p->obj);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(JS::ObjectOrNullValue(_JSDelegate), "scrollViewDidZoom", 1, &arg);
+        
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue owner(cx, JS::ObjectOrNullValue(_JSDelegate));
+        JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
+        JS::HandleValueArray args(arg);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(owner, "scrollViewDidZoom", args);
     }
 
     void setJSDelegate(JS::HandleObject pJSDelegate)
@@ -156,9 +162,12 @@ private:
     {
         js_proxy_t * p = jsb_get_native_proxy(view);
         if (!p) return;
-
-        jsval arg = JS::ObjectOrNullValue(p->obj);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(JS::ObjectOrNullValue(_JSDelegate), jsFunctionName.c_str(), 1, &arg);
+        
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue owner(cx, JS::ObjectOrNullValue(_JSDelegate));
+        JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
+        JS::HandleValueArray args(arg);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(owner, jsFunctionName.c_str(), args);
     }
 
     void callJSDelegate(TableView* table, TableViewCell* cell, std::string jsFunctionName)
@@ -169,11 +178,14 @@ private:
         js_proxy_t * pCellProxy = jsb_get_native_proxy(cell);
         if (!pCellProxy) return;
 
-        jsval args[2];
-        args[0] = JS::ObjectOrNullValue(p->obj);
-        args[1] = JS::ObjectOrNullValue(pCellProxy->obj);
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue owner(cx, JS::ObjectOrNullValue(_JSDelegate));
+        JS::AutoValueVector args(cx);
+        args.append(JS::ObjectOrNullValue(p->obj));
+        args.append(JS::ObjectOrNullValue(pCellProxy->obj));
 
-        ScriptingCore::getInstance()->executeFunctionWithOwner(JS::ObjectOrNullValue(_JSDelegate), jsFunctionName.c_str(), 2, args);
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(owner, jsFunctionName.c_str(), argsv);
     }
 
     JS::Heap<JSObject*> _JSDelegate;
@@ -297,7 +309,7 @@ private:
 
         bool hasAction;
         JS::RootedValue temp_retval(cx);
-        jsval dataVal = JS::ObjectOrNullValue(p->obj);
+        JS::RootedValue dataVal(cx, JS::ObjectOrNullValue(p->obj));
 
         JS::RootedObject obj(cx, _JSTableViewDataSource);
         JSAutoCompartment ac(cx, obj);
@@ -308,13 +320,13 @@ private:
             {
                 return false;
             }
-            if(temp_retval == JSVAL_VOID)
+            if (!temp_retval.isObject())
             {
                 return false;
             }
-
-            JS_CallFunctionName(cx, obj, jsFunctionName.c_str(),
-                                JS::HandleValueArray::fromMarkedLocation(1, &dataVal), retVal);
+            
+            JS::HandleValueArray args(dataVal);
+            JS_CallFunctionName(cx, obj, jsFunctionName.c_str(), args, retVal);
             return true;
         }
         return false;
@@ -328,9 +340,9 @@ private:
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
         bool hasAction;
         JS::RootedValue temp_retval(cx);
-        jsval dataVal[2];
-        dataVal[0] = JS::ObjectOrNullValue(p->obj);
-        dataVal[1] = ssize_to_jsval(cx,idx);
+        JS::AutoValueVector dataVal(cx);
+        dataVal.append(JS::ObjectOrNullValue(p->obj));
+        dataVal.append(ssize_to_jsval(cx,idx));
 
         JS::RootedObject obj(cx, _JSTableViewDataSource);
         JSAutoCompartment ac(cx, obj);
@@ -342,13 +354,13 @@ private:
                 return false;
             }
 
-            if(temp_retval == JSVAL_VOID)
+            if (!temp_retval.isObject())
             {
                 return false;
             }
-
-            bool ret = JS_CallFunctionName(cx, obj, jsFunctionName.c_str(),
-                JS::HandleValueArray::fromMarkedLocation(2, dataVal), retVal);
+            
+            JS::HandleValueArray args(dataVal);
+            bool ret = JS_CallFunctionName(cx, obj, jsFunctionName.c_str(), args, retVal);
             return ret == true ? true : false;
         }
         return false;
@@ -414,7 +426,7 @@ static bool js_cocos2dx_CCTableView_create(JSContext *cx, uint32_t argc, JS::Val
 
         ret->setDataSource(pNativeSource);
 
-        jsval jsret;
+        JS::RootedValue jsret(cx);
         do {
             if (ret)
             {
@@ -561,13 +573,14 @@ public:
 
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
 
-        jsval dataVal[2];
-        dataVal[0] = JS::ObjectOrNullValue(p->obj);
+        JS::AutoValueVector dataVal(cx);
+        dataVal.append(JS::ObjectOrNullValue(p->obj));
         int arg1 = (int)event;
-        dataVal[1] = JS::Int32Value(arg1);
+        dataVal.append(JS::Int32Value(arg1));
+        JS::HandleValueArray args(dataVal);
         JS::RootedValue jsRet(cx);
 
-        _callback->invoke(2, dataVal, &jsRet);
+        _callback->invoke(args, &jsRet);
     }
 
     void setJSCallback(JS::HandleValue jsFunc, JS::HandleObject jsTarget)
@@ -724,19 +737,18 @@ bool js_cocos2dx_extension_EventListenerAssetsManagerEx_init(JSContext *cx, uint
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
                 auto lambda = [=](cocos2d::extension::EventAssetsManagerEx* larg0) -> void {
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[1];
+                    JS::RootedValue largv(cx, JS::NullValue());
                     do {
                         if (larg0) {
                             js_type_class_t* typeClass = js_get_type_from_native<cocos2d::extension::EventAssetsManagerEx>(larg0);
-                            largv[0] = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, larg0, typeClass, "cocos2d::extension::EventAssetsManagerEx"));
-                        } else {
-                            largv[0] = JS::NullValue();
+                            largv = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, larg0, typeClass, "cocos2d::extension::EventAssetsManagerEx"));
                         }
                     } while (0);
+                    JS::HandleValueArray largsv(largv);
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(1, &largv[0], &rval);
+                    bool succeed = func->invoke(largsv, &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg1 = lambda;
@@ -782,19 +794,18 @@ bool js_cocos2dx_extension_EventListenerAssetsManagerEx_create(JSContext *cx, ui
                 wrapper = func.get();
                 auto lambda = [=](cocos2d::extension::EventAssetsManagerEx* larg0) -> void {
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[1];
+                    JS::RootedValue largv(cx, JS::NullValue());
                     do {
                         if (larg0) {
                             js_type_class_t* typeClass = js_get_type_from_native<cocos2d::extension::EventAssetsManagerEx>(larg0);
-                            largv[0] = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, larg0, typeClass, "cocos2d::extension::EventAssetsManagerEx"));
-                        } else {
-                            largv[0] = JS::NullValue();
+                            largv = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, larg0, typeClass, "cocos2d::extension::EventAssetsManagerEx"));
                         }
                     } while (0);
+                    JS::HandleValueArray largsv(largv);
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(1, &largv[0], &rval);
+                    bool succeed = func->invoke(largsv, &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg1 = lambda;
@@ -937,9 +948,10 @@ void __JSDownloaderDelegator::onError()
             JS::RootedObject global(_cx, ScriptingCore::getInstance()->getGlobalObject());
             JSAutoCompartment ac(_cx, global);
             
-            jsval succeed = JS::BooleanValue(false);
+            JS::RootedValue succeed(_cx, JS::FalseHandleValue);
+            JS::HandleValueArray args(succeed);
             JS::RootedValue retval(_cx);
-            JS_CallFunctionValue(_cx, global, callback, JS::HandleValueArray::fromMarkedLocation(1, &succeed), &retval);
+            JS_CallFunctionValue(_cx, global, callback, args, &retval);
         }
         release();
     });
@@ -953,24 +965,25 @@ void __JSDownloaderDelegator::onSuccess(Texture2D *tex)
         JS::RootedObject global(_cx, ScriptingCore::getInstance()->getGlobalObject());
         JSAutoCompartment ac(_cx, global);
 
-        jsval valArr[2];
+        JS::AutoValueVector valArr(_cx);
         if (tex)
         {
-            valArr[0] = JS::BooleanValue(true);
+            valArr.append(JS::BooleanValue(true));
             JS::RootedObject jsobj(_cx, js_get_or_create_jsobject<Texture2D>(_cx, tex));
-            valArr[1] = JS::ObjectOrNullValue(jsobj);
+            valArr.append(JS::ObjectOrNullValue(jsobj));
         }
         else
         {
-            valArr[0] = JS::BooleanValue(false);
-            valArr[1] = JS::NullValue();
+            valArr.append(JS::BooleanValue(false));
+            valArr.append(JS::NullValue());
         }
 
         JS::RootedValue callback(_cx, JS::ObjectOrNullValue(_jsCallback));
         if (!callback.isNull())
         {
             JS::RootedValue retval(_cx);
-            JS_CallFunctionValue(_cx, global, callback, JS::HandleValueArray::fromMarkedLocation(2, valArr), &retval);
+            JS::HandleValueArray args(valArr);
+            JS_CallFunctionValue(_cx, global, callback, args, &retval);
         }
         release();
     });

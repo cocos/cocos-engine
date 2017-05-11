@@ -29,7 +29,7 @@ static bool jsb_cocos2dx_experimental_webView_setOnShouldStartLoading(JSContext 
 
             bool ok = func->invoke(2, arg, &rval);
             if (!ok && JS_IsExceptionPending(cx)) {
-                JS_ReportPendingException(cx);
+                handlePendingException(cx);
             }
             return rval.toBoolean();
         });
@@ -60,7 +60,7 @@ static bool jsb_cocos2dx_experimental_webView_setOnDidFinishLoading(JSContext *c
 
             bool ok = func->invoke(2, arg, &rval);
             if (!ok && JS_IsExceptionPending(cx)) {
-                JS_ReportPendingException(cx);
+                handlePendingException(cx);
             }
         });
         return true;
@@ -90,7 +90,7 @@ static bool jsb_cocos2dx_experimental_webView_setOnDidFailLoading(JSContext *cx,
 
             bool ok = func->invoke(2, arg, &rval);
             if (!ok && JS_IsExceptionPending(cx)) {
-                JS_ReportPendingException(cx);
+                handlePendingException(cx);
             }
         });
         return true;
@@ -120,7 +120,7 @@ static bool jsb_cocos2dx_experimental_webView_setOnJSCallback(JSContext *cx, uin
 
             bool ok = func->invoke(2, arg, &rval);
             if (!ok && JS_IsExceptionPending(cx)) {
-                JS_ReportPendingException(cx);
+                handlePendingException(cx);
             }
         });
         return true;

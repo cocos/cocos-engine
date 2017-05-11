@@ -274,7 +274,7 @@ bool JSB_glCheckFramebufferStatus(JSContext *cx, uint32_t argc, JS::Value *vp) {
     GLenum ret_val;
 
     ret_val = glCheckFramebufferStatus((GLenum)arg0  );
-    args.rval().set(UINT_TO_JSVAL((uint32_t)ret_val));
+    args.rval().set(JS::Int32Value((uint32_t)ret_val));
     return true;
 }
 
@@ -483,7 +483,7 @@ bool JSB_glCreateProgram(JSContext *cx, uint32_t argc, JS::Value *vp) {
     GLuint ret_val;
 
     ret_val = glCreateProgram( );
-    args.rval().set(UINT_TO_JSVAL((uint32_t)ret_val));
+    args.rval().set(JS::Int32Value((uint32_t)ret_val));
     return true;
 }
 
@@ -500,7 +500,7 @@ bool JSB_glCreateShader(JSContext *cx, uint32_t argc, JS::Value *vp) {
     GLuint ret_val;
 
     ret_val = glCreateShader((GLenum)arg0  );
-    args.rval().set(UINT_TO_JSVAL((uint32_t)ret_val));
+    args.rval().set(JS::Int32Value((uint32_t)ret_val));
     return true;
 }
 
@@ -837,7 +837,7 @@ bool JSB_glGetError(JSContext *cx, uint32_t argc, JS::Value *vp) {
     GLenum ret_val;
 
     ret_val = glGetError( );
-    args.rval().set(UINT_TO_JSVAL((uint32_t)ret_val));
+    args.rval().set(JS::Int32Value((uint32_t)ret_val));
     return true;
 }
 

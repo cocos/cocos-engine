@@ -812,7 +812,6 @@ void js_register_creator_Scale9SpriteV2(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass creator_Scale9SpriteV2_class = {
         "Scale9SpriteV2",
         JSCLASS_HAS_PRIVATE,
@@ -1645,7 +1644,6 @@ void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass creator_GraphicsNode_class = {
         "GraphicsNode",
         JSCLASS_HAS_PRIVATE,
@@ -1842,7 +1840,6 @@ void js_register_creator_PhysicsDebugDraw(JSContext *cx, JS::HandleObject global
         js_creator_PhysicsDebugDraw_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass creator_PhysicsDebugDraw_class = {
         "PhysicsDebugDraw",
         JSCLASS_HAS_PRIVATE,
@@ -2034,7 +2031,6 @@ void js_register_creator_PhysicsWorldManifoldWrapper(JSContext *cx, JS::HandleOb
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass creator_PhysicsWorldManifoldWrapper_class = {
         "PhysicsWorldManifoldWrapper",
         JSCLASS_HAS_PRIVATE,
@@ -2265,7 +2261,6 @@ void js_register_creator_PhysicsUtils(JSContext *cx, JS::HandleObject global) {
         js_creator_PhysicsUtils_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass creator_PhysicsUtils_class = {
         "PhysicsUtils",
         JSCLASS_HAS_PRIVATE,
@@ -2402,7 +2397,6 @@ void js_register_creator_PhysicsContactImpulse(JSContext *cx, JS::HandleObject g
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass creator_PhysicsContactImpulse_class = {
         "PhysicsContactImpulse",
         JSCLASS_HAS_PRIVATE,
@@ -2554,7 +2548,6 @@ void js_register_creator_PhysicsContactListener(JSContext *cx, JS::HandleObject 
         js_creator_PhysicsContactListener_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass creator_PhysicsContactListener_class = {
         "PhysicsContactListener",
         JSCLASS_HAS_PRIVATE,
@@ -2705,7 +2698,6 @@ void js_register_creator_PhysicsAABBQueryCallback(JSContext *cx, JS::HandleObjec
         js_creator_PhysicsAABBQueryCallback_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass creator_PhysicsAABBQueryCallback_class = {
         "PhysicsAABBQueryCallback",
         JSCLASS_HAS_PRIVATE,
@@ -2857,7 +2849,6 @@ void js_register_creator_PhysicsRayCastCallback(JSContext *cx, JS::HandleObject 
         js_creator_PhysicsRayCastCallback_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass creator_PhysicsRayCastCallback_class = {
         "PhysicsRayCastCallback",
         JSCLASS_HAS_PRIVATE,
@@ -3017,7 +3008,6 @@ void js_register_creator_CameraNode(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass creator_CameraNode_class = {
         "CameraNode",
         JSCLASS_HAS_PRIVATE,

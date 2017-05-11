@@ -35,44 +35,11 @@ typedef struct js_proxy {
     void *ptr;
     /** the JS object, as a heap object. Required by GC best practices */
     JS::Heap<JSObject*> obj;
-    /** This is the raw pointer. The same as the "obj", but 'raw'. This is needed
-     because under certain circumstances JS::RemoveRootObject will be called on "obj"
-     and "obj" will became NULL. Which is not Ok if we need to use "obj" later for other stuff
-     */
-    JSObject* _jsobj;
 } js_proxy_t;
-
-
-class ScriptingRootHolder
-{
-public:
-    ScriptingRootHolder(JS::PersistentRootedObject* ptr)
-    {
-        set(ptr);
-    }
-    
-    void set(JS::PersistentRootedObject* k)
-    {
-        p = k;
-    }
-    
-    JSObject* ref()
-    {
-        return *p;
-    }
-    
-    JS::PersistentRootedObject* ptr()
-    {
-        return p;
-    }
-    
-private:
-    JS::PersistentRootedObject* p;
-};
 
 typedef struct js_type_class {
     JSClass *jsclass;
-    ScriptingRootHolder proto;
+    JS::Heap<JSObject*> proto;
 } js_type_class_t;
 
 extern std::unordered_map<std::string, js_type_class_t*> _js_global_type_map;
@@ -104,12 +71,15 @@ void handlePendingException(JSContext *cx)
         JS_ClearPendingException(cx);
         
         JS::RootedObject errObj(cx, err.toObjectOrNull());
+        JSErrorReport *report = JS_ErrorFromException(cx, errObj);
+        JS_ReportErrorUTF8(cx, "ERROR: %s, file: %s, lineno: %u\n", report->message().c_str(), report->filename, report->lineno);
+        
         JS::RootedValue stack(cx);
         if (JS_GetProperty(cx, errObj, "stack", &stack) && stack.isString())
         {
             JS::RootedString jsstackStr(cx, stack.toString());
             char *stackStr = JS_EncodeStringToUTF8(cx, jsstackStr);
-            JS_ReportErrorUTF8(cx, "%s", stackStr);
+            printf("%s", stackStr);
         }
     }
 }

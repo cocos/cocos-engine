@@ -61,16 +61,15 @@ bool js_creator_PhysicsContactListener_setEndContact(JSContext *cx, uint32_t arg
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
                 auto lambda = [=](b2Contact* larg0) -> void {
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[1];
+                    JS::RootedValue largv(cx);
                     if (larg0) {
-                        largv[0] = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
-                    } else {
-                        largv[0] = JS::NullValue();
-                    };
+                        largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
+                    }
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
+                    JS::HandleValueArray largs(largv);
+                    bool succeed = func->invoke(largs, &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg0 = lambda;
@@ -107,21 +106,20 @@ bool js_creator_PhysicsContactListener_setBeginContact(JSContext *cx, uint32_t a
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
                 auto lambda = [=](b2Contact* larg0) -> void {
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[1];
+                    JS::RootedValue largv(cx);
                     if (larg0) {
                         // box2d will reuse cached memory, need first remove old proxy when create new jsobject
                         auto larg0Proxy = jsb_get_native_proxy(larg0);
                         if (larg0Proxy) {
                             jsb_remove_proxy(larg0Proxy);
                         }
-                        largv[0] = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
-                    } else {
-                        largv[0] = JS::NullValue();
-                    };
+                        largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
+                    }
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
+                    JS::HandleValueArray largs(largv);
+                    bool succeed = func->invoke(largs, &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg0 = lambda;
@@ -159,16 +157,15 @@ bool js_creator_PhysicsContactListener_setPreSolve(JSContext *cx, uint32_t argc,
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
                 auto lambda = [=](b2Contact* larg0) -> void {
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[1];
+                    JS::RootedValue largv(cx);
                     if (larg0) {
-                        largv[0] = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
-                    } else {
-                        largv[0] = JS::NullValue();
-                    };
+                        largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
+                    }
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
+                    JS::HandleValueArray largs(largv);
+                    bool succeed = func->invoke(largs, &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg0 = lambda;
@@ -206,21 +203,22 @@ bool js_creator_PhysicsContactListener_setPostSolve(JSContext *cx, uint32_t argc
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
                 auto lambda = [=](b2Contact* larg0, const creator::PhysicsContactImpulse* larg1) -> void {
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[2];
+                    JS::AutoValueVector largv(cx);
                     if (larg0) {
-                        largv[0] = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
+                        largv.append(JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0)));
                     } else {
-                        largv[0] = JS::NullValue();
-                    };
+                        largv.append(JS::NullValue());
+                    }
                     if (larg1) {
-                        largv[1] = JS::ObjectOrNullValue(js_get_or_create_jsobject<creator::PhysicsContactImpulse>(cx, (creator::PhysicsContactImpulse*)larg1));
+                        largv.append(JS::ObjectOrNullValue(js_get_or_create_jsobject<creator::PhysicsContactImpulse>(cx, (creator::PhysicsContactImpulse*)larg1)));
                     } else {
-                        largv[1] = JS::NullValue();
-                    };
+                        largv.append(JS::NullValue());
+                    }
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(2, largv), &rval);
+                    JS::HandleValueArray largs(largv);
+                    bool succeed = func->invoke(largs, &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg0 = lambda;
@@ -251,9 +249,7 @@ bool js_creator_PhysicsAABBQueryCallback_getFixtures(JSContext *cx, uint32_t arg
     if (argc == 0) {
         std::vector<b2Fixture *> ret = cobj->getFixtures();
         
-        jsval jsret = array_of_b2Fixture_to_jsval(cx, ret);
-        args.rval().set( jsret );
-        
+        JS::RootedValue jsret(cx, array_of_b2Fixture_to_jsval(cx, ret));
         args.rval().set(jsret);
         return true;
     }
@@ -272,9 +268,8 @@ bool js_creator_PhysicsRayCastCallback_getFixtures(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         std::vector<b2Fixture *> ret = cobj->getFixtures();
        
-        jsval jsret = array_of_b2Fixture_to_jsval(cx, ret);
-        args.rval().set( jsret );
-        
+        JS::RootedValue jsret(cx, array_of_b2Fixture_to_jsval(cx, ret));
+        args.rval().set(jsret);
         return true;
     }
     
@@ -292,9 +287,8 @@ bool js_creator_PhysicsRayCastCallback_getPoints(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         std::vector<b2Vec2, std::allocator<b2Vec2> >& ret = cobj->getPoints();
         
-        jsval jsret = array_of_b2Vec2_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx, array_of_b2Vec2_to_jsval(cx, ret));
         args.rval().set(jsret);
-        
         return true;
     }
     
@@ -311,9 +305,8 @@ bool js_creator_PhysicsRayCastCallback_getNormals(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         std::vector<b2Vec2, std::allocator<b2Vec2> >& ret = cobj->getNormals();
         
-        jsval jsret = array_of_b2Vec2_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx, array_of_b2Vec2_to_jsval(cx, ret));
         args.rval().set(jsret);
-        
         return true;
     }
     

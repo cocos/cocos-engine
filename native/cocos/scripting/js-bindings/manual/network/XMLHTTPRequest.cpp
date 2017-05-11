@@ -1038,7 +1038,7 @@ void MinXmlHttpRequest::_notify(JS::HandleObject callback, JS::HandleValueArray 
         {
             JS::RootedObject obj(_cx, p->obj);
             JSAutoCompartment ac(_cx, obj);
-            //JS_IsExceptionPending(cx) && JS_ReportPendingException(cx);
+            //JS_IsExceptionPending(cx) && handlePendingException(cx);
             JS::RootedValue callbackVal(_cx, JS::ObjectOrNullValue(callback));
             JS::RootedValue out(_cx);
             JS_CallFunctionValue(_cx, obj, callbackVal, progressEvent, &out);

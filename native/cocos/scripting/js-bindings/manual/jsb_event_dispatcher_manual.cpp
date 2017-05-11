@@ -181,18 +181,19 @@ bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, JS::Value
                 wrapper = func.get();
                 auto lambda = [=](Acceleration* acc, Event* event) -> void {
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[2];
-                    largv[0] = ccacceleration_to_jsval(cx, *acc);
+                    JS::AutoValueVector largv(cx);
+                    largv.append(ccacceleration_to_jsval(cx, *acc));
                     if (event) {
                         js_type_class_t *typeClassEvent = js_get_type_from_native<Event>(event);
-                        largv[1] = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
+                        largv.append(JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent)));
                     } else {
-                        largv[1] = JSVAL_NULL;
+                        largv.append(JS::NullValue());
                     };
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(2, &largv[0], &rval);
+                    JS::HandleValueArray largsv(largv);
+                    bool succeed = func->invoke(largsv, &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg0 = lambda;
@@ -254,17 +255,16 @@ bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, JS::Value *vp)
                 wrapper = func.get();
                 auto lambda = [=](EventCustom* event) -> void {
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[1];
+                    JS::RootedValue largv(cx);
                     if (event) {
                         js_type_class_t *typeClassEvent = js_get_type_from_native<EventCustom>(event);
-                        largv[0] = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
-                    } else {
-                        largv[0] = JSVAL_NULL;
-                    };
+                        largv = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
+                    }
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
+                    JS::HandleValueArray largsv(largv);
+                    bool succeed = func->invoke(largsv, &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg1 = lambda;
@@ -310,17 +310,16 @@ bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, JS:
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
                 auto lambda = [=](cocos2d::EventCustom* event) -> void {
                     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[1];
+                    JS::RootedValue largv(cx);
                     if (event) {
                         js_type_class_t *typeClassEvent = js_get_type_from_native<EventCustom>(event);
-                        largv[0] = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
-                    } else {
-                        largv[0] = JSVAL_NULL;
-                    };
+                        largv = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
+                    }
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
+                    JS::HandleValueArray largsv(largv);
+                    bool succeed = func->invoke(largsv, &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg1 = lambda;
@@ -335,10 +334,7 @@ bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, JS:
         JS::RootedValue jsret(cx);
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerCustom>(cx, ret));
-            args.rval().set(jsret);
-        } else {
-            jsret = JSVAL_NULL;
-        };
+        }
         args.rval().set(jsret);
         return true;
     }

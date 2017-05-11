@@ -98,7 +98,6 @@ void js_register_cocos2dx_dragonbones_BaseObject(JSContext *cx, JS::HandleObject
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_BaseObject_class = {
         "BaseObject",
         JSCLASS_HAS_PRIVATE,
@@ -363,7 +362,6 @@ void js_register_cocos2dx_dragonbones_Matrix(JSContext *cx, JS::HandleObject glo
         js_dragonBones_Matrix_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_Matrix_class = {
         "Matrix",
         JSCLASS_HAS_PRIVATE,
@@ -685,7 +683,6 @@ void js_register_cocos2dx_dragonbones_Transform(JSContext *cx, JS::HandleObject 
         js_dragonBones_Transform_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_Transform_class = {
         "Transform",
         JSCLASS_HAS_PRIVATE,
@@ -765,7 +762,6 @@ void js_register_cocos2dx_dragonbones_TextureData(JSContext *cx, JS::HandleObjec
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_TextureData_class = {
         "TextureData",
         JSCLASS_HAS_PRIVATE,
@@ -895,7 +891,6 @@ void js_register_cocos2dx_dragonbones_TextureAtlasData(JSContext *cx, JS::Handle
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_TextureAtlasData_class = {
         "TextureAtlasData",
         JSCLASS_HAS_PRIVATE,
@@ -1217,7 +1212,6 @@ void js_register_cocos2dx_dragonbones_AnimationData(JSContext *cx, JS::HandleObj
         js_dragonBones_AnimationData_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_AnimationData_class = {
         "AnimationData",
         JSCLASS_HAS_PRIVATE,
@@ -1404,7 +1398,6 @@ void js_register_cocos2dx_dragonbones_BoneData(JSContext *cx, JS::HandleObject g
         js_dragonBones_BoneData_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_BoneData_class = {
         "BoneData",
         JSCLASS_HAS_PRIVATE,
@@ -1605,7 +1598,6 @@ void js_register_cocos2dx_dragonbones_SlotData(JSContext *cx, JS::HandleObject g
         js_dragonBones_SlotData_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_SlotData_class = {
         "SlotData",
         JSCLASS_HAS_PRIVATE,
@@ -1748,7 +1740,6 @@ void js_register_cocos2dx_dragonbones_SkinData(JSContext *cx, JS::HandleObject g
         js_dragonBones_SkinData_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_SkinData_class = {
         "SkinData",
         JSCLASS_HAS_PRIVATE,
@@ -2065,7 +2056,6 @@ void js_register_cocos2dx_dragonbones_ArmatureData(JSContext *cx, JS::HandleObje
         js_dragonBones_ArmatureData_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_ArmatureData_class = {
         "ArmatureData",
         JSCLASS_HAS_PRIVATE,
@@ -2285,7 +2275,6 @@ void js_register_cocos2dx_dragonbones_DragonBonesData(JSContext *cx, JS::HandleO
         js_dragonBones_DragonBonesData_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_DragonBonesData_class = {
         "DragonBonesData",
         JSCLASS_HAS_PRIVATE,
@@ -2617,7 +2606,6 @@ void js_register_cocos2dx_dragonbones_EventObject(JSContext *cx, JS::HandleObjec
         js_dragonBones_EventObject_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_EventObject_class = {
         "EventObject",
         JSCLASS_HAS_PRIVATE,
@@ -3171,7 +3159,6 @@ void js_register_cocos2dx_dragonbones_Armature(JSContext *cx, JS::HandleObject g
         js_dragonBones_Armature_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_Armature_class = {
         "Armature",
         JSCLASS_HAS_PRIVATE,
@@ -4107,7 +4094,6 @@ void js_register_cocos2dx_dragonbones_Animation(JSContext *cx, JS::HandleObject 
         js_dragonBones_Animation_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_Animation_class = {
         "Animation",
         JSCLASS_HAS_PRIVATE,
@@ -4347,7 +4333,6 @@ void js_register_cocos2dx_dragonbones_TransformObject(JSContext *cx, JS::HandleO
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_TransformObject_class = {
         "TransformObject",
         JSCLASS_HAS_PRIVATE,
@@ -4604,7 +4589,6 @@ void js_register_cocos2dx_dragonbones_Bone(JSContext *cx, JS::HandleObject globa
         js_dragonBones_Bone_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_Bone_class = {
         "Bone",
         JSCLASS_HAS_PRIVATE,
@@ -4823,7 +4807,6 @@ void js_register_cocos2dx_dragonbones_Slot(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_Slot_class = {
         "Slot",
         JSCLASS_HAS_PRIVATE,
@@ -5201,7 +5184,6 @@ void js_register_cocos2dx_dragonbones_BaseFactory(JSContext *cx, JS::HandleObjec
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_BaseFactory_class = {
         "BaseFactory",
         JSCLASS_HAS_PRIVATE,
@@ -5366,7 +5348,6 @@ void js_register_cocos2dx_dragonbones_WorldClock(JSContext *cx, JS::HandleObject
         js_dragonBones_WorldClock_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_WorldClock_class = {
         "WorldClock",
         JSCLASS_HAS_PRIVATE,
@@ -5997,7 +5978,6 @@ void js_register_cocos2dx_dragonbones_AnimationState(JSContext *cx, JS::HandleOb
         js_dragonBones_AnimationState_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_AnimationState_class = {
         "AnimationState",
         JSCLASS_HAS_PRIVATE,
@@ -6132,7 +6112,6 @@ void js_register_cocos2dx_dragonbones_CCTextureData(JSContext *cx, JS::HandleObj
         js_dragonBones_CCTextureData_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_CCTextureData_class = {
         "CCTextureData",
         JSCLASS_HAS_PRIVATE,
@@ -6244,7 +6223,6 @@ void js_register_cocos2dx_dragonbones_CCTextureAtlasData(JSContext *cx, JS::Hand
         js_dragonBones_CCTextureAtlasData_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_CCTextureAtlasData_class = {
         "CCTextureAtlasData",
         JSCLASS_HAS_PRIVATE,
@@ -6555,7 +6533,6 @@ void js_register_cocos2dx_dragonbones_CCArmatureDisplay(JSContext *cx, JS::Handl
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_CCArmatureDisplay_class = {
         "CCArmatureDisplay",
         JSCLASS_HAS_PRIVATE,
@@ -6633,7 +6610,6 @@ void js_register_cocos2dx_dragonbones_DBCCSprite(JSContext *cx, JS::HandleObject
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_DBCCSprite_class = {
         "DBCCSprite",
         JSCLASS_HAS_PRIVATE,
@@ -6763,7 +6739,6 @@ void js_register_cocos2dx_dragonbones_CCSlot(JSContext *cx, JS::HandleObject glo
         js_dragonBones_CCSlot_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_CCSlot_class = {
         "CCSlot",
         JSCLASS_HAS_PRIVATE,
@@ -7051,7 +7026,6 @@ void js_register_cocos2dx_dragonbones_CCFactory(JSContext *cx, JS::HandleObject 
         js_dragonBones_CCFactory_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass dragonBones_CCFactory_class = {
         "CCFactory",
         JSCLASS_HAS_PRIVATE,

@@ -158,7 +158,6 @@ void js_register_cocos2dx_audioengine_AudioProfile(JSContext *cx, JS::HandleObje
         js_cocos2d_experimental_AudioProfile_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_experimental_AudioProfile_class = {
         "AudioProfile",
         JSCLASS_HAS_PRIVATE,
@@ -776,7 +775,6 @@ void js_register_cocos2dx_audioengine_AudioEngine(JSContext *cx, JS::HandleObjec
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_experimental_AudioEngine_class = {
         "AudioEngine",
         JSCLASS_HAS_PRIVATE,

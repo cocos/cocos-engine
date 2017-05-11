@@ -830,7 +830,6 @@ void js_register_cocos2dx_spine_SkeletonRenderer(JSContext *cx, JS::HandleObject
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass spine_SkeletonRenderer_class = {
         "Skeleton",
         JSCLASS_HAS_PRIVATE,
@@ -1800,7 +1799,6 @@ void js_register_cocos2dx_spine_SkeletonAnimation(JSContext *cx, JS::HandleObjec
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass spine_SkeletonAnimation_class = {
         "SkeletonAnimation",
         JSCLASS_HAS_PRIVATE,

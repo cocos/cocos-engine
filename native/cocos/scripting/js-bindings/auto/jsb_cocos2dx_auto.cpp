@@ -1025,7 +1025,6 @@ void js_register_cocos2dx_Texture2D(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Texture2D_class = {
         "Texture2D",
         JSCLASS_HAS_PRIVATE,
@@ -1360,7 +1359,6 @@ void js_register_cocos2dx_Touch(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Touch_class = {
         "Touch",
         JSCLASS_HAS_PRIVATE,
@@ -1516,7 +1514,6 @@ void js_register_cocos2dx_Event(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Event_class = {
         "Event",
         JSCLASS_HAS_PRIVATE,
@@ -1628,7 +1625,6 @@ void js_register_cocos2dx_EventTouch(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EventTouch_class = {
         "EventTouch",
         JSCLASS_HAS_PRIVATE,
@@ -1666,6 +1662,474 @@ void js_register_cocos2dx_EventTouch(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::EventTouch>(cx, jsb_cocos2d_EventTouch_class, proto);
+}
+
+JSClass  *jsb_cocos2d_ComponentContainer_class;
+JSObject *jsb_cocos2d_ComponentContainer_prototype;
+
+bool js_cocos2dx_ComponentContainer_visit(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ComponentContainer* cobj = (cocos2d::ComponentContainer *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ComponentContainer_visit : Invalid Native Object");
+    if (argc == 1) {
+        double arg0 = 0;
+        arg0 = (float)(args.get(0).toNumber());
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ComponentContainer_visit : Error processing arguments");
+        cobj->visit(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_ComponentContainer_visit : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_ComponentContainer_remove(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    cocos2d::ComponentContainer* cobj = nullptr;
+
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx);
+    obj.set(args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cobj = (cocos2d::ComponentContainer *)(proxy ? proxy->ptr : nullptr);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ComponentContainer_remove : Invalid Native Object");
+    do {
+        bool ok = true;
+        if (argc == 1) {
+            cocos2d::Component* arg0 = nullptr;
+            do {
+                if (args.get(0).isNull()) { arg0 = nullptr; break; }
+                if (!args.get(0).isObject()) { ok = false; break; }
+                js_proxy_t *jsProxy;
+                JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+                jsProxy = jsb_get_js_proxy(tmpObj);
+                arg0 = (cocos2d::Component*)(jsProxy ? jsProxy->ptr : NULL);
+                JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+            } while (0);
+            if (!ok) { ok = true; break; }
+            bool ret = cobj->remove(arg0);
+            JS::RootedValue jsret(cx, JS::NullValue());
+            jsret = JS::BooleanValue(ret);
+            args.rval().set(jsret);
+            return true;
+        }
+    } while(0);
+
+    do {
+        bool ok = true;
+        if (argc == 1) {
+            std::string arg0;
+            ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+            if (!ok) { ok = true; break; }
+            bool ret = cobj->remove(arg0);
+            JS::RootedValue jsret(cx, JS::NullValue());
+            jsret = JS::BooleanValue(ret);
+            args.rval().set(jsret);
+            return true;
+        }
+    } while(0);
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_ComponentContainer_remove : wrong number of arguments");
+    return false;
+}
+bool js_cocos2dx_ComponentContainer_removeAll(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ComponentContainer* cobj = (cocos2d::ComponentContainer *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ComponentContainer_removeAll : Invalid Native Object");
+    if (argc == 0) {
+        cobj->removeAll();
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_ComponentContainer_removeAll : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_ComponentContainer_add(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ComponentContainer* cobj = (cocos2d::ComponentContainer *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ComponentContainer_add : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Component* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Component*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ComponentContainer_add : Error processing arguments");
+        bool ret = cobj->add(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = JS::BooleanValue(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_ComponentContainer_add : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_ComponentContainer_isEmpty(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ComponentContainer* cobj = (cocos2d::ComponentContainer *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ComponentContainer_isEmpty : Invalid Native Object");
+    if (argc == 0) {
+        bool ret = cobj->isEmpty();
+        JS::RootedValue jsret(cx);
+        jsret = JS::BooleanValue(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_ComponentContainer_isEmpty : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_ComponentContainer_get(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::ComponentContainer* cobj = (cocos2d::ComponentContainer *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ComponentContainer_get : Invalid Native Object");
+    if (argc == 1) {
+        std::string arg0;
+        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ComponentContainer_get : Error processing arguments");
+        cocos2d::Component* ret = cobj->get(arg0);
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Component>(cx, (cocos2d::Component*)ret));
+        } else {
+            jsret = JS::NullValue();
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_ComponentContainer_get : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+
+void js_register_cocos2dx_ComponentContainer(JSContext *cx, JS::HandleObject global) {
+    const JSClassOps cocos2d_ComponentContainer_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    static JSClass cocos2d_ComponentContainer_class = {
+        "ComponentContainer",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_ComponentContainer_classOps
+    };
+    jsb_cocos2d_ComponentContainer_class = &cocos2d_ComponentContainer_class;
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("visit", js_cocos2dx_ComponentContainer_visit, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("remove", js_cocos2dx_ComponentContainer_remove, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("removeAll", js_cocos2dx_ComponentContainer_removeAll, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("add", js_cocos2dx_ComponentContainer_add, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("isEmpty", js_cocos2dx_ComponentContainer_isEmpty, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getComponent", js_cocos2dx_ComponentContainer_get, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JSFunctionSpec *st_funcs = NULL;
+
+    jsb_cocos2d_ComponentContainer_prototype = JS_InitClass(
+        cx, global,
+        nullptr,
+        jsb_cocos2d_ComponentContainer_class,
+        empty_constructor, 0,
+        properties,
+        funcs,
+        nullptr, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_ComponentContainer_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ComponentContainer"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::ComponentContainer>(cx, jsb_cocos2d_ComponentContainer_class, proto);
+}
+
+JSClass  *jsb_cocos2d_Component_class;
+JSObject *jsb_cocos2d_Component_prototype;
+
+bool js_cocos2dx_Component_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Component_setEnabled : Invalid Native Object");
+    if (argc == 1) {
+        bool arg0;
+        arg0 = args.get(0).toBoolean();
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Component_setEnabled : Error processing arguments");
+        cobj->setEnabled(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Component_setEnabled : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Component_setName(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Component_setName : Invalid Native Object");
+    if (argc == 1) {
+        std::string arg0;
+        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Component_setName : Error processing arguments");
+        cobj->setName(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Component_setName : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Component_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Component_isEnabled : Invalid Native Object");
+    if (argc == 0) {
+        bool ret = cobj->isEnabled();
+        JS::RootedValue jsret(cx);
+        jsret = JS::BooleanValue(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Component_isEnabled : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Component_getOwner(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Component_getOwner : Invalid Native Object");
+    if (argc == 0) {
+        cocos2d::Node* ret = cobj->getOwner();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
+        } else {
+            jsret = JS::NullValue();
+        };
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Component_getOwner : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Component_init(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Component_init : Invalid Native Object");
+    if (argc == 0) {
+        bool ret = cobj->init();
+        JS::RootedValue jsret(cx);
+        jsret = JS::BooleanValue(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Component_init : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Component_setOwner(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Component_setOwner : Invalid Native Object");
+    if (argc == 1) {
+        cocos2d::Node* arg0 = nullptr;
+        do {
+            if (args.get(0).isNull()) { arg0 = nullptr; break; }
+            if (!args.get(0).isObject()) { ok = false; break; }
+            js_proxy_t *jsProxy;
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            jsProxy = jsb_get_js_proxy(tmpObj);
+            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
+            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
+        } while (0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Component_setOwner : Error processing arguments");
+        cobj->setOwner(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Component_setOwner : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Component_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Component_getName : Invalid Native Object");
+    if (argc == 0) {
+        const std::string& ret = cobj->getName();
+        JS::RootedValue jsret(cx);
+        jsret = std_string_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Component_getName : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Component_create(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    if (argc == 0) {
+
+        auto ret = cocos2d::Component::create();
+        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Component>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::Component"));
+        args.rval().set(JS::ObjectOrNullValue(jsret));
+        return true;
+    }
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Component_create : wrong number of arguments");
+    return false;
+}
+
+bool js_cocos2dx_Component_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::Component* cobj = new (std::nothrow) cocos2d::Component();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Component>(cobj);
+
+    // link the native object with the javascript object
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::Component"));
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
+    }
+    return true;
+}
+static bool js_cocos2dx_Component_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::Component *nobj = new (std::nothrow) cocos2d::Component();
+    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &p->obj, nobj, "cocos2d::Component");
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+    {
+        JS::HandleValueArray argsv(args);
+        JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
+        ScriptingCore::getInstance()->executeFunctionWithOwner(objVal, "_ctor", argsv);
+    }
+    args.rval().setUndefined();
+    return true;
+}
+
+
+    
+void js_register_cocos2dx_Component(JSContext *cx, JS::HandleObject global) {
+    const JSClassOps cocos2d_Component_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    static JSClass cocos2d_Component_class = {
+        "Component",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_Component_classOps
+    };
+    jsb_cocos2d_Component_class = &cocos2d_Component_class;
+
+    static JSPropertySpec properties[] = {
+        JS_PS_END
+    };
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("setEnabled", js_cocos2dx_Component_setEnabled, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setName", js_cocos2dx_Component_setName, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("isEnabled", js_cocos2dx_Component_isEnabled, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getOwner", js_cocos2dx_Component_getOwner, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("init", js_cocos2dx_Component_init, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setOwner", js_cocos2dx_Component_setOwner, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getName", js_cocos2dx_Component_getName, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("ctor", js_cocos2dx_Component_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    static JSFunctionSpec st_funcs[] = {
+        JS_FN("create", js_cocos2dx_Component_create, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    jsb_cocos2d_Component_prototype = JS_InitClass(
+        cx, global,
+        nullptr,
+        jsb_cocos2d_Component_class,
+        js_cocos2dx_Component_constructor, 0, // constructor
+        properties,
+        funcs,
+        nullptr, // no static properties
+        st_funcs);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_Component_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "Component"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::Component>(cx, jsb_cocos2d_Component_class, proto);
+    anonEvaluate(cx, global, "(function () { cc.Component.extend = cc.Class.extend; })()");
 }
 
 JSClass  *jsb_cocos2d_Node_class;
@@ -4981,7 +5445,6 @@ void js_register_cocos2dx_Node(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Node_class = {
         "Node",
         JSCLASS_HAS_PRIVATE,
@@ -5316,7 +5779,6 @@ void js_register_cocos2dx_Scene(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Scene_class = {
         "Scene",
         JSCLASS_HAS_PRIVATE,
@@ -6006,7 +6468,6 @@ void js_register_cocos2dx_GLView(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_GLView_class = {
         "GLView",
         JSCLASS_HAS_PRIVATE,
@@ -7395,7 +7856,6 @@ void js_register_cocos2dx_Director(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Director_class = {
         "Director",
         JSCLASS_HAS_PRIVATE,
@@ -7689,7 +8149,6 @@ void js_register_cocos2dx_Scheduler(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Scheduler_class = {
         "Scheduler",
         JSCLASS_HAS_PRIVATE,
@@ -7795,7 +8254,6 @@ void js_register_cocos2dx_AsyncTaskPool(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_AsyncTaskPool_class = {
         "AsyncTaskPool",
         JSCLASS_HAS_PRIVATE,
@@ -8295,7 +8753,6 @@ void js_register_cocos2dx_Configuration(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Configuration_class = {
         "Configuration",
         JSCLASS_HAS_PRIVATE,
@@ -9191,7 +9648,6 @@ void js_register_cocos2dx_Properties(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Properties_class = {
         "Properties",
         JSCLASS_HAS_PRIVATE,
@@ -10112,7 +10568,6 @@ void js_register_cocos2dx_FileUtils(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_FileUtils_class = {
         "FileUtils",
         JSCLASS_HAS_PRIVATE,
@@ -10224,7 +10679,6 @@ void js_register_cocos2dx_EventAcceleration(JSContext *cx, JS::HandleObject glob
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EventAcceleration_class = {
         "EventAcceleration",
         JSCLASS_HAS_PRIVATE,
@@ -10316,7 +10770,6 @@ void js_register_cocos2dx_EventCustom(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EventCustom_class = {
         "EventCustom",
         JSCLASS_HAS_PRIVATE,
@@ -10444,7 +10897,6 @@ void js_register_cocos2dx_EventListener(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EventListener_class = {
         "EventListener",
         JSCLASS_HAS_PRIVATE,
@@ -10925,7 +11377,6 @@ void js_register_cocos2dx_EventDispatcher(JSContext *cx, JS::HandleObject global
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EventDispatcher_class = {
         "EventDispatcher",
         JSCLASS_HAS_PRIVATE,
@@ -11029,7 +11480,6 @@ void js_register_cocos2dx_EventFocus(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EventFocus_class = {
         "EventFocus",
         JSCLASS_HAS_PRIVATE,
@@ -11157,7 +11607,6 @@ void js_register_cocos2dx_EventListenerAcceleration(JSContext *cx, JS::HandleObj
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EventListenerAcceleration_class = {
         "EventListenerAcceleration",
         JSCLASS_HAS_PRIVATE,
@@ -11229,7 +11678,6 @@ void js_register_cocos2dx_EventListenerCustom(JSContext *cx, JS::HandleObject gl
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EventListenerCustom_class = {
         "EventListenerCustom",
         JSCLASS_HAS_PRIVATE,
@@ -11318,7 +11766,6 @@ void js_register_cocos2dx_EventListenerFocus(JSContext *cx, JS::HandleObject glo
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EventListenerFocus_class = {
         "EventListenerFocus",
         JSCLASS_HAS_PRIVATE,
@@ -11408,7 +11855,6 @@ void js_register_cocos2dx_EventListenerKeyboard(JSContext *cx, JS::HandleObject 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EventListenerKeyboard_class = {
         "EventListenerKeyboard",
         JSCLASS_HAS_PRIVATE,
@@ -11763,7 +12209,6 @@ void js_register_cocos2dx_EventMouse(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EventMouse_class = {
         "EventMouse",
         JSCLASS_HAS_PRIVATE,
@@ -11867,7 +12312,6 @@ void js_register_cocos2dx_EventListenerMouse(JSContext *cx, JS::HandleObject glo
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EventListenerMouse_class = {
         "EventListenerMouse",
         JSCLASS_HAS_PRIVATE,
@@ -11995,7 +12439,6 @@ void js_register_cocos2dx_EventListenerTouchOneByOne(JSContext *cx, JS::HandleOb
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EventListenerTouchOneByOne_class = {
         "EventListenerTouchOneByOne",
         JSCLASS_HAS_PRIVATE,
@@ -12087,7 +12530,6 @@ void js_register_cocos2dx_EventListenerTouchAllAtOnce(JSContext *cx, JS::HandleO
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EventListenerTouchAllAtOnce_class = {
         "EventListenerTouchAllAtOnce",
         JSCLASS_HAS_PRIVATE,
@@ -12459,7 +12901,6 @@ void js_register_cocos2dx_Action(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Action_class = {
         "Action",
         JSCLASS_HAS_PRIVATE,
@@ -12562,7 +13003,6 @@ void js_register_cocos2dx_FiniteTimeAction(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_FiniteTimeAction_class = {
         "FiniteTimeAction",
         JSCLASS_HAS_PRIVATE,
@@ -12755,7 +13195,6 @@ void js_register_cocos2dx_Speed(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Speed_class = {
         "Speed",
         JSCLASS_HAS_PRIVATE,
@@ -12995,7 +13434,6 @@ void js_register_cocos2dx_Follow(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Follow_class = {
         "Follow",
         JSCLASS_HAS_PRIVATE,
@@ -13356,7 +13794,6 @@ void js_register_cocos2dx_Image(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Image_class = {
         "Image",
         JSCLASS_HAS_PRIVATE,
@@ -14467,7 +14904,6 @@ void js_register_cocos2dx_GLProgramState(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_GLProgramState_class = {
         "GLProgramState",
         JSCLASS_HAS_PRIVATE,
@@ -15234,7 +15670,6 @@ void js_register_cocos2dx_SpriteFrame(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_SpriteFrame_class = {
         "SpriteFrame",
         JSCLASS_HAS_PRIVATE,
@@ -15390,7 +15825,6 @@ void js_register_cocos2dx_ActionInterval(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ActionInterval_class = {
         "ActionInterval",
         JSCLASS_HAS_PRIVATE,
@@ -15545,7 +15979,6 @@ void js_register_cocos2dx_Sequence(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Sequence_class = {
         "Sequence",
         JSCLASS_HAS_PRIVATE,
@@ -15720,7 +16153,6 @@ void js_register_cocos2dx_Repeat(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Repeat_class = {
         "Repeat",
         JSCLASS_HAS_PRIVATE,
@@ -15894,7 +16326,6 @@ void js_register_cocos2dx_RepeatForever(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_RepeatForever_class = {
         "RepeatForever",
         JSCLASS_HAS_PRIVATE,
@@ -16050,7 +16481,6 @@ void js_register_cocos2dx_Spawn(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Spawn_class = {
         "Spawn",
         JSCLASS_HAS_PRIVATE,
@@ -16220,7 +16650,6 @@ void js_register_cocos2dx_RotateTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_RotateTo_class = {
         "RotateTo",
         JSCLASS_HAS_PRIVATE,
@@ -16416,7 +16845,6 @@ void js_register_cocos2dx_RotateBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_RotateBy_class = {
         "RotateBy",
         JSCLASS_HAS_PRIVATE,
@@ -16556,7 +16984,6 @@ void js_register_cocos2dx_MoveBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_MoveBy_class = {
         "MoveBy",
         JSCLASS_HAS_PRIVATE,
@@ -16696,7 +17123,6 @@ void js_register_cocos2dx_MoveTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_MoveTo_class = {
         "MoveTo",
         JSCLASS_HAS_PRIVATE,
@@ -16840,7 +17266,6 @@ void js_register_cocos2dx_SkewTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_SkewTo_class = {
         "SkewTo",
         JSCLASS_HAS_PRIVATE,
@@ -16984,7 +17409,6 @@ void js_register_cocos2dx_SkewBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_SkewBy_class = {
         "SkewBy",
         JSCLASS_HAS_PRIVATE,
@@ -17132,7 +17556,6 @@ void js_register_cocos2dx_JumpBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_JumpBy_class = {
         "JumpBy",
         JSCLASS_HAS_PRIVATE,
@@ -17280,7 +17703,6 @@ void js_register_cocos2dx_JumpTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_JumpTo_class = {
         "JumpTo",
         JSCLASS_HAS_PRIVATE,
@@ -17375,7 +17797,6 @@ void js_register_cocos2dx_BezierBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_BezierBy_class = {
         "BezierBy",
         JSCLASS_HAS_PRIVATE,
@@ -17466,7 +17887,6 @@ void js_register_cocos2dx_BezierTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_BezierTo_class = {
         "BezierTo",
         JSCLASS_HAS_PRIVATE,
@@ -17708,7 +18128,6 @@ void js_register_cocos2dx_ScaleTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ScaleTo_class = {
         "ScaleTo",
         JSCLASS_HAS_PRIVATE,
@@ -17881,7 +18300,6 @@ void js_register_cocos2dx_ScaleBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ScaleBy_class = {
         "ScaleBy",
         JSCLASS_HAS_PRIVATE,
@@ -18020,7 +18438,6 @@ void js_register_cocos2dx_Blink(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Blink_class = {
         "Blink",
         JSCLASS_HAS_PRIVATE,
@@ -18160,7 +18577,6 @@ void js_register_cocos2dx_FadeTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_FadeTo_class = {
         "FadeTo",
         JSCLASS_HAS_PRIVATE,
@@ -18302,7 +18718,6 @@ void js_register_cocos2dx_FadeIn(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_FadeIn_class = {
         "FadeIn",
         JSCLASS_HAS_PRIVATE,
@@ -18444,7 +18859,6 @@ void js_register_cocos2dx_FadeOut(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_FadeOut_class = {
         "FadeOut",
         JSCLASS_HAS_PRIVATE,
@@ -18621,7 +19035,6 @@ void js_register_cocos2dx_TintTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TintTo_class = {
         "TintTo",
         JSCLASS_HAS_PRIVATE,
@@ -18769,7 +19182,6 @@ void js_register_cocos2dx_TintBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TintBy_class = {
         "TintBy",
         JSCLASS_HAS_PRIVATE,
@@ -18883,7 +19295,6 @@ void js_register_cocos2dx_DelayTime(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_DelayTime_class = {
         "DelayTime",
         JSCLASS_HAS_PRIVATE,
@@ -19034,7 +19445,6 @@ void js_register_cocos2dx_ReverseTime(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ReverseTime_class = {
         "ReverseTime",
         JSCLASS_HAS_PRIVATE,
@@ -19238,7 +19648,6 @@ void js_register_cocos2dx_TargetedAction(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TargetedAction_class = {
         "TargetedAction",
         JSCLASS_HAS_PRIVATE,
@@ -19356,7 +19765,6 @@ void js_register_cocos2dx_CardinalSplineTo(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_CardinalSplineTo_class = {
         "CardinalSplineTo",
         JSCLASS_HAS_PRIVATE,
@@ -19429,7 +19837,6 @@ void js_register_cocos2dx_CardinalSplineBy(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_CardinalSplineBy_class = {
         "CardinalSplineBy",
         JSCLASS_HAS_PRIVATE,
@@ -19480,7 +19887,6 @@ void js_register_cocos2dx_CatmullRomTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_CatmullRomTo_class = {
         "CatmullRomTo",
         JSCLASS_HAS_PRIVATE,
@@ -19531,7 +19937,6 @@ void js_register_cocos2dx_CatmullRomBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_CatmullRomBy_class = {
         "CatmullRomBy",
         JSCLASS_HAS_PRIVATE,
@@ -19634,7 +20039,6 @@ void js_register_cocos2dx_ActionEase(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ActionEase_class = {
         "ActionEase",
         JSCLASS_HAS_PRIVATE,
@@ -19786,7 +20190,6 @@ void js_register_cocos2dx_EaseRateAction(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseRateAction_class = {
         "EaseRateAction",
         JSCLASS_HAS_PRIVATE,
@@ -19910,7 +20313,6 @@ void js_register_cocos2dx_EaseIn(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseIn_class = {
         "EaseIn",
         JSCLASS_HAS_PRIVATE,
@@ -20033,7 +20435,6 @@ void js_register_cocos2dx_EaseOut(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseOut_class = {
         "EaseOut",
         JSCLASS_HAS_PRIVATE,
@@ -20156,7 +20557,6 @@ void js_register_cocos2dx_EaseInOut(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseInOut_class = {
         "EaseInOut",
         JSCLASS_HAS_PRIVATE,
@@ -20277,7 +20677,6 @@ void js_register_cocos2dx_EaseExponentialIn(JSContext *cx, JS::HandleObject glob
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseExponentialIn_class = {
         "EaseExponentialIn",
         JSCLASS_HAS_PRIVATE,
@@ -20398,7 +20797,6 @@ void js_register_cocos2dx_EaseExponentialOut(JSContext *cx, JS::HandleObject glo
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseExponentialOut_class = {
         "EaseExponentialOut",
         JSCLASS_HAS_PRIVATE,
@@ -20519,7 +20917,6 @@ void js_register_cocos2dx_EaseExponentialInOut(JSContext *cx, JS::HandleObject g
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseExponentialInOut_class = {
         "EaseExponentialInOut",
         JSCLASS_HAS_PRIVATE,
@@ -20640,7 +21037,6 @@ void js_register_cocos2dx_EaseSineIn(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseSineIn_class = {
         "EaseSineIn",
         JSCLASS_HAS_PRIVATE,
@@ -20761,7 +21157,6 @@ void js_register_cocos2dx_EaseSineOut(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseSineOut_class = {
         "EaseSineOut",
         JSCLASS_HAS_PRIVATE,
@@ -20882,7 +21277,6 @@ void js_register_cocos2dx_EaseSineInOut(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseSineInOut_class = {
         "EaseSineInOut",
         JSCLASS_HAS_PRIVATE,
@@ -21026,7 +21420,6 @@ void js_register_cocos2dx_EaseElastic(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseElastic_class = {
         "EaseElastic",
         JSCLASS_HAS_PRIVATE,
@@ -21179,7 +21572,6 @@ void js_register_cocos2dx_EaseElasticIn(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseElasticIn_class = {
         "EaseElasticIn",
         JSCLASS_HAS_PRIVATE,
@@ -21334,7 +21726,6 @@ void js_register_cocos2dx_EaseElasticOut(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseElasticOut_class = {
         "EaseElasticOut",
         JSCLASS_HAS_PRIVATE,
@@ -21489,7 +21880,6 @@ void js_register_cocos2dx_EaseElasticInOut(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseElasticInOut_class = {
         "EaseElasticInOut",
         JSCLASS_HAS_PRIVATE,
@@ -21545,7 +21935,6 @@ void js_register_cocos2dx_EaseBounce(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseBounce_class = {
         "EaseBounce",
         JSCLASS_HAS_PRIVATE,
@@ -21661,7 +22050,6 @@ void js_register_cocos2dx_EaseBounceIn(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseBounceIn_class = {
         "EaseBounceIn",
         JSCLASS_HAS_PRIVATE,
@@ -21782,7 +22170,6 @@ void js_register_cocos2dx_EaseBounceOut(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseBounceOut_class = {
         "EaseBounceOut",
         JSCLASS_HAS_PRIVATE,
@@ -21903,7 +22290,6 @@ void js_register_cocos2dx_EaseBounceInOut(JSContext *cx, JS::HandleObject global
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseBounceInOut_class = {
         "EaseBounceInOut",
         JSCLASS_HAS_PRIVATE,
@@ -22024,7 +22410,6 @@ void js_register_cocos2dx_EaseBackIn(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseBackIn_class = {
         "EaseBackIn",
         JSCLASS_HAS_PRIVATE,
@@ -22145,7 +22530,6 @@ void js_register_cocos2dx_EaseBackOut(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseBackOut_class = {
         "EaseBackOut",
         JSCLASS_HAS_PRIVATE,
@@ -22266,7 +22650,6 @@ void js_register_cocos2dx_EaseBackInOut(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseBackInOut_class = {
         "EaseBackInOut",
         JSCLASS_HAS_PRIVATE,
@@ -22413,7 +22796,6 @@ void js_register_cocos2dx_EaseBezierAction(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseBezierAction_class = {
         "EaseBezierAction",
         JSCLASS_HAS_PRIVATE,
@@ -22535,7 +22917,6 @@ void js_register_cocos2dx_EaseQuadraticActionIn(JSContext *cx, JS::HandleObject 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseQuadraticActionIn_class = {
         "EaseQuadraticActionIn",
         JSCLASS_HAS_PRIVATE,
@@ -22656,7 +23037,6 @@ void js_register_cocos2dx_EaseQuadraticActionOut(JSContext *cx, JS::HandleObject
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseQuadraticActionOut_class = {
         "EaseQuadraticActionOut",
         JSCLASS_HAS_PRIVATE,
@@ -22777,7 +23157,6 @@ void js_register_cocos2dx_EaseQuadraticActionInOut(JSContext *cx, JS::HandleObje
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseQuadraticActionInOut_class = {
         "EaseQuadraticActionInOut",
         JSCLASS_HAS_PRIVATE,
@@ -22898,7 +23277,6 @@ void js_register_cocos2dx_EaseQuarticActionIn(JSContext *cx, JS::HandleObject gl
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseQuarticActionIn_class = {
         "EaseQuarticActionIn",
         JSCLASS_HAS_PRIVATE,
@@ -23019,7 +23397,6 @@ void js_register_cocos2dx_EaseQuarticActionOut(JSContext *cx, JS::HandleObject g
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseQuarticActionOut_class = {
         "EaseQuarticActionOut",
         JSCLASS_HAS_PRIVATE,
@@ -23140,7 +23517,6 @@ void js_register_cocos2dx_EaseQuarticActionInOut(JSContext *cx, JS::HandleObject
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseQuarticActionInOut_class = {
         "EaseQuarticActionInOut",
         JSCLASS_HAS_PRIVATE,
@@ -23261,7 +23637,6 @@ void js_register_cocos2dx_EaseQuinticActionIn(JSContext *cx, JS::HandleObject gl
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseQuinticActionIn_class = {
         "EaseQuinticActionIn",
         JSCLASS_HAS_PRIVATE,
@@ -23382,7 +23757,6 @@ void js_register_cocos2dx_EaseQuinticActionOut(JSContext *cx, JS::HandleObject g
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseQuinticActionOut_class = {
         "EaseQuinticActionOut",
         JSCLASS_HAS_PRIVATE,
@@ -23503,7 +23877,6 @@ void js_register_cocos2dx_EaseQuinticActionInOut(JSContext *cx, JS::HandleObject
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseQuinticActionInOut_class = {
         "EaseQuinticActionInOut",
         JSCLASS_HAS_PRIVATE,
@@ -23624,7 +23997,6 @@ void js_register_cocos2dx_EaseCircleActionIn(JSContext *cx, JS::HandleObject glo
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseCircleActionIn_class = {
         "EaseCircleActionIn",
         JSCLASS_HAS_PRIVATE,
@@ -23745,7 +24117,6 @@ void js_register_cocos2dx_EaseCircleActionOut(JSContext *cx, JS::HandleObject gl
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseCircleActionOut_class = {
         "EaseCircleActionOut",
         JSCLASS_HAS_PRIVATE,
@@ -23866,7 +24237,6 @@ void js_register_cocos2dx_EaseCircleActionInOut(JSContext *cx, JS::HandleObject 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseCircleActionInOut_class = {
         "EaseCircleActionInOut",
         JSCLASS_HAS_PRIVATE,
@@ -23987,7 +24357,6 @@ void js_register_cocos2dx_EaseCubicActionIn(JSContext *cx, JS::HandleObject glob
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseCubicActionIn_class = {
         "EaseCubicActionIn",
         JSCLASS_HAS_PRIVATE,
@@ -24108,7 +24477,6 @@ void js_register_cocos2dx_EaseCubicActionOut(JSContext *cx, JS::HandleObject glo
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseCubicActionOut_class = {
         "EaseCubicActionOut",
         JSCLASS_HAS_PRIVATE,
@@ -24229,7 +24597,6 @@ void js_register_cocos2dx_EaseCubicActionInOut(JSContext *cx, JS::HandleObject g
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_EaseCubicActionInOut_class = {
         "EaseCubicActionInOut",
         JSCLASS_HAS_PRIVATE,
@@ -24285,7 +24652,6 @@ void js_register_cocos2dx_ActionInstant(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ActionInstant_class = {
         "ActionInstant",
         JSCLASS_HAS_PRIVATE,
@@ -24389,7 +24755,6 @@ void js_register_cocos2dx_Show(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Show_class = {
         "Show",
         JSCLASS_HAS_PRIVATE,
@@ -24498,7 +24863,6 @@ void js_register_cocos2dx_Hide(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Hide_class = {
         "Hide",
         JSCLASS_HAS_PRIVATE,
@@ -24589,7 +24953,6 @@ void js_register_cocos2dx_ToggleVisibility(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ToggleVisibility_class = {
         "ToggleVisibility",
         JSCLASS_HAS_PRIVATE,
@@ -24712,7 +25075,6 @@ void js_register_cocos2dx_RemoveSelf(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_RemoveSelf_class = {
         "RemoveSelf",
         JSCLASS_HAS_PRIVATE,
@@ -24846,7 +25208,6 @@ void js_register_cocos2dx_FlipX(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_FlipX_class = {
         "FlipX",
         JSCLASS_HAS_PRIVATE,
@@ -24982,7 +25343,6 @@ void js_register_cocos2dx_FlipY(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_FlipY_class = {
         "FlipY",
         JSCLASS_HAS_PRIVATE,
@@ -25118,7 +25478,6 @@ void js_register_cocos2dx_Place(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Place_class = {
         "Place",
         JSCLASS_HAS_PRIVATE,
@@ -25229,7 +25588,6 @@ void js_register_cocos2dx_CallFunc(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_CallFunc_class = {
         "_CallFunc",
         JSCLASS_HAS_PRIVATE,
@@ -25321,7 +25679,6 @@ void js_register_cocos2dx_CallFuncN(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_CallFuncN_class = {
         "CallFunc",
         JSCLASS_HAS_PRIVATE,
@@ -25792,7 +26149,6 @@ void js_register_cocos2dx_ActionManager(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ActionManager_class = {
         "ActionManager",
         JSCLASS_HAS_PRIVATE,
@@ -26159,7 +26515,6 @@ void js_register_cocos2dx_AtlasNode(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_AtlasNode_class = {
         "AtlasNode",
         JSCLASS_HAS_PRIVATE,
@@ -26434,7 +26789,6 @@ void js_register_cocos2dx_ClippingNode(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ClippingNode_class = {
         "ClippingNode",
         JSCLASS_HAS_PRIVATE,
@@ -27287,7 +27641,6 @@ void js_register_cocos2dx_DrawNode(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_DrawNode_class = {
         "DrawNode",
         JSCLASS_HAS_PRIVATE,
@@ -29300,7 +29653,6 @@ void js_register_cocos2dx_Label(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Label_class = {
         "Label",
         JSCLASS_HAS_PRIVATE,
@@ -29486,7 +29838,6 @@ void js_register_cocos2dx_LabelTTF(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_LabelTTF_class = {
         "LabelTTF",
         JSCLASS_HAS_PRIVATE,
@@ -29593,7 +29944,6 @@ void js_register_cocos2dx_Layer(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Layer_class = {
         "Layer",
         JSCLASS_HAS_PRIVATE,
@@ -29896,7 +30246,6 @@ void js_register_cocos2dx_LayerColor(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_LayerColor_class = {
         "LayerColor",
         JSCLASS_HAS_PRIVATE,
@@ -30339,7 +30688,6 @@ void js_register_cocos2dx_LayerGradient(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_LayerGradient_class = {
         "LayerGradient",
         JSCLASS_HAS_PRIVATE,
@@ -30536,7 +30884,6 @@ void js_register_cocos2dx_LayerMultiplex(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_LayerMultiplex_class = {
         "LayerMultiplex",
         JSCLASS_HAS_PRIVATE,
@@ -30861,7 +31208,6 @@ void js_register_cocos2dx_MenuItem(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_MenuItem_class = {
         "MenuItem",
         JSCLASS_HAS_PRIVATE,
@@ -31152,7 +31498,6 @@ void js_register_cocos2dx_MenuItemLabel(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_MenuItemLabel_class = {
         "MenuItemLabel",
         JSCLASS_HAS_PRIVATE,
@@ -31315,7 +31660,6 @@ void js_register_cocos2dx_MenuItemAtlasFont(JSContext *cx, JS::HandleObject glob
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_MenuItemAtlasFont_class = {
         "MenuItemAtlasFont",
         JSCLASS_HAS_PRIVATE,
@@ -31602,7 +31946,6 @@ void js_register_cocos2dx_MenuItemFont(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_MenuItemFont_class = {
         "MenuItemFont",
         JSCLASS_HAS_PRIVATE,
@@ -31991,7 +32334,6 @@ void js_register_cocos2dx_MenuItemSprite(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_MenuItemSprite_class = {
         "MenuItemSprite",
         JSCLASS_HAS_PRIVATE,
@@ -32255,7 +32597,6 @@ void js_register_cocos2dx_MenuItemImage(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_MenuItemImage_class = {
         "MenuItemImage",
         JSCLASS_HAS_PRIVATE,
@@ -32489,7 +32830,6 @@ void js_register_cocos2dx_MenuItemToggle(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_MenuItemToggle_class = {
         "MenuItemToggle",
         JSCLASS_HAS_PRIVATE,
@@ -32718,7 +33058,6 @@ void js_register_cocos2dx_Menu(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Menu_class = {
         "Menu",
         JSCLASS_HAS_PRIVATE,
@@ -33277,7 +33616,6 @@ void js_register_cocos2dx_MotionStreak(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_MotionStreak_class = {
         "MotionStreak",
         JSCLASS_HAS_PRIVATE,
@@ -33754,7 +34092,6 @@ void js_register_cocos2dx_ParticleBatchNode(JSContext *cx, JS::HandleObject glob
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleBatchNode_class = {
         "ParticleBatchNode",
         JSCLASS_HAS_PRIVATE,
@@ -33942,7 +34279,6 @@ void js_register_cocos2dx_ParticleData(JSContext *cx, JS::HandleObject global) {
         js_cocos2d_ParticleData_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleData_class = {
         "ParticleData",
         JSCLASS_HAS_PRIVATE,
@@ -36072,7 +36408,6 @@ void js_register_cocos2dx_ParticleSystem(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleSystem_class = {
         "ParticleSystem",
         JSCLASS_HAS_PRIVATE,
@@ -36414,7 +36749,6 @@ void js_register_cocos2dx_ParticleSystemQuad(JSContext *cx, JS::HandleObject glo
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleSystemQuad_class = {
         "ParticleSystem",
         JSCLASS_HAS_PRIVATE,
@@ -36526,7 +36860,6 @@ void js_register_cocos2dx_ParticleFire(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleFire_class = {
         "ParticleFire",
         JSCLASS_HAS_PRIVATE,
@@ -36675,7 +37008,6 @@ void js_register_cocos2dx_ParticleFireworks(JSContext *cx, JS::HandleObject glob
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleFireworks_class = {
         "ParticleFireworks",
         JSCLASS_HAS_PRIVATE,
@@ -36826,7 +37158,6 @@ void js_register_cocos2dx_ParticleSun(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleSun_class = {
         "ParticleSun",
         JSCLASS_HAS_PRIVATE,
@@ -36977,7 +37308,6 @@ void js_register_cocos2dx_ParticleGalaxy(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleGalaxy_class = {
         "ParticleGalaxy",
         JSCLASS_HAS_PRIVATE,
@@ -37128,7 +37458,6 @@ void js_register_cocos2dx_ParticleFlower(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleFlower_class = {
         "ParticleFlower",
         JSCLASS_HAS_PRIVATE,
@@ -37279,7 +37608,6 @@ void js_register_cocos2dx_ParticleMeteor(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleMeteor_class = {
         "ParticleMeteor",
         JSCLASS_HAS_PRIVATE,
@@ -37430,7 +37758,6 @@ void js_register_cocos2dx_ParticleSpiral(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleSpiral_class = {
         "ParticleSpiral",
         JSCLASS_HAS_PRIVATE,
@@ -37581,7 +37908,6 @@ void js_register_cocos2dx_ParticleExplosion(JSContext *cx, JS::HandleObject glob
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleExplosion_class = {
         "ParticleExplosion",
         JSCLASS_HAS_PRIVATE,
@@ -37732,7 +38058,6 @@ void js_register_cocos2dx_ParticleSmoke(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleSmoke_class = {
         "ParticleSmoke",
         JSCLASS_HAS_PRIVATE,
@@ -37883,7 +38208,6 @@ void js_register_cocos2dx_ParticleSnow(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleSnow_class = {
         "ParticleSnow",
         JSCLASS_HAS_PRIVATE,
@@ -38034,7 +38358,6 @@ void js_register_cocos2dx_ParticleRain(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParticleRain_class = {
         "ParticleRain",
         JSCLASS_HAS_PRIVATE,
@@ -38424,7 +38747,6 @@ void js_register_cocos2dx_ProtectedNode(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ProtectedNode_class = {
         "ProtectedNode",
         JSCLASS_HAS_PRIVATE,
@@ -39397,7 +39719,6 @@ void js_register_cocos2dx_Sprite(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Sprite_class = {
         "Sprite",
         JSCLASS_HAS_PRIVATE,
@@ -40160,7 +40481,6 @@ void js_register_cocos2dx_RenderTexture(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_RenderTexture_class = {
         "RenderTexture",
         JSCLASS_HAS_PRIVATE,
@@ -40961,7 +41281,6 @@ void js_register_cocos2dx_GLProgram(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_GLProgram_class = {
         "GLProgram",
         JSCLASS_HAS_PRIVATE,
@@ -41190,7 +41509,6 @@ void js_register_cocos2dx_GLProgramCache(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_GLProgramCache_class = {
         "ShaderCache",
         JSCLASS_HAS_PRIVATE,
@@ -41451,7 +41769,6 @@ void js_register_cocos2dx_RenderState(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_RenderState_class = {
         "RenderState",
         JSCLASS_HAS_PRIVATE,
@@ -41743,7 +42060,6 @@ void js_register_cocos2dx_Pass(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Pass_class = {
         "Pass",
         JSCLASS_HAS_PRIVATE,
@@ -42096,7 +42412,6 @@ void js_register_cocos2dx_Material(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Material_class = {
         "Material",
         JSCLASS_HAS_PRIVATE,
@@ -42581,7 +42896,6 @@ void js_register_cocos2dx_TextureCache(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TextureCache_class = {
         "TextureCache",
         JSCLASS_HAS_PRIVATE,
@@ -42724,7 +43038,6 @@ void js_register_cocos2dx_Device(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Device_class = {
         "Device",
         JSCLASS_HAS_PRIVATE,
@@ -42801,7 +43114,6 @@ void js_register_cocos2dx_SAXParser(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_SAXParser_class = {
         "PlistParser",
         JSCLASS_HAS_PRIVATE,
@@ -42957,7 +43269,6 @@ void js_register_cocos2dx_Application(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_Application_class = {
         "Application",
         JSCLASS_HAS_PRIVATE,
@@ -43661,7 +43972,6 @@ void js_register_cocos2dx_SpriteBatchNode(JSContext *cx, JS::HandleObject global
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_SpriteBatchNode_class = {
         "SpriteBatchNode",
         JSCLASS_HAS_PRIVATE,
@@ -44093,7 +44403,6 @@ void js_register_cocos2dx_SpriteFrameCache(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_SpriteFrameCache_class = {
         "SpriteFrameCache",
         JSCLASS_HAS_PRIVATE,
@@ -44640,7 +44949,6 @@ void js_register_cocos2dx_TextFieldTTF(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TextFieldTTF_class = {
         "TextFieldTTF",
         JSCLASS_HAS_PRIVATE,
@@ -44820,7 +45128,6 @@ void js_register_cocos2dx_ParallaxNode(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_ParallaxNode_class = {
         "ParallaxNode",
         JSCLASS_HAS_PRIVATE,
@@ -45159,7 +45466,6 @@ void js_register_cocos2dx_TMXObject(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TMXObject_class = {
         "TMXObject",
         JSCLASS_HAS_PRIVATE,
@@ -45263,7 +45569,6 @@ void js_register_cocos2dx_TMXObjectImage(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TMXObjectImage_class = {
         "TMXObjectImage",
         JSCLASS_HAS_PRIVATE,
@@ -45357,7 +45662,6 @@ void js_register_cocos2dx_TMXObjectShape(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TMXObjectShape_class = {
         "TMXObjectShape",
         JSCLASS_HAS_PRIVATE,
@@ -45644,7 +45948,6 @@ void js_register_cocos2dx_TMXObjectGroup(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TMXObjectGroup_class = {
         "TMXObjectGroup",
         JSCLASS_HAS_PRIVATE,
@@ -45760,7 +46063,6 @@ void js_register_cocos2dx_TMXLayerInfo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TMXLayerInfo_class = {
         "TMXLayerInfo",
         JSCLASS_HAS_PRIVATE,
@@ -45868,7 +46170,6 @@ void js_register_cocos2dx_TMXObjectGroupInfo(JSContext *cx, JS::HandleObject glo
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TMXObjectGroupInfo_class = {
         "TMXObjectGroupInfo",
         JSCLASS_HAS_PRIVATE,
@@ -45960,7 +46261,6 @@ void js_register_cocos2dx_TMXTilesetInfo(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TMXTilesetInfo_class = {
         "TMXTilesetInfo",
         JSCLASS_HAS_PRIVATE,
@@ -46954,7 +47254,6 @@ void js_register_cocos2dx_TMXMapInfo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TMXMapInfo_class = {
         "TMXMapInfo",
         JSCLASS_HAS_PRIVATE,
@@ -47355,7 +47654,7 @@ bool js_cocos2dx_TMXLayer_setTileGID(JSContext *cx, uint32_t argc, JS::Value *vp
             ok &= jsval_to_vector2(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::TMXTileFlags_ arg2;
-            arg2 = (uint32_t)(args.get(2).toNumber());
+            ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
             if (!ok) { ok = true; break; }
             cobj->setTileGID(arg0, arg1, arg2);
             args.rval().setUndefined();
@@ -47663,7 +47962,6 @@ void js_register_cocos2dx_TMXLayer(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TMXLayer_class = {
         "TMXLayer",
         JSCLASS_HAS_PRIVATE,
@@ -48197,7 +48495,6 @@ void js_register_cocos2dx_TMXTiledMap(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TMXTiledMap_class = {
         "TMXTiledMap",
         JSCLASS_HAS_PRIVATE,
@@ -48422,7 +48719,6 @@ void js_register_cocos2dx_TileMapAtlas(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_TileMapAtlas_class = {
         "TileMapAtlas",
         JSCLASS_HAS_PRIVATE,
@@ -48976,7 +49272,6 @@ void js_register_cocos2dx_SimpleAudioEngine(JSContext *cx, JS::HandleObject glob
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass CocosDenshion_SimpleAudioEngine_class = {
         "AudioEngine",
         JSCLASS_HAS_PRIVATE,
@@ -49063,6 +49358,7 @@ void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj) {
     js_register_cocos2dx_EventListener(cx, ns);
     js_register_cocos2dx_EventListenerKeyboard(cx, ns);
     js_register_cocos2dx_EventListenerMouse(cx, ns);
+    js_register_cocos2dx_ComponentContainer(cx, ns);
     js_register_cocos2dx_Director(cx, ns);
     js_register_cocos2dx_Scheduler(cx, ns);
     js_register_cocos2dx_ActionEase(cx, ns);
@@ -49089,14 +49385,14 @@ void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj) {
     js_register_cocos2dx_Event(cx, ns);
     js_register_cocos2dx_EventMouse(cx, ns);
     js_register_cocos2dx_GLView(cx, ns);
-    js_register_cocos2dx_EaseRateAction(cx, ns);
-    js_register_cocos2dx_EaseOut(cx, ns);
+    js_register_cocos2dx_EaseBezierAction(cx, ns);
     js_register_cocos2dx_ParticleFireworks(cx, ns);
     js_register_cocos2dx_MenuItem(cx, ns);
     js_register_cocos2dx_MenuItemSprite(cx, ns);
     js_register_cocos2dx_MenuItemImage(cx, ns);
     js_register_cocos2dx_ParticleFire(cx, ns);
     js_register_cocos2dx_ParticleSmoke(cx, ns);
+    js_register_cocos2dx_EaseRateAction(cx, ns);
     js_register_cocos2dx_EaseIn(cx, ns);
     js_register_cocos2dx_EaseExponentialInOut(cx, ns);
     js_register_cocos2dx_CardinalSplineTo(cx, ns);
@@ -49194,11 +49490,12 @@ void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj) {
     js_register_cocos2dx_Sprite(cx, ns);
     js_register_cocos2dx_ParallaxNode(cx, ns);
     js_register_cocos2dx_EventCustom(cx, ns);
+    js_register_cocos2dx_Component(cx, ns);
     js_register_cocos2dx_EaseCubicActionOut(cx, ns);
     js_register_cocos2dx_EventListenerTouchOneByOne(cx, ns);
     js_register_cocos2dx_TextFieldTTF(cx, ns);
     js_register_cocos2dx_ParticleRain(cx, ns);
-    js_register_cocos2dx_EaseBezierAction(cx, ns);
+    js_register_cocos2dx_EaseOut(cx, ns);
     js_register_cocos2dx_MenuItemFont(cx, ns);
     js_register_cocos2dx_EaseSineOut(cx, ns);
     js_register_cocos2dx_TextureCache(cx, ns);

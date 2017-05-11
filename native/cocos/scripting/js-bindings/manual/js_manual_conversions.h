@@ -162,10 +162,16 @@ template <class T>
 bool jsval_to_ccvector(JSContext* cx, JS::HandleValue v, cocos2d::Vector<T>* ret)
 {
     JS::RootedObject jsobj(cx);
-
-    bool ok = v.isObject() && JS_ValueToObject( cx, v, &jsobj );
-    JSB_PRECONDITION3( ok, cx, false, "Error converting value to object");
-    JSB_PRECONDITION3( jsobj && JS_IsArrayObject( cx, jsobj, &ok) && ok,  cx, false, "Object must be an array");
+    if (v.isObject())
+    {
+        jsobj = v.toObjectOrNull();
+    }
+    else
+    {
+        return false;
+    }
+    bool isArray;
+    JSB_PRECONDITION3(JS_IsArrayObject(cx, jsobj, &isArray) && isArray, cx, false, "Object must be an array");
 
     uint32_t len = 0;
     JS_GetArrayLength(cx, jsobj, &len);
@@ -226,8 +232,7 @@ bool jsval_to_ccmap_string_key(JSContext *cx, JS::HandleValue v, cocos2d::Map<st
         return false;
     }
     
-    JS::Rooted<JS::IdVector> ids(cx);
-    
+    JS::Rooted<JS::IdVector> ids(cx, cx);
     if (!JS_Enumerate(cx, tmp, &ids))
     {
         CCLOG("%s", "jsval_to_ccmap_string_key: Failed to enumerate the js object.");
@@ -235,11 +240,12 @@ bool jsval_to_ccmap_string_key(JSContext *cx, JS::HandleValue v, cocos2d::Map<st
     }
     
     JS::RootedId idp(cx);
-
+    JS::RootedValue key(cx);
+    JS::RootedValue value(cx);
+    JS::RootedObject jsobj(cx);
     for (int i = 0; i < ids.length(); ++i)
     {
         idp = ids[i];
-        JS::RootedValue key(cx);
         if (!JS_IdToValue(cx, idp, &key))
         {
             return false; // error
@@ -250,12 +256,11 @@ bool jsval_to_ccmap_string_key(JSContext *cx, JS::HandleValue v, cocos2d::Map<st
         }
         JSStringWrapper keyWrapper(key.toString(), cx);
 
-        JS::RootedValue value(cx);
         JS_GetPropertyById(cx, tmp, idp, &value);
         if (value.isObject())
         {
             js_proxy_t *proxy = nullptr;
-            JS::RootedObject jsobj(cx, value.toObjectOrNull());
+            jsobj = value.toObjectOrNull();
             proxy = jsb_get_js_proxy(jsobj);
             CCASSERT(proxy, "Native object should be added!");
             T cobj = (T)(proxy ? proxy->ptr : nullptr);

@@ -390,7 +390,6 @@ void js_register_cocos2dx_experimental_webView_WebView(JSContext *cx, JS::Handle
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_experimental_ui_WebView_class = {
         "WebView",
         JSCLASS_HAS_PRIVATE,

@@ -1338,7 +1338,6 @@ bool js_cocos2dx_CCNode_unscheduleAllSelectors(JSContext *cx, uint32_t argc, JS:
 bool js_CCNode_scheduleOnce(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc >= 1) {
-        bool ok = true;
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
         JS::RootedValue thisValue(cx, args.thisv());
@@ -4814,7 +4813,7 @@ bool js_cocos2dx_PolygonInfo_constructor(JSContext *cx, uint32_t argc, JS::Value
     CCASSERT(typeMapIter != _js_global_type_map.end(), "Can't find the class type!");
     typeClass = typeMapIter->second;
     CCASSERT(typeClass, "The value is null.");
-    JS::RootedObject proto(cx, typeClass->proto.ref());
+    JS::RootedObject proto(cx, typeClass->proto);
     JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
     JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
     args.rval().set(objVal);
@@ -4973,7 +4972,7 @@ bool js_cocos2dx_AutoPolygon_constructor(JSContext *cx, uint32_t argc, JS::Value
     CCASSERT(typeMapIter != _js_global_type_map.end(), "Can't find the class type!");
     typeClass = typeMapIter->second;
     CCASSERT(typeClass, "The value is null.");
-    JS::RootedObject proto(cx, typeClass->proto.ref());
+    JS::RootedObject proto(cx, typeClass->proto);
     JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
     JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
     args.rval().set(objVal);

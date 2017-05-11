@@ -302,7 +302,6 @@ void js_register_cocos2dx_network_Downloader(JSContext *cx, JS::HandleObject glo
         js_cocos2d_network_Downloader_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_network_Downloader_class = {
         "Downloader",
         JSCLASS_HAS_PRIVATE,

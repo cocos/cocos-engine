@@ -1,5 +1,6 @@
 #include "scripting/js-bindings/manual/js_module_register.h"
 
+#include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_ui_auto.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.hpp"
@@ -12,7 +13,7 @@
 #include "scripting/js-bindings/manual/dragonbones/jsb_cocos2dx_dragonbones_manual.h"
 #include "scripting/js-bindings/manual/extension/jsb_cocos2dx_extension_manual.h"
 #include "scripting/js-bindings/manual/localstorage/js_bindings_system_registration.h"
-#include "scripting/js-bindings/manual/chipmunk/js_bindings_chipmunk_registration.h"
+//#include "scripting/js-bindings/manual/chipmunk/js_bindings_chipmunk_registration.h"
 #include "scripting/js-bindings/manual/jsb_opengl_registration.h"
 #include "scripting/js-bindings/manual/network/XMLHTTPRequest.h"
 #include "scripting/js-bindings/manual/network/jsb_websocket.h"
@@ -55,7 +56,7 @@ int js_module_register()
     sc->addRegisterCallback(register_all_cocos2dx_extension_manual);
     
     // chipmunk can be commented out to reduce the package
-    sc->addRegisterCallback(jsb_register_chipmunk);
+//    sc->addRegisterCallback(jsb_register_chipmunk);
     // opengl can be commented out to reduce the package
     sc->addRegisterCallback(JSB_register_opengl);
     

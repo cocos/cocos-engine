@@ -124,10 +124,11 @@ public:
         js_proxy_t * p = jsb_get_native_proxy(editBox);
         if (!p) return;
 
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
         JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
         JS::HandleValueArray args(arg);
-        JS::RootedValue delegateVal(ScriptingCore::getInstance()->getGlobalContext(), _JSDelegate);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingDidBegin", 1, args);
+        JS::RootedValue delegateVal(cx, _JSDelegate);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingDidBegin", args);
     }
 
     virtual void editBoxEditingDidEnd(EditBox* editBox) override
@@ -135,10 +136,11 @@ public:
         js_proxy_t * p = jsb_get_native_proxy(editBox);
         if (!p) return;
         
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
         JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
         JS::HandleValueArray args(arg);
-        JS::RootedValue delegateVal(ScriptingCore::getInstance()->getGlobalContext(), _JSDelegate);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingDidEnd", 1, args);
+        JS::RootedValue delegateVal(cx, _JSDelegate);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingDidEnd", args);
     }
 
     virtual void editBoxTextChanged(EditBox* editBox, const std::string& text) override
@@ -148,24 +150,25 @@ public:
         
         JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
         
-        JS::AutoValueVector valArr(_cx);
+        JS::AutoValueVector valArr(cx);
         valArr.append(JS::ObjectOrNullValue(p->obj));
         valArr.append(std_string_to_jsval(cx, text));
         JS::HandleValueArray args(valArr);
         
         JS::RootedValue delegateVal(cx, _JSDelegate);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxTextChanged", 2, args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxTextChanged", args);
     }
 
     virtual void editBoxEditingReturn(EditBox* editBox) override
     {
         js_proxy_t * p = jsb_get_native_proxy(editBox);
         if (!p) return;
-
-        JS::RootedValue delegateVal(ScriptingCore::getInstance()->getGlobalContext(), _JSDelegate);
-        JS::RootedValue arg(cx, JS::ObjectOrNullVale(p->obj));
+        
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue delegateVal(cx, _JSDelegate);
+        JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
         JS::HandleValueArray args(arg);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingReturn", 1, args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingReturn", args);
     }
 
     void setJSDelegate(JS::HandleValue pJSDelegate)

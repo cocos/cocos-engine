@@ -346,7 +346,6 @@ void js_register_cocos2dx_experimental_video_VideoPlayer(JSContext *cx, JS::Hand
         nullptr,
         nullptr, nullptr, nullptr, nullptr
     };
-    
     static JSClass cocos2d_experimental_ui_VideoPlayer_class = {
         "VideoPlayer",
         JSCLASS_HAS_PRIVATE,
