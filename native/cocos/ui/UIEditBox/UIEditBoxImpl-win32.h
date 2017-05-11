@@ -63,16 +63,19 @@ public:
     virtual void setNativeMaxLength(int maxLength);
 
 private:
+    std::string getText() const;
     void  _WindowProc(HWND, UINT, WPARAM, LPARAM);
     
     WNDPROC _prevWndProc;
     static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
+    static LRESULT CALLBACK hookGLFWWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     HWND hwndEdit;
-    HWND hwndCocos;
-    HINSTANCE hInstance;
 
+    static WNDPROC s_prevCocosWndProc;
+
+    static HINSTANCE s_hInstance;
+    static HWND s_hwndCocos;
     static HWND s_previousFocusWnd;
     static bool s_isInitialized;
     static int s_editboxChildID;

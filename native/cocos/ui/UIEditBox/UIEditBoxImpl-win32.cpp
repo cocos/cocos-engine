@@ -37,7 +37,6 @@
 #include <Commctrl.h>
 #include <windows.h>
 
-
 NS_CC_BEGIN
 
 namespace ui {
@@ -45,13 +44,21 @@ namespace ui {
     bool EditBoxImplWin::s_isInitialized = false;
     int EditBoxImplWin::s_editboxChildID = 100;
     HWND EditBoxImplWin::s_previousFocusWnd = 0;
+    WNDPROC EditBoxImplWin::s_prevCocosWndProc = 0;
+    HINSTANCE EditBoxImplWin::s_hInstance = 0;
+    HWND EditBoxImplWin::s_hwndCocos = 0;
     void EditBoxImplWin::lazyInit()
     {
-        HWND hwnd = cocos2d::Director::getInstance()->getOpenGLView()->getWin32Window();
-        LONG style = GetWindowLong(hwnd, GWL_STYLE);
-        SetWindowLong(hwnd, GWL_STYLE, style | WS_CLIPCHILDREN);
+        s_hwndCocos = cocos2d::Director::getInstance()->getOpenGLView()->getWin32Window();
+        LONG style = GetWindowLong(s_hwndCocos, GWL_STYLE);
+        SetWindowLong(s_hwndCocos, GWL_STYLE, style | WS_CLIPCHILDREN);
         s_isInitialized = true;
-        s_previousFocusWnd = hwnd;
+        s_previousFocusWnd = s_hwndCocos;
+
+        s_hInstance = GetModuleHandle(NULL);
+
+        s_prevCocosWndProc = (WNDPROC)SetWindowLongPtr(s_hwndCocos, GWL_WNDPROC, (LONG_PTR)hookGLFWWindowProc);
+
     }
 
     EditBoxImpl* __createSystemEditBox(EditBox* pEditBox)
@@ -67,8 +74,6 @@ namespace ui {
             lazyInit();
         }
 
-        hwndCocos = cocos2d::Director::getInstance()->getOpenGLView()->getWin32Window();
-        hInstance = GetModuleHandle(NULL);
         s_editboxChildID++;
 
     }
@@ -98,9 +103,9 @@ namespace ui {
             frame.origin.y,
             frame.size.width,
             frame.size.height,   // set size in WM_SIZE message 
-            hwndCocos,         // parent window 
+            s_hwndCocos,         // parent window 
             (HMENU)s_editboxChildID,   // edit control ID 
-            hInstance,
+            s_hInstance,
             this);        // pointer not needed 
 
         // Clear the password style
@@ -199,7 +204,7 @@ namespace ui {
     }
     void EditBoxImplWin::nativeOpenKeyboard()
     {
-        if (s_previousFocusWnd != hwndCocos) {
+        if (s_previousFocusWnd != s_hwndCocos) {
             ::ShowWindow(s_previousFocusWnd, SW_HIDE);
         }
 
@@ -232,6 +237,8 @@ namespace ui {
             if (wParam == VK_RETURN)
             {
                 CCLOG("return key pressed");
+                this->editBoxEditingReturn();
+                this->editBoxEditingDidEnd(this->getText());
             }
             break;
         case WM_SETFOCUS:
@@ -239,33 +246,67 @@ namespace ui {
             ::PostMessage(hwnd, WM_SETCURSOR, (WPARAM)s_previousFocusWnd, 0);
             s_previousFocusWnd = hwndEdit;
             break;
-        case WM_KILLFOCUS:          
+        case WM_PARENTNOTIFY:
+            if (wParam == WM_LBUTTONDOWN)
+            {
+                //do you staff
+                CCLOG("WM_PARENTNOTIFY");
+            }
+            break;
+        case WM_KILLFOCUS:
+            //when app enter background, this message also be called.
+            if (!this->_editingMode) {
+                s_previousFocusWnd = s_hwndCocos;
+            }
             break;
         case WM_KEYUP:
         {
-
-                std::u16string wstrResult;
-                std::string utf8Result;
-              
-
-                int inputLength = ::GetWindowTextLengthW(this->hwndEdit);
-                wstrResult.resize(inputLength);
-
-                ::GetWindowTextW(this->hwndEdit, (LPWSTR) const_cast<char16_t*>(wstrResult.c_str()), inputLength + 1);
-                bool conversionResult = cocos2d::StringUtils::UTF16ToUTF8(wstrResult, utf8Result);
-              /*  this->_param->pstrResult->clear();
-                if (conversionResult)
-                {
-                    *(_this->_param->pstrResult) = std::move(utf8Result);
-                }
-*/
-                // Invoke editBoxTextChanged indirectly
-                //this->_onTextChange(_this->_param->pstrResult->c_str());
+                std::string utf8Result = this->getText();
                 CCLOG("%s", utf8Result.c_str());
         }
         break;
 
         }
+    }
+
+    std::string EditBoxImplWin::getText()const
+    {
+        std::u16string wstrResult;
+        std::string utf8Result;
+
+
+        int inputLength = ::GetWindowTextLengthW(this->hwndEdit);
+        wstrResult.resize(inputLength);
+
+        ::GetWindowTextW(this->hwndEdit, (LPWSTR) const_cast<char16_t*>(wstrResult.c_str()), inputLength + 1);
+        bool conversionResult = cocos2d::StringUtils::UTF16ToUTF8(wstrResult, utf8Result);
+        if (!conversionResult)
+        {
+            CCLOG("warning, editbox input text convertion error.");
+        }
+        return std::move(utf8Result);
+    }
+
+    LRESULT EditBoxImplWin::hookGLFWWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+    {
+        switch (uMsg)
+        {
+
+        case WM_PARENTNOTIFY:
+            if (wParam == WM_LBUTTONDOWN)
+            {
+                //do you staff
+                CCLOG("WM_PARENTNOTIFY");
+            }
+            break;
+        case WM_LBUTTONDOWN:
+            CCLOG("WM_LBUTTONDOWN");
+            break;
+        default:
+            break;
+        }
+
+        return CallWindowProc(s_prevCocosWndProc, hwnd, uMsg, wParam, lParam);
     }
 
     LRESULT EditBoxImplWin::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

@@ -27,6 +27,12 @@
 
 #define kLabelZOrder  9999
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#define PASSWORD_CHAR "*"
+#else
+#define PASSWORD_CHAR "\u25CF"
+#endif
+
 #include "UIEditBox.h"
 #include "base/CCDirector.h"
 #include "2d/CCLabel.h"
@@ -127,7 +133,7 @@ void EditBoxImplCommon::setInactiveText(const char* pText)
     {
         std::string passwordString;
         for(int i = 0; i < strlen(pText); ++i)
-            passwordString.append("\u25CF");
+            passwordString.append(PASSWORD_CHAR);
         _label->setString(passwordString);
     }
     else
