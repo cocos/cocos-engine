@@ -110,6 +110,16 @@ public class Cocos2dxEditBox extends EditText {
     private final int kKeyboardReturnTypeSearch = 3;
     private final int kKeyboardReturnTypeGo = 4;
 
+    private static final int kTextHorizontalAlignmentLeft = 0;
+    private static final int kTextHorizontalAlignmentCenter = 1;
+    private static final int kTextHorizontalAlignmentRight = 2;
+
+    private static final int kTextVerticalAlignmentTop = 0;
+    private static final int kTextVerticalAlignmentCenter = 1;
+    private static final int kTextVerticalAlignmentBottom = 2;
+
+
+
     private int mInputFlagConstraints;
     private int mInputModeConstraints;
     private  int mMaxLength;
@@ -142,36 +152,44 @@ public class Cocos2dxEditBox extends EditText {
         this.setLayoutParams(layoutParams);
     }
 
-    public void setInputTextAlignment(int hAlign, int vAlign) {
-        int gravity;
-
-        switch (hAlign) {
-            case 0:
-                gravity = Gravity.LEFT;
+    public void setTextHorizontalAlignment(int alignment) {
+        int gravity = this.getGravity();
+        switch (alignment) {
+            case kTextHorizontalAlignmentLeft:
+                gravity = (gravity & ~Gravity.RIGHT) | Gravity.LEFT ;
                 break;
-            case 1:
-                gravity = Gravity.CENTER_HORIZONTAL;
+            case kTextHorizontalAlignmentCenter:
+                gravity =(gravity & ~Gravity.RIGHT & ~Gravity.LEFT) | Gravity.CENTER_HORIZONTAL;
                 break;
-            case 2:
-                gravity = Gravity.RIGHT;
+            case kTextHorizontalAlignmentRight:
+                gravity = (gravity & ~Gravity.LEFT) | Gravity.RIGHT ;
                 break;
             default:
-                gravity = Gravity.LEFT;
+                gravity = (gravity & ~Gravity.RIGHT) | Gravity.LEFT ;
                 break;
         }
+        this.setGravity(gravity);
+    }
 
-        switch (vAlign) {
-            case 0:
-                gravity = gravity | Gravity.TOP;
+    public void setTextVerticalAlignment(int alignment) {
+        int gravity = this.getGravity();
+        int padding = Cocos2dxEditBoxHelper.getPadding(mScaleX);
+        switch (alignment) {
+            case kTextVerticalAlignmentTop:
+                setPadding(padding, padding*3/4, 0, 0);
+                gravity = (gravity & ~Gravity.BOTTOM) | Gravity.TOP ;
                 break;
-            case 1:
-                gravity = gravity | Gravity.CENTER_VERTICAL;
+            case kTextVerticalAlignmentCenter:
+                setPadding(padding, 0, 0, padding/2);
+                gravity =(gravity & ~Gravity.TOP & ~Gravity.BOTTOM) | Gravity.CENTER_VERTICAL;
                 break;
-            case 2:
-                gravity = gravity | Gravity.BOTTOM;
+            case kTextVerticalAlignmentBottom:
+                //TODO: Add appropriate padding when this alignment is used
+                gravity = (gravity & ~Gravity.TOP) | Gravity.BOTTOM ;
                 break;
             default:
-                gravity = gravity | Gravity.CENTER_VERTICAL;
+                setPadding(padding, 0, 0, padding/2);
+                gravity =(gravity & ~Gravity.TOP & ~Gravity.BOTTOM) | Gravity.CENTER_VERTICAL;
                 break;
         }
 
@@ -223,11 +241,12 @@ public class Cocos2dxEditBox extends EditText {
     }
 
     public  void setInputMode(int inputMode){
-        this.setInputTextAlignment(0, 1);
+        this.setTextHorizontalAlignment(kTextHorizontalAlignmentLeft);
+        this.setTextVerticalAlignment(kTextVerticalAlignmentCenter);
         switch (inputMode) {
             case kEditBoxInputModeAny:
                 this.mInputModeConstraints = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE;
-                this.setInputTextAlignment(0, 0);
+                this.setTextVerticalAlignment(kTextVerticalAlignmentTop);
                 break;
             case kEditBoxInputModeEmailAddr:
                 this.mInputModeConstraints = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
