@@ -63,6 +63,9 @@ public:
     virtual void setNativeMaxLength(int maxLength);
 
 private:
+    void createSingleLineEditCtrl();
+    void createMultilineEditCtrl();
+    void cleanupEditCtrl();
     std::string getText() const;
     void  _WindowProc(HWND, UINT, WPARAM, LPARAM);
     
