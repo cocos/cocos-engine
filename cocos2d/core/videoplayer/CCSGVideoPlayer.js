@@ -386,7 +386,9 @@ _ccsg.VideoPlayer.EventType = {
         var video = this._video;
         if (node.visible) {
             video.style.visibility = 'visible';
-            cc.game.container.appendChild(video);
+            if(!cc.game.container.contains(video)) {
+                cc.game.container.appendChild(video);
+            }
         } else {
             video.style.visibility = 'hidden';
             video.pause();
