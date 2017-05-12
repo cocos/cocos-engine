@@ -70,7 +70,8 @@ namespace ui {
     EditBoxImplWin::EditBoxImplWin(EditBox* pEditText)
         : EditBoxImplCommon(pEditText),
         _fontSize(40),
-        _changedTextManually(false)
+        _changedTextManually(false),
+        _hasFocus(false)
     {
         if (!s_isInitialized)
         {
@@ -237,8 +238,8 @@ namespace ui {
         std::u16string utf16Result;
         std::string text(pText);
         cocos2d::StringUtils::UTF8ToUTF16(text, utf16Result);
-        ::SetWindowTextW(hwndEdit, (LPCWSTR)utf16Result.c_str());
         this->_changedTextManually = true;
+        ::SetWindowTextW(hwndEdit, (LPCWSTR)utf16Result.c_str());
     }
     void EditBoxImplWin::setNativePlaceHolder(const char* pText)
     {
@@ -305,9 +306,7 @@ namespace ui {
                 if (_editBoxInputMode != cocos2d::ui::EditBox::InputMode::ANY) {
                     if (s_previousFocusWnd != s_hwndCocos) {
                         ::ShowWindow(s_previousFocusWnd, SW_HIDE);
-                        ::PostMessage(s_hwndCocos, WM_SETFOCUS, (WPARAM)s_previousFocusWnd, 0);
-                        ::PostMessage(s_hwndCocos, WM_ACTIVATE, (WPARAM)s_previousFocusWnd, 0);
-                        ::PostMessage(s_hwndCocos, WM_SETCURSOR, (WPARAM)s_previousFocusWnd, 0);
+                        ::SendMessage(s_hwndCocos, WM_SETFOCUS, (WPARAM)s_previousFocusWnd, 0);
                         s_previousFocusWnd = s_hwndCocos;
                     }
                 }
@@ -318,9 +317,11 @@ namespace ui {
             ::PostMessage(hwnd, WM_ACTIVATE, (WPARAM)s_previousFocusWnd, 0);
             ::PostMessage(hwnd, WM_SETCURSOR, (WPARAM)s_previousFocusWnd, 0);
             s_previousFocusWnd = hwndEdit;
+            _hasFocus = true;
             this->_changedTextManually = false;
             break;
         case WM_KILLFOCUS:
+            _hasFocus = false;
             //when app enter background, this message also be called.
             if (this->_editingMode && !IsWindowVisible(hwnd))
             {
@@ -370,7 +371,20 @@ namespace ui {
         case WM_LBUTTONDOWN:
             if (s_previousFocusWnd != s_hwndCocos) {
                 ::ShowWindow(s_previousFocusWnd, SW_HIDE);
-                ::PostMessage(s_hwndCocos, WM_SETFOCUS, (WPARAM)s_previousFocusWnd, 0);
+                
+                EditBoxImplWin* pThis = (EditBoxImplWin*)GetWindowLongPtr(s_previousFocusWnd, GWLP_USERDATA);
+                if (!pThis->_hasFocus)
+                {
+                    if (pThis->_editingMode && !IsWindowVisible(s_previousFocusWnd))
+                    {
+                        pThis->editBoxEditingReturn();
+                        pThis->editBoxEditingDidEnd(pThis->getText());
+                    }
+                } 
+                else
+                {
+                    ::PostMessage(s_hwndCocos, WM_SETFOCUS, (WPARAM)s_previousFocusWnd, 0);
+                }
                 s_previousFocusWnd = s_hwndCocos;
             }
           

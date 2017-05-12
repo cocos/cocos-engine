@@ -77,6 +77,7 @@ private:
     //FIXME: fontSize should be in parent class
     int _fontSize;
     bool _changedTextManually;
+    bool _hasFocus;
     static WNDPROC s_prevCocosWndProc;
 
     static HINSTANCE s_hInstance;
