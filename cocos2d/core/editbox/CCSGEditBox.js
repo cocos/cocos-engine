@@ -321,9 +321,8 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._renderCmd.stayOnTop(this._alwaysOnTop);
     },
 
-    cleanup: function () {
-        this._super();
-
+    onExit: function () {
+        _ccsg.Node.prototype.onExit.call(this);
         this._renderCmd._removeDomFromGameContainer();
     },
 

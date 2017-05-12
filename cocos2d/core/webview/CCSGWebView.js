@@ -181,12 +181,8 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
         this._renderCmd.updateSize(width, height);
     },
 
-    /**
-     * remove node
-     */
-    cleanup: function(){
-        this._super();
-
+    onExit: function () {
+        _ccsg.Node.prototype.onExit.call(this);
         this._renderCmd.removeDom();
     },
 
