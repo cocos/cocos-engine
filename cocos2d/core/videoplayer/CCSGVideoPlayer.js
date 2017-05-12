@@ -19,6 +19,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var Utils = require('../platform/utils');
 /**
  * @class
  * @extends _ccsg.Node
@@ -138,12 +139,6 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
         this._renderCmd.updateSize(width, height);
     },
 
-    cleanup: function () {
-        this._super();
-
-        this._renderCmd.removeDom();
-    },
-
     onEnter: function () {
         _ccsg.Node.prototype.onEnter.call(this);
         var list = _ccsg.VideoPlayer.elements;
@@ -157,6 +152,7 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
         var index = list.indexOf(this);
         if(index !== -1)
             list.splice(index, 1);
+        this._renderCmd.removeDom();
     },
 
     setVisible: function ( visible ) {
@@ -386,23 +382,10 @@ _ccsg.VideoPlayer.EventType = {
         var video = this._video;
         if (node.visible) {
             video.style.visibility = 'visible';
-            if(!cc.game.container.contains(video)) {
-                cc.game.container.appendChild(video);
-            }
         } else {
             video.style.visibility = 'hidden';
             video.pause();
             this._playing = false;
-            if(video){
-                var hasChild = false;
-                if('contains' in cc.game.container) {
-                    hasChild = cc.game.container.contains(video);
-                }else {
-                    hasChild = cc.game.container.compareDocumentPosition(video) % 16;
-                }
-                if(hasChild)
-                    cc.game.container.removeChild(video);
-            }
         }
     };
 
@@ -422,12 +405,7 @@ _ccsg.VideoPlayer.EventType = {
     proto.removeDom = function () {
         var video = this._video;
         if(video){
-            var hasChild = false;
-            if('contains' in cc.game.container) {
-                hasChild = cc.game.container.contains(video);
-            }else {
-                hasChild = cc.game.container.compareDocumentPosition(video) % 16;
-            }
+            var hasChild = Utils.contains(cc.game.container, video);
             if(hasChild)
                 cc.game.container.removeChild(video);
         }
