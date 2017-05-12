@@ -136,6 +136,8 @@ test('EntityAnimator.animate', function () {
     animator.update(100);
     strictEqual(animator.isPlaying, false, 'animator should not update if non playing animation');
     deepEqual(entity.x, 100, 'first frame should play until the end of this frame');
+
+    animator.stop();
 });
 
 test('DynamicAnimCurve', function () {
@@ -222,6 +224,8 @@ test('AnimationNode', function () {
 
     animation.update(actualDuration / 4);
     deepEqual(renderer.colorProp, color(255, 255, 255, 255 * 0.75), 'should not animate if stopped');
+
+    animator.stop();
 });
 
 test('AnimationNode.getWrappedInfo', function () {
@@ -324,6 +328,8 @@ test('wrapMode', function () {
     animation.time = 0;
     animation.update(actualDuration / 4 + actualDuration);
     strictEqual(entity.x, 75 + 10, 'should played in the reverse direction in odd iterations');
+
+    animator.stop();
 });
 
 test('createBatchedProperty', function () {
@@ -500,6 +506,8 @@ test('Animation Component', function () {
     animation.removeClip(clip, true);
     strictEqual(animation.getClips().length, 0, 'should remove clip');
     strictEqual(animation.getAnimationState('test'), null, 'should remove state');
+
+    animation.stop();
 });
 
 
@@ -1082,6 +1090,8 @@ test('EventAnimCurve', function () {
             args: ['Frame 0 Event triggered']
         }
     ]);
+
+    animation.stop();
 });
 
 test('stop Animation', function () {
@@ -1193,6 +1203,8 @@ test('play Animation', function () {
     animation.play('scale');
     strictEqual(moveState.isPlaying, false, 'move animation state should not be playing');
     strictEqual(rotateState.isPlaying, false, 'rotate animation state should be playing');
+
+    animation.stop();
 });
 
 test('animation enabled/disabled', function () {
@@ -1273,6 +1285,8 @@ test('animation removeClip', function () {
 
     animation.removeClip(clip2, true);
     strictEqual(animation._clips.indexOf(clip2), -1, 'clip2 will be removed even clip2 is playing if force is true');
+
+    animation.stop();
 });
 
 test('animation callback', function () {
@@ -1381,7 +1395,7 @@ test('animation callback', function () {
     manager.update(0);
     deepEqual(list, [['move2', 'play'], ['move', 'stop']]);
 
-    entity.parent = null;
+    animation.stop();
 });
 
 test('animation callback', function () {
@@ -1409,6 +1423,8 @@ test('animation callback', function () {
 
     animation.setCurrentTime(0.7);
     strictEqual(entity.x, 70, 'entity.x should be 70');
+
+    animation.stop();
 });
 
 test('animation delay', function () {
@@ -1450,6 +1466,8 @@ test('animation delay', function () {
     state = animation.play('test');
 
     strictEqual(state._delayTime, 5, 'delay time should reset when replay');
+
+    animation.stop();
 });
 
 test('animation pause/resume', function () {
@@ -1487,4 +1505,44 @@ test('animation pause/resume', function () {
     strictEqual(animation._animator._isPaused, false, 'animation should not be paused');
     
     entity.parent = null;
+});
+
+test('animation pause/resume should remove animation-actor from animation manager', function () {
+    var entity = new cc.Node();
+    entity.parent = cc.director.getScene();
+
+    var animation = entity.addComponent(cc.Animation);
+
+    clip = new cc.AnimationClip();
+    clip._name = 'test';
+    clip._duration = 1;
+    clip.curveData = {
+        props: {
+            x: [
+                {frame: 0, value: 0},
+                {frame: 1, value: 100}
+            ]
+        }
+    };
+
+    animation.addClip(clip);
+
+    var manager = cc.director.getAnimationManager();
+
+    animation.play('test');
+    strictEqual(manager.animators.length, 1, 'should add 1 animation to animation manager');
+
+    animation.pause();
+    strictEqual(manager.animators.length, 0, 'should remove animation from animation manager');
+
+    animation.resume();
+    strictEqual(manager.animators.length, 1, 'should add 1 animation to animation manager');
+    
+    animation.stop();
+    strictEqual(manager.animators.length, 0, 'should remove animation from animation manager');
+
+    animation.play('test');
+    entity.parent = null;
+
+    strictEqual(manager.animators.length, 0, 'should remove animation from animation manager');
 });

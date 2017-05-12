@@ -114,6 +114,8 @@ p.onPause = function () {
     for (var i = 0, l = anims.length; i < l; i++) {
         anims[i].pause();
     }
+
+    Animator.prototype.onPause.call(this);
 };
 
 p.onResume = function () {
@@ -121,6 +123,8 @@ p.onResume = function () {
     for (var i = 0, l = anims.length; i < l; i++) {
         anims[i].resume();
     }
+
+    Animator.prototype.onResume.call(this);
 };
 
 p._reloadClip = function (state) {

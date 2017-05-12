@@ -57,6 +57,14 @@ animProto.onStop = function () {
     cc.director.getAnimationManager().removeAnimator(this);
 };
 
+animProto.onResume = function () {
+    cc.director.getAnimationManager().addAnimator(this);
+};
+
+animProto.onPause = function () {
+    cc.director.getAnimationManager().removeAnimator(this);
+};
+
 animProto.addAnimation = function (anim) {
     var index = this.playingAnims.indexOf(anim);
     if (index === -1) {
