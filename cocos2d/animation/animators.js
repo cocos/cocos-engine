@@ -49,10 +49,9 @@ animProto.stopStatesExcept = function (state) {
 };
 
 animProto.on = function (type, callback, target, useCapture) {
-    var iterator = this._anims;
-    var array = iterator.array;
-    for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-        array[iterator.i].on(type, callback, target, useCapture);
+    var array = this._anims.array;
+    for (var i = 0; i < array.length; ++i) {
+        array[i].on(type, callback, target, useCapture);
     }
 }
 

@@ -116,10 +116,9 @@ p.onStop = function () {
 };
 
 p.onPause = function () {
-    var iterator = this._anims;
-    var array = iterator.array;
-    for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-        var anim = array[iterator.i];
+    var array = this._anims.array;
+    for (var i = 0; i < array.length; ++i) {
+        var anim = array[i];
         anim.pause();
 
         // need to unbind animator to anim, or it maybe cannot be gc.
@@ -130,10 +129,9 @@ p.onPause = function () {
 };
 
 p.onResume = function () {
-    var iterator = this._anims;
-    var array = iterator.array;
-    for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-        var anim = array[iterator.i];
+    var array = this._anims.array;
+    for (var i = 0; i < array.length; ++i) {
+        var anim = array[i];
         
         // rebind animator to anim
         anim.animator = this;
