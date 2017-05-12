@@ -2,11 +2,9 @@ var JS = cc.js;
 
 var AnimationManager = cc.Class({
     ctor: function () {
-        this.animators = [];
         this.__instanceId = cc.ClassManager.getNewInstanceId();
 
-        this._updating = false;
-        this._removeList = [];
+        this._animators = new JS.array.MutableForwardIterator([]);
 
         this._delayEvents = [];
     },
@@ -14,24 +12,14 @@ var AnimationManager = cc.Class({
     // for manager
 
     update: function (dt) {
-        this._updating = true;
-
-        var animators = this.animators;
-        var i, l;
-        for (i = 0, l = animators.length; i < l; i++) {
-            var animator = animators[i];
+        var iterator = this._animators;
+        var array = iterator.array;
+        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+            var animator = array[iterator.i];
             if (animator._isPlaying && !animator._isPaused) {
                 animator.update(dt);
             }
         }
-
-        this._updating = false;
-
-        var removeList = this._removeList;
-        for (i = 0, l = removeList.length; i < l; i++) {
-            this.removeAnimator( removeList[i] );
-        }
-        removeList.length = 0;
 
         var events = this._delayEvents;
         for (i = 0, l = events.length; i < l; i++) {
@@ -49,14 +37,9 @@ var AnimationManager = cc.Class({
      * @param {Animator} animator
      */
     addAnimator: function (animator) {
-        var index = this.animators.indexOf(animator);
+        var index = this._animators.array.indexOf(animator);
         if (index === -1) {
-            this.animators.push(animator);
-        }
-
-        index = this._removeList.indexOf(animator);
-        if (index !== -1) {
-            this._removeList.splice(index, 1);
+            this._animators.push(animator);
         }
     },
 
@@ -64,17 +47,9 @@ var AnimationManager = cc.Class({
      * @param {Animator} animator
      */
     removeAnimator: function (animator) {
-        var index = this.animators.indexOf(animator);
+        var index = this._animators.array.indexOf(animator);
         if (index >= 0) {
-            if (this._updating) {
-                var removeList = this._removeList;
-                if (removeList.indexOf(animator) === -1) {
-                    removeList.push(animator);
-                }
-            }
-            else {
-                this.animators.splice(index, 1);
-            }
+            this._animators.fastRemoveAt(index);
         }
         else {
             cc.errorID(3907);

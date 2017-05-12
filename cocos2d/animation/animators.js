@@ -7,10 +7,7 @@ var DynamicAnimCurve = require('./animation-curves').DynamicAnimCurve;
 function Animator (target) {
     this.target = target;
     // {AnimationNodeBase}
-    this.playingAnims = [];
-
-    this._updating = false;
-    this._removeList = [];
+    this._anims = new JS.array.MutableForwardIterator([]);
 }
 
 JS.extend(Animator, Playable);
@@ -19,14 +16,11 @@ var animProto = Animator.prototype;
 
 // 由 AnimationManager 调用，只有在该 animator 处于播放状态时才会被调用
 animProto.update = function (dt) {
-    this._updating = true;
-
-    var i, l;
-    var anims = this.playingAnims;
+    var iterator = this._anims;
+    var array = iterator.array;
     var stoppedCount = 0;
-
-    for (i = 0, l = anims.length; i < l; i++) {
-        var anim = anims[i];
+    for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+        var anim = array[iterator.i];
         if (anim._isPlaying && !anim._isPaused) {
             anim.update(dt);
 
@@ -36,51 +30,60 @@ animProto.update = function (dt) {
         }
     }
 
-    this._updating = false;
-
-    if (anims.length === 0 || stoppedCount >= anims.length ) {
+    if (array.length === 0 || stoppedCount >= array.length) {
         this.stop();
     }
-
-    var removeList = this._removeList;
-    for (i = 0, l = removeList.length; i < l; i++) {
-        this.removeAnimation( removeList[i] );
-    }
-    removeList.length = 0;
 };
+
+animProto.stopStatesExcept = function (state) {
+    var iterator = this._anims;
+    var array = iterator.array;
+    for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+        var anim = array[iterator.i];
+        if (anim === state) {
+            continue;
+        }
+
+        this.stopState(anim);
+    }
+};
+
+animProto.on = function (type, callback, target, useCapture) {
+    var array = this._anims.array;
+    for (var i = 0; i < array.length; ++i) {
+        array[i].on(type, callback, target, useCapture);
+    }
+}
 
 animProto.onPlay = function () {
     cc.director.getAnimationManager().addAnimator(this);
 };
 
 animProto.onStop = function () {
+    if (!this._isPaused) {
+        cc.director.getAnimationManager().removeAnimator(this);
+    }
+};
+
+animProto.onResume = function () {
+    cc.director.getAnimationManager().addAnimator(this);
+};
+
+animProto.onPause = function () {
     cc.director.getAnimationManager().removeAnimator(this);
 };
 
 animProto.addAnimation = function (anim) {
-    var index = this.playingAnims.indexOf(anim);
+    var index = this._anims.array.indexOf(anim);
     if (index === -1) {
-        this.playingAnims.push(anim);
-    }
-
-    index = this._removeList.indexOf(anim);
-    if (index !== -1) {
-        this._removeList.splice(index, 1);
+        this._anims.push(anim);
     }
 };
 
 animProto.removeAnimation = function (anim) {
-    var index = this.playingAnims.indexOf(anim);
+    var index = this._anims.array.indexOf(anim);
     if (index >= 0) {
-        if (this._updating) {
-            var removeList = this._removeList;
-            if (removeList.indexOf(anim) === -1) {
-                removeList.push(anim);
-            }
-        }
-        else {
-            this.playingAnims.splice(index, 1);
-        }
+        this._anims.fastRemoveAt(index);
     }
     else {
         cc.errorID(3908);
@@ -227,7 +230,7 @@ entProto._doAnimate = function (keyFrames, timingInput) {
             }
         }
     }
-    this.playingAnims.push(anim);
+    this._anims.push(anim);
     return anim;
 };
 
