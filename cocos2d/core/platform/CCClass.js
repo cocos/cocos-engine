@@ -1201,11 +1201,8 @@ module.exports = {
     getNewValueTypeCode,
     IDENTIFIER_RE,
     escapeForJS,
+    getDefault: getDefault
 };
-
-if (CC_DEV) {
-    module.exports.getDefault = getDefault;
-}
 
 if (CC_TEST) {
     JS.mixin(CCClass, module.exports);
