@@ -33,15 +33,20 @@ bool JSB_cpConstraint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 // Destructor
 void JSB_cpConstraint_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpConstraint), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpConstraintFree( (cpConstraint*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpConstraint), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpConstraintFree( (cpConstraint*)proxy->ptr);
+    }
+    else
+    {
 		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpConstraint)", jsthis);
 	}
 }
@@ -53,13 +58,14 @@ bool JSB_cpConstraint_destroy(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-
-	cpConstraintDestroy((cpConstraint*)arg0);
-
-    args.rval().set(JS::NullValue());
-
+    auto proxy = jsb_get_js_proxy(jsthis);
+    if (proxy)
+    {
+        cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+        cpConstraintDestroy((cpConstraint*)arg0);
+    }
+    
+    args.rval().set(JS::NullHandleValue);
 	return true;
 }
 
@@ -70,14 +76,17 @@ bool JSB_cpConstraint_getBodyA(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpBody* ret_val;
-
-	ret_val = cpConstraintGetBodyA((cpConstraint*)arg0);
-
-	args.rval().set(c_class_to_jsval( cx, ret_val, JS::RootedObject(cx,JSB_cpBody_object), JSB_cpBody_class, "cpBody"));
-
+    auto proxy = jsb_get_js_proxy(jsthis);
+    if (proxy)
+    {
+        cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+        cpBody* ret_val = cpConstraintGetBodyA((cpConstraint*)arg0);
+        args.rval().set(c_class_to_jsval( cx, ret_val, JS::RootedObject(cx,JSB_cpBody_object), JSB_cpBody_class, "cpBody"));
+    }
+    else
+    {
+        args.rval().set(JS::NullHandleValue);
+    }
 	return true;
 }
 
@@ -87,15 +96,18 @@ bool JSB_cpConstraint_getBodyB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JSB_PRECONDITION2(argc == 0, cx, false, "Invalid number of arguments");
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
-	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpBody* ret_val;
-
-	ret_val = cpConstraintGetBodyB((cpConstraint*)arg0);
-
-	args.rval().set(c_class_to_jsval( cx, ret_val, JS::RootedObject(cx,JSB_cpBody_object), JSB_cpBody_class, "cpBody"));
-
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    auto proxy = jsb_get_js_proxy(jsthis);
+    if (proxy)
+    {
+        cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+        cpBody* ret_val = cpConstraintGetBodyB((cpConstraint*)arg0);
+        args.rval().set(c_class_to_jsval( cx, ret_val, JS::RootedObject(cx,JSB_cpBody_object), JSB_cpBody_class, "cpBody"));
+    }
+    else
+    {
+        args.rval().set(JS::NullHandleValue);
+    }
 	return true;
 }
 
@@ -104,16 +116,16 @@ bool JSB_cpConstraint_getBodyB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 bool JSB_cpConstraint_getCollideBodies(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JSB_PRECONDITION2(argc == 0, cx, false, "Invalid number of arguments");
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-
+    
+    cpBool ret_val = false;
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpConstraintGetCollideBodies((cpConstraint*)arg0);
-
+    auto proxy = jsb_get_js_proxy(jsthis);
+    if (proxy)
+    {
+        cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+        ret_val = cpConstraintGetCollideBodies((cpConstraint*)arg0);
+    }
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
-
 	return true;
 }
 
@@ -123,15 +135,15 @@ bool JSB_cpConstraint_getErrorBias(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JSB_PRECONDITION2(argc == 0, cx, false, "Invalid number of arguments");
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
+    cpFloat ret_val = 0;
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpConstraintGetErrorBias((cpConstraint*)arg0);
-
+    auto proxy = jsb_get_js_proxy(jsthis);
+    if (proxy)
+    {
+        cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+        ret_val = cpConstraintGetErrorBias((cpConstraint*)arg0);
+    }
 	args.rval().set(JS::DoubleValue(ret_val));
-
 	return true;
 }
 
@@ -141,15 +153,15 @@ bool JSB_cpConstraint_getImpulse(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JSB_PRECONDITION2(argc == 0, cx, false, "Invalid number of arguments");
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
+    cpFloat ret_val = 0;
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpConstraintGetImpulse((cpConstraint*)arg0);
-
+    auto proxy = jsb_get_js_proxy(jsthis);
+    if (proxy)
+    {
+        cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+        ret_val = cpConstraintGetImpulse((cpConstraint*)arg0);
+    }
 	args.rval().set(JS::DoubleValue(ret_val));
-
 	return true;
 }
 
@@ -160,14 +172,11 @@ bool JSB_cpConstraint_getMaxBias(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
 	cpFloat ret_val;
-
 	ret_val = cpConstraintGetMaxBias((cpConstraint*)arg0);
-
 	args.rval().set(JS::DoubleValue(ret_val));
-
 	return true;
 }
 
@@ -178,14 +187,11 @@ bool JSB_cpConstraint_getMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
 	cpFloat ret_val;
-
 	ret_val = cpConstraintGetMaxForce((cpConstraint*)arg0);
-
 	args.rval().set(JS::DoubleValue(ret_val));
-
 	return true;
 }
 
@@ -196,14 +202,11 @@ bool JSB_cpConstraint_getSpace(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
 	cpSpace* ret_val;
-
 	ret_val = cpConstraintGetSpace((cpConstraint*)arg0);
-
 	args.rval().set(c_class_to_jsval( cx, ret_val, JS::RootedObject(cx,JSB_cpSpace_object), JSB_cpSpace_class, "cpSpace"));
-
 	return true;
 }
 
@@ -214,14 +217,10 @@ bool JSB_cpConstraint_isDampedRotarySpring(JSContext *cx, uint32_t argc, JS::Val
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpConstraintIsDampedRotarySpring((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+	cpBool ret_val = cpConstraintIsDampedRotarySpring((cpConstraint*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
-
 	return true;
 }
 
@@ -232,14 +231,10 @@ bool JSB_cpConstraint_isDampedSpring(JSContext *cx, uint32_t argc, JS::Value *vp
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpConstraintIsDampedSpring((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+	cpBool ret_val = cpConstraintIsDampedSpring((cpConstraint*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
-
 	return true;
 }
 
@@ -250,14 +245,10 @@ bool JSB_cpConstraint_isGearJoint(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpConstraintIsGearJoint((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+	cpBool ret_val = cpConstraintIsGearJoint((cpConstraint*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
-
 	return true;
 }
 
@@ -268,14 +259,10 @@ bool JSB_cpConstraint_isGrooveJoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpConstraintIsGrooveJoint((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+	cpBool ret_val = cpConstraintIsGrooveJoint((cpConstraint*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
-
 	return true;
 }
 
@@ -286,14 +273,10 @@ bool JSB_cpConstraint_isPinJoint(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpConstraintIsPinJoint((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+	cpBool ret_val = cpConstraintIsPinJoint((cpConstraint*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
-
 	return true;
 }
 
@@ -304,14 +287,10 @@ bool JSB_cpConstraint_isPivotJoint(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpConstraintIsPivotJoint((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+	cpBool ret_val = cpConstraintIsPivotJoint((cpConstraint*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
-
 	return true;
 }
 
@@ -322,14 +301,10 @@ bool JSB_cpConstraint_isRatchetJoint(JSContext *cx, uint32_t argc, JS::Value *vp
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpConstraintIsRatchetJoint((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+	cpBool ret_val = cpConstraintIsRatchetJoint((cpConstraint*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
-
 	return true;
 }
 
@@ -340,14 +315,10 @@ bool JSB_cpConstraint_isRotaryLimitJoint(JSContext *cx, uint32_t argc, JS::Value
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpConstraintIsRotaryLimitJoint((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+	cpBool ret_val = cpConstraintIsRotaryLimitJoint((cpConstraint*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
-
 	return true;
 }
 
@@ -358,14 +329,10 @@ bool JSB_cpConstraint_isSimpleMotor(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpConstraintIsSimpleMotor((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+	cpBool ret_val = cpConstraintIsSimpleMotor((cpConstraint*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
-
 	return true;
 }
 
@@ -376,14 +343,10 @@ bool JSB_cpConstraint_isSlideJoint(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpConstraintIsSlideJoint((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
+	cpBool ret_val = cpConstraintIsSlideJoint((cpConstraint*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
-
 	return true;
 }
 
@@ -393,15 +356,12 @@ bool JSB_cpConstraint_setCollideBodies(JSContext *cx, uint32_t argc, JS::Value *
 	JSB_PRECONDITION2(argc == 1, cx, false, "Invalid number of arguments");
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
-	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpConstraint* arg0 = (cpConstraint*) proxy->handle;
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
     double arg1 = args.get(0).toNumber();
-
 	cpConstraintSetCollideBodies((cpConstraint*)arg0 , (cpBool)arg1);
-
 	args.rval().set(JS::NullValue());
-
 	return true;
 }
 
@@ -412,12 +372,10 @@ bool JSB_cpConstraint_setErrorBias(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
     double arg1 = args.get(0).toNumber();
-
 	cpConstraintSetErrorBias((cpConstraint*)arg0 , (cpFloat)arg1);
-
 	args.rval().set(JS::NullValue());
 	return true;
 }
@@ -429,14 +387,11 @@ bool JSB_cpConstraint_setMaxBias(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpConstraint* arg0 = (cpConstraint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
     double arg1 = args.get(0).toNumber();
-
 	cpConstraintSetMaxBias((cpConstraint*)arg0 , (cpFloat)arg1);
-
 	args.rval().set(JS::NullValue());
-
 	return true;
 }
 
@@ -446,15 +401,12 @@ bool JSB_cpConstraint_setMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JSB_PRECONDITION2(argc == 1, cx, false, "Invalid number of arguments");
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
-	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpConstraint* arg0 = (cpConstraint*) proxy->handle;
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpConstraint* arg0 = (cpConstraint*) proxy->ptr;
     double arg1 = args.get(0).toNumber();
-
 	cpConstraintSetMaxForce((cpConstraint*)arg0 , (cpFloat)arg1);
-
 	args.rval().set(JS::NullValue());
-
 	return true;
 }
 
@@ -537,8 +489,8 @@ bool JSB_cpGrooveJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	void* 	ret_val = cpGrooveJointNew((cpBody*)arg0 , (cpBody*)arg1 , (cpVect)arg2 , (cpVect)arg3 , (cpVect)arg4);
 
-	jsb_set_jsobject_for_proxy(jsobj, ret_val);
-	jsb_set_c_proxy_for_jsobject(jsobj, ret_val, JSB_C_FLAG_CALL_FREE);
+    jsb_new_proxy(ret_val, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
     args.rval().set(JS::ObjectOrNullValue(jsobj));
 
 	return true;
@@ -547,15 +499,20 @@ bool JSB_cpGrooveJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 // Destructor
 void JSB_cpGrooveJoint_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpGrooveJoint), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpConstraintFree( (cpConstraint*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpGrooveJoint), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpConstraintFree((cpConstraint*)proxy->ptr);
+    }
+    else
+    {
 		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpGrooveJoint)", jsthis);
 	}
 }
@@ -567,14 +524,10 @@ bool JSB_cpGrooveJoint_getAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpGrooveJoint* arg0 = (cpGrooveJoint*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpGrooveJointGetAnchorB((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpGrooveJoint* arg0 = (cpGrooveJoint*) proxy->ptr;
+	cpVect ret_val = cpGrooveJointGetAnchorB((cpConstraint*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
-
 	return true;
 }
 
@@ -585,14 +538,10 @@ bool JSB_cpGrooveJoint_getGrooveA(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpGrooveJoint* arg0 = (cpGrooveJoint*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpGrooveJointGetGrooveA((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpGrooveJoint* arg0 = (cpGrooveJoint*) proxy->ptr;
+	cpVect ret_val = cpGrooveJointGetGrooveA((cpConstraint*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
-
 	return true;
 }
 
@@ -603,14 +552,10 @@ bool JSB_cpGrooveJoint_getGrooveB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpGrooveJoint* arg0 = (cpGrooveJoint*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpGrooveJointGetGrooveB((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpGrooveJoint* arg0 = (cpGrooveJoint*) proxy->ptr;
+	cpVect ret_val = cpGrooveJointGetGrooveB((cpConstraint*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
-
 	return true;
 }
 
@@ -621,8 +566,8 @@ bool JSB_cpGrooveJoint_setAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpGrooveJoint* arg0 = (cpGrooveJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpGrooveJoint* arg0 = (cpGrooveJoint*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -631,9 +576,7 @@ bool JSB_cpGrooveJoint_setAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpGrooveJointSetAnchorB((cpConstraint*)arg0 , (cpVect)arg1);
-
 	args.rval().set(JS::NullValue());
-
 	return true;
 }
 
@@ -644,8 +587,8 @@ bool JSB_cpGrooveJoint_setGrooveA(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpGrooveJoint* arg0 = (cpGrooveJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpGrooveJoint* arg0 = (cpGrooveJoint*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -654,9 +597,7 @@ bool JSB_cpGrooveJoint_setGrooveA(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpGrooveJointSetGrooveA((cpConstraint*)arg0 , (cpVect)arg1);
-
 	args.rval().set(JS::NullValue());
-
 	return true;
 }
 
@@ -667,8 +608,8 @@ bool JSB_cpGrooveJoint_setGrooveB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpGrooveJoint* arg0 = (cpGrooveJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpGrooveJoint* arg0 = (cpGrooveJoint*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -677,9 +618,7 @@ bool JSB_cpGrooveJoint_setGrooveB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpGrooveJointSetGrooveB((cpConstraint*)arg0 , (cpVect)arg1);
-
 	args.rval().set(JS::NullValue());
-
 	return true;
 }
 
@@ -743,8 +682,8 @@ bool JSB_cpSimpleMotor_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	void* 	ret_val = cpSimpleMotorNew((cpBody*)arg0 , (cpBody*)arg1 , (cpFloat)arg2);
 
-	jsb_set_jsobject_for_proxy(jsobj, ret_val);
-	jsb_set_c_proxy_for_jsobject(jsobj, ret_val, JSB_C_FLAG_CALL_FREE);
+    jsb_new_proxy(ret_val, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
 	args.rval().set(JS::ObjectOrNullValue(jsobj));
 
 	return true;
@@ -753,17 +692,22 @@ bool JSB_cpSimpleMotor_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 // Destructor
 void JSB_cpSimpleMotor_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpSimpleMotor), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpConstraintFree( (cpConstraint*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpSimpleMotor)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpSimpleMotor), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpConstraintFree((cpConstraint*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpSimpleMotor)", jsthis);
+    }
 }
 
 // Arguments: 
@@ -773,14 +717,10 @@ bool JSB_cpSimpleMotor_getRate(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSimpleMotor* arg0 = (cpSimpleMotor*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpSimpleMotorGetRate((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSimpleMotor* arg0 = (cpSimpleMotor*) proxy->ptr;
+	cpFloat ret_val = cpSimpleMotorGetRate((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
-
 	return true;
 }
 
@@ -791,11 +731,10 @@ bool JSB_cpSimpleMotor_setRate(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSimpleMotor* arg0 = (cpSimpleMotor*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSimpleMotor* arg0 = (cpSimpleMotor*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 	cpSimpleMotorSetRate((cpConstraint*)arg0 , (cpFloat)arg1);
-
 	args.rval().set(JS::NullValue());
 	return true;
 }
@@ -856,8 +795,8 @@ bool JSB_cpPivotJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	void* 	ret_val = cpPivotJointNew((cpBody*)arg0 , (cpBody*)arg1 , (cpVect)arg2);
 
-	jsb_set_jsobject_for_proxy(jsobj, ret_val);
-	jsb_set_c_proxy_for_jsobject(jsobj, ret_val, JSB_C_FLAG_CALL_FREE);
+    jsb_new_proxy(ret_val, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
 	args.rval().set(JS::ObjectOrNullValue(jsobj));
 
 	return true;
@@ -866,17 +805,22 @@ bool JSB_cpPivotJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 // Destructor
 void JSB_cpPivotJoint_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpPivotJoint), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpConstraintFree( (cpConstraint*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpPivotJoint)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpPivotJoint), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpConstraintFree((cpConstraint*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpPivotJoint)", jsthis);
+    }
 }
 
 // Arguments: 
@@ -886,14 +830,10 @@ bool JSB_cpPivotJoint_getAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpPivotJoint* arg0 = (cpPivotJoint*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpPivotJointGetAnchorA((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpPivotJoint* arg0 = (cpPivotJoint*) proxy->ptr;
+	cpVect ret_val = cpPivotJointGetAnchorA((cpConstraint*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
-
 	return true;
 }
 
@@ -904,14 +844,10 @@ bool JSB_cpPivotJoint_getAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpPivotJoint* arg0 = (cpPivotJoint*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpPivotJointGetAnchorB((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpPivotJoint* arg0 = (cpPivotJoint*) proxy->ptr;
+	cpVect ret_val = cpPivotJointGetAnchorB((cpConstraint*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
-
 	return true;
 }
 
@@ -922,8 +858,8 @@ bool JSB_cpPivotJoint_setAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpPivotJoint* arg0 = (cpPivotJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpPivotJoint* arg0 = (cpPivotJoint*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -932,9 +868,7 @@ bool JSB_cpPivotJoint_setAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpPivotJointSetAnchorA((cpConstraint*)arg0 , (cpVect)arg1);
-
 	args.rval().set(JS::NullValue());
-
 	return true;
 }
 
@@ -945,8 +879,8 @@ bool JSB_cpPivotJoint_setAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpPivotJoint* arg0 = (cpPivotJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpPivotJoint* arg0 = (cpPivotJoint*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -955,9 +889,7 @@ bool JSB_cpPivotJoint_setAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpPivotJointSetAnchorB((cpConstraint*)arg0 , (cpVect)arg1);
-
 	args.rval().set(JS::NullValue());
-
 	return true;
 }
 
@@ -1020,8 +952,8 @@ bool JSB_cpPinJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	void* 	ret_val = cpPinJointNew((cpBody*)arg0 , (cpBody*)arg1 , (cpVect)arg2 , (cpVect)arg3);
 
-	jsb_set_jsobject_for_proxy(jsobj, ret_val);
-	jsb_set_c_proxy_for_jsobject(jsobj, ret_val, JSB_C_FLAG_CALL_FREE);
+    jsb_new_proxy(ret_val, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
 	args.rval().set(JS::ObjectOrNullValue(jsobj));
 
 	return true;
@@ -1030,17 +962,22 @@ bool JSB_cpPinJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 // Destructor
 void JSB_cpPinJoint_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpPinJoint), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpConstraintFree( (cpConstraint*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpPinJoint)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpPinJoint), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpConstraintFree((cpConstraint*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpPinJoint)", jsthis);
+    }
 }
 
 // Arguments: 
@@ -1050,14 +987,10 @@ bool JSB_cpPinJoint_getAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpPinJoint* arg0 = (cpPinJoint*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpPinJointGetAnchorA((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpPinJoint* arg0 = (cpPinJoint*) proxy->ptr;
+	cpVect ret_val = cpPinJointGetAnchorA((cpConstraint*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
-
 	return true;
 }
 
@@ -1068,14 +1001,10 @@ bool JSB_cpPinJoint_getAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpPinJoint* arg0 = (cpPinJoint*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpPinJointGetAnchorB((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpPinJoint* arg0 = (cpPinJoint*) proxy->ptr;
+	cpVect ret_val = cpPinJointGetAnchorB((cpConstraint*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
-
 	return true;
 }
 
@@ -1086,14 +1015,10 @@ bool JSB_cpPinJoint_getDist(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpPinJoint* arg0 = (cpPinJoint*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpPinJointGetDist((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpPinJoint* arg0 = (cpPinJoint*) proxy->ptr;
+	cpFloat ret_val = cpPinJointGetDist((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
-
 	return true;
 }
 
@@ -1104,8 +1029,8 @@ bool JSB_cpPinJoint_setAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpPinJoint* arg0 = (cpPinJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpPinJoint* arg0 = (cpPinJoint*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -1114,9 +1039,7 @@ bool JSB_cpPinJoint_setAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpPinJointSetAnchorA((cpConstraint*)arg0 , (cpVect)arg1);
-
 	args.rval().set(JS::NullValue());
-
 	return true;
 }
 
@@ -1127,8 +1050,8 @@ bool JSB_cpPinJoint_setAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpPinJoint* arg0 = (cpPinJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpPinJoint* arg0 = (cpPinJoint*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -1137,9 +1060,7 @@ bool JSB_cpPinJoint_setAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
 	cpPinJointSetAnchorB((cpConstraint*)arg0 , (cpVect)arg1);
-
 	args.rval().set(JS::NullValue());
-
 	return true;
 }
 
@@ -1150,8 +1071,8 @@ bool JSB_cpPinJoint_setDist(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpPinJoint* arg0 = (cpPinJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpPinJoint* arg0 = (cpPinJoint*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpPinJointSetDist((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -1223,8 +1144,8 @@ bool JSB_cpSlideJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	void* 	ret_val = cpSlideJointNew((cpBody*)arg0 , (cpBody*)arg1 , (cpVect)arg2 , (cpVect)arg3 , (cpFloat)arg4 , (cpFloat)arg5);
 
-	jsb_set_jsobject_for_proxy(jsobj, ret_val);
-	jsb_set_c_proxy_for_jsobject(jsobj, ret_val, JSB_C_FLAG_CALL_FREE);
+    jsb_new_proxy(ret_val, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
 	args.rval().set(JS::ObjectOrNullValue(jsobj));
 	return true;
 }
@@ -1232,17 +1153,22 @@ bool JSB_cpSlideJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 // Destructor
 void JSB_cpSlideJoint_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpSlideJoint), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpConstraintFree( (cpConstraint*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpSlideJoint)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpSlideJoint), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpConstraintFree((cpConstraint*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpSlideJoint)", jsthis);
+    }
 }
 
 // Arguments: 
@@ -1252,11 +1178,9 @@ bool JSB_cpSlideJoint_getAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSlideJoint* arg0 = (cpSlideJoint*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpSlideJointGetAnchorA((cpConstraint*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSlideJoint* arg0 = (cpSlideJoint*) proxy->ptr;
+	cpVect ret_val = cpSlideJointGetAnchorA((cpConstraint*)arg0);
 
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
@@ -1269,11 +1193,9 @@ bool JSB_cpSlideJoint_getAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSlideJoint* arg0 = (cpSlideJoint*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpSlideJointGetAnchorB((cpConstraint*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSlideJoint* arg0 = (cpSlideJoint*) proxy->ptr;
+	cpVect ret_val = cpSlideJointGetAnchorB((cpConstraint*)arg0);
 
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
@@ -1286,11 +1208,9 @@ bool JSB_cpSlideJoint_getMax(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSlideJoint* arg0 = (cpSlideJoint*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpSlideJointGetMax((cpConstraint*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSlideJoint* arg0 = (cpSlideJoint*) proxy->ptr;
+	cpFloat ret_val = cpSlideJointGetMax((cpConstraint*)arg0);
 
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
@@ -1303,11 +1223,9 @@ bool JSB_cpSlideJoint_getMin(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSlideJoint* arg0 = (cpSlideJoint*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpSlideJointGetMin((cpConstraint*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSlideJoint* arg0 = (cpSlideJoint*) proxy->ptr;
+	cpFloat ret_val = cpSlideJointGetMin((cpConstraint*)arg0);
 
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
@@ -1320,8 +1238,8 @@ bool JSB_cpSlideJoint_setAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSlideJoint* arg0 = (cpSlideJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSlideJoint* arg0 = (cpSlideJoint*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -1342,8 +1260,8 @@ bool JSB_cpSlideJoint_setAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSlideJoint* arg0 = (cpSlideJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSlideJoint* arg0 = (cpSlideJoint*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -1364,8 +1282,8 @@ bool JSB_cpSlideJoint_setMax(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSlideJoint* arg0 = (cpSlideJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSlideJoint* arg0 = (cpSlideJoint*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
     
 	cpSlideJointSetMax((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -1380,8 +1298,8 @@ bool JSB_cpSlideJoint_setMin(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSlideJoint* arg0 = (cpSlideJoint*) proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSlideJoint* arg0 = (cpSlideJoint*) proxy->ptr;
     double arg1 = args.get(0).toNumber();
 
 	cpSlideJointSetMin((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -1452,8 +1370,8 @@ bool JSB_cpGearJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	void* 	ret_val = cpGearJointNew((cpBody*)arg0 , (cpBody*)arg1 , (cpFloat)arg2 , (cpFloat)arg3);
 
-	jsb_set_jsobject_for_proxy(jsobj, ret_val);
-	jsb_set_c_proxy_for_jsobject(jsobj, ret_val, JSB_C_FLAG_CALL_FREE);
+    jsb_new_proxy(ret_val, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
 	args.rval().set(JS::ObjectOrNullValue(jsobj));
 
 	return true;
@@ -1462,17 +1380,22 @@ bool JSB_cpGearJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 // Destructor
 void JSB_cpGearJoint_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpGearJoint), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpConstraintFree( (cpConstraint*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpGearJoint)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpGearJoint), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpConstraintFree((cpConstraint*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpGearJoint)", jsthis);
+    }
 }
 
 // Arguments: 
@@ -1482,14 +1405,10 @@ bool JSB_cpGearJoint_getPhase(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpGearJoint* arg0 = (cpGearJoint*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpGearJointGetPhase((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpGearJoint* arg0 = (cpGearJoint*) proxy->ptr;
+	cpFloat ret_val = cpGearJointGetPhase((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
-
 	return true;
 }
 
@@ -1500,14 +1419,10 @@ bool JSB_cpGearJoint_getRatio(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpGearJoint* arg0 = (cpGearJoint*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpGearJointGetRatio((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpGearJoint* arg0 = (cpGearJoint*) proxy->ptr;
+	cpFloat ret_val = cpGearJointGetRatio((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
-
 	return true;
 }
 
@@ -1518,8 +1433,8 @@ bool JSB_cpGearJoint_setPhase(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpGearJoint* arg0 = (cpGearJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpGearJoint* arg0 = (cpGearJoint*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpGearJointSetPhase((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -1534,8 +1449,8 @@ bool JSB_cpGearJoint_setRatio(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpGearJoint* arg0 = (cpGearJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpGearJoint* arg0 = (cpGearJoint*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpGearJointSetRatio((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -1603,8 +1518,8 @@ bool JSB_cpDampedRotarySpring_constructor(JSContext *cx, uint32_t argc, JS::Valu
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	void* 	ret_val = cpDampedRotarySpringNew((cpBody*)arg0 , (cpBody*)arg1 , (cpFloat)arg2 , (cpFloat)arg3 , (cpFloat)arg4);
 
-	jsb_set_jsobject_for_proxy(jsobj, ret_val);
-	jsb_set_c_proxy_for_jsobject(jsobj, ret_val, JSB_C_FLAG_CALL_FREE);
+    jsb_new_proxy(ret_val, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
 	args.rval().set(JS::ObjectOrNullValue(jsobj));
 
 	return true;
@@ -1613,17 +1528,22 @@ bool JSB_cpDampedRotarySpring_constructor(JSContext *cx, uint32_t argc, JS::Valu
 // Destructor
 void JSB_cpDampedRotarySpring_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpDampedRotarySpring), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpConstraintFree( (cpConstraint*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpDampedRotarySpring)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpDampedRotarySpring), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpConstraintFree((cpConstraint*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpDampedRotarySpring)", jsthis);
+    }
 }
 
 // Arguments: 
@@ -1633,11 +1553,9 @@ bool JSB_cpDampedRotarySpring_getDamping(JSContext *cx, uint32_t argc, JS::Value
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedRotarySpring* arg0 = (cpDampedRotarySpring*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpDampedRotarySpringGetDamping((cpConstraint*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedRotarySpring* arg0 = (cpDampedRotarySpring*) proxy->ptr;
+	cpFloat ret_val = cpDampedRotarySpringGetDamping((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -1649,11 +1567,9 @@ bool JSB_cpDampedRotarySpring_getRestAngle(JSContext *cx, uint32_t argc, JS::Val
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedRotarySpring* arg0 = (cpDampedRotarySpring*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpDampedRotarySpringGetRestAngle((cpConstraint*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedRotarySpring* arg0 = (cpDampedRotarySpring*) proxy->ptr;
+	cpFloat ret_val = cpDampedRotarySpringGetRestAngle((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -1665,11 +1581,9 @@ bool JSB_cpDampedRotarySpring_getStiffness(JSContext *cx, uint32_t argc, JS::Val
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedRotarySpring* arg0 = (cpDampedRotarySpring*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpDampedRotarySpringGetStiffness((cpConstraint*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedRotarySpring* arg0 = (cpDampedRotarySpring*) proxy->ptr;
+	cpFloat ret_val = cpDampedRotarySpringGetStiffness((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -1681,8 +1595,8 @@ bool JSB_cpDampedRotarySpring_setDamping(JSContext *cx, uint32_t argc, JS::Value
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedRotarySpring* arg0 = (cpDampedRotarySpring*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedRotarySpring* arg0 = (cpDampedRotarySpring*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpDampedRotarySpringSetDamping((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -1697,8 +1611,8 @@ bool JSB_cpDampedRotarySpring_setRestAngle(JSContext *cx, uint32_t argc, JS::Val
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedRotarySpring* arg0 = (cpDampedRotarySpring*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedRotarySpring* arg0 = (cpDampedRotarySpring*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpDampedRotarySpringSetRestAngle((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -1713,8 +1627,8 @@ bool JSB_cpDampedRotarySpring_setStiffness(JSContext *cx, uint32_t argc, JS::Val
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedRotarySpring* arg0 = (cpDampedRotarySpring*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedRotarySpring* arg0 = (cpDampedRotarySpring*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpDampedRotarySpringSetStiffness((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -1786,8 +1700,8 @@ bool JSB_cpDampedSpring_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	void* 	ret_val = cpDampedSpringNew((cpBody*)arg0 , (cpBody*)arg1 , (cpVect)arg2 , (cpVect)arg3 , (cpFloat)arg4 , (cpFloat)arg5 , (cpFloat)arg6);
 
-	jsb_set_jsobject_for_proxy(jsobj, ret_val);
-	jsb_set_c_proxy_for_jsobject(jsobj, ret_val, JSB_C_FLAG_CALL_FREE);
+    jsb_new_proxy(ret_val, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
 	args.rval().set(JS::ObjectOrNullValue(jsobj));
 
 	return true;
@@ -1796,17 +1710,22 @@ bool JSB_cpDampedSpring_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 // Destructor
 void JSB_cpDampedSpring_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpDampedSpring), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpConstraintFree( (cpConstraint*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpDampedSpring)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpDampedRotarySpring), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpConstraintFree((cpConstraint*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpDampedRotarySpring)", jsthis);
+    }
 }
 
 // Arguments: 
@@ -1816,14 +1735,10 @@ bool JSB_cpDampedSpring_getAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpDampedSpringGetAnchorA((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->ptr;
+	cpVect ret_val = cpDampedSpringGetAnchorA((cpConstraint*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
-
 	return true;
 }
 
@@ -1834,14 +1749,10 @@ bool JSB_cpDampedSpring_getAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpDampedSpringGetAnchorB((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->ptr;
+	cpVect ret_val = cpDampedSpringGetAnchorB((cpConstraint*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
-
 	return true;
 }
 
@@ -1852,14 +1763,10 @@ bool JSB_cpDampedSpring_getDamping(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpDampedSpringGetDamping((cpConstraint*)arg0);
-
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->ptr;
+	cpFloat ret_val = cpDampedSpringGetDamping((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
-
 	return true;
 }
 
@@ -1870,11 +1777,9 @@ bool JSB_cpDampedSpring_getRestLength(JSContext *cx, uint32_t argc, JS::Value *v
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpDampedSpringGetRestLength((cpConstraint*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->ptr;
+	cpFloat ret_val = cpDampedSpringGetRestLength((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -1886,11 +1791,9 @@ bool JSB_cpDampedSpring_getStiffness(JSContext *cx, uint32_t argc, JS::Value *vp
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpDampedSpringGetStiffness((cpConstraint*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->ptr;
+	cpFloat ret_val = cpDampedSpringGetStiffness((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -1902,8 +1805,8 @@ bool JSB_cpDampedSpring_setAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -1923,8 +1826,8 @@ bool JSB_cpDampedSpring_setAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -1944,8 +1847,8 @@ bool JSB_cpDampedSpring_setDamping(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpDampedSpringSetDamping((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -1960,8 +1863,8 @@ bool JSB_cpDampedSpring_setRestLength(JSContext *cx, uint32_t argc, JS::Value *v
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpDampedSpringSetRestLength((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -1976,8 +1879,8 @@ bool JSB_cpDampedSpring_setStiffness(JSContext *cx, uint32_t argc, JS::Value *vp
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpDampedSpring* arg0 = (cpDampedSpring*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpDampedSpringSetStiffness((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -2050,8 +1953,8 @@ bool JSB_cpRatchetJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	void* 	ret_val = cpRatchetJointNew((cpBody*)arg0 , (cpBody*)arg1 , (cpFloat)arg2 , (cpFloat)arg3);
 
-	jsb_set_jsobject_for_proxy(jsobj, ret_val);
-	jsb_set_c_proxy_for_jsobject(jsobj, ret_val, JSB_C_FLAG_CALL_FREE);
+    jsb_new_proxy(ret_val, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
 	args.rval().set(JS::ObjectOrNullValue(jsobj));
 
 	return true;
@@ -2060,17 +1963,22 @@ bool JSB_cpRatchetJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 // Destructor
 void JSB_cpRatchetJoint_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpRatchetJoint), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpConstraintFree( (cpConstraint*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpRatchetJoint)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpRatchetJoint), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpConstraintFree((cpConstraint*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpRatchetJoint)", jsthis);
+    }
 }
 
 // Arguments: 
@@ -2080,11 +1988,9 @@ bool JSB_cpRatchetJoint_getAngle(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpRatchetJoint* arg0 = (cpRatchetJoint*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpRatchetJointGetAngle((cpConstraint*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpRatchetJoint* arg0 = (cpRatchetJoint*) proxy->ptr;
+	cpFloat ret_val = cpRatchetJointGetAngle((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -2096,11 +2002,9 @@ bool JSB_cpRatchetJoint_getPhase(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpRatchetJoint* arg0 = (cpRatchetJoint*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpRatchetJointGetPhase((cpConstraint*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpRatchetJoint* arg0 = (cpRatchetJoint*) proxy->ptr;
+	cpFloat ret_val = cpRatchetJointGetPhase((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -2112,11 +2016,9 @@ bool JSB_cpRatchetJoint_getRatchet(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpRatchetJoint* arg0 = (cpRatchetJoint*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpRatchetJointGetRatchet((cpConstraint*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpRatchetJoint* arg0 = (cpRatchetJoint*) proxy->ptr;
+	cpFloat ret_val = cpRatchetJointGetRatchet((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -2128,8 +2030,8 @@ bool JSB_cpRatchetJoint_setAngle(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpRatchetJoint* arg0 = (cpRatchetJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpRatchetJoint* arg0 = (cpRatchetJoint*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpRatchetJointSetAngle((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -2144,8 +2046,8 @@ bool JSB_cpRatchetJoint_setPhase(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpRatchetJoint* arg0 = (cpRatchetJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpRatchetJoint* arg0 = (cpRatchetJoint*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpRatchetJointSetPhase((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -2160,8 +2062,8 @@ bool JSB_cpRatchetJoint_setRatchet(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpRatchetJoint* arg0 = (cpRatchetJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpRatchetJoint* arg0 = (cpRatchetJoint*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpRatchetJointSetRatchet((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -2230,8 +2132,8 @@ bool JSB_cpRotaryLimitJoint_constructor(JSContext *cx, uint32_t argc, JS::Value 
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	void* 	ret_val = cpRotaryLimitJointNew((cpBody*)arg0 , (cpBody*)arg1 , (cpFloat)arg2 , (cpFloat)arg3);
 
-	jsb_set_jsobject_for_proxy(jsobj, ret_val);
-	jsb_set_c_proxy_for_jsobject(jsobj, ret_val, JSB_C_FLAG_CALL_FREE);
+    jsb_new_proxy(ret_val, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
 	args.rval().set(JS::ObjectOrNullValue(jsobj));
 
 	return true;
@@ -2240,17 +2142,22 @@ bool JSB_cpRotaryLimitJoint_constructor(JSContext *cx, uint32_t argc, JS::Value 
 // Destructor
 void JSB_cpRotaryLimitJoint_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpRotaryLimitJoint), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpConstraintFree( (cpConstraint*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpRotaryLimitJoint)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpRotaryLimitJoint), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpConstraintFree((cpConstraint*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpRotaryLimitJoint)", jsthis);
+    }
 }
 
 // Arguments: 
@@ -2260,11 +2167,9 @@ bool JSB_cpRotaryLimitJoint_getMax(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpRotaryLimitJoint* arg0 = (cpRotaryLimitJoint*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpRotaryLimitJointGetMax((cpConstraint*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpRotaryLimitJoint* arg0 = (cpRotaryLimitJoint*) proxy->ptr;
+	cpFloat ret_val = cpRotaryLimitJointGetMax((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -2276,11 +2181,9 @@ bool JSB_cpRotaryLimitJoint_getMin(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpRotaryLimitJoint* arg0 = (cpRotaryLimitJoint*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpRotaryLimitJointGetMin((cpConstraint*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpRotaryLimitJoint* arg0 = (cpRotaryLimitJoint*) proxy->ptr;
+	cpFloat ret_val = cpRotaryLimitJointGetMin((cpConstraint*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -2292,8 +2195,8 @@ bool JSB_cpRotaryLimitJoint_setMax(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpRotaryLimitJoint* arg0 = (cpRotaryLimitJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpRotaryLimitJoint* arg0 = (cpRotaryLimitJoint*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpRotaryLimitJointSetMax((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -2308,8 +2211,8 @@ bool JSB_cpRotaryLimitJoint_setMin(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpRotaryLimitJoint* arg0 = (cpRotaryLimitJoint*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpRotaryLimitJoint* arg0 = (cpRotaryLimitJoint*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpRotaryLimitJointSetMin((cpConstraint*)arg0 , (cpFloat)arg1);
@@ -2370,17 +2273,22 @@ bool JSB_cpArbiter_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 // Destructor
 void JSB_cpArbiter_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpArbiter), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			// No destructor found: ( (None*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpArbiter)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpArbiter), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        //        int* flag = (int *)JS_GetPrivate(jsthis);
+        //        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+        //            cpConstraintFree((cpConstraint*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpArbiter)", jsthis);
+    }
 }
 
 // Arguments: cpSpace*
@@ -2390,17 +2298,15 @@ bool JSB_cpArbiter_callWildcardBeginA(JSContext *cx, uint32_t argc, JS::Value *v
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpSpace* arg1; 
 
 	ok &= jsval_to_c_class( cx, args.get(arg_idx++), (void**)&arg1, NULL);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpBool ret_val;
-
-	ret_val = cpArbiterCallWildcardBeginA((cpArbiter*)arg0 , (cpSpace*)arg1);
+	cpBool ret_val = cpArbiterCallWildcardBeginA((cpArbiter*)arg0 , (cpSpace*)arg1);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
 	return true;
 }
@@ -2412,17 +2318,15 @@ bool JSB_cpArbiter_callWildcardBeginB(JSContext *cx, uint32_t argc, JS::Value *v
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpSpace* arg1; 
 
 	ok &= jsval_to_c_class( cx, args.get(arg_idx++), (void**)&arg1, NULL);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpBool ret_val;
-
-	ret_val = cpArbiterCallWildcardBeginB((cpArbiter*)arg0 , (cpSpace*)arg1);
+	cpBool ret_val = cpArbiterCallWildcardBeginB((cpArbiter*)arg0 , (cpSpace*)arg1);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
 	return true;
 }
@@ -2434,8 +2338,8 @@ bool JSB_cpArbiter_callWildcardPostSolveA(JSContext *cx, uint32_t argc, JS::Valu
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpSpace* arg1; 
@@ -2455,8 +2359,8 @@ bool JSB_cpArbiter_callWildcardPostSolveB(JSContext *cx, uint32_t argc, JS::Valu
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpSpace* arg1; 
@@ -2476,17 +2380,15 @@ bool JSB_cpArbiter_callWildcardPreSolveA(JSContext *cx, uint32_t argc, JS::Value
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpSpace* arg1; 
 
 	ok &= jsval_to_c_class( cx, args.get(arg_idx++), (void**)&arg1, NULL);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpBool ret_val;
-
-	ret_val = cpArbiterCallWildcardPreSolveA((cpArbiter*)arg0 , (cpSpace*)arg1);
+	cpBool ret_val = cpArbiterCallWildcardPreSolveA((cpArbiter*)arg0 , (cpSpace*)arg1);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
 	return true;
 }
@@ -2498,17 +2400,15 @@ bool JSB_cpArbiter_callWildcardPreSolveB(JSContext *cx, uint32_t argc, JS::Value
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpSpace* arg1; 
 
 	ok &= jsval_to_c_class( cx, args.get(arg_idx++), (void**)&arg1, NULL);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpBool ret_val;
-
-	ret_val = cpArbiterCallWildcardPreSolveB((cpArbiter*)arg0 , (cpSpace*)arg1);
+	cpBool ret_val = cpArbiterCallWildcardPreSolveB((cpArbiter*)arg0 , (cpSpace*)arg1);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
 	return true;
 }
@@ -2520,8 +2420,8 @@ bool JSB_cpArbiter_callWildcardSeparateA(JSContext *cx, uint32_t argc, JS::Value
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpSpace* arg1; 
@@ -2541,8 +2441,8 @@ bool JSB_cpArbiter_callWildcardSeparateB(JSContext *cx, uint32_t argc, JS::Value
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpSpace* arg1; 
@@ -2562,8 +2462,8 @@ bool JSB_cpArbiter_getCount(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	int ret_val;
 
 	ret_val = cpArbiterGetCount((cpArbiter*)arg0);
@@ -2578,17 +2478,15 @@ bool JSB_cpArbiter_getDepth(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	int32_t arg1; 
 
 	ok &= jsval_to_int32( cx, args.get(arg_idx++), &arg1);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpFloat ret_val;
-
-	ret_val = cpArbiterGetDepth((cpArbiter*)arg0 , (int)arg1);
+	cpFloat ret_val = cpArbiterGetDepth((cpArbiter*)arg0 , (int)arg1);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -2600,11 +2498,9 @@ bool JSB_cpArbiter_getFriction(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpArbiterGetFriction((cpArbiter*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
+	cpFloat ret_val = cpArbiterGetFriction((cpArbiter*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -2616,11 +2512,9 @@ bool JSB_cpArbiter_getNormal(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpArbiterGetNormal((cpArbiter*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
+	cpVect ret_val = cpArbiterGetNormal((cpArbiter*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -2632,17 +2526,15 @@ bool JSB_cpArbiter_getPointA(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	int32_t arg1; 
 
 	ok &= jsval_to_int32( cx, args.get(arg_idx++), &arg1);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpVect ret_val;
-
-	ret_val = cpArbiterGetPointA((cpArbiter*)arg0 , (int)arg1);
+	cpVect ret_val = cpArbiterGetPointA((cpArbiter*)arg0 , (int)arg1);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -2654,17 +2546,15 @@ bool JSB_cpArbiter_getPointB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	int32_t arg1; 
 
 	ok &= jsval_to_int32( cx, args.get(arg_idx++), &arg1);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpVect ret_val;
-
-	ret_val = cpArbiterGetPointB((cpArbiter*)arg0 , (int)arg1);
+	cpVect ret_val = cpArbiterGetPointB((cpArbiter*)arg0 , (int)arg1);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -2676,11 +2566,9 @@ bool JSB_cpArbiter_getRestitution(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpArbiterGetRestitution((cpArbiter*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
+	cpFloat ret_val = cpArbiterGetRestitution((cpArbiter*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -2692,11 +2580,9 @@ bool JSB_cpArbiter_getSurfaceVelocity(JSContext *cx, uint32_t argc, JS::Value *v
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpArbiterGetSurfaceVelocity((cpArbiter*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
+	cpVect ret_val = cpArbiterGetSurfaceVelocity((cpArbiter*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -2708,11 +2594,9 @@ bool JSB_cpArbiter_ignore(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpArbiterIgnore((cpArbiter*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
+	cpBool ret_val = cpArbiterIgnore((cpArbiter*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
 	return true;
 }
@@ -2724,11 +2608,9 @@ bool JSB_cpArbiter_isFirstContact(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpArbiterIsFirstContact((cpArbiter*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
+	cpBool ret_val = cpArbiterIsFirstContact((cpArbiter*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
 	return true;
 }
@@ -2740,11 +2622,9 @@ bool JSB_cpArbiter_isRemoval(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpArbiterIsRemoval((cpArbiter*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
+	cpBool ret_val = cpArbiterIsRemoval((cpArbiter*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
 	return true;
 }
@@ -2756,8 +2636,8 @@ bool JSB_cpArbiter_setFriction(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpArbiterSetFriction((cpArbiter*)arg0 , (cpFloat)arg1);
@@ -2772,8 +2652,8 @@ bool JSB_cpArbiter_setRestitution(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpArbiterSetRestitution((cpArbiter*)arg0 , (cpFloat)arg1);
@@ -2788,8 +2668,8 @@ bool JSB_cpArbiter_setSurfaceVelocity(JSContext *cx, uint32_t argc, JS::Value *v
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -2809,11 +2689,9 @@ bool JSB_cpArbiter_totalImpulse(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpArbiterTotalImpulse((cpArbiter*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
+	cpVect ret_val = cpArbiterTotalImpulse((cpArbiter*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -2825,11 +2703,9 @@ bool JSB_cpArbiter_totalKE(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpArbiter* arg0 = (cpArbiter*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpArbiterTotalKE((cpArbiter*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpArbiter* arg0 = (cpArbiter*) proxy->ptr;
+	cpFloat ret_val = cpArbiterTotalKE((cpArbiter*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -2905,8 +2781,8 @@ bool JSB_cpSpace_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JS::RootedObject jsobj(cx, JS_NewObjectWithGivenProto(cx, JSB_cpSpace_class, cpSpace_proto));
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);	void* 	ret_val = cpSpaceNew();
 
-	jsb_set_jsobject_for_proxy(jsobj, ret_val);
-	jsb_set_c_proxy_for_jsobject(jsobj, ret_val, JSB_C_FLAG_CALL_FREE);
+    jsb_new_proxy(ret_val, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
 	args.rval().set(JS::ObjectOrNullValue(jsobj));
 
 	return true;
@@ -2919,17 +2795,15 @@ bool JSB_cpSpace_containsBody(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpBody* arg1; 
 
 	ok &= jsval_to_c_class( cx, args.get(arg_idx++), (void**)&arg1, NULL);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpBool ret_val;
-
-	ret_val = cpSpaceContainsBody((cpSpace*)arg0 , (cpBody*)arg1);
+	cpBool ret_val = cpSpaceContainsBody((cpSpace*)arg0 , (cpBody*)arg1);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
 	return true;
 }
@@ -2941,17 +2815,15 @@ bool JSB_cpSpace_containsConstraint(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpConstraint* arg1; 
 
 	ok &= jsval_to_c_class( cx, args.get(arg_idx++), (void**)&arg1, NULL);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpBool ret_val;
-
-	ret_val = cpSpaceContainsConstraint((cpSpace*)arg0 , (cpConstraint*)arg1);
+	cpBool ret_val = cpSpaceContainsConstraint((cpSpace*)arg0 , (cpConstraint*)arg1);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
 	return true;
 }
@@ -2963,17 +2835,15 @@ bool JSB_cpSpace_containsShape(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpShape* arg1; 
 
 	ok &= jsval_to_c_class( cx, args.get(arg_idx++), (void**)&arg1, NULL);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpBool ret_val;
-
-	ret_val = cpSpaceContainsShape((cpSpace*)arg0 , (cpShape*)arg1);
+	cpBool ret_val = cpSpaceContainsShape((cpSpace*)arg0 , (cpShape*)arg1);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
 	return true;
 }
@@ -2985,8 +2855,8 @@ bool JSB_cpSpace_destroy(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 
 	cpSpaceDestroy((cpSpace*)arg0);
 	args.rval().set(JS::NullValue());
@@ -3000,11 +2870,9 @@ bool JSB_cpSpace_getCollisionBias(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpSpaceGetCollisionBias((cpSpace*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
+	cpFloat ret_val = cpSpaceGetCollisionBias((cpSpace*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -3016,8 +2884,8 @@ bool JSB_cpSpace_getCollisionPersistence(JSContext *cx, uint32_t argc, JS::Value
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	cpTimestamp ret_val;
 
 	ret_val = cpSpaceGetCollisionPersistence((cpSpace*)arg0);
@@ -3032,11 +2900,9 @@ bool JSB_cpSpace_getCollisionSlop(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpSpaceGetCollisionSlop((cpSpace*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
+	cpFloat ret_val = cpSpaceGetCollisionSlop((cpSpace*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -3048,11 +2914,9 @@ bool JSB_cpSpace_getCurrentTimeStep(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpSpaceGetCurrentTimeStep((cpSpace*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
+	cpFloat ret_val = cpSpaceGetCurrentTimeStep((cpSpace*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -3064,11 +2928,9 @@ bool JSB_cpSpace_getDamping(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpSpaceGetDamping((cpSpace*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
+	cpFloat ret_val = cpSpaceGetDamping((cpSpace*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -3080,11 +2942,9 @@ bool JSB_cpSpace_getGravity(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpSpaceGetGravity((cpSpace*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
+	cpVect ret_val = cpSpaceGetGravity((cpSpace*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -3096,11 +2956,9 @@ bool JSB_cpSpace_getIdleSpeedThreshold(JSContext *cx, uint32_t argc, JS::Value *
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpSpaceGetIdleSpeedThreshold((cpSpace*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
+	cpFloat ret_val = cpSpaceGetIdleSpeedThreshold((cpSpace*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -3112,8 +2970,8 @@ bool JSB_cpSpace_getIterations(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	int ret_val;
 
 	ret_val = cpSpaceGetIterations((cpSpace*)arg0);
@@ -3128,11 +2986,9 @@ bool JSB_cpSpace_getSleepTimeThreshold(JSContext *cx, uint32_t argc, JS::Value *
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpSpaceGetSleepTimeThreshold((cpSpace*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
+	cpFloat ret_val = cpSpaceGetSleepTimeThreshold((cpSpace*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -3144,8 +3000,8 @@ bool JSB_cpSpace_getStaticBody(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	cpBody* ret_val;
 
 	ret_val = cpSpaceGetStaticBody((cpSpace*)arg0);
@@ -3160,8 +3016,8 @@ bool JSB_cpSpace_init(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	cpSpace* ret_val;
 
 	ret_val = cpSpaceInit((cpSpace*)arg0);
@@ -3176,11 +3032,9 @@ bool JSB_cpSpace_isLocked(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpSpaceIsLocked((cpSpace*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
+	cpBool ret_val = cpSpaceIsLocked((cpSpace*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
 	return true;
 }
@@ -3192,8 +3046,8 @@ bool JSB_cpSpace_reindexShape(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpShape* arg1; 
@@ -3213,8 +3067,8 @@ bool JSB_cpSpace_reindexShapesForBody(JSContext *cx, uint32_t argc, JS::Value *v
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpBody* arg1; 
@@ -3234,8 +3088,8 @@ bool JSB_cpSpace_reindexStatic(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 
 	cpSpaceReindexStatic((cpSpace*)arg0);
 	args.rval().set(JS::NullValue());
@@ -3249,8 +3103,8 @@ bool JSB_cpSpace_setCollisionBias(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpSpaceSetCollisionBias((cpSpace*)arg0 , (cpFloat)arg1);
@@ -3265,8 +3119,8 @@ bool JSB_cpSpace_setCollisionPersistence(JSContext *cx, uint32_t argc, JS::Value
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	uint32_t arg1; 
@@ -3286,8 +3140,8 @@ bool JSB_cpSpace_setCollisionSlop(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpSpaceSetCollisionSlop((cpSpace*)arg0 , (cpFloat)arg1);
@@ -3302,8 +3156,8 @@ bool JSB_cpSpace_setDamping(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpSpaceSetDamping((cpSpace*)arg0 , (cpFloat)arg1);
@@ -3318,8 +3172,8 @@ bool JSB_cpSpace_setGravity(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -3339,8 +3193,8 @@ bool JSB_cpSpace_setIdleSpeedThreshold(JSContext *cx, uint32_t argc, JS::Value *
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpSpaceSetIdleSpeedThreshold((cpSpace*)arg0 , (cpFloat)arg1);
@@ -3355,8 +3209,8 @@ bool JSB_cpSpace_setIterations(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	int32_t arg1; 
@@ -3376,8 +3230,8 @@ bool JSB_cpSpace_setSleepTimeThreshold(JSContext *cx, uint32_t argc, JS::Value *
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpSpaceSetSleepTimeThreshold((cpSpace*)arg0 , (cpFloat)arg1);
@@ -3392,8 +3246,8 @@ bool JSB_cpSpace_step(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpSpaceStep((cpSpace*)arg0 , (cpFloat)arg1);
@@ -3408,8 +3262,8 @@ bool JSB_cpSpace_useSpatialHash(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSpace* arg0 = (cpSpace*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSpace* arg0 = (cpSpace*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	double arg1; int32_t arg2; 
@@ -3503,17 +3357,22 @@ JSObject* JSB_cpBody_object = NULL;
 // Destructor
 void JSB_cpBody_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpBody), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpBodyFree( (cpBody*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpBody)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpBody), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpBodyFree((cpBody*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpBody)", jsthis);
+    }
 }
 
 // Arguments: 
@@ -3523,8 +3382,8 @@ bool JSB_cpBody_activate(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 
 	cpBodyActivate((cpBody*)arg0);
 	args.rval().set(JS::NullValue());
@@ -3538,8 +3397,8 @@ bool JSB_cpBody_activateStatic(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpShape* arg1; 
@@ -3559,8 +3418,8 @@ bool JSB_cpBody_applyForceAtLocalPoint(JSContext *cx, uint32_t argc, JS::Value *
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; cpVect arg2; 
@@ -3581,8 +3440,8 @@ bool JSB_cpBody_applyForceAtWorldPoint(JSContext *cx, uint32_t argc, JS::Value *
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; cpVect arg2; 
@@ -3603,8 +3462,8 @@ bool JSB_cpBody_applyImpulseAtLocalPoint(JSContext *cx, uint32_t argc, JS::Value
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; cpVect arg2; 
@@ -3625,8 +3484,8 @@ bool JSB_cpBody_applyImpulseAtWorldPoint(JSContext *cx, uint32_t argc, JS::Value
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; cpVect arg2; 
@@ -3647,8 +3506,8 @@ bool JSB_cpBody_destroy(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 
 	cpBodyDestroy((cpBody*)arg0);
 	args.rval().set(JS::NullValue());
@@ -3662,11 +3521,9 @@ bool JSB_cpBody_getAngle(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpBodyGetAngle((cpBody*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
+	cpFloat ret_val = cpBodyGetAngle((cpBody*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -3678,11 +3535,9 @@ bool JSB_cpBody_getAngularVelocity(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpBodyGetAngularVelocity((cpBody*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
+	cpFloat ret_val = cpBodyGetAngularVelocity((cpBody*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -3694,11 +3549,9 @@ bool JSB_cpBody_getCenterOfGravity(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpBodyGetCenterOfGravity((cpBody*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
+	cpVect ret_val = cpBodyGetCenterOfGravity((cpBody*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -3710,11 +3563,9 @@ bool JSB_cpBody_getForce(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpBodyGetForce((cpBody*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
+	cpVect ret_val = cpBodyGetForce((cpBody*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -3726,11 +3577,9 @@ bool JSB_cpBody_getMass(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpBodyGetMass((cpBody*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
+	cpFloat ret_val = cpBodyGetMass((cpBody*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -3742,11 +3591,9 @@ bool JSB_cpBody_getMoment(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpBodyGetMoment((cpBody*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
+	cpFloat ret_val = cpBodyGetMoment((cpBody*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -3758,11 +3605,9 @@ bool JSB_cpBody_getPosition(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpBodyGetPosition((cpBody*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
+	cpVect ret_val = cpBodyGetPosition((cpBody*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -3774,11 +3619,9 @@ bool JSB_cpBody_getRotation(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpBodyGetRotation((cpBody*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
+	cpVect ret_val = cpBodyGetRotation((cpBody*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -3790,8 +3633,8 @@ bool JSB_cpBody_getSpace(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	cpSpace* ret_val;
 
 	ret_val = cpBodyGetSpace((cpBody*)arg0);
@@ -3806,11 +3649,9 @@ bool JSB_cpBody_getTorque(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpBodyGetTorque((cpBody*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
+	cpFloat ret_val = cpBodyGetTorque((cpBody*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -3822,8 +3663,8 @@ bool JSB_cpBody_getType(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	cpBodyType ret_val;
 
 	ret_val = cpBodyGetType((cpBody*)arg0);
@@ -3838,11 +3679,9 @@ bool JSB_cpBody_getVelocity(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpBodyGetVelocity((cpBody*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
+	cpVect ret_val = cpBodyGetVelocity((cpBody*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -3854,17 +3693,15 @@ bool JSB_cpBody_getVelocityAtLocalPoint(JSContext *cx, uint32_t argc, JS::Value 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg1);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpVect ret_val;
-
-	ret_val = cpBodyGetVelocityAtLocalPoint((cpBody*)arg0 , (cpVect)arg1);
+	cpVect ret_val = cpBodyGetVelocityAtLocalPoint((cpBody*)arg0 , (cpVect)arg1);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -3876,17 +3713,15 @@ bool JSB_cpBody_getVelocityAtWorldPoint(JSContext *cx, uint32_t argc, JS::Value 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg1);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpVect ret_val;
-
-	ret_val = cpBodyGetVelocityAtWorldPoint((cpBody*)arg0 , (cpVect)arg1);
+	cpVect ret_val = cpBodyGetVelocityAtWorldPoint((cpBody*)arg0 , (cpVect)arg1);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -3898,8 +3733,8 @@ bool JSB_cpBody_init(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
     double arg1 = args.get(0).toNumber();
     double arg2 = args.get(1).toNumber();
     
@@ -3915,11 +3750,9 @@ bool JSB_cpBody_isSleeping(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpBodyIsSleeping((cpBody*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
+	cpBool ret_val = cpBodyIsSleeping((cpBody*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
 	return true;
 }
@@ -3931,11 +3764,9 @@ bool JSB_cpBody_kineticEnergy(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpBodyKineticEnergy((cpBody*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
+	cpFloat ret_val = cpBodyKineticEnergy((cpBody*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -3947,17 +3778,15 @@ bool JSB_cpBody_localToWorld(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg1);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpVect ret_val;
-
-	ret_val = cpBodyLocalToWorld((cpBody*)arg0 , (cpVect)arg1);
+	cpVect ret_val = cpBodyLocalToWorld((cpBody*)arg0 , (cpVect)arg1);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -3969,8 +3798,8 @@ bool JSB_cpBody_setAngle(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpBodySetAngle((cpBody*)arg0 , (cpFloat)arg1);
@@ -3985,8 +3814,8 @@ bool JSB_cpBody_setAngularVelocity(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpBodySetAngularVelocity((cpBody*)arg0 , (cpFloat)arg1);
@@ -4001,8 +3830,8 @@ bool JSB_cpBody_setCenterOfGravity(JSContext *cx, uint32_t argc, JS::Value *vp) 
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -4022,8 +3851,8 @@ bool JSB_cpBody_setForce(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -4043,8 +3872,8 @@ bool JSB_cpBody_setMass(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpBodySetMass((cpBody*)arg0 , (cpFloat)arg1);
@@ -4059,8 +3888,8 @@ bool JSB_cpBody_setMoment(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpBodySetMoment((cpBody*)arg0 , (cpFloat)arg1);
@@ -4075,8 +3904,8 @@ bool JSB_cpBody_setPosition(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -4096,8 +3925,8 @@ bool JSB_cpBody_setTorque(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpBodySetTorque((cpBody*)arg0 , (cpFloat)arg1);
@@ -4112,8 +3941,8 @@ bool JSB_cpBody_setType(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	int32_t arg1; 
@@ -4133,8 +3962,8 @@ bool JSB_cpBody_setVelocity(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -4154,8 +3983,8 @@ bool JSB_cpBody_sleep(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 
 	cpBodySleep((cpBody*)arg0);
 	args.rval().set(JS::NullValue());
@@ -4169,8 +3998,8 @@ bool JSB_cpBody_sleepWithGroup(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpBody* arg1; 
@@ -4190,8 +4019,8 @@ bool JSB_cpBody_updatePosition(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpBodyUpdatePosition((cpBody*)arg0 , (cpFloat)arg1);
@@ -4206,8 +4035,8 @@ bool JSB_cpBody_updateVelocity(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; double arg2; double arg3; 
@@ -4229,17 +4058,15 @@ bool JSB_cpBody_worldToLocal(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpBody* arg0 = (cpBody*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpBody* arg0 = (cpBody*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
 
 	ok &= jsval_to_cpVect( cx, args.get(arg_idx++), (cpVect*) &arg1);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpVect ret_val;
-
-	ret_val = cpBodyWorldToLocal((cpBody*)arg0 , (cpVect)arg1);
+	cpVect ret_val = cpBodyWorldToLocal((cpBody*)arg0 , (cpVect)arg1);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -4336,17 +4163,22 @@ bool JSB_cpShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 // Destructor
 void JSB_cpShape_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpShape), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpShapeFree( (cpShape*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpShape)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpShape), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpShapeFree((cpShape*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpShape)", jsthis);
+    }
 }
 
 // Arguments: 
@@ -4356,8 +4188,8 @@ bool JSB_cpShape_cacheBB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	cpBB ret_val;
 
 	ret_val = cpShapeCacheBB((cpShape*)arg0);
@@ -4372,8 +4204,8 @@ bool JSB_cpShape_destroy(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 
 	cpShapeDestroy((cpShape*)arg0);
 	args.rval().set(JS::NullValue());
@@ -4387,8 +4219,8 @@ bool JSB_cpShape_filterNew(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	uint32_t arg1; uint32_t arg2; 
@@ -4410,11 +4242,9 @@ bool JSB_cpShape_getArea(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpShapeGetArea((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
+	cpFloat ret_val = cpShapeGetArea((cpShape*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -4426,8 +4256,8 @@ bool JSB_cpShape_getBB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	cpBB ret_val;
 
 	ret_val = cpShapeGetBB((cpShape*)arg0);
@@ -4442,8 +4272,8 @@ bool JSB_cpShape_getBody(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	cpBody* ret_val;
 
 	ret_val = cpShapeGetBody((cpShape*)arg0);
@@ -4458,11 +4288,9 @@ bool JSB_cpShape_getCenterOfGravity(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpShapeGetCenterOfGravity((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
+	cpVect ret_val = cpShapeGetCenterOfGravity((cpShape*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -4474,8 +4302,8 @@ bool JSB_cpShape_getCollisionType(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	cpCollisionType ret_val;
 
 	ret_val = cpShapeGetCollisionType((cpShape*)arg0);
@@ -4490,11 +4318,9 @@ bool JSB_cpShape_getDensity(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpShapeGetDensity((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
+	cpFloat ret_val = cpShapeGetDensity((cpShape*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -4506,11 +4332,9 @@ bool JSB_cpShape_getElasticity(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpShapeGetElasticity((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
+	cpFloat ret_val = cpShapeGetElasticity((cpShape*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -4522,8 +4346,8 @@ bool JSB_cpShape_getFilter(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	cpShapeFilter ret_val;
 
 	ret_val = cpShapeGetFilter((cpShape*)arg0);
@@ -4538,11 +4362,9 @@ bool JSB_cpShape_getFriction(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpShapeGetFriction((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
+	cpFloat ret_val = cpShapeGetFriction((cpShape*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -4554,11 +4376,9 @@ bool JSB_cpShape_getMass(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpShapeGetMass((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
+	cpFloat ret_val = cpShapeGetMass((cpShape*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -4570,11 +4390,9 @@ bool JSB_cpShape_getMoment(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpShapeGetMoment((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
+	cpFloat ret_val = cpShapeGetMoment((cpShape*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -4586,11 +4404,9 @@ bool JSB_cpShape_getSensor(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
-	cpBool ret_val;
-
-	ret_val = cpShapeGetSensor((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
+	cpBool ret_val = cpShapeGetSensor((cpShape*)arg0);
 	args.rval().set(JS::Int32Value((int32_t)ret_val));
 	return true;
 }
@@ -4602,8 +4418,8 @@ bool JSB_cpShape_getSpace(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	cpSpace* ret_val;
 
 	ret_val = cpShapeGetSpace((cpShape*)arg0);
@@ -4618,11 +4434,9 @@ bool JSB_cpShape_getSurfaceVelocity(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpShapeGetSurfaceVelocity((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
+	cpVect ret_val = cpShapeGetSurfaceVelocity((cpShape*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -4634,8 +4448,8 @@ bool JSB_cpShape_setBody(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpBody* arg1; 
@@ -4655,8 +4469,8 @@ bool JSB_cpShape_setCollisionType(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpCollisionType arg1; 
@@ -4676,8 +4490,8 @@ bool JSB_cpShape_setDensity(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpShapeSetDensity((cpShape*)arg0 , (cpFloat)arg1);
@@ -4692,8 +4506,8 @@ bool JSB_cpShape_setElasticity(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpShapeSetElasticity((cpShape*)arg0 , (cpFloat)arg1);
@@ -4708,8 +4522,8 @@ bool JSB_cpShape_setFilter(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpShapeFilter arg1; 
@@ -4729,8 +4543,8 @@ bool JSB_cpShape_setFriction(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpShapeSetFriction((cpShape*)arg0 , (cpFloat)arg1);
@@ -4745,8 +4559,8 @@ bool JSB_cpShape_setMass(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	double arg1 = args.get(0).toNumber();
 
 	cpShapeSetMass((cpShape*)arg0 , (cpFloat)arg1);
@@ -4761,8 +4575,8 @@ bool JSB_cpShape_setSensor(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	uint16_t arg1; 
@@ -4782,8 +4596,8 @@ bool JSB_cpShape_setSurfaceVelocity(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; 
@@ -4803,8 +4617,8 @@ bool JSB_cpShape_update(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpShape* arg0 = (cpShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpShape* arg0 = (cpShape*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpTransform arg1; 
@@ -4901,8 +4715,8 @@ bool JSB_cpCircleShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	void* 	ret_val = cpCircleShapeNew((cpBody*)arg0 , (cpFloat)arg1 , (cpVect)arg2);
 
-	jsb_set_jsobject_for_proxy(jsobj, ret_val);
-	jsb_set_c_proxy_for_jsobject(jsobj, ret_val, JSB_C_FLAG_CALL_FREE);
+    jsb_new_proxy(ret_val, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
 	args.rval().set(JS::ObjectOrNullValue(jsobj));
 
 	return true;
@@ -4911,17 +4725,22 @@ bool JSB_cpCircleShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 // Destructor
 void JSB_cpCircleShape_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpCircleShape), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpShapeFree( (cpShape*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpCircleShape)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpCircleShape), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpShapeFree((cpShape*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpCircleShape)", jsthis);
+    }
 }
 
 // Arguments: 
@@ -4931,11 +4750,9 @@ bool JSB_cpCircleShape_getOffset(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpCircleShape* arg0 = (cpCircleShape*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpCircleShapeGetOffset((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpCircleShape* arg0 = (cpCircleShape*) proxy->ptr;
+	cpVect ret_val = cpCircleShapeGetOffset((cpShape*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -4947,11 +4764,9 @@ bool JSB_cpCircleShape_getRadius(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpCircleShape* arg0 = (cpCircleShape*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpCircleShapeGetRadius((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpCircleShape* arg0 = (cpCircleShape*) proxy->ptr;
+	cpFloat ret_val = cpCircleShapeGetRadius((cpShape*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -5013,8 +4828,8 @@ bool JSB_cpSegmentShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 	void* 	ret_val = cpSegmentShapeNew((cpBody*)arg0 , (cpVect)arg1 , (cpVect)arg2 , (cpFloat)arg3);
 
-	jsb_set_jsobject_for_proxy(jsobj, ret_val);
-	jsb_set_c_proxy_for_jsobject(jsobj, ret_val, JSB_C_FLAG_CALL_FREE);
+    jsb_new_proxy(ret_val, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
 	args.rval().set(JS::ObjectOrNullValue(jsobj));
 
 	return true;
@@ -5023,17 +4838,22 @@ bool JSB_cpSegmentShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 // Destructor
 void JSB_cpSegmentShape_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpSegmentShape), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpShapeFree( (cpShape*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpSegmentShape)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpSegmentShape), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpShapeFree((cpShape*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpSegmentShape)", jsthis);
+    }
 }
 
 // Arguments: 
@@ -5043,11 +4863,9 @@ bool JSB_cpSegmentShape_getA(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSegmentShape* arg0 = (cpSegmentShape*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpSegmentShapeGetA((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSegmentShape* arg0 = (cpSegmentShape*) proxy->ptr;
+	cpVect ret_val = cpSegmentShapeGetA((cpShape*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -5059,11 +4877,9 @@ bool JSB_cpSegmentShape_getB(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSegmentShape* arg0 = (cpSegmentShape*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpSegmentShapeGetB((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSegmentShape* arg0 = (cpSegmentShape*) proxy->ptr;
+	cpVect ret_val = cpSegmentShapeGetB((cpShape*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -5075,11 +4891,9 @@ bool JSB_cpSegmentShape_getNormal(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSegmentShape* arg0 = (cpSegmentShape*) proxy->handle;
-	cpVect ret_val;
-
-	ret_val = cpSegmentShapeGetNormal((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSegmentShape* arg0 = (cpSegmentShape*) proxy->ptr;
+	cpVect ret_val = cpSegmentShapeGetNormal((cpShape*)arg0);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }
@@ -5091,11 +4905,9 @@ bool JSB_cpSegmentShape_getRadius(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSegmentShape* arg0 = (cpSegmentShape*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpSegmentShapeGetRadius((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSegmentShape* arg0 = (cpSegmentShape*) proxy->ptr;
+	cpFloat ret_val = cpSegmentShapeGetRadius((cpShape*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -5107,8 +4919,8 @@ bool JSB_cpSegmentShape_setNeighbors(JSContext *cx, uint32_t argc, JS::Value *vp
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpSegmentShape* arg0 = (cpSegmentShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpSegmentShape* arg0 = (cpSegmentShape*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	cpVect arg1; cpVect arg2; 
@@ -5167,17 +4979,22 @@ JSObject* JSB_cpPolyShape_object = NULL;
 // Destructor
 void JSB_cpPolyShape_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	if( proxy ) {
-		CCLOGINFO("jsbindings: finalizing JS object %p (cpPolyShape), handle: %p", jsthis, proxy->handle);
-
-		jsb_del_jsobject_for_proxy(proxy->handle);
-		if(proxy->flags == JSB_C_FLAG_CALL_FREE)
-			cpShapeFree( (cpShape*)proxy->handle);
-		jsb_del_c_proxy_for_jsobject(jsthis);
-	} else {
-		CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpPolyShape)", jsthis);
-	}
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    js_proxy_t* proxy = jsb_get_js_proxy(obj);
+    if (proxy)
+    {
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpPolyShape), handle: %p", jsthis, proxy->ptr);
+        
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if (flag && *flag == JSB_C_FLAG_CALL_FREE)
+            cpShapeFree((cpShape*)proxy->ptr);
+    }
+    else
+    {
+        CCLOGINFO("jsbindings: finalizing uninitialized JS object %p (cpPolyShape)", jsthis);
+    }
 }
 
 // Arguments: 
@@ -5187,8 +5004,8 @@ bool JSB_cpPolyShape_getCount(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpPolyShape* arg0 = (cpPolyShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpPolyShape* arg0 = (cpPolyShape*) proxy->ptr;
 	int ret_val;
 
 	ret_val = cpPolyShapeGetCount((cpShape*)arg0);
@@ -5203,11 +5020,9 @@ bool JSB_cpPolyShape_getRadius(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpPolyShape* arg0 = (cpPolyShape*) proxy->handle;
-	cpFloat ret_val;
-
-	ret_val = cpPolyShapeGetRadius((cpShape*)arg0);
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpPolyShape* arg0 = (cpPolyShape*) proxy->ptr;
+	cpFloat ret_val = cpPolyShapeGetRadius((cpShape*)arg0);
 	args.rval().set(JS::DoubleValue(ret_val));
 	return true;
 }
@@ -5219,17 +5034,15 @@ bool JSB_cpPolyShape_getVert(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
 	JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-	struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-	cpPolyShape* arg0 = (cpPolyShape*) proxy->handle;
+	auto proxy = jsb_get_js_proxy(jsthis);
+	cpPolyShape* arg0 = (cpPolyShape*) proxy->ptr;
 	int arg_idx=0; // #003
 	bool ok = true;
 	int32_t arg1; 
 
 	ok &= jsval_to_int32( cx, args.get(arg_idx++), &arg1);
 	JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-	cpVect ret_val;
-
-	ret_val = cpPolyShapeGetVert((cpShape*)arg0 , (int)arg1);
+	cpVect ret_val = cpPolyShapeGetVert((cpShape*)arg0 , (int)arg1);
 	args.rval().set(cpVect_to_jsval( cx, (cpVect)ret_val));
 	return true;
 }

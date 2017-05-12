@@ -455,7 +455,7 @@ bool js_cocos2dx_dragonbones_Transform_normalizeRadian(JSContext *cx, uint32_t a
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Transform_normalizeRadian : Error processing arguments");
 
         double ret = dragonBones::Transform::normalizeRadian(arg0);
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = JS::NumberValue(ret);
         args.rval().set(jsret);
         return true;
@@ -739,11 +739,11 @@ bool js_cocos2dx_dragonbones_TextureData_generateRectangle(JSContext *cx, uint32
     if (argc == 0) {
 
         dragonBones::Rectangle* ret = dragonBones::TextureData::generateRectangle();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         if (ret) {
         jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Rectangle>(cx, (dragonBones::Rectangle*)ret));
     } else {
-        jsret = JS::NullValue();
+        jsret = JS::NullHandleValue;
     };
         args.rval().set(jsret);
         return true;
@@ -846,7 +846,7 @@ bool js_cocos2dx_dragonbones_TextureAtlasData_generateTexture(JSContext *cx, uin
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::TextureData>(cx, (dragonBones::TextureData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -872,7 +872,7 @@ bool js_cocos2dx_dragonbones_TextureAtlasData_getTexture(JSContext *cx, uint32_t
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::TextureData>(cx, (dragonBones::TextureData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -969,7 +969,7 @@ bool js_cocos2dx_dragonbones_AnimationData_getBoneTimeline(JSContext *cx, uint32
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::BoneTimelineData>(cx, (dragonBones::BoneTimelineData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -984,7 +984,7 @@ bool js_cocos2dx_dragonbones_AnimationData_getTypeIndex(JSContext *cx, uint32_t 
     if (argc == 0) {
 
         unsigned long ret = dragonBones::AnimationData::getTypeIndex();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ulong_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -1268,7 +1268,7 @@ bool js_cocos2dx_dragonbones_BoneData_getTypeIndex(JSContext *cx, uint32_t argc,
     if (argc == 0) {
 
         unsigned long ret = dragonBones::BoneData::getTypeIndex();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ulong_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -1317,7 +1317,7 @@ bool js_cocos2dx_dragonbones_BoneData_get_parent(JSContext *cx, uint32_t argc, J
     if (cobj->parent) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::BoneData>(cx, (dragonBones::BoneData*)cobj->parent));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
     args.rval().set(jsret);
     return true;
@@ -1449,7 +1449,7 @@ bool js_cocos2dx_dragonbones_SlotData_getTypeIndex(JSContext *cx, uint32_t argc,
     if (argc == 0) {
 
         unsigned long ret = dragonBones::SlotData::getTypeIndex();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ulong_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -1464,11 +1464,11 @@ bool js_cocos2dx_dragonbones_SlotData_generateColor(JSContext *cx, uint32_t argc
     if (argc == 0) {
 
         dragonBones::ColorTransform* ret = dragonBones::SlotData::generateColor();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         if (ret) {
         jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::ColorTransform>(cx, (dragonBones::ColorTransform*)ret));
     } else {
-        jsret = JS::NullValue();
+        jsret = JS::NullHandleValue;
     };
         args.rval().set(jsret);
         return true;
@@ -1517,7 +1517,7 @@ bool js_cocos2dx_dragonbones_SlotData_get_parent(JSContext *cx, uint32_t argc, J
     if (cobj->parent) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::BoneData>(cx, (dragonBones::BoneData*)cobj->parent));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
     args.rval().set(jsret);
     return true;
@@ -1650,7 +1650,7 @@ bool js_cocos2dx_dragonbones_SkinData_getTypeIndex(JSContext *cx, uint32_t argc,
     if (argc == 0) {
 
         unsigned long ret = dragonBones::SkinData::getTypeIndex();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ulong_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -1801,7 +1801,7 @@ bool js_cocos2dx_dragonbones_ArmatureData_getBone(JSContext *cx, uint32_t argc, 
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::BoneData>(cx, (dragonBones::BoneData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1827,7 +1827,7 @@ bool js_cocos2dx_dragonbones_ArmatureData_getAnimation(JSContext *cx, uint32_t a
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationData>(cx, (dragonBones::AnimationData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1853,7 +1853,7 @@ bool js_cocos2dx_dragonbones_ArmatureData_getSlot(JSContext *cx, uint32_t argc, 
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::SlotData>(cx, (dragonBones::SlotData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1879,7 +1879,7 @@ bool js_cocos2dx_dragonbones_ArmatureData_getSkin(JSContext *cx, uint32_t argc, 
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::SkinData>(cx, (dragonBones::SkinData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1901,7 +1901,7 @@ bool js_cocos2dx_dragonbones_ArmatureData_getDefaultSkin(JSContext *cx, uint32_t
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::SkinData>(cx, (dragonBones::SkinData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1923,7 +1923,7 @@ bool js_cocos2dx_dragonbones_ArmatureData_getDefaultAnimation(JSContext *cx, uin
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationData>(cx, (dragonBones::AnimationData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1938,7 +1938,7 @@ bool js_cocos2dx_dragonbones_ArmatureData_getTypeIndex(JSContext *cx, uint32_t a
     if (argc == 0) {
 
         unsigned long ret = dragonBones::ArmatureData::getTypeIndex();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ulong_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -2170,7 +2170,7 @@ bool js_cocos2dx_dragonbones_DragonBonesData_getArmature(JSContext *cx, uint32_t
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::ArmatureData>(cx, (dragonBones::ArmatureData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -2185,7 +2185,7 @@ bool js_cocos2dx_dragonbones_DragonBonesData_getTypeIndex(JSContext *cx, uint32_
     if (argc == 0) {
 
         unsigned long ret = dragonBones::DragonBonesData::getTypeIndex();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ulong_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -2328,7 +2328,7 @@ bool js_cocos2dx_dragonbones_EventObject_getTypeIndex(JSContext *cx, uint32_t ar
     if (argc == 0) {
 
         unsigned long ret = dragonBones::EventObject::getTypeIndex();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ulong_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -2405,7 +2405,7 @@ bool js_cocos2dx_dragonbones_EventObject_get_armature(JSContext *cx, uint32_t ar
     if (cobj->armature) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Armature>(cx, (dragonBones::Armature*)cobj->armature));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
     args.rval().set(jsret);
     return true;
@@ -2445,7 +2445,7 @@ bool js_cocos2dx_dragonbones_EventObject_get_bone(JSContext *cx, uint32_t argc, 
     if (cobj->bone) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Bone>(cx, (dragonBones::Bone*)cobj->bone));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
     args.rval().set(jsret);
     return true;
@@ -2485,7 +2485,7 @@ bool js_cocos2dx_dragonbones_EventObject_get_slot(JSContext *cx, uint32_t argc, 
     if (cobj->slot) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Slot>(cx, (dragonBones::Slot*)cobj->slot));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
     args.rval().set(jsret);
     return true;
@@ -2525,7 +2525,7 @@ bool js_cocos2dx_dragonbones_EventObject_get_animationState(JSContext *cx, uint3
     if (cobj->animationState) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)cobj->animationState));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
     args.rval().set(jsret);
     return true;
@@ -2672,7 +2672,7 @@ bool js_cocos2dx_dragonbones_Armature_getSlot(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Slot>(cx, (dragonBones::Slot*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -2844,7 +2844,7 @@ bool js_cocos2dx_dragonbones_Armature_getBoneByDisplay(JSContext *cx, uint32_t a
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Bone>(cx, (dragonBones::Bone*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -2984,7 +2984,7 @@ bool js_cocos2dx_dragonbones_Armature_getBone(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Bone>(cx, (dragonBones::Bone*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3006,7 +3006,7 @@ bool js_cocos2dx_dragonbones_Armature_getParent(JSContext *cx, uint32_t argc, JS
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Slot>(cx, (dragonBones::Slot*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3033,7 +3033,7 @@ bool js_cocos2dx_dragonbones_Armature_getSlotByDisplay(JSContext *cx, uint32_t a
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Slot>(cx, (dragonBones::Slot*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3097,7 +3097,7 @@ bool js_cocos2dx_dragonbones_Armature_getTypeIndex(JSContext *cx, uint32_t argc,
     if (argc == 0) {
 
         unsigned long ret = dragonBones::Armature::getTypeIndex();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ulong_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -3272,7 +3272,7 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3288,7 +3288,7 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3306,7 +3306,7 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3326,7 +3326,7 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3348,7 +3348,7 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3372,7 +3372,7 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3398,7 +3398,7 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3426,7 +3426,7 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3456,7 +3456,7 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3488,7 +3488,7 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3545,7 +3545,7 @@ bool js_cocos2dx_dragonbones_Animation_play(JSContext *cx, uint32_t argc, JS::Va
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3559,7 +3559,7 @@ bool js_cocos2dx_dragonbones_Animation_play(JSContext *cx, uint32_t argc, JS::Va
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3575,7 +3575,7 @@ bool js_cocos2dx_dragonbones_Animation_play(JSContext *cx, uint32_t argc, JS::Va
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3601,7 +3601,7 @@ bool js_cocos2dx_dragonbones_Animation_getState(JSContext *cx, uint32_t argc, JS
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3661,7 +3661,7 @@ bool js_cocos2dx_dragonbones_Animation_getLastAnimationState(JSContext *cx, uint
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3687,7 +3687,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByTime(JSContext *cx, uint32_t
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3703,7 +3703,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByTime(JSContext *cx, uint32_t
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3721,7 +3721,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByTime(JSContext *cx, uint32_t
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3747,7 +3747,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByProgress(JSContext *cx, uint
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3763,7 +3763,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByProgress(JSContext *cx, uint
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3781,7 +3781,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByProgress(JSContext *cx, uint
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3829,7 +3829,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndStopByTime(JSContext *cx, uint32_t
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3845,7 +3845,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndStopByTime(JSContext *cx, uint32_t
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3871,7 +3871,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndStopByProgress(JSContext *cx, uint
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3887,7 +3887,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndStopByProgress(JSContext *cx, uint
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3913,7 +3913,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByFrame(JSContext *cx, uint32_
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3929,7 +3929,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByFrame(JSContext *cx, uint32_
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3947,7 +3947,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByFrame(JSContext *cx, uint32_
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3973,7 +3973,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndStopByFrame(JSContext *cx, uint32_
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3989,7 +3989,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndStopByFrame(JSContext *cx, uint32_
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::AnimationState>(cx, (dragonBones::AnimationState*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4004,7 +4004,7 @@ bool js_cocos2dx_dragonbones_Animation_getTypeIndex(JSContext *cx, uint32_t argc
     if (argc == 0) {
 
         unsigned long ret = dragonBones::Animation::getTypeIndex();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ulong_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -4224,7 +4224,7 @@ bool js_cocos2dx_dragonbones_TransformObject_getParent(JSContext *cx, uint32_t a
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Bone>(cx, (dragonBones::Bone*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4246,7 +4246,7 @@ bool js_cocos2dx_dragonbones_TransformObject_getArmature(JSContext *cx, uint32_t
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Armature>(cx, (dragonBones::Armature*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4295,7 +4295,7 @@ bool js_cocos2dx_dragonbones_TransformObject_get_globalTransformMatrix(JSContext
     if (cobj->globalTransformMatrix) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Matrix>(cx, (dragonBones::Matrix*)cobj->globalTransformMatrix));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
     args.rval().set(jsret);
     return true;
@@ -4392,7 +4392,7 @@ bool js_cocos2dx_dragonbones_Bone_getIK(JSContext *cx, uint32_t argc, JS::Value 
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Bone>(cx, (dragonBones::Bone*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4527,7 +4527,7 @@ bool js_cocos2dx_dragonbones_Bone_getTypeIndex(JSContext *cx, uint32_t argc, JS:
     if (argc == 0) {
 
         unsigned long ret = dragonBones::Bone::getTypeIndex();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ulong_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -4652,7 +4652,7 @@ bool js_cocos2dx_dragonbones_Slot_getChildArmature(JSContext *cx, uint32_t argc,
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Armature>(cx, (dragonBones::Armature*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4930,7 +4930,7 @@ bool js_cocos2dx_dragonbones_BaseFactory_parseDragonBonesData(JSContext *cx, uin
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::DragonBonesData>(cx, (dragonBones::DragonBonesData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4946,7 +4946,7 @@ bool js_cocos2dx_dragonbones_BaseFactory_parseDragonBonesData(JSContext *cx, uin
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::DragonBonesData>(cx, (dragonBones::DragonBonesData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4964,7 +4964,7 @@ bool js_cocos2dx_dragonbones_BaseFactory_parseDragonBonesData(JSContext *cx, uin
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::DragonBonesData>(cx, (dragonBones::DragonBonesData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -5061,7 +5061,7 @@ bool js_cocos2dx_dragonbones_BaseFactory_buildArmature(JSContext *cx, uint32_t a
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Armature>(cx, (dragonBones::Armature*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -5077,7 +5077,7 @@ bool js_cocos2dx_dragonbones_BaseFactory_buildArmature(JSContext *cx, uint32_t a
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Armature>(cx, (dragonBones::Armature*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -5095,7 +5095,7 @@ bool js_cocos2dx_dragonbones_BaseFactory_buildArmature(JSContext *cx, uint32_t a
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Armature>(cx, (dragonBones::Armature*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -5167,7 +5167,7 @@ bool js_cocos2dx_dragonbones_BaseFactory_getDragonBonesData(JSContext *cx, uint3
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::DragonBonesData>(cx, (dragonBones::DragonBonesData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -5720,7 +5720,7 @@ bool js_cocos2dx_dragonbones_AnimationState_getTypeIndex(JSContext *cx, uint32_t
     if (argc == 0) {
 
         unsigned long ret = dragonBones::AnimationState::getTypeIndex();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ulong_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -6050,7 +6050,7 @@ bool js_cocos2dx_dragonbones_CCTextureData_getTypeIndex(JSContext *cx, uint32_t 
     if (argc == 0) {
 
         unsigned long ret = dragonBones::CCTextureData::getTypeIndex();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ulong_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -6161,7 +6161,7 @@ bool js_cocos2dx_dragonbones_CCTextureAtlasData_getTypeIndex(JSContext *cx, uint
     if (argc == 0) {
 
         unsigned long ret = dragonBones::CCTextureAtlasData::getTypeIndex();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ulong_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -6366,7 +6366,7 @@ bool js_cocos2dx_dragonbones_CCArmatureDisplay_setEventCallback(JSContext *cx, u
 		            if (larg0) {
 		            largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::EventObject>(cx, (dragonBones::EventObject*)larg0));
 		        } else {
-		            largv = JS::NullValue();
+		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
 		            JS::RootedValue rval(cx);
@@ -6437,7 +6437,7 @@ bool js_cocos2dx_dragonbones_CCArmatureDisplay_addEvent(JSContext *cx, uint32_t 
 		            if (larg0) {
 		            largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::EventObject>(cx, (dragonBones::EventObject*)larg0));
 		        } else {
-		            largv = JS::NullValue();
+		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
 		            JS::RootedValue rval(cx);
@@ -6499,7 +6499,7 @@ bool js_cocos2dx_dragonbones_CCArmatureDisplay_getArmature(JSContext *cx, uint32
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::Armature>(cx, (dragonBones::Armature*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -6677,7 +6677,7 @@ bool js_cocos2dx_dragonbones_CCSlot_getTypeIndex(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
 
         unsigned long ret = dragonBones::CCSlot::getTypeIndex();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ulong_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -6800,7 +6800,7 @@ bool js_cocos2dx_dragonbones_CCFactory_getTextureDisplay(JSContext *cx, uint32_t
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -6816,7 +6816,7 @@ bool js_cocos2dx_dragonbones_CCFactory_getTextureDisplay(JSContext *cx, uint32_t
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -6838,7 +6838,7 @@ bool js_cocos2dx_dragonbones_CCFactory_getSoundEventManater(JSContext *cx, uint3
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::CCArmatureDisplay>(cx, (dragonBones::CCArmatureDisplay*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -6864,7 +6864,7 @@ bool js_cocos2dx_dragonbones_CCFactory_buildArmatureDisplay(JSContext *cx, uint3
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::CCArmatureDisplay>(cx, (dragonBones::CCArmatureDisplay*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -6880,7 +6880,7 @@ bool js_cocos2dx_dragonbones_CCFactory_buildArmatureDisplay(JSContext *cx, uint3
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::CCArmatureDisplay>(cx, (dragonBones::CCArmatureDisplay*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -6898,7 +6898,7 @@ bool js_cocos2dx_dragonbones_CCFactory_buildArmatureDisplay(JSContext *cx, uint3
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::CCArmatureDisplay>(cx, (dragonBones::CCArmatureDisplay*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -6926,7 +6926,7 @@ bool js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData(JSContext *cx, uint
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::TextureAtlasData>(cx, (dragonBones::TextureAtlasData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -6944,7 +6944,7 @@ bool js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData(JSContext *cx, uint
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::TextureAtlasData>(cx, (dragonBones::TextureAtlasData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -6964,7 +6964,7 @@ bool js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData(JSContext *cx, uint
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<dragonBones::TextureAtlasData>(cx, (dragonBones::TextureAtlasData*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;

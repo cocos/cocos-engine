@@ -94,7 +94,7 @@ private:
 bool jsval_to_opaque( JSContext *cx, JS::HandleValue vp, void **out );
 bool jsval_to_int( JSContext *cx, JS::HandleValue vp, int *out);
 bool jsval_to_uint( JSContext *cx, JS::HandleValue vp, unsigned int *out);
-bool jsval_to_c_class( JSContext *cx, JS::HandleValue vp, void **out_native, struct jsb_c_proxy_s **out_proxy);
+bool jsval_to_c_class( JSContext *cx, JS::HandleValue vp, void **out_native, js_proxy_t **out_proxy);
 /** converts a js value (JS string) into a char */
 bool jsval_to_charptr( JSContext *cx, JS::HandleValue vp, const char **out);
 

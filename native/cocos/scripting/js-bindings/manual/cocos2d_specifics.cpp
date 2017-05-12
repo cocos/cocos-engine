@@ -914,9 +914,9 @@ JSScheduleWrapper::JSScheduleWrapper(JS::HandleValue owner)
     _pPureJSTarget = nullptr;
 }
 
-void JSScheduleWrapper::setTargetForSchedule(JS::HandleValue sched, JSScheduleWrapper *target) {
+void JSScheduleWrapper::setTargetForSchedule(JSContext* cx, JS::HandleValue sched, JSScheduleWrapper *target) {
     do {
-        JSObject* jsfunc = sched.toObjectOrNull();
+        JS::RootedObject jsfunc(cx, sched.toObjectOrNull());
         auto targetArray = getTargetForSchedule(sched);
         if (nullptr == targetArray) {
             targetArray = new (std::nothrow) JSBinding::Array;
@@ -941,7 +941,7 @@ JSBinding::Array* JSScheduleWrapper::getTargetForSchedule(JS::HandleValue sched)
 }
 
 
-void JSScheduleWrapper::setTargetForJSObject(JS::HandleObject jsTargetObj, JSScheduleWrapper *target)
+void JSScheduleWrapper::setTargetForJSObject(JSContext* cx, JS::HandleObject jsTargetObj, JSScheduleWrapper *target)
 {
     auto targetArray = getTargetForJSObject(jsTargetObj);
     if (nullptr == targetArray) {
@@ -1386,8 +1386,8 @@ bool js_CCNode_scheduleOnce(JSContext *cx, uint32_t argc, JS::Value *vp)
             tmpCobj->setJSCallbackFunc(args.get(0));
             tmpCobj->setTarget(node);
 
-            JSScheduleWrapper::setTargetForSchedule(args.get(0), tmpCobj);
-            JSScheduleWrapper::setTargetForJSObject(obj, tmpCobj);
+            JSScheduleWrapper::setTargetForSchedule(cx, args.get(0), tmpCobj);
+            JSScheduleWrapper::setTargetForJSObject(cx, obj, tmpCobj);
         }
 
         if(argc == 1) {
@@ -1395,23 +1395,6 @@ bool js_CCNode_scheduleOnce(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             sched->schedule(schedule_selector(JSScheduleWrapper::scheduleFunc), tmpCobj, 0, 0, delay, !node->isRunning());
         }
-
-        /* We shouldn't set the js callback function to reserved slot,
-           since the target object may execute more than one schedule.
-           Therefore, previous js callback function will be replaced
-           by the current one. For example:
-              this.scheduleOnce(function() { temporary function 1 }, 0.5);
-              this.scheduleOnce(function() { temporary function 2 }, 0.5);
-           In this case, the temporary function 1 will be removed from reserved slot 0.
-           And temporary function 2 will be set to reserved slot 0 of this object.
-           If gc is triggered before the 'JSScheduleWrapper::scheduleFunc' is invoked,
-           crash will happen. You could simply reproduce it by adding '__jsc__.garbageCollect();' after scheduleOnce.
-
-           [Solution] Because one schedule corresponds to one JSScheduleWrapper, we root
-           the js callback function in JSScheduleWrapper::setJSCallbackFunc and unroot it
-           at the destructor of JSScheduleWrapper.
-        */
-        //jsb_set_reserved_slot(proxy->obj, 0, args.get(0));
 
         args.rval().setUndefined();
         return true;
@@ -1477,8 +1460,8 @@ bool js_CCNode_schedule(JSContext *cx, uint32_t argc, JS::Value *vp)
             tmpCobj->setJSCallbackThis(thisValue);
             tmpCobj->setJSCallbackFunc(args.get(0));
             tmpCobj->setTarget(node);
-            JSScheduleWrapper::setTargetForSchedule(args.get(0), tmpCobj);
-            JSScheduleWrapper::setTargetForJSObject(obj, tmpCobj);
+            JSScheduleWrapper::setTargetForSchedule(cx, args.get(0), tmpCobj);
+            JSScheduleWrapper::setTargetForJSObject(cx, obj, tmpCobj);
         }
 
         if(argc == 1) {
@@ -1490,9 +1473,6 @@ bool js_CCNode_schedule(JSContext *cx, uint32_t argc, JS::Value *vp)
         }else if (argc == 4) {
             sched->schedule(schedule_selector(JSScheduleWrapper::scheduleFunc), tmpCobj, interval, (unsigned int)repeat, delay, !node->isRunning());
         }
-
-        // I comment next line with the same reason in the js_CCNode_scheduleOnce.
-        //jsb_set_reserved_slot(proxy->obj, 0, args.get(0));
 
         args.rval().setUndefined();
         return true;
@@ -1554,8 +1534,8 @@ bool js_cocos2dx_CCNode_scheduleUpdateWithPriority(JSContext *cx, uint32_t argc,
             tmpCobj->setJSCallbackFunc(jsUpdateFunc);
             tmpCobj->setTarget(cobj);
             tmpCobj->setUpdateSchedule(true);
-            JSScheduleWrapper::setTargetForSchedule(jsUpdateFunc, tmpCobj);
-            JSScheduleWrapper::setTargetForJSObject(obj, tmpCobj);
+            JSScheduleWrapper::setTargetForSchedule(cx, jsUpdateFunc, tmpCobj);
+            JSScheduleWrapper::setTargetForJSObject(cx, obj, tmpCobj);
         }
 
         tmpCobj->setPriority(arg0);
@@ -1656,8 +1636,8 @@ bool js_cocos2dx_CCNode_scheduleUpdate(JSContext *cx, uint32_t argc, JS::Value *
             tmpCobj->setJSCallbackFunc(jsUpdateFunc);
             tmpCobj->setTarget(cobj);
             tmpCobj->setUpdateSchedule(true);
-            JSScheduleWrapper::setTargetForSchedule(jsUpdateFunc, tmpCobj);
-            JSScheduleWrapper::setTargetForJSObject(obj, tmpCobj);
+            JSScheduleWrapper::setTargetForSchedule(cx, jsUpdateFunc, tmpCobj);
+            JSScheduleWrapper::setTargetForJSObject(cx, obj, tmpCobj);
         }
 
         cobj->getScheduler()->scheduleUpdate(tmpCobj, 0, !cobj->isRunning());
@@ -1776,8 +1756,8 @@ bool js_CCScheduler_scheduleUpdateForTarget(JSContext *cx, uint32_t argc, JS::Va
                 tmpCObj->setPureJSTarget(tmpObj);
             }
 
-            JSScheduleWrapper::setTargetForSchedule(jsUpdateFunc, tmpCObj);
-            JSScheduleWrapper::setTargetForJSObject(tmpObj, tmpCObj);
+            JSScheduleWrapper::setTargetForSchedule(cx, jsUpdateFunc, tmpCObj);
+            JSScheduleWrapper::setTargetForJSObject(cx, tmpObj, tmpCObj);
         }
         tmpCObj->setPriority(arg1);
         sched->scheduleUpdate(tmpCObj, arg1, paused);
@@ -1896,8 +1876,8 @@ bool js_CCScheduler_scheduleCallbackForTarget(JSContext *cx, uint32_t argc, JS::
                 tmpCObj->setPureJSTarget(tmpObj);
             }
 
-            JSScheduleWrapper::setTargetForSchedule(args.get(1), tmpCObj);
-            JSScheduleWrapper::setTargetForJSObject(tmpObj, tmpCObj);
+            JSScheduleWrapper::setTargetForSchedule(cx, args.get(1), tmpCObj);
+            JSScheduleWrapper::setTargetForJSObject(cx, tmpObj, tmpCObj);
         }
 
         sched->schedule(schedule_selector(JSScheduleWrapper::scheduleFunc), tmpCObj, interval, repeat, delay, paused);
@@ -3029,10 +3009,10 @@ bool js_BezierActions_create(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
         delete [] arr;
 
-        JSObject* jsobj;
         js_type_class_t *typeProxy = js_get_type_from_native<T>(ret);
-        jsobj = jsb_ref_create_jsobject(cx, ret, typeProxy, typeid(*ret).name());
-        args.rval().set(JS::ObjectOrNullValue(jsobj));
+        JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, ret, typeProxy, typeid(*ret).name()));
+        JS::RootedValue jsval(cx, JS::ObjectOrNullValue(jsobj));
+        args.rval().set(jsval);
         return true;
     }
     JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
@@ -3097,10 +3077,10 @@ bool js_CardinalSplineActions_create(JSContext *cx, uint32_t argc, JS::Value *vp
 
         delete [] arr;
 
-        JSObject* jsobj;
         js_type_class_t *typeProxy = js_get_type_from_native<T>(ret);
-        jsobj = jsb_ref_create_jsobject(cx, ret, typeProxy, typeid(*ret).name());
-        args.rval().set(JS::ObjectOrNullValue(jsobj));
+        JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, ret, typeProxy, typeid(*ret).name()));
+        JS::RootedValue jsval(cx, JS::ObjectOrNullValue(jsobj));
+        args.rval().set(jsval);
         return true;
     }
     JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
@@ -3131,10 +3111,10 @@ bool js_CatmullRomActions_create(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
         delete [] arr;
 
-        JSObject* jsobj;
         js_type_class_t *typeProxy = js_get_type_from_native<T>(ret);
-        jsobj = jsb_ref_create_jsobject(cx, ret, typeProxy, typeid(*ret).name());
-        args.rval().set(JS::ObjectOrNullValue(jsobj));
+        JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, ret, typeProxy, typeid(*ret).name()));
+        JS::RootedValue jsval(cx, JS::ObjectOrNullValue(jsobj));
+        args.rval().set(jsval);
         return true;
     }
     JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);

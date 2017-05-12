@@ -196,10 +196,10 @@ public:
      * Then the function will be invoked with the native object's js proxy as caller.
      * @param nativeObj @~english The caller object's C++ proxy.
      * @param name      @~english The function name.
-     * @param obj       @~english The JavaScript object as parameter.
+     * @param obj       @~english The JavaScript object value as parameter.
      * @return @~english Return the js function's boolean result if successfully invoked, otherwise return false.
      */
-    bool executeFunctionWithObjectData(void* nativeObj, const char *name, JSObject *obj);
+    bool executeFunctionWithObjectData(void* nativeObj, const char *name, JS::HandleValue data);
 
     /**
      * @brief @~english Execute a js function with a JavaScript caller, function name, arguments array.
@@ -379,7 +379,7 @@ public:
      * @return @~english Return 1 if succeed, otherwise return 0.
      */
     int executeCustomTouchEvent(cocos2d::EventTouch::EventCode eventType,
-                                cocos2d::Touch *pTouch, JSObject *obj, JS::MutableHandleValue retval);
+                                cocos2d::Touch *pTouch, JS::HandleObject obj, JS::MutableHandleValue retval);
     /**@~english
      * Simulate a touch event and dispatch it to a js object.
      * @param eventType @~english The touch event type
@@ -388,7 +388,7 @@ public:
      * @return @~english Return 1 if succeed, otherwise return 0.
      */
     int executeCustomTouchEvent(cocos2d::EventTouch::EventCode eventType,
-                                cocos2d::Touch *pTouch, JSObject *obj);
+                                cocos2d::Touch *pTouch, JS::HandleObject obj);
     /**@~english
      * Simulate a multi touch event and dispatch it to a js object.
      * @param eventType @~english The touch event type
@@ -397,7 +397,7 @@ public:
      * @return @~english Return 1 if succeed, otherwise return 0.
      */
     int executeCustomTouchesEvent(cocos2d::EventTouch::EventCode eventType,
-                                  const std::vector<cocos2d::Touch*>& touches, JSObject *obj);
+                                  const std::vector<cocos2d::Touch*>& touches, JS::HandleObject obj);
     /**@~english
      * Gets the current global context.
      * @return @~english the global context
@@ -422,15 +422,6 @@ public:
      * @return @~english Return true if succeed, otherwise return false.
      */
     static bool log(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-    /**@~english
-     * Sets a js value to the targeted js object's reserved slot, which is not exposed to script environment.
-     * @param i @~english The slot index
-     * @param obj @~english The targeted object
-     * @param value @~english The js value to set to the slot
-     * @return @~english Return true if succeed, otherwise return false.
-     */
-    bool setReservedSpot(uint32_t i, JSObject *obj, JS::HandleValue value);
 
     /**@~english
      * Runs a script from script environment, it should be invoked from script environment
@@ -532,7 +523,6 @@ public:
 
 private:
     void string_report(JS::HandleValue val);
-    void initRegister();
 
 public:
     int handleNodeEvent(void* data);

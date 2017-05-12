@@ -508,7 +508,7 @@ bool JSB_glGetUniformfv(JSContext *cx, uint32_t argc, JS::Value *vp)
             JSB_PRECONDITION2(false, cx, false, "JSB_glGetUniformfv: Uniform Type not supported");
     }
 
-    JSObject *typedArray = NULL;
+    JS::RootedObject typedArray(cx);
     bool flag;
     if( utype == GL_FLOAT) {
         // FIXME: glew on windows will cause array overflow after invoking glGetUniformfv.

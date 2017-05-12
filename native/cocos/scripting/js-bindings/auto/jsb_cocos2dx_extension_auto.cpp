@@ -35,7 +35,7 @@ bool js_cocos2dx_extension_EventAssetsManagerEx_getAssetsManagerEx(JSContext *cx
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::AssetsManagerEx>(cx, (cocos2d::extension::AssetsManagerEx*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -666,7 +666,7 @@ bool js_cocos2dx_extension_AssetsManagerEx_getLocalManifest(JSContext *cx, uint3
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::Manifest>(cx, (cocos2d::extension::Manifest*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -688,7 +688,7 @@ bool js_cocos2dx_extension_AssetsManagerEx_getRemoteManifest(JSContext *cx, uint
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::Manifest>(cx, (cocos2d::extension::Manifest*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1591,7 +1591,7 @@ bool js_cocos2dx_extension_ControlButton_getBackgroundSpriteForState(JSContext *
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1719,7 +1719,7 @@ bool js_cocos2dx_extension_ControlButton_getBackgroundSprite(JSContext *cx, uint
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1905,7 +1905,7 @@ bool js_cocos2dx_extension_ControlButton_getTitleLabel(JSContext *cx, uint32_t a
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1967,7 +1967,7 @@ bool js_cocos2dx_extension_ControlButton_getTitleLabelForState(JSContext *cx, ui
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -2011,7 +2011,7 @@ bool js_cocos2dx_extension_ControlButton_getCurrentTitle(JSContext *cx, uint32_t
     do {
         if (argc == 0) {
             std::string ret = cobj->getCurrentTitle();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = std_string_to_jsval(cx, ret);
             args.rval().set(jsret);
             return true;
@@ -2021,7 +2021,7 @@ bool js_cocos2dx_extension_ControlButton_getCurrentTitle(JSContext *cx, uint32_t
     do {
         if (argc == 0) {
             const std::string& ret = cobj->getCurrentTitle();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = std_string_to_jsval(cx, ret);
             args.rval().set(jsret);
             return true;
@@ -2132,11 +2132,11 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, JS
             } while (0);
             if (!ok) { ok = true; break; }
             cocos2d::extension::ControlButton* ret = cocos2d::extension::ControlButton::create(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -2146,11 +2146,11 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, JS
     do {
         if (argc == 0) {
             cocos2d::extension::ControlButton* ret = cocos2d::extension::ControlButton::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -2183,11 +2183,11 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, JS
             } while (0);
             if (!ok) { ok = true; break; }
             cocos2d::extension::ControlButton* ret = cocos2d::extension::ControlButton::create(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -2207,11 +2207,11 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, JS
             arg2 = (float)(args.get(2).toNumber());
             if (!ok) { ok = true; break; }
             cocos2d::extension::ControlButton* ret = cocos2d::extension::ControlButton::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -2247,11 +2247,11 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, JS
             arg2 = args.get(2).toBoolean();
             if (!ok) { ok = true; break; }
             cocos2d::extension::ControlButton* ret = cocos2d::extension::ControlButton::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -2492,7 +2492,7 @@ bool js_cocos2dx_extension_ControlHuePicker_getSlider(JSContext *cx, uint32_t ar
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -2562,7 +2562,7 @@ bool js_cocos2dx_extension_ControlHuePicker_getBackground(JSContext *cx, uint32_
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -2742,7 +2742,7 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getShadow(JSContext
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -2814,7 +2814,7 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getOverlay(JSContex
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -2836,7 +2836,7 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getSlider(JSContext
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -2858,7 +2858,7 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getBackground(JSCon
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3056,7 +3056,7 @@ bool js_cocos2dx_extension_ControlColourPicker_getHuePicker(JSContext *cx, uint3
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlHuePicker>(cx, (cocos2d::extension::ControlHuePicker*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3078,7 +3078,7 @@ bool js_cocos2dx_extension_ControlColourPicker_getcolourPicker(JSContext *cx, ui
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlSaturationBrightnessPicker>(cx, (cocos2d::extension::ControlSaturationBrightnessPicker*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3214,7 +3214,7 @@ bool js_cocos2dx_extension_ControlColourPicker_getBackground(JSContext *cx, uint
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3392,7 +3392,7 @@ bool js_cocos2dx_extension_ControlPotentiometer_getProgressTimer(JSContext *cx, 
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ProgressTimer>(cx, (cocos2d::ProgressTimer*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3674,7 +3674,7 @@ bool js_cocos2dx_extension_ControlPotentiometer_getThumbSprite(JSContext *cx, ui
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3991,7 +3991,7 @@ bool js_cocos2dx_extension_ControlSlider_initWithSprites(JSContext *cx, uint32_t
             } while (0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSprites(arg0, arg1, arg2, arg3);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -4035,7 +4035,7 @@ bool js_cocos2dx_extension_ControlSlider_initWithSprites(JSContext *cx, uint32_t
             } while (0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSprites(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -4094,7 +4094,7 @@ bool js_cocos2dx_extension_ControlSlider_getSelectedThumbSprite(JSContext *cx, u
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4228,7 +4228,7 @@ bool js_cocos2dx_extension_ControlSlider_getBackgroundSprite(JSContext *cx, uint
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4250,7 +4250,7 @@ bool js_cocos2dx_extension_ControlSlider_getThumbSprite(JSContext *cx, uint32_t 
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4362,7 +4362,7 @@ bool js_cocos2dx_extension_ControlSlider_getProgressSprite(JSContext *cx, uint32
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4460,11 +4460,11 @@ bool js_cocos2dx_extension_ControlSlider_create(JSContext *cx, uint32_t argc, JS
             } while (0);
             if (!ok) { ok = true; break; }
             cocos2d::extension::ControlSlider* ret = cocos2d::extension::ControlSlider::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlSlider>(cx, (cocos2d::extension::ControlSlider*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -4484,11 +4484,11 @@ bool js_cocos2dx_extension_ControlSlider_create(JSContext *cx, uint32_t argc, JS
             std::string arg2_tmp; ok &= jsval_to_std_string(cx, args.get(2), &arg2_tmp); arg2 = arg2_tmp.c_str();
             if (!ok) { ok = true; break; }
             cocos2d::extension::ControlSlider* ret = cocos2d::extension::ControlSlider::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlSlider>(cx, (cocos2d::extension::ControlSlider*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -4511,11 +4511,11 @@ bool js_cocos2dx_extension_ControlSlider_create(JSContext *cx, uint32_t argc, JS
             std::string arg3_tmp; ok &= jsval_to_std_string(cx, args.get(3), &arg3_tmp); arg3 = arg3_tmp.c_str();
             if (!ok) { ok = true; break; }
             cocos2d::extension::ControlSlider* ret = cocos2d::extension::ControlSlider::create(arg0, arg1, arg2, arg3);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlSlider>(cx, (cocos2d::extension::ControlSlider*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -4570,11 +4570,11 @@ bool js_cocos2dx_extension_ControlSlider_create(JSContext *cx, uint32_t argc, JS
             } while (0);
             if (!ok) { ok = true; break; }
             cocos2d::extension::ControlSlider* ret = cocos2d::extension::ControlSlider::create(arg0, arg1, arg2, arg3);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlSlider>(cx, (cocos2d::extension::ControlSlider*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -4709,7 +4709,7 @@ bool js_cocos2dx_extension_ControlStepper_getMinusSprite(JSContext *cx, uint32_t
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4853,7 +4853,7 @@ bool js_cocos2dx_extension_ControlStepper_getMinusLabel(JSContext *cx, uint32_t 
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Label>(cx, (cocos2d::Label*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4875,7 +4875,7 @@ bool js_cocos2dx_extension_ControlStepper_getPlusLabel(JSContext *cx, uint32_t a
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Label>(cx, (cocos2d::Label*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -5081,7 +5081,7 @@ bool js_cocos2dx_extension_ControlStepper_getPlusSprite(JSContext *cx, uint32_t 
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -5461,7 +5461,7 @@ bool js_cocos2dx_extension_ControlSwitch_initWithMaskSprite(JSContext *cx, uint3
             } while (0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithMaskSprite(arg0, arg1, arg2, arg3, arg4, arg5);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -5516,7 +5516,7 @@ bool js_cocos2dx_extension_ControlSwitch_initWithMaskSprite(JSContext *cx, uint3
             } while (0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithMaskSprite(arg0, arg1, arg2, arg3);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -5596,11 +5596,11 @@ bool js_cocos2dx_extension_ControlSwitch_create(JSContext *cx, uint32_t argc, JS
             } while (0);
             if (!ok) { ok = true; break; }
             cocos2d::extension::ControlSwitch* ret = cocos2d::extension::ControlSwitch::create(arg0, arg1, arg2, arg3);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlSwitch>(cx, (cocos2d::extension::ControlSwitch*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -5677,11 +5677,11 @@ bool js_cocos2dx_extension_ControlSwitch_create(JSContext *cx, uint32_t argc, JS
             } while (0);
             if (!ok) { ok = true; break; }
             cocos2d::extension::ControlSwitch* ret = cocos2d::extension::ControlSwitch::create(arg0, arg1, arg2, arg3, arg4, arg5);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlSwitch>(cx, (cocos2d::extension::ControlSwitch*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -5969,7 +5969,7 @@ bool js_cocos2dx_extension_ScrollView_getContainer(JSContext *cx, uint32_t argc,
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -6486,11 +6486,11 @@ bool js_cocos2dx_extension_ScrollView_create(JSContext *cx, uint32_t argc, JS::V
     do {
         if (argc == 0) {
             cocos2d::extension::ScrollView* ret = cocos2d::extension::ScrollView::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ScrollView>(cx, (cocos2d::extension::ScrollView*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -6515,11 +6515,11 @@ bool js_cocos2dx_extension_ScrollView_create(JSContext *cx, uint32_t argc, JS::V
             } while (0);
             if (!ok) { ok = true; break; }
             cocos2d::extension::ScrollView* ret = cocos2d::extension::ScrollView::create(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ScrollView>(cx, (cocos2d::extension::ScrollView*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -7053,7 +7053,7 @@ bool js_cocos2dx_extension_TableView_cellAtIndex(JSContext *cx, uint32_t argc, J
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::TableViewCell>(cx, (cocos2d::extension::TableViewCell*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -7075,7 +7075,7 @@ bool js_cocos2dx_extension_TableView_dequeueCell(JSContext *cx, uint32_t argc, J
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::TableViewCell>(cx, (cocos2d::extension::TableViewCell*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;

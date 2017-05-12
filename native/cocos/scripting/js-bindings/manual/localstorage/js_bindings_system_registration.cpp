@@ -42,9 +42,8 @@ void jsb_register_system( JSContext *_cx,  JS::HandleObject object)
 
 
     // sys.localStorage
-    JSObject *ls = JS_NewPlainObject(_cx);
-    JS::RootedValue lsVal(_cx);
-    lsVal.set(JS::ObjectOrNullValue(ls));
+    JS::RootedObject ls(_cx, JS_NewPlainObject(_cx));
+    JS::RootedValue lsVal(_cx, JS::ObjectOrNullValue(ls));
     JS_SetProperty(_cx, sys, "localStorage", lsVal);
 
     // sys.localStorage functions

@@ -57,7 +57,7 @@ bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, JS::Valu
             } while (0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->setTexture(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -71,7 +71,7 @@ bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, JS::Valu
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->setTexture(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -356,7 +356,7 @@ bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, JS::
             } while (0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->setSpriteFrame(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -370,7 +370,7 @@ bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, JS::
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->setSpriteFrame(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -415,7 +415,7 @@ bool js_creator_Scale9SpriteV2_initWithTexture(JSContext *cx, uint32_t argc, JS:
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithTexture(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -437,7 +437,7 @@ bool js_creator_Scale9SpriteV2_initWithTexture(JSContext *cx, uint32_t argc, JS:
             } while (0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithTexture(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -672,7 +672,7 @@ bool js_creator_Scale9SpriteV2_initWithSpriteFrame(JSContext *cx, uint32_t argc,
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSpriteFrame(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -694,7 +694,7 @@ bool js_creator_Scale9SpriteV2_initWithSpriteFrame(JSContext *cx, uint32_t argc,
             } while (0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSpriteFrame(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -1734,7 +1734,7 @@ bool js_creator_PhysicsDebugDraw_getDrawer(JSContext *cx, uint32_t argc, JS::Val
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<creator::GraphicsNode>(cx, (creator::GraphicsNode*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -2166,11 +2166,11 @@ bool js_creator_PhysicsUtils_getContactManifoldWrapper(JSContext *cx, uint32_t a
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsUtils_getContactManifoldWrapper : Error processing arguments");
 
         const creator::PhysicsManifoldWrapper* ret = creator::PhysicsUtils::getContactManifoldWrapper(arg0);
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         if (ret) {
         jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<creator::PhysicsManifoldWrapper>(cx, (creator::PhysicsManifoldWrapper*)ret));
     } else {
-        jsret = JS::NullValue();
+        jsret = JS::NullHandleValue;
     };
         args.rval().set(jsret);
         return true;
@@ -2197,11 +2197,11 @@ bool js_creator_PhysicsUtils_getContactWorldManifoldWrapper(JSContext *cx, uint3
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsUtils_getContactWorldManifoldWrapper : Error processing arguments");
 
         const creator::PhysicsWorldManifoldWrapper* ret = creator::PhysicsUtils::getContactWorldManifoldWrapper(arg0);
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         if (ret) {
         jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<creator::PhysicsWorldManifoldWrapper>(cx, (creator::PhysicsWorldManifoldWrapper*)ret));
     } else {
-        jsret = JS::NullValue();
+        jsret = JS::NullHandleValue;
     };
         args.rval().set(jsret);
         return true;
@@ -2636,7 +2636,7 @@ bool js_creator_PhysicsAABBQueryCallback_getFixture(JSContext *cx, uint32_t argc
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;

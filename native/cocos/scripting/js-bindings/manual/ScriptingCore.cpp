@@ -115,24 +115,6 @@ static void ReportException(JSContext *cx)
     }
 }
 
-static void executeJSFunctionFromReservedSpot(JSContext *cx, JS::HandleObject obj,
-                                              const JS::HandleValueArray& dataVal, JS::MutableHandleValue retval) {
-
-    JS::RootedValue func(cx, JS_GetReservedSlot(obj, 0));
-
-    if (func.isNullOrUndefined()) { return; }
-    JS::RootedValue thisObj(cx, JS_GetReservedSlot(obj, 1));
-    JSAutoCompartment ac(cx, obj);
-
-    if (thisObj.isNullOrUndefined()) {
-        JS_CallFunctionValue(cx, obj, func, dataVal, retval);
-    } else {
-        assert(!thisObj.isPrimitive());
-        JS::RootedObject jsthis(cx, thisObj.toObjectOrNull());
-        JS_CallFunctionValue(cx, jsthis, func, dataVal, retval);
-    }
-}
-
 static std::string getTouchesFuncName(EventTouch::EventCode eventCode)
 {
     std::string funcName;
@@ -375,11 +357,11 @@ bool JSB_closeWindow(JSContext *cx, uint32_t argc, JS::Value *vp)
     return true;
 };
 
-void registerDefaultClasses(JSContext* cx, JS::HandleObject global) {
-    // first, try to get the ns
-    JS::RootedValue nsval(cx);
+void registerDefaultClasses(JSContext* cx, JS::HandleObject global)
+{
     JS::RootedObject ns(cx);
-    JS_GetProperty(cx, global, "cc", &nsval);
+    get_or_create_js_obj(cx, global, "cc", &ns);
+    JS::RootedValue nsval(cx, JS::ObjectOrNullValue(ns));
     // Not exist, create it
     if (!nsval.isObject())
     {
@@ -391,6 +373,20 @@ void registerDefaultClasses(JSContext* cx, JS::HandleObject global) {
     {
         ns.set(nsval.toObjectOrNull());
     }
+    
+    // register some global functions
+    JS_DefineFunction(cx, global, "require", ScriptingCore::executeScript, 1, JSPROP_PERMANENT);
+    JS_DefineFunction(cx, global, "log", ScriptingCore::log, 0, JSPROP_PERMANENT);
+    JS_DefineFunction(cx, global, "executeScript", ScriptingCore::executeScript, 1, JSPROP_READONLY | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, global, "forceGC", ScriptingCore::forceGC, 0, JSPROP_READONLY | JSPROP_PERMANENT);
+    
+    JS_DefineFunction(cx, global, "__getPlatform", JSBCore_platform, 0, JSPROP_READONLY | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, global, "__getOS", JSBCore_os, 0, JSPROP_READONLY | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, global, "__getVersion", JSBCore_version, 0, JSPROP_READONLY | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, global, "__restartVM", JSB_core_restartVM, 0, JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_ENUMERATE );
+    JS_DefineFunction(cx, global, "__cleanScript", JSB_cleanScript, 1, JSPROP_READONLY | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, global, "__isObjectValid", ScriptingCore::isObjectValid, 1, JSPROP_READONLY | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, global, "close", JSB_closeWindow, 0, JSPROP_READONLY | JSPROP_PERMANENT);
 
     //
     // Javascript controller (__jsc__)
@@ -411,14 +407,6 @@ void registerDefaultClasses(JSContext* cx, JS::HandleObject global) {
     JS_DefineFunction(cx, jsc, "garbageCollect", ScriptingCore::forceGC, 0, JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_ENUMERATE );
     JS_DefineFunction(cx, jsc, "dumpRoot", ScriptingCore::dumpRoot, 0, JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_ENUMERATE );
     JS_DefineFunction(cx, jsc, "executeScript", ScriptingCore::executeScript, 1, JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_ENUMERATE );
-
-    JS_DefineFunction(cx, global, "__getPlatform", JSBCore_platform, 0, JSPROP_READONLY | JSPROP_PERMANENT);
-    JS_DefineFunction(cx, global, "__getOS", JSBCore_os, 0, JSPROP_READONLY | JSPROP_PERMANENT);
-    JS_DefineFunction(cx, global, "__getVersion", JSBCore_version, 0, JSPROP_READONLY | JSPROP_PERMANENT);
-    JS_DefineFunction(cx, global, "__restartVM", JSB_core_restartVM, 0, JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_ENUMERATE );
-    JS_DefineFunction(cx, global, "__cleanScript", JSB_cleanScript, 1, JSPROP_READONLY | JSPROP_PERMANENT);
-    JS_DefineFunction(cx, global, "__isObjectValid", ScriptingCore::isObjectValid, 1, JSPROP_READONLY | JSPROP_PERMANENT);
-    JS_DefineFunction(cx, global, "close", JSB_closeWindow, 0, JSPROP_READONLY | JSPROP_PERMANENT);
 }
 
 static void sc_finalize(JSFreeOp *freeOp, JSObject *obj) {
@@ -463,12 +451,6 @@ ScriptingCore::ScriptingCore()
     // set utf8 strings internally (we don't need utf16)
     // XXX: Removed in SpiderMonkey 19.0
     //JS_SetCStringsAreUTF8();
-    initRegister();
-}
-
-void ScriptingCore::initRegister()
-{
-    this->addRegisterCallback(registerDefaultClasses);
     this->_runLoop = new (std::nothrow) SimpleRunLoop();
 }
 
@@ -617,11 +599,8 @@ void ScriptingCore::createGlobalContext() {
     JS_InitStandardClasses(_cx, global);
     JS_FireOnNewGlobalObject(_cx, global);
     
-    // register some global functions
-    JS_DefineFunction(_cx, global, "require", ScriptingCore::executeScript, 1, JSPROP_PERMANENT);
-    JS_DefineFunction(_cx, global, "log", ScriptingCore::log, 0, JSPROP_PERMANENT);
-    JS_DefineFunction(_cx, global, "executeScript", ScriptingCore::executeScript, 1, JSPROP_READONLY | JSPROP_PERMANENT);
-    JS_DefineFunction(_cx, global, "forceGC", ScriptingCore::forceGC, 0, JSPROP_READONLY | JSPROP_PERMANENT);
+    // Register ScriptingCore system bindings
+    registerDefaultClasses(_cx, global);
 
     runScript("script/jsb_prepare.js");
 
@@ -831,7 +810,7 @@ void ScriptingCore::reset()
 void ScriptingCore::restartVM()
 {
     cleanup();
-    initRegister();
+    this->_runLoop = new (std::nothrow) SimpleRunLoop();
     Application::getInstance()->applicationDidFinishLaunching();
 }
 
@@ -848,7 +827,9 @@ void ScriptingCore::cleanup()
     }
     localStorageFree();
     removeAllRoots(_cx);
-    garbageCollect();
+    // force gc
+    JS_GC(_cx);
+    JS_GC(_cx);
     
     PoolManager::getInstance()->getCurrentPool()->clear();
 
@@ -1108,11 +1089,6 @@ void ScriptingCore::removeScriptObjectByObject(Ref* pObj)
 //        JS::RemoveObjectRoot(cx, &proxy->obj);
         jsb_remove_proxy(proxy);
     }
-}
-
-bool ScriptingCore::setReservedSpot(uint32_t i, JSObject *obj, JS::HandleValue value) {
-    JS_SetReservedSlot(obj, i, value);
-    return true;
 }
 
 bool ScriptingCore::executeScript(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1486,13 +1462,13 @@ bool ScriptingCore::handleMouseEvent(void* nativeObj, cocos2d::EventMouse::Mouse
     return ret;
 }
 
-bool ScriptingCore::executeFunctionWithObjectData(void* nativeObj, const char *name, JSObject *obj)
+bool ScriptingCore::executeFunctionWithObjectData(void* nativeObj, const char *name, JS::HandleValue data)
 {
     js_proxy_t * p = jsb_get_native_proxy(nativeObj);
     if (!p) return false;
 
     JS::RootedValue retval(_cx);
-    JS::RootedValue dataVal(_cx, JS::ObjectOrNullValue(obj));
+    JS::RootedValue dataVal(_cx, data);
     JS::HandleValueArray args(dataVal);
     JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
 
@@ -1600,7 +1576,7 @@ bool ScriptingCore::handleFocusEvent(void* nativeObj, cocos2d::ui::Widget* widge
 
 
 int ScriptingCore::executeCustomTouchesEvent(EventTouch::EventCode eventType,
-                                       const std::vector<Touch*>& touches, JSObject *obj)
+                                       const std::vector<Touch*>& touches, JS::HandleObject obj)
 {
     JSAutoCompartment ac(_cx, _global.get());
 
@@ -1628,7 +1604,7 @@ int ScriptingCore::executeCustomTouchesEvent(EventTouch::EventCode eventType,
 }
 
 
-int ScriptingCore::executeCustomTouchEvent(EventTouch::EventCode eventType, Touch *touch, JSObject *obj)
+int ScriptingCore::executeCustomTouchEvent(EventTouch::EventCode eventType, Touch *touch, JS::HandleObject obj)
 {
     JSAutoCompartment ac(_cx, _global.get());
 
@@ -1644,7 +1620,7 @@ int ScriptingCore::executeCustomTouchEvent(EventTouch::EventCode eventType, Touc
 }
 
 int ScriptingCore::executeCustomTouchEvent(EventTouch::EventCode eventType,
-                                           Touch *touch, JSObject *obj,
+                                           Touch *touch, JS::HandleObject obj,
                                            JS::MutableHandleValue retval)
 {
     JSAutoCompartment ac(_cx, _global.get());
@@ -1789,8 +1765,8 @@ void ScriptingCore::removeObjectProxy(Ref* obj)
 void ScriptingCore::garbageCollect()
 {
 #if CC_TARGET_PLATFORM != CC_PLATFORM_WIN32
-    JS_GC(_cx);
-    JS_GC(_cx);
+    JS_MaybeGC(_cx);
+    JS_MaybeGC(_cx);
 #endif
 }
 
@@ -2090,6 +2066,45 @@ void ScriptingCore::enableDebugger(unsigned int port)
 //    }
 }
 
+void make_class_extend(JSContext *cx, JS::HandleObject proto)
+{
+    JS::RootedValue classVal(cx);
+    if (JS_GetProperty(cx, proto, "constructor", &classVal) && !classVal.isNullOrUndefined())
+    {
+        JS::RootedObject extendObj(cx);
+        get_or_create_js_obj("cc.Class.extend", &extendObj);
+        JS::RootedValue extendVal(cx, JS::ObjectOrNullValue(extendObj));
+        if (!extendVal.isNullOrUndefined()) {
+            JS::RootedObject classObj(cx, classVal.toObjectOrNull());
+            JS_SetProperty(cx, classObj, "extend", extendVal);
+        }
+    }
+}
+
+void obj_post_barrier(JSTracer* tracer, JSObject* origin_ptr, void* data)
+{
+    JS::Heap<JSObject*> heap_obj(origin_ptr);
+//    JS_CallHeapObjectTracer(tracer, &heap_obj, "jsobj");
+    JSObject* new_ptr = heap_obj.get();
+    // GC moved our js object on the heap
+    if (origin_ptr != new_ptr)
+    {
+        auto it_js = _js_native_global_map.find(origin_ptr);
+        auto proxy = it_js->second;
+        if (it_js != _js_native_global_map.end())
+        {
+            _js_native_global_map.erase(it_js);
+        }
+        
+        proxy->obj = new_ptr;
+        _js_native_global_map[new_ptr] = proxy;
+        
+#if COCOS2D_DEBUG > 1
+        CCLOG("======OBJMOVED====== %p => %p", origin_ptr, new_ptr);
+#endif // COCOS2D_DEBUG
+    }
+}
+
 js_proxy_t* jsb_new_proxy(void* nativeObj, JS::HandleObject jsHandle)
 {
     js_proxy_t* proxy = nullptr;
@@ -2104,7 +2119,7 @@ js_proxy_t* jsb_new_proxy(void* nativeObj, JS::HandleObject jsHandle)
 #if 0
         if (_js_native_global_map.find(jsObj) != _js_native_global_map.end())
         {
-            CCLOG("BUG: old:%s new:%s", JS_GetClass(_js_native_global_map.at(jsObj)->_jsobj)->name, JS_GetClass(jsObj)->name);
+            CCLOG("BUG: old:%s new:%s", JS_GetClass(_js_native_global_map.at(jsObj)->obj)->name, JS_GetClass(jsObj)->name);
         }
 #endif
 

@@ -373,7 +373,7 @@ bool js_box2dclasses_b2Shape_Clone(JSContext *cx, uint32_t argc, JS::Value *vp)
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Shape>(cx, (b2Shape*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -624,7 +624,7 @@ bool js_box2dclasses_b2CircleShape_Clone(JSContext *cx, uint32_t argc, JS::Value
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Shape>(cx, (b2Shape*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -968,7 +968,7 @@ bool js_box2dclasses_b2EdgeShape_Clone(JSContext *cx, uint32_t argc, JS::Value *
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Shape>(cx, (b2Shape*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1411,7 +1411,7 @@ bool js_box2dclasses_b2ChainShape_Clone(JSContext *cx, uint32_t argc, JS::Value 
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Shape>(cx, (b2Shape*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1593,7 +1593,7 @@ bool js_box2dclasses_b2PolygonShape_Clone(JSContext *cx, uint32_t argc, JS::Valu
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Shape>(cx, (b2Shape*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1967,11 +1967,11 @@ bool js_box2dclasses_b2Body_GetFixtureList(JSContext *cx, uint32_t argc, JS::Val
     do {
         if (argc == 0) {
             const b2Fixture* ret = cobj->GetFixtureList();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -1981,11 +1981,11 @@ bool js_box2dclasses_b2Body_GetFixtureList(JSContext *cx, uint32_t argc, JS::Val
     do {
         if (argc == 0) {
             b2Fixture* ret = cobj->GetFixtureList();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -2074,7 +2074,7 @@ bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, JS::Value
     do {
         if (argc == 0) {
             const b2JointEdge* ret = cobj->GetJointList();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             #pragma warning NO CONVERSION FROM NATIVE FOR b2JointEdge*;
             args.rval().set(jsret);
             return true;
@@ -2084,7 +2084,7 @@ bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, JS::Value
     do {
         if (argc == 0) {
             b2JointEdge* ret = cobj->GetJointList();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             #pragma warning NO CONVERSION FROM NATIVE FOR b2JointEdge*;
             args.rval().set(jsret);
             return true;
@@ -2125,11 +2125,11 @@ bool js_box2dclasses_b2Body_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp)
     do {
         if (argc == 0) {
             const b2Body* ret = cobj->GetNext();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Body>(cx, (b2Body*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -2139,11 +2139,11 @@ bool js_box2dclasses_b2Body_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp)
     do {
         if (argc == 0) {
             b2Body* ret = cobj->GetNext();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Body>(cx, (b2Body*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -2566,7 +2566,7 @@ bool js_box2dclasses_b2Body_GetContactList(JSContext *cx, uint32_t argc, JS::Val
     do {
         if (argc == 0) {
             const b2ContactEdge* ret = cobj->GetContactList();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             #pragma warning NO CONVERSION FROM NATIVE FOR b2ContactEdge*;
             args.rval().set(jsret);
             return true;
@@ -2576,7 +2576,7 @@ bool js_box2dclasses_b2Body_GetContactList(JSContext *cx, uint32_t argc, JS::Val
     do {
         if (argc == 0) {
             b2ContactEdge* ret = cobj->GetContactList();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             #pragma warning NO CONVERSION FROM NATIVE FOR b2ContactEdge*;
             args.rval().set(jsret);
             return true;
@@ -2677,11 +2677,11 @@ bool js_box2dclasses_b2Body_GetWorld(JSContext *cx, uint32_t argc, JS::Value *vp
     do {
         if (argc == 0) {
             const b2World* ret = cobj->GetWorld();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2World>(cx, (b2World*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -2691,11 +2691,11 @@ bool js_box2dclasses_b2Body_GetWorld(JSContext *cx, uint32_t argc, JS::Value *vp
     do {
         if (argc == 0) {
             b2World* ret = cobj->GetWorld();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2World>(cx, (b2World*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -3113,11 +3113,11 @@ bool js_box2dclasses_b2Fixture_GetShape(JSContext *cx, uint32_t argc, JS::Value 
     do {
         if (argc == 0) {
             const b2Shape* ret = cobj->GetShape();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Shape>(cx, (b2Shape*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -3127,11 +3127,11 @@ bool js_box2dclasses_b2Fixture_GetShape(JSContext *cx, uint32_t argc, JS::Value 
     do {
         if (argc == 0) {
             b2Shape* ret = cobj->GetShape();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Shape>(cx, (b2Shape*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -3174,11 +3174,11 @@ bool js_box2dclasses_b2Fixture_GetBody(JSContext *cx, uint32_t argc, JS::Value *
     do {
         if (argc == 0) {
             const b2Body* ret = cobj->GetBody();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Body>(cx, (b2Body*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -3188,11 +3188,11 @@ bool js_box2dclasses_b2Fixture_GetBody(JSContext *cx, uint32_t argc, JS::Value *
     do {
         if (argc == 0) {
             b2Body* ret = cobj->GetBody();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Body>(cx, (b2Body*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -3215,11 +3215,11 @@ bool js_box2dclasses_b2Fixture_GetNext(JSContext *cx, uint32_t argc, JS::Value *
     do {
         if (argc == 0) {
             const b2Fixture* ret = cobj->GetNext();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -3229,11 +3229,11 @@ bool js_box2dclasses_b2Fixture_GetNext(JSContext *cx, uint32_t argc, JS::Value *
     do {
         if (argc == 0) {
             b2Fixture* ret = cobj->GetNext();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -4211,11 +4211,11 @@ bool js_box2dclasses_b2World_GetJointList(JSContext *cx, uint32_t argc, JS::Valu
     do {
         if (argc == 0) {
             const b2Joint* ret = cobj->GetJointList();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Joint>(cx, (b2Joint*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -4225,11 +4225,11 @@ bool js_box2dclasses_b2World_GetJointList(JSContext *cx, uint32_t argc, JS::Valu
     do {
         if (argc == 0) {
             b2Joint* ret = cobj->GetJointList();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Joint>(cx, (b2Joint*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -4252,11 +4252,11 @@ bool js_box2dclasses_b2World_GetBodyList(JSContext *cx, uint32_t argc, JS::Value
     do {
         if (argc == 0) {
             const b2Body* ret = cobj->GetBodyList();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Body>(cx, (b2Body*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -4266,11 +4266,11 @@ bool js_box2dclasses_b2World_GetBodyList(JSContext *cx, uint32_t argc, JS::Value
     do {
         if (argc == 0) {
             b2Body* ret = cobj->GetBodyList();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Body>(cx, (b2Body*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -4559,11 +4559,11 @@ bool js_box2dclasses_b2World_GetContactList(JSContext *cx, uint32_t argc, JS::Va
     do {
         if (argc == 0) {
             const b2Contact* ret = cobj->GetContactList();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -4573,11 +4573,11 @@ bool js_box2dclasses_b2World_GetContactList(JSContext *cx, uint32_t argc, JS::Va
     do {
         if (argc == 0) {
             b2Contact* ret = cobj->GetContactList();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -4878,11 +4878,11 @@ bool js_box2dclasses_b2Contact_GetNext(JSContext *cx, uint32_t argc, JS::Value *
     do {
         if (argc == 0) {
             const b2Contact* ret = cobj->GetNext();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -4892,11 +4892,11 @@ bool js_box2dclasses_b2Contact_GetNext(JSContext *cx, uint32_t argc, JS::Value *
     do {
         if (argc == 0) {
             b2Contact* ret = cobj->GetNext();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -5048,11 +5048,11 @@ bool js_box2dclasses_b2Contact_GetFixtureB(JSContext *cx, uint32_t argc, JS::Val
     do {
         if (argc == 0) {
             const b2Fixture* ret = cobj->GetFixtureB();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -5062,11 +5062,11 @@ bool js_box2dclasses_b2Contact_GetFixtureB(JSContext *cx, uint32_t argc, JS::Val
     do {
         if (argc == 0) {
             b2Fixture* ret = cobj->GetFixtureB();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -5109,11 +5109,11 @@ bool js_box2dclasses_b2Contact_GetFixtureA(JSContext *cx, uint32_t argc, JS::Val
     do {
         if (argc == 0) {
             const b2Fixture* ret = cobj->GetFixtureA();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -5123,11 +5123,11 @@ bool js_box2dclasses_b2Contact_GetFixtureA(JSContext *cx, uint32_t argc, JS::Val
     do {
         if (argc == 0) {
             b2Fixture* ret = cobj->GetFixtureA();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -5244,7 +5244,7 @@ bool js_box2dclasses_b2Contact_GetManifold(JSContext *cx, uint32_t argc, JS::Val
     do {
         if (argc == 0) {
             const b2Manifold* ret = cobj->GetManifold();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = b2Manifold_to_jsval(cx, ret);
             args.rval().set(jsret);
             return true;
@@ -5254,7 +5254,7 @@ bool js_box2dclasses_b2Contact_GetManifold(JSContext *cx, uint32_t argc, JS::Val
     do {
         if (argc == 0) {
             b2Manifold* ret = cobj->GetManifold();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = b2Manifold_to_jsval(cx, ret);
             args.rval().set(jsret);
             return true;
@@ -5386,11 +5386,11 @@ bool js_box2dclasses_b2Joint_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp
     do {
         if (argc == 0) {
             const b2Joint* ret = cobj->GetNext();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Joint>(cx, (b2Joint*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -5400,11 +5400,11 @@ bool js_box2dclasses_b2Joint_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp
     do {
         if (argc == 0) {
             b2Joint* ret = cobj->GetNext();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Joint>(cx, (b2Joint*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
             args.rval().set(jsret);
             return true;
@@ -5427,7 +5427,7 @@ bool js_box2dclasses_b2Joint_GetBodyA(JSContext *cx, uint32_t argc, JS::Value *v
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Body>(cx, (b2Body*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -5449,7 +5449,7 @@ bool js_box2dclasses_b2Joint_GetBodyB(JSContext *cx, uint32_t argc, JS::Value *v
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Body>(cx, (b2Body*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -6278,7 +6278,7 @@ bool js_box2dclasses_b2GearJoint_GetJoint1(JSContext *cx, uint32_t argc, JS::Val
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Joint>(cx, (b2Joint*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -6318,7 +6318,7 @@ bool js_box2dclasses_b2GearJoint_GetJoint2(JSContext *cx, uint32_t argc, JS::Val
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Joint>(cx, (b2Joint*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;

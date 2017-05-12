@@ -290,26 +290,30 @@ JS::HandleValue c_class_to_jsval( JSContext *cx, void* handle, JS::HandleObject 
     JS::RootedValue ret(cx);
     JS::RootedObject jsobj(cx);
 
-    jsobj = jsb_get_jsobject_for_proxy(handle);
-    if( !jsobj ) {
+    auto proxy = jsb_get_native_proxy(handle);
+    if( !proxy ) {
         jsobj = JS_NewObjectWithGivenProto(cx, klass, object);
         CCASSERT(jsobj, "Invalid object");
-        jsb_set_c_proxy_for_jsobject(jsobj, handle, JSB_C_FLAG_DO_NOT_CALL_FREE);
-        jsb_set_jsobject_for_proxy(jsobj, handle);
+        proxy = jsb_new_proxy(handle, jsobj);
+        JS_SetPrivate(jsobj, &JSB_C_FLAG_DO_NOT_CALL_FREE);
+    }
+    else
+    {
+        jsobj = proxy->obj;
     }
 
     ret = JS::ObjectOrNullValue(jsobj);
     return ret;
 }
 
-bool jsval_to_c_class( JSContext *cx, JS::HandleValue vp, void **out_native, struct jsb_c_proxy_s **out_proxy)
+bool jsval_to_c_class( JSContext *cx, JS::HandleValue vp, void **out_native, js_proxy_t **out_proxy)
 {
     JS::RootedObject jsobj(cx);
     bool ok = JS_ValueToObject( cx, vp, &jsobj );
     JSB_PRECONDITION2(ok, cx, false, "Error converting jsval to object");
 
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsobj);
-    *out_native = proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsobj);
+    *out_native = proxy->ptr;
     if( out_proxy )
         *out_proxy = proxy;
     return true;
@@ -374,7 +378,7 @@ JS::HandleValue long_long_to_jsval( JSContext *cx, long long number )
     ret = JS::StringValue(ret_obj);
 #else
     CCASSERT( sizeof(long long)==8, "Error!");
-    JSObject *typedArray = JS_NewUint32Array( cx, 2 );
+    JS::RootedObject typedArray(cx, JS_NewUint32Array(cx, 2));
     bool flag;
     uint32_t *buffer = (uint32_t*)JS_GetArrayBufferViewData(typedArray, &flag, JS::AutoCheckCannotGC());
     buffer[0] = number >> 32;
@@ -2161,7 +2165,7 @@ bool jsval_to_CCPoint( JSContext *cx, JS::HandleValue vp, Point *ret )
 
 #else // #! JSB_COMPATIBLE_WITH_COCOS2D_HTML5_BASIC_TYPES
 
-    JSObject *tmp_arg;
+    JS::RootedObject tmp_arg(cx);
     if( ! JS_ValueToObject( cx, vp, &tmp_arg ) )
         return false;
 

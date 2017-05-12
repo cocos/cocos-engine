@@ -37,7 +37,7 @@ bool js_cocos2dx_ui_LayoutParameter_clone(JSContext *cx, uint32_t argc, JS::Valu
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::LayoutParameter>(cx, (cocos2d::ui::LayoutParameter*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -616,7 +616,7 @@ bool js_cocos2dx_ui_Widget_getVirtualRenderer(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -846,7 +846,7 @@ bool js_cocos2dx_ui_Widget_getLayoutParameter(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::LayoutParameter>(cx, (cocos2d::ui::LayoutParameter*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -881,7 +881,7 @@ bool js_cocos2dx_ui_Widget_addCCSEventListener(JSContext *cx, uint32_t argc, JS:
 		            if (larg0) {
 		            largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Ref>(cx, (cocos2d::Ref*)larg0));
 		        } else {
-		            largv = JS::NullValue();
+		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
 		            largv = JS::Int32Value(larg1);
@@ -993,7 +993,7 @@ bool js_cocos2dx_ui_Widget_findNextFocusedWidget(JSContext *cx, uint32_t argc, J
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Widget>(cx, (cocos2d::ui::Widget*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1343,7 +1343,7 @@ bool js_cocos2dx_ui_Widget_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Widget>(cx, (cocos2d::ui::Widget*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -1691,7 +1691,7 @@ bool js_cocos2dx_ui_Widget_addTouchEventListener(JSContext *cx, uint32_t argc, J
 		            if (larg0) {
 		            largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Ref>(cx, (cocos2d::Ref*)larg0));
 		        } else {
-		            largv = JS::NullValue();
+		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
 		            largv = JS::Int32Value((int)larg1);
@@ -1822,7 +1822,7 @@ bool js_cocos2dx_ui_Widget_addClickEventListener(JSContext *cx, uint32_t argc, J
 		            if (larg0) {
 		            largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Ref>(cx, (cocos2d::Ref*)larg0));
 		        } else {
-		            largv = JS::NullValue();
+		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
 		            JS::RootedValue rval(cx);
@@ -2047,11 +2047,11 @@ bool js_cocos2dx_ui_Widget_getCurrentFocusedWidget(JSContext *cx, uint32_t argc,
     if (argc == 0) {
 
         cocos2d::ui::Widget* ret = cocos2d::ui::Widget::getCurrentFocusedWidget();
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         if (ret) {
         jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Widget>(cx, (cocos2d::ui::Widget*)ret));
     } else {
-        jsret = JS::NullValue();
+        jsret = JS::NullHandleValue;
     };
         args.rval().set(jsret);
         return true;
@@ -3166,7 +3166,7 @@ bool js_cocos2dx_ui_Button_getTitleRenderer(JSContext *cx, uint32_t argc, JS::Va
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Label>(cx, (cocos2d::Label*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3188,7 +3188,7 @@ bool js_cocos2dx_ui_Button_getRendererClicked(JSContext *cx, uint32_t argc, JS::
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3318,7 +3318,7 @@ bool js_cocos2dx_ui_Button_getRendererDisabled(JSContext *cx, uint32_t argc, JS:
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3792,7 +3792,7 @@ bool js_cocos2dx_ui_Button_getRendererNormal(JSContext *cx, uint32_t argc, JS::V
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -3888,11 +3888,11 @@ bool js_cocos2dx_ui_Button_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Button* ret = cocos2d::ui::Button::create(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Button>(cx, (cocos2d::ui::Button*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -3908,11 +3908,11 @@ bool js_cocos2dx_ui_Button_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ok &= jsval_to_std_string(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Button* ret = cocos2d::ui::Button::create(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Button>(cx, (cocos2d::ui::Button*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -3931,11 +3931,11 @@ bool js_cocos2dx_ui_Button_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ok &= jsval_to_std_string(cx, args.get(2), &arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Button* ret = cocos2d::ui::Button::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Button>(cx, (cocos2d::ui::Button*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -3957,11 +3957,11 @@ bool js_cocos2dx_ui_Button_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ok &= jsval_to_int32(cx, args.get(3), (int32_t *)&arg3);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Button* ret = cocos2d::ui::Button::create(arg0, arg1, arg2, arg3);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Button>(cx, (cocos2d::ui::Button*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -3971,11 +3971,11 @@ bool js_cocos2dx_ui_Button_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     do {
         if (argc == 0) {
             cocos2d::ui::Button* ret = cocos2d::ui::Button::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Button>(cx, (cocos2d::ui::Button*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -4279,7 +4279,7 @@ bool js_cocos2dx_ui_AbstractCheckButton_getRendererFrontCrossDisabled(JSContext 
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4301,7 +4301,7 @@ bool js_cocos2dx_ui_AbstractCheckButton_getRendererBackground(JSContext *cx, uin
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4353,7 +4353,7 @@ bool js_cocos2dx_ui_AbstractCheckButton_getRendererBackgroundDisabled(JSContext 
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4525,7 +4525,7 @@ bool js_cocos2dx_ui_AbstractCheckButton_getRendererFrontCross(JSContext *cx, uin
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4547,7 +4547,7 @@ bool js_cocos2dx_ui_AbstractCheckButton_getRendererBackgroundSelected(JSContext 
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -4733,7 +4733,7 @@ bool js_cocos2dx_ui_CheckBox_addEventListener(JSContext *cx, uint32_t argc, JS::
 		            if (larg0) {
 		            largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Ref>(cx, (cocos2d::Ref*)larg0));
 		        } else {
-		            largv = JS::NullValue();
+		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
 		            largv = JS::Int32Value((int)larg1);
@@ -4785,11 +4785,11 @@ bool js_cocos2dx_ui_CheckBox_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ok &= jsval_to_std_string(cx, args.get(4), &arg4);
             if (!ok) { ok = true; break; }
             cocos2d::ui::CheckBox* ret = cocos2d::ui::CheckBox::create(arg0, arg1, arg2, arg3, arg4);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::CheckBox>(cx, (cocos2d::ui::CheckBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -4817,11 +4817,11 @@ bool js_cocos2dx_ui_CheckBox_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ok &= jsval_to_int32(cx, args.get(5), (int32_t *)&arg5);
             if (!ok) { ok = true; break; }
             cocos2d::ui::CheckBox* ret = cocos2d::ui::CheckBox::create(arg0, arg1, arg2, arg3, arg4, arg5);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::CheckBox>(cx, (cocos2d::ui::CheckBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -4831,11 +4831,11 @@ bool js_cocos2dx_ui_CheckBox_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     do {
         if (argc == 0) {
             cocos2d::ui::CheckBox* ret = cocos2d::ui::CheckBox::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::CheckBox>(cx, (cocos2d::ui::CheckBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -4852,11 +4852,11 @@ bool js_cocos2dx_ui_CheckBox_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ok &= jsval_to_std_string(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::CheckBox* ret = cocos2d::ui::CheckBox::create(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::CheckBox>(cx, (cocos2d::ui::CheckBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -4875,11 +4875,11 @@ bool js_cocos2dx_ui_CheckBox_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::CheckBox* ret = cocos2d::ui::CheckBox::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::CheckBox>(cx, (cocos2d::ui::CheckBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -5008,7 +5008,7 @@ bool js_cocos2dx_ui_RadioButton_addEventListener(JSContext *cx, uint32_t argc, J
 		            if (larg0) {
 		            largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::RadioButton>(cx, (cocos2d::ui::RadioButton*)larg0));
 		        } else {
-		            largv = JS::NullValue();
+		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
 		            largv = JS::Int32Value((int)larg1);
@@ -5060,11 +5060,11 @@ bool js_cocos2dx_ui_RadioButton_create(JSContext *cx, uint32_t argc, JS::Value *
             ok &= jsval_to_std_string(cx, args.get(4), &arg4);
             if (!ok) { ok = true; break; }
             cocos2d::ui::RadioButton* ret = cocos2d::ui::RadioButton::create(arg0, arg1, arg2, arg3, arg4);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::RadioButton>(cx, (cocos2d::ui::RadioButton*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -5092,11 +5092,11 @@ bool js_cocos2dx_ui_RadioButton_create(JSContext *cx, uint32_t argc, JS::Value *
             ok &= jsval_to_int32(cx, args.get(5), (int32_t *)&arg5);
             if (!ok) { ok = true; break; }
             cocos2d::ui::RadioButton* ret = cocos2d::ui::RadioButton::create(arg0, arg1, arg2, arg3, arg4, arg5);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::RadioButton>(cx, (cocos2d::ui::RadioButton*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -5106,11 +5106,11 @@ bool js_cocos2dx_ui_RadioButton_create(JSContext *cx, uint32_t argc, JS::Value *
     do {
         if (argc == 0) {
             cocos2d::ui::RadioButton* ret = cocos2d::ui::RadioButton::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::RadioButton>(cx, (cocos2d::ui::RadioButton*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -5127,11 +5127,11 @@ bool js_cocos2dx_ui_RadioButton_create(JSContext *cx, uint32_t argc, JS::Value *
             ok &= jsval_to_std_string(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::RadioButton* ret = cocos2d::ui::RadioButton::create(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::RadioButton>(cx, (cocos2d::ui::RadioButton*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -5150,11 +5150,11 @@ bool js_cocos2dx_ui_RadioButton_create(JSContext *cx, uint32_t argc, JS::Value *
             ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::RadioButton* ret = cocos2d::ui::RadioButton::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::RadioButton>(cx, (cocos2d::ui::RadioButton*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -5412,7 +5412,7 @@ bool js_cocos2dx_ui_RadioButtonGroup_addEventListener(JSContext *cx, uint32_t ar
 		            if (larg0) {
 		            largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::RadioButton>(cx, (cocos2d::ui::RadioButton*)larg0));
 		        } else {
-		            largv = JS::NullValue();
+		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
 		            largv = JS::Int32Value(larg1);
@@ -5476,7 +5476,7 @@ bool js_cocos2dx_ui_RadioButtonGroup_getRadioButtonByIndex(JSContext *cx, uint32
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::RadioButton>(cx, (cocos2d::ui::RadioButton*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -5884,11 +5884,11 @@ bool js_cocos2dx_ui_ImageView_create(JSContext *cx, uint32_t argc, JS::Value *vp
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::ImageView* ret = cocos2d::ui::ImageView::create(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::ImageView>(cx, (cocos2d::ui::ImageView*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -5904,11 +5904,11 @@ bool js_cocos2dx_ui_ImageView_create(JSContext *cx, uint32_t argc, JS::Value *vp
             ok &= jsval_to_int32(cx, args.get(1), (int32_t *)&arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::ImageView* ret = cocos2d::ui::ImageView::create(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::ImageView>(cx, (cocos2d::ui::ImageView*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -5918,11 +5918,11 @@ bool js_cocos2dx_ui_ImageView_create(JSContext *cx, uint32_t argc, JS::Value *vp
     do {
         if (argc == 0) {
             cocos2d::ui::ImageView* ret = cocos2d::ui::ImageView::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::ImageView>(cx, (cocos2d::ui::ImageView*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -6689,11 +6689,11 @@ bool js_cocos2dx_ui_Text_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             arg2 = (float)(args.get(2).toNumber());
             if (!ok) { ok = true; break; }
             cocos2d::ui::Text* ret = cocos2d::ui::Text::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Text>(cx, (cocos2d::ui::Text*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -6703,11 +6703,11 @@ bool js_cocos2dx_ui_Text_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     do {
         if (argc == 0) {
             cocos2d::ui::Text* ret = cocos2d::ui::Text::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Text>(cx, (cocos2d::ui::Text*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -6981,11 +6981,11 @@ bool js_cocos2dx_ui_TextAtlas_create(JSContext *cx, uint32_t argc, JS::Value *vp
             ok &= jsval_to_std_string(cx, args.get(4), &arg4);
             if (!ok) { ok = true; break; }
             cocos2d::ui::TextAtlas* ret = cocos2d::ui::TextAtlas::create(arg0, arg1, arg2, arg3, arg4);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::TextAtlas>(cx, (cocos2d::ui::TextAtlas*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -6995,11 +6995,11 @@ bool js_cocos2dx_ui_TextAtlas_create(JSContext *cx, uint32_t argc, JS::Value *vp
     do {
         if (argc == 0) {
             cocos2d::ui::TextAtlas* ret = cocos2d::ui::TextAtlas::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::TextAtlas>(cx, (cocos2d::ui::TextAtlas*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -7318,11 +7318,11 @@ bool js_cocos2dx_ui_LoadingBar_create(JSContext *cx, uint32_t argc, JS::Value *v
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::LoadingBar* ret = cocos2d::ui::LoadingBar::create(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::LoadingBar>(cx, (cocos2d::ui::LoadingBar*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -7338,11 +7338,11 @@ bool js_cocos2dx_ui_LoadingBar_create(JSContext *cx, uint32_t argc, JS::Value *v
             arg1 = (float)(args.get(1).toNumber());
             if (!ok) { ok = true; break; }
             cocos2d::ui::LoadingBar* ret = cocos2d::ui::LoadingBar::create(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::LoadingBar>(cx, (cocos2d::ui::LoadingBar*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -7352,11 +7352,11 @@ bool js_cocos2dx_ui_LoadingBar_create(JSContext *cx, uint32_t argc, JS::Value *v
     do {
         if (argc == 0) {
             cocos2d::ui::LoadingBar* ret = cocos2d::ui::LoadingBar::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::LoadingBar>(cx, (cocos2d::ui::LoadingBar*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -7373,11 +7373,11 @@ bool js_cocos2dx_ui_LoadingBar_create(JSContext *cx, uint32_t argc, JS::Value *v
             ok &= jsval_to_int32(cx, args.get(1), (int32_t *)&arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::LoadingBar* ret = cocos2d::ui::LoadingBar::create(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::LoadingBar>(cx, (cocos2d::ui::LoadingBar*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -7396,11 +7396,11 @@ bool js_cocos2dx_ui_LoadingBar_create(JSContext *cx, uint32_t argc, JS::Value *v
             arg2 = (float)(args.get(2).toNumber());
             if (!ok) { ok = true; break; }
             cocos2d::ui::LoadingBar* ret = cocos2d::ui::LoadingBar::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::LoadingBar>(cx, (cocos2d::ui::LoadingBar*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -7711,7 +7711,7 @@ bool js_cocos2dx_ui_ScrollView_getInnerContainer(JSContext *cx, uint32_t argc, J
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Layout>(cx, (cocos2d::ui::Layout*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -7958,7 +7958,7 @@ bool js_cocos2dx_ui_ScrollView_addEventListener(JSContext *cx, uint32_t argc, JS
 		            if (larg0) {
 		            largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Ref>(cx, (cocos2d::Ref*)larg0));
 		        } else {
-		            largv = JS::NullValue();
+		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
 		            largv = JS::Int32Value((int)larg1);
@@ -8804,7 +8804,7 @@ bool js_cocos2dx_ui_ListView_getCenterItemInCurrentView(JSContext *cx, uint32_t 
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Widget>(cx, (cocos2d::ui::Widget*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -9055,7 +9055,7 @@ bool js_cocos2dx_ui_ListView_addEventListener(JSContext *cx, uint32_t argc, JS::
 		            if (larg0) {
 		            largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Ref>(cx, (cocos2d::Ref*)larg0));
 		        } else {
-		            largv = JS::NullValue();
+		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
 		            largv = JS::Int32Value((int)larg1);
@@ -9113,7 +9113,7 @@ bool js_cocos2dx_ui_ListView_getTopmostItemInCurrentView(JSContext *cx, uint32_t
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Widget>(cx, (cocos2d::ui::Widget*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -9151,7 +9151,7 @@ bool js_cocos2dx_ui_ListView_getBottommostItemInCurrentView(JSContext *cx, uint3
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Widget>(cx, (cocos2d::ui::Widget*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -9191,7 +9191,7 @@ bool js_cocos2dx_ui_ListView_getLeftmostItemInCurrentView(JSContext *cx, uint32_
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Widget>(cx, (cocos2d::ui::Widget*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -9255,7 +9255,7 @@ bool js_cocos2dx_ui_ListView_getItem(JSContext *cx, uint32_t argc, JS::Value *vp
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Widget>(cx, (cocos2d::ui::Widget*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -9389,7 +9389,7 @@ bool js_cocos2dx_ui_ListView_getClosestItemToPosition(JSContext *cx, uint32_t ar
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Widget>(cx, (cocos2d::ui::Widget*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -9411,7 +9411,7 @@ bool js_cocos2dx_ui_ListView_getRightmostItemInCurrentView(JSContext *cx, uint32
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Widget>(cx, (cocos2d::ui::Widget*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -9459,7 +9459,7 @@ bool js_cocos2dx_ui_ListView_getClosestItemToPositionInCurrentView(JSContext *cx
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Widget>(cx, (cocos2d::ui::Widget*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -9941,7 +9941,7 @@ bool js_cocos2dx_ui_Slider_addEventListener(JSContext *cx, uint32_t argc, JS::Va
 		            if (larg0) {
 		            largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Ref>(cx, (cocos2d::Ref*)larg0));
 		        } else {
-		            largv = JS::NullValue();
+		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
 		            largv = JS::Int32Value((int)larg1);
@@ -10280,11 +10280,11 @@ bool js_cocos2dx_ui_Slider_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ok &= jsval_to_std_string(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Slider* ret = cocos2d::ui::Slider::create(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Slider>(cx, (cocos2d::ui::Slider*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -10303,11 +10303,11 @@ bool js_cocos2dx_ui_Slider_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Slider* ret = cocos2d::ui::Slider::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Slider>(cx, (cocos2d::ui::Slider*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -10317,11 +10317,11 @@ bool js_cocos2dx_ui_Slider_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     do {
         if (argc == 0) {
             cocos2d::ui::Slider* ret = cocos2d::ui::Slider::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Slider>(cx, (cocos2d::ui::Slider*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -11381,7 +11381,7 @@ bool js_cocos2dx_ui_TextField_addEventListener(JSContext *cx, uint32_t argc, JS:
 		            if (larg0) {
 		            largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Ref>(cx, (cocos2d::Ref*)larg0));
 		        } else {
-		            largv = JS::NullValue();
+		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
 		            largv = JS::Int32Value((int)larg1);
@@ -12014,11 +12014,11 @@ bool js_cocos2dx_ui_TextField_create(JSContext *cx, uint32_t argc, JS::Value *vp
             ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::TextField* ret = cocos2d::ui::TextField::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::TextField>(cx, (cocos2d::ui::TextField*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -12028,11 +12028,11 @@ bool js_cocos2dx_ui_TextField_create(JSContext *cx, uint32_t argc, JS::Value *vp
     do {
         if (argc == 0) {
             cocos2d::ui::TextField* ret = cocos2d::ui::TextField::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::TextField>(cx, (cocos2d::ui::TextField*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -12303,11 +12303,11 @@ bool js_cocos2dx_ui_TextBMFont_create(JSContext *cx, uint32_t argc, JS::Value *v
             ok &= jsval_to_std_string(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::TextBMFont* ret = cocos2d::ui::TextBMFont::create(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::TextBMFont>(cx, (cocos2d::ui::TextBMFont*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -12317,11 +12317,11 @@ bool js_cocos2dx_ui_TextBMFont_create(JSContext *cx, uint32_t argc, JS::Value *v
     do {
         if (argc == 0) {
             cocos2d::ui::TextBMFont* ret = cocos2d::ui::TextBMFont::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::TextBMFont>(cx, (cocos2d::ui::TextBMFont*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -12601,7 +12601,7 @@ bool js_cocos2dx_ui_PageView_addEventListener(JSContext *cx, uint32_t argc, JS::
 		            if (larg0) {
 		            largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Ref>(cx, (cocos2d::Ref*)larg0));
 		        } else {
-		            largv = JS::NullValue();
+		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
 		            largv = JS::Int32Value((int)larg1);
@@ -13148,7 +13148,7 @@ bool js_cocos2dx_ui_Helper_getSubStringOfUTF8String(JSContext *cx, uint32_t argc
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_Helper_getSubStringOfUTF8String : Error processing arguments");
 
         std::string ret = cocos2d::ui::Helper::getSubStringOfUTF8String(arg0, arg1, arg2);
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = std_string_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -13175,7 +13175,7 @@ bool js_cocos2dx_ui_Helper_convertBoundingBoxToScreen(JSContext *cx, uint32_t ar
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_Helper_convertBoundingBoxToScreen : Error processing arguments");
 
         cocos2d::Rect ret = cocos2d::ui::Helper::convertBoundingBoxToScreen(arg0);
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ccrect_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -13220,11 +13220,11 @@ bool js_cocos2dx_ui_Helper_seekActionWidgetByActionTag(JSContext *cx, uint32_t a
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_Helper_seekActionWidgetByActionTag : Error processing arguments");
 
         cocos2d::ui::Widget* ret = cocos2d::ui::Helper::seekActionWidgetByActionTag(arg0, arg1);
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         if (ret) {
         jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Widget>(cx, (cocos2d::ui::Widget*)ret));
     } else {
-        jsret = JS::NullValue();
+        jsret = JS::NullHandleValue;
     };
         args.rval().set(jsret);
         return true;
@@ -13253,11 +13253,11 @@ bool js_cocos2dx_ui_Helper_seekWidgetByName(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_Helper_seekWidgetByName : Error processing arguments");
 
         cocos2d::ui::Widget* ret = cocos2d::ui::Helper::seekWidgetByName(arg0, arg1);
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         if (ret) {
         jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Widget>(cx, (cocos2d::ui::Widget*)ret));
     } else {
-        jsret = JS::NullValue();
+        jsret = JS::NullHandleValue;
     };
         args.rval().set(jsret);
         return true;
@@ -13286,11 +13286,11 @@ bool js_cocos2dx_ui_Helper_seekWidgetByTag(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_Helper_seekWidgetByTag : Error processing arguments");
 
         cocos2d::ui::Widget* ret = cocos2d::ui::Helper::seekWidgetByTag(arg0, arg1);
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         if (ret) {
         jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Widget>(cx, (cocos2d::ui::Widget*)ret));
     } else {
-        jsret = JS::NullValue();
+        jsret = JS::NullHandleValue;
     };
         args.rval().set(jsret);
         return true;
@@ -13311,7 +13311,7 @@ bool js_cocos2dx_ui_Helper_restrictCapInsetRect(JSContext *cx, uint32_t argc, JS
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_Helper_restrictCapInsetRect : Error processing arguments");
 
         cocos2d::Rect ret = cocos2d::ui::Helper::restrictCapInsetRect(arg0, arg1);
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = ccrect_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -15919,11 +15919,11 @@ bool js_cocos2dx_ui_HBox_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ok &= jsval_to_ccsize(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::HBox* ret = cocos2d::ui::HBox::create(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::HBox>(cx, (cocos2d::ui::HBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -15933,11 +15933,11 @@ bool js_cocos2dx_ui_HBox_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     do {
         if (argc == 0) {
             cocos2d::ui::HBox* ret = cocos2d::ui::HBox::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::HBox>(cx, (cocos2d::ui::HBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -16073,11 +16073,11 @@ bool js_cocos2dx_ui_VBox_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ok &= jsval_to_ccsize(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::VBox* ret = cocos2d::ui::VBox::create(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::VBox>(cx, (cocos2d::ui::VBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -16087,11 +16087,11 @@ bool js_cocos2dx_ui_VBox_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     do {
         if (argc == 0) {
             cocos2d::ui::VBox* ret = cocos2d::ui::VBox::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::VBox>(cx, (cocos2d::ui::VBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -16227,11 +16227,11 @@ bool js_cocos2dx_ui_RelativeBox_create(JSContext *cx, uint32_t argc, JS::Value *
             ok &= jsval_to_ccsize(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::RelativeBox* ret = cocos2d::ui::RelativeBox::create(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::RelativeBox>(cx, (cocos2d::ui::RelativeBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -16241,11 +16241,11 @@ bool js_cocos2dx_ui_RelativeBox_create(JSContext *cx, uint32_t argc, JS::Value *
     do {
         if (argc == 0) {
             cocos2d::ui::RelativeBox* ret = cocos2d::ui::RelativeBox::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::RelativeBox>(cx, (cocos2d::ui::RelativeBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -16403,7 +16403,7 @@ bool js_cocos2dx_ui_Scale9Sprite_updateWithSprite(JSContext *cx, uint32_t argc, 
             ok &= jsval_to_ccrect(cx, args.get(5), &arg5);
             if (!ok) { ok = true; break; }
             bool ret = cobj->updateWithSprite(arg0, arg1, arg2, arg3, arg4, arg5);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -16433,7 +16433,7 @@ bool js_cocos2dx_ui_Scale9Sprite_updateWithSprite(JSContext *cx, uint32_t argc, 
             ok &= jsval_to_ccrect(cx, args.get(3), &arg3);
             if (!ok) { ok = true; break; }
             bool ret = cobj->updateWithSprite(arg0, arg1, arg2, arg3);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -16538,7 +16538,7 @@ bool js_cocos2dx_ui_Scale9Sprite_resizableSpriteWithCapInsets(JSContext *cx, uin
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -16638,7 +16638,7 @@ bool js_cocos2dx_ui_Scale9Sprite_initWithSpriteFrameName(JSContext *cx, uint32_t
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSpriteFrameName(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -16655,7 +16655,7 @@ bool js_cocos2dx_ui_Scale9Sprite_initWithSpriteFrameName(JSContext *cx, uint32_t
             ok &= jsval_to_ccrect(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSpriteFrameName(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -16678,7 +16678,7 @@ bool js_cocos2dx_ui_Scale9Sprite_getSprite(JSContext *cx, uint32_t argc, JS::Val
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -16758,7 +16758,7 @@ bool js_cocos2dx_ui_Scale9Sprite_init(JSContext *cx, uint32_t argc, JS::Value *v
             ok &= jsval_to_ccrect(cx, args.get(2), &arg2);
             if (!ok) { ok = true; break; }
             bool ret = cobj->init(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -16788,7 +16788,7 @@ bool js_cocos2dx_ui_Scale9Sprite_init(JSContext *cx, uint32_t argc, JS::Value *v
             ok &= jsval_to_ccrect(cx, args.get(3), &arg3);
             if (!ok) { ok = true; break; }
             bool ret = cobj->init(arg0, arg1, arg2, arg3);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -16824,7 +16824,7 @@ bool js_cocos2dx_ui_Scale9Sprite_init(JSContext *cx, uint32_t argc, JS::Value *v
             ok &= jsval_to_ccrect(cx, args.get(5), &arg5);
             if (!ok) { ok = true; break; }
             bool ret = cobj->init(arg0, arg1, arg2, arg3, arg4, arg5);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -17062,7 +17062,7 @@ bool js_cocos2dx_ui_Scale9Sprite_initWithFile(JSContext *cx, uint32_t argc, JS::
             ok &= jsval_to_ccrect(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithFile(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -17082,7 +17082,7 @@ bool js_cocos2dx_ui_Scale9Sprite_initWithFile(JSContext *cx, uint32_t argc, JS::
             ok &= jsval_to_ccrect(cx, args.get(2), &arg2);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithFile(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -17099,7 +17099,7 @@ bool js_cocos2dx_ui_Scale9Sprite_initWithFile(JSContext *cx, uint32_t argc, JS::
             ok &= jsval_to_std_string(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithFile(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -17113,7 +17113,7 @@ bool js_cocos2dx_ui_Scale9Sprite_initWithFile(JSContext *cx, uint32_t argc, JS::
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithFile(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -17206,7 +17206,7 @@ bool js_cocos2dx_ui_Scale9Sprite_initWithSpriteFrame(JSContext *cx, uint32_t arg
             } while (0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSpriteFrame(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -17231,7 +17231,7 @@ bool js_cocos2dx_ui_Scale9Sprite_initWithSpriteFrame(JSContext *cx, uint32_t arg
             ok &= jsval_to_ccrect(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSpriteFrame(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -17352,11 +17352,11 @@ bool js_cocos2dx_ui_Scale9Sprite_create(JSContext *cx, uint32_t argc, JS::Value 
             ok &= jsval_to_ccrect(cx, args.get(2), &arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Scale9Sprite* ret = cocos2d::ui::Scale9Sprite::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -17366,11 +17366,11 @@ bool js_cocos2dx_ui_Scale9Sprite_create(JSContext *cx, uint32_t argc, JS::Value 
     do {
         if (argc == 0) {
             cocos2d::ui::Scale9Sprite* ret = cocos2d::ui::Scale9Sprite::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -17387,11 +17387,11 @@ bool js_cocos2dx_ui_Scale9Sprite_create(JSContext *cx, uint32_t argc, JS::Value 
             ok &= jsval_to_std_string(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Scale9Sprite* ret = cocos2d::ui::Scale9Sprite::create(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -17408,11 +17408,11 @@ bool js_cocos2dx_ui_Scale9Sprite_create(JSContext *cx, uint32_t argc, JS::Value 
             ok &= jsval_to_ccrect(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Scale9Sprite* ret = cocos2d::ui::Scale9Sprite::create(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -17426,11 +17426,11 @@ bool js_cocos2dx_ui_Scale9Sprite_create(JSContext *cx, uint32_t argc, JS::Value 
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Scale9Sprite* ret = cocos2d::ui::Scale9Sprite::create(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -17453,11 +17453,11 @@ bool js_cocos2dx_ui_Scale9Sprite_createWithSpriteFrameName(JSContext *cx, uint32
             ok &= jsval_to_ccrect(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Scale9Sprite* ret = cocos2d::ui::Scale9Sprite::createWithSpriteFrameName(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -17471,11 +17471,11 @@ bool js_cocos2dx_ui_Scale9Sprite_createWithSpriteFrameName(JSContext *cx, uint32
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Scale9Sprite* ret = cocos2d::ui::Scale9Sprite::createWithSpriteFrameName(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -17506,11 +17506,11 @@ bool js_cocos2dx_ui_Scale9Sprite_createWithSpriteFrame(JSContext *cx, uint32_t a
             ok &= jsval_to_ccrect(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Scale9Sprite* ret = cocos2d::ui::Scale9Sprite::createWithSpriteFrame(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -17532,11 +17532,11 @@ bool js_cocos2dx_ui_Scale9Sprite_createWithSpriteFrame(JSContext *cx, uint32_t a
             } while (0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Scale9Sprite* ret = cocos2d::ui::Scale9Sprite::createWithSpriteFrame(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -17727,7 +17727,7 @@ bool js_cocos2dx_ui_EditBox_getBackgroundSprite(JSContext *cx, uint32_t argc, JS
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -17978,7 +17978,7 @@ bool js_cocos2dx_ui_EditBox_initWithSizeAndBackgroundSprite(JSContext *cx, uint3
             } while (0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSizeAndBackgroundSprite(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -17995,7 +17995,7 @@ bool js_cocos2dx_ui_EditBox_initWithSizeAndBackgroundSprite(JSContext *cx, uint3
             ok &= jsval_to_std_string(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSizeAndBackgroundSprite(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -18015,7 +18015,7 @@ bool js_cocos2dx_ui_EditBox_initWithSizeAndBackgroundSprite(JSContext *cx, uint3
             ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
             if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSizeAndBackgroundSprite(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -18159,11 +18159,11 @@ bool js_cocos2dx_ui_EditBox_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ok &= jsval_to_std_string(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::EditBox* ret = cocos2d::ui::EditBox::create(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::EditBox>(cx, (cocos2d::ui::EditBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -18182,11 +18182,11 @@ bool js_cocos2dx_ui_EditBox_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::EditBox* ret = cocos2d::ui::EditBox::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::EditBox>(cx, (cocos2d::ui::EditBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -18211,11 +18211,11 @@ bool js_cocos2dx_ui_EditBox_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } while (0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::EditBox* ret = cocos2d::ui::EditBox::create(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::EditBox>(cx, (cocos2d::ui::EditBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -18250,11 +18250,11 @@ bool js_cocos2dx_ui_EditBox_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } while (0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::EditBox* ret = cocos2d::ui::EditBox::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::EditBox>(cx, (cocos2d::ui::EditBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -18300,11 +18300,11 @@ bool js_cocos2dx_ui_EditBox_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } while (0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::EditBox* ret = cocos2d::ui::EditBox::create(arg0, arg1, arg2, arg3);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::EditBox>(cx, (cocos2d::ui::EditBox*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -19388,11 +19388,11 @@ bool js_cocos2dx_ui_LayoutComponent_bindLayoutComponent(JSContext *cx, uint32_t 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_LayoutComponent_bindLayoutComponent : Error processing arguments");
 
         cocos2d::ui::LayoutComponent* ret = cocos2d::ui::LayoutComponent::bindLayoutComponent(arg0);
-        JS::RootedValue jsret(cx, JS::NullValue());
+        JS::RootedValue jsret(cx, JS::NullHandleValue);
         if (ret) {
         jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::LayoutComponent>(cx, (cocos2d::ui::LayoutComponent*)ret));
     } else {
-        jsret = JS::NullValue();
+        jsret = JS::NullHandleValue;
     };
         args.rval().set(jsret);
         return true;
@@ -19687,7 +19687,7 @@ bool js_cocos2dx_ui_TabHeader_getTitleRenderer(JSContext *cx, uint32_t argc, JS:
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Label>(cx, (cocos2d::Label*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -19753,11 +19753,11 @@ bool js_cocos2dx_ui_TabHeader_create(JSContext *cx, uint32_t argc, JS::Value *vp
             ok &= jsval_to_std_string(cx, args.get(2), &arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::TabHeader* ret = cocos2d::ui::TabHeader::create(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::TabHeader>(cx, (cocos2d::ui::TabHeader*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -19779,11 +19779,11 @@ bool js_cocos2dx_ui_TabHeader_create(JSContext *cx, uint32_t argc, JS::Value *vp
             ok &= jsval_to_int32(cx, args.get(3), (int32_t *)&arg3);
             if (!ok) { ok = true; break; }
             cocos2d::ui::TabHeader* ret = cocos2d::ui::TabHeader::create(arg0, arg1, arg2, arg3);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::TabHeader>(cx, (cocos2d::ui::TabHeader*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -19793,11 +19793,11 @@ bool js_cocos2dx_ui_TabHeader_create(JSContext *cx, uint32_t argc, JS::Value *vp
     do {
         if (argc == 0) {
             cocos2d::ui::TabHeader* ret = cocos2d::ui::TabHeader::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::TabHeader>(cx, (cocos2d::ui::TabHeader*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -19826,11 +19826,11 @@ bool js_cocos2dx_ui_TabHeader_create(JSContext *cx, uint32_t argc, JS::Value *vp
             ok &= jsval_to_std_string(cx, args.get(5), &arg5);
             if (!ok) { ok = true; break; }
             cocos2d::ui::TabHeader* ret = cocos2d::ui::TabHeader::create(arg0, arg1, arg2, arg3, arg4, arg5);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::TabHeader>(cx, (cocos2d::ui::TabHeader*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -19861,11 +19861,11 @@ bool js_cocos2dx_ui_TabHeader_create(JSContext *cx, uint32_t argc, JS::Value *vp
             ok &= jsval_to_int32(cx, args.get(6), (int32_t *)&arg6);
             if (!ok) { ok = true; break; }
             cocos2d::ui::TabHeader* ret = cocos2d::ui::TabHeader::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::TabHeader>(cx, (cocos2d::ui::TabHeader*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -20192,7 +20192,7 @@ bool js_cocos2dx_ui_TabControl_getTabHeader(JSContext *cx, uint32_t argc, JS::Va
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::TabHeader>(cx, (cocos2d::ui::TabHeader*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;
@@ -20357,7 +20357,7 @@ bool js_cocos2dx_ui_TabControl_getTabContainer(JSContext *cx, uint32_t argc, JS:
         if (ret) {
             jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Layout>(cx, (cocos2d::ui::Layout*)ret));
         } else {
-            jsret = JS::NullValue();
+            jsret = JS::NullHandleValue;
         };
         args.rval().set(jsret);
         return true;

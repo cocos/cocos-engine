@@ -57,13 +57,13 @@ namespace JSBinding
 // To debug this, you could refer to JSScheduleWrapper::dump function.
 // It will prove that i'm right. :)
 typedef struct jsScheduleFunc_proxy {
-    JSObject* jsfuncObj;
+    JS::Heap<JSObject*> jsfuncObj;
     JSBinding::Array* targets;
     UT_hash_handle hh;
 } schedFunc_proxy_t;
 
 typedef struct jsScheduleTarget_proxy {
-    JSObject* jsTargetObj;
+    JS::Heap<JSObject*> jsTargetObj;
     JSBinding::Array* targets;
     UT_hash_handle hh;
 } schedTarget_proxy_t;
@@ -182,9 +182,9 @@ public:
     JSScheduleWrapper();
     JSScheduleWrapper(JS::HandleValue owner);
 
-    static void setTargetForSchedule(JS::HandleValue sched, JSScheduleWrapper *target);
+    static void setTargetForSchedule(JSContext* cx, JS::HandleValue sched, JSScheduleWrapper *target);
     static JSBinding::Array* getTargetForSchedule(JS::HandleValue sched);
-    static void setTargetForJSObject(JS::HandleObject jsTargetObj, JSScheduleWrapper *target);
+    static void setTargetForJSObject(JSContext* cx, JS::HandleObject jsTargetObj, JSScheduleWrapper *target);
     static JSBinding::Array* getTargetForJSObject(JS::HandleObject jsTargetObj);
 
     // Remove all targets.

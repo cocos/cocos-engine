@@ -564,7 +564,7 @@ bool jsval_to_cpVect( JSContext *cx, JS::HandleValue vp, cpVect *ret )
 
 #else // #! JSB_COMPATIBLE_WITH_COCOS2D_HTML5_BASIC_TYPES
 
-    JSObject *tmp_arg = nullptr;
+    JS::RootedObject tmp_arg(cx);
     if( ! JS_ValueToObject( cx, vp, &tmp_arg ) )
         return false;
 
@@ -736,16 +736,20 @@ JS::HandleValue cpPointQueryInfo_to_jsval(JSContext *cx, cpPointQueryInfo pointQ
 
     bool ok = true;
 
-    JSObject* jsobj = jsb_get_jsobject_for_proxy((void*)pointQueryInfo.shape);
-    if (!jsobj)
+    void* nativePtr = (void*)pointQueryInfo.shape;
+    JS::RootedObject rootedShape(cx);
+    auto proxy = jsb_get_native_proxy(nativePtr);
+    if (!proxy)
     {
         JS::RootedObject shapeProto(cx, JSB_cpShape_object);
-        jsobj = JS_NewObjectWithGivenProto(cx, JSB_cpShape_class, shapeProto);
-        jsb_set_jsobject_for_proxy(jsobj, (void*)pointQueryInfo.shape);
-        jsb_set_c_proxy_for_jsobject(jsobj, (void*)pointQueryInfo.shape, JSB_C_FLAG_DO_NOT_CALL_FREE);
+        rootedShape = JS_NewObject(cx, JSB_cpShape_class, shapeProto, JS::NullPtr());
+        jsb_new_proxy(nativePtr, rootedShape);
+        JS_SetPrivate(rootedShape, &JSB_C_FLAG_DO_NOT_CALL_FREE);
     }
-
-    JS::RootedObject rootedShape(cx, jsobj);
+    else
+    {
+        rootedShape.set(proxy->obj);
+    }
 
     JS::RootedValue rootedPoint(cx, cpVect_to_jsval(cx, pointQueryInfo.point));
     JS::RootedValue rootedGradient(cx, cpVect_to_jsval(cx, pointQueryInfo.gradient));
@@ -771,15 +775,20 @@ JS::HandleValue cpSegmentQueryInfo_to_jsval(JSContext *cx, cpSegmentQueryInfo se
 
     bool ok = true;
 
-    JSObject* jsobj = jsb_get_jsobject_for_proxy((void*)segmentQueryInfo.shape);
-    if (!jsobj)
+    void* nativePtr = (void*)segmentQueryInfo.shape;
+    JS::RootedObject rootedShape(cx);
+    auto proxy = jsb_get_native_proxy(nativePtr);
+    if (!proxy)
     {
         JS::RootedObject shapeProto(cx, JSB_cpShape_object);
-        jsobj = JS_NewObjectWithGivenProto(cx, JSB_cpShape_class, shapeProto);
-        jsb_set_jsobject_for_proxy(jsobj, (void*)segmentQueryInfo.shape);
-        jsb_set_c_proxy_for_jsobject(jsobj, (void*)segmentQueryInfo.shape, JSB_C_FLAG_DO_NOT_CALL_FREE);
+        rootedShape = JS_NewObject(cx, JSB_cpShape_class, shapeProto, JS::NullPtr());
+        jsb_new_proxy(nativePtr, rootedShape);
+        JS_SetPrivate(rootedShape, &JSB_C_FLAG_DO_NOT_CALL_FREE);
     }
-    JS::RootedObject rootedShape(cx, jsobj);
+    else
+    {
+        rootedShape.set(proxy->obj);
+    }
 
     JS::RootedValue rootedPoint(cx, cpVect_to_jsval(cx, segmentQueryInfo.point));
     JS::RootedValue rootedNormal(cx, cpVect_to_jsval(cx, segmentQueryInfo.normal));
@@ -1045,20 +1054,21 @@ static void myCollisionSeparate(cpArbiter *arb, cpSpace *space, void *data)
 
 void JSB_cpSpace_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    if ( proxy )
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject obj(cx, jsthis);
+    auto proxy = jsb_get_js_proxy(obj);
+    if (proxy)
     {
-        CCLOGINFO("jsbindings: finalizing JS object %p (cpSpace), handle: %p", jsthis, proxy->handle);
+        CCLOGINFO("jsbindings: finalizing JS object %p (cpSpace), handle: %p", jsthis, proxy->ptr);
 
         // space
-        cpSpace *space = (cpSpace*) proxy->handle;
-
+        cpSpace *space = (cpSpace*) proxy->ptr;
 
         // Remove collision handlers, since the user might have forgotten to manually remove them
         struct collision_handler *current = nullptr, *tmp = nullptr;
         HASH_ITER(hh, collision_handler_hash, current, tmp)
         {
-            if( current->space == space )
+            if (current->space == space)
             {
                 if (current->is_default)
                 {
@@ -1077,10 +1087,10 @@ void JSB_cpSpace_finalize(JSFreeOp *fop, JSObject *jsthis)
         // Free Space Children
         freeSpaceChildren(space);
 
-        jsb_del_jsobject_for_proxy(space);
-        if(proxy->flags == JSB_C_FLAG_CALL_FREE)
+        jsb_remove_proxy(proxy);
+        int* flag = (int *)JS_GetPrivate(jsthis);
+        if(flag && *flag == JSB_C_FLAG_CALL_FREE)
             cpSpaceFree(space);
-        jsb_del_c_proxy_for_jsobject(jsthis);
 #if COCOS2D_DEBUG > 1
         CCLOG("------RELEASED------ Cpp(cp.Space): %p - JS: %p", space, jsthis);
 #endif // COCOS2D_DEBUG
@@ -1178,8 +1188,8 @@ bool JSB_cpSpace_addCollisionHandler(JSContext *cx, uint32_t argc, JS::Value *vp
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
     JSB_PRECONDITION( jsthis, "Invalid jsthis object");
-    struct jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    void *handle = proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    void *handle = proxy->ptr;
     
     JS::HandleValueArray argsv(args);
     return __jsb_cpSpace_addCollisionHandler(cx, argsv, 0, jsthis, (cpSpace*)handle, 1);
@@ -1190,8 +1200,8 @@ bool JSB_cpSpace_setDefaultCollisionHandler(JSContext *cx, uint32_t argc, JS::Va
     JSB_PRECONDITION2(argc==4, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSpace* space = (cpSpace*) proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSpace* space = (cpSpace*) proxy->ptr;
 
     collision_handler *handler = new (std::nothrow) collision_handler();
     JSB_PRECONDITION(handler, "Error allocating memory");
@@ -1298,8 +1308,8 @@ bool JSB_cpSpace_removeCollisionHandler(JSContext *cx, uint32_t argc, JS::Value 
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
     JSB_PRECONDITION( jsthis, "Invalid jsthis object");
 
-    struct jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    void *handle = proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    void *handle = proxy->ptr;
     
     JS::HandleValueArray argsv(args);
     return __jsb_cpSpace_removeCollisionHandler(cx, argsv, 0, (cpSpace*)handle);
@@ -1313,20 +1323,20 @@ bool JSB_cpSpace_addBody(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2(argc==1, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSpace* arg0 = (cpSpace*) proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSpace* arg0 = (cpSpace*) proxy->ptr;
     bool ok = true;
     cpBody* arg1 = nullptr;
 
     JS::RootedValue retval(cx, args.get(0));
-    struct jsb_c_proxy_s *retproxy;
+    js_proxy_t *retproxy;
     ok &= jsval_to_c_class(cx, args.get(0), (void**)&arg1, &retproxy);
     JSB_PRECONDITION(ok, "Error processing arguments");
 
     cpSpaceAddBody((cpSpace*)arg0 , (cpBody*)arg1  );
 
     // Root it:
-//    JS::AddNamedObjectRoot(cx, &retproxy->jsobj, "cpBody");
+//    JS::AddNamedObjectRoot(cx, &retproxy->obj, "cpBody");
 
     // addBody returns the same object that was added, so return it without conversions
     args.rval().set(retval);
@@ -1340,20 +1350,20 @@ bool JSB_cpSpace_addConstraint(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2(argc==1, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSpace* arg0 = (cpSpace*) proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSpace* arg0 = (cpSpace*) proxy->ptr;
     bool ok = true;
     cpConstraint* arg1 = nullptr;
 
     JS::RootedValue retval(cx, args.get(0));
-    struct jsb_c_proxy_s *retproxy;
+    js_proxy_t *retproxy;
     ok &= jsval_to_c_class( cx, args.get(0), (void**)&arg1, &retproxy );
     JSB_PRECONDITION(ok, "Error processing arguments");
 
     cpSpaceAddConstraint((cpSpace*)arg0 , (cpConstraint*)arg1  );
 
     // Root it:
-//    JS::AddNamedObjectRoot(cx, &retproxy->jsobj, "cpConstraint");
+//    JS::AddNamedObjectRoot(cx, &retproxy->obj, "cpConstraint");
 
     // addConstraint returns the same object that was added, so return it without conversions
     args.rval().set(retval);
@@ -1367,20 +1377,20 @@ bool JSB_cpSpace_addShape(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2(argc==1, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSpace* arg0 = (cpSpace*) proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSpace* arg0 = (cpSpace*) proxy->ptr;
     bool ok = true;
     cpShape* arg1 = nullptr;
 
     JS::RootedValue retval(cx, args.get(0));
-    struct jsb_c_proxy_s *retproxy;
+    js_proxy_t *retproxy;
     ok &= jsval_to_c_class( cx, args.get(0), (void**)&arg1, &retproxy );
     JSB_PRECONDITION(ok, "Error processing arguments");
 
     cpSpaceAddShape((cpSpace*)arg0 , (cpShape*)arg1  );
 
     // Root it:
-//    JS::AddNamedObjectRoot(cx, &retproxy->jsobj, "cpShape");
+//    JS::AddNamedObjectRoot(cx, &retproxy->obj, "cpShape");
 
     // addShape returns the same object that was added, so return it without conversions
     args.rval().set(retval);
@@ -1407,7 +1417,7 @@ bool JSB_cpSpace_addShape(JSContext *cx, uint32_t argc, JS::Value *vp) {
 //    cpSpaceAddStaticShape((cpSpace*)arg0 , (cpShape*)arg1  );
 //
 //    // Root it:
-//    JS::AddNamedObjectRoot(cx, &retproxy->jsobj, "cpShape (static)");
+//    JS::AddNamedObjectRoot(cx, &retproxy->obj, "cpShape (static)");
 //
 //    // addStaticShape returns the same object that was added, so return it without conversions
 //    args.rval().set(retval);
@@ -1423,8 +1433,8 @@ bool JSB_cpSpace_removeBody(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2(argc==1, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSpace* arg0 = (cpSpace*) proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSpace* arg0 = (cpSpace*) proxy->ptr;
     bool ok = true;
     cpBody* arg1 = nullptr;
 
@@ -1433,7 +1443,7 @@ bool JSB_cpSpace_removeBody(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION(ok, "Error processing arguments");
 
     cpSpaceRemoveBody((cpSpace*)arg0, (cpBody*)arg1);
-//    JS::RemoveObjectRoot(cx, &retproxy->jsobj);
+//    JS::RemoveObjectRoot(cx, &retproxy->obj);
 
     args.rval().setUndefined();
     return true;
@@ -1445,8 +1455,8 @@ bool JSB_cpSpace_removeConstraint(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2(argc==1, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSpace* arg0 = (cpSpace*) proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSpace* arg0 = (cpSpace*) proxy->ptr;
     bool ok = true;
     cpConstraint* arg1 = nullptr;
 
@@ -1455,7 +1465,7 @@ bool JSB_cpSpace_removeConstraint(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION(ok, "Error processing arguments");
 
     cpSpaceRemoveConstraint((cpSpace*)arg0 , (cpConstraint*)arg1  );
-//    JS::RemoveObjectRoot(cx, &retproxy->jsobj);
+//    JS::RemoveObjectRoot(cx, &retproxy->obj);
 
     args.rval().setUndefined();
     return true;
@@ -1467,8 +1477,8 @@ bool JSB_cpSpace_removeShape(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2(argc==1, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSpace* arg0 = (cpSpace*) proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSpace* arg0 = (cpSpace*) proxy->ptr;
     bool ok = true;
     cpShape* arg1 = nullptr;
 
@@ -1477,7 +1487,7 @@ bool JSB_cpSpace_removeShape(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION(ok, "Error processing arguments");
 
     cpSpaceRemoveShape((cpSpace*)arg0 , (cpShape*)arg1  );
-//    JS::RemoveObjectRoot(cx, &retproxy->jsobj);
+//    JS::RemoveObjectRoot(cx, &retproxy->obj);
 
     args.rval().setUndefined();
     return true;
@@ -1500,7 +1510,7 @@ bool JSB_cpSpace_removeShape(JSContext *cx, uint32_t argc, JS::Value *vp) {
 //    JSB_PRECONDITION(ok, "Error processing arguments");
 //
 //    cpSpaceRemoveStaticShape((cpSpace*)arg0 , (cpShape*)arg1  );
-//    JS::RemoveObjectRoot(cx, &retproxy->jsobj);
+//    JS::RemoveObjectRoot(cx, &retproxy->obj);
 //
 //    args.rval().setUndefined();
 //    return true;
@@ -1585,11 +1595,12 @@ struct JSB_cp_each_UserData
 //typedef void (*cpSpacePointQueryFunc)(cpShape *shape, cpVect point, cpFloat distance, cpVect gradient, void *data);
 void JSB_cpSpace_pointQuery_func(cpShape *shape, cpVect point, cpFloat distance, cpVect gradient, void *data)
 {
-    JSObject *jsCpObject = jsb_get_jsobject_for_proxy(shape);
-    if(jsCpObject)
+    auto proxy = jsb_get_native_proxy(shape);
+    if(proxy)
     {
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
         JSContext* cx = ((JSB_cp_each_UserData*)data)->cx;
+        JS::RootedObject jsCpObject(cx, proxy->obj);
         JS::RootedValue func(cx, *((JSB_cp_each_UserData*)data)->func);
         JS::RootedValue rval(cx);
 
@@ -1611,9 +1622,9 @@ bool JSB_cpSpace_pointQuery(JSContext *cx, uint32_t argc, JS::Value *vp)
     JSB_PRECONDITION2(argc == 4, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
-    JSObject* jsthis = args.thisv().toObjectOrNull();
-    struct jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSpace* space = (cpSpace*) proxy->handle;
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSpace* space = (cpSpace*) proxy->ptr;
 
     cpVect point;
     double maxDistance;
@@ -1642,11 +1653,12 @@ bool JSB_cpSpace_pointQuery(JSContext *cx, uint32_t argc, JS::Value *vp)
 // Replaced with cpSpacePointQueryNearest() which also uses different arguments
 //void JSB_cpSpace_nearestPointQuery_func(cpShape *shape, cpFloat distance, cpVect point, void *data)
 //{
-//    JSObject *jsCpObject = jsb_get_jsobject_for_proxy(shape);
-//    if(jsCpObject)
+//    auto proxy = jsb_get_native_proxy(cpObject);
+//    if (proxy)
 //    {
 //        JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 //        JSContext* cx = ((JSB_cp_each_UserData*)data)->cx;
+//        JS::RootedObject jsCpObject(cx, proxy->obj);
 //        JS::RootedValue func(cx, *((JSB_cp_each_UserData*)data)->func);
 //        JS::RootedValue rval(cx);
 //        JS::AutoValueVector args(cx);
@@ -1665,9 +1677,9 @@ bool JSB_cpSpace_pointQuery(JSContext *cx, uint32_t argc, JS::Value *vp)
 //    JSB_PRECONDITION2(argc == 5, cx, false, "Invalid number of arguments");
 //    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 //
-//    JSObject* jsthis = args.thisv().toObjectOrNull();
-//    struct jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-//    cpSpace* space = (cpSpace*) proxy->handle;
+//    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+//    auto proxy = jsb_get_js_proxy(jsthis);
+//    cpSpace* space = (cpSpace*) proxy->ptr;
 //
 //    cpVect point;
 //    double maxDistance = 0;
@@ -1698,11 +1710,12 @@ bool JSB_cpSpace_pointQuery(JSContext *cx, uint32_t argc, JS::Value *vp)
 // typedef void (*cpSpaceSegmentQueryFunc)(cpShape *shape, cpVect point, cpVect normal, cpFloat alpha, void *data);
 void JSB_cpSpace_segmentQuery_func(cpShape *shape, cpVect point, cpVect normal, cpFloat alpha, void *data)
 {
-    JSObject *jsCpObject = jsb_get_jsobject_for_proxy(shape);
-    if(jsCpObject)
+    auto proxy = jsb_get_native_proxy(shape);
+    if (proxy)
     {
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
         JSContext* cx = ((JSB_cp_each_UserData*)data)->cx;
+        JS::RootedObject jsCpObject(cx, proxy->obj);
         JS::RootedValue func(cx, *((JSB_cp_each_UserData*)data)->func);
         JS::RootedValue rval(cx);
         JS::AutoValueVector args(cx);
@@ -1725,8 +1738,8 @@ bool JSB_cpSpace_segmentQuery(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSpace* space = (cpSpace*) proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSpace* space = (cpSpace*) proxy->ptr;
 
     cpVect start, end;
     double radius;
@@ -1755,11 +1768,12 @@ bool JSB_cpSpace_segmentQuery(JSContext *cx, uint32_t argc, JS::Value *vp)
 // typedef void (*cpSpaceBBQueryFunc)(cpShape *shape, void *data);
 void JSB_cpSpace_bbQuery_func(cpShape *shape, void *data)
 {
-    JSObject *jsCpObject = jsb_get_jsobject_for_proxy(shape);
-    if(jsCpObject)
+    auto proxy = jsb_get_native_proxy(shape);
+    if (proxy)
     {
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
         JSContext* cx = ((JSB_cp_each_UserData*)data)->cx;
+        JS::RootedObject jsCpObject(cx, proxy->obj);
         JS::RootedValue func(cx, *((JSB_cp_each_UserData*)data)->func);
         JS::RootedValue rval(cx);
 
@@ -1777,9 +1791,9 @@ bool JSB_cpSpace_bbQuery(JSContext *cx, uint32_t argc, JS::Value *vp)
     JSB_PRECONDITION2(argc == 4, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
-    JSObject* jsthis = args.thisv().toObjectOrNull();
-    struct jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSpace* space = (cpSpace*) proxy->handle;
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSpace* space = (cpSpace*) proxy->ptr;
 
     cpBB bb;
     cpShapeFilter filter;
@@ -1807,10 +1821,11 @@ void JSB_cpSpace_each_func(T* cpObject, void *data)
 {
     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
-    JSObject *jsCpObject = jsb_get_jsobject_for_proxy(cpObject);
-    if(jsCpObject)
+    auto proxy = jsb_get_native_proxy(cpObject);
+    if(proxy)
     {
         JSContext* cx = ((JSB_cp_each_UserData*)data)->cx;
+        JS::RootedObject jsCpObject(cx, proxy->obj);
         JS::RootedValue func(cx, *((JSB_cp_each_UserData*)data)->func);
         JS::RootedValue rval(cx);
         JS::RootedValue argv(cx, JS::ObjectOrNullValue(jsCpObject));
@@ -1825,8 +1840,8 @@ bool JSB_cpSpace_eachShape(JSContext *cx, uint32_t argc, JS::Value *vp)
     JSB_PRECONDITION2(argc == 1, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSpace* space = (cpSpace*)proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSpace* space = (cpSpace*)proxy->ptr;
 
     JSB_cp_each_UserData *data = (JSB_cp_each_UserData*)malloc(sizeof(JSB_cp_each_UserData));
     if (!data)
@@ -1845,8 +1860,8 @@ bool JSB_cpSpace_eachBody(JSContext *cx, uint32_t argc, JS::Value *vp)
     JSB_PRECONDITION2(argc == 1, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSpace* space = (cpSpace*)proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSpace* space = (cpSpace*)proxy->ptr;
 
     JSB_cp_each_UserData *data = (JSB_cp_each_UserData*)malloc(sizeof(JSB_cp_each_UserData));
     if (!data)
@@ -1865,8 +1880,8 @@ bool JSB_cpSpace_eachConstraint(JSContext *cx, uint32_t argc, JS::Value *vp)
     JSB_PRECONDITION2(argc == 1, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSpace* space = (cpSpace*)proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSpace* space = (cpSpace*)proxy->ptr;
 
     JSB_cp_each_UserData *data = (JSB_cp_each_UserData*)malloc(sizeof(JSB_cp_each_UserData));
     if (!data)
@@ -1886,10 +1901,11 @@ void JSB_cpBody_each_func(cpBody *body, T* cpObject, void *data)
 {
     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
-    JSObject *jsCpObject = jsb_get_jsobject_for_proxy(cpObject);
-    if(jsCpObject)
+    auto proxy = jsb_get_native_proxy(cpObject);
+    if (proxy)
     {
         JSContext* cx = ((JSB_cp_each_UserData*)data)->cx;
+        JS::RootedObject jsCpObject(cx, proxy->obj);
         JS::RootedValue func(cx, *((JSB_cp_each_UserData*)data)->func);
         JS::RootedValue rval(cx);
         JS::RootedValue argv(cx, JS::ObjectOrNullValue(jsCpObject));
@@ -1904,8 +1920,8 @@ bool JSB_cpBody_eachShape(JSContext *cx, uint32_t argc, JS::Value *vp)
     JSB_PRECONDITION2(argc == 1, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpBody* body = (cpBody*)proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpBody* body = (cpBody*)proxy->ptr;
 
     JSB_cp_each_UserData *data = (JSB_cp_each_UserData*)malloc(sizeof(JSB_cp_each_UserData));
     if (!data)
@@ -1924,8 +1940,8 @@ bool JSB_cpBody_eachConstraint(JSContext *cx, uint32_t argc, JS::Value *vp)
     JSB_PRECONDITION2(argc == 1, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpBody* body = (cpBody*)proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpBody* body = (cpBody*)proxy->ptr;
 
     JSB_cp_each_UserData *data = (JSB_cp_each_UserData*)malloc(sizeof(JSB_cp_each_UserData));
     if (!data)
@@ -1944,8 +1960,8 @@ bool JSB_cpBody_eachArbiter(JSContext *cx, uint32_t argc, JS::Value *vp)
     JSB_PRECONDITION2(argc == 1, cx, false, "Invalid number of arguments");
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpBody* body = (cpBody*)proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpBody* body = (cpBody*)proxy->ptr;
 
     JSB_cp_each_UserData *data = (JSB_cp_each_UserData*)malloc(sizeof(JSB_cp_each_UserData));
     if (!data)
@@ -1967,8 +1983,8 @@ bool JSB_cpShape_pointQuery(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpShape* shape = (cpShape*) proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpShape* shape = (cpShape*) proxy->ptr;
 
     cpVect p;
 
@@ -1991,8 +2007,8 @@ bool JSB_cpShape_segmentQuery(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    struct jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpShape* shape = (cpShape*) proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpShape* shape = (cpShape*) proxy->ptr;
 
     cpVect a, b;
     double radius = 10;
@@ -2035,9 +2051,9 @@ bool JSB_cpSpace_addPostStepCallback(JSContext *cx, uint32_t argc, JS::Value *vp
     JSB_PRECONDITION2(argc == 1, cx, false, "Invalid number of arguments");
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JSObject* jsthis = args.thisv().toObjectOrNull();
-    jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    cpSpace* space = (cpSpace*)proxy->handle;
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    auto proxy = jsb_get_js_proxy(jsthis);
+    cpSpace* space = (cpSpace*)proxy->ptr;
 
     __PostStep_data* volatile data = (__PostStep_data*)malloc(sizeof(__PostStep_data));
     if (!data)
@@ -2106,9 +2122,9 @@ bool JSB_cpArbiter_getBodies(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
     JSB_PRECONDITION( jsthis, "Invalid jsthis object");
 
-    struct jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
+    auto proxy = jsb_get_js_proxy(jsthis);
     JSB_PRECONDITION( proxy, "Invalid private object");
-    void *handle = proxy->handle;
+    void *handle = proxy->ptr;
     return __jsb_cpArbiter_getBodies(cx, args, (cpArbiter*)handle, 1);
 }
 
@@ -2162,8 +2178,8 @@ bool JSB_cpArbiter_getShapes(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
     JSB_PRECONDITION( jsthis, "Invalid jsthis object");
 
-    struct jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    void *handle = proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    void *handle = proxy->ptr;
     return __jsb_cpArbiter_getShapes(cx, args, (cpArbiter*)handle, 1);
 }
 
@@ -2176,7 +2192,7 @@ bool JSB_cpBody_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JSB_PRECONDITION2(argc==2, cx, false, "Invalid number of arguments");
     JS::RootedObject bodyProto(cx, JSB_cpBody_object);
-    JSObject *jsobj = JS_NewObjectWithGivenProto(cx, JSB_cpBody_class, bodyProto);
+    JS::RootedObject jsobj(cx, JS_NewObjectWithGivenProto(cx, JSB_cpBody_class, bodyProto));
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     double m = args.get(0).toNumber();
     double i = args.get(1).toNumber();
@@ -2188,13 +2204,13 @@ bool JSB_cpBody_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
         // XXX: Hack. IT WILL LEAK "rogue" objects., But at least it prevents a crash.
         // The thing is that "rogue" bodies needs to be freed after the its shape, and I am not sure
         // how to do it in a "js" way.
-        jsb_set_c_proxy_for_jsobject(jsobj, ret_body, JSB_C_FLAG_DO_NOT_CALL_FREE);
+        JS_SetPrivate(jsobj, &JSB_C_FLAG_DO_NOT_CALL_FREE);
     } else {
         ret_body = cpBodyNew((cpFloat)m , (cpFloat)i  );
-        jsb_set_c_proxy_for_jsobject(jsobj, ret_body, JSB_C_FLAG_CALL_FREE);
+        JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
     }
 
-    jsb_set_jsobject_for_proxy(jsobj, ret_body);
+    jsb_new_proxy(ret_body, jsobj);
 
     args.rval().set(JS::ObjectOrNullValue(jsobj));
     return true;
@@ -2205,7 +2221,7 @@ bool JSB_cpBody_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 static
 bool __jsb_cpBody_getUserData(JSContext *cx, const JS::CallArgs& args, cpBody *body)
 {
-    JSObject *data = (JSObject*) cpBodyGetUserData(body);
+    JS::RootedObject data(cx, cpBodyGetUserData(body));
     args.rval().set(JS::ObjectOrNullValue(data));
 
     return true;
@@ -2232,8 +2248,8 @@ bool JSB_cpBody_getUserData(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
     JSB_PRECONDITION( jsthis, "Invalid jsthis object");
 
-    struct jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    void *handle = proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    void *handle = proxy->ptr;
     return __jsb_cpBody_getUserData(cx, args, (cpBody*)handle);
 }
 
@@ -2276,8 +2292,8 @@ bool JSB_cpBody_setUserData(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
     JSB_PRECONDITION( jsthis, "Invalid jsthis object");
 
-    struct jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    void *handle = proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    void *handle = proxy->ptr;
     return __jsb_cpBody_setUserData(cx, vp, args.array(), (cpBody*)handle);
 }
 
@@ -2379,7 +2395,7 @@ bool JSB_cpBase_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JSB_PRECONDITION2( argc==1, cx, false, "Invalid arguments. Expecting 1");
     JS::RootedObject baseProto(cx, JSB_cpBase_object);
-    JSObject *jsobj = JS_NewObjectWithGivenProto(cx, JSB_cpBase_class, baseProto);
+    JS::RootedObject jsobj(cx, JS_NewObjectWithGivenProto(cx, JSB_cpBase_class, baseProto));
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -2390,8 +2406,8 @@ bool JSB_cpBase_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 
     JSB_PRECONDITION(ok, "Error converting arguments for JSB_cpBase_constructor");
 
-    jsb_set_c_proxy_for_jsobject(jsobj, handle, JSB_C_FLAG_DO_NOT_CALL_FREE);
-    jsb_set_jsobject_for_proxy(jsobj, handle);
+    jsb_new_proxy(handle, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_DO_NOT_CALL_FREE);
 
     args.rval().set(JS::ObjectOrNullValue(jsobj));
     return true;
@@ -2421,8 +2437,8 @@ bool JSB_cpBase_getHandle(JSContext *cx, uint32_t argc, JS::Value *vp)
     JSB_PRECONDITION( jsthis, "Invalid jsthis object");
     JSB_PRECONDITION2(argc==0, cx, false, "Invalid number of arguments");
 
-    struct jsb_c_proxy_s* proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    void *handle = proxy->handle;
+    auto proxy = jsb_get_js_proxy(jsthis);
+    void *handle = proxy->ptr;
 
     JS::RootedValue ret_val(cx, opaque_to_jsval(cx, handle));
     args.rval().set(ret_val);
@@ -2440,8 +2456,8 @@ bool JSB_cpBase_setHandle(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = jsval_to_opaque(cx, args.get(0), &handle);
     JSB_PRECONDITION( ok, "Invalid parsing arguments");
 
-    jsb_set_c_proxy_for_jsobject(jsthis, handle, JSB_C_FLAG_DO_NOT_CALL_FREE);
-    jsb_set_jsobject_for_proxy(jsthis, handle);
+    jsb_new_proxy(handle, jsthis);
+    JS_SetPrivate(jsthis, &JSB_C_FLAG_DO_NOT_CALL_FREE);
 
     args.rval().setUndefined();
     return true;
@@ -2486,7 +2502,7 @@ bool JSB_cpPolyShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JSB_PRECONDITION2(argc==4 || argc==3, cx, false, "Invalid number of arguments");
     JS::RootedObject polyShapeProto(cx, JSB_cpPolyShape_object);
-    JSObject *jsobj = JS_NewObjectWithGivenProto(cx, JSB_cpPolyShape_class, polyShapeProto);
+    JS::RootedObject jsobj(cx, JS_NewObjectWithGivenProto(cx, JSB_cpPolyShape_class, polyShapeProto));
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     cpBody* body = nullptr; cpVect *verts = nullptr;
@@ -2508,8 +2524,8 @@ bool JSB_cpPolyShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     JSB_PRECONDITION(ok, "Error processing arguments");
     cpShape *shape = cpPolyShapeNew(body, numVerts, verts, transform, radius);
 
-    jsb_set_c_proxy_for_jsobject(jsobj, shape, JSB_C_FLAG_CALL_FREE);
-    jsb_set_jsobject_for_proxy(jsobj, shape);
+    jsb_new_proxy(shape, jsobj);
+    JS_SetPrivate(jsobj, &JSB_C_FLAG_CALL_FREE);
 
     args.rval().set(JS::ObjectOrNullValue(jsobj));
 
@@ -2521,8 +2537,9 @@ bool JSB_cpPolyShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool JSB_cpPolyShape_getVerts(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(args.thisv().toObjectOrNull());
-    const cpPolyShape* polyShape = (cpPolyShape*) proxy->handle;
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    auto proxy = jsb_get_js_proxy(jsthis);
+    const cpPolyShape* polyShape = (cpPolyShape*) proxy->ptr;
     int numVerts = cpPolyShapeGetCount(&polyShape->shape);
 
     JS::RootedObject jsretArr(cx, JS_NewArrayObject(cx, 0));
@@ -2546,8 +2563,8 @@ bool JSB_cpPolyShape_getVerts(JSContext *cx, uint32_t argc, JS::Value *vp)
 //static bool js_get_cpPolyShape_planes(JSContext *cx, uint32_t argc, JS::Value *vp)
 //{
 //    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-//    struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(args.thisv().toObjectOrNull());
-//    cpPolyShape* shape = (cpPolyShape*) proxy->handle;
+//    auto proxy = jsb_get_js_proxy(args.thisv().toObjectOrNull());
+//    cpPolyShape* shape = (cpPolyShape*) proxy->ptr;
 //    int numVerts = shape->numVerts;
 //    cpSplittingPlane* planes = shape->planes;
 //
@@ -2557,13 +2574,18 @@ bool JSB_cpPolyShape_getVerts(JSContext *cx, uint32_t argc, JS::Value *vp)
 //        cpSplittingPlane *plane = planes + i;
 //        JS::RootedValue elem(cx);
 //
-//        JS::RootedObject jsobj(cx, jsb_get_jsobject_for_proxy(plane));
-//        if(!jsobj)
+//        auto proxy = jsb_get_native_proxy(cpObject);
+//        JS::RootedObject jsobj(cx);
+//        if (!proxy)
 //        {
 //            JS::RootedObject splittingPlaneProto(cx, JSB_cpSplittingPlane_object);
 //            jsobj = JS_NewObjectWithGivenProto(cx, JSB_cpSplittingPlane_class, splittingPlaneProto);
-//            jsb_set_jsobject_for_proxy(jsobj, plane);
-//            jsb_set_c_proxy_for_jsobject(jsobj, plane, JSB_C_FLAG_DO_NOT_CALL_FREE);
+//            jsb_new_proxy(plane, jsobj);
+//            JS_SetPrivate(jsobj, &JSB_C_FLAG_DO_NOT_CALL_FREE);
+//        }
+//        else
+//        {
+//            jsobj = proxy->obj;
 //        }
 //
 //        elem = JS::ObjectOrNullValue(jsobj);
@@ -2585,16 +2607,12 @@ bool JSB_cpPolyShape_getVerts(JSContext *cx, uint32_t argc, JS::Value *vp)
 
 static void unroot_jsobject_from_handle(void *handle)
 {
-    JSObject *jsobj = jsb_get_jsobject_for_proxy(handle);
-    //2014.9.19 by joshua
-    //add safe guard
-    if(jsobj)
+    auto proxy = jsb_get_native_proxy(handle);
+    if (proxy)
     {
-        struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsobj);
-
         // HACK context from global
         JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-//        JS::RemoveObjectRoot(cx, &proxy->jsobj);
+//        JS::RemoveObjectRoot(cx, &proxy->obj);
     }
 
 }

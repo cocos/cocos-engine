@@ -824,7 +824,7 @@ JS_BINDED_FUNC_IMPL(MinXmlHttpRequest, send)
         }
         else if (args.get(0).isObject())
         {
-            JSObject *obj = args.get(0).toObjectOrNull();
+            JS::RootedObject obj(cx, args.get(0).toObjectOrNull());
             bool flag;
             if (JS_IsArrayBufferObject(obj))
             {

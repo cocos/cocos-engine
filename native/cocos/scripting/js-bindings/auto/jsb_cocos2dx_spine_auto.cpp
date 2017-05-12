@@ -81,7 +81,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_setAttachment(JSContext *cx, uint32_t ar
             std::string arg1_tmp; ok &= jsval_to_std_string(cx, args.get(1), &arg1_tmp); arg1 = arg1_tmp.c_str();
             if (!ok) { ok = true; break; }
             bool ret = cobj->setAttachment(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -98,7 +98,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_setAttachment(JSContext *cx, uint32_t ar
             ok &= jsval_to_std_string(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             bool ret = cobj->setAttachment(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -481,7 +481,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_setSkin(JSContext *cx, uint32_t argc, JS
             std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
             if (!ok) { ok = true; break; }
             bool ret = cobj->setSkin(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -495,7 +495,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_setSkin(JSContext *cx, uint32_t argc, JS
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
             bool ret = cobj->setSkin(arg0);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
             args.rval().set(jsret);
             return true;
@@ -515,7 +515,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_getSkeleton(JSContext *cx, uint32_t argc
     if (argc == 0) {
         spSkeleton* ret = cobj->getSkeleton();
         JS::RootedValue jsret(cx);
-        jsret = ret == nullptr ? JS::NullValue() : spskeleton_to_jsval(cx, *ret);
+        jsret = ret == nullptr ? JS::NullHandleValue : spskeleton_to_jsval(cx, *ret);
         args.rval().set(jsret);
         return true;
     }
@@ -570,11 +570,11 @@ bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(JSContext *cx, uint32_t a
 			ok = false;
             if (!ok) { ok = true; break; }
             spine::SkeletonRenderer* ret = spine::SkeletonRenderer::createWithFile(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<spine::SkeletonRenderer>(cx, (spine::SkeletonRenderer*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -594,11 +594,11 @@ bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(JSContext *cx, uint32_t a
             arg2 = (float)(args.get(2).toNumber());
             if (!ok) { ok = true; break; }
             spine::SkeletonRenderer* ret = spine::SkeletonRenderer::createWithFile(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<spine::SkeletonRenderer>(cx, (spine::SkeletonRenderer*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -608,11 +608,11 @@ bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(JSContext *cx, uint32_t a
     do {
         if (argc == 0) {
             spine::SkeletonRenderer* ret = spine::SkeletonRenderer::create();
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<spine::SkeletonRenderer>(cx, (spine::SkeletonRenderer*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -629,11 +629,11 @@ bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(JSContext *cx, uint32_t a
             ok &= jsval_to_std_string(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             spine::SkeletonRenderer* ret = spine::SkeletonRenderer::createWithFile(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<spine::SkeletonRenderer>(cx, (spine::SkeletonRenderer*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -652,11 +652,11 @@ bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(JSContext *cx, uint32_t a
             arg2 = (float)(args.get(2).toNumber());
             if (!ok) { ok = true; break; }
             spine::SkeletonRenderer* ret = spine::SkeletonRenderer::createWithFile(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<spine::SkeletonRenderer>(cx, (spine::SkeletonRenderer*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -906,7 +906,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_findAnimation(JSContext *cx, uint32_t a
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonAnimation_findAnimation : Error processing arguments");
         spAnimation* ret = cobj->findAnimation(arg0);
         JS::RootedValue jsret(cx);
-        jsret = ret == nullptr ? JS::NullValue() : spanimation_to_jsval(cx, *ret);
+        jsret = ret == nullptr ? JS::NullHandleValue : spanimation_to_jsval(cx, *ret);
         args.rval().set(jsret);
         return true;
     }
@@ -961,7 +961,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_setDisposeListener(JSContext *cx, uint3
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = larg0 == nullptr ? JS::NullValue() : sptrackentry_to_jsval(cx, *larg0);
+		            largv = larg0 == nullptr ? JS::NullHandleValue : sptrackentry_to_jsval(cx, *larg0);
 		            valArr.append(largv);
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
@@ -1010,7 +1010,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_setEndListener(JSContext *cx, uint32_t 
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = larg0 == nullptr ? JS::NullValue() : sptrackentry_to_jsval(cx, *larg0);
+		            largv = larg0 == nullptr ? JS::NullHandleValue : sptrackentry_to_jsval(cx, *larg0);
 		            valArr.append(largv);
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
@@ -1046,7 +1046,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_getState(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         spAnimationState* ret = cobj->getState();
         JS::RootedValue jsret(cx);
-        jsret = ret == nullptr ? JS::NullValue() : spanimationstate_to_jsval(cx, *ret);
+        jsret = ret == nullptr ? JS::NullHandleValue : spanimationstate_to_jsval(cx, *ret);
         args.rval().set(jsret);
         return true;
     }
@@ -1077,7 +1077,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_setCompleteListener(JSContext *cx, uint
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = larg0 == nullptr ? JS::NullValue() : sptrackentry_to_jsval(cx, *larg0);
+		            largv = larg0 == nullptr ? JS::NullHandleValue : sptrackentry_to_jsval(cx, *larg0);
 		            valArr.append(largv);
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
@@ -1126,9 +1126,9 @@ bool js_cocos2dx_spine_SkeletonAnimation_setEventListener(JSContext *cx, uint32_
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = larg0 == nullptr ? JS::NullValue() : sptrackentry_to_jsval(cx, *larg0);
+		            largv = larg0 == nullptr ? JS::NullHandleValue : sptrackentry_to_jsval(cx, *larg0);
 		            valArr.append(largv);
-		            largv = larg1 == nullptr ? JS::NullValue() : spevent_to_jsval(cx, *larg1);
+		            largv = larg1 == nullptr ? JS::NullHandleValue : spevent_to_jsval(cx, *larg1);
 		            valArr.append(largv);
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
@@ -1202,7 +1202,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_setInterruptListener(JSContext *cx, uin
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = larg0 == nullptr ? JS::NullValue() : sptrackentry_to_jsval(cx, *larg0);
+		            largv = larg0 == nullptr ? JS::NullHandleValue : sptrackentry_to_jsval(cx, *larg0);
 		            valArr.append(largv);
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
@@ -1267,7 +1267,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_setStartListener(JSContext *cx, uint32_
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = larg0 == nullptr ? JS::NullValue() : sptrackentry_to_jsval(cx, *larg0);
+		            largv = larg0 == nullptr ? JS::NullHandleValue : sptrackentry_to_jsval(cx, *larg0);
 		            valArr.append(largv);
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
@@ -1307,11 +1307,11 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile(JSContext *cx, uin
             ok &= jsval_to_std_string(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* ret = spine::SkeletonAnimation::createWithBinaryFile(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<spine::SkeletonAnimation>(cx, (spine::SkeletonAnimation*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -1330,11 +1330,11 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile(JSContext *cx, uin
             arg2 = (float)(args.get(2).toNumber());
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* ret = spine::SkeletonAnimation::createWithBinaryFile(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<spine::SkeletonAnimation>(cx, (spine::SkeletonAnimation*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -1352,11 +1352,11 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile(JSContext *cx, uin
 			ok = false;
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* ret = spine::SkeletonAnimation::createWithBinaryFile(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<spine::SkeletonAnimation>(cx, (spine::SkeletonAnimation*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -1376,11 +1376,11 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile(JSContext *cx, uin
             arg2 = (float)(args.get(2).toNumber());
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* ret = spine::SkeletonAnimation::createWithBinaryFile(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<spine::SkeletonAnimation>(cx, (spine::SkeletonAnimation*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -1418,11 +1418,11 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile(JSContext *cx, uint3
             ok &= jsval_to_std_string(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* ret = spine::SkeletonAnimation::createWithJsonFile(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<spine::SkeletonAnimation>(cx, (spine::SkeletonAnimation*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -1441,11 +1441,11 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile(JSContext *cx, uint3
             arg2 = (float)(args.get(2).toNumber());
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* ret = spine::SkeletonAnimation::createWithJsonFile(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<spine::SkeletonAnimation>(cx, (spine::SkeletonAnimation*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -1463,11 +1463,11 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile(JSContext *cx, uint3
 			ok = false;
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* ret = spine::SkeletonAnimation::createWithJsonFile(arg0, arg1);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<spine::SkeletonAnimation>(cx, (spine::SkeletonAnimation*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;
@@ -1487,11 +1487,11 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile(JSContext *cx, uint3
             arg2 = (float)(args.get(2).toNumber());
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* ret = spine::SkeletonAnimation::createWithJsonFile(arg0, arg1, arg2);
-            JS::RootedValue jsret(cx, JS::NullValue());
+            JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
                 jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<spine::SkeletonAnimation>(cx, (spine::SkeletonAnimation*)ret));
             } else {
-                jsret = JS::NullValue();
+                jsret = JS::NullHandleValue;
             };
             args.rval().set(jsret);
             return true;

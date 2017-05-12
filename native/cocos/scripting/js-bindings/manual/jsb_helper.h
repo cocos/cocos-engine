@@ -65,7 +65,7 @@ bool klass::name(JSContext *cx, unsigned argc, JS::Value *vp)
 
 #define JS_WRAP_OBJECT_IN_VAL(klass, cobj, out) \
 do { \
-JSObject *obj = JS_NewObjectWithGivenProto(cx, &klass::js_class, klass::js_proto); \
+JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, &klass::js_class, klass::js_proto)); \
 if (obj) { \
 JS_SetPrivate(obj, cobj); \
 out = JS::ObjectOrNullValue(obj); \
