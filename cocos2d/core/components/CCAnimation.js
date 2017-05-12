@@ -218,16 +218,7 @@ var Animation = cc.Class({
      */
     play: function (name, startTime) {
         var state = this.playAdditive(name, startTime);
-        var playingStates = this._animator.playingAnims;
-
-        for (var i = playingStates.length; i >= 0; i--) {
-            if (playingStates[i] === state) {
-                continue;
-            }
-
-            this._animator.stopState(playingStates[i]);
-        }
-
+        this._animator.stopStatesExcept(state);
         return state;
     },
 
@@ -249,9 +240,11 @@ var Animation = cc.Class({
     playAdditive: function (name, startTime) {
         this._init();
         var state = this.getAnimationState(name || (this._defaultClip && this._defaultClip.name));
-        if (state) {
-            var animator = this._animator;
 
+        if (state) {
+            this.enabled = true;
+            
+            var animator = this._animator;
             if (animator.isPlaying && state.isPlaying) {
                 if (state.isPaused) {
                     animator.resumeState(state);
@@ -545,11 +538,7 @@ var Animation = cc.Class({
             }
         }
 
-        var anims = this._animator.playingAnims;
-        for (var j = 0, jj = anims.length; j < jj; j++) {
-            anims[j].on(type, callback, target, useCapture);
-        }
-
+        this._animator.on(type, callback, target, useCapture);
         listeners.push([type, callback, target, useCapture]);
 
         return callback;

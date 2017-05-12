@@ -97,8 +97,10 @@ prototype.play = function () {
 prototype.stop = function () {
     if (this._isPlaying) {
         this._isPlaying = false;
-        this._isPaused = false;
         this.onStop();
+
+        // need reset pause flag after onStop
+        this._isPaused = false;
     }
 };
 
@@ -120,7 +122,7 @@ prototype.pause = function () {
  * @method resume
  */
 prototype.resume = function () {
-    if (this._isPlaying) {
+    if (this._isPlaying && this._isPaused) {
         this._isPaused = false;
         this.onResume();
     }

@@ -1111,32 +1111,32 @@ test('stop Animation', function () {
     };
 
     var animationManager = cc.director.getAnimationManager();
-    animationManager.animators.length = 0;
+    animationManager._animators.array.length = 0;
 
     animation.addClip(clip);
     animation._init();
 
     animation.play('test');
 
-    strictEqual(animationManager.animators.length, 1, 'playing animators should be 1');
-    strictEqual(animation._animator.playingAnims.length, 1, 'playing anims should be 1');
+    strictEqual(animationManager._animators.array.length, 1, 'playing animators should be 1');
+    strictEqual(animation._animator._anims.array.length, 1, 'playing anims should be 1');
 
     animationManager.update(0);
     animationManager.update(1);
 
-    strictEqual(animationManager.animators.length, 0, 'playing animators should be 0');
-    strictEqual(animation._animator.playingAnims.length, 0, 'playing anims should be 0');
+    strictEqual(animationManager._animators.array.length, 0, 'playing animators should be 0');
+    strictEqual(animation._animator._anims.array.length, 0, 'playing anims should be 0');
 
     animation.play('test');
     animationManager.update(0.5);
 
-    strictEqual(animationManager.animators.length, 1, 'playing animators should be 1');
-    strictEqual(animation._animator.playingAnims.length, 1, 'playing anims should be 1');
+    strictEqual(animationManager._animators.array.length, 1, 'playing animators should be 1');
+    strictEqual(animation._animator._anims.array.length, 1, 'playing anims should be 1');
 
     animation.stop();
 
-    strictEqual(animationManager.animators.length, 0, 'playing animators should be 0');
-    strictEqual(animation._animator.playingAnims.length, 0, 'playing anims should be 0');
+    strictEqual(animationManager._animators.array.length, 0, 'playing animators should be 0');
+    strictEqual(animation._animator._anims.array.length, 0, 'playing anims should be 0');
 });
 
 test('play Animation', function () {
@@ -1529,20 +1529,27 @@ test('animation pause/resume should remove animation-actor from animation manage
 
     var manager = cc.director.getAnimationManager();
 
-    animation.play('test');
-    strictEqual(manager.animators.length, 1, 'should add 1 animation to animation manager');
+    var state = animation.play('test');
+    strictEqual(manager._animators.array.length, 1, 'should add 1 animation to animation manager');
 
     animation.pause();
-    strictEqual(manager.animators.length, 0, 'should remove animation from animation manager');
+    strictEqual(manager._animators.array.length, 0, 'should remove animation from animation manager');
+    strictEqual(state.animator, null, 'should unbind animator to animation state when pause animation');
 
     animation.resume();
-    strictEqual(manager.animators.length, 1, 'should add 1 animation to animation manager');
+    strictEqual(manager._animators.array.length, 1, 'should add 1 animation to animation manager');
+    strictEqual(state.animator, animation._animator, 'should rebind animator to animation state when pause animation');
     
     animation.stop();
-    strictEqual(manager.animators.length, 0, 'should remove animation from animation manager');
+    strictEqual(manager._animators.array.length, 0, 'should remove animation from animation manager');
+
+    // should not see error log in console
+    animation.play('test');
+    animation.pause();
+    animation.stop();
 
     animation.play('test');
     entity.parent = null;
 
-    strictEqual(manager.animators.length, 0, 'should remove animation from animation manager');
+    strictEqual(manager._animators.array.length, 0, 'should remove animation from animation manager');
 });

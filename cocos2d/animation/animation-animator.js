@@ -54,9 +54,11 @@ p.removeAnimation = function (anim) {
 };
 
 p.sample = function () {
-    var anims = this.playingAnims;
-    for (var i = 0; i < anims.length; i++) {
-        anims[i].sample();
+    var iterator = this._anims;
+    var array = iterator.array;
+    for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+        var anim = array[iterator.i];
+        anim.sample();
     }
 };
 
@@ -92,36 +94,51 @@ p.setStateTime = function (state, time) {
     else {
         time = state;
 
-        var anims = this.playingAnims;
-        for (var i = 0, l = anims.length; i < l; i++) {
-            anims[i].setTime(time);
-            anims[i].sample();
+        var iterator = this._anims;
+        var array = iterator.array;
+        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+            var anim = array[iterator.i];
+            anim.setTime(time);
+            anim.sample();
         }
     }
 };
 
 p.onStop = function () {
-    var anims = this.playingAnims;
-    for (var i = anims.length - 1; i >= 0; i--) {
-        anims[i].stop();
+    var iterator = this._anims;
+    var array = iterator.array;
+    for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+        var anim = array[iterator.i];
+        anim.stop();
     }
 
     Animator.prototype.onStop.call(this);
 };
 
 p.onPause = function () {
-    var anims = this.playingAnims;
-    for (var i = 0, l = anims.length; i < l; i++) {
-        anims[i].pause();
+    var iterator = this._anims;
+    var array = iterator.array;
+    for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+        var anim = array[iterator.i];
+        anim.pause();
+
+        // need to unbind animator to anim, or it maybe cannot be gc.
+        anim.animator = null;
     }
 
     Animator.prototype.onPause.call(this);
 };
 
 p.onResume = function () {
-    var anims = this.playingAnims;
-    for (var i = 0, l = anims.length; i < l; i++) {
-        anims[i].resume();
+    var iterator = this._anims;
+    var array = iterator.array;
+    for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+        var anim = array[iterator.i];
+        
+        // rebind animator to anim
+        anim.animator = this;
+
+        anim.resume();
     }
 
     Animator.prototype.onResume.call(this);
