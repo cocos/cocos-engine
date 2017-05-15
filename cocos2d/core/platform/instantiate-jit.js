@@ -31,7 +31,6 @@ var PersistentMask = CCObject.Flags.PersistentMask;
 var Attr = require('./attribute');
 var JS = require('./js');
 var CCClass = require('./CCClass');
-var Pool = require('../utils/misc').Pool;
 
 var SERIALIZABLE = Attr.DELIMETER + 'serializable';
 var DEFAULT = Attr.DELIMETER + 'default';
@@ -118,7 +117,7 @@ Assignments.prototype.writeCode = function (codeArray) {
     }
 };
 
-Assignments.pool = new Pool(function (obj) {
+Assignments.pool = new JS.Pool(function (obj) {
                                 obj._exps.length = 0;
                                 obj._targetExp = null;
                             }, 1);

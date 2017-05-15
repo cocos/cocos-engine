@@ -847,6 +847,138 @@ js.array = {
     MutableForwardIterator: require('../utils/mutable-forward-iterator')
 };
 
+// OBJECT POOL
+
+/**
+ * !#en
+ * A fixed-length object pool designed for general type.<br>
+ * The implementation of this object pool is very simple,
+ * it can helps you to improve your game performance for objects which need frequent release and recreate operations<br/>
+ * !#zh
+ * 长度固定的对象缓存池，可以用来缓存各种对象类型。<br/>
+ * 这个对象池的实现非常精简，它可以帮助您提高游戏性能，适用于优化对象的反复创建和销毁。
+ * @class Pool
+ * @example
+ *
+ *Example 1:
+ *
+ *function Details () {
+ *    this.uuidList = [];
+ *};
+ *Details.prototype.reset = function () {
+ *    this.uuidList.length = 0;
+ *};
+ *Details.pool = new JS.Pool(function (obj) {
+ *    obj.reset();
+ *}, 5);
+ *Details.pool.get = function () {
+ *    return this._get() || new Details();
+ *};
+ *
+ *var detail = Details.pool.get();
+ *...
+ *Details.pool.put(detail);
+ *
+ *Example 2:
+ *
+ *function Details (buffer) {
+ *    this.uuidList = buffer;
+ *};
+ *...
+ *Details.pool.get = function (buffer) {
+ *    var cached = this._get();
+ *    if (cached) {
+ *        cached.uuidList = buffer;
+ *        return cached;
+ *    }
+ *    else {
+ *        return new Details(buffer);
+ *    }
+ *};
+ *
+ *var detail = Details.pool.get( [] );
+ *...
+ */
+/**
+ * !#en
+ * Constructor for creating an object pool for the specific object type.
+ * You can pass a callback argument for process the cleanup logic when the object is recycled.
+ * !#zh
+ * 使用构造函数来创建一个指定对象类型的对象池，您可以传递一个回调函数，用于处理对象回收时的清理逻辑。
+ * @method constructor
+ * @param {Function} [cleanupFunc] - the callback method used to process the cleanup logic when the object is recycled.
+ * @param {Object} cleanupFunc.obj
+ * @param {Number} size - initializes the length of the array
+ */
+function Pool (cleanupFunc, size) {
+    if (typeof cleanupFunc === 'number') {
+        size = cleanupFunc;
+        cleanupFunc = null;
+    }
+    this.get = null;
+    this.count = 0;
+    this._pool = new Array(size);
+    this._cleanup = cleanupFunc;
+}
+
+/**
+ * !#en
+ * Get and initialize an object from pool. This method defaults to null and requires the user to implement it.
+ * !#zh
+ * 获取并初始化对象池中的对象。这个方法默认为空，需要用户自己实现。
+ * @method get
+ * @param {any} ...params - parameters to used to initialize the object
+ * @returns {Object}
+ */
+
+/**
+ * !#en
+ * The current number of available objects, the default is 0, it will gradually increase with the recycle of the object,
+ * the maximum will not exceed the size specified when the constructor is called.
+ * !#zh
+ * 当前可用对象数量，一开始默认是 0，随着对象的回收会逐渐增大，最大不会超过调用构造函数时指定的 size。
+ * @property {Number} count
+ * @default 0
+ */
+
+/**
+ * !#en
+ * Get an object from pool, if no available object in the pool, null will be returned.
+ * !#zh
+ * 获取对象池中的对象，如果对象池没有可用对象，则返回空。
+ * @method _get
+ * @returns {Object|null}
+ */
+Pool.prototype._get = function () {
+    if (this.count > 0) {
+        --this.count;
+        var cache = this._pool[this.count];
+        this._pool[this.count] = null;
+        return cache;
+    }
+    return null;
+};
+
+/**
+ * !#en Put an object into the pool.
+ * !#zh 向对象池返还一个不再需要的对象。
+ * @method put
+ */
+Pool.prototype.put = function (obj) {
+    var pool = this._pool;
+    if (this.count < pool.length) {
+        if (this._cleanup && this._cleanup(obj) === false) {
+            return;
+        }
+        pool[this.count] = obj;
+        ++this.count;
+    }
+};
+
+js.Pool = Pool;
+
+//
+
 cc.js = js;
 
 module.exports = js;
