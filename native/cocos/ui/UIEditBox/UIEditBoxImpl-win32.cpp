@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013 Jozef Pridavok
- Copyright (c) 2017 zilongshanren
+ Copyright (c) 2013-2017 zilongshanren
 
  http://www.cocos2d-x.org
 
@@ -47,6 +47,7 @@ namespace ui {
     WNDPROC EditBoxImplWin::s_prevCocosWndProc = 0;
     HINSTANCE EditBoxImplWin::s_hInstance = 0;
     HWND EditBoxImplWin::s_hwndCocos = 0;
+
     void EditBoxImplWin::lazyInit()
     {
         s_hwndCocos = cocos2d::Director::getInstance()->getOpenGLView()->getWin32Window();
@@ -216,12 +217,12 @@ namespace ui {
         if (_editBoxInputMode != cocos2d::ui::EditBox::InputMode::ANY)
         {
             this->createSingleLineEditCtrl();
+            // Clear the password style
             PostMessage(hwndEdit, EM_SETPASSWORDCHAR, (WPARAM)0, (LPARAM)0);
         }
         
         if (inputFlag == EditBox::InputFlag::PASSWORD)
         {
-            // Clear the password style
             this->createSingleLineEditCtrl();
         }
         else if (inputFlag == EditBox::InputFlag::INITIAL_CAPS_ALL_CHARACTERS)
@@ -275,10 +276,6 @@ namespace ui {
     }
     void EditBoxImplWin::nativeOpenKeyboard()
     {
-        if (s_previousFocusWnd != s_hwndCocos) {
-            ::ShowWindow(s_previousFocusWnd, SW_HIDE);
-        }
-
         ::PostMessage(hwndEdit, WM_SETFOCUS, (WPARAM)s_previousFocusWnd, 0);
         s_previousFocusWnd = hwndEdit;
         this->editBoxEditingDidBegin();
