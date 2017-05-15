@@ -31,16 +31,23 @@ var PersistentMask = CCObject.Flags.PersistentMask;
 var Attr = require('./attribute');
 var JS = require('./js');
 var CCClass = require('./CCClass');
+var Pool = require('../utils/misc').Pool;
 
 var SERIALIZABLE = Attr.DELIMETER + 'serializable';
 var DEFAULT = Attr.DELIMETER + 'default';
 var IDENTIFIER_RE = CCClass.IDENTIFIER_RE;
 var escapeForJS = CCClass.escapeForJS;
 
-var VAR = 'var ';
-var LOCAL_OBJ = 'o';
-var LINE_INDEX_OF_NEW_OBJ = 0;
+const VAR = 'var ';
+const LOCAL_OBJ = 'o';
+const LOCAL_TEMP_OBJ = 't';
+const LOCAL_ARRAY = 'a';
+const LINE_INDEX_OF_NEW_OBJ = 0;
 
+// HELPER CLASSES
+
+// ('foo', 'bar')
+// -> 'var foo = bar;'
 function Declaration (varName, expression) {
     this.varName = varName;
     this.expression = expression;
@@ -49,6 +56,10 @@ Declaration.prototype.toString = function () {
     return VAR + this.varName + '=' + this.expression + ';';
 };
 
+// ('a =', 'var b = x')
+// -> 'var b = a = x';
+// ('a =', 'x')
+// -> 'a = x';
 function mergeDeclaration (statement, expression) {
     if (expression instanceof Declaration) {
         return new Declaration(expression.varName, statement + expression.expression);
@@ -57,6 +68,67 @@ function mergeDeclaration (statement, expression) {
         return statement + expression;
     }
 }
+
+// ('a', ['var b = x', 'b.foo = bar'])
+// -> 'var b = a = x;'
+// -> 'b.foo = bar;'
+// ('a', 'var b = x')
+// -> 'var b = a = x;'
+// ('a', 'x')
+// -> 'a = x;'
+function writeAssignment (codeArray, statement, expression) {
+    if (Array.isArray(expression)) {
+        expression[0] = mergeDeclaration(statement, expression[0]);
+        codeArray.push(expression);
+    }
+    else {
+        codeArray.push(mergeDeclaration(statement, expression) + ';');
+    }
+}
+
+// ('foo', 'bar')
+// -> 'targetExpression.foo = bar'
+// ('foo1', 'bar1')
+// ('foo2', 'bar2')
+// -> 't = targetExpression;'
+// -> 't.foo1 = bar1;'
+// -> 't.foo2 = bar2;'
+function Assignments (targetExpression) {
+    this._exps = [];
+    this._targetExp = targetExpression;
+}
+Assignments.prototype.append = function (key, expression) {
+    this._exps.push([key, expression]);
+};
+Assignments.prototype.writeCode = function (codeArray) {
+    var targetVar;
+    if (this._exps.length > 1) {
+        codeArray.push(LOCAL_TEMP_OBJ + '=' + this._targetExp + ';');
+        targetVar = LOCAL_TEMP_OBJ;
+    }
+    else if (this._exps.length === 1) {
+        targetVar = this._targetExp;
+    }
+    else {
+        return;
+    }
+    for (var i = 0; i < this._exps.length; i++) {
+        var pair = this._exps[i];
+        writeAssignment(codeArray, targetVar + getPropAccessor(pair[0]) + '=', pair[1]);
+    }
+};
+
+Assignments.pool = new Pool(function (obj) {
+                                obj._exps.length = 0;
+                                obj._targetExp = null;
+                            }, 1);
+Assignments.pool.get = function (targetExpression) {
+    var cache = this._get() || new Assignments();
+    cache._targetExp = targetExpression;
+    return cache;
+};
+
+// HELPER FUNCTIONS
 
 function equalsToDefault (def, value) {
     if (typeof def === 'function') {
@@ -106,6 +178,12 @@ function flattenCodeArray (array, separator) {
     return strList.join(separator);
 }
 
+function getPropAccessor (key) {
+    return IDENTIFIER_RE.test(key) ? ('.' + key) : ('[' + escapeForJS(key) + ']');
+}
+
+//
+
 /*
  * Variables:
  * {Object[]} O - objs list
@@ -141,7 +219,7 @@ function Parser (obj, parent) {
     //    this.codeArray.push(this.instantiateArray(obj));
     //}
     //else {
-        this.codeArray.push(VAR + LOCAL_OBJ + ';',
+        this.codeArray.push(VAR + LOCAL_OBJ + ',' + LOCAL_TEMP_OBJ + ';',
                            'if(R){',
                                 LOCAL_OBJ + '=R;',
                            '}else{',
@@ -209,6 +287,25 @@ proto.getObjRef = function (obj) {
     return 'O[' + index + ']';
 };
 
+proto.setValueType = function (codeArray, defaultValue, srcValue, targetExpression) {
+    var assignments = Assignments.pool.get(targetExpression);
+    var fastDefinedProps = defaultValue.constructor.__props__;
+    if (!fastDefinedProps) {
+        fastDefinedProps = Object.keys(defaultValue);
+    }
+    for (var i = 0; i < fastDefinedProps.length; i++) {
+        var propName = fastDefinedProps[i];
+        var prop = srcValue[propName];
+        if (defaultValue[propName] === prop) {
+            continue;
+        }
+        var expression = this.enumerateField(srcValue, propName, prop);
+        assignments.append(propName, expression);
+    }
+    assignments.writeCode(codeArray);
+    Assignments.pool.put(assignments);
+};
+
 proto.enumerateCCClass = function (codeArray, obj, klass) {
     var props = klass.__props__;
     var attrs = Attr.getClassAttrs(klass);
@@ -221,10 +318,20 @@ proto.enumerateCCClass = function (codeArray, obj, klass) {
         }
         if (attrs[key + SERIALIZABLE] !== false) {
             var val = obj[key];
-            if (equalsToDefault(attrs[key + DEFAULT], val)) {
+            var defaultValue = attrs[key + DEFAULT];
+            if (equalsToDefault(defaultValue, val)) {
                 continue;
             }
-            this.writeObjectField(codeArray, obj, key, val);
+            if (typeof val === 'object' && val instanceof cc.ValueType) {
+                var defaultValue = CCClass.getDefault(defaultValue);
+                if (defaultValue.constructor === val.constructor) {
+                    // fast case
+                    var targetExpression = LOCAL_OBJ + getPropAccessor(key);
+                    this.setValueType(codeArray, defaultValue, val, targetExpression);
+                    continue;
+                }
+            }
+            this.setObjProp(codeArray, obj, key, val);
         }
     }
 };
@@ -234,7 +341,7 @@ proto.instantiateArray = function (value) {
         return '[]';
     }
 
-    var arrayVar = 't' + (++this.localVariableId);
+    var arrayVar = LOCAL_ARRAY + (++this.localVariableId);
     var declaration = new Declaration(arrayVar, 'new Array(' + value.length + ')');
     var codeArray = [declaration];
 
@@ -247,7 +354,8 @@ proto.instantiateArray = function (value) {
 
     for (var i = 0; i < value.length; ++i) {
         var statement = arrayVar + '[' + i + ']=';
-        this.writeFiled(codeArray, statement, value, i, value[i]);
+        var expression = this.enumerateField(value, i, value[i]);
+        writeAssignment(codeArray, statement, expression);
     }
     return codeArray;
 };
@@ -294,26 +402,10 @@ proto.enumerateField = function (obj, key, value) {
     }
 };
 
-proto.writeObjectField = function (codeArray, obj, key, value) {
-    var statement;
-    if (IDENTIFIER_RE.test(key)) {
-        statement = LOCAL_OBJ + '.' + key + '=';
-    }
-    else {
-        statement = LOCAL_OBJ + '[' + escapeForJS(key) + ']=';
-    }
-    this.writeFiled(codeArray, statement, obj, key, value);
-};
-
-proto.writeFiled = function (codeArray, statement, obj, key, value) {
+proto.setObjProp = function (codeArray, obj, key, value) {
+    var statement = LOCAL_OBJ + getPropAccessor(key) + '=';
     var expression = this.enumerateField(obj, key, value);
-    if (Array.isArray(expression)) {
-        expression[0] = mergeDeclaration(statement, expression[0]);
-        codeArray.push(expression);
-    }
-    else {
-        codeArray.push(mergeDeclaration(statement, expression) + ';');
-    }
+    writeAssignment(codeArray, statement, expression);
 };
 
 // codeArray - the source code array for this object
@@ -335,7 +427,7 @@ proto.enumerateObject = function (codeArray, obj) {
             if (typeof value === 'object' && value && value === obj._iN$t) {
                 continue;
             }
-            this.writeObjectField(codeArray, obj, key, value);
+            this.setObjProp(codeArray, obj, key, value);
         }
     }
 };
