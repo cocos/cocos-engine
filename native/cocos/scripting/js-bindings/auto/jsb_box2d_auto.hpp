@@ -128,7 +128,6 @@ bool js_box2dclasses_b2Body_GetFixtureList(JSContext *cx, uint32_t argc, jsval *
 bool js_box2dclasses_b2Body_ApplyForce(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_box2dclasses_b2Body_GetLocalPoint(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_box2dclasses_b2Body_SetLinearVelocity(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_box2dclasses_b2Body_GetLinearVelocity(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_box2dclasses_b2Body_GetNext(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_box2dclasses_b2Body_SetSleepingAllowed(JSContext *cx, uint32_t argc, jsval *vp);

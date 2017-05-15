@@ -863,16 +863,6 @@ b2vec2
 },
 
 /**
- * @method GetJointList
-* @return {b2JointEdge|b2JointEdge}
-*/
-GetJointList : function(
-)
-{
-    return b2JointEdge;
-},
-
-/**
  * @method GetLinearVelocity
  * @return {b2Vec2}
  */

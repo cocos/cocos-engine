@@ -2037,39 +2037,6 @@ bool js_box2dclasses_b2Body_SetLinearVelocity(JSContext *cx, uint32_t argc, jsva
     JS_ReportError(cx, "js_box2dclasses_b2Body_SetLinearVelocity : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    b2Body* cobj = nullptr;
-
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx);
-    obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
-    cobj = (b2Body *)(proxy ? proxy->ptr : nullptr);
-    JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetJointList : Invalid Native Object");
-    do {
-        if (argc == 0) {
-            const b2JointEdge* ret = cobj->GetJointList();
-            jsval jsret = JSVAL_NULL;
-            #pragma warning NO CONVERSION FROM NATIVE FOR b2JointEdge*;
-            args.rval().set(jsret);
-            return true;
-        }
-    } while(0);
-
-    do {
-        if (argc == 0) {
-            b2JointEdge* ret = cobj->GetJointList();
-            jsval jsret = JSVAL_NULL;
-            #pragma warning NO CONVERSION FROM NATIVE FOR b2JointEdge*;
-            args.rval().set(jsret);
-            return true;
-        }
-    } while(0);
-
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetJointList : wrong number of arguments");
-    return false;
-}
 bool js_box2dclasses_b2Body_GetLinearVelocity(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -2947,7 +2914,6 @@ void js_register_box2dclasses_b2Body(JSContext *cx, JS::HandleObject global) {
         JS_FN("ApplyForce", js_box2dclasses_b2Body_ApplyForce, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("GetLocalPoint", js_box2dclasses_b2Body_GetLocalPoint, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("SetLinearVelocity", js_box2dclasses_b2Body_SetLinearVelocity, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("GetJointList", js_box2dclasses_b2Body_GetJointList, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("GetLinearVelocity", js_box2dclasses_b2Body_GetLinearVelocity, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("GetNext", js_box2dclasses_b2Body_GetNext, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("SetSleepingAllowed", js_box2dclasses_b2Body_SetSleepingAllowed, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
