@@ -103,6 +103,7 @@ var Joint = cc.Class({
         this._init();
     },
 
+    // need init after body and connected body init
     start: function () {
         this._init();
     },
@@ -208,6 +209,10 @@ var Joint = cc.Class({
             def.collideConnected = this.collideConnected;
 
             this._joint = world.CreateJoint(def);
+            if (this._joint) {
+                this._joint._joint = this;
+            }
+            
             this._inited = true;
         }
     },
@@ -218,6 +223,10 @@ var Joint = cc.Class({
             cc.director.getPhysicsManager()._getWorld().DestroyJoint(this._joint);
         }
         
+        if (this._joint) {
+            this._joint._joint = null;
+        }
+
         this._joint = null;
         this._inited = false;
     },
