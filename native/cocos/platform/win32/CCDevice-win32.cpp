@@ -201,7 +201,15 @@ public:
         return bRet;
     }
 
-    SIZE sizeWithText(const wchar_t * pszText, int nLen, DWORD dwFmt, LONG nWidthLimit)
+    SIZE sizeWithText(const wchar_t * pszText, 
+        int nLen, 
+        DWORD dwFmt,
+        const char* fontName,
+        int textSize,
+        LONG nWidthLimit,
+        LONG nHeightLimit,
+        bool enableWrap,
+        int overflow)
     {
         SIZE tRet = {0};
         do
@@ -210,6 +218,10 @@ public:
 
             RECT rc = {0, 0, 0, 0};
             DWORD dwCalcFmt = DT_CALCRECT;
+            if (!enableWrap)
+            {
+                dwCalcFmt |= DT_SINGLELINE;
+            }
 
             if (nWidthLimit > 0)
             {
@@ -218,15 +230,44 @@ public:
                     | (dwFmt & DT_CENTER)
                     | (dwFmt & DT_RIGHT);
             }
-            // use current font to measure text extent
-            HGDIOBJ hOld = SelectObject(_DC, _font);
+            if (overflow == 2) 
+            {
+                LONG actualWidth = nWidthLimit + 1;
+                LONG actualHeight = nHeightLimit + 1;
+                int newFontSize = textSize + 1;
 
-            // measure text size
-            DrawTextW(_DC, pszText, nLen, &rc, dwCalcFmt);
-            SelectObject(_DC, hOld);
+                while (actualWidth > nWidthLimit || actualHeight > nHeightLimit)
+                {
+                    if (newFontSize <= 0)
+                    {
+                        break;
+                    }
+                    this->setFont(fontName, newFontSize);
+                    // use current font to measure text extent
+                    HGDIOBJ hOld = SelectObject(_DC, _font);
+                    rc.right = nWidthLimit;
+                    // measure text size
+                    DrawTextW(_DC, pszText, nLen, &rc, dwCalcFmt);
+                    SelectObject(_DC, hOld);
+
+                    actualWidth = rc.right;
+                    actualHeight = rc.bottom;
+                    newFontSize = newFontSize - 1;
+                }
+            }
+            else
+            {
+                // use current font to measure text extent
+                HGDIOBJ hOld = SelectObject(_DC, _font);
+
+                // measure text size
+                DrawTextW(_DC, pszText, nLen, &rc, dwCalcFmt);
+                SelectObject(_DC, hOld);
+            }
 
             tRet.cx = rc.right;
             tRet.cy = rc.bottom;
+          
         } while (0);
 
         return tRet;
@@ -251,7 +292,8 @@ public:
         return true;
     }
 
-    int drawText(const char * pszText, SIZE& tSize, Device::TextAlign eAlign)
+    int drawText(const char * pszText, SIZE& tSize, Device::TextAlign eAlign, const char * fontName, int textSize,
+        bool enableWrap, int overflow)
     {
         int nRet = 0;
         wchar_t * pwszBuffer = nullptr;
@@ -261,6 +303,9 @@ public:
             CC_BREAK_IF(! pszText);
 
             DWORD dwFmt = DT_WORDBREAK;
+            if (!enableWrap) {
+                dwFmt |= DT_SINGLELINE;
+            }
             DWORD dwHoriFlag = (int)eAlign & 0x0f;
             DWORD dwVertFlag = ((int)eAlign & 0xf0) >> 4;
 
@@ -311,11 +356,11 @@ public:
             SIZE newSize;
             if (fixedText)
             {
-                newSize = sizeWithText(fixedText, nLen, dwFmt, tSize.cx);
+                newSize = sizeWithText(fixedText, nLen, dwFmt, fontName, textSize,  tSize.cx, tSize.cy, enableWrap, overflow);
             }
             else
             {
-                newSize = sizeWithText(pwszBuffer, nLen, dwFmt, tSize.cx);
+                newSize = sizeWithText(pwszBuffer, nLen, dwFmt, fontName, textSize, tSize.cx, tSize.cy, enableWrap, overflow);
             }
 
             RECT rcText = {0};
@@ -392,8 +437,6 @@ public:
                 nRet = DrawTextW(_DC, pwszBuffer, nLen, &rcText, dwFmt);
             }
 
-            //DrawTextA(_DC, pszText, nLen, &rcText, dwFmt);
-
             SelectObject(_DC, hOldBmp);
             SelectObject(_DC, hOldFont);
         } while (0);
@@ -457,7 +500,7 @@ Data Device::getTextureDataForText(const char * text, const FontDefinition& text
         // draw text
         // does changing to SIZE here affects the font size by rounding from float?
         SIZE size = {(LONG) textDefinition._dimensions.width,(LONG) textDefinition._dimensions.height};
-        CC_BREAK_IF(! dc.drawText(text, size, align));
+        CC_BREAK_IF(! dc.drawText(text, size, align, textDefinition._fontName.c_str(), textDefinition._fontSize, textDefinition._enableWrap, textDefinition._overflow));
 
         int dataLen = size.cx * size.cy * 4;
         unsigned char* dataBuf = (unsigned char*)malloc(sizeof(unsigned char) * dataLen);
