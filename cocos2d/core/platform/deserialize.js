@@ -112,10 +112,22 @@ Details.prototype.push = function (obj, propName, uuid) {
     this.uuidPropList.push(propName);
 };
 
+Details.pool = new JS.Pool(function (obj) {
+    obj.reset();
+}, 10);
+
+Details.pool.get = function () {
+    return this._get() || new Details();
+};
+
 // IMPLEMENT OF DESERIALIZATION
 
 var _Deserializer = (function () {
-    function _Deserializer(jsonObj, result, target, classFinder, customEnv, ignoreEditorOnly) {
+    function _Deserializer(result, target, classFinder, customEnv, ignoreEditorOnly) {
+        this.result = result;
+        this.customEnv = customEnv;
+        this.deserializedList = [];
+        this.deserializedData = null;
         this._classFinder = classFinder;
         if (CC_DEV) {
             this._target = target;
@@ -124,52 +136,6 @@ var _Deserializer = (function () {
         this._idList = [];
         this._idObjList = [];
         this._idPropList = [];
-        this.result = result || new Details();
-        this.customEnv = customEnv;
-
-        if (Array.isArray(jsonObj)) {
-            var jsonArray = jsonObj;
-            var refCount = jsonArray.length;
-            this.deserializedList = new Array(refCount);
-            // deserialize
-            for (var i = 0; i < refCount; i++) {
-                if (jsonArray[i]) {
-                    if (CC_EDITOR || CC_TEST) {
-                        var mainTarget = (i === 0 && target);
-                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], mainTarget, this.deserializedList, '' + i);
-                    }
-                    else {
-                        this.deserializedList[i] = this._deserializeObject(jsonArray[i]);
-                    }
-                }
-            }
-            this.deserializedData = refCount > 0 ? this.deserializedList[0] : [];
-
-            //// callback
-            //for (var j = 0; j < refCount; j++) {
-            //    if (referencedList[j].onAfterDeserialize) {
-            //        referencedList[j].onAfterDeserialize();
-            //    }
-            //}
-        }
-        else {
-            this.deserializedList = [null];
-            if (CC_EDITOR || CC_TEST) {
-                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj, target, this.deserializedList, '0') : null;
-            }
-            else {
-                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj) : null;
-            }
-            this.deserializedList[0] = this.deserializedData;
-
-            //// callback
-            //if (deserializedData.onAfterDeserialize) {
-            //    deserializedData.onAfterDeserialize();
-            //}
-        }
-
-        // dereference
-        _dereference(this);
     }
 
     function _dereference (self) {
@@ -198,6 +164,54 @@ var _Deserializer = (function () {
     }
 
     var prototype = _Deserializer.prototype;
+
+    prototype.deserialize = function (jsonObj) {
+        if (Array.isArray(jsonObj)) {
+            var jsonArray = jsonObj;
+            var refCount = jsonArray.length;
+            this.deserializedList.length = refCount;
+            // deserialize
+            for (var i = 0; i < refCount; i++) {
+                if (jsonArray[i]) {
+                    if (CC_EDITOR || CC_TEST) {
+                        var mainTarget = (i === 0 && this._target);
+                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], mainTarget, this.deserializedList, '' + i);
+                    }
+                    else {
+                        this.deserializedList[i] = this._deserializeObject(jsonArray[i]);
+                    }
+                }
+            }
+            this.deserializedData = refCount > 0 ? this.deserializedList[0] : [];
+
+            //// callback
+            //for (var j = 0; j < refCount; j++) {
+            //    if (referencedList[j].onAfterDeserialize) {
+            //        referencedList[j].onAfterDeserialize();
+            //    }
+            //}
+        }
+        else {
+            this.deserializedList.length = 1;
+            if (CC_EDITOR || CC_TEST) {
+                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj, this._target, this.deserializedList, '0') : null;
+            }
+            else {
+                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj) : null;
+            }
+            this.deserializedList[0] = this.deserializedData;
+
+            //// callback
+            //if (deserializedData.onAfterDeserialize) {
+            //    deserializedData.onAfterDeserialize();
+            //}
+        }
+
+        // dereference
+        _dereference(this);
+
+        return this.deserializedData;
+    };
 
     ///**
     // * @param {Object} serialized - The obj to deserialize, must be non-nil
@@ -587,6 +601,37 @@ var _Deserializer = (function () {
         }
     }
 
+    _Deserializer.pool = new JS.Pool(function (obj) {
+        obj.result = null;
+        obj.customEnv = null;
+        obj.deserializedList.length = 0;
+        obj.deserializedData = null;
+        obj._classFinder = null;
+        if (CC_DEV) {
+            obj._target = null;
+        }
+        obj._idList.length = 0;
+        obj._idObjList.length = 0;
+        obj._idPropList.length = 0;
+    }, 1);
+
+    _Deserializer.pool.get = function (result, target, classFinder, customEnv, ignoreEditorOnly) {
+        var cache = this._get();
+        if (cache) {
+            cache.result = result;
+            cache.customEnv = customEnv;
+            cache._classFinder = classFinder;
+            if (CC_DEV) {
+                cache._target = target;
+                cache._ignoreEditorOnly = ignoreEditorOnly;
+            }
+            return cache;
+        }
+        else {
+            return new _Deserializer(result, target, classFinder, customEnv, ignoreEditorOnly);
+        }
+    };
+
     return _Deserializer;
 })();
 
@@ -603,11 +648,11 @@ var _Deserializer = (function () {
  *
  * @method deserialize
  * @param {String|Object} data - the serialized cc.Asset json string or json object.
- * @param {Details} [result] - additional loading result
+ * @param {Details} [details] - additional loading result
  * @param {Object} [options]
  * @return {object} the main data(asset)
  */
-cc.deserialize = function (data, result, options) {
+cc.deserialize = function (data, details, options) {
     options = options || {};
     var classFinder = options.classFinder || JS._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
@@ -626,15 +671,20 @@ cc.deserialize = function (data, result, options) {
 
     //var oldJson = JSON.stringify(data, null, 2);
 
-    if (createAssetRefs && !result) {
-        result = new Details();
-    }
+    var tempDetails = !details;
+    details = details || Details.pool.get();
+    var deserializer = _Deserializer.pool.get(details, target, classFinder, customEnv, ignoreEditorOnly);
+
     cc.game._isCloning = true;
-    var deserializer = new _Deserializer(data, result, target, classFinder, customEnv, ignoreEditorOnly);
+    var res = deserializer.deserialize(data);
     cc.game._isCloning = false;
 
+    _Deserializer.pool.put(deserializer);
     if (createAssetRefs) {
-        result.assignAssetsBy(Editor.serialize.asAsset);
+        details.assignAssetsBy(Editor.serialize.asAsset);
+    }
+    if (tempDetails) {
+        Details.pool.put(details);
     }
 
     //var afterJson = JSON.stringify(data, null, 2);
@@ -642,7 +692,7 @@ cc.deserialize = function (data, result, options) {
     //    throw new Error('JSON SHOULD not changed');
     //}
 
-    return deserializer.deserializedData;
+    return res;
 };
 
 cc.deserialize.Details = Details;
