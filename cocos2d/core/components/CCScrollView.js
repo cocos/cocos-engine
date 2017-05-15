@@ -1185,15 +1185,15 @@ var ScrollView = cc.Class({
             }
         }
 
-        var contentPos = cc.pSub(newPosition, this.getContentPosition());
-        this._moveContent(contentPos, reachedEnd);
-
         if (reachedEnd) {
             this._autoScrolling = false;
             if(!this._isScrollEndedEventFired) {
                 this._dispatchEvent('scroll-ended');
             }
         }
+
+        var contentPos = cc.pSub(newPosition, this.getContentPosition());
+        this._moveContent(contentPos, reachedEnd);
     },
 
     _startInertiaScroll: function(touchMoveVelocity) {
