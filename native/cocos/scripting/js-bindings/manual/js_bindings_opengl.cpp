@@ -96,8 +96,8 @@ static bool js_cocos2dx_GLNode_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     cocos2d::GLNode *nobj = new (std::nothrow) cocos2d::GLNode;
-    auto newproxy = jsb_new_proxy(nobj, obj);
-    jsb_ref_init(cx, &newproxy->obj, nobj, "cocos2d::GLNode");
+    jsb_new_proxy(cx, nobj, obj);
+    jsb_ref_init(cx, obj, nobj, "cocos2d::GLNode");
     bool isFound = false;
     if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
     {

@@ -26,6 +26,7 @@
 #include "scripting/js-bindings/manual/spidermonkey_specifics.h"
 #include "scripting/js-bindings/manual/ScriptingCore.h"
 #include "scripting/js-bindings/manual/js_manual_conversions.h"
+#include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 
 JavaScriptObjCBridge::CallInfo::~CallInfo(void)
 {
@@ -58,7 +59,7 @@ JS::Value JavaScriptObjCBridge::convertReturnValue(JSContext *cx, ReturnValue re
 bool JavaScriptObjCBridge::CallInfo::execute(JSContext *cx,JS::Value *argv,unsigned argc)
 {
 
-    NSString * className =[NSString stringWithCString: m_className.c_str() encoding:NSUTF8StringEncoding];
+    NSString *className =[NSString stringWithCString: m_className.c_str() encoding:NSUTF8StringEncoding];
     NSString *methodName = [NSString stringWithCString: m_methodName.c_str() encoding:NSUTF8StringEncoding];
 
     NSMutableDictionary *m_dic = [NSMutableDictionary dictionary];
@@ -229,12 +230,13 @@ JS_BINDED_CONSTRUCTOR_IMPL(JavaScriptObjCBridge)
 {
     JavaScriptObjCBridge* jsj = new (std::nothrow) JavaScriptObjCBridge();
 
-    js_proxy_t *p;
     JS::RootedValue out(cx);
 
     JS::RootedObject proto(cx, JavaScriptObjCBridge::js_proto);
-    JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, &JavaScriptObjCBridge::js_class, proto));
-
+    JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, JavaScriptObjCBridge::js_class, proto));
+    js_add_FinalizeHook(cx, obj, false);
+    jsb_new_proxy(cx, jsj, obj);
+    
     if (obj) {
         JS_SetPrivate(obj, jsj);
         out = JS::ObjectOrNullValue(obj);
@@ -242,7 +244,6 @@ JS_BINDED_CONSTRUCTOR_IMPL(JavaScriptObjCBridge)
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     args.rval().set(out);
-    p = jsb_new_proxy(jsj, obj);
     return true;
 }
 
@@ -258,7 +259,7 @@ static void basic_object_finalize(JSFreeOp *freeOp, JSObject *obj)
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(jsobj);
+    jsproxy = jsb_get_js_proxy(cx, jsobj);
     if (jsproxy) {
         nproxy = jsb_get_native_proxy(jsproxy->ptr);
         jsb_remove_proxy(nproxy, jsproxy);
@@ -301,13 +302,13 @@ void JavaScriptObjCBridge::_js_register(JSContext *cx, JS::HandleObject global)
         basic_object_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    JSClass jsclass = {
+    static JSClass ObjCBridge_Class = {
         "JavaScriptObjCBridge",
         JSCLASS_HAS_PRIVATE,
         &jsclassOps
     };
-
-    JavaScriptObjCBridge::js_class = jsclass;
+    JavaScriptObjCBridge::js_class = &ObjCBridge_Class;
+    
     static JSPropertySpec props[] = {
         JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE ),
         JS_PS_END
@@ -318,6 +319,6 @@ void JavaScriptObjCBridge::_js_register(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JavaScriptObjCBridge::js_proto = JS_InitClass(cx, global, nullptr, &JavaScriptObjCBridge::js_class, JavaScriptObjCBridge::_js_constructor, 0, props, funcs, nullptr, nullptr);
+    JavaScriptObjCBridge::js_proto = JS_InitClass(cx, global, nullptr, JavaScriptObjCBridge::js_class, JavaScriptObjCBridge::_js_constructor, 0, props, funcs, nullptr, nullptr);
 }
 

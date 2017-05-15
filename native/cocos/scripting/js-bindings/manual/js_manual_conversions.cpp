@@ -130,7 +130,7 @@ JSFunctionWrapper::~JSFunctionWrapper()
     if (_cppOwner != nullptr)
     {
         JS::RootedObject ownerObj(cx, ownerVal.toObjectOrNull());
-        js_proxy *t = jsb_get_js_proxy(ownerObj);
+        js_proxy *t = jsb_get_js_proxy(cx, ownerObj);
         // JS object already released, no need to do the following release anymore, gc will take care of everything
         if (t == nullptr || _cppOwner != t->ptr)
         {
@@ -159,7 +159,7 @@ void JSFunctionWrapper::setOwner(JSContext* cx, JS::HandleValue owner)
         _owner = owner;
         
         JS::RootedObject ownerObj(cx, owner.toObjectOrNull());
-        js_proxy *t = jsb_get_js_proxy(ownerObj);
+        js_proxy *t = jsb_get_js_proxy(cx, ownerObj);
         if (t) {
             _cppOwner = t->ptr;
         }
@@ -294,7 +294,7 @@ JS::HandleValue c_class_to_jsval( JSContext *cx, void* handle, JS::HandleObject 
     if( !proxy ) {
         jsobj = JS_NewObjectWithGivenProto(cx, klass, object);
         CCASSERT(jsobj, "Invalid object");
-        proxy = jsb_new_proxy(handle, jsobj);
+        jsb_new_proxy(cx, handle, jsobj);
         JS_SetPrivate(jsobj, &JSB_C_FLAG_DO_NOT_CALL_FREE);
     }
     else
@@ -312,7 +312,7 @@ bool jsval_to_c_class( JSContext *cx, JS::HandleValue vp, void **out_native, js_
     bool ok = JS_ValueToObject( cx, vp, &jsobj );
     JSB_PRECONDITION2(ok, cx, false, "Error converting jsval to object");
 
-    auto proxy = jsb_get_js_proxy(jsobj);
+    auto proxy = jsb_get_js_proxy(cx, jsobj);
     *out_native = proxy->ptr;
     if( out_proxy )
         *out_proxy = proxy;
@@ -732,7 +732,7 @@ bool jsvals_variadic_to_ccvaluevector( JSContext *cx, JS::Value *vp, int argc, c
         if (value.isObject())
         {
             JS::RootedObject jsobj(cx, value.toObjectOrNull());
-            CCASSERT(jsb_get_js_proxy(jsobj) == nullptr, "Native object should be added!");
+            CCASSERT(jsb_get_js_proxy(cx, jsobj) == nullptr, "Native object should be added!");
 
             bool isArray;
             if (!JS_IsArrayObject(cx, jsobj, &isArray) || !isArray)
@@ -943,7 +943,7 @@ bool jsval_to_ccvalue(JSContext* cx, JS::HandleValue v, cocos2d::Value* ret)
     if (v.isObject())
     {
         JS::RootedObject jsobj(cx, v.toObjectOrNull());
-        CCASSERT(jsb_get_js_proxy(jsobj) == nullptr, "Native object should be added!");
+        CCASSERT(jsb_get_js_proxy(cx, jsobj) == nullptr, "Native object should be added!");
         bool isArray;
         if (!JS_IsArrayObject(cx, jsobj, &isArray) || !isArray)
         {
@@ -1029,7 +1029,7 @@ bool jsval_to_ccvaluemap(JSContext* cx, JS::HandleValue v, cocos2d::ValueMap* re
         if (value.isObject())
         {
             jsobj = value.toObjectOrNull();
-            CCASSERT(jsb_get_js_proxy(jsobj) == nullptr, "Native object should be added!");
+            CCASSERT(jsb_get_js_proxy(cx, jsobj) == nullptr, "Native object should be added!");
             bool isArray;
             if (!JS_IsArrayObject(cx, jsobj, &isArray) || !isArray)
             {
@@ -1116,7 +1116,7 @@ bool jsval_to_ccvaluemapintkey(JSContext* cx, JS::HandleValue v, cocos2d::ValueM
         if (value.isObject())
         {
             jsobj = value.toObjectOrNull();
-            CCASSERT(jsb_get_js_proxy(jsobj) == nullptr, "Native object should be added!");
+            CCASSERT(jsb_get_js_proxy(cx, jsobj) == nullptr, "Native object should be added!");
             bool isArray;
             if (!JS_IsArrayObject(cx, jsobj, &isArray) || !isArray)
             {
@@ -1184,7 +1184,7 @@ bool jsval_to_ccvaluevector(JSContext* cx, JS::HandleValue v, cocos2d::ValueVect
             if (value.isObject())
             {
                 JS::RootedObject jsobj(cx, value.toObjectOrNull());
-                CCASSERT(jsb_get_js_proxy(jsobj) == nullptr, "Native object should be added!");
+                CCASSERT(jsb_get_js_proxy(cx, jsobj) == nullptr, "Native object should be added!");
                 
                 if (!JS_IsArrayObject(cx, jsobj, &isArray) || !isArray)
                 {

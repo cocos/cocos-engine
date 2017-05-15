@@ -130,7 +130,7 @@ bool jsval_to_TTFConfig(JSContext *cx, JS::HandleValue vp, cocos2d::TTFConfig* r
 bool jsval_to_resourcedata(JSContext *cx, JS::HandleValue v, cocos2d::ResourceData* ret);
 
 // forward declaration
-CC_JS_DLL js_proxy_t* jsb_get_js_proxy(JS::HandleObject jsObj);
+CC_JS_DLL js_proxy_t* jsb_get_js_proxy(JSContext *cx, JS::HandleObject jsObj);
 
 template <class T>
 bool jsvals_variadic_to_ccvector( JSContext *cx, /*JS::Value *vp, int argc,*/const JS::CallArgs& args, cocos2d::Vector<T>* ret)
@@ -142,7 +142,7 @@ bool jsvals_variadic_to_ccvector( JSContext *cx, /*JS::Value *vp, int argc,*/con
         js_proxy_t* p;
         JS::RootedObject obj(cx, args.get(i).toObjectOrNull());
 
-        p = jsb_get_js_proxy(obj);
+        p = jsb_get_js_proxy(cx, obj);
         CCASSERT(p, "Native object not found!");
         if (p) {
             ret->pushBack((T)p->ptr);
@@ -185,7 +185,7 @@ bool jsval_to_ccvector(JSContext* cx, JS::HandleValue v, cocos2d::Vector<T>* ret
 
             js_proxy_t *proxy;
             JS::RootedObject tmp(cx, value.toObjectOrNull());
-            proxy = jsb_get_js_proxy(tmp);
+            proxy = jsb_get_js_proxy(cx, tmp);
             T cobj = (T)(proxy ? proxy->ptr : nullptr);
             if (cobj)
             {
@@ -261,7 +261,7 @@ bool jsval_to_ccmap_string_key(JSContext *cx, JS::HandleValue v, cocos2d::Map<st
         {
             js_proxy_t *proxy = nullptr;
             jsobj = value.toObjectOrNull();
-            proxy = jsb_get_js_proxy(jsobj);
+            proxy = jsb_get_js_proxy(cx, jsobj);
             CCASSERT(proxy, "Native object should be added!");
             T cobj = (T)(proxy ? proxy->ptr : nullptr);
             ret->insert(keyWrapper.get(), cobj);

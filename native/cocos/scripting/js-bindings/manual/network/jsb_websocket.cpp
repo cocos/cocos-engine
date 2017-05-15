@@ -222,8 +222,9 @@ JSObject *js_cocos2dx_websocket_prototype;
 void js_cocos2dx_WebSocket_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOG("jsbindings: finalizing JS object %p (WebSocket)", obj);
     
-    JS::RootedObject jsobj(ScriptingCore::getInstance()->getGlobalContext(), obj);
-    js_proxy_t *p = jsb_get_js_proxy(jsobj);
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject jsobj(cx, obj);
+    js_proxy_t *p = jsb_get_js_proxy(cx, jsobj);
     if (p)
     {
         WebSocket *ws = (WebSocket *)(p->ptr);
@@ -240,7 +241,7 @@ bool js_cocos2dx_extension_WebSocket_send(JSContext *cx, uint32_t argc, JS::Valu
 {
     JS::CallArgs argv = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, argv.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     WebSocket* cobj = (WebSocket *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 
@@ -299,7 +300,7 @@ bool js_cocos2dx_extension_WebSocket_send(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_extension_WebSocket_close(JSContext *cx, uint32_t argc, JS::Value *vp){
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     WebSocket* cobj = (WebSocket *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 
@@ -399,12 +400,10 @@ bool js_cocos2dx_extension_WebSocket_constructor(JSContext *cx, uint32_t argc, J
         JS_DefineProperty(cx, obj, "protocol", jsprotocol, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
         // link the native object with the javascript object
-        js_proxy_t *p = jsb_new_proxy(cobj, obj);
-        CC_UNUSED_PARAM(p);
+        jsb_new_proxy(cx, cobj, obj);
 #if not CC_ENABLE_GC_FOR_NATIVE_OBJECTS
-        JS::AddNamedObjectRoot(cx, &p->obj, "WebSocket");
+//        JS::AddNamedObjectRoot(cx, &p->obj, "WebSocket");
 #endif
-        
         args.rval().set(JS::ObjectOrNullValue(obj));
         return true;
     }
@@ -417,7 +416,7 @@ static bool js_cocos2dx_extension_WebSocket_get_readyState(JSContext *cx, uint32
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject jsobj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(jsobj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, jsobj);
     WebSocket* cobj = (WebSocket *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 

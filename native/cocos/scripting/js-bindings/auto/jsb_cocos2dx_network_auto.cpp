@@ -28,7 +28,7 @@ bool js_cocos2dx_network_Downloader_setOnTaskError(JSContext *cx, uint32_t argc,
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::network::Downloader* cobj = (cocos2d::network::Downloader *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_network_Downloader_setOnTaskError : Invalid Native Object");
     if (argc == 1) {
@@ -83,7 +83,7 @@ bool js_cocos2dx_network_Downloader_setOnTaskProgress(JSContext *cx, uint32_t ar
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::network::Downloader* cobj = (cocos2d::network::Downloader *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_network_Downloader_setOnTaskProgress : Invalid Native Object");
     if (argc == 1) {
@@ -138,7 +138,7 @@ bool js_cocos2dx_network_Downloader_createDownloadFileTask(JSContext *cx, uint32
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::network::Downloader* cobj = (cocos2d::network::Downloader *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_network_Downloader_createDownloadFileTask : Invalid Native Object");
     if (argc == 2) {
@@ -176,7 +176,7 @@ bool js_cocos2dx_network_Downloader_setOnFileTaskSuccess(JSContext *cx, uint32_t
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::network::Downloader* cobj = (cocos2d::network::Downloader *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_network_Downloader_setOnFileTaskSuccess : Invalid Native Object");
     if (argc == 1) {
@@ -238,8 +238,8 @@ bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS
             js_type_class_t *typeClass = js_get_type_from_native<cocos2d::network::Downloader>(cobj);
             JS::RootedObject proto(cx, typeClass->proto);
             obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
-            js_proxy_t* p = jsb_new_proxy(cobj, obj);
-            jsb_non_ref_init(cx, &p->obj, cobj, "cocos2d::network::Downloader");
+            jsb_non_ref_init(cx, obj, cobj, "cocos2d::network::Downloader");
+            jsb_new_proxy(cx, cobj, obj);
         }
     } while(0);
 
@@ -251,8 +251,8 @@ bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS
             js_type_class_t *typeClass = js_get_type_from_native<cocos2d::network::Downloader>(cobj);
             JS::RootedObject proto(cx, typeClass->proto);
             obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
-            js_proxy_t* p = jsb_new_proxy(cobj, obj);
-            jsb_non_ref_init(cx, &p->obj, cobj, "cocos2d::network::Downloader");
+            jsb_non_ref_init(cx, obj, cobj, "cocos2d::network::Downloader");
+            jsb_new_proxy(cx, cobj, obj);
         }
     } while(0);
 
@@ -278,13 +278,11 @@ void js_cocos2d_network_Downloader_finalize(JSFreeOp *fop, JSObject *obj) {
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(jsobj);
+    jsproxy = jsb_get_js_proxy(cx, jsobj);
     if (jsproxy) {
         cocos2d::network::Downloader *nobj = static_cast<cocos2d::network::Downloader *>(jsproxy->ptr);
-        nproxy = jsb_get_native_proxy(jsproxy->ptr);
-
         if (nobj) {
-            jsb_remove_proxy(nproxy, jsproxy);
+            jsb_remove_proxy(jsproxy);
             JS::RootedValue flagValue(cx);
             JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
             if (flagValue.isNullOrUndefined()){
@@ -292,7 +290,7 @@ void js_cocos2d_network_Downloader_finalize(JSFreeOp *fop, JSObject *obj) {
             }
         }
         else
-            jsb_remove_proxy(nullptr, jsproxy);
+            jsb_remove_proxy(jsproxy);
     }
 }
 void js_register_cocos2dx_network_Downloader(JSContext *cx, JS::HandleObject global) {

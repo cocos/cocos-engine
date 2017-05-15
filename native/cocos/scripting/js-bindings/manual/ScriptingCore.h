@@ -563,11 +563,11 @@ js_type_class_t *jsb_register_class(JSContext *cx, JSClass *jsClass, JS::HandleO
 
 /** creates two new proxies: one associated with the nativeObj,
  and another one associated with the JsObj */
-js_proxy_t* jsb_new_proxy(void* nativeObj, JS::HandleObject jsObj);
+js_proxy_t* jsb_new_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsObj);
 /** returns the proxy associated with the Native* */
 js_proxy_t* jsb_get_native_proxy(void* nativeObj);
 /** returns the proxy associated with the JSObject* */
-js_proxy_t* jsb_get_js_proxy(JS::HandleObject jsObj);
+js_proxy_t* jsb_get_js_proxy(JSContext *cx, JS::HandleObject jsObj);
 /** deprecated: use jsb_remove_proxy(js_proxy_t* proxy) instead */
 void jsb_remove_proxy(js_proxy_t* nativeProxy, js_proxy_t* jsProxy);
 /** removes both the native and js proxies */
@@ -579,7 +579,7 @@ void removeJSObject(JSContext* cx, cocos2d::Ref* nativeObj);
 /**
  * Generic initialization function for subclasses of Ref
  */
-void jsb_ref_init(JSContext* cx, JS::Heap<JSObject*> *obj, cocos2d::Ref* ref, const char* debug);
+void jsb_ref_init(JSContext* cx, JS::HandleObject obj, cocos2d::Ref* ref, const char* debug);
 
 /**
  * Generic initialization function for subclasses of Ref.
@@ -587,7 +587,7 @@ void jsb_ref_init(JSContext* cx, JS::Heap<JSObject*> *obj, cocos2d::Ref* ref, co
  * This function should never be called. It is only added as way to fix
  * an issue with the static auto-bindings with the "create" function
  */
-void jsb_ref_autoreleased_init(JSContext* cx, JS::Heap<JSObject*> *obj, cocos2d::Ref* ref, const char* debug);
+void jsb_ref_autoreleased_init(JSContext* cx, JS::HandleObject obj, cocos2d::Ref* ref, const char* debug);
 
 /**
  * Disassociates oldRef from jsobj, and associates a new Ref.
@@ -598,7 +598,7 @@ void jsb_ref_rebind(JSContext* cx, JS::HandleObject jsobj, js_proxy_t *js2native
 /**
  * Generic initialization function for non Ref classes
  */
-void jsb_non_ref_init(JSContext* cx, JS::Heap<JSObject*> *obj, void* native, const char* debug);
+void jsb_non_ref_init(JSContext* cx, JS::HandleObject  obj, void* native, const char* debug);
 
 /**
  * Creates a new JSObject of a certain type (typeClass) and creates a proxy associated with and the Ref
@@ -642,15 +642,5 @@ JSObject* jsb_ref_autoreleased_get_or_create_jsobject(JSContext *cx, cocos2d::Re
  */
 CC_JS_DLL JSObject* jsb_get_or_create_weak_jsobject(JSContext *cx, void *native, js_type_class_t *typeClass, const char* debug=nullptr);
 
-/**
- * Register finalize hook and its owner as an entry in _js_hook_owner_map,
- * so that we can find the owner of a FinalizeHook in its finalize function
- */
-void jsb_register_finalize_hook(JSObject *hook, JSObject *owner);
-
-/**
- * Remove the entry of finalize hook and its owner in _js_hook_owner_map
- */
-JSObject *jsb_get_and_remove_hook_owner(JSObject *hook);
 
 #endif /* __SCRIPTING_CORE_H__ */

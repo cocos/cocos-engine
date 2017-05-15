@@ -28,7 +28,7 @@ bool js_box2dclasses_b2Draw_AppendFlags(JSContext *cx, uint32_t argc, JS::Value 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Draw* cobj = (b2Draw *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Draw_AppendFlags : Invalid Native Object");
     if (argc == 1) {
@@ -48,7 +48,7 @@ bool js_box2dclasses_b2Draw_DrawTransform(JSContext *cx, uint32_t argc, JS::Valu
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Draw* cobj = (b2Draw *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Draw_DrawTransform : Invalid Native Object");
     if (argc == 1) {
@@ -69,7 +69,7 @@ bool js_box2dclasses_b2Draw_ClearFlags(JSContext *cx, uint32_t argc, JS::Value *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Draw* cobj = (b2Draw *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Draw_ClearFlags : Invalid Native Object");
     if (argc == 1) {
@@ -89,7 +89,7 @@ bool js_box2dclasses_b2Draw_DrawPolygon(JSContext *cx, uint32_t argc, JS::Value 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Draw* cobj = (b2Draw *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Draw_DrawPolygon : Invalid Native Object");
     if (argc == 3) {
@@ -114,7 +114,7 @@ bool js_box2dclasses_b2Draw_ClearDraw(JSContext *cx, uint32_t argc, JS::Value *v
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Draw* cobj = (b2Draw *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Draw_ClearDraw : Invalid Native Object");
     if (argc == 0) {
@@ -131,7 +131,7 @@ bool js_box2dclasses_b2Draw_DrawSolidPolygon(JSContext *cx, uint32_t argc, JS::V
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Draw* cobj = (b2Draw *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Draw_DrawSolidPolygon : Invalid Native Object");
     if (argc == 3) {
@@ -157,7 +157,7 @@ bool js_box2dclasses_b2Draw_DrawCircle(JSContext *cx, uint32_t argc, JS::Value *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Draw* cobj = (b2Draw *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Draw_DrawCircle : Invalid Native Object");
     if (argc == 3) {
@@ -182,7 +182,7 @@ bool js_box2dclasses_b2Draw_SetFlags(JSContext *cx, uint32_t argc, JS::Value *vp
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Draw* cobj = (b2Draw *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Draw_SetFlags : Invalid Native Object");
     if (argc == 1) {
@@ -202,7 +202,7 @@ bool js_box2dclasses_b2Draw_DrawSegment(JSContext *cx, uint32_t argc, JS::Value 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Draw* cobj = (b2Draw *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Draw_DrawSegment : Invalid Native Object");
     if (argc == 3) {
@@ -227,7 +227,7 @@ bool js_box2dclasses_b2Draw_DrawSolidCircle(JSContext *cx, uint32_t argc, JS::Va
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Draw* cobj = (b2Draw *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Draw_DrawSolidCircle : Invalid Native Object");
     if (argc == 4) {
@@ -253,7 +253,7 @@ bool js_box2dclasses_b2Draw_GetFlags(JSContext *cx, uint32_t argc, JS::Value *vp
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Draw* cobj = (b2Draw *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Draw_GetFlags : Invalid Native Object");
     if (argc == 0) {
@@ -330,7 +330,7 @@ bool js_box2dclasses_b2Shape_ComputeMass(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Shape* cobj = (b2Shape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Shape_ComputeMass : Invalid Native Object");
     if (argc == 2) {
@@ -353,7 +353,7 @@ bool js_box2dclasses_b2Shape_Clone(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Shape* cobj = (b2Shape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Shape_Clone : Invalid Native Object");
     if (argc == 1) {
@@ -363,7 +363,7 @@ bool js_box2dclasses_b2Shape_Clone(JSContext *cx, uint32_t argc, JS::Value *vp)
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2BlockAllocator*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -386,7 +386,7 @@ bool js_box2dclasses_b2Shape_GetType(JSContext *cx, uint32_t argc, JS::Value *vp
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Shape* cobj = (b2Shape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Shape_GetType : Invalid Native Object");
     if (argc == 0) {
@@ -405,7 +405,7 @@ bool js_box2dclasses_b2Shape_RayCast(JSContext *cx, uint32_t argc, JS::Value *vp
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Shape* cobj = (b2Shape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Shape_RayCast : Invalid Native Object");
     if (argc == 4) {
@@ -436,7 +436,7 @@ bool js_box2dclasses_b2Shape_ComputeAABB(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Shape* cobj = (b2Shape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Shape_ComputeAABB : Invalid Native Object");
     if (argc == 3) {
@@ -461,7 +461,7 @@ bool js_box2dclasses_b2Shape_GetChildCount(JSContext *cx, uint32_t argc, JS::Val
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Shape* cobj = (b2Shape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Shape_GetChildCount : Invalid Native Object");
     if (argc == 0) {
@@ -480,7 +480,7 @@ bool js_box2dclasses_b2Shape_TestPoint(JSContext *cx, uint32_t argc, JS::Value *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Shape* cobj = (b2Shape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Shape_TestPoint : Invalid Native Object");
     if (argc == 2) {
@@ -559,7 +559,7 @@ bool js_box2dclasses_b2CircleShape_ComputeMass(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2CircleShape* cobj = (b2CircleShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2CircleShape_ComputeMass : Invalid Native Object");
     if (argc == 2) {
@@ -582,7 +582,7 @@ bool js_box2dclasses_b2CircleShape_GetVertex(JSContext *cx, uint32_t argc, JS::V
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2CircleShape* cobj = (b2CircleShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2CircleShape_GetVertex : Invalid Native Object");
     if (argc == 1) {
@@ -604,7 +604,7 @@ bool js_box2dclasses_b2CircleShape_Clone(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2CircleShape* cobj = (b2CircleShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2CircleShape_Clone : Invalid Native Object");
     if (argc == 1) {
@@ -614,7 +614,7 @@ bool js_box2dclasses_b2CircleShape_Clone(JSContext *cx, uint32_t argc, JS::Value
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2BlockAllocator*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -638,7 +638,7 @@ bool js_box2dclasses_b2CircleShape_RayCast(JSContext *cx, uint32_t argc, JS::Val
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2CircleShape* cobj = (b2CircleShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2CircleShape_RayCast : Invalid Native Object");
     if (argc == 4) {
@@ -669,7 +669,7 @@ bool js_box2dclasses_b2CircleShape_ComputeAABB(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2CircleShape* cobj = (b2CircleShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2CircleShape_ComputeAABB : Invalid Native Object");
     if (argc == 3) {
@@ -694,7 +694,7 @@ bool js_box2dclasses_b2CircleShape_GetVertexCount(JSContext *cx, uint32_t argc, 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2CircleShape* cobj = (b2CircleShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2CircleShape_GetVertexCount : Invalid Native Object");
     if (argc == 0) {
@@ -712,7 +712,7 @@ bool js_box2dclasses_b2CircleShape_GetChildCount(JSContext *cx, uint32_t argc, J
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2CircleShape* cobj = (b2CircleShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2CircleShape_GetChildCount : Invalid Native Object");
     if (argc == 0) {
@@ -731,7 +731,7 @@ bool js_box2dclasses_b2CircleShape_TestPoint(JSContext *cx, uint32_t argc, JS::V
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2CircleShape* cobj = (b2CircleShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2CircleShape_TestPoint : Invalid Native Object");
     if (argc == 2) {
@@ -756,7 +756,7 @@ bool js_box2dclasses_b2CircleShape_GetSupportVertex(JSContext *cx, uint32_t argc
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2CircleShape* cobj = (b2CircleShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2CircleShape_GetSupportVertex : Invalid Native Object");
     if (argc == 1) {
@@ -778,7 +778,7 @@ bool js_box2dclasses_b2CircleShape_GetSupport(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2CircleShape* cobj = (b2CircleShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2CircleShape_GetSupport : Invalid Native Object");
     if (argc == 1) {
@@ -824,13 +824,11 @@ void js_b2CircleShape_finalize(JSFreeOp *fop, JSObject *obj) {
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(jsobj);
+    jsproxy = jsb_get_js_proxy(cx, jsobj);
     if (jsproxy) {
         b2CircleShape *nobj = static_cast<b2CircleShape *>(jsproxy->ptr);
-        nproxy = jsb_get_native_proxy(jsproxy->ptr);
-
         if (nobj) {
-            jsb_remove_proxy(nproxy, jsproxy);
+            jsb_remove_proxy(jsproxy);
             JS::RootedValue flagValue(cx);
             JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
             if (flagValue.isNullOrUndefined()){
@@ -838,7 +836,7 @@ void js_b2CircleShape_finalize(JSFreeOp *fop, JSObject *obj) {
             }
         }
         else
-            jsb_remove_proxy(nullptr, jsproxy);
+            jsb_remove_proxy(jsproxy);
     }
 }
 void js_register_box2dclasses_b2CircleShape(JSContext *cx, JS::HandleObject global) {
@@ -903,7 +901,7 @@ bool js_box2dclasses_b2EdgeShape_Set(JSContext *cx, uint32_t argc, JS::Value *vp
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2EdgeShape* cobj = (b2EdgeShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2EdgeShape_Set : Invalid Native Object");
     if (argc == 2) {
@@ -925,7 +923,7 @@ bool js_box2dclasses_b2EdgeShape_ComputeMass(JSContext *cx, uint32_t argc, JS::V
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2EdgeShape* cobj = (b2EdgeShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2EdgeShape_ComputeMass : Invalid Native Object");
     if (argc == 2) {
@@ -948,7 +946,7 @@ bool js_box2dclasses_b2EdgeShape_Clone(JSContext *cx, uint32_t argc, JS::Value *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2EdgeShape* cobj = (b2EdgeShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2EdgeShape_Clone : Invalid Native Object");
     if (argc == 1) {
@@ -958,7 +956,7 @@ bool js_box2dclasses_b2EdgeShape_Clone(JSContext *cx, uint32_t argc, JS::Value *
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2BlockAllocator*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -982,7 +980,7 @@ bool js_box2dclasses_b2EdgeShape_RayCast(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2EdgeShape* cobj = (b2EdgeShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2EdgeShape_RayCast : Invalid Native Object");
     if (argc == 4) {
@@ -1013,7 +1011,7 @@ bool js_box2dclasses_b2EdgeShape_ComputeAABB(JSContext *cx, uint32_t argc, JS::V
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2EdgeShape* cobj = (b2EdgeShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2EdgeShape_ComputeAABB : Invalid Native Object");
     if (argc == 3) {
@@ -1038,7 +1036,7 @@ bool js_box2dclasses_b2EdgeShape_GetChildCount(JSContext *cx, uint32_t argc, JS:
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2EdgeShape* cobj = (b2EdgeShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2EdgeShape_GetChildCount : Invalid Native Object");
     if (argc == 0) {
@@ -1057,7 +1055,7 @@ bool js_box2dclasses_b2EdgeShape_TestPoint(JSContext *cx, uint32_t argc, JS::Val
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2EdgeShape* cobj = (b2EdgeShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2EdgeShape_TestPoint : Invalid Native Object");
     if (argc == 2) {
@@ -1106,13 +1104,11 @@ void js_b2EdgeShape_finalize(JSFreeOp *fop, JSObject *obj) {
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(jsobj);
+    jsproxy = jsb_get_js_proxy(cx, jsobj);
     if (jsproxy) {
         b2EdgeShape *nobj = static_cast<b2EdgeShape *>(jsproxy->ptr);
-        nproxy = jsb_get_native_proxy(jsproxy->ptr);
-
         if (nobj) {
-            jsb_remove_proxy(nproxy, jsproxy);
+            jsb_remove_proxy(jsproxy);
             JS::RootedValue flagValue(cx);
             JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
             if (flagValue.isNullOrUndefined()){
@@ -1120,7 +1116,7 @@ void js_b2EdgeShape_finalize(JSFreeOp *fop, JSObject *obj) {
             }
         }
         else
-            jsb_remove_proxy(nullptr, jsproxy);
+            jsb_remove_proxy(jsproxy);
     }
 }
 void js_register_box2dclasses_b2EdgeShape(JSContext *cx, JS::HandleObject global) {
@@ -1182,7 +1178,7 @@ bool js_box2dclasses_b2ChainShape_ComputeMass(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ChainShape* cobj = (b2ChainShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2ChainShape_ComputeMass : Invalid Native Object");
     if (argc == 2) {
@@ -1204,7 +1200,7 @@ bool js_box2dclasses_b2ChainShape_Clear(JSContext *cx, uint32_t argc, JS::Value 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ChainShape* cobj = (b2ChainShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2ChainShape_Clear : Invalid Native Object");
     if (argc == 0) {
@@ -1221,7 +1217,7 @@ bool js_box2dclasses_b2ChainShape_TestPoint(JSContext *cx, uint32_t argc, JS::Va
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ChainShape* cobj = (b2ChainShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2ChainShape_TestPoint : Invalid Native Object");
     if (argc == 2) {
@@ -1246,7 +1242,7 @@ bool js_box2dclasses_b2ChainShape_GetChildEdge(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ChainShape* cobj = (b2ChainShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2ChainShape_GetChildEdge : Invalid Native Object");
     if (argc == 2) {
@@ -1257,7 +1253,7 @@ bool js_box2dclasses_b2ChainShape_GetChildEdge(JSContext *cx, uint32_t argc, JS:
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2EdgeShape*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -1276,7 +1272,7 @@ bool js_box2dclasses_b2ChainShape_RayCast(JSContext *cx, uint32_t argc, JS::Valu
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ChainShape* cobj = (b2ChainShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2ChainShape_RayCast : Invalid Native Object");
     if (argc == 4) {
@@ -1307,7 +1303,7 @@ bool js_box2dclasses_b2ChainShape_ComputeAABB(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ChainShape* cobj = (b2ChainShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2ChainShape_ComputeAABB : Invalid Native Object");
     if (argc == 3) {
@@ -1332,7 +1328,7 @@ bool js_box2dclasses_b2ChainShape_GetChildCount(JSContext *cx, uint32_t argc, JS
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ChainShape* cobj = (b2ChainShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2ChainShape_GetChildCount : Invalid Native Object");
     if (argc == 0) {
@@ -1351,7 +1347,7 @@ bool js_box2dclasses_b2ChainShape_SetPrevVertex(JSContext *cx, uint32_t argc, JS
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ChainShape* cobj = (b2ChainShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2ChainShape_SetPrevVertex : Invalid Native Object");
     if (argc == 1) {
@@ -1371,7 +1367,7 @@ bool js_box2dclasses_b2ChainShape_SetNextVertex(JSContext *cx, uint32_t argc, JS
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ChainShape* cobj = (b2ChainShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2ChainShape_SetNextVertex : Invalid Native Object");
     if (argc == 1) {
@@ -1391,7 +1387,7 @@ bool js_box2dclasses_b2ChainShape_Clone(JSContext *cx, uint32_t argc, JS::Value 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ChainShape* cobj = (b2ChainShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2ChainShape_Clone : Invalid Native Object");
     if (argc == 1) {
@@ -1401,7 +1397,7 @@ bool js_box2dclasses_b2ChainShape_Clone(JSContext *cx, uint32_t argc, JS::Value 
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2BlockAllocator*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -1449,13 +1445,11 @@ void js_b2ChainShape_finalize(JSFreeOp *fop, JSObject *obj) {
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(jsobj);
+    jsproxy = jsb_get_js_proxy(cx, jsobj);
     if (jsproxy) {
         b2ChainShape *nobj = static_cast<b2ChainShape *>(jsproxy->ptr);
-        nproxy = jsb_get_native_proxy(jsproxy->ptr);
-
         if (nobj) {
-            jsb_remove_proxy(nproxy, jsproxy);
+            jsb_remove_proxy(jsproxy);
             JS::RootedValue flagValue(cx);
             JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
             if (flagValue.isNullOrUndefined()){
@@ -1463,7 +1457,7 @@ void js_b2ChainShape_finalize(JSFreeOp *fop, JSObject *obj) {
             }
         }
         else
-            jsb_remove_proxy(nullptr, jsproxy);
+            jsb_remove_proxy(jsproxy);
     }
 }
 void js_register_box2dclasses_b2ChainShape(JSContext *cx, JS::HandleObject global) {
@@ -1528,7 +1522,7 @@ bool js_box2dclasses_b2PolygonShape_ComputeMass(JSContext *cx, uint32_t argc, JS
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PolygonShape* cobj = (b2PolygonShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PolygonShape_ComputeMass : Invalid Native Object");
     if (argc == 2) {
@@ -1551,7 +1545,7 @@ bool js_box2dclasses_b2PolygonShape_GetVertex(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PolygonShape* cobj = (b2PolygonShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PolygonShape_GetVertex : Invalid Native Object");
     if (argc == 1) {
@@ -1573,7 +1567,7 @@ bool js_box2dclasses_b2PolygonShape_Clone(JSContext *cx, uint32_t argc, JS::Valu
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PolygonShape* cobj = (b2PolygonShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PolygonShape_Clone : Invalid Native Object");
     if (argc == 1) {
@@ -1583,7 +1577,7 @@ bool js_box2dclasses_b2PolygonShape_Clone(JSContext *cx, uint32_t argc, JS::Valu
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2BlockAllocator*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -1607,7 +1601,7 @@ bool js_box2dclasses_b2PolygonShape_RayCast(JSContext *cx, uint32_t argc, JS::Va
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PolygonShape* cobj = (b2PolygonShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PolygonShape_RayCast : Invalid Native Object");
     if (argc == 4) {
@@ -1638,7 +1632,7 @@ bool js_box2dclasses_b2PolygonShape_ComputeAABB(JSContext *cx, uint32_t argc, JS
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PolygonShape* cobj = (b2PolygonShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PolygonShape_ComputeAABB : Invalid Native Object");
     if (argc == 3) {
@@ -1663,7 +1657,7 @@ bool js_box2dclasses_b2PolygonShape_GetVertexCount(JSContext *cx, uint32_t argc,
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PolygonShape* cobj = (b2PolygonShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PolygonShape_GetVertexCount : Invalid Native Object");
     if (argc == 0) {
@@ -1681,7 +1675,7 @@ bool js_box2dclasses_b2PolygonShape_GetChildCount(JSContext *cx, uint32_t argc, 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PolygonShape* cobj = (b2PolygonShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PolygonShape_GetChildCount : Invalid Native Object");
     if (argc == 0) {
@@ -1700,7 +1694,7 @@ bool js_box2dclasses_b2PolygonShape_TestPoint(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PolygonShape* cobj = (b2PolygonShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PolygonShape_TestPoint : Invalid Native Object");
     if (argc == 2) {
@@ -1724,7 +1718,7 @@ bool js_box2dclasses_b2PolygonShape_Validate(JSContext *cx, uint32_t argc, JS::V
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PolygonShape* cobj = (b2PolygonShape *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PolygonShape_Validate : Invalid Native Object");
     if (argc == 0) {
@@ -1767,13 +1761,11 @@ void js_b2PolygonShape_finalize(JSFreeOp *fop, JSObject *obj) {
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(jsobj);
+    jsproxy = jsb_get_js_proxy(cx, jsobj);
     if (jsproxy) {
         b2PolygonShape *nobj = static_cast<b2PolygonShape *>(jsproxy->ptr);
-        nproxy = jsb_get_native_proxy(jsproxy->ptr);
-
         if (nobj) {
-            jsb_remove_proxy(nproxy, jsproxy);
+            jsb_remove_proxy(jsproxy);
             JS::RootedValue flagValue(cx);
             JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
             if (flagValue.isNullOrUndefined()){
@@ -1781,7 +1773,7 @@ void js_b2PolygonShape_finalize(JSFreeOp *fop, JSObject *obj) {
             }
         }
         else
-            jsb_remove_proxy(nullptr, jsproxy);
+            jsb_remove_proxy(jsproxy);
     }
 }
 void js_register_box2dclasses_b2PolygonShape(JSContext *cx, JS::HandleObject global) {
@@ -1844,7 +1836,7 @@ bool js_box2dclasses_b2Body_GetAngle(JSContext *cx, uint32_t argc, JS::Value *vp
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetAngle : Invalid Native Object");
     if (argc == 0) {
@@ -1862,7 +1854,7 @@ bool js_box2dclasses_b2Body_IsSleepingAllowed(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_IsSleepingAllowed : Invalid Native Object");
     if (argc == 0) {
@@ -1881,7 +1873,7 @@ bool js_box2dclasses_b2Body_SetAngularDamping(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetAngularDamping : Invalid Native Object");
     if (argc == 1) {
@@ -1901,7 +1893,7 @@ bool js_box2dclasses_b2Body_SetActive(JSContext *cx, uint32_t argc, JS::Value *v
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetActive : Invalid Native Object");
     if (argc == 1) {
@@ -1921,7 +1913,7 @@ bool js_box2dclasses_b2Body_SetGravityScale(JSContext *cx, uint32_t argc, JS::Va
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetGravityScale : Invalid Native Object");
     if (argc == 1) {
@@ -1940,7 +1932,7 @@ bool js_box2dclasses_b2Body_GetAngularVelocity(JSContext *cx, uint32_t argc, JS:
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetAngularVelocity : Invalid Native Object");
     if (argc == 0) {
@@ -1961,7 +1953,7 @@ bool js_box2dclasses_b2Body_GetFixtureList(JSContext *cx, uint32_t argc, JS::Val
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2Body *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetFixtureList : Invalid Native Object");
     do {
@@ -2000,7 +1992,7 @@ bool js_box2dclasses_b2Body_ApplyForce(JSContext *cx, uint32_t argc, JS::Value *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_ApplyForce : Invalid Native Object");
     if (argc == 3) {
@@ -2024,7 +2016,7 @@ bool js_box2dclasses_b2Body_GetLocalPoint(JSContext *cx, uint32_t argc, JS::Valu
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetLocalPoint : Invalid Native Object");
     if (argc == 1) {
@@ -2046,7 +2038,7 @@ bool js_box2dclasses_b2Body_SetLinearVelocity(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetLinearVelocity : Invalid Native Object");
     if (argc == 1) {
@@ -2068,7 +2060,7 @@ bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2Body *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetJointList : Invalid Native Object");
     do {
@@ -2098,7 +2090,7 @@ bool js_box2dclasses_b2Body_GetLinearVelocity(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetLinearVelocity : Invalid Native Object");
     if (argc == 0) {
@@ -2119,7 +2111,7 @@ bool js_box2dclasses_b2Body_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2Body *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetNext : Invalid Native Object");
     do {
@@ -2158,7 +2150,7 @@ bool js_box2dclasses_b2Body_SetSleepingAllowed(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetSleepingAllowed : Invalid Native Object");
     if (argc == 1) {
@@ -2178,7 +2170,7 @@ bool js_box2dclasses_b2Body_SetTransform(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetTransform : Invalid Native Object");
     if (argc == 2) {
@@ -2199,7 +2191,7 @@ bool js_box2dclasses_b2Body_GetMass(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetMass : Invalid Native Object");
     if (argc == 0) {
@@ -2218,7 +2210,7 @@ bool js_box2dclasses_b2Body_SetAngularVelocity(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetAngularVelocity : Invalid Native Object");
     if (argc == 1) {
@@ -2238,7 +2230,7 @@ bool js_box2dclasses_b2Body_GetMassData(JSContext *cx, uint32_t argc, JS::Value 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetMassData : Invalid Native Object");
     if (argc == 1) {
@@ -2259,7 +2251,7 @@ bool js_box2dclasses_b2Body_GetLinearVelocityFromWorldPoint(JSContext *cx, uint3
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetLinearVelocityFromWorldPoint : Invalid Native Object");
     if (argc == 1) {
@@ -2280,7 +2272,7 @@ bool js_box2dclasses_b2Body_ResetMassData(JSContext *cx, uint32_t argc, JS::Valu
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_ResetMassData : Invalid Native Object");
     if (argc == 0) {
@@ -2297,7 +2289,7 @@ bool js_box2dclasses_b2Body_ApplyForceToCenter(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_ApplyForceToCenter : Invalid Native Object");
     if (argc == 2) {
@@ -2319,7 +2311,7 @@ bool js_box2dclasses_b2Body_ApplyTorque(JSContext *cx, uint32_t argc, JS::Value 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_ApplyTorque : Invalid Native Object");
     if (argc == 2) {
@@ -2340,7 +2332,7 @@ bool js_box2dclasses_b2Body_IsAwake(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_IsAwake : Invalid Native Object");
     if (argc == 0) {
@@ -2359,7 +2351,7 @@ bool js_box2dclasses_b2Body_SetType(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetType : Invalid Native Object");
     if (argc == 1) {
@@ -2379,7 +2371,7 @@ bool js_box2dclasses_b2Body_SetMassData(JSContext *cx, uint32_t argc, JS::Value 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetMassData : Invalid Native Object");
     if (argc == 1) {
@@ -2399,7 +2391,7 @@ bool js_box2dclasses_b2Body_GetTransform(JSContext *cx, uint32_t argc, JS::Value
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetTransform : Invalid Native Object");
     if (argc == 0) {
@@ -2417,7 +2409,7 @@ bool js_box2dclasses_b2Body_GetWorldCenter(JSContext *cx, uint32_t argc, JS::Val
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetWorldCenter : Invalid Native Object");
     if (argc == 0) {
@@ -2435,7 +2427,7 @@ bool js_box2dclasses_b2Body_GetAngularDamping(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetAngularDamping : Invalid Native Object");
     if (argc == 0) {
@@ -2454,7 +2446,7 @@ bool js_box2dclasses_b2Body_ApplyLinearImpulse(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_ApplyLinearImpulse : Invalid Native Object");
     if (argc == 3) {
@@ -2477,7 +2469,7 @@ bool js_box2dclasses_b2Body_IsFixedRotation(JSContext *cx, uint32_t argc, JS::Va
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_IsFixedRotation : Invalid Native Object");
     if (argc == 0) {
@@ -2495,7 +2487,7 @@ bool js_box2dclasses_b2Body_GetLocalCenter(JSContext *cx, uint32_t argc, JS::Val
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetLocalCenter : Invalid Native Object");
     if (argc == 0) {
@@ -2514,7 +2506,7 @@ bool js_box2dclasses_b2Body_GetWorldVector(JSContext *cx, uint32_t argc, JS::Val
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetWorldVector : Invalid Native Object");
     if (argc == 1) {
@@ -2536,7 +2528,7 @@ bool js_box2dclasses_b2Body_GetLinearVelocityFromLocalPoint(JSContext *cx, uint3
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetLinearVelocityFromLocalPoint : Invalid Native Object");
     if (argc == 1) {
@@ -2560,7 +2552,7 @@ bool js_box2dclasses_b2Body_GetContactList(JSContext *cx, uint32_t argc, JS::Val
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2Body *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetContactList : Invalid Native Object");
     do {
@@ -2591,7 +2583,7 @@ bool js_box2dclasses_b2Body_GetWorldPoint(JSContext *cx, uint32_t argc, JS::Valu
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetWorldPoint : Invalid Native Object");
     if (argc == 1) {
@@ -2613,7 +2605,7 @@ bool js_box2dclasses_b2Body_SetAwake(JSContext *cx, uint32_t argc, JS::Value *vp
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetAwake : Invalid Native Object");
     if (argc == 1) {
@@ -2632,7 +2624,7 @@ bool js_box2dclasses_b2Body_GetLinearDamping(JSContext *cx, uint32_t argc, JS::V
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetLinearDamping : Invalid Native Object");
     if (argc == 0) {
@@ -2650,7 +2642,7 @@ bool js_box2dclasses_b2Body_IsBullet(JSContext *cx, uint32_t argc, JS::Value *vp
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_IsBullet : Invalid Native Object");
     if (argc == 0) {
@@ -2671,7 +2663,7 @@ bool js_box2dclasses_b2Body_GetWorld(JSContext *cx, uint32_t argc, JS::Value *vp
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2Body *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetWorld : Invalid Native Object");
     do {
@@ -2710,7 +2702,7 @@ bool js_box2dclasses_b2Body_GetLocalVector(JSContext *cx, uint32_t argc, JS::Val
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetLocalVector : Invalid Native Object");
     if (argc == 1) {
@@ -2732,7 +2724,7 @@ bool js_box2dclasses_b2Body_SetLinearDamping(JSContext *cx, uint32_t argc, JS::V
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetLinearDamping : Invalid Native Object");
     if (argc == 1) {
@@ -2751,7 +2743,7 @@ bool js_box2dclasses_b2Body_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_Dump : Invalid Native Object");
     if (argc == 0) {
@@ -2768,7 +2760,7 @@ bool js_box2dclasses_b2Body_SetBullet(JSContext *cx, uint32_t argc, JS::Value *v
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetBullet : Invalid Native Object");
     if (argc == 1) {
@@ -2787,7 +2779,7 @@ bool js_box2dclasses_b2Body_GetType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetType : Invalid Native Object");
     if (argc == 0) {
@@ -2805,7 +2797,7 @@ bool js_box2dclasses_b2Body_GetGravityScale(JSContext *cx, uint32_t argc, JS::Va
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetGravityScale : Invalid Native Object");
     if (argc == 0) {
@@ -2824,7 +2816,7 @@ bool js_box2dclasses_b2Body_DestroyFixture(JSContext *cx, uint32_t argc, JS::Val
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_DestroyFixture : Invalid Native Object");
     if (argc == 1) {
@@ -2834,7 +2826,7 @@ bool js_box2dclasses_b2Body_DestroyFixture(JSContext *cx, uint32_t argc, JS::Val
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2Fixture*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -2851,7 +2843,7 @@ bool js_box2dclasses_b2Body_GetInertia(JSContext *cx, uint32_t argc, JS::Value *
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetInertia : Invalid Native Object");
     if (argc == 0) {
@@ -2869,7 +2861,7 @@ bool js_box2dclasses_b2Body_IsActive(JSContext *cx, uint32_t argc, JS::Value *vp
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_IsActive : Invalid Native Object");
     if (argc == 0) {
@@ -2888,7 +2880,7 @@ bool js_box2dclasses_b2Body_SetFixedRotation(JSContext *cx, uint32_t argc, JS::V
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_SetFixedRotation : Invalid Native Object");
     if (argc == 1) {
@@ -2908,7 +2900,7 @@ bool js_box2dclasses_b2Body_ApplyAngularImpulse(JSContext *cx, uint32_t argc, JS
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_ApplyAngularImpulse : Invalid Native Object");
     if (argc == 2) {
@@ -2929,7 +2921,7 @@ bool js_box2dclasses_b2Body_GetPosition(JSContext *cx, uint32_t argc, JS::Value 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetPosition : Invalid Native Object");
     if (argc == 0) {
@@ -3045,7 +3037,7 @@ bool js_box2dclasses_b2Fixture_GetRestitution(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_GetRestitution : Invalid Native Object");
     if (argc == 0) {
@@ -3064,7 +3056,7 @@ bool js_box2dclasses_b2Fixture_SetFilterData(JSContext *cx, uint32_t argc, JS::V
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_SetFilterData : Invalid Native Object");
     if (argc == 1) {
@@ -3085,7 +3077,7 @@ bool js_box2dclasses_b2Fixture_SetFriction(JSContext *cx, uint32_t argc, JS::Val
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_SetFriction : Invalid Native Object");
     if (argc == 1) {
@@ -3107,7 +3099,7 @@ bool js_box2dclasses_b2Fixture_GetShape(JSContext *cx, uint32_t argc, JS::Value 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2Fixture *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_GetShape : Invalid Native Object");
     do {
@@ -3146,7 +3138,7 @@ bool js_box2dclasses_b2Fixture_SetRestitution(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_SetRestitution : Invalid Native Object");
     if (argc == 1) {
@@ -3168,7 +3160,7 @@ bool js_box2dclasses_b2Fixture_GetBody(JSContext *cx, uint32_t argc, JS::Value *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2Fixture *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_GetBody : Invalid Native Object");
     do {
@@ -3209,7 +3201,7 @@ bool js_box2dclasses_b2Fixture_GetNext(JSContext *cx, uint32_t argc, JS::Value *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2Fixture *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_GetNext : Invalid Native Object");
     do {
@@ -3247,7 +3239,7 @@ bool js_box2dclasses_b2Fixture_GetFriction(JSContext *cx, uint32_t argc, JS::Val
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_GetFriction : Invalid Native Object");
     if (argc == 0) {
@@ -3266,7 +3258,7 @@ bool js_box2dclasses_b2Fixture_SetDensity(JSContext *cx, uint32_t argc, JS::Valu
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_SetDensity : Invalid Native Object");
     if (argc == 1) {
@@ -3286,7 +3278,7 @@ bool js_box2dclasses_b2Fixture_GetMassData(JSContext *cx, uint32_t argc, JS::Val
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_GetMassData : Invalid Native Object");
     if (argc == 1) {
@@ -3307,7 +3299,7 @@ bool js_box2dclasses_b2Fixture_SetSensor(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_SetSensor : Invalid Native Object");
     if (argc == 1) {
@@ -3327,7 +3319,7 @@ bool js_box2dclasses_b2Fixture_GetAABB(JSContext *cx, uint32_t argc, JS::Value *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_GetAABB : Invalid Native Object");
     if (argc == 1) {
@@ -3349,7 +3341,7 @@ bool js_box2dclasses_b2Fixture_TestPoint(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_TestPoint : Invalid Native Object");
     if (argc == 1) {
@@ -3371,7 +3363,7 @@ bool js_box2dclasses_b2Fixture_RayCast(JSContext *cx, uint32_t argc, JS::Value *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_RayCast : Invalid Native Object");
     if (argc == 3) {
@@ -3398,7 +3390,7 @@ bool js_box2dclasses_b2Fixture_Refilter(JSContext *cx, uint32_t argc, JS::Value 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_Refilter : Invalid Native Object");
     if (argc == 0) {
@@ -3415,7 +3407,7 @@ bool js_box2dclasses_b2Fixture_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_Dump : Invalid Native Object");
     if (argc == 1) {
@@ -3434,7 +3426,7 @@ bool js_box2dclasses_b2Fixture_GetFilterData(JSContext *cx, uint32_t argc, JS::V
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_GetFilterData : Invalid Native Object");
     if (argc == 0) {
@@ -3452,7 +3444,7 @@ bool js_box2dclasses_b2Fixture_IsSensor(JSContext *cx, uint32_t argc, JS::Value 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_IsSensor : Invalid Native Object");
     if (argc == 0) {
@@ -3470,7 +3462,7 @@ bool js_box2dclasses_b2Fixture_GetType(JSContext *cx, uint32_t argc, JS::Value *
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_GetType : Invalid Native Object");
     if (argc == 0) {
@@ -3488,7 +3480,7 @@ bool js_box2dclasses_b2Fixture_GetDensity(JSContext *cx, uint32_t argc, JS::Valu
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_GetDensity : Invalid Native Object");
     if (argc == 0) {
@@ -3574,7 +3566,7 @@ bool js_box2dclasses_b2ContactListener_EndContact(JSContext *cx, uint32_t argc, 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ContactListener* cobj = (b2ContactListener *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2ContactListener_EndContact : Invalid Native Object");
     if (argc == 1) {
@@ -3584,7 +3576,7 @@ bool js_box2dclasses_b2ContactListener_EndContact(JSContext *cx, uint32_t argc, 
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2Contact*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -3602,7 +3594,7 @@ bool js_box2dclasses_b2ContactListener_PreSolve(JSContext *cx, uint32_t argc, JS
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ContactListener* cobj = (b2ContactListener *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2ContactListener_PreSolve : Invalid Native Object");
     if (argc == 2) {
@@ -3613,7 +3605,7 @@ bool js_box2dclasses_b2ContactListener_PreSolve(JSContext *cx, uint32_t argc, JS
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2Contact*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -3633,7 +3625,7 @@ bool js_box2dclasses_b2ContactListener_BeginContact(JSContext *cx, uint32_t argc
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ContactListener* cobj = (b2ContactListener *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2ContactListener_BeginContact : Invalid Native Object");
     if (argc == 1) {
@@ -3643,7 +3635,7 @@ bool js_box2dclasses_b2ContactListener_BeginContact(JSContext *cx, uint32_t argc
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2Contact*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -3661,7 +3653,7 @@ bool js_box2dclasses_b2ContactListener_PostSolve(JSContext *cx, uint32_t argc, J
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ContactListener* cobj = (b2ContactListener *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2ContactListener_PostSolve : Invalid Native Object");
     if (argc == 2) {
@@ -3672,7 +3664,7 @@ bool js_box2dclasses_b2ContactListener_PostSolve(JSContext *cx, uint32_t argc, J
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2Contact*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -3743,7 +3735,7 @@ bool js_box2dclasses_b2QueryCallback_ReportFixture(JSContext *cx, uint32_t argc,
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2QueryCallback* cobj = (b2QueryCallback *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2QueryCallback_ReportFixture : Invalid Native Object");
     if (argc == 1) {
@@ -3753,7 +3745,7 @@ bool js_box2dclasses_b2QueryCallback_ReportFixture(JSContext *cx, uint32_t argc,
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2Fixture*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -3821,7 +3813,7 @@ bool js_box2dclasses_b2RayCastCallback_ReportFixture(JSContext *cx, uint32_t arg
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RayCastCallback* cobj = (b2RayCastCallback *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RayCastCallback_ReportFixture : Invalid Native Object");
     if (argc == 4) {
@@ -3834,7 +3826,7 @@ bool js_box2dclasses_b2RayCastCallback_ReportFixture(JSContext *cx, uint32_t arg
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2Fixture*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -3905,7 +3897,7 @@ bool js_box2dclasses_b2World_ShiftOrigin(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_ShiftOrigin : Invalid Native Object");
     if (argc == 1) {
@@ -3925,7 +3917,7 @@ bool js_box2dclasses_b2World_QueryAABB(JSContext *cx, uint32_t argc, JS::Value *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_QueryAABB : Invalid Native Object");
     if (argc == 2) {
@@ -3936,7 +3928,7 @@ bool js_box2dclasses_b2World_QueryAABB(JSContext *cx, uint32_t argc, JS::Value *
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2QueryCallback*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -3955,7 +3947,7 @@ bool js_box2dclasses_b2World_SetSubStepping(JSContext *cx, uint32_t argc, JS::Va
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetSubStepping : Invalid Native Object");
     if (argc == 1) {
@@ -3974,7 +3966,7 @@ bool js_box2dclasses_b2World_GetTreeQuality(JSContext *cx, uint32_t argc, JS::Va
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetTreeQuality : Invalid Native Object");
     if (argc == 0) {
@@ -3992,7 +3984,7 @@ bool js_box2dclasses_b2World_GetTreeHeight(JSContext *cx, uint32_t argc, JS::Val
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetTreeHeight : Invalid Native Object");
     if (argc == 0) {
@@ -4010,7 +4002,7 @@ bool js_box2dclasses_b2World_GetProfile(JSContext *cx, uint32_t argc, JS::Value 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetProfile : Invalid Native Object");
     if (argc == 0) {
@@ -4028,7 +4020,7 @@ bool js_box2dclasses_b2World_GetTreeBalance(JSContext *cx, uint32_t argc, JS::Va
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetTreeBalance : Invalid Native Object");
     if (argc == 0) {
@@ -4046,7 +4038,7 @@ bool js_box2dclasses_b2World_GetSubStepping(JSContext *cx, uint32_t argc, JS::Va
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetSubStepping : Invalid Native Object");
     if (argc == 0) {
@@ -4065,7 +4057,7 @@ bool js_box2dclasses_b2World_SetContactListener(JSContext *cx, uint32_t argc, JS
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetContactListener : Invalid Native Object");
     if (argc == 1) {
@@ -4075,7 +4067,7 @@ bool js_box2dclasses_b2World_SetContactListener(JSContext *cx, uint32_t argc, JS
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2ContactListener*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -4092,7 +4084,7 @@ bool js_box2dclasses_b2World_DrawDebugData(JSContext *cx, uint32_t argc, JS::Val
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_DrawDebugData : Invalid Native Object");
     if (argc == 0) {
@@ -4109,7 +4101,7 @@ bool js_box2dclasses_b2World_SetContinuousPhysics(JSContext *cx, uint32_t argc, 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetContinuousPhysics : Invalid Native Object");
     if (argc == 1) {
@@ -4129,7 +4121,7 @@ bool js_box2dclasses_b2World_SetGravity(JSContext *cx, uint32_t argc, JS::Value 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetGravity : Invalid Native Object");
     if (argc == 1) {
@@ -4148,7 +4140,7 @@ bool js_box2dclasses_b2World_GetBodyCount(JSContext *cx, uint32_t argc, JS::Valu
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetBodyCount : Invalid Native Object");
     if (argc == 0) {
@@ -4166,7 +4158,7 @@ bool js_box2dclasses_b2World_GetAutoClearForces(JSContext *cx, uint32_t argc, JS
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetAutoClearForces : Invalid Native Object");
     if (argc == 0) {
@@ -4184,7 +4176,7 @@ bool js_box2dclasses_b2World_GetContinuousPhysics(JSContext *cx, uint32_t argc, 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetContinuousPhysics : Invalid Native Object");
     if (argc == 0) {
@@ -4205,7 +4197,7 @@ bool js_box2dclasses_b2World_GetJointList(JSContext *cx, uint32_t argc, JS::Valu
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2World *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetJointList : Invalid Native Object");
     do {
@@ -4246,7 +4238,7 @@ bool js_box2dclasses_b2World_GetBodyList(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2World *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetBodyList : Invalid Native Object");
     do {
@@ -4285,7 +4277,7 @@ bool js_box2dclasses_b2World_SetDestructionListener(JSContext *cx, uint32_t argc
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetDestructionListener : Invalid Native Object");
     if (argc == 1) {
@@ -4295,7 +4287,7 @@ bool js_box2dclasses_b2World_SetDestructionListener(JSContext *cx, uint32_t argc
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2DestructionListener*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -4313,7 +4305,7 @@ bool js_box2dclasses_b2World_DestroyJoint(JSContext *cx, uint32_t argc, JS::Valu
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_DestroyJoint : Invalid Native Object");
     if (argc == 1) {
@@ -4323,7 +4315,7 @@ bool js_box2dclasses_b2World_DestroyJoint(JSContext *cx, uint32_t argc, JS::Valu
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2Joint*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -4340,7 +4332,7 @@ bool js_box2dclasses_b2World_GetJointCount(JSContext *cx, uint32_t argc, JS::Val
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetJointCount : Invalid Native Object");
     if (argc == 0) {
@@ -4359,7 +4351,7 @@ bool js_box2dclasses_b2World_Step(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_Step : Invalid Native Object");
     if (argc == 3) {
@@ -4382,7 +4374,7 @@ bool js_box2dclasses_b2World_ClearForces(JSContext *cx, uint32_t argc, JS::Value
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_ClearForces : Invalid Native Object");
     if (argc == 0) {
@@ -4398,7 +4390,7 @@ bool js_box2dclasses_b2World_GetWarmStarting(JSContext *cx, uint32_t argc, JS::V
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetWarmStarting : Invalid Native Object");
     if (argc == 0) {
@@ -4417,7 +4409,7 @@ bool js_box2dclasses_b2World_SetAllowSleeping(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetAllowSleeping : Invalid Native Object");
     if (argc == 1) {
@@ -4437,7 +4429,7 @@ bool js_box2dclasses_b2World_DestroyBody(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_DestroyBody : Invalid Native Object");
     if (argc == 1) {
@@ -4447,7 +4439,7 @@ bool js_box2dclasses_b2World_DestroyBody(JSContext *cx, uint32_t argc, JS::Value
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2Body*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -4464,7 +4456,7 @@ bool js_box2dclasses_b2World_GetAllowSleeping(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetAllowSleeping : Invalid Native Object");
     if (argc == 0) {
@@ -4482,7 +4474,7 @@ bool js_box2dclasses_b2World_GetProxyCount(JSContext *cx, uint32_t argc, JS::Val
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetProxyCount : Invalid Native Object");
     if (argc == 0) {
@@ -4501,7 +4493,7 @@ bool js_box2dclasses_b2World_RayCast(JSContext *cx, uint32_t argc, JS::Value *vp
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_RayCast : Invalid Native Object");
     if (argc == 3) {
@@ -4513,7 +4505,7 @@ bool js_box2dclasses_b2World_RayCast(JSContext *cx, uint32_t argc, JS::Value *vp
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2RayCastCallback*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -4532,7 +4524,7 @@ bool js_box2dclasses_b2World_IsLocked(JSContext *cx, uint32_t argc, JS::Value *v
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_IsLocked : Invalid Native Object");
     if (argc == 0) {
@@ -4553,7 +4545,7 @@ bool js_box2dclasses_b2World_GetContactList(JSContext *cx, uint32_t argc, JS::Va
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2World *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetContactList : Invalid Native Object");
     do {
@@ -4592,7 +4584,7 @@ bool js_box2dclasses_b2World_SetDebugDraw(JSContext *cx, uint32_t argc, JS::Valu
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetDebugDraw : Invalid Native Object");
     if (argc == 1) {
@@ -4602,7 +4594,7 @@ bool js_box2dclasses_b2World_SetDebugDraw(JSContext *cx, uint32_t argc, JS::Valu
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2Draw*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -4619,7 +4611,7 @@ bool js_box2dclasses_b2World_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_Dump : Invalid Native Object");
     if (argc == 0) {
@@ -4636,7 +4628,7 @@ bool js_box2dclasses_b2World_SetAutoClearForces(JSContext *cx, uint32_t argc, JS
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetAutoClearForces : Invalid Native Object");
     if (argc == 1) {
@@ -4655,7 +4647,7 @@ bool js_box2dclasses_b2World_GetGravity(JSContext *cx, uint32_t argc, JS::Value 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetGravity : Invalid Native Object");
     if (argc == 0) {
@@ -4673,7 +4665,7 @@ bool js_box2dclasses_b2World_GetContactCount(JSContext *cx, uint32_t argc, JS::V
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetContactCount : Invalid Native Object");
     if (argc == 0) {
@@ -4692,7 +4684,7 @@ bool js_box2dclasses_b2World_SetWarmStarting(JSContext *cx, uint32_t argc, JS::V
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetWarmStarting : Invalid Native Object");
     if (argc == 1) {
@@ -4712,7 +4704,7 @@ bool js_box2dclasses_b2World_SetContactFilter(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_SetContactFilter : Invalid Native Object");
     if (argc == 1) {
@@ -4722,7 +4714,7 @@ bool js_box2dclasses_b2World_SetContactFilter(JSContext *cx, uint32_t argc, JS::
             if (!args.get(0).isObject()) { ok = false; break; }
             js_proxy_t *jsProxy;
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(tmpObj);
+            jsProxy = jsb_get_js_proxy(cx, tmpObj);
             arg0 = (b2ContactFilter*)(jsProxy ? jsProxy->ptr : NULL);
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
@@ -4765,13 +4757,11 @@ void js_b2World_finalize(JSFreeOp *fop, JSObject *obj) {
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(jsobj);
+    jsproxy = jsb_get_js_proxy(cx, jsobj);
     if (jsproxy) {
         b2World *nobj = static_cast<b2World *>(jsproxy->ptr);
-        nproxy = jsb_get_native_proxy(jsproxy->ptr);
-
         if (nobj) {
-            jsb_remove_proxy(nproxy, jsproxy);
+            jsb_remove_proxy(jsproxy);
             JS::RootedValue flagValue(cx);
             JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
             if (flagValue.isNullOrUndefined()){
@@ -4779,7 +4769,7 @@ void js_b2World_finalize(JSFreeOp *fop, JSObject *obj) {
             }
         }
         else
-            jsb_remove_proxy(nullptr, jsproxy);
+            jsb_remove_proxy(jsproxy);
     }
 }
 void js_register_box2dclasses_b2World(JSContext *cx, JS::HandleObject global) {
@@ -4872,7 +4862,7 @@ bool js_box2dclasses_b2Contact_GetNext(JSContext *cx, uint32_t argc, JS::Value *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2Contact *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_GetNext : Invalid Native Object");
     do {
@@ -4911,7 +4901,7 @@ bool js_box2dclasses_b2Contact_SetEnabled(JSContext *cx, uint32_t argc, JS::Valu
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_SetEnabled : Invalid Native Object");
     if (argc == 1) {
@@ -4931,7 +4921,7 @@ bool js_box2dclasses_b2Contact_GetWorldManifold(JSContext *cx, uint32_t argc, JS
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_GetWorldManifold : Invalid Native Object");
     if (argc == 1) {
@@ -4951,7 +4941,7 @@ bool js_box2dclasses_b2Contact_GetRestitution(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_GetRestitution : Invalid Native Object");
     if (argc == 0) {
@@ -4969,7 +4959,7 @@ bool js_box2dclasses_b2Contact_ResetFriction(JSContext *cx, uint32_t argc, JS::V
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_ResetFriction : Invalid Native Object");
     if (argc == 0) {
@@ -4985,7 +4975,7 @@ bool js_box2dclasses_b2Contact_GetFriction(JSContext *cx, uint32_t argc, JS::Val
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_GetFriction : Invalid Native Object");
     if (argc == 0) {
@@ -5003,7 +4993,7 @@ bool js_box2dclasses_b2Contact_IsTouching(JSContext *cx, uint32_t argc, JS::Valu
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_IsTouching : Invalid Native Object");
     if (argc == 0) {
@@ -5021,7 +5011,7 @@ bool js_box2dclasses_b2Contact_IsEnabled(JSContext *cx, uint32_t argc, JS::Value
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_IsEnabled : Invalid Native Object");
     if (argc == 0) {
@@ -5042,7 +5032,7 @@ bool js_box2dclasses_b2Contact_GetFixtureB(JSContext *cx, uint32_t argc, JS::Val
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2Contact *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_GetFixtureB : Invalid Native Object");
     do {
@@ -5081,7 +5071,7 @@ bool js_box2dclasses_b2Contact_SetFriction(JSContext *cx, uint32_t argc, JS::Val
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_SetFriction : Invalid Native Object");
     if (argc == 1) {
@@ -5103,7 +5093,7 @@ bool js_box2dclasses_b2Contact_GetFixtureA(JSContext *cx, uint32_t argc, JS::Val
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2Contact *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_GetFixtureA : Invalid Native Object");
     do {
@@ -5141,7 +5131,7 @@ bool js_box2dclasses_b2Contact_GetChildIndexA(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_GetChildIndexA : Invalid Native Object");
     if (argc == 0) {
@@ -5159,7 +5149,7 @@ bool js_box2dclasses_b2Contact_GetChildIndexB(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_GetChildIndexB : Invalid Native Object");
     if (argc == 0) {
@@ -5178,7 +5168,7 @@ bool js_box2dclasses_b2Contact_SetTangentSpeed(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_SetTangentSpeed : Invalid Native Object");
     if (argc == 1) {
@@ -5197,7 +5187,7 @@ bool js_box2dclasses_b2Contact_GetTangentSpeed(JSContext *cx, uint32_t argc, JS:
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_GetTangentSpeed : Invalid Native Object");
     if (argc == 0) {
@@ -5216,7 +5206,7 @@ bool js_box2dclasses_b2Contact_SetRestitution(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_SetRestitution : Invalid Native Object");
     if (argc == 1) {
@@ -5238,7 +5228,7 @@ bool js_box2dclasses_b2Contact_GetManifold(JSContext *cx, uint32_t argc, JS::Val
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2Contact *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_GetManifold : Invalid Native Object");
     do {
@@ -5269,7 +5259,7 @@ bool js_box2dclasses_b2Contact_Evaluate(JSContext *cx, uint32_t argc, JS::Value 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_Evaluate : Invalid Native Object");
     if (argc == 3) {
@@ -5295,7 +5285,7 @@ bool js_box2dclasses_b2Contact_ResetRestitution(JSContext *cx, uint32_t argc, JS
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_ResetRestitution : Invalid Native Object");
     if (argc == 0) {
@@ -5380,7 +5370,7 @@ bool js_box2dclasses_b2Joint_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2Joint *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_GetNext : Invalid Native Object");
     do {
@@ -5418,7 +5408,7 @@ bool js_box2dclasses_b2Joint_GetBodyA(JSContext *cx, uint32_t argc, JS::Value *v
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_GetBodyA : Invalid Native Object");
     if (argc == 0) {
@@ -5440,7 +5430,7 @@ bool js_box2dclasses_b2Joint_GetBodyB(JSContext *cx, uint32_t argc, JS::Value *v
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_GetBodyB : Invalid Native Object");
     if (argc == 0) {
@@ -5463,7 +5453,7 @@ bool js_box2dclasses_b2Joint_GetReactionTorque(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
@@ -5484,7 +5474,7 @@ bool js_box2dclasses_b2Joint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_GetAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -5503,7 +5493,7 @@ bool js_box2dclasses_b2Joint_ShiftOrigin(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_ShiftOrigin : Invalid Native Object");
     if (argc == 1) {
@@ -5522,7 +5512,7 @@ bool js_box2dclasses_b2Joint_GetType(JSContext *cx, uint32_t argc, JS::Value *vp
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_GetType : Invalid Native Object");
     if (argc == 0) {
@@ -5540,7 +5530,7 @@ bool js_box2dclasses_b2Joint_GetCollideConnected(JSContext *cx, uint32_t argc, J
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_GetCollideConnected : Invalid Native Object");
     if (argc == 0) {
@@ -5558,7 +5548,7 @@ bool js_box2dclasses_b2Joint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_Dump : Invalid Native Object");
     if (argc == 0) {
@@ -5574,7 +5564,7 @@ bool js_box2dclasses_b2Joint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_GetAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -5593,7 +5583,7 @@ bool js_box2dclasses_b2Joint_GetReactionForce(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
@@ -5614,7 +5604,7 @@ bool js_box2dclasses_b2Joint_IsActive(JSContext *cx, uint32_t argc, JS::Value *v
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_IsActive : Invalid Native Object");
     if (argc == 0) {
@@ -5692,7 +5682,7 @@ bool js_box2dclasses_b2DistanceJoint_SetDampingRatio(JSContext *cx, uint32_t arg
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_SetDampingRatio : Invalid Native Object");
     if (argc == 1) {
@@ -5711,7 +5701,7 @@ bool js_box2dclasses_b2DistanceJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_GetAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -5730,7 +5720,7 @@ bool js_box2dclasses_b2DistanceJoint_GetReactionTorque(JSContext *cx, uint32_t a
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
@@ -5751,7 +5741,7 @@ bool js_box2dclasses_b2DistanceJoint_Dump(JSContext *cx, uint32_t argc, JS::Valu
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_Dump : Invalid Native Object");
     if (argc == 0) {
@@ -5768,7 +5758,7 @@ bool js_box2dclasses_b2DistanceJoint_SetFrequency(JSContext *cx, uint32_t argc, 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_SetFrequency : Invalid Native Object");
     if (argc == 1) {
@@ -5787,7 +5777,7 @@ bool js_box2dclasses_b2DistanceJoint_GetLength(JSContext *cx, uint32_t argc, JS:
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_GetLength : Invalid Native Object");
     if (argc == 0) {
@@ -5805,7 +5795,7 @@ bool js_box2dclasses_b2DistanceJoint_GetDampingRatio(JSContext *cx, uint32_t arg
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_GetDampingRatio : Invalid Native Object");
     if (argc == 0) {
@@ -5823,7 +5813,7 @@ bool js_box2dclasses_b2DistanceJoint_GetFrequency(JSContext *cx, uint32_t argc, 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_GetFrequency : Invalid Native Object");
     if (argc == 0) {
@@ -5841,7 +5831,7 @@ bool js_box2dclasses_b2DistanceJoint_GetLocalAnchorA(JSContext *cx, uint32_t arg
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_GetLocalAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -5859,7 +5849,7 @@ bool js_box2dclasses_b2DistanceJoint_GetLocalAnchorB(JSContext *cx, uint32_t arg
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_GetLocalAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -5877,7 +5867,7 @@ bool js_box2dclasses_b2DistanceJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_GetAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -5896,7 +5886,7 @@ bool js_box2dclasses_b2DistanceJoint_GetReactionForce(JSContext *cx, uint32_t ar
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
@@ -5918,7 +5908,7 @@ bool js_box2dclasses_b2DistanceJoint_SetLength(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2DistanceJoint_SetLength : Invalid Native Object");
     if (argc == 1) {
@@ -6001,7 +5991,7 @@ bool js_box2dclasses_b2FrictionJoint_SetMaxTorque(JSContext *cx, uint32_t argc, 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_SetMaxTorque : Invalid Native Object");
     if (argc == 1) {
@@ -6020,7 +6010,7 @@ bool js_box2dclasses_b2FrictionJoint_GetMaxForce(JSContext *cx, uint32_t argc, J
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_GetMaxForce : Invalid Native Object");
     if (argc == 0) {
@@ -6038,7 +6028,7 @@ bool js_box2dclasses_b2FrictionJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_GetAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -6057,7 +6047,7 @@ bool js_box2dclasses_b2FrictionJoint_GetReactionTorque(JSContext *cx, uint32_t a
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
@@ -6078,7 +6068,7 @@ bool js_box2dclasses_b2FrictionJoint_Dump(JSContext *cx, uint32_t argc, JS::Valu
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_Dump : Invalid Native Object");
     if (argc == 0) {
@@ -6095,7 +6085,7 @@ bool js_box2dclasses_b2FrictionJoint_SetMaxForce(JSContext *cx, uint32_t argc, J
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_SetMaxForce : Invalid Native Object");
     if (argc == 1) {
@@ -6114,7 +6104,7 @@ bool js_box2dclasses_b2FrictionJoint_GetLocalAnchorA(JSContext *cx, uint32_t arg
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_GetLocalAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -6132,7 +6122,7 @@ bool js_box2dclasses_b2FrictionJoint_GetLocalAnchorB(JSContext *cx, uint32_t arg
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_GetLocalAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -6150,7 +6140,7 @@ bool js_box2dclasses_b2FrictionJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_GetAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -6169,7 +6159,7 @@ bool js_box2dclasses_b2FrictionJoint_GetReactionForce(JSContext *cx, uint32_t ar
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
@@ -6190,7 +6180,7 @@ bool js_box2dclasses_b2FrictionJoint_GetMaxTorque(JSContext *cx, uint32_t argc, 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2FrictionJoint_GetMaxTorque : Invalid Native Object");
     if (argc == 0) {
@@ -6269,7 +6259,7 @@ bool js_box2dclasses_b2GearJoint_GetJoint1(JSContext *cx, uint32_t argc, JS::Val
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2GearJoint* cobj = (b2GearJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2GearJoint_GetJoint1 : Invalid Native Object");
     if (argc == 0) {
@@ -6291,7 +6281,7 @@ bool js_box2dclasses_b2GearJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Va
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2GearJoint* cobj = (b2GearJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2GearJoint_GetAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -6309,7 +6299,7 @@ bool js_box2dclasses_b2GearJoint_GetJoint2(JSContext *cx, uint32_t argc, JS::Val
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2GearJoint* cobj = (b2GearJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2GearJoint_GetJoint2 : Invalid Native Object");
     if (argc == 0) {
@@ -6332,7 +6322,7 @@ bool js_box2dclasses_b2GearJoint_GetReactionTorque(JSContext *cx, uint32_t argc,
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2GearJoint* cobj = (b2GearJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2GearJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
@@ -6353,7 +6343,7 @@ bool js_box2dclasses_b2GearJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *v
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2GearJoint* cobj = (b2GearJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2GearJoint_Dump : Invalid Native Object");
     if (argc == 0) {
@@ -6370,7 +6360,7 @@ bool js_box2dclasses_b2GearJoint_SetRatio(JSContext *cx, uint32_t argc, JS::Valu
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2GearJoint* cobj = (b2GearJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2GearJoint_SetRatio : Invalid Native Object");
     if (argc == 1) {
@@ -6389,7 +6379,7 @@ bool js_box2dclasses_b2GearJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Va
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2GearJoint* cobj = (b2GearJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2GearJoint_GetAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -6408,7 +6398,7 @@ bool js_box2dclasses_b2GearJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2GearJoint* cobj = (b2GearJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2GearJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
@@ -6429,7 +6419,7 @@ bool js_box2dclasses_b2GearJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Valu
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2GearJoint* cobj = (b2GearJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2GearJoint_GetRatio : Invalid Native Object");
     if (argc == 0) {
@@ -6507,7 +6497,7 @@ bool js_box2dclasses_b2MotorJoint_SetMaxTorque(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_SetMaxTorque : Invalid Native Object");
     if (argc == 1) {
@@ -6526,7 +6516,7 @@ bool js_box2dclasses_b2MotorJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::V
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_GetAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -6545,7 +6535,7 @@ bool js_box2dclasses_b2MotorJoint_GetReactionTorque(JSContext *cx, uint32_t argc
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
@@ -6566,7 +6556,7 @@ bool js_box2dclasses_b2MotorJoint_GetCorrectionFactor(JSContext *cx, uint32_t ar
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_GetCorrectionFactor : Invalid Native Object");
     if (argc == 0) {
@@ -6585,7 +6575,7 @@ bool js_box2dclasses_b2MotorJoint_SetMaxForce(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_SetMaxForce : Invalid Native Object");
     if (argc == 1) {
@@ -6605,7 +6595,7 @@ bool js_box2dclasses_b2MotorJoint_SetLinearOffset(JSContext *cx, uint32_t argc, 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_SetLinearOffset : Invalid Native Object");
     if (argc == 1) {
@@ -6624,7 +6614,7 @@ bool js_box2dclasses_b2MotorJoint_GetMaxForce(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_GetMaxForce : Invalid Native Object");
     if (argc == 0) {
@@ -6642,7 +6632,7 @@ bool js_box2dclasses_b2MotorJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_Dump : Invalid Native Object");
     if (argc == 0) {
@@ -6659,7 +6649,7 @@ bool js_box2dclasses_b2MotorJoint_SetAngularOffset(JSContext *cx, uint32_t argc,
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_SetAngularOffset : Invalid Native Object");
     if (argc == 1) {
@@ -6678,7 +6668,7 @@ bool js_box2dclasses_b2MotorJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::V
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_GetAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -6697,7 +6687,7 @@ bool js_box2dclasses_b2MotorJoint_GetReactionForce(JSContext *cx, uint32_t argc,
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
@@ -6718,7 +6708,7 @@ bool js_box2dclasses_b2MotorJoint_GetAngularOffset(JSContext *cx, uint32_t argc,
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_GetAngularOffset : Invalid Native Object");
     if (argc == 0) {
@@ -6736,7 +6726,7 @@ bool js_box2dclasses_b2MotorJoint_GetLinearOffset(JSContext *cx, uint32_t argc, 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_GetLinearOffset : Invalid Native Object");
     if (argc == 0) {
@@ -6754,7 +6744,7 @@ bool js_box2dclasses_b2MotorJoint_GetMaxTorque(JSContext *cx, uint32_t argc, JS:
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_GetMaxTorque : Invalid Native Object");
     if (argc == 0) {
@@ -6773,7 +6763,7 @@ bool js_box2dclasses_b2MotorJoint_SetCorrectionFactor(JSContext *cx, uint32_t ar
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MotorJoint_SetCorrectionFactor : Invalid Native Object");
     if (argc == 1) {
@@ -6858,7 +6848,7 @@ bool js_box2dclasses_b2MouseJoint_SetDampingRatio(JSContext *cx, uint32_t argc, 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_SetDampingRatio : Invalid Native Object");
     if (argc == 1) {
@@ -6877,7 +6867,7 @@ bool js_box2dclasses_b2MouseJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::V
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_GetAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -6896,7 +6886,7 @@ bool js_box2dclasses_b2MouseJoint_GetReactionTorque(JSContext *cx, uint32_t argc
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
@@ -6917,7 +6907,7 @@ bool js_box2dclasses_b2MouseJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_Dump : Invalid Native Object");
     if (argc == 0) {
@@ -6934,7 +6924,7 @@ bool js_box2dclasses_b2MouseJoint_SetFrequency(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_SetFrequency : Invalid Native Object");
     if (argc == 1) {
@@ -6953,7 +6943,7 @@ bool js_box2dclasses_b2MouseJoint_GetDampingRatio(JSContext *cx, uint32_t argc, 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_GetDampingRatio : Invalid Native Object");
     if (argc == 0) {
@@ -6972,7 +6962,7 @@ bool js_box2dclasses_b2MouseJoint_SetTarget(JSContext *cx, uint32_t argc, JS::Va
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_SetTarget : Invalid Native Object");
     if (argc == 1) {
@@ -6992,7 +6982,7 @@ bool js_box2dclasses_b2MouseJoint_SetMaxForce(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_SetMaxForce : Invalid Native Object");
     if (argc == 1) {
@@ -7011,7 +7001,7 @@ bool js_box2dclasses_b2MouseJoint_GetFrequency(JSContext *cx, uint32_t argc, JS:
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_GetFrequency : Invalid Native Object");
     if (argc == 0) {
@@ -7029,7 +7019,7 @@ bool js_box2dclasses_b2MouseJoint_GetTarget(JSContext *cx, uint32_t argc, JS::Va
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_GetTarget : Invalid Native Object");
     if (argc == 0) {
@@ -7047,7 +7037,7 @@ bool js_box2dclasses_b2MouseJoint_GetMaxForce(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_GetMaxForce : Invalid Native Object");
     if (argc == 0) {
@@ -7065,7 +7055,7 @@ bool js_box2dclasses_b2MouseJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::V
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_GetAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -7084,7 +7074,7 @@ bool js_box2dclasses_b2MouseJoint_GetReactionForce(JSContext *cx, uint32_t argc,
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
@@ -7106,7 +7096,7 @@ bool js_box2dclasses_b2MouseJoint_ShiftOrigin(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2MouseJoint_ShiftOrigin : Invalid Native Object");
     if (argc == 1) {
@@ -7189,7 +7179,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetLocalAxisA(JSContext *cx, uint32_t argc
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetLocalAxisA : Invalid Native Object");
     if (argc == 0) {
@@ -7207,7 +7197,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetLowerLimit(JSContext *cx, uint32_t argc
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetLowerLimit : Invalid Native Object");
     if (argc == 0) {
@@ -7225,7 +7215,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetAnchorA(JSContext *cx, uint32_t argc, J
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -7243,7 +7233,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetLocalAnchorA(JSContext *cx, uint32_t ar
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetLocalAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -7262,7 +7252,7 @@ bool js_box2dclasses_b2PrismaticJoint_SetMotorSpeed(JSContext *cx, uint32_t argc
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_SetMotorSpeed : Invalid Native Object");
     if (argc == 1) {
@@ -7281,7 +7271,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetLocalAnchorB(JSContext *cx, uint32_t ar
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetLocalAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -7299,7 +7289,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetMotorSpeed(JSContext *cx, uint32_t argc
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetMotorSpeed : Invalid Native Object");
     if (argc == 0) {
@@ -7318,7 +7308,7 @@ bool js_box2dclasses_b2PrismaticJoint_SetMaxMotorForce(JSContext *cx, uint32_t a
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_SetMaxMotorForce : Invalid Native Object");
     if (argc == 1) {
@@ -7338,7 +7328,7 @@ bool js_box2dclasses_b2PrismaticJoint_EnableLimit(JSContext *cx, uint32_t argc, 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_EnableLimit : Invalid Native Object");
     if (argc == 1) {
@@ -7357,7 +7347,7 @@ bool js_box2dclasses_b2PrismaticJoint_IsMotorEnabled(JSContext *cx, uint32_t arg
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_IsMotorEnabled : Invalid Native Object");
     if (argc == 0) {
@@ -7376,7 +7366,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetReactionForce(JSContext *cx, uint32_t a
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
@@ -7397,7 +7387,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetMaxMotorForce(JSContext *cx, uint32_t a
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetMaxMotorForce : Invalid Native Object");
     if (argc == 0) {
@@ -7415,7 +7405,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetJointSpeed(JSContext *cx, uint32_t argc
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetJointSpeed : Invalid Native Object");
     if (argc == 0) {
@@ -7434,7 +7424,7 @@ bool js_box2dclasses_b2PrismaticJoint_EnableMotor(JSContext *cx, uint32_t argc, 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_EnableMotor : Invalid Native Object");
     if (argc == 1) {
@@ -7453,7 +7443,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetReferenceAngle(JSContext *cx, uint32_t 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetReferenceAngle : Invalid Native Object");
     if (argc == 0) {
@@ -7471,7 +7461,7 @@ bool js_box2dclasses_b2PrismaticJoint_Dump(JSContext *cx, uint32_t argc, JS::Val
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_Dump : Invalid Native Object");
     if (argc == 0) {
@@ -7488,7 +7478,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetMotorForce(JSContext *cx, uint32_t argc
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetMotorForce : Invalid Native Object");
     if (argc == 1) {
@@ -7509,7 +7499,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetJointTranslation(JSContext *cx, uint32_
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetJointTranslation : Invalid Native Object");
     if (argc == 0) {
@@ -7527,7 +7517,7 @@ bool js_box2dclasses_b2PrismaticJoint_IsLimitEnabled(JSContext *cx, uint32_t arg
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_IsLimitEnabled : Invalid Native Object");
     if (argc == 0) {
@@ -7546,7 +7536,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetReactionTorque(JSContext *cx, uint32_t 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
@@ -7568,7 +7558,7 @@ bool js_box2dclasses_b2PrismaticJoint_SetLimits(JSContext *cx, uint32_t argc, JS
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_SetLimits : Invalid Native Object");
     if (argc == 2) {
@@ -7589,7 +7579,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetUpperLimit(JSContext *cx, uint32_t argc
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetUpperLimit : Invalid Native Object");
     if (argc == 0) {
@@ -7607,7 +7597,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetAnchorB(JSContext *cx, uint32_t argc, J
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PrismaticJoint_GetAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -7698,7 +7688,7 @@ bool js_box2dclasses_b2PulleyJoint_GetCurrentLengthA(JSContext *cx, uint32_t arg
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_GetCurrentLengthA : Invalid Native Object");
     if (argc == 0) {
@@ -7716,7 +7706,7 @@ bool js_box2dclasses_b2PulleyJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_GetAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -7734,7 +7724,7 @@ bool js_box2dclasses_b2PulleyJoint_GetGroundAnchorB(JSContext *cx, uint32_t argc
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_GetGroundAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -7753,7 +7743,7 @@ bool js_box2dclasses_b2PulleyJoint_GetReactionTorque(JSContext *cx, uint32_t arg
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
@@ -7774,7 +7764,7 @@ bool js_box2dclasses_b2PulleyJoint_Dump(JSContext *cx, uint32_t argc, JS::Value 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_Dump : Invalid Native Object");
     if (argc == 0) {
@@ -7790,7 +7780,7 @@ bool js_box2dclasses_b2PulleyJoint_GetGroundAnchorA(JSContext *cx, uint32_t argc
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_GetGroundAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -7808,7 +7798,7 @@ bool js_box2dclasses_b2PulleyJoint_GetLengthB(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_GetLengthB : Invalid Native Object");
     if (argc == 0) {
@@ -7826,7 +7816,7 @@ bool js_box2dclasses_b2PulleyJoint_GetLengthA(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_GetLengthA : Invalid Native Object");
     if (argc == 0) {
@@ -7844,7 +7834,7 @@ bool js_box2dclasses_b2PulleyJoint_GetCurrentLengthB(JSContext *cx, uint32_t arg
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_GetCurrentLengthB : Invalid Native Object");
     if (argc == 0) {
@@ -7862,7 +7852,7 @@ bool js_box2dclasses_b2PulleyJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_GetAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -7881,7 +7871,7 @@ bool js_box2dclasses_b2PulleyJoint_GetReactionForce(JSContext *cx, uint32_t argc
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
@@ -7903,7 +7893,7 @@ bool js_box2dclasses_b2PulleyJoint_ShiftOrigin(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_ShiftOrigin : Invalid Native Object");
     if (argc == 1) {
@@ -7922,7 +7912,7 @@ bool js_box2dclasses_b2PulleyJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Va
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2PulleyJoint_GetRatio : Invalid Native Object");
     if (argc == 0) {
@@ -8003,7 +7993,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetLowerLimit(JSContext *cx, uint32_t argc,
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetLowerLimit : Invalid Native Object");
     if (argc == 0) {
@@ -8021,7 +8011,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -8039,7 +8029,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetLocalAnchorA(JSContext *cx, uint32_t arg
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetLocalAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -8058,7 +8048,7 @@ bool js_box2dclasses_b2RevoluteJoint_SetMotorSpeed(JSContext *cx, uint32_t argc,
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_SetMotorSpeed : Invalid Native Object");
     if (argc == 1) {
@@ -8077,7 +8067,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetLocalAnchorB(JSContext *cx, uint32_t arg
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetLocalAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -8095,7 +8085,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetJointAngle(JSContext *cx, uint32_t argc,
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetJointAngle : Invalid Native Object");
     if (argc == 0) {
@@ -8113,7 +8103,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetMotorSpeed(JSContext *cx, uint32_t argc,
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetMotorSpeed : Invalid Native Object");
     if (argc == 0) {
@@ -8132,7 +8122,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetMotorTorque(JSContext *cx, uint32_t argc
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetMotorTorque : Invalid Native Object");
     if (argc == 1) {
@@ -8153,7 +8143,7 @@ bool js_box2dclasses_b2RevoluteJoint_IsLimitEnabled(JSContext *cx, uint32_t argc
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_IsLimitEnabled : Invalid Native Object");
     if (argc == 0) {
@@ -8172,7 +8162,7 @@ bool js_box2dclasses_b2RevoluteJoint_EnableLimit(JSContext *cx, uint32_t argc, J
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_EnableLimit : Invalid Native Object");
     if (argc == 1) {
@@ -8191,7 +8181,7 @@ bool js_box2dclasses_b2RevoluteJoint_IsMotorEnabled(JSContext *cx, uint32_t argc
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_IsMotorEnabled : Invalid Native Object");
     if (argc == 0) {
@@ -8210,7 +8200,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetReactionForce(JSContext *cx, uint32_t ar
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
@@ -8232,7 +8222,7 @@ bool js_box2dclasses_b2RevoluteJoint_SetMaxMotorTorque(JSContext *cx, uint32_t a
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_SetMaxMotorTorque : Invalid Native Object");
     if (argc == 1) {
@@ -8251,7 +8241,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetJointSpeed(JSContext *cx, uint32_t argc,
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetJointSpeed : Invalid Native Object");
     if (argc == 0) {
@@ -8270,7 +8260,7 @@ bool js_box2dclasses_b2RevoluteJoint_EnableMotor(JSContext *cx, uint32_t argc, J
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_EnableMotor : Invalid Native Object");
     if (argc == 1) {
@@ -8289,7 +8279,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetReferenceAngle(JSContext *cx, uint32_t a
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetReferenceAngle : Invalid Native Object");
     if (argc == 0) {
@@ -8307,7 +8297,7 @@ bool js_box2dclasses_b2RevoluteJoint_Dump(JSContext *cx, uint32_t argc, JS::Valu
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_Dump : Invalid Native Object");
     if (argc == 0) {
@@ -8324,7 +8314,7 @@ bool js_box2dclasses_b2RevoluteJoint_SetLimits(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_SetLimits : Invalid Native Object");
     if (argc == 2) {
@@ -8345,7 +8335,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetMaxMotorTorque(JSContext *cx, uint32_t a
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetMaxMotorTorque : Invalid Native Object");
     if (argc == 0) {
@@ -8364,7 +8354,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetReactionTorque(JSContext *cx, uint32_t a
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
@@ -8385,7 +8375,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetUpperLimit(JSContext *cx, uint32_t argc,
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetUpperLimit : Invalid Native Object");
     if (argc == 0) {
@@ -8403,7 +8393,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RevoluteJoint_GetAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -8493,7 +8483,7 @@ bool js_box2dclasses_b2RopeJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Va
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RopeJoint_GetAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -8512,7 +8502,7 @@ bool js_box2dclasses_b2RopeJoint_GetReactionTorque(JSContext *cx, uint32_t argc,
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RopeJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
@@ -8533,7 +8523,7 @@ bool js_box2dclasses_b2RopeJoint_GetMaxLength(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RopeJoint_GetMaxLength : Invalid Native Object");
     if (argc == 0) {
@@ -8551,7 +8541,7 @@ bool js_box2dclasses_b2RopeJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, J
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RopeJoint_GetLocalAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -8569,7 +8559,7 @@ bool js_box2dclasses_b2RopeJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *v
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RopeJoint_Dump : Invalid Native Object");
     if (argc == 0) {
@@ -8586,7 +8576,7 @@ bool js_box2dclasses_b2RopeJoint_SetMaxLength(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RopeJoint_SetMaxLength : Invalid Native Object");
     if (argc == 1) {
@@ -8605,7 +8595,7 @@ bool js_box2dclasses_b2RopeJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, J
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RopeJoint_GetLocalAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -8623,7 +8613,7 @@ bool js_box2dclasses_b2RopeJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Va
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RopeJoint_GetAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -8642,7 +8632,7 @@ bool js_box2dclasses_b2RopeJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RopeJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
@@ -8663,7 +8653,7 @@ bool js_box2dclasses_b2RopeJoint_GetLimitState(JSContext *cx, uint32_t argc, JS:
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2RopeJoint_GetLimitState : Invalid Native Object");
     if (argc == 0) {
@@ -8742,7 +8732,7 @@ bool js_box2dclasses_b2WeldJoint_SetDampingRatio(JSContext *cx, uint32_t argc, J
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_SetDampingRatio : Invalid Native Object");
     if (argc == 1) {
@@ -8761,7 +8751,7 @@ bool js_box2dclasses_b2WeldJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Va
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_GetAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -8780,7 +8770,7 @@ bool js_box2dclasses_b2WeldJoint_GetReactionTorque(JSContext *cx, uint32_t argc,
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
@@ -8801,7 +8791,7 @@ bool js_box2dclasses_b2WeldJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *v
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_Dump : Invalid Native Object");
     if (argc == 0) {
@@ -8818,7 +8808,7 @@ bool js_box2dclasses_b2WeldJoint_SetFrequency(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_SetFrequency : Invalid Native Object");
     if (argc == 1) {
@@ -8837,7 +8827,7 @@ bool js_box2dclasses_b2WeldJoint_GetDampingRatio(JSContext *cx, uint32_t argc, J
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_GetDampingRatio : Invalid Native Object");
     if (argc == 0) {
@@ -8855,7 +8845,7 @@ bool js_box2dclasses_b2WeldJoint_GetFrequency(JSContext *cx, uint32_t argc, JS::
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_GetFrequency : Invalid Native Object");
     if (argc == 0) {
@@ -8873,7 +8863,7 @@ bool js_box2dclasses_b2WeldJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, J
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_GetLocalAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -8891,7 +8881,7 @@ bool js_box2dclasses_b2WeldJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, J
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_GetLocalAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -8909,7 +8899,7 @@ bool js_box2dclasses_b2WeldJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Va
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_GetAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -8928,7 +8918,7 @@ bool js_box2dclasses_b2WeldJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
@@ -8949,7 +8939,7 @@ bool js_box2dclasses_b2WeldJoint_GetReferenceAngle(JSContext *cx, uint32_t argc,
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WeldJoint_GetReferenceAngle : Invalid Native Object");
     if (argc == 0) {
@@ -9029,7 +9019,7 @@ bool js_box2dclasses_b2WheelJoint_IsMotorEnabled(JSContext *cx, uint32_t argc, J
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_IsMotorEnabled : Invalid Native Object");
     if (argc == 0) {
@@ -9047,7 +9037,7 @@ bool js_box2dclasses_b2WheelJoint_GetMotorSpeed(JSContext *cx, uint32_t argc, JS
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetMotorSpeed : Invalid Native Object");
     if (argc == 0) {
@@ -9065,7 +9055,7 @@ bool js_box2dclasses_b2WheelJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::V
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -9084,7 +9074,7 @@ bool js_box2dclasses_b2WheelJoint_GetReactionTorque(JSContext *cx, uint32_t argc
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetReactionTorque : Invalid Native Object");
     if (argc == 1) {
@@ -9105,7 +9095,7 @@ bool js_box2dclasses_b2WheelJoint_Dump(JSContext *cx, uint32_t argc, JS::Value *
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_Dump : Invalid Native Object");
     if (argc == 0) {
@@ -9122,7 +9112,7 @@ bool js_box2dclasses_b2WheelJoint_SetSpringDampingRatio(JSContext *cx, uint32_t 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_SetSpringDampingRatio : Invalid Native Object");
     if (argc == 1) {
@@ -9141,7 +9131,7 @@ bool js_box2dclasses_b2WheelJoint_GetSpringFrequencyHz(JSContext *cx, uint32_t a
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetSpringFrequencyHz : Invalid Native Object");
     if (argc == 0) {
@@ -9159,7 +9149,7 @@ bool js_box2dclasses_b2WheelJoint_GetJointTranslation(JSContext *cx, uint32_t ar
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetJointTranslation : Invalid Native Object");
     if (argc == 0) {
@@ -9177,7 +9167,7 @@ bool js_box2dclasses_b2WheelJoint_GetSpringDampingRatio(JSContext *cx, uint32_t 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetSpringDampingRatio : Invalid Native Object");
     if (argc == 0) {
@@ -9195,7 +9185,7 @@ bool js_box2dclasses_b2WheelJoint_GetLocalAxisA(JSContext *cx, uint32_t argc, JS
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetLocalAxisA : Invalid Native Object");
     if (argc == 0) {
@@ -9214,7 +9204,7 @@ bool js_box2dclasses_b2WheelJoint_SetSpringFrequencyHz(JSContext *cx, uint32_t a
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_SetSpringFrequencyHz : Invalid Native Object");
     if (argc == 1) {
@@ -9233,7 +9223,7 @@ bool js_box2dclasses_b2WheelJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetLocalAnchorA : Invalid Native Object");
     if (argc == 0) {
@@ -9252,7 +9242,7 @@ bool js_box2dclasses_b2WheelJoint_SetMotorSpeed(JSContext *cx, uint32_t argc, JS
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_SetMotorSpeed : Invalid Native Object");
     if (argc == 1) {
@@ -9271,7 +9261,7 @@ bool js_box2dclasses_b2WheelJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetLocalAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -9290,7 +9280,7 @@ bool js_box2dclasses_b2WheelJoint_SetMaxMotorTorque(JSContext *cx, uint32_t argc
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_SetMaxMotorTorque : Invalid Native Object");
     if (argc == 1) {
@@ -9309,7 +9299,7 @@ bool js_box2dclasses_b2WheelJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::V
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetAnchorB : Invalid Native Object");
     if (argc == 0) {
@@ -9328,7 +9318,7 @@ bool js_box2dclasses_b2WheelJoint_GetReactionForce(JSContext *cx, uint32_t argc,
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetReactionForce : Invalid Native Object");
     if (argc == 1) {
@@ -9350,7 +9340,7 @@ bool js_box2dclasses_b2WheelJoint_GetMotorTorque(JSContext *cx, uint32_t argc, J
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetMotorTorque : Invalid Native Object");
     if (argc == 1) {
@@ -9371,7 +9361,7 @@ bool js_box2dclasses_b2WheelJoint_GetJointSpeed(JSContext *cx, uint32_t argc, JS
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetJointSpeed : Invalid Native Object");
     if (argc == 0) {
@@ -9389,7 +9379,7 @@ bool js_box2dclasses_b2WheelJoint_GetMaxMotorTorque(JSContext *cx, uint32_t argc
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_GetMaxMotorTorque : Invalid Native Object");
     if (argc == 0) {
@@ -9408,7 +9398,7 @@ bool js_box2dclasses_b2WheelJoint_EnableMotor(JSContext *cx, uint32_t argc, JS::
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2WheelJoint_EnableMotor : Invalid Native Object");
     if (argc == 1) {

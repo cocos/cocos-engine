@@ -33,25 +33,25 @@
 //#pragma mark - Helpful Macros
 
 #define JS_BINDED_CLASS_GLUE(klass) \
-static JSClass js_class; \
+static JSClass* js_class; \
 static JSObject* js_proto; \
 static void _js_register(JSContext* cx, JS::HandleObject global);
 
 #define JS_BINDED_CLASS_GLUE_IMPL(klass) \
-JSClass klass::js_class = {}; \
-JSObject* klass::js_proto = NULL; \
+JSClass* klass::js_class = nullptr; \
+JSObject* klass::js_proto = nullptr; \
 
 #define JS_BINDED_FUNC(klass, name) \
-bool name(JSContext *cx, unsigned argc, JS::Value *vp)
+bool name(JSContext *cx, uint32_t argc, JS::Value *vp)
 
 #define JS_BINDED_CONSTRUCTOR(klass) \
-static bool _js_constructor(JSContext *cx, unsigned argc, JS::Value *vp)
+static bool _js_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 
 #define JS_BINDED_CONSTRUCTOR_IMPL(klass) \
-bool klass::_js_constructor(JSContext *cx, unsigned argc, JS::Value *vp)
+bool klass::_js_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 
 #define JS_BINDED_FUNC_IMPL(klass, name) \
-static bool klass##_func_##name(JSContext *cx, unsigned argc, JS::Value *vp) { \
+static bool klass##_func_##name(JSContext *cx, uint32_t argc, JS::Value *vp) { \
 JS::CallArgs args = JS::CallArgsFromVp(argc, vp); \
 JS::RootedObject thisObj(cx, args.thisv().toObjectOrNull()); \
 klass* obj = (klass*)JS_GetPrivate(thisObj); \
@@ -61,7 +61,7 @@ return obj->name(cx, argc, vp); \
 JS_ReportErrorUTF8(cx, "Invalid object call for function %s", #name); \
 return false; \
 } \
-bool klass::name(JSContext *cx, unsigned argc, JS::Value *vp)
+bool klass::name(JSContext *cx, uint32_t argc, JS::Value *vp)
 
 #define JS_WRAP_OBJECT_IN_VAL(klass, cobj, out) \
 do { \
@@ -79,7 +79,7 @@ JS_FN(#name, klass##_func_##name, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT)
 bool _js_get_##propName(JSContext *cx, const JS::CallArgs& args)
 
 #define JS_BINDED_PROP_GET_IMPL(klass, propName) \
-static bool _js_get_##klass##_##propName(JSContext *cx, unsigned argc, JS::Value *vp) { \
+static bool _js_get_##klass##_##propName(JSContext *cx, uint32_t argc, JS::Value *vp) { \
 JS::CallArgs args = JS::CallArgsFromVp(argc, vp); \
 JS::RootedObject obj(cx, args.thisv().toObjectOrNull()); \
 klass* cobj = (klass*)JS_GetPrivate(obj); \
@@ -95,7 +95,7 @@ bool klass::_js_get_##propName(JSContext *cx, const JS::CallArgs& args)
 bool _js_set_##propName(JSContext *cx, const JS::CallArgs& args)
 
 #define JS_BINDED_PROP_SET_IMPL(klass, propName) \
-static bool _js_set_##klass##_##propName(JSContext *cx, unsigned argc, JS::Value *vp) { \
+static bool _js_set_##klass##_##propName(JSContext *cx, uint32_t argc, JS::Value *vp) { \
 JS::CallArgs args = JS::CallArgsFromVp(argc, vp); \
 JS::RootedObject obj(cx, args.thisv().toObjectOrNull()); \
 klass* cobj = (klass*)JS_GetPrivate(obj); \
