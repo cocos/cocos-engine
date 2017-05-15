@@ -706,17 +706,25 @@ var ScrollView = cc.Class({
      * @method getContentPosition
      * @returns {Position} - The content's position in its parent space.
      */
-    getContentPosition: function() {
+    getContentPosition: function () {
         return this.content.getPosition();
     },
 
     //private methods
-    _registerEvent: function() {
+    _registerEvent: function () {
         this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this, true);
         this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this, true);
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this, true);
         this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this, true);
         this.node.on(cc.Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
+    },
+
+    _unregisterEvent: function () {
+        this.node.off(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this, true);
+        this.node.off(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this, true);
+        this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this, true);
+        this.node.off(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this, true);
+        this.node.off(cc.Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
     },
 
     _onMouseWheel: function(event, captureListeners) {
@@ -1185,15 +1193,15 @@ var ScrollView = cc.Class({
             }
         }
 
-        var contentPos = cc.pSub(newPosition, this.getContentPosition());
-        this._moveContent(contentPos, reachedEnd);
-
         if (reachedEnd) {
             this._autoScrolling = false;
             if(!this._isScrollEndedEventFired) {
                 this._dispatchEvent('scroll-ended');
             }
         }
+
+        var contentPos = cc.pSub(newPosition, this.getContentPosition());
+        this._moveContent(contentPos, reachedEnd);
     },
 
     _startInertiaScroll: function(touchMoveVelocity) {
@@ -1423,17 +1431,6 @@ var ScrollView = cc.Class({
         this.node.emit(event, this);
     },
 
-    //component life cycle methods
-    __preload: function () {
-        if (!CC_EDITOR) {
-            this._registerEvent();
-            this.node.on('size-changed', this._calculateBoundary, this);
-            if(this.content) {
-                this.content.on('size-changed', this._calculateBoundary, this);
-            }
-        }
-    },
-
     _adjustContentOutOfBoundary: function () {
         this._outOfBoundaryAmountDirty = true;
         if(this._isOutOfBoundary()) {
@@ -1452,13 +1449,6 @@ var ScrollView = cc.Class({
         //So this event could make sure the content is on the correct position after loading.
         if(this.content) {
             cc.director.once(cc.Director.EVENT_AFTER_VISIT, this._adjustContentOutOfBoundary, this);
-        }
-    },
-
-    onDestroy: function() {
-        this.node.off('size-changed', this._calculateBoundary, this);
-        if(this.content) {
-            this.content.off('size-changed', this._calculateBoundary, this);
         }
     },
 
@@ -1483,11 +1473,25 @@ var ScrollView = cc.Class({
     },
 
     onDisable: function () {
+        if (!CC_EDITOR) {
+            this._unregisterEvent();
+            this.node.off('size-changed', this._calculateBoundary, this);
+            if(this.content) {
+                this.content.off('size-changed', this._calculateBoundary, this);
+            }
+        }
         this._hideScrollbar();
         this.stopAutoScroll();
     },
 
     onEnable: function () {
+        if (!CC_EDITOR) {
+            this._registerEvent();
+            this.node.on('size-changed', this._calculateBoundary, this);
+            if(this.content) {
+                this.content.on('size-changed', this._calculateBoundary, this);
+            }
+        }
         this._showScrollbar();
     },
 
