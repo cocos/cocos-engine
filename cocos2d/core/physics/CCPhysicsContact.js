@@ -181,28 +181,6 @@ var impulse = {
  * 注意：传入的物理接触会被系统进行重用，所以不要在使用中缓存里面的任何信息。
  * @class PhysicsContact
  */
-/**
- * @property {Collider} colliderA
- */
-/**
- * @property {Collider} colliderB
- */
-/**
- * !#en
- * If set disabled to true, the contact will be ignored until contact end.
- * If you just want to disabled contact for current time step or sub-step, please use disabledOnce.
- * !#zh
- * 如果 disabled 被设置为 true，那么直到接触结束此接触都将被忽略。
- * 如果只是希望在当前时间步或子步中忽略此接触，请使用 disabledOnce 。
- * @property {Boolean} disabled
- */
-/**
- * !#en
- * Disabled contact for current time step or sub-step.
- * !#zh
- * 在当前时间步或子步中忽略此接触。
- * @property {Boolean} disabledOnce
- */
 function PhysicsContact () {
 }
 
@@ -466,6 +444,35 @@ PhysicsContact.put = function (b2contact) {
     c.reset();
 };
 
+
+var _p = PhysicsContact.prototype;
+
+/**
+ * @property {Collider} colliderA
+ */
+/**
+ * @property {Collider} colliderB
+ */
+/**
+ * !#en
+ * If set disabled to true, the contact will be ignored until contact end.
+ * If you just want to disabled contact for current time step or sub-step, please use disabledOnce.
+ * !#zh
+ * 如果 disabled 被设置为 true，那么直到接触结束此接触都将被忽略。
+ * 如果只是希望在当前时间步或子步中忽略此接触，请使用 disabledOnce 。
+ * @property {Boolean} disabled
+ */
+/**
+ * !#en
+ * Disabled contact for current time step or sub-step.
+ * !#zh
+ * 在当前时间步或子步中忽略此接触。
+ * @property {Boolean} disabledOnce
+ */
+_p.setEnabled = function (value) {
+    this._b2contact.SetEnabled(value);
+};
+
 /**
  * !#en
  * Is this contact touching?
@@ -474,52 +481,10 @@ PhysicsContact.put = function (b2contact) {
  * @method isTouching
  * @return {Boolean}
  */
-/**
- * !#en
- * Override the default friction mixture. You can call this in onPreSolve callback.
- * !#zh
- * 覆盖默认的摩擦力系数。你可以在 onPreSolve 回调中调用此函数。
- * @method setFriction
- * @param {Number} friction
- */
-/**
- * !#en
- * Get the friction.
- * !#zh
- * 获取当前摩擦力系数
- * @method getFriction
- * @return {Number}
- */
-/**
- * !#en
- * Reset the friction mixture to the default value.
- * !#zh
- * 重置摩擦力系数到默认值
- * @method resetFriction
- */
-/**
- * !#en
- * Override the default restitution mixture. You can call this in onPreSolve callback.
- * !#zh
- * 覆盖默认的恢复系数。你可以在 onPreSolve 回调中调用此函数。
- * @method setRestitution
- * @param {Number} restitution
- */
-/**
- * !#en
- * Get the restitution.
- * !#zh
- * 获取当前恢复系数
- * @method getRestitution
- * @return {Number}
- */
-/**
- * !#en
- * Reset the restitution mixture to the default value.
- * !#zh
- * 重置恢复系数到默认值
- * @method resetRestitution
- */
+_p.isTouching = function () {
+    return this._b2contact.IsTouching();
+};
+
 /**
  * !#en
  * Set the desired tangent speed for a conveyor belt behavior.
@@ -528,6 +493,9 @@ PhysicsContact.put = function (b2contact) {
  * @method setTangentSpeed
  * @param {Number} tangentSpeed
  */
+_p.setTangentSpeed = function (value) {
+    this._b2contact.SetTangentSpeed(value / PTM_RATIO);
+};
 /**
  * !#en
  * Get the desired tangent speed.
@@ -536,32 +504,75 @@ PhysicsContact.put = function (b2contact) {
  * @method getTangentSpeed
  * @return {Number}
  */
-[
-    'IsTouching', 
-    'IsEnabled', 
-    'GetFriction', 
-    'ResetFriction',
-    'GetRestitution', 
-    'ResetRestitution',
-    'GetTangentSpeed',
-].forEach(function(name) {
-    var funcName = name[0].toLowerCase() + name.substr(1, name.length-1);
-    PhysicsContact.prototype[funcName] = function () {
-        return this._b2contact[name]();
-    };
-});
 
-[
-    'SetEnabled',
-    'SetFriction',
-    'SetRestitution',
-    'SetTangentSpeed',
-].forEach(function(name) {
-    var funcName = name[0].toLowerCase() + name.substr(1, name.length-1);
-    PhysicsContact.prototype[funcName] = function (arg) {
-        this._b2contact[name](arg);
-    };
-});
+_p.getTangentSpeed = function () {
+    return this._b2contact.GetTangentSpeed() * PTM_RATIO;
+};
+
+/**
+ * !#en
+ * Override the default friction mixture. You can call this in onPreSolve callback.
+ * !#zh
+ * 覆盖默认的摩擦力系数。你可以在 onPreSolve 回调中调用此函数。
+ * @method setFriction
+ * @param {Number} friction
+ */
+_p.setFriction = function (value) {
+    this._b2contact.SetFriction(value);
+};
+/**
+ * !#en
+ * Get the friction.
+ * !#zh
+ * 获取当前摩擦力系数
+ * @method getFriction
+ * @return {Number}
+ */
+_p.getFriction = function () {
+    return this._b2contact.GetFriction();
+};
+/**
+ * !#en
+ * Reset the friction mixture to the default value.
+ * !#zh
+ * 重置摩擦力系数到默认值
+ * @method resetFriction
+ */
+_p.resetFriction = function () {
+    return this._b2contact.ResetFriction();
+};
+/**
+ * !#en
+ * Override the default restitution mixture. You can call this in onPreSolve callback.
+ * !#zh
+ * 覆盖默认的恢复系数。你可以在 onPreSolve 回调中调用此函数。
+ * @method setRestitution
+ * @param {Number} restitution
+ */
+_p.setRestitution = function (value) {
+    this._b2contact.SetRestitution(value);
+};
+/**
+ * !#en
+ * Get the restitution.
+ * !#zh
+ * 获取当前恢复系数
+ * @method getRestitution
+ * @return {Number}
+ */
+_p.getRestitution = function () {
+    return this._b2contact.GetRestitution();
+};
+/**
+ * !#en
+ * Reset the restitution mixture to the default value.
+ * !#zh
+ * 重置恢复系数到默认值
+ * @method resetRestitution
+ */
+_p.resetRestitution = function () {
+    return this._b2contact.ResetRestitution();
+};
 
 PhysicsContact.ContactType = ContactType;
 cc.PhysicsContact = module.exports = PhysicsContact;

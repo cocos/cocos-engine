@@ -231,7 +231,7 @@ PhysicsCollider.properties = {
      * !#en
      * A sensor collider collects contact information but never generates a collision response
      * !#zh
-     * 一个传感器类型的碰撞体会搜集碰撞信息，但是不会产生碰撞回调。
+     * 一个传感器类型的碰撞体会产生碰撞回调，但是不会发生物理碰撞效果。
      * @property {Boolean} sensor
      * @default false
      */
