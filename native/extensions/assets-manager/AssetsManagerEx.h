@@ -188,11 +188,15 @@ public:
     
 CC_CONSTRUCTOR_ACCESS:
     
-    AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath, const VersionCompareHandle& handle = nullptr);
+    AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath);
+    
+    AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath, const VersionCompareHandle& handle);
     
     virtual ~AssetsManagerEx();
     
 protected:
+    
+    void init(const std::string& manifestUrl, const std::string& storagePath);
     
     std::string basename(const std::string& path) const;
     

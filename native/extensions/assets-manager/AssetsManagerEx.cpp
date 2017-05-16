@@ -54,7 +54,7 @@ const std::string AssetsManagerEx::MANIFEST_ID = "@manifest";
 
 // Implementation of AssetsManagerEx
 
-AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath, const VersionCompareHandle& handle/* = nullptr*/)
+AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath)
 : _updateState(State::UNINITED)
 , _assets(nullptr)
 , _storagePath("")
@@ -68,6 +68,35 @@ AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::stri
 , _percent(0)
 , _percentByFile(0)
 , _totalSize(0)
+, _sizeCollected(0)
+, _totalDownloaded(0)
+, _totalToDownload(0)
+, _totalWaitToDownload(0)
+, _nextSavePoint(0.0)
+, _downloadResumed(false)
+, _maxConcurrentTask(32)
+, _currConcurrentTask(0)
+, _verifyCallback(nullptr)
+, _inited(false)
+{
+    init(manifestUrl, storagePath);
+}
+
+AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath, const VersionCompareHandle& handle)
+: _updateState(State::UNINITED)
+, _assets(nullptr)
+, _storagePath("")
+, _tempVersionPath("")
+, _cacheManifestPath("")
+, _tempManifestPath("")
+, _localManifest(nullptr)
+, _tempManifest(nullptr)
+, _remoteManifest(nullptr)
+, _updateEntry(UpdateEntry::NONE)
+, _percent(0)
+, _percentByFile(0)
+, _totalSize(0)
+, _sizeCollected(0)
 , _totalDownloaded(0)
 , _totalToDownload(0)
 , _totalWaitToDownload(0)
@@ -78,6 +107,11 @@ AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::stri
 , _versionCompareHandle(handle)
 , _verifyCallback(nullptr)
 , _inited(false)
+{
+    init(manifestUrl, storagePath);
+}
+
+void AssetsManagerEx::init(const std::string& manifestUrl, const std::string& storagePath)
 {
     // Init variables
     _eventDispatcher = Director::getInstance()->getEventDispatcher();
@@ -731,12 +765,7 @@ void AssetsManagerEx::downloadManifest()
     if (_updateState != State::PREDOWNLOAD_MANIFEST)
         return;
 
-    std::string manifestUrl;
-    if (_remoteManifest->isVersionLoaded()) {
-        manifestUrl = _remoteManifest->getManifestFileUrl();
-    } else {
-        manifestUrl = _localManifest->getManifestFileUrl();
-    }
+    std::string manifestUrl = _localManifest->getManifestFileUrl();
 
     if (manifestUrl.size() > 0)
     {
