@@ -802,8 +802,8 @@ void AssetsManagerEx::prepareUpdate()
     _downloadedSize.clear();
     _totalEnabled = false;
     
-    // Temporary manifest exists, resuming previous download
-    if (_tempManifest && _tempManifest->isLoaded() && _tempManifest->versionEquals(_remoteManifest))
+    // Temporary manifest exists, previously updating and equals to the remote version, resuming previous download
+    if (_tempManifest && _tempManifest->isLoaded() && _tempManifest->isUpdating() && _tempManifest->versionEquals(_remoteManifest))
     {
         _tempManifest->saveToFile(_tempManifestPath);
         _tempManifest->genResumeAssetsList(&_downloadUnits);
@@ -838,8 +838,6 @@ void AssetsManagerEx::prepareUpdate()
         {
             // Generate download units for all assets that need to be updated or added
             std::string packageUrl = _remoteManifest->getPackageUrl();
-            // Save current download manifest information for resuming
-            _tempManifest->saveToFile(_tempManifestPath);
             // Preprocessing local files in previous version and creating download folders
             for (auto it = diff_map.begin(); it != diff_map.end(); ++it)
             {
@@ -856,6 +854,10 @@ void AssetsManagerEx::prepareUpdate()
                     _tempManifest->setAssetDownloadState(it->first, Manifest::DownloadState::UNSTARTED);
                 }
             }
+            // Start updating the temp manifest
+            _tempManifest->setUpdating(true);
+            // Save current download manifest information for resuming
+            _tempManifest->saveToFile(_tempManifestPath);
             
             _totalWaitToDownload = _totalToDownload = (int)_downloadUnits.size();
         }
@@ -888,6 +890,9 @@ void AssetsManagerEx::startUpdate()
 
 void AssetsManagerEx::updateSucceed()
 {
+    // Set temp manifest's updating
+    _tempManifest->setUpdating(false);
+    
     // Every thing is correctly downloaded, do the following
     // 1. rename temporary manifest to valid manifest
     _fileUtils->renameFile(_tempStoragePath, TEMP_MANIFEST_FILENAME, MANIFEST_FILENAME);

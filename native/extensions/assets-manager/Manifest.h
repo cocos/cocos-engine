@@ -139,6 +139,16 @@ public:
      */
     void parseJSONString(const std::string& content, const std::string& manifestRoot);
     
+    /** @brief Get whether the manifest is being updating
+     * @return Updating or not
+     */
+    bool isUpdating() const { return _updating; };
+    
+    /** @brief Set whether the manifest is being updating
+     * @param updating Updating or not
+     */
+    void setUpdating(bool updating);
+    
 protected:
     
     /** @brief Load the json file into local json object
@@ -227,6 +237,9 @@ private:
     
     //! Indicate whether the manifest have been fully loaded
     bool _loaded;
+    
+    //! Indicate whether the manifest is updating and can be resumed in the future
+    bool _updating;
     
     //! Reference to the global file utils
     FileUtils *_fileUtils;
