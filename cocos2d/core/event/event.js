@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 var JS = require("../platform/js");
-var Pool = require('../utils/misc').Pool;
 
 /**
  * !#en Base class of all kinds of events.
@@ -328,7 +327,7 @@ EventCustom.prototype.getEventName = cc.Event.prototype.getType;
 
 
 var MAX_POOL_SIZE = 10;
-var _eventPool = new Pool(MAX_POOL_SIZE);
+var _eventPool = new JS.Pool(MAX_POOL_SIZE);
 EventCustom.put = function (event) {
     _eventPool.put(event);
 };

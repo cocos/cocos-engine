@@ -25,9 +25,8 @@
 
 var CompScheduler = require('./component-scheduler');
 var Flags = require('./platform/CCObject').Flags;
-var JsArray = require('./platform/js').array;
-var Misc = require('./utils/misc');
-var callerFunctor = CC_EDITOR && Misc.tryCatchFunctor_EDITOR;
+var JS = require('./platform/js');
+var callerFunctor = CC_EDITOR && require('./utils/misc').tryCatchFunctor_EDITOR;
 
 var MAX_POOL_SIZE = 4;
 
@@ -76,7 +75,7 @@ function createActivateTask () {
     };
 }
 
-var activateTasksPool = new Misc.Pool(MAX_POOL_SIZE);
+var activateTasksPool = new JS.Pool(MAX_POOL_SIZE);
 activateTasksPool.get = function getActivateTask () {
     return this._get() || createActivateTask();
 };
@@ -90,7 +89,7 @@ function _componentCorrupted (node, comp, index) {
         node._removeComponent(comp);
     }
     else {
-        JsArray.removeAt(node._components, index);
+        JS.array.removeAt(node._components, index);
     }
 }
 
