@@ -952,7 +952,11 @@ bool js_cocos2dx_spine_SkeletonAnimation_setDisposeListener(JSContext *cx, uint3
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
@@ -994,7 +998,11 @@ bool js_cocos2dx_spine_SkeletonAnimation_setEndListener(JSContext *cx, uint32_t 
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
@@ -1054,7 +1062,11 @@ bool js_cocos2dx_spine_SkeletonAnimation_setCompleteListener(JSContext *cx, uint
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
@@ -1096,7 +1108,11 @@ bool js_cocos2dx_spine_SkeletonAnimation_setEventListener(JSContext *cx, uint32_
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](spTrackEntry* larg0, spEvent* larg1) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
@@ -1164,7 +1180,11 @@ bool js_cocos2dx_spine_SkeletonAnimation_setInterruptListener(JSContext *cx, uin
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
@@ -1222,7 +1242,11 @@ bool js_cocos2dx_spine_SkeletonAnimation_setStartListener(JSContext *cx, uint32_
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
