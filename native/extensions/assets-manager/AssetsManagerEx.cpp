@@ -991,6 +991,8 @@ void AssetsManagerEx::checkUpdate()
     _updateEntry = UpdateEntry::CHECK_UPDATE;
 
     switch (_updateState) {
+        case State::FAIL_TO_UPDATE:
+            _updateState = State::UNCHECKED;
         case State::UNCHECKED:
         case State::PREDOWNLOAD_VERSION:
         {
@@ -1002,7 +1004,6 @@ void AssetsManagerEx::checkUpdate()
             dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ALREADY_UP_TO_DATE);
         }
             break;
-        case State::FAIL_TO_UPDATE:
         case State::NEED_UPDATE:
         {
             dispatchUpdateEvent(EventAssetsManagerEx::EventCode::NEW_VERSION_FOUND);
