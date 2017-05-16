@@ -6261,7 +6261,11 @@ bool js_cocos2dx_dragonbones_CCArmatureDisplay_setEventCallback(JSContext *cx, u
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](dragonBones::EventObject* larg0) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
@@ -6325,7 +6329,11 @@ bool js_cocos2dx_dragonbones_CCArmatureDisplay_addEvent(JSContext *cx, uint32_t 
         do {
 		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
 		        auto lambda = [=](dragonBones::EventObject* larg0) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET

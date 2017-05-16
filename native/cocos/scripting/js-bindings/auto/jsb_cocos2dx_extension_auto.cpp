@@ -370,6 +370,26 @@ bool js_cocos2dx_extension_Manifest_getManifestRoot(JSContext *cx, uint32_t argc
     JS_ReportError(cx, "js_cocos2dx_extension_Manifest_getManifestRoot : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
+bool js_cocos2dx_extension_Manifest_setUpdating(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::extension::Manifest* cobj = (cocos2d::extension::Manifest *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_Manifest_setUpdating : Invalid Native Object");
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_Manifest_setUpdating : Error processing arguments");
+        cobj->setUpdating(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_extension_Manifest_setUpdating : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
 bool js_cocos2dx_extension_Manifest_getManifestFileUrl(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -460,6 +480,24 @@ bool js_cocos2dx_extension_Manifest_getPackageUrl(JSContext *cx, uint32_t argc, 
     }
 
     JS_ReportError(cx, "js_cocos2dx_extension_Manifest_getPackageUrl : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_extension_Manifest_isUpdating(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::extension::Manifest* cobj = (cocos2d::extension::Manifest *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_extension_Manifest_isUpdating : Invalid Native Object");
+    if (argc == 0) {
+        bool ret = cobj->isUpdating();
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_extension_Manifest_isUpdating : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_extension_Manifest_getVersion(JSContext *cx, uint32_t argc, jsval *vp)
@@ -626,11 +664,13 @@ void js_register_cocos2dx_extension_Manifest(JSContext *cx, JS::HandleObject glo
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getManifestRoot", js_cocos2dx_extension_Manifest_getManifestRoot, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setUpdating", js_cocos2dx_extension_Manifest_setUpdating, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getManifestFileUrl", js_cocos2dx_extension_Manifest_getManifestFileUrl, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("isVersionLoaded", js_cocos2dx_extension_Manifest_isVersionLoaded, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("parseFile", js_cocos2dx_extension_Manifest_parseFile, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("isLoaded", js_cocos2dx_extension_Manifest_isLoaded, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getPackageUrl", js_cocos2dx_extension_Manifest_getPackageUrl, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("isUpdating", js_cocos2dx_extension_Manifest_isUpdating, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getVersion", js_cocos2dx_extension_Manifest_getVersion, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("parseJSONString", js_cocos2dx_extension_Manifest_parseJSONString, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getVersionFileUrl", js_cocos2dx_extension_Manifest_getVersionFileUrl, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -811,7 +851,11 @@ bool js_cocos2dx_extension_AssetsManagerEx_setVerifyCallback(JSContext *cx, uint
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](const std::basic_string<char> & larg0, cocos2d::extension::ManifestAsset larg1) -> bool {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
@@ -893,7 +937,11 @@ bool js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle(JSContext *cx
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](const std::basic_string<char> & larg0, const std::basic_string<char> & larg1) -> int {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
@@ -1135,23 +1183,95 @@ bool js_cocos2dx_extension_AssetsManagerEx_create(JSContext *cx, uint32_t argc, 
 
 bool js_cocos2dx_extension_AssetsManagerEx_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    std::string arg0;
-    std::string arg1;
-    ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-    ok &= jsval_to_std_string(cx, args.get(1), &arg1);
-    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_extension_AssetsManagerEx_constructor : Error processing arguments");
-    cocos2d::extension::AssetsManagerEx* cobj = new (std::nothrow) cocos2d::extension::AssetsManagerEx(arg0, arg1);
+    cocos2d::extension::AssetsManagerEx* cobj = nullptr;
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::AssetsManagerEx>(cobj);
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx);
+    do {
+        ok = true;
+        if (argc == 3) {
+            std::string arg0;
+            ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+            if (!ok) { ok = true; break; }
+            std::string arg1;
+            ok &= jsval_to_std_string(cx, args.get(1), &arg1);
+            if (!ok) { ok = true; break; }
+            std::function<int (const std::basic_string<char> &, const std::basic_string<char> &)> arg2;
+            do {
+			    if(JS_TypeOfValue(cx, args.get(2)) == JSTYPE_FUNCTION)
+			    {
+			        JS::RootedObject jstarget(cx);
+			        if (args.thisv().isObject())
+			        {
+			            jstarget = args.thisv().toObjectOrNull();
+			        }
+			        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(2), args.thisv()));
+			        auto lambda = [=](const std::basic_string<char> & larg0, const std::basic_string<char> & larg1) -> int {
+			            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
+			            jsval largv[2];
+			            largv[0] = std_string_to_jsval(cx, larg0);
+			            largv[1] = std_string_to_jsval(cx, larg1);
+			            JS::RootedValue rval(cx);
+			            bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(2, largv), &rval);
+			            if (!succeed && JS_IsExceptionPending(cx)) {
+			                JS_ReportPendingException(cx);
+			            }
+			            bool ok = true;
+			            int ret;
+			            ok &= jsval_to_int32(cx, rval, (int32_t *)&ret);
+			            JSB_PRECONDITION2(ok, cx, false, "lambda function : Error processing return value with type int");
+			            return ret;
+			        };
+			        arg2 = lambda;
+			    }
+			    else
+			    {
+			        arg2 = nullptr;
+			    }
+			} while(0)
+			;
+            if (!ok) { ok = true; break; }
+            cobj = new (std::nothrow) cocos2d::extension::AssetsManagerEx(arg0, arg1, arg2);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::AssetsManagerEx"));
-    args.rval().set(OBJECT_TO_JSVAL(jsobj));
-    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
-    return true;
+            js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::AssetsManagerEx>(cobj);
+            JS::RootedObject proto(cx, typeClass->proto.ref());
+            JS::RootedObject parent(cx, typeClass->parentProto.ref());
+            obj = JS_NewObject(cx, typeClass->jsclass, proto, parent);
+            js_proxy_t* p = jsb_new_proxy(cobj, obj);
+            jsb_ref_init(cx, &p->obj, cobj, "cocos2d::extension::AssetsManagerEx");
+        }
+    } while(0);
+
+    do {
+        ok = true;
+        if (argc == 2) {
+            std::string arg0;
+            ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+            if (!ok) { ok = true; break; }
+            std::string arg1;
+            ok &= jsval_to_std_string(cx, args.get(1), &arg1);
+            if (!ok) { ok = true; break; }
+            cobj = new (std::nothrow) cocos2d::extension::AssetsManagerEx(arg0, arg1);
+
+            js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::AssetsManagerEx>(cobj);
+            JS::RootedObject proto(cx, typeClass->proto.ref());
+            JS::RootedObject parent(cx, typeClass->parentProto.ref());
+            obj = JS_NewObject(cx, typeClass->jsclass, proto, parent);
+            js_proxy_t* p = jsb_new_proxy(cobj, obj);
+            jsb_ref_init(cx, &p->obj, cobj, "cocos2d::extension::AssetsManagerEx");
+        }
+    } while(0);
+
+    if (cobj) {
+        if (JS_HasProperty(cx, obj, "_ctor", &ok) && ok)
+                ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+
+        args.rval().set(OBJECT_TO_JSVAL(obj));
+        return true;
+    }
+    JS_ReportError(cx, "js_cocos2dx_extension_AssetsManagerEx_constructor : wrong number of arguments");
+    return false;
 }
 
 

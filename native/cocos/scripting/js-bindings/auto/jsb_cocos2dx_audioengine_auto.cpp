@@ -446,7 +446,11 @@ bool js_cocos2dx_audioengine_AudioEngine_preload(JSContext *cx, uint32_t argc, j
             do {
 			    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 			    {
-			        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+			        JS::RootedObject jstarget(cx);
+			        if (args.thisv().isObject())
+			        {
+			            jstarget = args.thisv().toObjectOrNull();
+			        }
 			        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
 			        auto lambda = [=](bool larg0) -> void {
 			            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
@@ -675,7 +679,11 @@ bool js_cocos2dx_audioengine_AudioEngine_setFinishCallback(JSContext *cx, uint32
         do {
 		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
 		        auto lambda = [=](int larg0, const std::basic_string<char> & larg1) -> void {
 		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET

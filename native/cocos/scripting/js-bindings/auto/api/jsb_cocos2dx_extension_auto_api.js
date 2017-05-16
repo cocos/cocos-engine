@@ -179,6 +179,16 @@ getManifestRoot : function (
 },
 
 /**
+ * @method setUpdating
+ * @param {bool} arg0
+ */
+setUpdating : function (
+bool 
+)
+{
+},
+
+/**
  * @method getManifestFileUrl
  * @return {String}
  */
@@ -226,6 +236,16 @@ getPackageUrl : function (
 )
 {
     return ;
+},
+
+/**
+ * @method isUpdating
+ * @return {bool}
+ */
+isUpdating : function (
+)
+{
+    return false;
 },
 
 /**
@@ -495,13 +515,13 @@ str
 /**
  * @method AssetsManagerEx
  * @constructor
- * @param {String} arg0
- * @param {String} arg1
- * @param {function} arg2
- */
-AssetsManagerEx : function (
-str, 
-str, 
+* @param {String|String} str
+* @param {String|String} str
+* @param {function} func
+*/
+AssetsManagerEx : function(
+str,
+str,
 func 
 )
 {
