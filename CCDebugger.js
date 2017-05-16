@@ -78,7 +78,7 @@ function _formatString(arg) {
         return arg;
 }
 
-var Enum = require('./cocos2d/core/value-types/CCEnum');
+var Enum = require('./cocos2d/core/platform/CCEnum');
 
 /**
  * !#en Enum for debug modes.

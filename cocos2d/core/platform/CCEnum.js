@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var JS = require('./js');
+
 // enum
 
 /**
@@ -38,16 +40,12 @@
  * @method Enum
  * @param {object} obj - a JavaScript literal object containing enum names and values
  * @return {object} the defined enum type
- * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCEnum/Enum.js}
+ * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCEnum/Enum.js}
  * @typescript Enum<T>(obj: T): T
  */
-
-cc.Enum = function (obj) {
+function Enum (obj) {
     var enumType = {};
-    Object.defineProperty(enumType, '__enums__', {
-        value: undefined,
-        writable: true
-    });
+    JS.value(enumType, '__enums__', null, true);
 
     var lastIndex = -1;
     for (var key in obj) {
@@ -62,20 +60,17 @@ cc.Enum = function (obj) {
 
         var reverseKey = '' + val;
         if (key !== reverseKey) {
-            if (enumType.hasOwnProperty(reverseKey) && CC_EDITOR) {
+            if (CC_EDITOR && enumType.hasOwnProperty(reverseKey)) {
                 cc.errorID(7100, reverseKey);
                 continue;
             }
-            Object.defineProperty(enumType, reverseKey, {
-                value: key,
-                // enumerable is false by default
-            });
+            JS.value(enumType, reverseKey, key);
         }
     }
     return enumType;
-};
+}
 
-cc.Enum.isEnum = function (enumType) {
+Enum.isEnum = function (enumType) {
     return enumType && enumType.hasOwnProperty('__enums__');
 };
 
@@ -85,37 +80,32 @@ cc.Enum.isEnum = function (enumType) {
  * @return {Object[]}
  * @private
  */
-cc.Enum.getList = function (enumDef) {
-    if ( enumDef.__enums__ !== undefined )
+Enum.getList = function (enumDef) {
+    if (enumDef.__enums__)
         return enumDef.__enums__;
 
-    var enums = [];
-    for ( var entry in enumDef ) {
-        if ( enumDef.hasOwnProperty(entry) ) {
-            var value = enumDef[entry];
-            var isInteger = typeof value === 'number' && (value | 0) === value; // polyfill Number.isInteger
-            if ( isInteger ) {
-                enums.push( { name: entry, value: value } );
-            }
+    var enums = enumDef.__enums__ = [];
+    for (var name in enumDef) {
+        var value = enumDef[name];
+        if (Number.isInteger(value)) {
+            enums.push({ name, value });
         }
     }
     enums.sort( function ( a, b ) { return a.value - b.value; } );
-
-    enumDef.__enums__ = enums;
     return enums;
 };
 
 if (CC_DEV) {
     // check key order in object literal
-    var _TestEnum = cc.Enum({
+    var _TestEnum = Enum({
         ZERO: -1,
         ONE: -1,
         TWO: -1,
         THREE: -1
     });
-    if (_TestEnum.ZERO !== 0 || _TestEnum.ONE !== 1 || _TestEnum.TWO !== 2 || _TestEnum.THREE !== 3) {
+    if (_TestEnum.ZERO !== 0 || _TestEnum.ONE !== 1 || _TestEnum.THREE !== 3) {
         cc.errorID(7101);
     }
 }
 
-module.exports = cc.Enum;
+module.exports = cc.Enum = Enum;

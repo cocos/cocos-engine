@@ -54,7 +54,7 @@ if (CC_DEV) {
 // polyfills
 /* require('./polyfill/bind'); */
 require('./polyfill/string');
-require('./polyfill/math');
+require('./polyfill/misc');
 require('./polyfill/array');
 if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./polyfill/typescript');

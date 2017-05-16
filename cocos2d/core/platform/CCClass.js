@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 var JS = require('./js');
-var Enum = require('../value-types/CCEnum');
+var Enum = require('./CCEnum');
 var Utils = require('./utils');
 var _isPlainEmptyObj_DEV = Utils.isPlainEmptyObj_DEV;
 var _cloneable_DEV = Utils.cloneable_DEV;

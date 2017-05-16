@@ -32,6 +32,7 @@
  *
  * @submodule _decorator
  * @module _decorator
+ * @main
  */
 
 // inspired by toddlxt (https://github.com/toddlxt/Creator-TypeScript-Boilerplate)
