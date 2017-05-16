@@ -113,7 +113,7 @@ JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS:
 {
     _jsthis = jsthis;
     _fval = fval;
-    setOwner(cx, JS::RootedValue(cx, owner));
+    setOwner(cx, owner);
 }
 
 JSFunctionWrapper::~JSFunctionWrapper()
@@ -153,7 +153,6 @@ JSFunctionWrapper::~JSFunctionWrapper()
 void JSFunctionWrapper::setOwner(JSContext* cx, JS::HandleValue owner)
 {
     JSAutoCompartment(cx, ScriptingCore::getInstance()->getGlobalObject());
-    JS::RootedValue ownerVal(cx, owner);
     if (!owner.isNullOrUndefined())
     {
         _owner = owner;
@@ -165,14 +164,14 @@ void JSFunctionWrapper::setOwner(JSContext* cx, JS::HandleValue owner)
         }
         
         JS::RootedValue thisVal(cx, OBJECT_TO_JSVAL(_jsthis));
-        if (!thisVal.isNullOrUndefined())
+        if (thisVal.isObject() && ownerObj.get() != _jsthis.get())
         {
-            js_add_object_reference(ownerVal, thisVal);
+            js_add_object_reference(owner, thisVal);
         }
         JS::RootedValue funcVal(cx, _fval);
-        if (!funcVal.isNullOrUndefined())
+        if (funcVal.isObject())
         {
-            js_add_object_reference(ownerVal, funcVal);
+            js_add_object_reference(owner, funcVal);
         }
     }
 }
