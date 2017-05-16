@@ -1,3 +1,5 @@
+// JavaScript:
+
 var WrapMode = cc.Enum({
     Repeat: -1,
     Clamp: -1
@@ -21,3 +23,25 @@ var AtlasSizeList = cc.Enum({
     512: 512,
     1024: 1024,
 });
+
+// TypeScript:
+
+// If used in TypeScript, just define a TypeScript enum:
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right
+}
+
+// If you need to inspect the enum in Properties panel, you can call cc.Enum:
+const {ccclass, property} = cc._decorator;
+
+@ccclass
+class NewScript extends cc.Component {
+    @property({
+        default: Direction.Up,
+        type: cc.Enum(Direction)    // call cc.Enum
+    })
+    direction: Direction = Direction.Up;
+}

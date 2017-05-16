@@ -38,7 +38,7 @@ var JS = require('./js');
  * 用户可以把枚举值设为任意的整数，如果设为 -1，系统将会分配为上一个枚举值 + 1。
  *
  * @method Enum
- * @param {object} obj - a JavaScript literal object containing enum names and values
+ * @param {object} obj - a JavaScript literal object containing enum names and values, or a TypeScript enum type
  * @return {object} the defined enum type
  * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCEnum/Enum.js}
  * @typescript Enum<T>(obj: T): T
