@@ -41,6 +41,28 @@ test('enum', function () {
         "Can define enum name as index value" );
 });
 
+test('enum for TypeScript', function () {
+    var Enum = cc.Enum({
+        Width: 1,
+        Name: 20,
+        UseBest: 0,
+        Height: 10,
+        Area: 15,
+    });
+    strictEqual(cc.Enum(Enum), Enum, 'could redefine CCEnum');
+    var enumKeysNormal = Object.keys(Enum);
+
+    var TsEnum = Enum;
+    delete TsEnum.__enums__;
+    var oldTag = TsEnum.__enums__;
+    Enum = cc.Enum(TsEnum);
+    var newTag = Enum.__enums__;
+    notStrictEqual(oldTag, newTag, '(create CCEnum by typescript enum)');
+
+    var enumKeysInTS = Object.keys(Enum);
+    deepEqual(enumKeysInTS, enumKeysNormal, 'could enumerate CCEnum keys defined by typescript enum')
+});
+
 (function () {
     function testRemove (title, removeOperation) {
         test(title, function () {

@@ -44,30 +44,39 @@ var JS = require('./js');
  * @typescript Enum<T>(obj: T): T
  */
 function Enum (obj) {
-    var enumType = {};
-    JS.value(enumType, '__enums__', null, true);
+    if ('__enums__' in obj) {
+        return obj;
+    }
+    JS.value(obj, '__enums__', null, true);
 
     var lastIndex = -1;
-    for (var key in obj) {
+    var keys = Object.keys(obj);
+    for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
         var val = obj[key];
+
         if (val === -1) {
             val = ++lastIndex;
+            obj[key] = val;
         }
         else {
-            lastIndex = val;
+            if (typeof val === 'number') {
+                lastIndex = val;
+            }
+            else if (typeof val === 'string' && Number.isInteger(parseFloat(key))) {
+                continue;
+            }
         }
-        enumType[key] = val;
-
         var reverseKey = '' + val;
         if (key !== reverseKey) {
-            if (CC_EDITOR && enumType.hasOwnProperty(reverseKey)) {
+            if ((CC_EDITOR || CC_TEST) && reverseKey in obj && obj[reverseKey] !== key) {
                 cc.errorID(7100, reverseKey);
                 continue;
             }
-            JS.value(enumType, reverseKey, key);
+            JS.value(obj, reverseKey, key);
         }
     }
-    return enumType;
+    return obj;
 }
 
 Enum.isEnum = function (enumType) {
