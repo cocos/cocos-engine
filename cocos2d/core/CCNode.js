@@ -157,8 +157,11 @@ var _mouseEvents = [
 var _currentHovered = null;
 
 var _touchStartHandler = function (touch, event) {
-    var pos = touch.getLocation();
     var node = this.owner;
+    if (!node._activeInHierarchy) {
+        return false;
+    }
+    var pos = touch.getLocation();
 
     if (node._hitTest(pos, this)) {
         event.type = EventType.TOUCH_START;
