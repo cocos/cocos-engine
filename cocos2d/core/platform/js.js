@@ -683,6 +683,16 @@ js.formatStr = CC_JSB ? function (...args) {
     return str;
 };
 
+// see https://github.com/petkaantonov/bluebird/issues/1389
+js.shiftArguments = function () {
+    var len = arguments.length - 1;
+    var args = new Array(len);
+    for(var i = 0; i < len; ++i) {
+        args[i] = arguments[i + i];
+    }
+    return args;
+};
+
 /**
  * @class array
  * @static

@@ -161,11 +161,7 @@ cc._initDebugSetting = function (mode) {
         cc.assert = function (cond, msg) {
             'use strict';
             if (!cond && msg) {
-                var argsArr = [];
-                for (var i = 1; i < arguments.length; ++i) {
-                    argsArr.push(arguments[i]);
-                }
-                msg = cc.js.formatStr.apply(null, argsArr);
+                msg = cc.js.formatStr.apply(null, cc.js.shiftArguments.apply(null, arguments));
                 locLog("ASSERT: " + msg);
             }
         };
@@ -222,11 +218,7 @@ cc._initDebugSetting = function (mode) {
         } : function (cond, msg) {
             if (!cond) {
                 if (msg) {
-                    var argsArr = [];
-                    for (var i = 1; i < arguments.length; ++i) {
-                        argsArr.push(arguments[i]);
-                    }
-                    msg = cc.js.formatStr.apply(null, argsArr);
+                    msg = cc.js.formatStr.apply(null, cc.js.shiftArguments.apply(null, arguments));
                 }
                 if (CC_DEV) {
                     debugger;
@@ -330,11 +322,7 @@ cc._initDebugSetting = function (mode) {
         if (cond) {
             return;
         }
-        var argsArr = new Array(arguments.length - 1);
-        for (var i = 0; i < argsArr.length; ++i) {
-            argsArr[i] = arguments[i + 1];
-        }
-        assertFailed.apply(null, argsArr);
+        assertFailed.apply(null, cc.js.shiftArguments.apply(null, arguments));
     };
 };
 cc._throw = CC_EDITOR ? Editor.error : function (error) {
@@ -374,21 +362,17 @@ function genLogFunc(func, type) {
             CC_DEV ? func(cc._LogInfos[id]) : func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
             return;
         }
-        var argsArr = new Array(arguments.length);
-        for (var i = 0; i < argsArr.length; ++i) {
-            argsArr[i] = arguments[i];
-        }
         if (CC_DEV) {
-            argsArr[0] = cc._LogInfos[id];
-            func.apply(cc, argsArr);
+            let argsArr = cc.js.shiftArguments.apply(null, arguments);
+            func.apply(cc, [cc._LogInfos[id]].concat(argsArr));
         } else {
-            var args = '';
+            var msg = '';
             if (arguments.length === 2) {
-                args = 'Arguments: ' + arguments[1];
+                msg = 'Arguments: ' + arguments[1];
             } else if (arguments.length > 2) {
-                args = 'Arguments: ' + argsArr.slice(1).join(', ');
+                msg = 'Arguments: ' + cc.js.shiftArguments.apply(null, arguments).join(', ');
             }
-            func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
+            func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + msg);
         }
     };
 }
