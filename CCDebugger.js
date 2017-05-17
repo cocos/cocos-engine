@@ -66,18 +66,6 @@ cc._logToWebPage = function (msg) {
     logList.scrollTop = logList.scrollHeight;
 };
 
-//to make sure the cc.log, cc.warn, cc.error and cc.assert would not throw error before init by debugger mode.
-function _formatString(arg) {
-    if (typeof arg === 'object') {
-        try {
-            return JSON.stringify(arg);
-        } catch (err) {
-            return "";
-        }
-    } else
-        return arg;
-}
-
 var Enum = require('./cocos2d/core/platform/CCEnum');
 
 /**
@@ -168,24 +156,27 @@ cc._initDebugSetting = function (mode) {
         //log to web page
         locLog = cc._logToWebPage.bind(cc);
         cc.error = function () {
-            locLog("ERROR :  " + cc.js.formatStr.apply(cc, arguments));
+            locLog("ERROR :  " + cc.js.formatStr.apply(null, arguments));
         };
         cc.assert = function (cond, msg) {
             'use strict';
             if (!cond && msg) {
-                for (var i = 2; i < arguments.length; i++)
-                    msg = msg.replace(/(%s)|(%d)/, _formatString(arguments[i]));
+                var argsArr = [];
+                for (var i = 1; i < arguments.length; ++i) {
+                    argsArr.push(arguments[i]);
+                }
+                msg = cc.js.formatStr.apply(null, argsArr);
                 locLog("ASSERT: " + msg);
             }
         };
         if (mode !== cc.DebugMode.ERROR_FOR_WEB_PAGE) {
             cc.warn = function () {
-                locLog("WARN :  " + cc.js.formatStr.apply(cc, arguments));
+                locLog("WARN :  " + cc.js.formatStr.apply(null, arguments));
             };
         }
         if (mode === cc.DebugMode.INFO_FOR_WEB_PAGE) {
             cc.log = cc.info = function () {
-                locLog(cc.js.formatStr.apply(cc, arguments));
+                locLog(cc.js.formatStr.apply(null, arguments));
             };
         }
     }
@@ -222,18 +213,20 @@ cc._initDebugSetting = function (mode) {
                 return console.error.apply(console, arguments);
             };
         }
-        cc.assert = CC_JSB ? function (cond, msg, ...args) {
+        cc.assert = CC_JSB ? function (cond, ...args) {
+            var msg = args[0];
             if (!cond && msg) {
-                for (var i = 0; i < args.length; i++)
-                    msg = msg.replace(/(%s)|(%d)/, _formatString(args[i]));
+                msg = cc.js.formatStr.apply(null, args);
                 throw new Error(msg);
             }
         } : function (cond, msg) {
             if (!cond) {
                 if (msg) {
-                    for (var i = 2; i < arguments.length; i++) {
-                        msg = msg.replace(/(%s)|(%d)/, _formatString(arguments[i]));
+                    var argsArr = [];
+                    for (var i = 1; i < arguments.length; ++i) {
+                        argsArr.push(arguments[i]);
                     }
+                    msg = cc.js.formatStr.apply(null, argsArr);
                 }
                 if (CC_DEV) {
                     debugger;

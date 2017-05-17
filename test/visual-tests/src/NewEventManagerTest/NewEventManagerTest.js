@@ -692,7 +692,7 @@ var RemoveListenerAfterAddingTest =  EventDispatcherTestDemo.extend({
             var listener = cc.EventListener.create({
                 event: cc.EventListener.TOUCH_ONE_BY_ONE,
                 onTouchBegan: function(touch, event){
-                    cc.assert("Should not come here!");
+                    cc.assert(false, "Should not come here!");
                     return true;
                 }
             });
