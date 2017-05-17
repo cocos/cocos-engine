@@ -451,6 +451,10 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
     },
 
+    // _instantiate () {
+    //     var clone = new cc.SpriteFrame();
+    // },
+
     // SERIALIZATION
 
     _serialize: CC_EDITOR && function (exporting) {
