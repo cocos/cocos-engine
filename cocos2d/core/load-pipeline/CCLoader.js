@@ -409,9 +409,9 @@ proto._parseLoadResArgs = function (type, onProgress, onComplete) {
  *     cc.log('Result should be a sprite frame: ' + (spriteFrame instanceof cc.SpriteFrame));
  * });
  * @typescript
- * loadRes(url: string, type: {new (): cc.Asset}, progressCallback: Function, completeCallback: ((error: Error, resource: any) => void)|null): void
- * loadRes(url: string, type: {new (): cc.Asset}, completeCallback: (error: Error, resource: any) => void): void
- * loadRes(url: string, type: {new (): cc.Asset}): void
+ * loadRes(url: string, type: typeof cc.Asset, progressCallback: Function, completeCallback: ((error: Error, resource: any) => void)|null): void
+ * loadRes(url: string, type: typeof cc.Asset, completeCallback: (error: Error, resource: any) => void): void
+ * loadRes(url: string, type: typeof cc.Asset): void
  * loadRes(url: string, progressCallback: Function, completeCallback: ((error: Error, resource: any) => void)|null): void
  * loadRes(url: string, completeCallback: (error: Error, resource: any) => void): void
  * loadRes(url: string): void
@@ -522,9 +522,9 @@ proto._loadResUuids = function (uuids, progressCallback, completeCallback, urls)
  *     // ...
  * });
  * @typescript
- * loadResArray(url: string[], type: {new (): cc.Asset}, progressCallback: Function, completeCallback: ((error: Error, resource: any[]) => void)|null): void
- * loadResArray(url: string[], type: {new (): cc.Asset}, completeCallback: (error: Error, resource: any[]) => void): void
- * loadResArray(url: string[], type: {new (): cc.Asset}): void
+ * loadResArray(url: string[], type: typeof cc.Asset, progressCallback: Function, completeCallback: ((error: Error, resource: any[]) => void)|null): void
+ * loadResArray(url: string[], type: typeof cc.Asset, completeCallback: (error: Error, resource: any[]) => void): void
+ * loadResArray(url: string[], type: typeof cc.Asset): void
  * loadResArray(url: string[], progressCallback: Function, completeCallback: ((error: Error, resource: any[]) => void)|null): void
  * loadResArray(url: string[], completeCallback: (error: Error, resource: any[]) => void): void
  * loadResArray(url: string[]): void
@@ -591,9 +591,9 @@ proto.loadResArray = function (urls, type, progressCallback, completeCallback) {
  *     var url = urls[0];
  * });
  * @typescript
- * loadResDir(url: string, type: {new (): cc.Asset}, progressCallback: Function, completeCallback: ((error: Error, resource: any[], urls: string[]) => void)|null): void
- * loadResDir(url: string, type: {new (): cc.Asset}, completeCallback: (error: Error, resource: any[], urls: string[]) => void): void
- * loadResDir(url: string, type: {new (): cc.Asset}): void
+ * loadResDir(url: string, type: typeof cc.Asset, progressCallback: Function, completeCallback: ((error: Error, resource: any[], urls: string[]) => void)|null): void
+ * loadResDir(url: string, type: typeof cc.Asset, completeCallback: (error: Error, resource: any[], urls: string[]) => void): void
+ * loadResDir(url: string, type: typeof cc.Asset): void
  * loadResDir(url: string, progressCallback: Function, completeCallback: ((error: Error, resource: any[], urls: string[]) => void)|null): void
  * loadResDir(url: string, completeCallback: (error: Error, resource: any[], urls: string[]) => void): void
  * loadResDir(url: string): void

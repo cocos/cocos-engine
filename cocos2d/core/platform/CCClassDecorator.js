@@ -194,8 +194,8 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  * @method property
  * @param {Object} [options] - an object with some property attributes
  * @param {Any} [options.type]
- * @param {RawAsset} [options.url]
- * @param {Boolean} [options.visible]
+ * @param {Function} [options.url]
+ * @param {Boolean|Function} [options.visible]
  * @param {String} [options.displayName]
  * @param {String} [options.tooltip]
  * @param {Boolean} [options.multiline]
@@ -286,7 +286,7 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  *     }
  * });
  * @typescript
- * property(options?: {type?: any; url?: cc.RawAsset; visible?: boolean; displayName?: string; tooltip?: string; multiline?: boolean; readonly?: boolean; min?: number; max?: number; step?: number; range?: number[]; slide?: boolean; serializable?: boolean; editorOnly?: boolean; override?: boolean; animatable?: boolean; default?: any}): Function
+ * property(options?: {type?: any; url?: typeof cc.RawAsset; visible?: boolean|(() => boolean); displayName?: string; tooltip?: string; multiline?: boolean; readonly?: boolean; min?: number; max?: number; step?: number; range?: number[]; slide?: boolean; serializable?: boolean; editorOnly?: boolean; override?: boolean; animatable?: boolean; default?: any}): Function
  * property(_target: Object, _key: any, _desc?: any): void
  */
 function property (ctorProtoOrOptions, propName, desc) {
@@ -418,7 +418,7 @@ var executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDecorator)(
  *     // ...
  * }
  * @typescript
- * requireComponent(requiredComponent: {new (): cc.Component}): Function
+ * requireComponent(requiredComponent: typeof cc.Component): Function
  */
 var requireComponent = createEditorDecorator(checkCompArgument, 'requireComponent');
 
