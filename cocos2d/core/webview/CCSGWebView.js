@@ -18,6 +18,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+var Utils = require('../platform/utils');
 
 _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
 
@@ -369,12 +370,7 @@ _ccsg.WebView.EventType = {
     proto.removeDom = function(){
         var div = this._div;
         if(div){
-            var hasChild = false;
-            if('contains' in cc.game.container) {
-                hasChild = cc.game.container.contains(div);
-            }else {
-                hasChild = cc.game.container.compareDocumentPosition(div) % 16;
-            }
+            var hasChild = Utils.contains(cc.game.container, div);
             if(hasChild)
                 cc.game.container.removeChild(div);
         }
@@ -387,19 +383,8 @@ _ccsg.WebView.EventType = {
         var div = this._div;
         if (node.visible) {
             div.style.visibility = 'visible';
-            cc.game.container.appendChild(div);
         } else {
             div.style.visibility = 'hidden';
-            if(div){
-                var hasChild = false;
-                if('contains' in cc.game.container) {
-                    hasChild = cc.game.container.contains(div);
-                }else {
-                    hasChild = cc.game.container.compareDocumentPosition(div) % 16;
-                }
-                if(hasChild)
-                    cc.game.container.removeChild(div);
-            }
         }
     };
 
