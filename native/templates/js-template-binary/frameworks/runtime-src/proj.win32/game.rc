@@ -7,7 +7,7 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "winres.h"
+#include "winresrc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -27,7 +27,7 @@ LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
 
 2 TEXTINCLUDE 
 BEGIN
-    "#include ""winres.h""\r\n"
+    "#include ""winresrc.h""\r\n"
     "\0"
 END
 
@@ -39,81 +39,7 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Menu
-//
-
-IDR_MENU_COCOS MENU
-BEGIN
-    POPUP "°ïÖú(&H)"
-    BEGIN
-        MENUITEM "¹ØÓÚ(&A)",                      ID_HELP_ABOUT
-    END
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_DIALOG_ABOUT DIALOGEX 0, 0, 243, 134
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "About Simulator"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    CTEXT           "Version 3.10 (20151222)",IDC_ABOUT_VERSION,35,70,173,17
-    CTEXT           "Cocos Simulator",IDC_ABOUT_TITLE,35,49,173,17
-    CTEXT           "Copyright (C) 2015. All rights reserved.",IDC_STATIC,35,94,173,17
-    ICON            "GLFW_ICON",IDC_STATIC,111,15,20,20
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
-BEGIN
-    IDD_DIALOG_ABOUT, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 236
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 127
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
 #endif    // Chinese (Simplified, PRC) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// English resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-LANGUAGE LANG_ENGLISH, SUBLANG_NEUTRAL
-#pragma code_page(1252)
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Menu
-//
-
-IDR_MENU_COCOS MENU
-BEGIN
-    POPUP "&Help"
-    BEGIN
-        MENUITEM "&About ...",                  ID_HELP_ABOUT
-    END
-END
-
-#endif    // English resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -167,7 +93,7 @@ VS_VERSION_INFO VERSIONINFO
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "040904b0"
+        BLOCK "040904B0"
         BEGIN
             VALUE "FileDescription", "game Module"
             VALUE "FileVersion", "1, 0, 0, 1"
@@ -198,4 +124,3 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
-
