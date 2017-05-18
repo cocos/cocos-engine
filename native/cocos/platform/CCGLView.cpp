@@ -339,15 +339,8 @@ void GLView::handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[], 
         auto iter = g_touchIdReorderMap.find(id);
         if (iter == g_touchIdReorderMap.end())
         {
-            // iOS won't trigger touches begin when the second touch put on the screen,
-            // it will directly trigger touches move, so we need to add touches to global touches via handleTouchesBegin
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-            handleTouchesBegin(num, ids, xs, ys);
-            iter = g_touchIdReorderMap.find(id);
-#else
             CCLOG("if the index doesn't exist, it is an error");
             continue;
-#endif
         }
 
         CCLOGINFO("Moving touches with id: %d, x=%f, y=%f, force=%f, maxFource=%f", id, x, y, force, maxForce);
