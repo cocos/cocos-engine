@@ -387,7 +387,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 // Pass the touches to the superview
 #pragma mark CCEAGLView - Touch Delegate
-- (void)touchesBegan:(NSSet *)tches withEvent:(UIEvent *)event
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     cocos2d::Director *director = cocos2d::Director::getInstance();
     if (director == nullptr) {
@@ -404,7 +404,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     float ys[IOS_MAX_TOUCHES_COUNT] = {0.0f};
 
     int i = 0;
-    NSSet<UITouch *> *touches = [event allTouches];
     for (UITouch *touch in touches) {
         ids[i] = touch;
         xs[i] = [touch locationInView: [touch view]].x * self.contentScaleFactor;;
@@ -416,7 +415,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     glview->handleTouchesBegin(i, (intptr_t*)ids, xs, ys);
 }
 
-- (void)touchesMoved:(NSSet *)tches withEvent:(UIEvent *)event
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
     UITouch* ids[IOS_MAX_TOUCHES_COUNT] = {0};
     float xs[IOS_MAX_TOUCHES_COUNT] = {0.0f};
@@ -425,7 +424,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     float ms[IOS_MAX_TOUCHES_COUNT] = {0.0f};
 
     int i = 0;
-    NSSet<UITouch *> *touches = [event allTouches];
     for (UITouch *touch in touches) {
         ids[i] = touch;
         xs[i] = [touch locationInView: [touch view]].x * self.contentScaleFactor;;
@@ -444,14 +442,13 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     glview->handleTouchesMove(i, (intptr_t*)ids, xs, ys, fs, ms);
 }
 
-- (void)touchesEnded:(NSSet *)tches withEvent:(UIEvent *)event
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     UITouch* ids[IOS_MAX_TOUCHES_COUNT] = {0};
     float xs[IOS_MAX_TOUCHES_COUNT] = {0.0f};
     float ys[IOS_MAX_TOUCHES_COUNT] = {0.0f};
 
     int i = 0;
-    NSSet<UITouch *> *touches = [event allTouches];
     for (UITouch *touch in touches) {
         ids[i] = touch;
         xs[i] = [touch locationInView: [touch view]].x * self.contentScaleFactor;;
@@ -463,14 +460,13 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     glview->handleTouchesEnd(i, (intptr_t*)ids, xs, ys);
 }
 
-- (void)touchesCancelled:(NSSet *)tches withEvent:(UIEvent *)event
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
     UITouch* ids[IOS_MAX_TOUCHES_COUNT] = {0};
     float xs[IOS_MAX_TOUCHES_COUNT] = {0.0f};
     float ys[IOS_MAX_TOUCHES_COUNT] = {0.0f};
 
     int i = 0;
-    NSSet<UITouch *> *touches = [event allTouches];
     for (UITouch *touch in touches) {
         ids[i] = touch;
         xs[i] = [touch locationInView: [touch view]].x * self.contentScaleFactor;;
