@@ -64,11 +64,9 @@ cc._gameDiv = null;
 require('./cocos2d/core/utils');
 require('./cocos2d/core/platform/CCSys');
 
+// INIT ENGINE
 
-(function () {
-
-var _jsAddedCache = {}, //cache for js and module that has added into jsList to be loaded.
-    _engineInitCalled = false,
+var _engineInitCalled = false,
     _engineLoadedCallback = null;
 
 cc._engineLoaded = false;
@@ -105,26 +103,6 @@ function _determineRenderType(config) {
     }
 }
 
-function _getJsListOfModule(moduleMap, moduleName, dir) {
-    if (_jsAddedCache[moduleName]) return null;
-    dir = dir || "";
-    var jsList = [];
-    var tempList = moduleMap[moduleName];
-    if (!tempList) throw new Error("can not find module [" + moduleName + "]");
-    var ccPath = cc.path;
-    for (var i = 0, li = tempList.length; i < li; i++) {
-        var item = tempList[i];
-        if (_jsAddedCache[item]) continue;
-        var extname = ccPath.extname(item);
-        if (!extname) {
-            var arr = _getJsListOfModule(moduleMap, item, dir);
-            if (arr) jsList = jsList.concat(arr);
-        } else if (extname.toLowerCase() === ".js") jsList.push(ccPath.join(dir, item));
-        _jsAddedCache[item] = 1;
-    }
-    return jsList;
-}
-
 function _afterEngineLoaded() {
     cc._engineLoaded = true;
     if (CC_EDITOR) {
@@ -136,37 +114,9 @@ function _afterEngineLoaded() {
     if (_engineLoadedCallback) _engineLoadedCallback();
 }
 
-function _load(config) {
-    var CONFIG_KEY = cc.game.CONFIG_KEY, engineDir = config[CONFIG_KEY.engineDir], loader = cc.loader;
-
-    if (cc._Class) {
-        // Single file loaded
-        _afterEngineLoaded();
-    } else {
-        // Load cocos modules
-        var ccModulesPath = cc.path.join(engineDir, "moduleConfig.json");
-        loader.load(ccModulesPath, function (err, modulesJson) {
-            if (err) throw new Error(err);
-            var modules = config["modules"] || [];
-            var moduleMap = modulesJson["module"];
-            var jsList = [];
-            if (cc.sys.capabilities["opengl"] && modules.indexOf("base4webgl") < 0) modules.splice(0, 0, "base4webgl");
-            else if (modules.indexOf("core") < 0) modules.splice(0, 0, "core");
-            for (var i = 0, li = modules.length; i < li; i++) {
-                var arr = _getJsListOfModule(moduleMap, modules[i], engineDir);
-                if (arr) jsList = jsList.concat(arr);
-            }
-            loader.load(jsList, function (err) {
-                if (err) throw new Error(JSON.stringify(err));
-                _afterEngineLoaded();
-            });
-        });
-    }
-}
-
-function _windowLoaded() {
+function _windowLoaded () {
     window.removeEventListener('load', _windowLoaded, false);
-    _load(cc.game.config);
+    _afterEngineLoaded();
 }
 
 cc.initEngine = function (config, cb) {
@@ -193,8 +143,6 @@ cc.initEngine = function (config, cb) {
 
     _determineRenderType(config);
 
-    document.body ? _load(config) : window.addEventListener('load', _windowLoaded, false);
+    document.body ? _afterEngineLoaded() : window.addEventListener('load', _windowLoaded, false);
     _engineInitCalled = true;
 };
-
-})();

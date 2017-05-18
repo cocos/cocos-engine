@@ -72,7 +72,7 @@ cc.game = {
     CONFIG_KEY: {
         width: 'width',
         height: 'height',
-        engineDir: 'engineDir',
+        // engineDir: 'engineDir',
         modules: 'modules',
         debugMode: 'debugMode',
         showFPS: 'showFPS',
@@ -299,7 +299,7 @@ cc.game = {
             config[CONFIG_KEY.renderMode] = 0;
         }
         config[CONFIG_KEY.showFPS] = (CONFIG_KEY.showFPS in config) ? (!!config[CONFIG_KEY.showFPS]) : true;
-        config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
+        // config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
 
         // Group List and Collide Map
         this.groupList = config.groupList || [];
