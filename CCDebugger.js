@@ -66,18 +66,6 @@ cc._logToWebPage = function (msg) {
     logList.scrollTop = logList.scrollHeight;
 };
 
-//to make sure the cc.log, cc.warn, cc.error and cc.assert would not throw error before init by debugger mode.
-function _formatString(arg) {
-    if (typeof arg === 'object') {
-        try {
-            return JSON.stringify(arg);
-        } catch (err) {
-            return "";
-        }
-    } else
-        return arg;
-}
-
 var Enum = require('./cocos2d/core/platform/CCEnum');
 
 /**
@@ -168,24 +156,23 @@ cc._initDebugSetting = function (mode) {
         //log to web page
         locLog = cc._logToWebPage.bind(cc);
         cc.error = function () {
-            locLog("ERROR :  " + cc.js.formatStr.apply(cc, arguments));
+            locLog("ERROR :  " + cc.js.formatStr.apply(null, arguments));
         };
         cc.assert = function (cond, msg) {
             'use strict';
             if (!cond && msg) {
-                for (var i = 2; i < arguments.length; i++)
-                    msg = msg.replace(/(%s)|(%d)/, _formatString(arguments[i]));
+                msg = cc.js.formatStr.apply(null, cc.js.shiftArguments.apply(null, arguments));
                 locLog("ASSERT: " + msg);
             }
         };
         if (mode !== cc.DebugMode.ERROR_FOR_WEB_PAGE) {
             cc.warn = function () {
-                locLog("WARN :  " + cc.js.formatStr.apply(cc, arguments));
+                locLog("WARN :  " + cc.js.formatStr.apply(null, arguments));
             };
         }
         if (mode === cc.DebugMode.INFO_FOR_WEB_PAGE) {
             cc.log = cc.info = function () {
-                locLog(cc.js.formatStr.apply(cc, arguments));
+                locLog(cc.js.formatStr.apply(null, arguments));
             };
         }
     }
@@ -222,18 +209,16 @@ cc._initDebugSetting = function (mode) {
                 return console.error.apply(console, arguments);
             };
         }
-        cc.assert = CC_JSB ? function (cond, msg, ...args) {
+        cc.assert = CC_JSB ? function (cond, ...args) {
+            var msg = args[0];
             if (!cond && msg) {
-                for (var i = 0; i < args.length; i++)
-                    msg = msg.replace(/(%s)|(%d)/, _formatString(args[i]));
+                msg = cc.js.formatStr.apply(null, args);
                 throw new Error(msg);
             }
         } : function (cond, msg) {
             if (!cond) {
                 if (msg) {
-                    for (var i = 2; i < arguments.length; i++) {
-                        msg = msg.replace(/(%s)|(%d)/, _formatString(arguments[i]));
-                    }
+                    msg = cc.js.formatStr.apply(null, cc.js.shiftArguments.apply(null, arguments));
                 }
                 if (CC_DEV) {
                     debugger;
@@ -337,11 +322,7 @@ cc._initDebugSetting = function (mode) {
         if (cond) {
             return;
         }
-        var argsArr = new Array(arguments.length - 1);
-        for (var i = 0; i < argsArr.length; ++i) {
-            argsArr[i] = arguments[i + 1];
-        }
-        assertFailed.apply(null, argsArr);
+        assertFailed.apply(null, cc.js.shiftArguments.apply(null, arguments));
     };
 };
 cc._throw = CC_EDITOR ? Editor.error : function (error) {
@@ -381,21 +362,17 @@ function genLogFunc(func, type) {
             CC_DEV ? func(cc._LogInfos[id]) : func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
             return;
         }
-        var argsArr = new Array(arguments.length);
-        for (var i = 0; i < argsArr.length; ++i) {
-            argsArr[i] = arguments[i];
-        }
         if (CC_DEV) {
-            argsArr[0] = cc._LogInfos[id];
-            func.apply(cc, argsArr);
+            let argsArr = cc.js.shiftArguments.apply(null, arguments);
+            func.apply(cc, [cc._LogInfos[id]].concat(argsArr));
         } else {
-            var args = '';
+            var msg = '';
             if (arguments.length === 2) {
-                args = 'Arguments: ' + arguments[1];
+                msg = 'Arguments: ' + arguments[1];
             } else if (arguments.length > 2) {
-                args = 'Arguments: ' + argsArr.slice(1).join(', ');
+                msg = 'Arguments: ' + cc.js.shiftArguments.apply(null, arguments).join(', ');
             }
-            func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + args);
+            func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + msg);
         }
     };
 }

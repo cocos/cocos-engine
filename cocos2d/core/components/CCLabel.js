@@ -134,18 +134,14 @@ function debounce (func, wait, immediate) {
         if (callNow) func.apply(context, args);
     } : function () {
         var context = this;
-        var args = new Array(arguments.length);
-        for (var i = 0; i < arguments.length; i++) {
-            args[i] = arguments[i];
-        }
         var later = function() {
             timeout = null;
-            if (!immediate) func.apply(context, args);
+            if (!immediate) func.apply(context, arguments);
         };
         var callNow = immediate && !timeout;
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
+        if (callNow) func.apply(context, arguments);
     };
 }
 
