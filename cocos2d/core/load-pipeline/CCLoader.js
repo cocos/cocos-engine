@@ -152,8 +152,8 @@ proto.addLoadHandlers = function (extMap) {
 
 /**
  * Load resources with a progression callback and a complete callback.
- * The progression callback is the same as Pipeline's {{#crossLink "Pipeline/onProgress:method"}}onProgress{{/crossLink}}
- * The complete callback is almost the same as Pipeline's {{#crossLink "Pipeline/onComplete:method"}}onComplete{{/crossLink}}
+ * The progression callback is the same as Pipeline's {{#crossLink "LoadingItems/onProgress:method"}}onProgress{{/crossLink}}
+ * The complete callback is almost the same as Pipeline's {{#crossLink "LoadingItems/onComplete:method"}}onComplete{{/crossLink}}
  * The only difference is when user pass a single url as resources, the complete callback will set its result directly as the second parameter.
  *
  * @example
