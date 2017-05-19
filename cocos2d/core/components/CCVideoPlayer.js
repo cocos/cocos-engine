@@ -376,7 +376,7 @@ cc.VideoPlayer = module.exports = VideoPlayer;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event ready-to-play
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {VideoPlayer} event.detail - The VideoPlayer component.
  */
 
@@ -386,7 +386,7 @@ cc.VideoPlayer = module.exports = VideoPlayer;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event meta-loaded
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {VideoPlayer} event.detail - The VideoPlayer component.
  */
 
@@ -396,7 +396,7 @@ cc.VideoPlayer = module.exports = VideoPlayer;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event clicked
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {VideoPlayer} event.detail - The VideoPlayer component.
  */
 
@@ -407,7 +407,7 @@ cc.VideoPlayer = module.exports = VideoPlayer;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event playing
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {VideoPlayer} event.detail - The VideoPlayer component.
  */
 
@@ -417,7 +417,7 @@ cc.VideoPlayer = module.exports = VideoPlayer;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event paused
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {VideoPlayer} event.detail - The VideoPlayer component.
  */
 
@@ -427,7 +427,7 @@ cc.VideoPlayer = module.exports = VideoPlayer;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event stopped
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {VideoPlayer} event.detail - The VideoPlayer component.
  */
 
@@ -437,6 +437,6 @@ cc.VideoPlayer = module.exports = VideoPlayer;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event completed
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {VideoPlayer} event.detail - The VideoPlayer component.
  */

@@ -1112,13 +1112,16 @@ var Node = cc.Class({
      *                        See {{#crossLink "Node/position-changed:event"}}Node Events{{/crossLink}} for all builtin events.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param {Event} callback.param event
+     * @param {Event} callback.event event
      * @param {Object} [target] - The target to invoke the callback, can be null
      * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
      *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
      *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
      *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
+     * @typescript
+     * on(type: string, callback: (event: Event.EventCustom) => void, target?: any, useCapture?: boolean): (event: Event.EventCustom) => void
+     * on<T>(type: string, callback: (event: T) => void, target?: any, useCapture?: boolean): (event: T) => void
      * @example
      * this.node.on(cc.Node.EventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
      * node.on(cc.Node.EventType.TOUCH_START, callback, this.node);
@@ -2506,35 +2509,35 @@ if (CC_JSB) {
 
 /**
  * @event position-changed
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {Vec2} event.detail - The old position, but this parameter is only available in editor!
  */
 /**
  * @event size-changed
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {Size} event.detail - The old size, but this parameter is only available in editor!
  */
 /**
  * @event anchor-changed
- * @param {Event} event
+ * @param {Event.EventCustom} event
  */
 /**
  * @event child-added
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {Node} event.detail - child
  */
 /**
  * @event child-removed
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {Node} event.detail - child
  */
 /**
  * @event child-reorder
- * @param {Event} event
+ * @param {Event.EventCustom} event
  */
 /**
  * @event group-changed
- * @param {Event} event
+ * @param {Event.EventCustom} event
  */
 
 /**
