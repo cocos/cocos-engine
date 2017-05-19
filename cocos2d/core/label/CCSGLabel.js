@@ -1337,7 +1337,6 @@ _ccsg.Label = _ccsg.Node.extend({
 });
 
 _ccsg.Label.pool = new JS.Pool(function (label) {
-    // return false;
     if (!(label instanceof _ccsg.Label)) {
         return false;
     }
@@ -1349,6 +1348,7 @@ _ccsg.Label.pool = new JS.Pool(function (label) {
     label._renderCmd._labelCanvas.width = 1;
     label._renderCmd._labelCanvas.height = 1;
     label._parent = null;
+    label._updateLabel();
     return true;
 }, 20);
 
@@ -1369,14 +1369,15 @@ _ccsg.Label.pool.get = function (string, fontHandle, spriteFrame, fontAsset) {
 
         label.setFontFileOrFamily(fontHandle, spriteFrame, fontAsset);
         label.setString(string);
-        label.setHorizontalAlign( cc.TextAlignment.LEFT);
-        label.setVerticalAlign( cc.VerticalTextAlignment.TOP);
+        label.setHorizontalAlign(cc.TextAlignment.LEFT);
+        label.setVerticalAlign(cc.VerticalTextAlignment.TOP);
         label.setFontSize(40);
         label.setOverflow(0);
         label.enableWrapText(true);
         label.setVisible(true);
         label.setLineHeight(40);
         label.setOutlined(false);
+        label.setBlendFunc(cc.macro.SRC_ALPHA, cc.macro.ONE_MINUS_SRC_ALPHA);
 
         return label;
     }
