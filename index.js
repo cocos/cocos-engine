@@ -41,7 +41,19 @@
  *
  *     cc.log('release');
  *
- * 好棒棒
+ * （好棒棒）<br>
+ * <br>
+ * 如需判断脚本是否运行于指定平台，可以用如下表达式：
+ *
+ *     {
+ *         "编辑器":  CC_EDITOR,
+ *         "编辑器 或 预览":  CC_DEV,
+ *         "编辑器 或 预览 或 构建调试":  CC_DEBUG,
+ *         "网页预览":  CC_PREVIEW && !CC_JSB,
+ *         "模拟器预览":  CC_PREVIEW && CC_JSB,
+ *         "构建调试":  CC_BUILD && CC_DEBUG,
+ *         "构建发行":  CC_BUILD && !CC_DEBUG,
+ *     }
  *
  * !#en
  *
@@ -53,28 +65,42 @@
  * @property {Boolean} CC_EDITOR - Running in the editor.
  */
 /**
+ * @property {Boolean} CC_PREVIEW - Preview in browser or simulator.
+ */
+/**
  * @property {Boolean} CC_DEV - Running in the editor or preview.
  */
 /**
- * @property {Boolean} CC_JSB - Running in native platform.
+ * @property {Boolean} CC_DEBUG - Running in the editor or preview, or built as debug mode.
+ */
+/**
+ * @property {Boolean} CC_BUILD - Running in published project.
+ */
+/**
+ * @property {Boolean} CC_JSB - Running in native platform (mobile app, desktop app, or simulator).
  */
 /**
  * @property {Boolean} CC_TEST - Running in the engine's unit test.
  */
-Function(
-    // if "global_defs" not preprocessed by uglify, just declare them globally,
-    // this may happened in release version's preview page.
-    // (use evaled code to prevent mangle by uglify)
-    'var u="undefined",o="object";' +
-    'if(typeof CC_TEST==u)' +
-        'CC_TEST=typeof tap==o||typeof QUnit==o;' +
-    'if(typeof CC_EDITOR==u)' +
-        'CC_EDITOR=typeof Editor==o&&typeof process==o&&"electron" in process.versions;' +
-    'if(typeof CC_DEV==u)' +
-        'CC_DEV=CC_EDITOR||CC_TEST;' + /* CC_DEV contains CC_TEST and CC_EDITOR */
-    'if(typeof CC_JSB==u)' +
-        'CC_JSB=!1;'
-)();
+function defineMacro (name, defaultValue) {
+    Function(
+        // if "global_defs" not preprocessed by uglify, just declare them globally,
+        // this may happened in release version's preview page.
+        // (use evaled code to prevent mangle by uglify)
+        'if(typeof ' + name +  '=="undefined")' +
+            name + '=' + defaultValue
+    )();
+}
+function defined (name) {
+    return 'typeof ' + name + '=="object"';
+}
+defineMacro('CC_TEST', defined('tap') + '||' + defined('QUnit'));
+defineMacro('CC_EDITOR', defined('Editor') + '&&' + defined('process') + '&&"electron" in process.versions');
+defineMacro('CC_PREVIEW', '!CC_EDITOR');
+defineMacro('CC_DEV', true);    // CC_EDITOR || CC_PREVIEW || CC_TEST
+defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
+defineMacro('CC_JSB', defined('jsb'));
+defineMacro('CC_BUILD', false);
 
 // PREDEFINE
 
