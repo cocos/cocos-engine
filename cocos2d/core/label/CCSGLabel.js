@@ -1338,7 +1338,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
 _ccsg.Label.pool = new JS.Pool(function (label) {
     // return false;
-    if (!label instanceof _ccsg.Label) {
+    if (!(label instanceof _ccsg.Label)) {
         return false;
     }
     label._string = "";
@@ -1366,12 +1366,18 @@ _ccsg.Label.pool.get = function (string, fontHandle, spriteFrame, fontAsset) {
         label._position.y = 0;
         label.setAnchorPoint(0.5, 0.5);
         _ccsg.Node.prototype.setContentSize.call(label, 128, 128);
-        
-        label._blendFunc.src = cc.macro.SRC_ALPHA;
-        label._blendFunc.dst = cc.macro.ONE_MINUS_SRC_ALPHA;
 
         label.setFontFileOrFamily(fontHandle, spriteFrame, fontAsset);
-        label.setString(label._string);
+        label.setString(string);
+        label.setHorizontalAlign( cc.TextAlignment.LEFT);
+        label.setVerticalAlign( cc.VerticalTextAlignment.TOP);
+        label.setFontSize(40);
+        label.setOverflow(0);
+        label.enableWrapText(true);
+        label.setVisible(true);
+        label.setLineHeight(40);
+        label.setOutlined(false);
+
         return label;
     }
     else {
