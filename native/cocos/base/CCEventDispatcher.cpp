@@ -477,9 +477,9 @@ void EventDispatcher::forceAddEventListener(EventListener* listener)
 
         associateNodeAndEventListener(node, listener);
 
-        if (node->isRunning())
+        if (!node->isRunning() && listener->isPaused())
         {
-            resumeEventListenersForTarget(node);
+            listener->setPaused(true);
         }
     }
     else
