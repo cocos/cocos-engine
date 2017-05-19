@@ -161,13 +161,16 @@ proto.hasEventListener = function (type, checkCapture) {
  * @param {String} type - A string representing the event type to listen for.
  * @param {Function} callback - The callback that will be invoked when the event is dispatched.
  *                              The callback is ignored if it is a duplicate (the callbacks are unique).
- * @param {Event} callback.param event
+ * @param {Event} callback.event event
  * @param {Object} [target] - The target to invoke the callback, can be null
  * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
  *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
  *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
  *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
  * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
+ * @typescript
+ * on(type: string, callback: (event: Event.EventCustom) => void, target?: any, useCapture?: boolean): (event: Event.EventCustom) => void
+ * on<T>(type: string, callback: (event: T) => void, target?: any, useCapture?: boolean): (event: T) => void
  * @example
  * node.on(cc.Node.EventType.TOUCH_END, function (event) {
  *     cc.log("this is callback");
@@ -273,12 +276,15 @@ proto.targetOff = function (target) {
  * @param {String} type - A string representing the event type to listen for.
  * @param {Function} callback - The callback that will be invoked when the event is dispatched.
  *                              The callback is ignored if it is a duplicate (the callbacks are unique).
- * @param {Event} callback.param event
+ * @param {Event} callback.event event
  * @param {Object} [target] - The target to invoke the callback, can be null
  * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
  *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
  *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
  *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
+ * @typescript
+ * once(type: string, callback: (event: Event.EventCustom) => void, target?: any, useCapture?: boolean): (event: Event.EventCustom) => void
+ * once<T>(type: string, callback: (event: T) => void, target?: any, useCapture?: boolean): (event: T) => void
  * @example
  * node.once(cc.Node.EventType.TOUCH_END, function (event) {
  *     cc.log("this is callback");

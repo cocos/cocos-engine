@@ -1260,7 +1260,7 @@ if (CC_DEV) {
  * !#zh
  * 注意：此节点激活时，此事件仅从最顶部的节点发出。
  * @event active-in-hierarchy-changed
- * @param {Event} event
+ * @param {Event.EventCustom} event
  */
 
 cc._BaseNode = module.exports = BaseNode;

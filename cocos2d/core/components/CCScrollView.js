@@ -1510,7 +1510,7 @@ cc.ScrollView = module.exports = ScrollView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event scroll-to-top
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
 
@@ -1520,7 +1520,7 @@ cc.ScrollView = module.exports = ScrollView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event scroll-to-bottom
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
 
@@ -1530,7 +1530,7 @@ cc.ScrollView = module.exports = ScrollView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event scroll-to-left
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
 
@@ -1540,7 +1540,7 @@ cc.ScrollView = module.exports = ScrollView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event scroll-to-right
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
 
@@ -1550,7 +1550,7 @@ cc.ScrollView = module.exports = ScrollView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event scrolling
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
 
@@ -1560,7 +1560,7 @@ cc.ScrollView = module.exports = ScrollView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event bounce-bottom
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
 
@@ -1570,7 +1570,7 @@ cc.ScrollView = module.exports = ScrollView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event bounce-top
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
 
@@ -1580,7 +1580,7 @@ cc.ScrollView = module.exports = ScrollView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event bounce-left
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
 
@@ -1590,7 +1590,7 @@ cc.ScrollView = module.exports = ScrollView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event bounce-right
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
 
@@ -1600,7 +1600,7 @@ cc.ScrollView = module.exports = ScrollView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event scroll-ended
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
 
@@ -1610,6 +1610,6 @@ cc.ScrollView = module.exports = ScrollView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event touch-up
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
