@@ -853,14 +853,14 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     proto._createLabels = function () {
         var editBoxSize = this._editBox.getContentSize();
         if(!this._textLabel) {
-            this._textLabel = new _ccsg.Label();
+            this._textLabel = _ccsg.Label.pool.get();
             this._textLabel.setAnchorPoint(cc.p(0, 1));
             this._textLabel.setOverflow(_ccsg.Label.Overflow.CLAMP);
             this._editBox.addChild(this._textLabel, 100);
         }
 
         if(!this._placeholderLabel) {
-            this._placeholderLabel = new _ccsg.Label();
+            this._placeholderLabel = _ccsg.Label.pool.get();
             this._placeholderLabel.setAnchorPoint(cc.p(0, 1));
             this._placeholderLabel.setColor(cc.Color.GRAY);
             this._editBox.addChild(this._placeholderLabel, 100);

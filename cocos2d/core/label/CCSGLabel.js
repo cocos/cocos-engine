@@ -25,6 +25,7 @@
  ****************************************************************************/
 require('./CCTextUtils.js');
 var EventTarget = require("../event/event-target");
+var JS = require("../platform/js");
 
 var FntLoader = {
     INFO_EXP: /info [^\n]*(\n|$)/gi,
@@ -244,33 +245,41 @@ _ccsg.Label = _ccsg.Node.extend({
         this._string = string;
 
         _ccsg.Node.prototype.ctor.call(this);
-        this.setAnchorPoint(cc.p(0.5, 0.5));
-        _ccsg.Node.prototype.setContentSize.call(this, cc.size(128, 128));
+        this.setAnchorPoint(0.5, 0.5);
+        _ccsg.Node.prototype.setContentSize.call(this, 128, 128);
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
+
+        this._imageOffset = cc.p(0, 0);
+        this._numberOfLines = 0;
+        this._lettersInfo = [];
+        this._linesWidth = [];
+        this._linesOffsetX = [];
+        this._horizontalKernings = [];
+        this._reusedRect =  cc.rect(0, 0, 0, 0);
 
         this.setFontFileOrFamily(fontHandle, spriteFrame, fontAsset);
         this.setString(this._string);
     },
 
     _resetBMFont: function() {
-        this._imageOffset = cc.p(0, 0);
+        this._imageOffset.x = this._imageOffset.y = 0;
         this._cascadeColorEnabled = true;
         this._cascadeOpacityEnabled = true;
         this._fontAtlas = null;
         this._config = null;
         this._numberOfLines =  0;
-        this._lettersInfo =  [];
-        this._linesWidth =  [];
-        this._linesOffsetX =  [];
+        this._lettersInfo.length = 0;
+        this._linesWidth.length = 0;
+        this._linesOffsetX.length = 0;
         this._textDesiredHeight =  0;
         this._letterOffsetY =  0;
         this._tailoredTopY =  0;
         this._tailoredBottomY =  0;
         this._bmfontScale =  1.0;
-        this._horizontalKernings =  [];
+        this._horizontalKernings.length = 0;
         this._lineBreakWithoutSpaces =  false;
 
-        this._reusedRect =  cc.rect(0, 0, 0, 0);
+        this._reusedRect.x = this._reusedRect.y = this._reusedRect.width = this._reusedRect.height = 0;
         this._textureLoaded = false;
 
         if (this._spriteBatchNode) {
@@ -669,7 +678,7 @@ _ccsg.Label = _ccsg.Node.extend({
         }
         return _ccsg.Node.prototype._getHeight.call(this);
     },
-        _alignText: function() {
+    _alignText: function() {
         var ret = true;
 
         do {
@@ -1326,6 +1335,49 @@ _ccsg.Label = _ccsg.Node.extend({
         }
     }
 });
+
+_ccsg.Label.pool = new JS.Pool(function (label) {
+    // return false;
+    if (!label instanceof _ccsg.Label) {
+        return false;
+    }
+    label._string = "";
+    label._fontAsset = null;
+    label._fontHandle = "";
+    label._labelType = 0;
+    label._resetBMFont();
+    label._renderCmd._labelCanvas.width = 1;
+    label._renderCmd._labelCanvas.height = 1;
+    label._parent = null;
+    return true;
+}, 20);
+
+_ccsg.Label.pool.get = function (string, fontHandle, spriteFrame, fontAsset) {
+    var label = this._get();
+    if (label) {
+        fontHandle = fontHandle || "";
+        label._fontHandle = fontHandle;
+        if (typeof string !== 'string') {
+            string = '' + string;
+        }
+        label._string = string;
+
+        label._position.x = 0;
+        label._position.y = 0;
+        label.setAnchorPoint(0.5, 0.5);
+        _ccsg.Node.prototype.setContentSize.call(label, 128, 128);
+        
+        label._blendFunc.src = cc.macro.SRC_ALPHA;
+        label._blendFunc.dst = cc.macro.ONE_MINUS_SRC_ALPHA;
+
+        label.setFontFileOrFamily(fontHandle, spriteFrame, fontAsset);
+        label.setString(label._string);
+        return label;
+    }
+    else {
+        return new _ccsg.Label(string, fontHandle, spriteFrame, fontAsset);
+    }
+};
 
 
 var _p = _ccsg.Label.prototype;

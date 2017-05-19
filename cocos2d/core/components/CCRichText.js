@@ -250,7 +250,7 @@ var RichText = cc.Class({
     },
 
     _createFontLabel: function (string) {
-        return  new _ccsg.Label(string, this._getFontRawUrl());
+        return  _ccsg.Label.pool.get(string, this._getFontRawUrl());
     },
 
     _getFontRawUrl: function() {
@@ -427,7 +427,6 @@ var RichText = cc.Class({
 
             this._addLabelSegment(labelString, styleIndex);
         }
-
     },
 
     _isLastComponentCR: function(stringToken) {
@@ -764,8 +763,13 @@ var RichText = cc.Class({
                 label._clickHandler = textStyle.event.click;
             }
         }
-    }
+    },
 
+    onDestroy: function () {
+        for (var i = 0; i < this._labelSegments.length; ++i) {
+            _ccsg.Label.pool.put(this._labelSegments[i]);
+        }
+    }
  });
 
  cc.RichText = module.exports = RichText;

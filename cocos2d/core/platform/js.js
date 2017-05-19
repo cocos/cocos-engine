@@ -988,6 +988,17 @@ Pool.prototype.put = function (obj) {
     }
 };
 
+/**
+ * !#en Resize the pool.
+ * !#zh 设置对象池容量。
+ * @method resize
+ */
+Pool.prototype.resize = function (length) {
+    if (length > 0) {
+        this._pool.length = length;
+    }
+};
+
 js.Pool = Pool;
 
 //
