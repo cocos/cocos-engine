@@ -148,6 +148,27 @@ exports.buildPreview = function (sourceFile, outputFile, callback) {
         .on('end', callback);
 };
 
+exports.buildJsbPreview = function (sourceFile, outputFile, jsbSkipModules, callback) {
+    var outFile = Path.basename(outputFile);
+    var outDir = Path.dirname(outputFile);
+
+    var bundler = Utils.createBundler(sourceFile);
+    jsbSkipModules.forEach(function (module) {
+        bundler.ignore(require.resolve(module));
+    });
+    bundler.bundle()
+        .on('error', HandleErrors.handler)
+        .pipe(HandleErrors())
+        .pipe(Source(outFile))
+        .pipe(Buffer())
+        .pipe(Minifier(Utils.uglifyOptions('preview', true, false), UglifyHarmony))
+        .pipe(Optimizejs({
+            sourceMap: false
+        }))
+        .pipe(Gulp.dest(outDir))
+        .on('end', callback);
+};
+
 exports.buildJsb = function (sourceFile, outputFile, jsbSkipModules, callback) {
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
