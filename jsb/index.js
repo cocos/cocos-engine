@@ -50,18 +50,25 @@ try {
 catch (e) {
 }
 
-// Macros, if "global_defs" not preprocessed by uglify, just declare them globally
-Function(
-    /* use evaled code to prevent the uglify from renaming symbols */
-    'if(typeof CC_TEST=="undefined")' +
-        'window.CC_TEST=typeof describe!="undefined"||typeof QUnit=="object";' +
-    'if(typeof CC_EDITOR=="undefined")' +
-        'window.CC_EDITOR=typeof Editor=="object"&&typeof process=="object"&&"electron" in process.versions;' +
-    'if(typeof CC_DEV=="undefined")' +
-        'window.CC_DEV=CC_EDITOR||CC_TEST;' +
-    'if(typeof CC_JSB=="undefined")' +
-        'window.CC_JSB=true;'
-)();
+function defineMacro (name, defaultValue) {
+    Function(
+        // if "global_defs" not preprocessed by uglify, just declare them globally,
+        // this may happened in release version's preview page.
+        // (use evaled code to prevent mangle by uglify)
+        'if(typeof ' + name +  '=="undefined")' +
+            name + '=' + defaultValue
+    )();
+}
+function defined (name) {
+    return 'typeof ' + name + '=="object"';
+}
+defineMacro('CC_TEST', defined('tap') + '||' + defined('QUnit'));
+defineMacro('CC_EDITOR', defined('Editor') + '&&' + defined('process') + '&&"electron" in process.versions');
+defineMacro('CC_PREVIEW', '!CC_EDITOR');
+defineMacro('CC_DEV', true);    // CC_EDITOR || CC_PREVIEW || CC_TEST
+defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
+defineMacro('CC_JSB', defined('jsb'));
+defineMacro('CC_BUILD', false);
 
 require('./jsb-predefine');
 require('./jsb-game');
