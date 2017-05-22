@@ -40,7 +40,7 @@ const Minifier = require('gulp-uglify/minifier');
 const Sourcemaps = require('gulp-sourcemaps');
 const UglifyHarmony = require('uglify-js-harmony');
 
-const Utils = require('./utils');
+const Utils = require('../util/utils');
 
 exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFileForExtends, callback) {
     var engine = Utils.createBundler(sourceFile)
@@ -51,12 +51,7 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
         .pipe(Buffer())
         // remove `..args` used in CC_JSB
         .pipe(Sourcemaps.init({loadMaps: true}))
-        .pipe(Minifier(Utils.uglifyOptions(false, {
-            CC_EDITOR: false,
-            CC_DEV: true,
-            CC_TEST: true,
-            CC_JSB: false
-        }), UglifyHarmony))
+        .pipe(Minifier(Utils.uglifyOptions('test', false, false), UglifyHarmony))
         .pipe(Sourcemaps.write('./', {
             sourceRoot: '../',
             includeContent: false,

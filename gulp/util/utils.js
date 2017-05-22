@@ -4,12 +4,14 @@ const Path = require('path');
 allowReturnOutsideFunctionInBrowserifyTransform();
 const Browserify = require('browserify');
 const Fs = require('fs');
+const Macro = require('./macro');
 
 const preludePath = Path.resolve(__dirname, '../browserify_prelude.js');
 const prelude = Fs.readFileSync(preludePath, 'utf8');
 
-exports.uglifyOptions = function (minify, global_defs) {
-    if (minify) {
+exports.uglifyOptions = function (platform, isJSB, isDebugBuild) {
+    var global_defs = Macro(platform, isJSB, isDebugBuild);
+    if (!global_defs['CC_DEBUG']) {
         return {
             compress: {
                 global_defs: global_defs,

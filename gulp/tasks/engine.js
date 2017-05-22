@@ -25,7 +25,7 @@
 
 'use strict';
 
-const Utils = require('./utils');
+const Utils = require('../util/utils');
 const Path = require('path');
 
 const Source = require('vinyl-source-stream');
@@ -48,12 +48,7 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, callback) {
         bundler.ignore(file);
     });
 
-    var uglifyOption = Utils.uglifyOptions(false, {
-        CC_EDITOR: false,
-        CC_DEV: true,
-        CC_TEST: false,
-        CC_JSB: false
-    });
+    var uglifyOption = Utils.uglifyOptions('build', false, true);
 
     bundler = bundler.bundle();
     bundler = bundler.pipe(Source(outFile));
@@ -81,12 +76,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback, 
         bundler.ignore(file);
     });
 
-    var uglifyOption = Utils.uglifyOptions(true, {
-        CC_EDITOR: false,
-        CC_DEV: false,
-        CC_TEST: false,
-        CC_JSB: false
-    });
+    var uglifyOption = Utils.uglifyOptions('build', false, false);
 
     var Size = null;
     try {
@@ -145,12 +135,7 @@ exports.buildPreview = function (sourceFile, outputFile, callback) {
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(Sourcemaps.init({loadMaps: true}))
-        .pipe(Minifier(Utils.uglifyOptions(false, {
-            CC_EDITOR: false,
-            CC_DEV: true,
-            CC_TEST: false,
-            CC_JSB: false
-        }), UglifyHarmony))
+        .pipe(Minifier(Utils.uglifyOptions('preview', false, false), UglifyHarmony))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -176,12 +161,7 @@ exports.buildJsb = function (sourceFile, outputFile, jsbSkipModules, callback) {
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
-        .pipe(Minifier(Utils.uglifyOptions(false, {
-            CC_EDITOR: false,
-            CC_DEV: false,  // CC_DEV should be false after build
-            CC_TEST: false,
-            CC_JSB: true
-        }), UglifyHarmony))
+        .pipe(Minifier(Utils.uglifyOptions('build', true, true), UglifyHarmony))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -202,12 +182,7 @@ exports.buildJsbMin = function (sourceFile, outputFile, jsbSkipModules, callback
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
-        .pipe(Minifier(Utils.uglifyOptions(true, {
-            CC_EDITOR: false,
-            CC_DEV: false,
-            CC_TEST: false,
-            CC_JSB: true
-        }), UglifyHarmony))
+        .pipe(Minifier(Utils.uglifyOptions('build', true, false), UglifyHarmony))
         .pipe(Optimizejs({
             sourceMap: false
         }))
