@@ -1664,7 +1664,7 @@ var Node = cc.Class({
         if (this._sizeProvider && !ignoreSizeProvider) {
             var size = this._sizeProvider.getContentSize();
             this._contentSize = size;
-            return size;
+            return cc.size(size);
         }
         else {
             return cc.size(this._contentSize);

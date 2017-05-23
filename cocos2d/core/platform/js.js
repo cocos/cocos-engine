@@ -919,6 +919,9 @@ js.array = {
  * @param {Function} [cleanupFunc] - the callback method used to process the cleanup logic when the object is recycled.
  * @param {Object} cleanupFunc.obj
  * @param {Number} size - initializes the length of the array
+ * @typescript
+ * constructor(cleanupFunc: (obj: any) => void, size: number)
+ * constructor(size: number)
  */
 function Pool (cleanupFunc, size) {
     if (typeof cleanupFunc === 'number') {
