@@ -341,10 +341,10 @@ function genLogFunc(func, type) {
     return CC_JSB ? function (...args) {
         var id = args[0];
         if (args.length === 1) {
-            CC_DEV ? func(cc._LogInfos[id]) : func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
+            CC_DEBUG ? func(cc._LogInfos[id]) : func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
             return;
         }
-        if (CC_DEV) {
+        if (CC_DEBUG) {
             args[0] = cc._LogInfos[id];
             func.apply(cc, args);
         } else {
@@ -359,10 +359,10 @@ function genLogFunc(func, type) {
     } : function (id) {
         'use strict';
         if (arguments.length === 1) {
-            CC_DEV ? func(cc._LogInfos[id]) : func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
+            CC_DEBUG ? func(cc._LogInfos[id]) : func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
             return;
         }
-        if (CC_DEV) {
+        if (CC_DEBUG) {
             let argsArr = cc.js.shiftArguments.apply(null, arguments);
             func.apply(cc, [cc._LogInfos[id]].concat(argsArr));
         } else {
