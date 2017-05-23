@@ -443,7 +443,7 @@ proto.getDelta = function () {
  */
 proto.getDeltaX = function () {
     return this.touch ? this.touch.getDelta().x : 0;
-},
+};
 
 /**
  * !#en Returns the Y axis delta distance from the previous location to current location.
