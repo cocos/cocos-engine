@@ -43,7 +43,7 @@ Function(
 
 require('./predefine');
 
-// load cocos2D engine code
+// load Cocos2d engine code
 
 var isMainProcess = CC_EDITOR && Editor.isMainProcess;
 if (!isMainProcess) {
@@ -58,12 +58,8 @@ else {
 require('./extends');
 
 if (CC_EDITOR) {
-    /**
-     * In editor, in addition to the modules defined in cc scope, you can also access to the internal modules by using _require.
-     * @method _require
-     * @example
-     * var isDomNode = cc._require('./cocos2d/core/platform/utils').isDomNode;
-     */
+    // In editor, in addition to the modules defined in cc scope, you can also access to the internal modules by using _require.
+    // var isDomNode = cc._require('./cocos2d/core/platform/utils').isDomNode;
     cc._require = require;
     /*
      * Checks if the extension is loaded.

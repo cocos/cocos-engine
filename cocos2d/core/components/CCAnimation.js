@@ -507,7 +507,7 @@ var Animation = cc.Class({
      * @param {String} type - A string representing the event type to listen for.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param {Event} callback.param event
+     * @param {Event} callback.event event
      * @param {Object} [target] - The target to invoke the callback, can be null
      * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
      *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
@@ -515,6 +515,9 @@ var Animation = cc.Class({
      *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
      *
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
+     * @typescript
+     * on(type: string, callback: (event: Event.EventCustom) => void, target?: any, useCapture?: boolean): (event: Event.EventCustom) => void
+     * on<T>(type: string, callback: (event: T) => void, target?: any, useCapture?: boolean): (event: T) => void
      * @example
      * onPlay: function (event) {
      *     var state = event.detail;    // state instanceof cc.AnimationState
@@ -522,7 +525,7 @@ var Animation = cc.Class({
      * }
      * 
      * // register event to all animation
-     * animation.on('', 'play',      this.onPlay,        this);
+     * animation.on('play', this.onPlay, this);
      */
     on: function (type, callback, target, useCapture) {
         this._init();
@@ -561,7 +564,7 @@ var Animation = cc.Class({
      *
      * @example
      * // unregister event to all animation
-     * animation.off('', 'play',      this.onPlay,        this);
+     * animation.off('play', this.onPlay, this);
      */
     off: function (type, callback, target, useCapture) {
         this._init();
