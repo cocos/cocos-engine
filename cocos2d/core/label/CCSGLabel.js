@@ -669,10 +669,7 @@ _ccsg.Label = _ccsg.Node.extend({
         }
         return _ccsg.Node.prototype._getHeight.call(this);
     },
-});
-
-cc.BMFontHelper = {
-    _alignText: function() {
+        _alignText: function() {
         var ret = true;
 
         do {
@@ -1328,12 +1325,11 @@ cc.BMFontHelper = {
             }
         }
     }
-};
+});
 
 
 var _p = _ccsg.Label.prototype;
 cc.js.addon(_p, EventTarget.prototype);
-cc.js.mixin(_p, cc.BMFontHelper);
 
 _ccsg.Label.Type = cc.Enum({
     TTF: 0,

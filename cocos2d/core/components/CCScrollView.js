@@ -1054,8 +1054,8 @@ var ScrollView = cc.Class({
         this._autoScrolling = false;
 
         this._touchMovePreviousTimestamp = getTimeInMilliseconds();
-        this._touchMoveDisplacements = [];
-        this._touchMoveTimeDeltas = [];
+        this._touchMoveDisplacements.length = 0;
+        this._touchMoveTimeDeltas.length = 0;
 
         this._onScrollBarTouchBegan();
     },
