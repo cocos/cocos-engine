@@ -18,7 +18,10 @@ var animProto = Animator.prototype;
 animProto.update = function (dt) {
     var iterator = this._anims;
     var array = iterator.array;
+    
     var stoppedCount = 0;
+    var originLength = array.length;
+
     for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
         var anim = array[iterator.i];
         if (anim._isPlaying && !anim._isPaused) {
@@ -30,7 +33,9 @@ animProto.update = function (dt) {
         }
     }
 
-    if (array.length === 0 || stoppedCount >= array.length) {
+    var allRemoved = array.length === 0;
+    var allStopped = stoppedCount >= originLength;
+    if (allRemoved || allStopped) {
         this.stop();
     }
 };
