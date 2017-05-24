@@ -1052,19 +1052,19 @@ void MinXmlHttpRequest::_notify(JS::HandleObject callback, JS::HandleValueArray 
  */
 void MinXmlHttpRequest::_js_register(JSContext *cx, JS::HandleObject global)
 {
-    JSClassOps jsclassOps = {
+    static const JSClassOps jsclassOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         basic_object_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
-    JSClass jsclass = {
+    static JSClass MinXmlHttpRequest_class = {
         "XMLHttpRequest",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &jsclassOps
     };
+    MinXmlHttpRequest::js_class = &MinXmlHttpRequest_class;
 
-    MinXmlHttpRequest::js_class = &jsclass;
     static JSPropertySpec props[] = {
         JS_BINDED_PROP_DEF_ACCESSOR(MinXmlHttpRequest, onloadstart),
         JS_BINDED_PROP_DEF_ACCESSOR(MinXmlHttpRequest, onabort),
@@ -1097,7 +1097,15 @@ void MinXmlHttpRequest::_js_register(JSContext *cx, JS::HandleObject global)
         JS_FN("release", js_cocos2dx_release, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
-
-    MinXmlHttpRequest::js_proto = JS_InitClass(cx, global, nullptr, MinXmlHttpRequest::js_class, MinXmlHttpRequest::_js_constructor, 0, props, funcs, nullptr, nullptr);
-
+    
+    JS::RootedObject parent_proto(cx, nullptr);
+    MinXmlHttpRequest::js_proto = JS_InitClass(cx, global, parent_proto, MinXmlHttpRequest::js_class, MinXmlHttpRequest::_js_constructor, 0, props, funcs, nullptr, nullptr);
+    
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, MinXmlHttpRequest::js_proto);
+    jsb_register_class<MinXmlHttpRequest>(cx, MinXmlHttpRequest::js_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "XMLHttpRequest"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }

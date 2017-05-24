@@ -12,15 +12,7 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 
 static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return false;
-}
-
-static bool js_is_native_obj(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().setBoolean(true);
-    return true;
-}
-JSClass  *jsb_cocos2d_experimental_AudioProfile_class;
+}JSClass  *jsb_cocos2d_experimental_AudioProfile_class;
 JSObject *jsb_cocos2d_experimental_AudioProfile_prototype;
 
 bool js_cocos2dx_audioengine_AudioProfile_get_name(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -130,7 +122,6 @@ bool js_cocos2dx_audioengine_AudioProfile_constructor(JSContext *cx, uint32_t ar
 
 void js_cocos2d_experimental_AudioProfile_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (AudioProfile)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -150,7 +141,7 @@ void js_cocos2d_experimental_AudioProfile_finalize(JSFreeOp *fop, JSObject *obj)
     }
 }
 void js_register_cocos2dx_audioengine_AudioProfile(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_experimental_AudioProfile_classOps = {
+    static const JSClassOps cocos2d_experimental_AudioProfile_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_cocos2d_experimental_AudioProfile_finalize,
@@ -158,7 +149,7 @@ void js_register_cocos2dx_audioengine_AudioProfile(JSContext *cx, JS::HandleObje
     };
     static JSClass cocos2d_experimental_AudioProfile_class = {
         "AudioProfile",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cocos2d_experimental_AudioProfile_classOps
     };
     jsb_cocos2d_experimental_AudioProfile_class = &cocos2d_experimental_AudioProfile_class;
@@ -170,21 +161,16 @@ void js_register_cocos2dx_audioengine_AudioProfile(JSContext *cx, JS::HandleObje
         JS_PS_END
     };
 
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
-    };
-
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_cocos2d_experimental_AudioProfile_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_cocos2d_experimental_AudioProfile_class,
-        js_cocos2dx_audioengine_AudioProfile_constructor, 0, // constructor
+        js_cocos2dx_audioengine_AudioProfile_constructor, 0,
         properties,
-        funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_experimental_AudioProfile_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "AudioProfile"));
@@ -767,7 +753,7 @@ bool js_cocos2dx_audioengine_AudioEngine_getProfile(JSContext *cx, uint32_t argc
 }
 
 void js_register_cocos2dx_audioengine_AudioEngine(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_experimental_AudioEngine_classOps = {
+    static const JSClassOps cocos2d_experimental_AudioEngine_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -779,14 +765,6 @@ void js_register_cocos2dx_audioengine_AudioEngine(JSContext *cx, JS::HandleObjec
         &cocos2d_experimental_AudioEngine_classOps
     };
     jsb_cocos2d_experimental_AudioEngine_class = &cocos2d_experimental_AudioEngine_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
-
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
-    };
 
     static JSFunctionSpec st_funcs[] = {
         JS_FN("lazyInit", js_cocos2dx_audioengine_AudioEngine_lazyInit, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -817,14 +795,15 @@ void js_register_cocos2dx_audioengine_AudioEngine(JSContext *cx, JS::HandleObjec
         JS_FS_END
     };
 
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_cocos2d_experimental_AudioEngine_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_cocos2d_experimental_AudioEngine_class,
         empty_constructor, 0,
-        properties,
-        funcs,
-        nullptr, // no static properties
+        nullptr,
+        nullptr,
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_experimental_AudioEngine_prototype);

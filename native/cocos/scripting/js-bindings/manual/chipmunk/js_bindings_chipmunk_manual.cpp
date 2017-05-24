@@ -230,7 +230,7 @@ bool JSB_CCPhysicsDebugNode_constructor(JSContext *cx, uint32_t argc, JS::Value 
 
 void JSB_CCPhysicsDebugNode_createClass(JSContext *cx, JS::HandleObject globalObj, const char* name )
 {
-    const JSClassOps CCPhysicsDebugNode_classOps = {
+    static const JSClassOps CCPhysicsDebugNode_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -265,7 +265,7 @@ void JSB_CCPhysicsDebugNode_createClass(JSContext *cx, JS::HandleObject globalOb
     typeClass = typeMapIter->second;
     CCASSERT(typeClass, "The value is null.");
 
-    JS::RootedObject parentProto(cx, typeClass->proto);
+    JS::RootedObject parentProto(cx, typeClass->proto->get());
     JSB_CCPhysicsDebugNode_object = JS_InitClass(cx, globalObj, parentProto, JSB_CCPhysicsDebugNode_class, JSB_CCPhysicsDebugNode_constructor, 0,properties,funcs,NULL,st_funcs);
 
     JS::RootedObject proto(cx, JSB_CCPhysicsDebugNode_object);
@@ -395,7 +395,7 @@ static bool JSPROXY_CCPhysicsSprite_ctor(JSContext *cx, uint32_t argc, JS::Value
 
 void JSPROXY_CCPhysicsSprite_createClass(JSContext *cx, JS::HandleObject globalObj)
 {
-    const JSClassOps PhysicsSprite_classOps = {
+    static const JSClassOps PhysicsSprite_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -435,13 +435,13 @@ void JSPROXY_CCPhysicsSprite_createClass(JSContext *cx, JS::HandleObject globalO
     typeClass = typeMapIter->second;
     CCASSERT(typeClass, "The value is null.");
 
-    JS::RootedObject parentProto(cx, typeClass->proto);
+    JS::RootedObject parentProto(cx, typeClass->proto->get());
     JSPROXY_CCPhysicsSprite_object = JS_InitClass(cx, globalObj, parentProto, JSPROXY_CCPhysicsSprite_class, JSPROXY_CCPhysicsSprite_constructor, 0,properties,funcs,nullptr,st_funcs);
 
     JS::RootedObject proto(cx, JSPROXY_CCPhysicsSprite_object);
     jsb_register_class<PhysicsSprite>(cx, JSPROXY_CCPhysicsSprite_class, proto);
 
-    anonEvaluate(cx, globalObj, "(function () { cc.PhysicsSprite.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 
@@ -2478,19 +2478,21 @@ void JSB_cpBase_createClass(JSContext *cx, JS::HandleObject globalObj, const cha
     JSB_cpBase_class->finalize = JSB_cpBase_finalize;
     JSB_cpBase_class->flags = JSCLASS_HAS_PRIVATE;
 
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
     static JSFunctionSpec funcs[] = {
         JS_FN("getHandle", JSB_cpBase_getHandle, 0, JSPROP_PERMANENT  | JSPROP_ENUMERATE),
         JS_FN("setHandle", JSB_cpBase_setHandle, 1, JSPROP_PERMANENT  | JSPROP_ENUMERATE),
         JS_FS_END
     };
-    static JSFunctionSpec st_funcs[] = {
-        JS_FS_END
-    };
-
-    JSB_cpBase_object = JS_InitClass(cx, globalObj, nullptr, JSB_cpBase_class, JSB_cpBase_constructor,0,properties,funcs,NULL,st_funcs);
+    
+    JS::RootedObject parent_proto(cx, nullptr);
+    JSB_cpBase_object = JS_InitClass(cx, globalObj, parent_proto, JSB_cpBase_class, JSB_cpBase_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpBase_object);
+    jsb_register_class<cpBase>(cx, JSB_cpBase_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 // Chipmunk v7.0: Arguments: cpBody*, int, const cpVect *, cpTransform, cpFloat

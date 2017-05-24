@@ -12,15 +12,7 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 
 static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return false;
-}
-
-static bool js_is_native_obj(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().setBoolean(true);
-    return true;
-}
-JSClass  *jsb_cocos2d_network_Downloader_class;
+}JSClass  *jsb_cocos2d_network_Downloader_class;
 JSObject *jsb_cocos2d_network_Downloader_prototype;
 
 bool js_cocos2dx_network_Downloader_setOnTaskError(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -236,7 +228,7 @@ bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS
             cobj = new (std::nothrow) cocos2d::network::Downloader(arg0);
 
             js_type_class_t *typeClass = js_get_type_from_native<cocos2d::network::Downloader>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto);
+            JS::RootedObject proto(cx, typeClass->proto->get());
             obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
             jsb_non_ref_init(cx, obj, cobj, "cocos2d::network::Downloader");
             jsb_new_proxy(cx, cobj, obj);
@@ -249,7 +241,7 @@ bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS
             cobj = new (std::nothrow) cocos2d::network::Downloader();
 
             js_type_class_t *typeClass = js_get_type_from_native<cocos2d::network::Downloader>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto);
+            JS::RootedObject proto(cx, typeClass->proto->get());
             obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
             jsb_non_ref_init(cx, obj, cobj, "cocos2d::network::Downloader");
             jsb_new_proxy(cx, cobj, obj);
@@ -274,7 +266,6 @@ bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS
 
 void js_cocos2d_network_Downloader_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Downloader)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -294,7 +285,7 @@ void js_cocos2d_network_Downloader_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_network_Downloader(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_network_Downloader_classOps = {
+    static const JSClassOps cocos2d_network_Downloader_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_cocos2d_network_Downloader_finalize,
@@ -302,14 +293,10 @@ void js_register_cocos2dx_network_Downloader(JSContext *cx, JS::HandleObject glo
     };
     static JSClass cocos2d_network_Downloader_class = {
         "Downloader",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cocos2d_network_Downloader_classOps
     };
     jsb_cocos2d_network_Downloader_class = &cocos2d_network_Downloader_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setOnTaskError", js_cocos2dx_network_Downloader_setOnTaskError, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -319,17 +306,16 @@ void js_register_cocos2dx_network_Downloader(JSContext *cx, JS::HandleObject glo
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_cocos2d_network_Downloader_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_cocos2d_network_Downloader_class,
-        js_cocos2dx_network_Downloader_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_network_Downloader_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_network_Downloader_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "Downloader"));

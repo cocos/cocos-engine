@@ -12,15 +12,7 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 
 static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return false;
-}
-
-static bool js_is_native_obj(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().setBoolean(true);
-    return true;
-}
-JSClass  *jsb_cocos2d_experimental_ui_VideoPlayer_class;
+}JSClass  *jsb_cocos2d_experimental_ui_VideoPlayer_class;
 JSObject *jsb_cocos2d_experimental_ui_VideoPlayer_prototype;
 
 bool js_cocos2dx_experimental_video_VideoPlayer_getFileName(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -340,7 +332,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_constructor(JSContext *cx, uint3
 extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
 void js_register_cocos2dx_experimental_video_VideoPlayer(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_experimental_ui_VideoPlayer_classOps = {
+    static const JSClassOps cocos2d_experimental_ui_VideoPlayer_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -352,10 +344,6 @@ void js_register_cocos2dx_experimental_video_VideoPlayer(JSContext *cx, JS::Hand
         &cocos2d_experimental_ui_VideoPlayer_classOps
     };
     jsb_cocos2d_experimental_ui_VideoPlayer_class = &cocos2d_experimental_ui_VideoPlayer_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getFileName", js_cocos2dx_experimental_video_VideoPlayer_getFileName, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -386,10 +374,10 @@ void js_register_cocos2dx_experimental_video_VideoPlayer(JSContext *cx, JS::Hand
         cx, global,
         parent_proto,
         jsb_cocos2d_experimental_ui_VideoPlayer_class,
-        js_cocos2dx_experimental_video_VideoPlayer_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_experimental_video_VideoPlayer_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_experimental_ui_VideoPlayer_prototype);

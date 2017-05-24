@@ -144,10 +144,6 @@ void js_register_cocos2dx_GLNode(JSContext *cx, JS::HandleObject global)
     };
     js_cocos2dx_GLNode_class = &GLNode_class;
 
-    static JSPropertySpec properties[] = {
-        {0, 0, 0, 0, 0}
-    };
-
     static JSFunctionSpec funcs[] = {
         JS_FN("ctor", js_cocos2dx_GLNode_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -164,14 +160,14 @@ void js_register_cocos2dx_GLNode(JSContext *cx, JS::HandleObject global)
         parentProto,
         js_cocos2dx_GLNode_class,
         js_cocos2dx_GLNode_constructor, 0, // constructor
-        properties,
+        nullptr,
         funcs,
-        NULL, // no static properties
+        nullptr,
         st_funcs);
 
     // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, js_cocos2dx_GLNode_prototype);
     jsb_register_class<cocos2d::GLNode>(cx, js_cocos2dx_GLNode_class, proto);
-
-    anonEvaluate(cx, global, "(function () { cc.GLNode.extend = cc.Class.extend; })()");
+    
+    make_class_extend(cx, proto);
 }

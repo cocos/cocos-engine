@@ -13,15 +13,7 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 
 static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return false;
-}
-
-static bool js_is_native_obj(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().setBoolean(true);
-    return true;
-}
-JSClass  *jsb_cocos2d_ui_LayoutParameter_class;
+}JSClass  *jsb_cocos2d_ui_LayoutParameter_class;
 JSObject *jsb_cocos2d_ui_LayoutParameter_prototype;
 
 bool js_cocos2dx_ui_LayoutParameter_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -101,7 +93,7 @@ bool js_cocos2dx_ui_LayoutParameter_constructor(JSContext *cx, uint32_t argc, JS
 
 
 void js_register_cocos2dx_ui_LayoutParameter(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_LayoutParameter_classOps = {
+    static const JSClassOps cocos2d_ui_LayoutParameter_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -114,10 +106,6 @@ void js_register_cocos2dx_ui_LayoutParameter(JSContext *cx, JS::HandleObject glo
     };
     jsb_cocos2d_ui_LayoutParameter_class = &cocos2d_ui_LayoutParameter_class;
 
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
-
     static JSFunctionSpec funcs[] = {
         JS_FN("clone", js_cocos2dx_ui_LayoutParameter_clone, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getLayoutType", js_cocos2dx_ui_LayoutParameter_getLayoutType, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -129,14 +117,15 @@ void js_register_cocos2dx_ui_LayoutParameter(JSContext *cx, JS::HandleObject glo
         JS_FS_END
     };
 
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_cocos2d_ui_LayoutParameter_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_cocos2d_ui_LayoutParameter_class,
-        js_cocos2dx_ui_LayoutParameter_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_LayoutParameter_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_LayoutParameter_prototype);
@@ -228,7 +217,7 @@ bool js_cocos2dx_ui_LinearLayoutParameter_constructor(JSContext *cx, uint32_t ar
 extern JSObject *jsb_cocos2d_ui_LayoutParameter_prototype;
 
 void js_register_cocos2dx_ui_LinearLayoutParameter(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_LinearLayoutParameter_classOps = {
+    static const JSClassOps cocos2d_ui_LinearLayoutParameter_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -240,10 +229,6 @@ void js_register_cocos2dx_ui_LinearLayoutParameter(JSContext *cx, JS::HandleObje
         &cocos2d_ui_LinearLayoutParameter_classOps
     };
     jsb_cocos2d_ui_LinearLayoutParameter_class = &cocos2d_ui_LinearLayoutParameter_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setGravity", js_cocos2dx_ui_LinearLayoutParameter_setGravity, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -261,10 +246,10 @@ void js_register_cocos2dx_ui_LinearLayoutParameter(JSContext *cx, JS::HandleObje
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_LinearLayoutParameter_class,
-        js_cocos2dx_ui_LinearLayoutParameter_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_LinearLayoutParameter_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_LinearLayoutParameter_prototype);
@@ -432,7 +417,7 @@ bool js_cocos2dx_ui_RelativeLayoutParameter_constructor(JSContext *cx, uint32_t 
 extern JSObject *jsb_cocos2d_ui_LayoutParameter_prototype;
 
 void js_register_cocos2dx_ui_RelativeLayoutParameter(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_RelativeLayoutParameter_classOps = {
+    static const JSClassOps cocos2d_ui_RelativeLayoutParameter_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -444,10 +429,6 @@ void js_register_cocos2dx_ui_RelativeLayoutParameter(JSContext *cx, JS::HandleOb
         &cocos2d_ui_RelativeLayoutParameter_classOps
     };
     jsb_cocos2d_ui_RelativeLayoutParameter_class = &cocos2d_ui_RelativeLayoutParameter_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setAlign", js_cocos2dx_ui_RelativeLayoutParameter_setAlign, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -469,10 +450,10 @@ void js_register_cocos2dx_ui_RelativeLayoutParameter(JSContext *cx, JS::HandleOb
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RelativeLayoutParameter_class,
-        js_cocos2dx_ui_RelativeLayoutParameter_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_RelativeLayoutParameter_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_RelativeLayoutParameter_prototype);
@@ -2117,7 +2098,7 @@ extern JSObject *jsb_cocos2d_ProtectedNode_prototype;
 
     
 void js_register_cocos2dx_ui_Widget(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_Widget_classOps = {
+    static const JSClassOps cocos2d_ui_Widget_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -2129,10 +2110,6 @@ void js_register_cocos2dx_ui_Widget(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_Widget_classOps
     };
     jsb_cocos2d_ui_Widget_class = &cocos2d_ui_Widget_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setLayoutComponentEnabled", js_cocos2dx_ui_Widget_setLayoutComponentEnabled, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -2220,10 +2197,10 @@ void js_register_cocos2dx_ui_Widget(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_Widget_class,
-        js_cocos2dx_ui_Widget_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_Widget_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_Widget_prototype);
@@ -2233,7 +2210,7 @@ void js_register_cocos2dx_ui_Widget(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::Widget>(cx, jsb_cocos2d_ui_Widget_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.Widget.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_Layout_class;
@@ -2960,7 +2937,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_Layout(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_Layout_classOps = {
+    static const JSClassOps cocos2d_ui_Layout_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -2972,10 +2949,6 @@ void js_register_cocos2dx_ui_Layout(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_Layout_classOps
     };
     jsb_cocos2d_ui_Layout_class = &cocos2d_ui_Layout_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setBackGroundColorVector", js_cocos2dx_ui_Layout_setBackGroundColorVector, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -3026,10 +2999,10 @@ void js_register_cocos2dx_ui_Layout(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_Layout_class,
-        js_cocos2dx_ui_Layout_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_Layout_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_Layout_prototype);
@@ -3039,7 +3012,7 @@ void js_register_cocos2dx_ui_Layout(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::Layout>(cx, jsb_cocos2d_ui_Layout_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.Layout.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_Button_class;
@@ -4026,7 +3999,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_Button(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_Button_classOps = {
+    static const JSClassOps cocos2d_ui_Button_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -4038,10 +4011,6 @@ void js_register_cocos2dx_ui_Button(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_Button_classOps
     };
     jsb_cocos2d_ui_Button_class = &cocos2d_ui_Button_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getNormalTextureSize", js_cocos2dx_ui_Button_getNormalTextureSize, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -4095,10 +4064,10 @@ void js_register_cocos2dx_ui_Button(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_Button_class,
-        js_cocos2dx_ui_Button_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_Button_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_Button_prototype);
@@ -4108,7 +4077,7 @@ void js_register_cocos2dx_ui_Button(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::Button>(cx, jsb_cocos2d_ui_Button_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.Button.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_AbstractCheckButton_class;
@@ -4640,7 +4609,7 @@ bool js_cocos2dx_ui_AbstractCheckButton_loadTextureFrontCrossDisabled(JSContext 
 extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
 void js_register_cocos2dx_ui_AbstractCheckButton(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_AbstractCheckButton_classOps = {
+    static const JSClassOps cocos2d_ui_AbstractCheckButton_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -4652,10 +4621,6 @@ void js_register_cocos2dx_ui_AbstractCheckButton(JSContext *cx, JS::HandleObject
         &cocos2d_ui_AbstractCheckButton_classOps
     };
     jsb_cocos2d_ui_AbstractCheckButton_class = &cocos2d_ui_AbstractCheckButton_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getCrossDisabledFile", js_cocos2dx_ui_AbstractCheckButton_getCrossDisabledFile, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -4682,18 +4647,16 @@ void js_register_cocos2dx_ui_AbstractCheckButton(JSContext *cx, JS::HandleObject
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
     jsb_cocos2d_ui_AbstractCheckButton_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_AbstractCheckButton_class,
         empty_constructor, 0,
-        properties,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_AbstractCheckButton_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "AbstractCheckButton"));
@@ -4930,7 +4893,7 @@ extern JSObject *jsb_cocos2d_ui_AbstractCheckButton_prototype;
 
     
 void js_register_cocos2dx_ui_CheckBox(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_CheckBox_classOps = {
+    static const JSClassOps cocos2d_ui_CheckBox_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -4942,10 +4905,6 @@ void js_register_cocos2dx_ui_CheckBox(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_CheckBox_classOps
     };
     jsb_cocos2d_ui_CheckBox_class = &cocos2d_ui_CheckBox_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("addEventListener", js_cocos2dx_ui_CheckBox_addEventListener, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -4963,10 +4922,10 @@ void js_register_cocos2dx_ui_CheckBox(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_CheckBox_class,
-        js_cocos2dx_ui_CheckBox_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_CheckBox_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_CheckBox_prototype);
@@ -4976,7 +4935,7 @@ void js_register_cocos2dx_ui_CheckBox(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::CheckBox>(cx, jsb_cocos2d_ui_CheckBox_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.CheckBox.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RadioButton_class;
@@ -5205,7 +5164,7 @@ extern JSObject *jsb_cocos2d_ui_AbstractCheckButton_prototype;
 
     
 void js_register_cocos2dx_ui_RadioButton(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_RadioButton_classOps = {
+    static const JSClassOps cocos2d_ui_RadioButton_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -5217,10 +5176,6 @@ void js_register_cocos2dx_ui_RadioButton(JSContext *cx, JS::HandleObject global)
         &cocos2d_ui_RadioButton_classOps
     };
     jsb_cocos2d_ui_RadioButton_class = &cocos2d_ui_RadioButton_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("addEventListener", js_cocos2dx_ui_RadioButton_addEventListener, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -5238,10 +5193,10 @@ void js_register_cocos2dx_ui_RadioButton(JSContext *cx, JS::HandleObject global)
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RadioButton_class,
-        js_cocos2dx_ui_RadioButton_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_RadioButton_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_RadioButton_prototype);
@@ -5251,7 +5206,7 @@ void js_register_cocos2dx_ui_RadioButton(JSContext *cx, JS::HandleObject global)
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::RadioButton>(cx, jsb_cocos2d_ui_RadioButton_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.RadioButton.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RadioButtonGroup_class;
@@ -5633,7 +5588,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_RadioButtonGroup(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_RadioButtonGroup_classOps = {
+    static const JSClassOps cocos2d_ui_RadioButtonGroup_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -5645,10 +5600,6 @@ void js_register_cocos2dx_ui_RadioButtonGroup(JSContext *cx, JS::HandleObject gl
         &cocos2d_ui_RadioButtonGroup_classOps
     };
     jsb_cocos2d_ui_RadioButtonGroup_class = &cocos2d_ui_RadioButtonGroup_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("removeRadioButton", js_cocos2dx_ui_RadioButtonGroup_removeRadioButton, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -5676,10 +5627,10 @@ void js_register_cocos2dx_ui_RadioButtonGroup(JSContext *cx, JS::HandleObject gl
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RadioButtonGroup_class,
-        js_cocos2dx_ui_RadioButtonGroup_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_RadioButtonGroup_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_RadioButtonGroup_prototype);
@@ -5689,7 +5640,7 @@ void js_register_cocos2dx_ui_RadioButtonGroup(JSContext *cx, JS::HandleObject gl
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::RadioButtonGroup>(cx, jsb_cocos2d_ui_RadioButtonGroup_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.RadioButtonGroup.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_ImageView_class;
@@ -5973,7 +5924,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_ImageView(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_ImageView_classOps = {
+    static const JSClassOps cocos2d_ui_ImageView_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -5985,10 +5936,6 @@ void js_register_cocos2dx_ui_ImageView(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_ImageView_classOps
     };
     jsb_cocos2d_ui_ImageView_class = &cocos2d_ui_ImageView_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("loadTexture", js_cocos2dx_ui_ImageView_loadTexture, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -6013,10 +5960,10 @@ void js_register_cocos2dx_ui_ImageView(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_ImageView_class,
-        js_cocos2dx_ui_ImageView_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_ImageView_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_ImageView_prototype);
@@ -6026,7 +5973,7 @@ void js_register_cocos2dx_ui_ImageView(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::ImageView>(cx, jsb_cocos2d_ui_ImageView_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.ImageView.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_Text_class;
@@ -6758,7 +6705,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_Text(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_Text_classOps = {
+    static const JSClassOps cocos2d_ui_Text_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -6770,10 +6717,6 @@ void js_register_cocos2dx_ui_Text(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_Text_classOps
     };
     jsb_cocos2d_ui_Text_class = &cocos2d_ui_Text_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("enableShadow", js_cocos2dx_ui_Text_enableShadow, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -6821,10 +6764,10 @@ void js_register_cocos2dx_ui_Text(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_Text_class,
-        js_cocos2dx_ui_Text_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_Text_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_Text_prototype);
@@ -6834,7 +6777,7 @@ void js_register_cocos2dx_ui_Text(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::Text>(cx, jsb_cocos2d_ui_Text_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.Text.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_TextAtlas_class;
@@ -7050,7 +6993,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_TextAtlas(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_TextAtlas_classOps = {
+    static const JSClassOps cocos2d_ui_TextAtlas_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -7062,10 +7005,6 @@ void js_register_cocos2dx_ui_TextAtlas(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_TextAtlas_classOps
     };
     jsb_cocos2d_ui_TextAtlas_class = &cocos2d_ui_TextAtlas_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getStringLength", js_cocos2dx_ui_TextAtlas_getStringLength, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -7088,10 +7027,10 @@ void js_register_cocos2dx_ui_TextAtlas(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_TextAtlas_class,
-        js_cocos2dx_ui_TextAtlas_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_TextAtlas_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_TextAtlas_prototype);
@@ -7101,7 +7040,7 @@ void js_register_cocos2dx_ui_TextAtlas(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::TextAtlas>(cx, jsb_cocos2d_ui_TextAtlas_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.TextAtlas.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_LoadingBar_class;
@@ -7451,7 +7390,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_LoadingBar(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_LoadingBar_classOps = {
+    static const JSClassOps cocos2d_ui_LoadingBar_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -7463,10 +7402,6 @@ void js_register_cocos2dx_ui_LoadingBar(JSContext *cx, JS::HandleObject global) 
         &cocos2d_ui_LoadingBar_classOps
     };
     jsb_cocos2d_ui_LoadingBar_class = &cocos2d_ui_LoadingBar_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setPercent", js_cocos2dx_ui_LoadingBar_setPercent, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -7493,10 +7428,10 @@ void js_register_cocos2dx_ui_LoadingBar(JSContext *cx, JS::HandleObject global) 
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_LoadingBar_class,
-        js_cocos2dx_ui_LoadingBar_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_LoadingBar_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_LoadingBar_prototype);
@@ -7506,7 +7441,7 @@ void js_register_cocos2dx_ui_LoadingBar(JSContext *cx, JS::HandleObject global) 
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::LoadingBar>(cx, jsb_cocos2d_ui_LoadingBar_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.LoadingBar.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_ScrollView_class;
@@ -8650,7 +8585,7 @@ extern JSObject *jsb_cocos2d_ui_Layout_prototype;
 
     
 void js_register_cocos2dx_ui_ScrollView(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_ScrollView_classOps = {
+    static const JSClassOps cocos2d_ui_ScrollView_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -8662,10 +8597,6 @@ void js_register_cocos2dx_ui_ScrollView(JSContext *cx, JS::HandleObject global) 
         &cocos2d_ui_ScrollView_classOps
     };
     jsb_cocos2d_ui_ScrollView_class = &cocos2d_ui_ScrollView_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("scrollToTop", js_cocos2dx_ui_ScrollView_scrollToTop, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -8736,10 +8667,10 @@ void js_register_cocos2dx_ui_ScrollView(JSContext *cx, JS::HandleObject global) 
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_ScrollView_class,
-        js_cocos2dx_ui_ScrollView_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_ScrollView_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_ScrollView_prototype);
@@ -8749,7 +8680,7 @@ void js_register_cocos2dx_ui_ScrollView(JSContext *cx, JS::HandleObject global) 
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::ScrollView>(cx, jsb_cocos2d_ui_ScrollView_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.ScrollView.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_ListView_class;
@@ -9583,7 +9514,7 @@ extern JSObject *jsb_cocos2d_ui_ScrollView_prototype;
 
     
 void js_register_cocos2dx_ui_ListView(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_ListView_classOps = {
+    static const JSClassOps cocos2d_ui_ListView_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -9595,10 +9526,6 @@ void js_register_cocos2dx_ui_ListView(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_ListView_classOps
     };
     jsb_cocos2d_ui_ListView_class = &cocos2d_ui_ListView_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setGravity", js_cocos2dx_ui_ListView_setGravity, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -9648,10 +9575,10 @@ void js_register_cocos2dx_ui_ListView(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_ListView_class,
-        js_cocos2dx_ui_ListView_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_ListView_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_ListView_prototype);
@@ -9661,7 +9588,7 @@ void js_register_cocos2dx_ui_ListView(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::ListView>(cx, jsb_cocos2d_ui_ListView_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.ListView.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_Slider_class;
@@ -10372,7 +10299,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_Slider(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_Slider_classOps = {
+    static const JSClassOps cocos2d_ui_Slider_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -10384,10 +10311,6 @@ void js_register_cocos2dx_ui_Slider(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_Slider_classOps
     };
     jsb_cocos2d_ui_Slider_class = &cocos2d_ui_Slider_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setPercent", js_cocos2dx_ui_Slider_setPercent, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -10429,10 +10352,10 @@ void js_register_cocos2dx_ui_Slider(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_Slider_class,
-        js_cocos2dx_ui_Slider_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_Slider_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_Slider_prototype);
@@ -10442,7 +10365,7 @@ void js_register_cocos2dx_ui_Slider(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::Slider>(cx, jsb_cocos2d_ui_Slider_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.Slider.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_UICCTextField_class;
@@ -11017,7 +10940,7 @@ bool js_cocos2dx_ui_UICCTextField_constructor(JSContext *cx, uint32_t argc, JS::
 extern JSObject *jsb_cocos2d_TextFieldTTF_prototype;
 
 void js_register_cocos2dx_ui_UICCTextField(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_UICCTextField_classOps = {
+    static const JSClassOps cocos2d_ui_UICCTextField_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -11029,10 +10952,6 @@ void js_register_cocos2dx_ui_UICCTextField(JSContext *cx, JS::HandleObject globa
         &cocos2d_ui_UICCTextField_classOps
     };
     jsb_cocos2d_ui_UICCTextField_class = &cocos2d_ui_UICCTextField_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("onTextFieldAttachWithIME", js_cocos2dx_ui_UICCTextField_onTextFieldAttachWithIME, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -11073,10 +10992,10 @@ void js_register_cocos2dx_ui_UICCTextField(JSContext *cx, JS::HandleObject globa
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_UICCTextField_class,
-        js_cocos2dx_ui_UICCTextField_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_UICCTextField_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_UICCTextField_prototype);
@@ -12083,7 +12002,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_TextField(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_TextField_classOps = {
+    static const JSClassOps cocos2d_ui_TextField_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -12095,10 +12014,6 @@ void js_register_cocos2dx_ui_TextField(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_TextField_classOps
     };
     jsb_cocos2d_ui_TextField_class = &cocos2d_ui_TextField_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setAttachWithIME", js_cocos2dx_ui_TextField_setAttachWithIME, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -12160,10 +12075,10 @@ void js_register_cocos2dx_ui_TextField(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_TextField_class,
-        js_cocos2dx_ui_TextField_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_TextField_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_TextField_prototype);
@@ -12173,7 +12088,7 @@ void js_register_cocos2dx_ui_TextField(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::TextField>(cx, jsb_cocos2d_ui_TextField_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.TextField.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_TextBMFont_class;
@@ -12372,7 +12287,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_TextBMFont(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_TextBMFont_classOps = {
+    static const JSClassOps cocos2d_ui_TextBMFont_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -12384,10 +12299,6 @@ void js_register_cocos2dx_ui_TextBMFont(JSContext *cx, JS::HandleObject global) 
         &cocos2d_ui_TextBMFont_classOps
     };
     jsb_cocos2d_ui_TextBMFont_class = &cocos2d_ui_TextBMFont_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getStringLength", js_cocos2dx_ui_TextBMFont_getStringLength, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -12410,10 +12321,10 @@ void js_register_cocos2dx_ui_TextBMFont(JSContext *cx, JS::HandleObject global) 
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_TextBMFont_class,
-        js_cocos2dx_ui_TextBMFont_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_TextBMFont_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_TextBMFont_prototype);
@@ -12423,7 +12334,7 @@ void js_register_cocos2dx_ui_TextBMFont(JSContext *cx, JS::HandleObject global) 
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::TextBMFont>(cx, jsb_cocos2d_ui_TextBMFont_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.TextBMFont.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_PageView_class;
@@ -13057,7 +12968,7 @@ extern JSObject *jsb_cocos2d_ui_ListView_prototype;
 
     
 void js_register_cocos2dx_ui_PageView(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_PageView_classOps = {
+    static const JSClassOps cocos2d_ui_PageView_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -13069,10 +12980,6 @@ void js_register_cocos2dx_ui_PageView(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_PageView_classOps
     };
     jsb_cocos2d_ui_PageView_class = &cocos2d_ui_PageView_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setIndicatorSpaceBetweenIndexNodes", js_cocos2dx_ui_PageView_setIndicatorSpaceBetweenIndexNodes, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -13115,10 +13022,10 @@ void js_register_cocos2dx_ui_PageView(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_PageView_class,
-        js_cocos2dx_ui_PageView_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_PageView_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_PageView_prototype);
@@ -13128,7 +13035,7 @@ void js_register_cocos2dx_ui_PageView(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::PageView>(cx, jsb_cocos2d_ui_PageView_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.PageView.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_Helper_class;
@@ -13346,7 +13253,7 @@ bool js_cocos2dx_ui_Helper_doLayout(JSContext *cx, uint32_t argc, JS::Value *vp)
 
 
 void js_register_cocos2dx_ui_Helper(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_Helper_classOps = {
+    static const JSClassOps cocos2d_ui_Helper_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -13358,14 +13265,6 @@ void js_register_cocos2dx_ui_Helper(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_Helper_classOps
     };
     jsb_cocos2d_ui_Helper_class = &cocos2d_ui_Helper_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
-
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
-    };
 
     static JSFunctionSpec st_funcs[] = {
         JS_FN("getSubStringOfUTF8String", js_cocos2dx_ui_Helper_getSubStringOfUTF8String, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -13379,14 +13278,15 @@ void js_register_cocos2dx_ui_Helper(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_cocos2d_ui_Helper_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_cocos2d_ui_Helper_class,
         empty_constructor, 0,
-        properties,
-        funcs,
-        nullptr, // no static properties
+        nullptr,
+        nullptr,
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_Helper_prototype);
@@ -13509,7 +13409,7 @@ static bool js_cocos2dx_ui_RichElement_ctor(JSContext *cx, uint32_t argc, JS::Va
 
     
 void js_register_cocos2dx_ui_RichElement(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_RichElement_classOps = {
+    static const JSClassOps cocos2d_ui_RichElement_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -13522,10 +13422,6 @@ void js_register_cocos2dx_ui_RichElement(JSContext *cx, JS::HandleObject global)
     };
     jsb_cocos2d_ui_RichElement_class = &cocos2d_ui_RichElement_class;
 
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
-
     static JSFunctionSpec funcs[] = {
         JS_FN("equalType", js_cocos2dx_ui_RichElement_equalType, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("init", js_cocos2dx_ui_RichElement_init, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -13534,17 +13430,16 @@ void js_register_cocos2dx_ui_RichElement(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_cocos2d_ui_RichElement_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_cocos2d_ui_RichElement_class,
-        js_cocos2dx_ui_RichElement_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_RichElement_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElement_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "RichElement"));
@@ -13553,7 +13448,7 @@ void js_register_cocos2dx_ui_RichElement(JSContext *cx, JS::HandleObject global)
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::RichElement>(cx, jsb_cocos2d_ui_RichElement_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.RichElement.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RichElementText_class;
@@ -14092,7 +13987,7 @@ extern JSObject *jsb_cocos2d_ui_RichElement_prototype;
 
     
 void js_register_cocos2dx_ui_RichElementText(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_RichElementText_classOps = {
+    static const JSClassOps cocos2d_ui_RichElementText_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -14104,10 +13999,6 @@ void js_register_cocos2dx_ui_RichElementText(JSContext *cx, JS::HandleObject glo
         &cocos2d_ui_RichElementText_classOps
     };
     jsb_cocos2d_ui_RichElementText_class = &cocos2d_ui_RichElementText_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("init", js_cocos2dx_ui_RichElementText_init, 8, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -14125,10 +14016,10 @@ void js_register_cocos2dx_ui_RichElementText(JSContext *cx, JS::HandleObject glo
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RichElementText_class,
-        js_cocos2dx_ui_RichElementText_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_RichElementText_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementText_prototype);
@@ -14138,7 +14029,7 @@ void js_register_cocos2dx_ui_RichElementText(JSContext *cx, JS::HandleObject glo
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::RichElementText>(cx, jsb_cocos2d_ui_RichElementText_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.RichElementText.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RichElementImage_class;
@@ -14336,7 +14227,7 @@ extern JSObject *jsb_cocos2d_ui_RichElement_prototype;
 
     
 void js_register_cocos2dx_ui_RichElementImage(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_RichElementImage_classOps = {
+    static const JSClassOps cocos2d_ui_RichElementImage_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -14348,10 +14239,6 @@ void js_register_cocos2dx_ui_RichElementImage(JSContext *cx, JS::HandleObject gl
         &cocos2d_ui_RichElementImage_classOps
     };
     jsb_cocos2d_ui_RichElementImage_class = &cocos2d_ui_RichElementImage_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setHeight", js_cocos2dx_ui_RichElementImage_setHeight, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -14372,10 +14259,10 @@ void js_register_cocos2dx_ui_RichElementImage(JSContext *cx, JS::HandleObject gl
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RichElementImage_class,
-        js_cocos2dx_ui_RichElementImage_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_RichElementImage_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementImage_prototype);
@@ -14385,7 +14272,7 @@ void js_register_cocos2dx_ui_RichElementImage(JSContext *cx, JS::HandleObject gl
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::RichElementImage>(cx, jsb_cocos2d_ui_RichElementImage_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.RichElementImage.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RichElementCustomNode_class;
@@ -14502,7 +14389,7 @@ extern JSObject *jsb_cocos2d_ui_RichElement_prototype;
 
     
 void js_register_cocos2dx_ui_RichElementCustomNode(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_RichElementCustomNode_classOps = {
+    static const JSClassOps cocos2d_ui_RichElementCustomNode_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -14514,10 +14401,6 @@ void js_register_cocos2dx_ui_RichElementCustomNode(JSContext *cx, JS::HandleObje
         &cocos2d_ui_RichElementCustomNode_classOps
     };
     jsb_cocos2d_ui_RichElementCustomNode_class = &cocos2d_ui_RichElementCustomNode_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("init", js_cocos2dx_ui_RichElementCustomNode_init, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -14535,10 +14418,10 @@ void js_register_cocos2dx_ui_RichElementCustomNode(JSContext *cx, JS::HandleObje
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RichElementCustomNode_class,
-        js_cocos2dx_ui_RichElementCustomNode_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_RichElementCustomNode_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementCustomNode_prototype);
@@ -14548,7 +14431,7 @@ void js_register_cocos2dx_ui_RichElementCustomNode(JSContext *cx, JS::HandleObje
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::RichElementCustomNode>(cx, jsb_cocos2d_ui_RichElementCustomNode_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.RichElementCustomNode.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RichElementNewLine_class;
@@ -14619,7 +14502,7 @@ extern JSObject *jsb_cocos2d_ui_RichElement_prototype;
 
     
 void js_register_cocos2dx_ui_RichElementNewLine(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_RichElementNewLine_classOps = {
+    static const JSClassOps cocos2d_ui_RichElementNewLine_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -14632,15 +14515,6 @@ void js_register_cocos2dx_ui_RichElementNewLine(JSContext *cx, JS::HandleObject 
     };
     jsb_cocos2d_ui_RichElementNewLine_class = &cocos2d_ui_RichElementNewLine_class;
 
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
-
-    static JSFunctionSpec funcs[] = {
-        JS_FN("ctor", js_cocos2dx_ui_RichElementNewLine_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FS_END
-    };
-
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_ui_RichElementNewLine_create, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -14651,10 +14525,10 @@ void js_register_cocos2dx_ui_RichElementNewLine(JSContext *cx, JS::HandleObject 
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RichElementNewLine_class,
-        js_cocos2dx_ui_RichElementNewLine_constructor, 0, // constructor
-        properties,
-        funcs,
-        nullptr, // no static properties
+        js_cocos2dx_ui_RichElementNewLine_constructor, 0,
+        nullptr,
+        nullptr,
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementNewLine_prototype);
@@ -14664,7 +14538,7 @@ void js_register_cocos2dx_ui_RichElementNewLine(JSContext *cx, JS::HandleObject 
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::RichElementNewLine>(cx, jsb_cocos2d_ui_RichElementNewLine_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.RichElementNewLine.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RichText_class;
@@ -15790,7 +15664,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_RichText(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_RichText_classOps = {
+    static const JSClassOps cocos2d_ui_RichText_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -15802,10 +15676,6 @@ void js_register_cocos2dx_ui_RichText(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_RichText_classOps
     };
     jsb_cocos2d_ui_RichText_class = &cocos2d_ui_RichText_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("insertElement", js_cocos2dx_ui_RichText_insertElement, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -15867,10 +15737,10 @@ void js_register_cocos2dx_ui_RichText(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RichText_class,
-        js_cocos2dx_ui_RichText_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_RichText_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_RichText_prototype);
@@ -15880,7 +15750,7 @@ void js_register_cocos2dx_ui_RichText(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::RichText>(cx, jsb_cocos2d_ui_RichText_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.RichText.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_HBox_class;
@@ -15988,7 +15858,7 @@ extern JSObject *jsb_cocos2d_ui_Layout_prototype;
 
     
 void js_register_cocos2dx_ui_HBox(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_HBox_classOps = {
+    static const JSClassOps cocos2d_ui_HBox_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -16000,10 +15870,6 @@ void js_register_cocos2dx_ui_HBox(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_HBox_classOps
     };
     jsb_cocos2d_ui_HBox_class = &cocos2d_ui_HBox_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("initWithSize", js_cocos2dx_ui_HBox_initWithSize, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -16021,10 +15887,10 @@ void js_register_cocos2dx_ui_HBox(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_HBox_class,
-        js_cocos2dx_ui_HBox_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_HBox_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_HBox_prototype);
@@ -16034,7 +15900,7 @@ void js_register_cocos2dx_ui_HBox(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::HBox>(cx, jsb_cocos2d_ui_HBox_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.HBox.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_VBox_class;
@@ -16142,7 +16008,7 @@ extern JSObject *jsb_cocos2d_ui_Layout_prototype;
 
     
 void js_register_cocos2dx_ui_VBox(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_VBox_classOps = {
+    static const JSClassOps cocos2d_ui_VBox_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -16154,10 +16020,6 @@ void js_register_cocos2dx_ui_VBox(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_VBox_classOps
     };
     jsb_cocos2d_ui_VBox_class = &cocos2d_ui_VBox_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("initWithSize", js_cocos2dx_ui_VBox_initWithSize, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -16175,10 +16037,10 @@ void js_register_cocos2dx_ui_VBox(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_VBox_class,
-        js_cocos2dx_ui_VBox_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_VBox_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_VBox_prototype);
@@ -16188,7 +16050,7 @@ void js_register_cocos2dx_ui_VBox(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::VBox>(cx, jsb_cocos2d_ui_VBox_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.VBox.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RelativeBox_class;
@@ -16296,7 +16158,7 @@ extern JSObject *jsb_cocos2d_ui_Layout_prototype;
 
     
 void js_register_cocos2dx_ui_RelativeBox(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_RelativeBox_classOps = {
+    static const JSClassOps cocos2d_ui_RelativeBox_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -16308,10 +16170,6 @@ void js_register_cocos2dx_ui_RelativeBox(JSContext *cx, JS::HandleObject global)
         &cocos2d_ui_RelativeBox_classOps
     };
     jsb_cocos2d_ui_RelativeBox_class = &cocos2d_ui_RelativeBox_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("initWithSize", js_cocos2dx_ui_RelativeBox_initWithSize, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -16329,10 +16187,10 @@ void js_register_cocos2dx_ui_RelativeBox(JSContext *cx, JS::HandleObject global)
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RelativeBox_class,
-        js_cocos2dx_ui_RelativeBox_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_RelativeBox_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_RelativeBox_prototype);
@@ -16342,7 +16200,7 @@ void js_register_cocos2dx_ui_RelativeBox(JSContext *cx, JS::HandleObject global)
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::RelativeBox>(cx, jsb_cocos2d_ui_RelativeBox_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.RelativeBox.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_Scale9Sprite_class;
@@ -17587,7 +17445,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_ui_Scale9Sprite(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_Scale9Sprite_classOps = {
+    static const JSClassOps cocos2d_ui_Scale9Sprite_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -17599,10 +17457,6 @@ void js_register_cocos2dx_ui_Scale9Sprite(JSContext *cx, JS::HandleObject global
         &cocos2d_ui_Scale9Sprite_classOps
     };
     jsb_cocos2d_ui_Scale9Sprite_class = &cocos2d_ui_Scale9Sprite_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("disableCascadeColor", js_cocos2dx_ui_Scale9Sprite_disableCascadeColor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -17657,10 +17511,10 @@ void js_register_cocos2dx_ui_Scale9Sprite(JSContext *cx, JS::HandleObject global
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_Scale9Sprite_class,
-        js_cocos2dx_ui_Scale9Sprite_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_Scale9Sprite_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_Scale9Sprite_prototype);
@@ -17670,7 +17524,7 @@ void js_register_cocos2dx_ui_Scale9Sprite(JSContext *cx, JS::HandleObject global
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::Scale9Sprite>(cx, jsb_cocos2d_ui_Scale9Sprite_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.Scale9Sprite.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_EditBox_class;
@@ -18355,7 +18209,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_EditBox(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_EditBox_classOps = {
+    static const JSClassOps cocos2d_ui_EditBox_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -18367,10 +18221,6 @@ void js_register_cocos2dx_ui_EditBox(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_EditBox_classOps
     };
     jsb_cocos2d_ui_EditBox_class = &cocos2d_ui_EditBox_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getString", js_cocos2dx_ui_EditBox_getText, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -18406,10 +18256,10 @@ void js_register_cocos2dx_ui_EditBox(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_EditBox_class,
-        js_cocos2dx_ui_EditBox_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_EditBox_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_EditBox_prototype);
@@ -18419,7 +18269,7 @@ void js_register_cocos2dx_ui_EditBox(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::EditBox>(cx, jsb_cocos2d_ui_EditBox_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.EditBox.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_LayoutComponent_class;
@@ -19443,7 +19293,7 @@ extern JSObject *jsb_cocos2d_Component_prototype;
 
     
 void js_register_cocos2dx_ui_LayoutComponent(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_LayoutComponent_classOps = {
+    static const JSClassOps cocos2d_ui_LayoutComponent_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -19455,10 +19305,6 @@ void js_register_cocos2dx_ui_LayoutComponent(JSContext *cx, JS::HandleObject glo
         &cocos2d_ui_LayoutComponent_classOps
     };
     jsb_cocos2d_ui_LayoutComponent_class = &cocos2d_ui_LayoutComponent_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setStretchWidthEnabled", js_cocos2dx_ui_LayoutComponent_setStretchWidthEnabled, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -19525,10 +19371,10 @@ void js_register_cocos2dx_ui_LayoutComponent(JSContext *cx, JS::HandleObject glo
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_LayoutComponent_class,
-        js_cocos2dx_ui_LayoutComponent_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_LayoutComponent_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_LayoutComponent_prototype);
@@ -19538,7 +19384,7 @@ void js_register_cocos2dx_ui_LayoutComponent(JSContext *cx, JS::HandleObject glo
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::LayoutComponent>(cx, jsb_cocos2d_ui_LayoutComponent_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.LayoutComponent.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_TabHeader_class;
@@ -19878,7 +19724,7 @@ bool js_cocos2dx_ui_TabHeader_create(JSContext *cx, uint32_t argc, JS::Value *vp
 extern JSObject *jsb_cocos2d_ui_AbstractCheckButton_prototype;
 
 void js_register_cocos2dx_ui_TabHeader(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_TabHeader_classOps = {
+    static const JSClassOps cocos2d_ui_TabHeader_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -19890,10 +19736,6 @@ void js_register_cocos2dx_ui_TabHeader(JSContext *cx, JS::HandleObject global) {
         &cocos2d_ui_TabHeader_classOps
     };
     jsb_cocos2d_ui_TabHeader_class = &cocos2d_ui_TabHeader_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getIndexInTabControl", js_cocos2dx_ui_TabHeader_getIndexInTabControl, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -19919,10 +19761,10 @@ void js_register_cocos2dx_ui_TabHeader(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_TabHeader_class,
-        dummy_constructor<cocos2d::ui::TabHeader>, 0, // no constructor
-        properties,
+        dummy_constructor<cocos2d::ui::TabHeader>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_TabHeader_prototype);
@@ -19932,7 +19774,7 @@ void js_register_cocos2dx_ui_TabHeader(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::TabHeader>(cx, jsb_cocos2d_ui_TabHeader_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.TabHeader.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_TabControl_class;
@@ -20421,7 +20263,7 @@ bool js_cocos2dx_ui_TabControl_create(JSContext *cx, uint32_t argc, JS::Value *v
 extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 
 void js_register_cocos2dx_ui_TabControl(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_TabControl_classOps = {
+    static const JSClassOps cocos2d_ui_TabControl_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -20433,10 +20275,6 @@ void js_register_cocos2dx_ui_TabControl(JSContext *cx, JS::HandleObject global) 
         &cocos2d_ui_TabControl_classOps
     };
     jsb_cocos2d_ui_TabControl_class = &cocos2d_ui_TabControl_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setHeaderWidth", js_cocos2dx_ui_TabControl_setHeaderWidth, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -20471,10 +20309,10 @@ void js_register_cocos2dx_ui_TabControl(JSContext *cx, JS::HandleObject global) 
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_TabControl_class,
-        dummy_constructor<cocos2d::ui::TabControl>, 0, // no constructor
-        properties,
+        dummy_constructor<cocos2d::ui::TabControl>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_TabControl_prototype);
@@ -20484,7 +20322,7 @@ void js_register_cocos2dx_ui_TabControl(JSContext *cx, JS::HandleObject global) 
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::TabControl>(cx, jsb_cocos2d_ui_TabControl_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.TabControl.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_ScrollViewBar_class;
@@ -20760,7 +20598,7 @@ extern JSObject *jsb_cocos2d_ProtectedNode_prototype;
 
     
 void js_register_cocos2dx_ui_ScrollViewBar(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps cocos2d_ui_ScrollViewBar_classOps = {
+    static const JSClassOps cocos2d_ui_ScrollViewBar_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -20772,10 +20610,6 @@ void js_register_cocos2dx_ui_ScrollViewBar(JSContext *cx, JS::HandleObject globa
         &cocos2d_ui_ScrollViewBar_classOps
     };
     jsb_cocos2d_ui_ScrollViewBar_class = &cocos2d_ui_ScrollViewBar_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setAutoHideEnabled", js_cocos2dx_ui_ScrollViewBar_setAutoHideEnabled, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -20801,10 +20635,10 @@ void js_register_cocos2dx_ui_ScrollViewBar(JSContext *cx, JS::HandleObject globa
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_ScrollViewBar_class,
-        js_cocos2dx_ui_ScrollViewBar_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_ui_ScrollViewBar_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ui_ScrollViewBar_prototype);
@@ -20814,7 +20648,7 @@ void js_register_cocos2dx_ui_ScrollViewBar(JSContext *cx, JS::HandleObject globa
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<cocos2d::ui::ScrollViewBar>(cx, jsb_cocos2d_ui_ScrollViewBar_class, proto);
-    anonEvaluate(cx, global, "(function () { ccui.ScrollViewBar.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 void register_all_cocos2dx_ui(JSContext* cx, JS::HandleObject obj) {

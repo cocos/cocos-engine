@@ -390,7 +390,7 @@ bool js_cocos2dx_SocketIO_on(JSContext* cx, uint32_t argc, JS::Value* vp)
 
 void register_jsb_socketio(JSContext *cx, JS::HandleObject global)
 {
-    const JSClassOps SocketIO_classOps = {
+    static const JSClassOps SocketIO_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_cocos2dx_SocketIO_finalize,
@@ -398,7 +398,7 @@ void register_jsb_socketio(JSContext *cx, JS::HandleObject global)
     };
     static JSClass SocketIO_class = {
         "SocketIO",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &SocketIO_classOps
     };
     js_cocos2dx_socketio_class = &SocketIO_class;
@@ -424,17 +424,16 @@ void register_jsb_socketio(JSContext *cx, JS::HandleObject global)
         JS_FN("close", js_cocos2dx_SocketIO_close, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
-
+    
+    JS::RootedObject parent_proto(cx, nullptr);
     js_cocos2dx_socketio_prototype = JS_InitClass(
                                                 cx, global,
-                                                nullptr,
+                                                parent_proto,
                                                 js_cocos2dx_socketio_class,
                                                 js_cocos2dx_SocketIO_constructor, 0, // constructor
                                                 nullptr,
                                                 funcs,
                                                 properties,
                                                 st_funcs);
-    
-    anonEvaluate(cx, global, "(function () { return SocketIO; })()").toObjectOrNull();
 }
 

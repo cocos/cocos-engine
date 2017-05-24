@@ -230,20 +230,22 @@ JS_BINDED_CONSTRUCTOR_IMPL(JavaScriptObjCBridge)
 {
     JavaScriptObjCBridge* jsj = new (std::nothrow) JavaScriptObjCBridge();
 
-    JS::RootedValue out(cx);
+    JS::RootedValue ret(cx);
 
     JS::RootedObject proto(cx, JavaScriptObjCBridge::js_proto);
+    ret.set(JS::ObjectOrNullValue(proto));
     JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, JavaScriptObjCBridge::js_class, proto));
+    ret.set(JS::ObjectOrNullValue(obj));
     js_add_FinalizeHook(cx, obj, false);
     jsb_new_proxy(cx, jsj, obj);
     
     if (obj) {
         JS_SetPrivate(obj, jsj);
-        out = JS::ObjectOrNullValue(obj);
+        ret = JS::ObjectOrNullValue(obj);
     }
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().set(out);
+    args.rval().set(ret);
     return true;
 }
 
@@ -283,20 +285,13 @@ JS_BINDED_FUNC_IMPL(JavaScriptObjCBridge, callStaticMethod){
     return false;
 }
 
-static bool js_is_native_obj(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().setBoolean(true);
-    return true;
-}
-
 /**
  *  @brief register JavascriptJavaBridge to be usable in js
  *
  */
 void JavaScriptObjCBridge::_js_register(JSContext *cx, JS::HandleObject global)
 {
-    JSClassOps jsclassOps = {
+    static const JSClassOps jsclassOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         basic_object_finalize,
@@ -304,21 +299,23 @@ void JavaScriptObjCBridge::_js_register(JSContext *cx, JS::HandleObject global)
     };
     static JSClass ObjCBridge_Class = {
         "JavaScriptObjCBridge",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &jsclassOps
     };
     JavaScriptObjCBridge::js_class = &ObjCBridge_Class;
     
-    static JSPropertySpec props[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE ),
-        JS_PS_END
-    };
-
     static JSFunctionSpec funcs[] = {
         JS_BINDED_FUNC_FOR_DEF(JavaScriptObjCBridge, callStaticMethod),
         JS_FS_END
     };
-
-    JavaScriptObjCBridge::js_proto = JS_InitClass(cx, global, nullptr, JavaScriptObjCBridge::js_class, JavaScriptObjCBridge::_js_constructor, 0, props, funcs, nullptr, nullptr);
+    
+    JS::RootedObject parent_proto(cx, nullptr);
+    JavaScriptObjCBridge::js_proto = JS_InitClass(cx, global, parent_proto, JavaScriptObjCBridge::js_class, JavaScriptObjCBridge::_js_constructor, 0, nullptr, funcs, nullptr, nullptr);
+    JS::RootedObject proto(cx, JavaScriptObjCBridge::js_proto);
+    jsb_register_class<JavaScriptObjCBridge>(cx, JavaScriptObjCBridge::js_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "JavaScriptObjCBridge"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 

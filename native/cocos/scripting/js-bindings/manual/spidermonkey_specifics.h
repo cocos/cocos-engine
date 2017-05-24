@@ -28,6 +28,9 @@
 #include "mozilla/Maybe.h"
 #include <unordered_map>
 
+#include "platform/CCPlatformMacros.h"
+#include "base/CCConsole.h"
+
 // Probably we can get rid of this struct, but since a lot of code
 // depends on it, we cannot remove it easily
 typedef struct js_proxy {
@@ -39,7 +42,7 @@ typedef struct js_proxy {
 
 typedef struct js_type_class {
     JSClass *jsclass;
-    JS::Heap<JSObject*> proto;
+    JS::PersistentRootedObject *proto;
 } js_type_class_t;
 
 extern std::unordered_map<std::string, js_type_class_t*> _js_global_type_map;
@@ -72,14 +75,14 @@ void handlePendingException(JSContext *cx)
         
         JS::RootedObject errObj(cx, err.toObjectOrNull());
         JSErrorReport *report = JS_ErrorFromException(cx, errObj);
-        JS_ReportErrorUTF8(cx, "ERROR: %s, file: %s, lineno: %u\n", report->message().c_str(), report->filename, report->lineno);
+        CCLOGERROR("JS Exception: %s, file: %s, lineno: %u\n", report->message().c_str(), report->filename, report->lineno);
         
         JS::RootedValue stack(cx);
         if (JS_GetProperty(cx, errObj, "stack", &stack) && stack.isString())
         {
             JS::RootedString jsstackStr(cx, stack.toString());
             char *stackStr = JS_EncodeStringToUTF8(cx, jsstackStr);
-            printf("%s", stackStr);
+            CCLOGERROR("Stack: %s\n", stackStr);
         }
     }
 }

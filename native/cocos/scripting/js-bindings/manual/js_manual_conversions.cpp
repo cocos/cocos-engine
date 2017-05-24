@@ -152,7 +152,6 @@ JSFunctionWrapper::~JSFunctionWrapper()
 
 void JSFunctionWrapper::setOwner(JSContext* cx, JS::HandleValue owner)
 {
-    JSAutoCompartment(cx, ScriptingCore::getInstance()->getGlobalObject());
     JS::RootedValue ownerVal(cx, owner);
     if (!owner.isNullOrUndefined())
     {
@@ -2538,7 +2537,6 @@ bool jsval_to_resourcedata(JSContext *cx, JS::HandleValue v, ResourceData* ret) 
     JS::RootedValue jsfile(cx);
     JS::RootedValue jsplist(cx);
 
-    double t = 0;
     std::string file, plist;
     bool ok = v.isObject() &&
         JS_ValueToObject(cx, v, &tmp) &&

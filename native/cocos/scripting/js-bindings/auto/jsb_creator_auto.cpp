@@ -21,15 +21,7 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 
 static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return false;
-}
-
-static bool js_is_native_obj(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().setBoolean(true);
-    return true;
-}
-JSClass  *jsb_creator_Scale9SpriteV2_class;
+}JSClass  *jsb_creator_Scale9SpriteV2_class;
 JSObject *jsb_creator_Scale9SpriteV2_prototype;
 
 bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -806,7 +798,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_creator_Scale9SpriteV2(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps creator_Scale9SpriteV2_classOps = {
+    static const JSClassOps creator_Scale9SpriteV2_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -818,10 +810,6 @@ void js_register_creator_Scale9SpriteV2(JSContext *cx, JS::HandleObject global) 
         &creator_Scale9SpriteV2_classOps
     };
     jsb_creator_Scale9SpriteV2_class = &creator_Scale9SpriteV2_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("setTexture", js_creator_Scale9SpriteV2_setTexture, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -858,18 +846,16 @@ void js_register_creator_Scale9SpriteV2(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
     jsb_creator_Scale9SpriteV2_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_Scale9SpriteV2_class,
-        js_creator_Scale9SpriteV2_constructor, 0, // constructor
-        properties,
+        js_creator_Scale9SpriteV2_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_creator_Scale9SpriteV2_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "Scale9SpriteV2"));
@@ -878,7 +864,7 @@ void js_register_creator_Scale9SpriteV2(JSContext *cx, JS::HandleObject global) 
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<creator::Scale9SpriteV2>(cx, jsb_creator_Scale9SpriteV2_class, proto);
-    anonEvaluate(cx, global, "(function () { cc.Scale9SpriteV2.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_creator_GraphicsNode_class;
@@ -1638,7 +1624,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps creator_GraphicsNode_classOps = {
+    static const JSClassOps creator_GraphicsNode_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -1650,10 +1636,6 @@ void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
         &creator_GraphicsNode_classOps
     };
     jsb_creator_GraphicsNode_class = &creator_GraphicsNode_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("quadraticCurveTo", js_creator_GraphicsNode_quadraticCurveTo, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -1702,10 +1684,10 @@ void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
         cx, global,
         parent_proto,
         jsb_creator_GraphicsNode_class,
-        js_creator_GraphicsNode_constructor, 0, // constructor
-        properties,
+        js_creator_GraphicsNode_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_creator_GraphicsNode_prototype);
@@ -1715,7 +1697,7 @@ void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
     // add the proto and JSClass to the type->js info hash table
     jsb_register_class<creator::GraphicsNode>(cx, jsb_creator_GraphicsNode_class, proto);
-    anonEvaluate(cx, global, "(function () { cc.GraphicsNode.extend = cc.Class.extend; })()");
+    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_creator_PhysicsDebugDraw_class;
@@ -1812,7 +1794,6 @@ extern JSObject *jsb_b2Draw_prototype;
 
 void js_creator_PhysicsDebugDraw_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PhysicsDebugDraw)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -1832,7 +1813,7 @@ void js_creator_PhysicsDebugDraw_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_creator_PhysicsDebugDraw(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps creator_PhysicsDebugDraw_classOps = {
+    static const JSClassOps creator_PhysicsDebugDraw_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_creator_PhysicsDebugDraw_finalize,
@@ -1840,14 +1821,10 @@ void js_register_creator_PhysicsDebugDraw(JSContext *cx, JS::HandleObject global
     };
     static JSClass creator_PhysicsDebugDraw_class = {
         "PhysicsDebugDraw",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &creator_PhysicsDebugDraw_classOps
     };
     jsb_creator_PhysicsDebugDraw_class = &creator_PhysicsDebugDraw_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getDrawer", js_creator_PhysicsDebugDraw_getDrawer, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -1856,18 +1833,16 @@ void js_register_creator_PhysicsDebugDraw(JSContext *cx, JS::HandleObject global
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Draw_prototype);
     jsb_creator_PhysicsDebugDraw_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_PhysicsDebugDraw_class,
-        js_creator_PhysicsDebugDraw_constructor, 0, // constructor
-        properties,
+        js_creator_PhysicsDebugDraw_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_creator_PhysicsDebugDraw_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "PhysicsDebugDraw"));
@@ -2023,7 +1998,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_constructor(JSContext *cx, uint32_t 
 
 
 void js_register_creator_PhysicsWorldManifoldWrapper(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps creator_PhysicsWorldManifoldWrapper_classOps = {
+    static const JSClassOps creator_PhysicsWorldManifoldWrapper_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -2036,10 +2011,6 @@ void js_register_creator_PhysicsWorldManifoldWrapper(JSContext *cx, JS::HandleOb
     };
     jsb_creator_PhysicsWorldManifoldWrapper_class = &creator_PhysicsWorldManifoldWrapper_class;
 
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
-
     static JSFunctionSpec funcs[] = {
         JS_FN("getSeparation", js_creator_PhysicsWorldManifoldWrapper_getSeparation, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getX", js_creator_PhysicsWorldManifoldWrapper_getX, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -2050,17 +2021,16 @@ void js_register_creator_PhysicsWorldManifoldWrapper(JSContext *cx, JS::HandleOb
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_creator_PhysicsWorldManifoldWrapper_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_creator_PhysicsWorldManifoldWrapper_class,
-        js_creator_PhysicsWorldManifoldWrapper_constructor, 0, // constructor
-        properties,
+        js_creator_PhysicsWorldManifoldWrapper_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_creator_PhysicsWorldManifoldWrapper_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "PhysicsWorldManifoldWrapper"));
@@ -2231,7 +2201,6 @@ bool js_creator_PhysicsUtils_constructor(JSContext *cx, uint32_t argc, JS::Value
 
 void js_creator_PhysicsUtils_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PhysicsUtils)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -2251,7 +2220,7 @@ void js_creator_PhysicsUtils_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_creator_PhysicsUtils(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps creator_PhysicsUtils_classOps = {
+    static const JSClassOps creator_PhysicsUtils_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_creator_PhysicsUtils_finalize,
@@ -2259,14 +2228,10 @@ void js_register_creator_PhysicsUtils(JSContext *cx, JS::HandleObject global) {
     };
     static JSClass creator_PhysicsUtils_class = {
         "PhysicsUtils",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &creator_PhysicsUtils_classOps
     };
     jsb_creator_PhysicsUtils_class = &creator_PhysicsUtils_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("addB2Body", js_creator_PhysicsUtils_addB2Body, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -2281,14 +2246,15 @@ void js_register_creator_PhysicsUtils(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_creator_PhysicsUtils_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_creator_PhysicsUtils_class,
-        js_creator_PhysicsUtils_constructor, 0, // constructor
-        properties,
+        js_creator_PhysicsUtils_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_creator_PhysicsUtils_prototype);
@@ -2387,7 +2353,7 @@ bool js_creator_PhysicsContactImpulse_constructor(JSContext *cx, uint32_t argc, 
 
 
 void js_register_creator_PhysicsContactImpulse(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps creator_PhysicsContactImpulse_classOps = {
+    static const JSClassOps creator_PhysicsContactImpulse_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -2400,10 +2366,6 @@ void js_register_creator_PhysicsContactImpulse(JSContext *cx, JS::HandleObject g
     };
     jsb_creator_PhysicsContactImpulse_class = &creator_PhysicsContactImpulse_class;
 
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
-
     static JSFunctionSpec funcs[] = {
         JS_FN("getCount", js_creator_PhysicsContactImpulse_getCount, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getNormalImpulse", js_creator_PhysicsContactImpulse_getNormalImpulse, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -2411,17 +2373,16 @@ void js_register_creator_PhysicsContactImpulse(JSContext *cx, JS::HandleObject g
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_creator_PhysicsContactImpulse_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_creator_PhysicsContactImpulse_class,
-        js_creator_PhysicsContactImpulse_constructor, 0, // constructor
-        properties,
+        js_creator_PhysicsContactImpulse_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_creator_PhysicsContactImpulse_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "PhysicsContactImpulse"));
@@ -2516,7 +2477,6 @@ extern JSObject *jsb_b2ContactListener_prototype;
 
 void js_creator_PhysicsContactListener_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PhysicsContactListener)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -2536,7 +2496,7 @@ void js_creator_PhysicsContactListener_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_creator_PhysicsContactListener(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps creator_PhysicsContactListener_classOps = {
+    static const JSClassOps creator_PhysicsContactListener_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_creator_PhysicsContactListener_finalize,
@@ -2544,14 +2504,10 @@ void js_register_creator_PhysicsContactListener(JSContext *cx, JS::HandleObject 
     };
     static JSClass creator_PhysicsContactListener_class = {
         "PhysicsContactListener",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &creator_PhysicsContactListener_classOps
     };
     jsb_creator_PhysicsContactListener_class = &creator_PhysicsContactListener_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("unregisterContactFixture", js_creator_PhysicsContactListener_unregisterContactFixture, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -2559,18 +2515,16 @@ void js_register_creator_PhysicsContactListener(JSContext *cx, JS::HandleObject 
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2ContactListener_prototype);
     jsb_creator_PhysicsContactListener_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_PhysicsContactListener_class,
-        js_creator_PhysicsContactListener_constructor, 0, // constructor
-        properties,
+        js_creator_PhysicsContactListener_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_creator_PhysicsContactListener_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "PhysicsContactListener"));
@@ -2664,7 +2618,6 @@ extern JSObject *jsb_b2QueryCallback_prototype;
 
 void js_creator_PhysicsAABBQueryCallback_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PhysicsAABBQueryCallback)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -2684,7 +2637,7 @@ void js_creator_PhysicsAABBQueryCallback_finalize(JSFreeOp *fop, JSObject *obj) 
     }
 }
 void js_register_creator_PhysicsAABBQueryCallback(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps creator_PhysicsAABBQueryCallback_classOps = {
+    static const JSClassOps creator_PhysicsAABBQueryCallback_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_creator_PhysicsAABBQueryCallback_finalize,
@@ -2692,14 +2645,10 @@ void js_register_creator_PhysicsAABBQueryCallback(JSContext *cx, JS::HandleObjec
     };
     static JSClass creator_PhysicsAABBQueryCallback_class = {
         "PhysicsAABBQueryCallback",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &creator_PhysicsAABBQueryCallback_classOps
     };
     jsb_creator_PhysicsAABBQueryCallback_class = &creator_PhysicsAABBQueryCallback_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("init", js_creator_PhysicsAABBQueryCallback_init, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -2707,18 +2656,16 @@ void js_register_creator_PhysicsAABBQueryCallback(JSContext *cx, JS::HandleObjec
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2QueryCallback_prototype);
     jsb_creator_PhysicsAABBQueryCallback_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_PhysicsAABBQueryCallback_class,
-        js_creator_PhysicsAABBQueryCallback_constructor, 0, // constructor
-        properties,
+        js_creator_PhysicsAABBQueryCallback_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_creator_PhysicsAABBQueryCallback_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "PhysicsAABBQueryCallback"));
@@ -2813,7 +2760,6 @@ extern JSObject *jsb_b2RayCastCallback_prototype;
 
 void js_creator_PhysicsRayCastCallback_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PhysicsRayCastCallback)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -2833,7 +2779,7 @@ void js_creator_PhysicsRayCastCallback_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_creator_PhysicsRayCastCallback(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps creator_PhysicsRayCastCallback_classOps = {
+    static const JSClassOps creator_PhysicsRayCastCallback_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_creator_PhysicsRayCastCallback_finalize,
@@ -2841,14 +2787,10 @@ void js_register_creator_PhysicsRayCastCallback(JSContext *cx, JS::HandleObject 
     };
     static JSClass creator_PhysicsRayCastCallback_class = {
         "PhysicsRayCastCallback",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &creator_PhysicsRayCastCallback_classOps
     };
     jsb_creator_PhysicsRayCastCallback_class = &creator_PhysicsRayCastCallback_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getType", js_creator_PhysicsRayCastCallback_getType, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -2857,18 +2799,16 @@ void js_register_creator_PhysicsRayCastCallback(JSContext *cx, JS::HandleObject 
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2RayCastCallback_prototype);
     jsb_creator_PhysicsRayCastCallback_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_PhysicsRayCastCallback_class,
-        js_creator_PhysicsRayCastCallback_constructor, 0, // constructor
-        properties,
+        js_creator_PhysicsRayCastCallback_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_creator_PhysicsRayCastCallback_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "PhysicsRayCastCallback"));
@@ -2992,7 +2932,7 @@ bool js_creator_CameraNode_constructor(JSContext *cx, uint32_t argc, JS::Value *
 extern JSObject *jsb_cocos2d_Node_prototype;
 
 void js_register_creator_CameraNode(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps creator_CameraNode_classOps = {
+    static const JSClassOps creator_CameraNode_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -3005,10 +2945,6 @@ void js_register_creator_CameraNode(JSContext *cx, JS::HandleObject global) {
     };
     jsb_creator_CameraNode_class = &creator_CameraNode_class;
 
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
-
     static JSFunctionSpec funcs[] = {
         JS_FN("removeTarget", js_creator_CameraNode_removeTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setTransform", js_creator_CameraNode_setTransform, 6, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -3016,18 +2952,16 @@ void js_register_creator_CameraNode(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
     jsb_creator_CameraNode_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_CameraNode_class,
-        js_creator_CameraNode_constructor, 0, // constructor
-        properties,
+        js_creator_CameraNode_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_creator_CameraNode_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "CameraNode"));

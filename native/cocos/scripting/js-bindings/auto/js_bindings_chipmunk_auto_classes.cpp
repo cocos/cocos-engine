@@ -421,14 +421,11 @@ void JSB_cpConstraint_createClass(JSContext *cx, JS::HandleObject globalObj, con
     
     static JSClass cpConstraint_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpConstraint_classOps
     };
     JSB_cpConstraint_class = &cpConstraint_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("destroy", JSB_cpConstraint_destroy, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("getBodyA", JSB_cpConstraint_getBodyA, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -455,11 +452,15 @@ void JSB_cpConstraint_createClass(JSContext *cx, JS::HandleObject globalObj, con
 		JS_FN("setMaxForce", JSB_cpConstraint_setMaxForce, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
 
-	JSB_cpConstraint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpBase_object), JSB_cpConstraint_class, JSB_cpConstraint_constructor,0,properties,funcs,NULL,st_funcs);
+    JSB_cpConstraint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpBase_object), JSB_cpConstraint_class, JSB_cpConstraint_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpConstraint_object);
+    jsb_register_class<cpConstraint>(cx, JSB_cpConstraint_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -633,14 +634,11 @@ void JSB_cpGrooveJoint_createClass(JSContext *cx, JS::HandleObject globalObj, co
     
     static JSClass cpGrooveJoint_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpGrooveJoint_classOps
     };
     JSB_cpGrooveJoint_class = &cpGrooveJoint_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("getAnchorB", JSB_cpGrooveJoint_getAnchorB, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("getGrooveA", JSB_cpGrooveJoint_getGrooveA, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -650,11 +648,15 @@ void JSB_cpGrooveJoint_createClass(JSContext *cx, JS::HandleObject globalObj, co
 		JS_FN("setGrooveB", JSB_cpGrooveJoint_setGrooveB, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
 
-	JSB_cpGrooveJoint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpGrooveJoint_class, JSB_cpGrooveJoint_constructor,0,properties,funcs,NULL,st_funcs);
+    JSB_cpGrooveJoint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpGrooveJoint_class, JSB_cpGrooveJoint_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpGrooveJoint_object);
+    jsb_register_class<cpGrooveJoint>(cx, JSB_cpGrooveJoint_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -750,24 +752,25 @@ void JSB_cpSimpleMotor_createClass(JSContext *cx, JS::HandleObject globalObj, co
     
     static JSClass cpSimpleMotor_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpSimpleMotor_classOps
     };
     JSB_cpSimpleMotor_class = &cpSimpleMotor_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("getRate", JSB_cpSimpleMotor_getRate, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("setRate", JSB_cpSimpleMotor_setRate, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
 
-	JSB_cpSimpleMotor_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpSimpleMotor_class, JSB_cpSimpleMotor_constructor,0,properties,funcs,NULL,st_funcs);
+    JSB_cpSimpleMotor_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpSimpleMotor_class, JSB_cpSimpleMotor_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpGrooveJoint_object);
+    jsb_register_class<cpGrooveJoint>(cx, JSB_cpGrooveJoint_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -904,14 +907,11 @@ void JSB_cpPivotJoint_createClass(JSContext *cx, JS::HandleObject globalObj, con
     
     static JSClass cpPivotJoint_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpPivotJoint_classOps
     };
     JSB_cpPivotJoint_class = &cpPivotJoint_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("getAnchorA", JSB_cpPivotJoint_getAnchorA, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("getAnchorB", JSB_cpPivotJoint_getAnchorB, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -919,11 +919,15 @@ void JSB_cpPivotJoint_createClass(JSContext *cx, JS::HandleObject globalObj, con
 		JS_FN("setAnchorB", JSB_cpPivotJoint_setAnchorB, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
 
-	JSB_cpPivotJoint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpPivotJoint_class, JSB_cpPivotJoint_constructor,0,properties,funcs,NULL,st_funcs);
+    JSB_cpPivotJoint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpPivotJoint_class, JSB_cpPivotJoint_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpPivotJoint_object);
+    jsb_register_class<cpPivotJoint>(cx, JSB_cpPivotJoint_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -1092,14 +1096,11 @@ void JSB_cpPinJoint_createClass(JSContext *cx, JS::HandleObject globalObj, const
     
     static JSClass cpPinJoint_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpPinJoint_classOps
     };
     JSB_cpPinJoint_class = &cpPinJoint_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("getAnchorA", JSB_cpPinJoint_getAnchorA, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("getAnchorB", JSB_cpPinJoint_getAnchorB, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -1109,11 +1110,15 @@ void JSB_cpPinJoint_createClass(JSContext *cx, JS::HandleObject globalObj, const
 		JS_FN("setDist", JSB_cpPinJoint_setDist, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
-
-	JSB_cpPinJoint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpPinJoint_class, JSB_cpPinJoint_constructor,0,properties,funcs,NULL,st_funcs);
+    
+    JSB_cpPinJoint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpPinJoint_class, JSB_cpPinJoint_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpPinJoint_object);
+    jsb_register_class<cpPinJoint>(cx, JSB_cpPinJoint_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -1318,14 +1323,11 @@ void JSB_cpSlideJoint_createClass(JSContext *cx, JS::HandleObject globalObj, con
     
     static JSClass cpSlideJoint_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpSlideJoint_classOps
     };
     JSB_cpSlideJoint_class = &cpSlideJoint_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("getAnchorA", JSB_cpSlideJoint_getAnchorA, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("getAnchorB", JSB_cpSlideJoint_getAnchorB, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -1337,11 +1339,15 @@ void JSB_cpSlideJoint_createClass(JSContext *cx, JS::HandleObject globalObj, con
 		JS_FN("setMin", JSB_cpSlideJoint_setMin, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
 
-	JSB_cpSlideJoint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpSlideJoint_class, JSB_cpSlideJoint_constructor,0,properties,funcs,NULL,st_funcs);
+    JSB_cpSlideJoint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpSlideJoint_class, JSB_cpSlideJoint_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpSlideJoint_object);
+    jsb_register_class<cpSlideJoint>(cx, JSB_cpSlideJoint_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -1469,14 +1475,11 @@ void JSB_cpGearJoint_createClass(JSContext *cx, JS::HandleObject globalObj, cons
     
     static JSClass cpGearJoint_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpGearJoint_classOps
     };
     JSB_cpGearJoint_class = &cpGearJoint_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("getPhase", JSB_cpGearJoint_getPhase, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("getRatio", JSB_cpGearJoint_getRatio, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -1484,11 +1487,15 @@ void JSB_cpGearJoint_createClass(JSContext *cx, JS::HandleObject globalObj, cons
 		JS_FN("setRatio", JSB_cpGearJoint_setRatio, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
 
-	JSB_cpGearJoint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpGearJoint_class, JSB_cpGearJoint_constructor,0,properties,funcs,NULL,st_funcs);
+    JSB_cpGearJoint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpGearJoint_class, JSB_cpGearJoint_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpGearJoint_object);
+    jsb_register_class<cpGearJoint>(cx, JSB_cpGearJoint_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -1647,14 +1654,11 @@ void JSB_cpDampedRotarySpring_createClass(JSContext *cx, JS::HandleObject global
     
     static JSClass cpDampedRotarySpring_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpDampedRotarySpring_classOps
     };
     JSB_cpDampedRotarySpring_class = &cpDampedRotarySpring_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("getDamping", JSB_cpDampedRotarySpring_getDamping, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("getRestAngle", JSB_cpDampedRotarySpring_getRestAngle, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -1664,11 +1668,15 @@ void JSB_cpDampedRotarySpring_createClass(JSContext *cx, JS::HandleObject global
 		JS_FN("setStiffness", JSB_cpDampedRotarySpring_setStiffness, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
 
-	JSB_cpDampedRotarySpring_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpDampedRotarySpring_class, JSB_cpDampedRotarySpring_constructor,0,properties,funcs,NULL,st_funcs);
+    JSB_cpDampedRotarySpring_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpDampedRotarySpring_class, JSB_cpDampedRotarySpring_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpDampedRotarySpring_object);
+    jsb_register_class<cpDampedRotarySpring>(cx, JSB_cpDampedRotarySpring_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -1899,14 +1907,11 @@ void JSB_cpDampedSpring_createClass(JSContext *cx, JS::HandleObject globalObj, c
     
     static JSClass cpDampedSpring_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpDampedSpring_classOps
     };
     JSB_cpDampedSpring_class = &cpDampedSpring_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("getAnchorA", JSB_cpDampedSpring_getAnchorA, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("getAnchorB", JSB_cpDampedSpring_getAnchorB, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -1920,11 +1925,15 @@ void JSB_cpDampedSpring_createClass(JSContext *cx, JS::HandleObject globalObj, c
 		JS_FN("setStiffness", JSB_cpDampedSpring_setStiffness, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
-
-	JSB_cpDampedSpring_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpDampedSpring_class, JSB_cpDampedSpring_constructor,0,properties,funcs,NULL,st_funcs);
+    
+    JSB_cpDampedSpring_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpDampedSpring_class, JSB_cpDampedSpring_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpDampedRotarySpring_object);
+    jsb_register_class<cpDampedRotarySpring>(cx, JSB_cpDampedRotarySpring_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -2082,14 +2091,11 @@ void JSB_cpRatchetJoint_createClass(JSContext *cx, JS::HandleObject globalObj, c
     
     static JSClass cpRatchetJoint_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpRatchetJoint_classOps
     };
     JSB_cpRatchetJoint_class = &cpRatchetJoint_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("getAngle", JSB_cpRatchetJoint_getAngle, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("getPhase", JSB_cpRatchetJoint_getPhase, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -2099,11 +2105,15 @@ void JSB_cpRatchetJoint_createClass(JSContext *cx, JS::HandleObject globalObj, c
 		JS_FN("setRatchet", JSB_cpRatchetJoint_setRatchet, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
 
-	JSB_cpRatchetJoint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpRatchetJoint_class, JSB_cpRatchetJoint_constructor,0,properties,funcs,NULL,st_funcs);
+    JSB_cpRatchetJoint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpRatchetJoint_class, JSB_cpRatchetJoint_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpRatchetJoint_object);
+    jsb_register_class<cpRatchetJoint>(cx, JSB_cpRatchetJoint_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -2231,14 +2241,11 @@ void JSB_cpRotaryLimitJoint_createClass(JSContext *cx, JS::HandleObject globalOb
     
     static JSClass cpRotaryLimitJoint_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpRotaryLimitJoint_classOps
     };
     JSB_cpRotaryLimitJoint_class = &cpRotaryLimitJoint_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("getMax", JSB_cpRotaryLimitJoint_getMax, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("getMin", JSB_cpRotaryLimitJoint_getMin, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -2246,11 +2253,15 @@ void JSB_cpRotaryLimitJoint_createClass(JSContext *cx, JS::HandleObject globalOb
 		JS_FN("setMin", JSB_cpRotaryLimitJoint_setMin, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
 
-	JSB_cpRotaryLimitJoint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpRotaryLimitJoint_class, JSB_cpRotaryLimitJoint_constructor,0,properties,funcs,NULL,st_funcs);
+    JSB_cpRotaryLimitJoint_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpConstraint_object), JSB_cpRotaryLimitJoint_class, JSB_cpRotaryLimitJoint_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpRotaryLimitJoint_object);
+    jsb_register_class<cpRotaryLimitJoint>(cx, JSB_cpRotaryLimitJoint_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -2721,14 +2732,11 @@ void JSB_cpArbiter_createClass(JSContext *cx, JS::HandleObject globalObj, const 
     
     static JSClass cpArbiter_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpArbiter_classOps
     };
     JSB_cpArbiter_class = &cpArbiter_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("callWildcardBeginA", JSB_cpArbiter_callWildcardBeginA, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("callWildcardBeginB", JSB_cpArbiter_callWildcardBeginB, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -2758,11 +2766,15 @@ void JSB_cpArbiter_createClass(JSContext *cx, JS::HandleObject globalObj, const 
 		JS_FN("getBodies", JSB_cpArbiter_getBodies, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
 
-	JSB_cpArbiter_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpBase_object), JSB_cpArbiter_class, JSB_cpArbiter_constructor,0,properties,funcs,NULL,st_funcs);
+    JSB_cpArbiter_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpBase_object), JSB_cpArbiter_class, JSB_cpArbiter_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpArbiter_object);
+    jsb_register_class<cpArbiter>(cx, JSB_cpArbiter_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -3288,14 +3300,11 @@ void JSB_cpSpace_createClass(JSContext *cx, JS::HandleObject globalObj, const ch
     
     static JSClass cpSpace_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpSpace_classOps
     };
     JSB_cpSpace_class = &cpSpace_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("containsBody", JSB_cpSpace_containsBody, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("containsConstraint", JSB_cpSpace_containsConstraint, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -3339,11 +3348,15 @@ void JSB_cpSpace_createClass(JSContext *cx, JS::HandleObject globalObj, const ch
 		JS_FN("removeShape", JSB_cpSpace_removeShape, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
 
-	JSB_cpSpace_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpBase_object), JSB_cpSpace_class, JSB_cpSpace_constructor,0,properties,funcs,NULL,st_funcs);
+    JSB_cpSpace_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpBase_object), JSB_cpSpace_class, JSB_cpSpace_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpSpace_object);
+    jsb_register_class<cpSpace>(cx, JSB_cpSpace_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -4082,14 +4095,11 @@ void JSB_cpBody_createClass(JSContext *cx, JS::HandleObject globalObj, const cha
     
     static JSClass cpBody_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpBody_classOps
     };
     JSB_cpBody_class = &cpBody_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("activate", JSB_cpBody_activate, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("activateStatic", JSB_cpBody_activateStatic, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -4136,11 +4146,15 @@ void JSB_cpBody_createClass(JSContext *cx, JS::HandleObject globalObj, const cha
 		JS_FN("eachConstraint", JSB_cpBody_eachConstraint, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
-
-	JSB_cpBody_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpBase_object), JSB_cpBody_class, JSB_cpBody_constructor,0,properties,funcs,NULL,st_funcs);
+    
+    JSB_cpBody_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpBase_object), JSB_cpBody_class, JSB_cpBody_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpBody_object);
+    jsb_register_class<cpBody>(cx, JSB_cpBody_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -4643,14 +4657,11 @@ void JSB_cpShape_createClass(JSContext *cx, JS::HandleObject globalObj, const ch
     
     static JSClass cpShape_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpShape_classOps
     };
     JSB_cpShape_class = &cpShape_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("cacheBB", JSB_cpShape_cacheBB, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("destroy", JSB_cpShape_destroy, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -4683,11 +4694,15 @@ void JSB_cpShape_createClass(JSContext *cx, JS::HandleObject globalObj, const ch
 		JS_FN("segmentQuery", JSB_cpShape_segmentQuery, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
 
-	JSB_cpShape_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpBase_object), JSB_cpShape_class, JSB_cpShape_constructor,0,properties,funcs,NULL,st_funcs);
+    JSB_cpShape_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpBase_object), JSB_cpShape_class, JSB_cpShape_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpShape_object);
+    jsb_register_class<cpShape>(cx, JSB_cpShape_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -4782,24 +4797,25 @@ void JSB_cpCircleShape_createClass(JSContext *cx, JS::HandleObject globalObj, co
     
     static JSClass cpCircleShape_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpCircleShape_classOps
     };
     JSB_cpCircleShape_class = &cpCircleShape_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("getOffset", JSB_cpCircleShape_getOffset, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("getRadius", JSB_cpCircleShape_getRadius, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
 
-	JSB_cpCircleShape_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpShape_object), JSB_cpCircleShape_class, JSB_cpCircleShape_constructor,0,properties,funcs,NULL,st_funcs);
+    JSB_cpCircleShape_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpShape_object), JSB_cpCircleShape_class, JSB_cpCircleShape_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpCircleShape_object);
+    jsb_register_class<cpCircleShape>(cx, JSB_cpCircleShape_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -4945,14 +4961,11 @@ void JSB_cpSegmentShape_createClass(JSContext *cx, JS::HandleObject globalObj, c
     
     static JSClass cpSegmentShape_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpSegmentShape_classOps
     };
     JSB_cpSegmentShape_class = &cpSegmentShape_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("getA", JSB_cpSegmentShape_getA, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("getB", JSB_cpSegmentShape_getB, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -4961,11 +4974,15 @@ void JSB_cpSegmentShape_createClass(JSContext *cx, JS::HandleObject globalObj, c
 		JS_FN("setNeighbors", JSB_cpSegmentShape_setNeighbors, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
-
-	JSB_cpSegmentShape_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpShape_object), JSB_cpSegmentShape_class, JSB_cpSegmentShape_constructor,0,properties,funcs,NULL,st_funcs);
+    
+    JSB_cpSegmentShape_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpShape_object), JSB_cpSegmentShape_class, JSB_cpSegmentShape_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpSegmentShape_object);
+    jsb_register_class<cpSegmentShape>(cx, JSB_cpSegmentShape_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 /*
@@ -5058,25 +5075,26 @@ void JSB_cpPolyShape_createClass(JSContext *cx, JS::HandleObject globalObj, cons
     
     static JSClass cpPolyShape_class = {
         name,
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &cpPolyShape_classOps
     };
     JSB_cpPolyShape_class = &cpPolyShape_class;
 
-	static JSPropertySpec properties[] = {
-		{0, 0, 0, 0, 0}
-	};
 	static JSFunctionSpec funcs[] = {
 		JS_FN("getCount", JSB_cpPolyShape_getCount, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("getRadius", JSB_cpPolyShape_getRadius, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FN("getVert", JSB_cpPolyShape_getVert, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
 		JS_FS_END
 	};
-	static JSFunctionSpec st_funcs[] = {
-		JS_FS_END
-	};
 
-	JSB_cpPolyShape_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpShape_object), JSB_cpPolyShape_class, JSB_cpPolyShape_constructor,0,properties,funcs,NULL,st_funcs);
+    JSB_cpPolyShape_object = JS_InitClass(cx, globalObj, JS::RootedObject(cx,JSB_cpShape_object), JSB_cpPolyShape_class, JSB_cpPolyShape_constructor,0,nullptr,funcs,nullptr,nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JSB_cpPolyShape_object);
+    jsb_register_class<cpPolyShape>(cx, JSB_cpPolyShape_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 

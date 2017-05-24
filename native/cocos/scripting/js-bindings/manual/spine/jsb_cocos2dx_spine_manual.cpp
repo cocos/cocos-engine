@@ -439,7 +439,7 @@ void js_spine_TrackEntry_finalize(JSFreeOp *fop, JSObject *obj) {
 
 void js_register_spine_TrackEntry(JSContext *cx, JS::HandleObject global)
 {
-    JSClassOps jsclassOps = {
+    static const JSClassOps jsclassOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_spine_TrackEntry_finalize,
@@ -447,7 +447,7 @@ void js_register_spine_TrackEntry(JSContext *cx, JS::HandleObject global)
     };
     static JSClass spine_TrackEntry_class = {
         "TrackEntry",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &jsclassOps
     };
     jsb_spine_TrackEntry_class = &spine_TrackEntry_class;
@@ -459,7 +459,15 @@ void js_register_spine_TrackEntry(JSContext *cx, JS::HandleObject global)
         JS_PS_END
     };
     
-    jsb_spine_TrackEntry_prototype = JS_InitClass(cx, global, nullptr, jsb_spine_TrackEntry_class, nullptr, 0, properties, nullptr, nullptr, nullptr);
+    JS::RootedObject parent_proto(cx, nullptr);
+    jsb_spine_TrackEntry_prototype = JS_InitClass(cx, global, parent_proto, jsb_spine_TrackEntry_class, nullptr, 0, properties, nullptr, nullptr, nullptr);
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, jsb_spine_TrackEntry_prototype);
+    jsb_register_class<spTrackEntry>(cx, jsb_spine_TrackEntry_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "TrackEntry"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 JS::HandleValue sptrackentry_to_jsval(JSContext* cx, spTrackEntry& v)

@@ -12,15 +12,7 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 
 static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return false;
-}
-
-static bool js_is_native_obj(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().setBoolean(true);
-    return true;
-}
-JSClass  *jsb_b2Draw_class;
+}JSClass  *jsb_b2Draw_class;
 JSObject *jsb_b2Draw_prototype;
 
 bool js_box2dclasses_b2Draw_AppendFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -269,7 +261,7 @@ bool js_box2dclasses_b2Draw_GetFlags(JSContext *cx, uint32_t argc, JS::Value *vp
 }
 
 void js_register_box2dclasses_b2Draw(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2Draw_classOps = {
+    static const JSClassOps b2Draw_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -281,10 +273,6 @@ void js_register_box2dclasses_b2Draw(JSContext *cx, JS::HandleObject global) {
         &b2Draw_classOps
     };
     jsb_b2Draw_class = &b2Draw_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("AppendFlags", js_box2dclasses_b2Draw_AppendFlags, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -301,17 +289,16 @@ void js_register_box2dclasses_b2Draw(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_b2Draw_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_b2Draw_class,
         empty_constructor, 0,
-        properties,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2Draw_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2Draw"));
@@ -502,7 +489,7 @@ bool js_box2dclasses_b2Shape_TestPoint(JSContext *cx, uint32_t argc, JS::Value *
 }
 
 void js_register_box2dclasses_b2Shape(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2Shape_classOps = {
+    static const JSClassOps b2Shape_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -530,17 +517,16 @@ void js_register_box2dclasses_b2Shape(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_b2Shape_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_b2Shape_class,
-        dummy_constructor<b2Shape>, 0, // no constructor
+        dummy_constructor<b2Shape>, 0,
         properties,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2Shape_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2Shape"));
@@ -820,7 +806,6 @@ extern JSObject *jsb_b2Shape_prototype;
 
 void js_b2CircleShape_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (b2CircleShape)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -840,7 +825,7 @@ void js_b2CircleShape_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_box2dclasses_b2CircleShape(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2CircleShape_classOps = {
+    static const JSClassOps b2CircleShape_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_b2CircleShape_finalize,
@@ -848,7 +833,7 @@ void js_register_box2dclasses_b2CircleShape(JSContext *cx, JS::HandleObject glob
     };
     static JSClass b2CircleShape_class = {
         "CircleShape",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &b2CircleShape_classOps
     };
     jsb_b2CircleShape_class = &b2CircleShape_class;
@@ -871,18 +856,16 @@ void js_register_box2dclasses_b2CircleShape(JSContext *cx, JS::HandleObject glob
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Shape_prototype);
     jsb_b2CircleShape_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2CircleShape_class,
-        js_box2dclasses_b2CircleShape_constructor, 0, // constructor
+        js_box2dclasses_b2CircleShape_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2CircleShape_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2CircleShape"));
@@ -1100,7 +1083,6 @@ extern JSObject *jsb_b2Shape_prototype;
 
 void js_b2EdgeShape_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (b2EdgeShape)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -1120,7 +1102,7 @@ void js_b2EdgeShape_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_box2dclasses_b2EdgeShape(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2EdgeShape_classOps = {
+    static const JSClassOps b2EdgeShape_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_b2EdgeShape_finalize,
@@ -1128,7 +1110,7 @@ void js_register_box2dclasses_b2EdgeShape(JSContext *cx, JS::HandleObject global
     };
     static JSClass b2EdgeShape_class = {
         "EdgeShape",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &b2EdgeShape_classOps
     };
     jsb_b2EdgeShape_class = &b2EdgeShape_class;
@@ -1148,18 +1130,16 @@ void js_register_box2dclasses_b2EdgeShape(JSContext *cx, JS::HandleObject global
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Shape_prototype);
     jsb_b2EdgeShape_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2EdgeShape_class,
-        js_box2dclasses_b2EdgeShape_constructor, 0, // constructor
+        js_box2dclasses_b2EdgeShape_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2EdgeShape_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2EdgeShape"));
@@ -1441,7 +1421,6 @@ extern JSObject *jsb_b2Shape_prototype;
 
 void js_b2ChainShape_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (b2ChainShape)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -1461,7 +1440,7 @@ void js_b2ChainShape_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_box2dclasses_b2ChainShape(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2ChainShape_classOps = {
+    static const JSClassOps b2ChainShape_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_b2ChainShape_finalize,
@@ -1469,7 +1448,7 @@ void js_register_box2dclasses_b2ChainShape(JSContext *cx, JS::HandleObject globa
     };
     static JSClass b2ChainShape_class = {
         "ChainShape",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &b2ChainShape_classOps
     };
     jsb_b2ChainShape_class = &b2ChainShape_class;
@@ -1492,18 +1471,16 @@ void js_register_box2dclasses_b2ChainShape(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Shape_prototype);
     jsb_b2ChainShape_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2ChainShape_class,
-        js_box2dclasses_b2ChainShape_constructor, 0, // constructor
+        js_box2dclasses_b2ChainShape_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2ChainShape_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2ChainShape"));
@@ -1757,7 +1734,6 @@ extern JSObject *jsb_b2Shape_prototype;
 
 void js_b2PolygonShape_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (b2PolygonShape)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -1777,7 +1753,7 @@ void js_b2PolygonShape_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_box2dclasses_b2PolygonShape(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2PolygonShape_classOps = {
+    static const JSClassOps b2PolygonShape_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_b2PolygonShape_finalize,
@@ -1785,7 +1761,7 @@ void js_register_box2dclasses_b2PolygonShape(JSContext *cx, JS::HandleObject glo
     };
     static JSClass b2PolygonShape_class = {
         "PolygonShape",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &b2PolygonShape_classOps
     };
     jsb_b2PolygonShape_class = &b2PolygonShape_class;
@@ -1807,18 +1783,16 @@ void js_register_box2dclasses_b2PolygonShape(JSContext *cx, JS::HandleObject glo
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Shape_prototype);
     jsb_b2PolygonShape_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2PolygonShape_class,
-        js_box2dclasses_b2PolygonShape_constructor, 0, // constructor
+        js_box2dclasses_b2PolygonShape_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2PolygonShape_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2PolygonShape"));
@@ -2937,7 +2911,7 @@ bool js_box2dclasses_b2Body_GetPosition(JSContext *cx, uint32_t argc, JS::Value 
 }
 
 void js_register_box2dclasses_b2Body(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2Body_classOps = {
+    static const JSClassOps b2Body_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -2949,10 +2923,6 @@ void js_register_box2dclasses_b2Body(JSContext *cx, JS::HandleObject global) {
         &b2Body_classOps
     };
     jsb_b2Body_class = &b2Body_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("GetAngle", js_box2dclasses_b2Body_GetAngle, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -3009,17 +2979,16 @@ void js_register_box2dclasses_b2Body(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_b2Body_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_b2Body_class,
-        dummy_constructor<b2Body>, 0, // no constructor
-        properties,
+        dummy_constructor<b2Body>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2Body_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2Body"));
@@ -3496,7 +3465,7 @@ bool js_box2dclasses_b2Fixture_GetDensity(JSContext *cx, uint32_t argc, JS::Valu
 }
 
 void js_register_box2dclasses_b2Fixture(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2Fixture_classOps = {
+    static const JSClassOps b2Fixture_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -3508,10 +3477,6 @@ void js_register_box2dclasses_b2Fixture(JSContext *cx, JS::HandleObject global) 
         &b2Fixture_classOps
     };
     jsb_b2Fixture_class = &b2Fixture_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("GetRestitution", js_box2dclasses_b2Fixture_GetRestitution, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -3537,17 +3502,16 @@ void js_register_box2dclasses_b2Fixture(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_b2Fixture_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_b2Fixture_class,
-        dummy_constructor<b2Fixture>, 0, // no constructor
-        properties,
+        dummy_constructor<b2Fixture>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2Fixture_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2Fixture"));
@@ -3681,7 +3645,7 @@ bool js_box2dclasses_b2ContactListener_PostSolve(JSContext *cx, uint32_t argc, J
 }
 
 void js_register_box2dclasses_b2ContactListener(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2ContactListener_classOps = {
+    static const JSClassOps b2ContactListener_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -3694,10 +3658,6 @@ void js_register_box2dclasses_b2ContactListener(JSContext *cx, JS::HandleObject 
     };
     jsb_b2ContactListener_class = &b2ContactListener_class;
 
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
-
     static JSFunctionSpec funcs[] = {
         JS_FN("EndContact", js_box2dclasses_b2ContactListener_EndContact, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("PreSolve", js_box2dclasses_b2ContactListener_PreSolve, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -3706,17 +3666,16 @@ void js_register_box2dclasses_b2ContactListener(JSContext *cx, JS::HandleObject 
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_b2ContactListener_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_b2ContactListener_class,
         empty_constructor, 0,
-        properties,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2ContactListener_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2ContactListener"));
@@ -3762,7 +3721,7 @@ bool js_box2dclasses_b2QueryCallback_ReportFixture(JSContext *cx, uint32_t argc,
 }
 
 void js_register_box2dclasses_b2QueryCallback(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2QueryCallback_classOps = {
+    static const JSClassOps b2QueryCallback_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -3775,26 +3734,21 @@ void js_register_box2dclasses_b2QueryCallback(JSContext *cx, JS::HandleObject gl
     };
     jsb_b2QueryCallback_class = &b2QueryCallback_class;
 
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
-
     static JSFunctionSpec funcs[] = {
         JS_FN("ReportFixture", js_box2dclasses_b2QueryCallback_ReportFixture, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_b2QueryCallback_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_b2QueryCallback_class,
         empty_constructor, 0,
-        properties,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2QueryCallback_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2QueryCallback"));
@@ -3846,7 +3800,7 @@ bool js_box2dclasses_b2RayCastCallback_ReportFixture(JSContext *cx, uint32_t arg
 }
 
 void js_register_box2dclasses_b2RayCastCallback(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2RayCastCallback_classOps = {
+    static const JSClassOps b2RayCastCallback_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -3859,26 +3813,21 @@ void js_register_box2dclasses_b2RayCastCallback(JSContext *cx, JS::HandleObject 
     };
     jsb_b2RayCastCallback_class = &b2RayCastCallback_class;
 
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
-
     static JSFunctionSpec funcs[] = {
         JS_FN("ReportFixture", js_box2dclasses_b2RayCastCallback_ReportFixture, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_b2RayCastCallback_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_b2RayCastCallback_class,
         empty_constructor, 0,
-        properties,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2RayCastCallback_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2RayCastCallback"));
@@ -4753,7 +4702,6 @@ bool js_box2dclasses_b2World_constructor(JSContext *cx, uint32_t argc, JS::Value
 
 void js_b2World_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (b2World)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -4773,7 +4721,7 @@ void js_b2World_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_box2dclasses_b2World(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2World_classOps = {
+    static const JSClassOps b2World_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_b2World_finalize,
@@ -4781,14 +4729,10 @@ void js_register_box2dclasses_b2World(JSContext *cx, JS::HandleObject global) {
     };
     static JSClass b2World_class = {
         "World",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &b2World_classOps
     };
     jsb_b2World_class = &b2World_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("ShiftOrigin", js_box2dclasses_b2World_ShiftOrigin, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -4831,17 +4775,16 @@ void js_register_box2dclasses_b2World(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_b2World_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_b2World_class,
-        js_box2dclasses_b2World_constructor, 0, // constructor
-        properties,
+        js_box2dclasses_b2World_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2World_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2World"));
@@ -5299,7 +5242,7 @@ bool js_box2dclasses_b2Contact_ResetRestitution(JSContext *cx, uint32_t argc, JS
 }
 
 void js_register_box2dclasses_b2Contact(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2Contact_classOps = {
+    static const JSClassOps b2Contact_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -5311,10 +5254,6 @@ void js_register_box2dclasses_b2Contact(JSContext *cx, JS::HandleObject global) 
         &b2Contact_classOps
     };
     jsb_b2Contact_class = &b2Contact_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("GetNext", js_box2dclasses_b2Contact_GetNext, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -5339,17 +5278,16 @@ void js_register_box2dclasses_b2Contact(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_b2Contact_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_b2Contact_class,
-        dummy_constructor<b2Contact>, 0, // no constructor
-        properties,
+        dummy_constructor<b2Contact>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2Contact_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2Contact"));
@@ -5620,7 +5558,7 @@ bool js_box2dclasses_b2Joint_IsActive(JSContext *cx, uint32_t argc, JS::Value *v
 }
 
 void js_register_box2dclasses_b2Joint(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2Joint_classOps = {
+    static const JSClassOps b2Joint_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -5632,10 +5570,6 @@ void js_register_box2dclasses_b2Joint(JSContext *cx, JS::HandleObject global) {
         &b2Joint_classOps
     };
     jsb_b2Joint_class = &b2Joint_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("GetNext", js_box2dclasses_b2Joint_GetNext, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -5653,17 +5587,16 @@ void js_register_box2dclasses_b2Joint(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_b2Joint_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_b2Joint_class,
-        dummy_constructor<b2Joint>, 0, // no constructor
-        properties,
+        dummy_constructor<b2Joint>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2Joint_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2Joint"));
@@ -5927,7 +5860,7 @@ bool js_box2dclasses_b2DistanceJoint_SetLength(JSContext *cx, uint32_t argc, JS:
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2DistanceJoint(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2DistanceJoint_classOps = {
+    static const JSClassOps b2DistanceJoint_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -5939,10 +5872,6 @@ void js_register_box2dclasses_b2DistanceJoint(JSContext *cx, JS::HandleObject gl
         &b2DistanceJoint_classOps
     };
     jsb_b2DistanceJoint_class = &b2DistanceJoint_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("SetDampingRatio", js_box2dclasses_b2DistanceJoint_SetDampingRatio, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -5961,18 +5890,16 @@ void js_register_box2dclasses_b2DistanceJoint(JSContext *cx, JS::HandleObject gl
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
     jsb_b2DistanceJoint_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2DistanceJoint_class,
-        dummy_constructor<b2DistanceJoint>, 0, // no constructor
-        properties,
+        dummy_constructor<b2DistanceJoint>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2DistanceJoint_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2DistanceJoint"));
@@ -6198,7 +6125,7 @@ bool js_box2dclasses_b2FrictionJoint_GetMaxTorque(JSContext *cx, uint32_t argc, 
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2FrictionJoint(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2FrictionJoint_classOps = {
+    static const JSClassOps b2FrictionJoint_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -6210,10 +6137,6 @@ void js_register_box2dclasses_b2FrictionJoint(JSContext *cx, JS::HandleObject gl
         &b2FrictionJoint_classOps
     };
     jsb_b2FrictionJoint_class = &b2FrictionJoint_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("SetMaxTorque", js_box2dclasses_b2FrictionJoint_SetMaxTorque, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -6230,18 +6153,16 @@ void js_register_box2dclasses_b2FrictionJoint(JSContext *cx, JS::HandleObject gl
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
     jsb_b2FrictionJoint_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2FrictionJoint_class,
-        dummy_constructor<b2FrictionJoint>, 0, // no constructor
-        properties,
+        dummy_constructor<b2FrictionJoint>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2FrictionJoint_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2FrictionJoint"));
@@ -6437,7 +6358,7 @@ bool js_box2dclasses_b2GearJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Valu
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2GearJoint(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2GearJoint_classOps = {
+    static const JSClassOps b2GearJoint_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -6449,10 +6370,6 @@ void js_register_box2dclasses_b2GearJoint(JSContext *cx, JS::HandleObject global
         &b2GearJoint_classOps
     };
     jsb_b2GearJoint_class = &b2GearJoint_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("GetJoint1", js_box2dclasses_b2GearJoint_GetJoint1, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -6467,18 +6384,16 @@ void js_register_box2dclasses_b2GearJoint(JSContext *cx, JS::HandleObject global
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
     jsb_b2GearJoint_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2GearJoint_class,
-        dummy_constructor<b2GearJoint>, 0, // no constructor
-        properties,
+        dummy_constructor<b2GearJoint>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2GearJoint_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2GearJoint"));
@@ -6782,7 +6697,7 @@ bool js_box2dclasses_b2MotorJoint_SetCorrectionFactor(JSContext *cx, uint32_t ar
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2MotorJoint(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2MotorJoint_classOps = {
+    static const JSClassOps b2MotorJoint_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -6794,10 +6709,6 @@ void js_register_box2dclasses_b2MotorJoint(JSContext *cx, JS::HandleObject globa
         &b2MotorJoint_classOps
     };
     jsb_b2MotorJoint_class = &b2MotorJoint_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("SetMaxTorque", js_box2dclasses_b2MotorJoint_SetMaxTorque, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -6818,18 +6729,16 @@ void js_register_box2dclasses_b2MotorJoint(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
     jsb_b2MotorJoint_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2MotorJoint_class,
-        dummy_constructor<b2MotorJoint>, 0, // no constructor
-        properties,
+        dummy_constructor<b2MotorJoint>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2MotorJoint_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2MotorJoint"));
@@ -7115,7 +7024,7 @@ bool js_box2dclasses_b2MouseJoint_ShiftOrigin(JSContext *cx, uint32_t argc, JS::
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2MouseJoint(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2MouseJoint_classOps = {
+    static const JSClassOps b2MouseJoint_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -7127,10 +7036,6 @@ void js_register_box2dclasses_b2MouseJoint(JSContext *cx, JS::HandleObject globa
         &b2MouseJoint_classOps
     };
     jsb_b2MouseJoint_class = &b2MouseJoint_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("SetDampingRatio", js_box2dclasses_b2MouseJoint_SetDampingRatio, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -7150,18 +7055,16 @@ void js_register_box2dclasses_b2MouseJoint(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
     jsb_b2MouseJoint_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2MouseJoint_class,
-        dummy_constructor<b2MouseJoint>, 0, // no constructor
-        properties,
+        dummy_constructor<b2MouseJoint>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2MouseJoint_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2MouseJoint"));
@@ -7615,7 +7518,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetAnchorB(JSContext *cx, uint32_t argc, J
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2PrismaticJoint(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2PrismaticJoint_classOps = {
+    static const JSClassOps b2PrismaticJoint_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -7627,10 +7530,6 @@ void js_register_box2dclasses_b2PrismaticJoint(JSContext *cx, JS::HandleObject g
         &b2PrismaticJoint_classOps
     };
     jsb_b2PrismaticJoint_class = &b2PrismaticJoint_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("GetLocalAxisA", js_box2dclasses_b2PrismaticJoint_GetLocalAxisA, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -7659,18 +7558,16 @@ void js_register_box2dclasses_b2PrismaticJoint(JSContext *cx, JS::HandleObject g
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
     jsb_b2PrismaticJoint_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2PrismaticJoint_class,
-        dummy_constructor<b2PrismaticJoint>, 0, // no constructor
-        properties,
+        dummy_constructor<b2PrismaticJoint>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2PrismaticJoint_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2PrismaticJoint"));
@@ -7930,7 +7827,7 @@ bool js_box2dclasses_b2PulleyJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Va
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2PulleyJoint(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2PulleyJoint_classOps = {
+    static const JSClassOps b2PulleyJoint_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -7942,10 +7839,6 @@ void js_register_box2dclasses_b2PulleyJoint(JSContext *cx, JS::HandleObject glob
         &b2PulleyJoint_classOps
     };
     jsb_b2PulleyJoint_class = &b2PulleyJoint_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("GetCurrentLengthA", js_box2dclasses_b2PulleyJoint_GetCurrentLengthA, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -7964,18 +7857,16 @@ void js_register_box2dclasses_b2PulleyJoint(JSContext *cx, JS::HandleObject glob
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
     jsb_b2PulleyJoint_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2PulleyJoint_class,
-        dummy_constructor<b2PulleyJoint>, 0, // no constructor
-        properties,
+        dummy_constructor<b2PulleyJoint>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2PulleyJoint_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2PulleyJoint"));
@@ -8411,7 +8302,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2RevoluteJoint(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2RevoluteJoint_classOps = {
+    static const JSClassOps b2RevoluteJoint_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -8423,10 +8314,6 @@ void js_register_box2dclasses_b2RevoluteJoint(JSContext *cx, JS::HandleObject gl
         &b2RevoluteJoint_classOps
     };
     jsb_b2RevoluteJoint_class = &b2RevoluteJoint_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("GetLowerLimit", js_box2dclasses_b2RevoluteJoint_GetLowerLimit, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -8454,18 +8341,16 @@ void js_register_box2dclasses_b2RevoluteJoint(JSContext *cx, JS::HandleObject gl
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
     jsb_b2RevoluteJoint_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2RevoluteJoint_class,
-        dummy_constructor<b2RevoluteJoint>, 0, // no constructor
-        properties,
+        dummy_constructor<b2RevoluteJoint>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2RevoluteJoint_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2RevoluteJoint"));
@@ -8671,7 +8556,7 @@ bool js_box2dclasses_b2RopeJoint_GetLimitState(JSContext *cx, uint32_t argc, JS:
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2RopeJoint(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2RopeJoint_classOps = {
+    static const JSClassOps b2RopeJoint_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -8683,10 +8568,6 @@ void js_register_box2dclasses_b2RopeJoint(JSContext *cx, JS::HandleObject global
         &b2RopeJoint_classOps
     };
     jsb_b2RopeJoint_class = &b2RopeJoint_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("GetAnchorA", js_box2dclasses_b2RopeJoint_GetAnchorA, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -8702,18 +8583,16 @@ void js_register_box2dclasses_b2RopeJoint(JSContext *cx, JS::HandleObject global
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
     jsb_b2RopeJoint_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2RopeJoint_class,
-        dummy_constructor<b2RopeJoint>, 0, // no constructor
-        properties,
+        dummy_constructor<b2RopeJoint>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2RopeJoint_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2RopeJoint"));
@@ -8957,7 +8836,7 @@ bool js_box2dclasses_b2WeldJoint_GetReferenceAngle(JSContext *cx, uint32_t argc,
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2WeldJoint(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2WeldJoint_classOps = {
+    static const JSClassOps b2WeldJoint_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -8969,10 +8848,6 @@ void js_register_box2dclasses_b2WeldJoint(JSContext *cx, JS::HandleObject global
         &b2WeldJoint_classOps
     };
     jsb_b2WeldJoint_class = &b2WeldJoint_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("SetDampingRatio", js_box2dclasses_b2WeldJoint_SetDampingRatio, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -8990,18 +8865,16 @@ void js_register_box2dclasses_b2WeldJoint(JSContext *cx, JS::HandleObject global
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
     jsb_b2WeldJoint_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2WeldJoint_class,
-        dummy_constructor<b2WeldJoint>, 0, // no constructor
-        properties,
+        dummy_constructor<b2WeldJoint>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2WeldJoint_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2WeldJoint"));
@@ -9417,7 +9290,7 @@ bool js_box2dclasses_b2WheelJoint_EnableMotor(JSContext *cx, uint32_t argc, JS::
 extern JSObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2WheelJoint(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps b2WheelJoint_classOps = {
+    static const JSClassOps b2WheelJoint_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -9429,10 +9302,6 @@ void js_register_box2dclasses_b2WheelJoint(JSContext *cx, JS::HandleObject globa
         &b2WheelJoint_classOps
     };
     jsb_b2WheelJoint_class = &b2WheelJoint_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("IsMotorEnabled", js_box2dclasses_b2WheelJoint_IsMotorEnabled, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -9459,18 +9328,16 @@ void js_register_box2dclasses_b2WheelJoint(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
     jsb_b2WheelJoint_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2WheelJoint_class,
-        dummy_constructor<b2WheelJoint>, 0, // no constructor
-        properties,
+        dummy_constructor<b2WheelJoint>, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_b2WheelJoint_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "b2WheelJoint"));

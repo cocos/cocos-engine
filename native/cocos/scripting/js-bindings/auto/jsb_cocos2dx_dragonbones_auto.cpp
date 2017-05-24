@@ -11,15 +11,7 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 
 static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return false;
-}
-
-static bool js_is_native_obj(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().setBoolean(true);
-    return true;
-}
-JSClass  *jsb_dragonBones_BaseObject_class;
+}JSClass  *jsb_dragonBones_BaseObject_class;
 JSObject *jsb_dragonBones_BaseObject_prototype;
 
 bool js_cocos2dx_dragonbones_BaseObject_getClassTypeIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -92,7 +84,7 @@ bool js_cocos2dx_dragonbones_BaseObject_setMaxCount(JSContext *cx, uint32_t argc
 
 
 void js_register_cocos2dx_dragonbones_BaseObject(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_BaseObject_classOps = {
+    static const JSClassOps dragonBones_BaseObject_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -104,10 +96,6 @@ void js_register_cocos2dx_dragonbones_BaseObject(JSContext *cx, JS::HandleObject
         &dragonBones_BaseObject_classOps
     };
     jsb_dragonBones_BaseObject_class = &dragonBones_BaseObject_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getClassTypeIndex", js_cocos2dx_dragonbones_BaseObject_getClassTypeIndex, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -121,14 +109,15 @@ void js_register_cocos2dx_dragonbones_BaseObject(JSContext *cx, JS::HandleObject
         JS_FS_END
     };
 
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_dragonBones_BaseObject_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_dragonBones_BaseObject_class,
         empty_constructor, 0,
-        properties,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_BaseObject_prototype);
@@ -334,7 +323,6 @@ bool js_cocos2dx_dragonbones_Matrix_constructor(JSContext *cx, uint32_t argc, JS
 
 void js_dragonBones_Matrix_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Matrix)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -354,7 +342,7 @@ void js_dragonBones_Matrix_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_Matrix(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_Matrix_classOps = {
+    static const JSClassOps dragonBones_Matrix_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_Matrix_finalize,
@@ -362,7 +350,7 @@ void js_register_cocos2dx_dragonbones_Matrix(JSContext *cx, JS::HandleObject glo
     };
     static JSClass dragonBones_Matrix_class = {
         "Matrix",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_Matrix_classOps
     };
     jsb_dragonBones_Matrix_class = &dragonBones_Matrix_class;
@@ -377,21 +365,16 @@ void js_register_cocos2dx_dragonbones_Matrix(JSContext *cx, JS::HandleObject glo
         JS_PS_END
     };
 
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
-    };
-
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_dragonBones_Matrix_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_dragonBones_Matrix_class,
-        js_cocos2dx_dragonbones_Matrix_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_Matrix_constructor, 0,
         properties,
-        funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_dragonBones_Matrix_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "Matrix"));
@@ -653,7 +636,6 @@ bool js_cocos2dx_dragonbones_Transform_constructor(JSContext *cx, uint32_t argc,
 
 void js_dragonBones_Transform_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Transform)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -673,7 +655,7 @@ void js_dragonBones_Transform_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_Transform(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_Transform_classOps = {
+    static const JSClassOps dragonBones_Transform_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_Transform_finalize,
@@ -681,7 +663,7 @@ void js_register_cocos2dx_dragonbones_Transform(JSContext *cx, JS::HandleObject 
     };
     static JSClass dragonBones_Transform_class = {
         "Transform",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_Transform_classOps
     };
     jsb_dragonBones_Transform_class = &dragonBones_Transform_class;
@@ -707,14 +689,15 @@ void js_register_cocos2dx_dragonbones_Transform(JSContext *cx, JS::HandleObject 
         JS_FS_END
     };
 
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_dragonBones_Transform_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_dragonBones_Transform_class,
-        js_cocos2dx_dragonbones_Transform_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_Transform_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_Transform_prototype);
@@ -752,7 +735,7 @@ bool js_cocos2dx_dragonbones_TextureData_generateRectangle(JSContext *cx, uint32
 extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_register_cocos2dx_dragonbones_TextureData(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_TextureData_classOps = {
+    static const JSClassOps dragonBones_TextureData_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -769,10 +752,6 @@ void js_register_cocos2dx_dragonbones_TextureData(JSContext *cx, JS::HandleObjec
         JS_PS_END
     };
 
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
-    };
-
     static JSFunctionSpec st_funcs[] = {
         JS_FN("generateRectangle", js_cocos2dx_dragonbones_TextureData_generateRectangle, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -785,8 +764,8 @@ void js_register_cocos2dx_dragonbones_TextureData(JSContext *cx, JS::HandleObjec
         jsb_dragonBones_TextureData_class,
         empty_constructor, 0,
         properties,
-        funcs,
-        nullptr, // no static properties
+        nullptr,
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_TextureData_prototype);
@@ -881,7 +860,7 @@ bool js_cocos2dx_dragonbones_TextureAtlasData_getTexture(JSContext *cx, uint32_t
 extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_register_cocos2dx_dragonbones_TextureAtlasData(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_TextureAtlasData_classOps = {
+    static const JSClassOps dragonBones_TextureAtlasData_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -905,8 +884,6 @@ void js_register_cocos2dx_dragonbones_TextureAtlasData(JSContext *cx, JS::Handle
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
     jsb_dragonBones_TextureAtlasData_prototype = JS_InitClass(
         cx, global,
@@ -915,8 +892,8 @@ void js_register_cocos2dx_dragonbones_TextureAtlasData(JSContext *cx, JS::Handle
         empty_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_dragonBones_TextureAtlasData_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "TextureAtlasData"));
@@ -1180,7 +1157,6 @@ bool js_cocos2dx_dragonbones_AnimationData_constructor(JSContext *cx, uint32_t a
 
 void js_dragonBones_AnimationData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (AnimationData)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -1200,7 +1176,7 @@ void js_dragonBones_AnimationData_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_AnimationData(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_AnimationData_classOps = {
+    static const JSClassOps dragonBones_AnimationData_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_AnimationData_finalize,
@@ -1208,7 +1184,7 @@ void js_register_cocos2dx_dragonbones_AnimationData(JSContext *cx, JS::HandleObj
     };
     static JSClass dragonBones_AnimationData_class = {
         "AnimationData",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_AnimationData_classOps
     };
     jsb_dragonBones_AnimationData_class = &dragonBones_AnimationData_class;
@@ -1234,14 +1210,15 @@ void js_register_cocos2dx_dragonbones_AnimationData(JSContext *cx, JS::HandleObj
         JS_FS_END
     };
 
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_dragonBones_AnimationData_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_dragonBones_AnimationData_class,
-        js_cocos2dx_dragonbones_AnimationData_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_AnimationData_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_AnimationData_prototype);
@@ -1364,7 +1341,6 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_BoneData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (BoneData)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -1384,7 +1360,7 @@ void js_dragonBones_BoneData_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_BoneData(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_BoneData_classOps = {
+    static const JSClassOps dragonBones_BoneData_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_BoneData_finalize,
@@ -1392,7 +1368,7 @@ void js_register_cocos2dx_dragonbones_BoneData(JSContext *cx, JS::HandleObject g
     };
     static JSClass dragonBones_BoneData_class = {
         "BoneData",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_BoneData_classOps
     };
     jsb_dragonBones_BoneData_class = &dragonBones_BoneData_class;
@@ -1401,10 +1377,6 @@ void js_register_cocos2dx_dragonbones_BoneData(JSContext *cx, JS::HandleObject g
         JS_PSGS("name", js_cocos2dx_dragonbones_BoneData_get_name, js_cocos2dx_dragonbones_BoneData_set_name, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PSGS("parent", js_cocos2dx_dragonbones_BoneData_get_parent, js_cocos2dx_dragonbones_BoneData_set_parent, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
-    };
-
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
     };
 
     static JSFunctionSpec st_funcs[] = {
@@ -1417,10 +1389,10 @@ void js_register_cocos2dx_dragonbones_BoneData(JSContext *cx, JS::HandleObject g
         cx, global,
         parent_proto,
         jsb_dragonBones_BoneData_class,
-        js_cocos2dx_dragonbones_BoneData_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_BoneData_constructor, 0,
         properties,
-        funcs,
-        nullptr, // no static properties
+        nullptr,
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_BoneData_prototype);
@@ -1562,7 +1534,6 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_SlotData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (SlotData)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -1582,7 +1553,7 @@ void js_dragonBones_SlotData_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_SlotData(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_SlotData_classOps = {
+    static const JSClassOps dragonBones_SlotData_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_SlotData_finalize,
@@ -1590,7 +1561,7 @@ void js_register_cocos2dx_dragonbones_SlotData(JSContext *cx, JS::HandleObject g
     };
     static JSClass dragonBones_SlotData_class = {
         "SlotData",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_SlotData_classOps
     };
     jsb_dragonBones_SlotData_class = &dragonBones_SlotData_class;
@@ -1599,10 +1570,6 @@ void js_register_cocos2dx_dragonbones_SlotData(JSContext *cx, JS::HandleObject g
         JS_PSGS("name", js_cocos2dx_dragonbones_SlotData_get_name, js_cocos2dx_dragonbones_SlotData_set_name, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PSGS("parent", js_cocos2dx_dragonbones_SlotData_get_parent, js_cocos2dx_dragonbones_SlotData_set_parent, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
-    };
-
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
     };
 
     static JSFunctionSpec st_funcs[] = {
@@ -1616,10 +1583,10 @@ void js_register_cocos2dx_dragonbones_SlotData(JSContext *cx, JS::HandleObject g
         cx, global,
         parent_proto,
         jsb_dragonBones_SlotData_class,
-        js_cocos2dx_dragonbones_SlotData_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_SlotData_constructor, 0,
         properties,
-        funcs,
-        nullptr, // no static properties
+        nullptr,
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_SlotData_prototype);
@@ -1702,7 +1669,6 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_SkinData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (SkinData)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -1722,7 +1688,7 @@ void js_dragonBones_SkinData_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_SkinData(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_SkinData_classOps = {
+    static const JSClassOps dragonBones_SkinData_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_SkinData_finalize,
@@ -1730,7 +1696,7 @@ void js_register_cocos2dx_dragonbones_SkinData(JSContext *cx, JS::HandleObject g
     };
     static JSClass dragonBones_SkinData_class = {
         "SkinData",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_SkinData_classOps
     };
     jsb_dragonBones_SkinData_class = &dragonBones_SkinData_class;
@@ -1738,10 +1704,6 @@ void js_register_cocos2dx_dragonbones_SkinData(JSContext *cx, JS::HandleObject g
     static JSPropertySpec properties[] = {
         JS_PSGS("name", js_cocos2dx_dragonbones_SkinData_get_name, js_cocos2dx_dragonbones_SkinData_set_name, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
-    };
-
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
     };
 
     static JSFunctionSpec st_funcs[] = {
@@ -1754,10 +1716,10 @@ void js_register_cocos2dx_dragonbones_SkinData(JSContext *cx, JS::HandleObject g
         cx, global,
         parent_proto,
         jsb_dragonBones_SkinData_class,
-        js_cocos2dx_dragonbones_SkinData_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_SkinData_constructor, 0,
         properties,
-        funcs,
-        nullptr, // no static properties
+        nullptr,
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_SkinData_prototype);
@@ -2016,7 +1978,6 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_ArmatureData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ArmatureData)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -2036,7 +1997,7 @@ void js_dragonBones_ArmatureData_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_ArmatureData(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_ArmatureData_classOps = {
+    static const JSClassOps dragonBones_ArmatureData_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_ArmatureData_finalize,
@@ -2044,7 +2005,7 @@ void js_register_cocos2dx_dragonbones_ArmatureData(JSContext *cx, JS::HandleObje
     };
     static JSClass dragonBones_ArmatureData_class = {
         "ArmatureData",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_ArmatureData_classOps
     };
     jsb_dragonBones_ArmatureData_class = &dragonBones_ArmatureData_class;
@@ -2075,10 +2036,10 @@ void js_register_cocos2dx_dragonbones_ArmatureData(JSContext *cx, JS::HandleObje
         cx, global,
         parent_proto,
         jsb_dragonBones_ArmatureData_class,
-        js_cocos2dx_dragonbones_ArmatureData_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_ArmatureData_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_ArmatureData_prototype);
@@ -2233,7 +2194,6 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_DragonBonesData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (DragonBonesData)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -2253,7 +2213,7 @@ void js_dragonBones_DragonBonesData_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_DragonBonesData(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_DragonBonesData_classOps = {
+    static const JSClassOps dragonBones_DragonBonesData_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_DragonBonesData_finalize,
@@ -2261,7 +2221,7 @@ void js_register_cocos2dx_dragonbones_DragonBonesData(JSContext *cx, JS::HandleO
     };
     static JSClass dragonBones_DragonBonesData_class = {
         "DragonBonesData",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_DragonBonesData_classOps
     };
     jsb_dragonBones_DragonBonesData_class = &dragonBones_DragonBonesData_class;
@@ -2288,10 +2248,10 @@ void js_register_cocos2dx_dragonbones_DragonBonesData(JSContext *cx, JS::HandleO
         cx, global,
         parent_proto,
         jsb_dragonBones_DragonBonesData_class,
-        js_cocos2dx_dragonbones_DragonBonesData_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_DragonBonesData_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_DragonBonesData_prototype);
@@ -2562,7 +2522,6 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_EventObject_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EventObject)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -2582,7 +2541,7 @@ void js_dragonBones_EventObject_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_EventObject(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_EventObject_classOps = {
+    static const JSClassOps dragonBones_EventObject_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_EventObject_finalize,
@@ -2590,7 +2549,7 @@ void js_register_cocos2dx_dragonbones_EventObject(JSContext *cx, JS::HandleObjec
     };
     static JSClass dragonBones_EventObject_class = {
         "EventObject",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_EventObject_classOps
     };
     jsb_dragonBones_EventObject_class = &dragonBones_EventObject_class;
@@ -2605,10 +2564,6 @@ void js_register_cocos2dx_dragonbones_EventObject(JSContext *cx, JS::HandleObjec
         JS_PS_END
     };
 
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
-    };
-
     static JSFunctionSpec st_funcs[] = {
         JS_FN("getTypeIndex", js_cocos2dx_dragonbones_EventObject_getTypeIndex, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -2619,10 +2574,10 @@ void js_register_cocos2dx_dragonbones_EventObject(JSContext *cx, JS::HandleObjec
         cx, global,
         parent_proto,
         jsb_dragonBones_EventObject_class,
-        js_cocos2dx_dragonbones_EventObject_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_EventObject_constructor, 0,
         properties,
-        funcs,
-        nullptr, // no static properties
+        nullptr,
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_EventObject_prototype);
@@ -3113,7 +3068,6 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_Armature_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Armature)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -3133,7 +3087,7 @@ void js_dragonBones_Armature_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_Armature(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_Armature_classOps = {
+    static const JSClassOps dragonBones_Armature_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_Armature_finalize,
@@ -3141,7 +3095,7 @@ void js_register_cocos2dx_dragonbones_Armature(JSContext *cx, JS::HandleObject g
     };
     static JSClass dragonBones_Armature_class = {
         "Armature",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_Armature_classOps
     };
     jsb_dragonBones_Armature_class = &dragonBones_Armature_class;
@@ -3181,10 +3135,10 @@ void js_register_cocos2dx_dragonbones_Armature(JSContext *cx, JS::HandleObject g
         cx, global,
         parent_proto,
         jsb_dragonBones_Armature_class,
-        js_cocos2dx_dragonbones_Armature_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_Armature_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_Armature_prototype);
@@ -4046,7 +4000,6 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_Animation_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Animation)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -4066,7 +4019,7 @@ void js_dragonBones_Animation_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_Animation(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_Animation_classOps = {
+    static const JSClassOps dragonBones_Animation_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_Animation_finalize,
@@ -4074,7 +4027,7 @@ void js_register_cocos2dx_dragonbones_Animation(JSContext *cx, JS::HandleObject 
     };
     static JSClass dragonBones_Animation_class = {
         "Animation",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_Animation_classOps
     };
     jsb_dragonBones_Animation_class = &dragonBones_Animation_class;
@@ -4115,10 +4068,10 @@ void js_register_cocos2dx_dragonbones_Animation(JSContext *cx, JS::HandleObject 
         cx, global,
         parent_proto,
         jsb_dragonBones_Animation_class,
-        js_cocos2dx_dragonbones_Animation_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_Animation_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_Animation_prototype);
@@ -4305,7 +4258,7 @@ bool js_cocos2dx_dragonbones_TransformObject_set_globalTransformMatrix(JSContext
 extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_register_cocos2dx_dragonbones_TransformObject(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_TransformObject_classOps = {
+    static const JSClassOps dragonBones_TransformObject_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -4332,8 +4285,6 @@ void js_register_cocos2dx_dragonbones_TransformObject(JSContext *cx, JS::HandleO
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
     jsb_dragonBones_TransformObject_prototype = JS_InitClass(
         cx, global,
@@ -4342,8 +4293,8 @@ void js_register_cocos2dx_dragonbones_TransformObject(JSContext *cx, JS::HandleO
         empty_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_dragonBones_TransformObject_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "TransformObject"));
@@ -4539,7 +4490,6 @@ extern JSObject *jsb_dragonBones_TransformObject_prototype;
 
 void js_dragonBones_Bone_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Bone)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -4559,7 +4509,7 @@ void js_dragonBones_Bone_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_Bone(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_Bone_classOps = {
+    static const JSClassOps dragonBones_Bone_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_Bone_finalize,
@@ -4567,7 +4517,7 @@ void js_register_cocos2dx_dragonbones_Bone(JSContext *cx, JS::HandleObject globa
     };
     static JSClass dragonBones_Bone_class = {
         "Bone",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_Bone_classOps
     };
     jsb_dragonBones_Bone_class = &dragonBones_Bone_class;
@@ -4597,10 +4547,10 @@ void js_register_cocos2dx_dragonbones_Bone(JSContext *cx, JS::HandleObject globa
         cx, global,
         parent_proto,
         jsb_dragonBones_Bone_class,
-        js_cocos2dx_dragonbones_Bone_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_Bone_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_Bone_prototype);
@@ -4777,7 +4727,7 @@ bool js_cocos2dx_dragonbones_Slot_set_displayController(JSContext *cx, uint32_t 
 }
 
 void js_register_cocos2dx_dragonbones_Slot(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_Slot_classOps = {
+    static const JSClassOps dragonBones_Slot_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -4805,17 +4755,16 @@ void js_register_cocos2dx_dragonbones_Slot(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_dragonBones_Slot_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_dragonBones_Slot_class,
         empty_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_dragonBones_Slot_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "Slot"));
@@ -5154,7 +5103,7 @@ bool js_cocos2dx_dragonbones_BaseFactory_getDragonBonesData(JSContext *cx, uint3
 }
 
 void js_register_cocos2dx_dragonbones_BaseFactory(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_BaseFactory_classOps = {
+    static const JSClassOps dragonBones_BaseFactory_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -5183,17 +5132,16 @@ void js_register_cocos2dx_dragonbones_BaseFactory(JSContext *cx, JS::HandleObjec
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_dragonBones_BaseFactory_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_dragonBones_BaseFactory_class,
         empty_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_dragonBones_BaseFactory_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "BaseFactory"));
@@ -5296,7 +5244,6 @@ bool js_cocos2dx_dragonbones_WorldClock_constructor(JSContext *cx, uint32_t argc
 
 void js_dragonBones_WorldClock_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (WorldClock)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -5316,7 +5263,7 @@ void js_dragonBones_WorldClock_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_WorldClock(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_WorldClock_classOps = {
+    static const JSClassOps dragonBones_WorldClock_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_WorldClock_finalize,
@@ -5324,7 +5271,7 @@ void js_register_cocos2dx_dragonbones_WorldClock(JSContext *cx, JS::HandleObject
     };
     static JSClass dragonBones_WorldClock_class = {
         "WorldClock",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_WorldClock_classOps
     };
     jsb_dragonBones_WorldClock_class = &dragonBones_WorldClock_class;
@@ -5340,17 +5287,16 @@ void js_register_cocos2dx_dragonbones_WorldClock(JSContext *cx, JS::HandleObject
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_dragonBones_WorldClock_prototype = JS_InitClass(
         cx, global,
-        nullptr,
+        parent_proto,
         jsb_dragonBones_WorldClock_class,
-        js_cocos2dx_dragonbones_WorldClock_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_WorldClock_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_dragonBones_WorldClock_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "WorldClock"));
@@ -5924,7 +5870,6 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_AnimationState_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (AnimationState)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -5944,7 +5889,7 @@ void js_dragonBones_AnimationState_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_AnimationState(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_AnimationState_classOps = {
+    static const JSClassOps dragonBones_AnimationState_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_AnimationState_finalize,
@@ -5952,7 +5897,7 @@ void js_register_cocos2dx_dragonbones_AnimationState(JSContext *cx, JS::HandleOb
     };
     static JSClass dragonBones_AnimationState_class = {
         "AnimationState",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_AnimationState_classOps
     };
     jsb_dragonBones_AnimationState_class = &dragonBones_AnimationState_class;
@@ -5998,10 +5943,10 @@ void js_register_cocos2dx_dragonbones_AnimationState(JSContext *cx, JS::HandleOb
         cx, global,
         parent_proto,
         jsb_dragonBones_AnimationState_class,
-        js_cocos2dx_dragonbones_AnimationState_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_AnimationState_constructor, 0,
         properties,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_AnimationState_prototype);
@@ -6056,7 +6001,6 @@ extern JSObject *jsb_dragonBones_TextureData_prototype;
 
 void js_dragonBones_CCTextureData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CCTextureData)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -6076,7 +6020,7 @@ void js_dragonBones_CCTextureData_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_CCTextureData(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_CCTextureData_classOps = {
+    static const JSClassOps dragonBones_CCTextureData_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_CCTextureData_finalize,
@@ -6084,17 +6028,13 @@ void js_register_cocos2dx_dragonbones_CCTextureData(JSContext *cx, JS::HandleObj
     };
     static JSClass dragonBones_CCTextureData_class = {
         "CCTextureData",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_CCTextureData_classOps
     };
     jsb_dragonBones_CCTextureData_class = &dragonBones_CCTextureData_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
-    };
-
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
     };
 
     static JSFunctionSpec st_funcs[] = {
@@ -6107,10 +6047,10 @@ void js_register_cocos2dx_dragonbones_CCTextureData(JSContext *cx, JS::HandleObj
         cx, global,
         parent_proto,
         jsb_dragonBones_CCTextureData_class,
-        js_cocos2dx_dragonbones_CCTextureData_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_CCTextureData_constructor, 0,
         properties,
-        funcs,
-        nullptr, // no static properties
+        nullptr,
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_CCTextureData_prototype);
@@ -6165,7 +6105,6 @@ extern JSObject *jsb_dragonBones_TextureAtlasData_prototype;
 
 void js_dragonBones_CCTextureAtlasData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CCTextureAtlasData)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -6185,7 +6124,7 @@ void js_dragonBones_CCTextureAtlasData_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_CCTextureAtlasData(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_CCTextureAtlasData_classOps = {
+    static const JSClassOps dragonBones_CCTextureAtlasData_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_CCTextureAtlasData_finalize,
@@ -6193,17 +6132,13 @@ void js_register_cocos2dx_dragonbones_CCTextureAtlasData(JSContext *cx, JS::Hand
     };
     static JSClass dragonBones_CCTextureAtlasData_class = {
         "CCTextureAtlasData",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_CCTextureAtlasData_classOps
     };
     jsb_dragonBones_CCTextureAtlasData_class = &dragonBones_CCTextureAtlasData_class;
 
     static JSPropertySpec properties[] = {
         JS_PS_END
-    };
-
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
     };
 
     static JSFunctionSpec st_funcs[] = {
@@ -6216,10 +6151,10 @@ void js_register_cocos2dx_dragonbones_CCTextureAtlasData(JSContext *cx, JS::Hand
         cx, global,
         parent_proto,
         jsb_dragonBones_CCTextureAtlasData_class,
-        js_cocos2dx_dragonbones_CCTextureAtlasData_constructor, 0, // constructor
+        js_cocos2dx_dragonbones_CCTextureAtlasData_constructor, 0,
         properties,
-        funcs,
-        nullptr, // no static properties
+        nullptr,
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_CCTextureAtlasData_prototype);
@@ -6495,7 +6430,7 @@ bool js_cocos2dx_dragonbones_CCArmatureDisplay_create(JSContext *cx, uint32_t ar
 extern JSObject *jsb_cocos2d_Node_prototype;
 
 void js_register_cocos2dx_dragonbones_CCArmatureDisplay(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_CCArmatureDisplay_classOps = {
+    static const JSClassOps dragonBones_CCArmatureDisplay_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -6535,10 +6470,10 @@ void js_register_cocos2dx_dragonbones_CCArmatureDisplay(JSContext *cx, JS::Handl
         cx, global,
         parent_proto,
         jsb_dragonBones_CCArmatureDisplay_class,
-        dummy_constructor<dragonBones::CCArmatureDisplay>, 0, // no constructor
+        dummy_constructor<dragonBones::CCArmatureDisplay>, 0,
         properties,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_CCArmatureDisplay_prototype);
@@ -6572,7 +6507,7 @@ bool js_cocos2dx_dragonbones_DBCCSprite_create(JSContext *cx, uint32_t argc, JS:
 extern JSObject *jsb_cocos2d_Sprite_prototype;
 
 void js_register_cocos2dx_dragonbones_DBCCSprite(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_DBCCSprite_classOps = {
+    static const JSClassOps dragonBones_DBCCSprite_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -6585,14 +6520,6 @@ void js_register_cocos2dx_dragonbones_DBCCSprite(JSContext *cx, JS::HandleObject
     };
     jsb_dragonBones_DBCCSprite_class = &dragonBones_DBCCSprite_class;
 
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
-
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
-    };
-
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_dragonbones_DBCCSprite_create, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -6603,10 +6530,10 @@ void js_register_cocos2dx_dragonbones_DBCCSprite(JSContext *cx, JS::HandleObject
         cx, global,
         parent_proto,
         jsb_dragonBones_DBCCSprite_class,
-        dummy_constructor<dragonBones::DBCCSprite>, 0, // no constructor
-        properties,
-        funcs,
-        nullptr, // no static properties
+        dummy_constructor<dragonBones::DBCCSprite>, 0,
+        nullptr,
+        nullptr,
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_DBCCSprite_prototype);
@@ -6679,7 +6606,6 @@ extern JSObject *jsb_dragonBones_Slot_prototype;
 
 void js_dragonBones_CCSlot_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CCSlot)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -6699,7 +6625,7 @@ void js_dragonBones_CCSlot_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_CCSlot(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_CCSlot_classOps = {
+    static const JSClassOps dragonBones_CCSlot_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_CCSlot_finalize,
@@ -6707,14 +6633,10 @@ void js_register_cocos2dx_dragonbones_CCSlot(JSContext *cx, JS::HandleObject glo
     };
     static JSClass dragonBones_CCSlot_class = {
         "CCSlot",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_CCSlot_classOps
     };
     jsb_dragonBones_CCSlot_class = &dragonBones_CCSlot_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getClassTypeIndex", js_cocos2dx_dragonbones_CCSlot_getClassTypeIndex, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -6731,10 +6653,10 @@ void js_register_cocos2dx_dragonbones_CCSlot(JSContext *cx, JS::HandleObject glo
         cx, global,
         parent_proto,
         jsb_dragonBones_CCSlot_class,
-        js_cocos2dx_dragonbones_CCSlot_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_dragonbones_CCSlot_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
+        nullptr,
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_dragonBones_CCSlot_prototype);
@@ -6964,7 +6886,6 @@ extern JSObject *jsb_dragonBones_BaseFactory_prototype;
 
 void js_dragonBones_CCFactory_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CCFactory)", obj);
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
@@ -6984,7 +6905,7 @@ void js_dragonBones_CCFactory_finalize(JSFreeOp *fop, JSObject *obj) {
     }
 }
 void js_register_cocos2dx_dragonbones_CCFactory(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps dragonBones_CCFactory_classOps = {
+    static const JSClassOps dragonBones_CCFactory_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_dragonBones_CCFactory_finalize,
@@ -6992,14 +6913,10 @@ void js_register_cocos2dx_dragonbones_CCFactory(JSContext *cx, JS::HandleObject 
     };
     static JSClass dragonBones_CCFactory_class = {
         "CCFactory",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &dragonBones_CCFactory_classOps
     };
     jsb_dragonBones_CCFactory_class = &dragonBones_CCFactory_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PS_END
-    };
 
     static JSFunctionSpec funcs[] = {
         JS_FN("getTextureDisplay", js_cocos2dx_dragonbones_CCFactory_getTextureDisplay, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -7009,18 +6926,16 @@ void js_register_cocos2dx_dragonbones_CCFactory(JSContext *cx, JS::HandleObject 
         JS_FS_END
     };
 
-    JSFunctionSpec *st_funcs = NULL;
-
     JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseFactory_prototype);
     jsb_dragonBones_CCFactory_prototype = JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_CCFactory_class,
-        js_cocos2dx_dragonbones_CCFactory_constructor, 0, // constructor
-        properties,
+        js_cocos2dx_dragonbones_CCFactory_constructor, 0,
+        nullptr,
         funcs,
-        nullptr, // no static properties
-        st_funcs);
+        nullptr,
+        nullptr);
 
     JS::RootedObject proto(cx, jsb_dragonBones_CCFactory_prototype);
     JS::RootedValue className(cx, std_string_to_jsval(cx, "CCFactory"));

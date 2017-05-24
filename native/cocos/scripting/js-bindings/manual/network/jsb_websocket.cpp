@@ -440,7 +440,7 @@ void register_jsb_websocket(JSContext *cx, JS::HandleObject global)
     
     static JSClass websocket_class = {
         "WebSocket",
-        JSCLASS_HAS_RESERVED_SLOTS(2),
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &websocket_classOps
     };
     js_cocos2dx_websocket_class = &websocket_class;
@@ -455,20 +455,17 @@ void register_jsb_websocket(JSContext *cx, JS::HandleObject global)
         JS_FN("close",js_cocos2dx_extension_WebSocket_close, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
-
-    static JSFunctionSpec st_funcs[] = {
-        JS_FS_END
-    };
-
+    
+    JS::RootedObject parent_proto(cx, nullptr);
     js_cocos2dx_websocket_prototype = JS_InitClass(
                                                 cx, global,
-                                                nullptr,
+                                                parent_proto,
                                                 js_cocos2dx_websocket_class,
                                                 js_cocos2dx_extension_WebSocket_constructor, 0, // constructor
                                                 properties,
                                                 funcs,
                                                 nullptr, // no static properties
-                                                st_funcs);
+                                                nullptr);
 
     JS::RootedObject jsclassObj(cx, anonEvaluate(cx, global, "(function () { return WebSocket; })()").toObjectOrNull());
 

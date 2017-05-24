@@ -476,18 +476,18 @@ void register_all_cocos2dx_dragonbones_manual(JSContext* cx, JS::HandleObject gl
     JS_DefineFunction(cx, animationState, "getAnimationData", js_cocos2dx_dragonbones_AnimationState_getAnimationData, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
     JS::RootedObject armatureData(cx, jsb_dragonBones_ArmatureData_prototype);
-    JS_DefineProperty(cx, armatureData, "animations", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, js_cocos2dx_dragonbones_ArmatureData_get_animations);
-    JS_DefineProperty(cx, armatureData, "bones", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, js_cocos2dx_dragonbones_ArmatureData_get_bones);
-    JS_DefineProperty(cx, armatureData, "skins", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, js_cocos2dx_dragonbones_ArmatureData_get_skins);
-    JS_DefineProperty(cx, armatureData, "slots", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, js_cocos2dx_dragonbones_ArmatureData_get_slots);
+    JS_DefineProperty(cx, armatureData, "animations", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_SHARED, js_cocos2dx_dragonbones_ArmatureData_get_animations);
+    JS_DefineProperty(cx, armatureData, "bones", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_SHARED, js_cocos2dx_dragonbones_ArmatureData_get_bones);
+    JS_DefineProperty(cx, armatureData, "skins", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_SHARED, js_cocos2dx_dragonbones_ArmatureData_get_skins);
+    JS_DefineProperty(cx, armatureData, "slots", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_SHARED, js_cocos2dx_dragonbones_ArmatureData_get_slots);
 
     JS::RootedObject dragonBonesData(cx, jsb_dragonBones_DragonBonesData_prototype);
-    JS_DefineProperty(cx, dragonBonesData, "armatureNames", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, js_cocos2dx_dragonbones_DragonBonesData_get_armatureNames);
+    JS_DefineProperty(cx, dragonBonesData, "armatureNames", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_SHARED, js_cocos2dx_dragonbones_DragonBonesData_get_armatureNames);
 
     JS::RootedObject tmpObj(cx);
     get_or_create_js_obj(cx, global, "dragonBones", &tmpObj);
     get_or_create_js_obj(cx, tmpObj, "WorldClock", &tmpObj);
-    JS_DefineProperty(cx, tmpObj, "clock", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, js_cocos2dx_dragonbones_WorldClock_getClock);
+    JS_DefineProperty(cx, tmpObj, "clock", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_SHARED, js_cocos2dx_dragonbones_WorldClock_getClock);
 
     JS::RootedObject worldClock(cx, jsb_dragonBones_WorldClock_prototype);
     JS_DefineFunction(cx, worldClock, "add", js_cocos2dx_dragonbones_WorldClock_add, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
@@ -499,9 +499,9 @@ void register_all_cocos2dx_dragonbones_manual(JSContext* cx, JS::HandleObject gl
     JS_DefineFunction(cx, factoryObj, "getFactory", js_cocos2dx_dragonbones_CCFactory_getFactory, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
     JS::RootedObject transformObject(cx, jsb_dragonBones_TransformObject_prototype);
-    JS_DefineProperty(cx, transformObject, "global", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, js_cocos2dx_dragonbones_TransformObject_getGlobal);
-    JS_DefineProperty(cx, transformObject, "origin", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, js_cocos2dx_dragonbones_TransformObject_getOrigin);
-    JS_DefineProperty(cx, transformObject, "offset", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, js_cocos2dx_dragonbones_TransformObject_getOffset);
+    JS_DefineProperty(cx, transformObject, "global", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_SHARED, js_cocos2dx_dragonbones_TransformObject_getGlobal);
+    JS_DefineProperty(cx, transformObject, "origin", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_SHARED, js_cocos2dx_dragonbones_TransformObject_getOrigin);
+    JS_DefineProperty(cx, transformObject, "offset", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_SHARED, js_cocos2dx_dragonbones_TransformObject_getOffset);
     
     JS::RootedObject slotObject(cx, jsb_dragonBones_Slot_prototype);
     JS_DefineFunction(cx, slotObject, "getRawDisplay", js_cocos2dx_dragonbones_Slot_getRawDisplay, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);

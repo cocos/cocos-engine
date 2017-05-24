@@ -493,10 +493,13 @@ void js_add_FinalizeHook(JSContext *cx, JS::HandleObject target, bool isRef)
 
 JS::HandleValue anonEvaluate(JSContext *cx, JS::HandleObject thisObj, const char* string)
 {
+    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
     JS::CompileOptions opts(cx);
     JS::RootedValue out(cx);
-    //JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
     JS::Evaluate(cx, opts, string, (unsigned int)strlen(string), &out);
+    if (JS_IsExceptionPending(cx)) {
+        handlePendingException(cx);
+    }
     return out;
 }
 
@@ -3675,65 +3678,6 @@ static JS::HandleValue string_vector_to_jsval(JSContext* cx, const std::vector<s
     return jsret;
 }
 
-bool js_cocos2dx_CCFileUtils_setSearchResolutionsOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : nullptr);
-    JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
-
-    if (argc == 1) {
-        std::vector<std::string> arg0;
-        ok &= jsval_to_string_vector(cx, args.get(0), arg0);
-        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-        cobj->setSearchResolutionsOrder(arg0);
-        args.rval().setUndefined();
-        return true;
-    }
-    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
-    return false;
-}
-
-bool js_cocos2dx_CCFileUtils_setSearchPaths(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : nullptr);
-    JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
-
-    if (argc == 1) {
-        std::vector<std::string> arg0;
-        ok &= jsval_to_string_vector(cx, args.get(0), arg0);
-        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-        cobj->setSearchPaths(arg0);
-        args.rval().setUndefined();
-        return true;
-    }
-    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
-    return false;
-}
-bool js_cocos2dx_CCFileUtils_getSearchPaths(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : nullptr);
-    JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
-
-    if (argc == 0) {
-        std::vector<std::string> ret = cobj->getSearchPaths();
-        JS::RootedValue jsret(cx, string_vector_to_jsval(cx, ret));
-        args.rval().set(jsret);
-        return true;
-    }
-    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
-    return false;
-}
-
 bool js_cocos2dx_CCFileUtils_getDataFromFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -3807,24 +3751,6 @@ bool js_cocos2dx_CCFileUtils_writeDataToFile(JSContext *cx, uint32_t argc, JS::V
     }
 
     JS_ReportErrorUTF8(cx, "js_cocos2dx_CCFileUtils_writeDataToFile : wrong number of arguments: %d, was expecting %d", argc, 2);
-    return false;
-}
-
-bool js_cocos2dx_CCFileUtils_getSearchResolutionsOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : nullptr);
-    JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
-
-    if (argc == 0) {
-        std::vector<std::string> ret = cobj->getSearchResolutionsOrder();
-        JS::RootedValue jsret(cx, string_vector_to_jsval(cx, ret));
-        args.rval().set(jsret);
-        return true;
-    }
-    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
@@ -4535,15 +4461,8 @@ bool js_cocos2dx_EventKeyboard_constructor(JSContext *cx, uint32_t argc, JS::Val
 
 extern JSObject *jsb_cocos2d_Event_prototype;
 
-static bool js_is_native_obj(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().set(JS::BooleanValue(true));
-    return true;
-}
-
 void js_register_cocos2dx_EventKeyboard(JSContext *cx, JS::HandleObject global) {
-    const JSClassOps EventKeyboard_classOps = {
+    static const JSClassOps EventKeyboard_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         nullptr,
@@ -4555,31 +4474,24 @@ void js_register_cocos2dx_EventKeyboard(JSContext *cx, JS::HandleObject global) 
         &EventKeyboard_classOps
     };
     jsb_cocos2d_EventKeyboard_class = &EventKeyboard_class;
-    
-    static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_ENUMERATE | JSPROP_PERMANENT),
-        JS_PS_END
-    };
-
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
-    };
-
-    JSFunctionSpec *st_funcs = nullptr;
 
     JS::RootedObject parentProto(cx, jsb_cocos2d_Event_prototype);
     jsb_cocos2d_EventKeyboard_prototype = JS_InitClass(cx, global,
                                                        parentProto,
                                                        jsb_cocos2d_EventKeyboard_class,
                                                        js_cocos2dx_EventKeyboard_constructor, 0, // constructor
-                                                       properties,
-                                                       funcs,
+                                                       nullptr,
+                                                       nullptr,
                                                        nullptr, // no static properties
-                                                       st_funcs);
-
+                                                       nullptr);
+    
     // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_cocos2d_EventKeyboard_prototype);
     jsb_register_class<cocos2d::EventKeyboard>(cx, jsb_cocos2d_EventKeyboard_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventKeyboard"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 // console.log("Message");
@@ -4793,7 +4705,7 @@ bool js_cocos2dx_PolygonInfo_constructor(JSContext *cx, uint32_t argc, JS::Value
     CCASSERT(typeMapIter != _js_global_type_map.end(), "Can't find the class type!");
     typeClass = typeMapIter->second;
     CCASSERT(typeClass, "The value is null.");
-    JS::RootedObject proto(cx, typeClass->proto);
+    JS::RootedObject proto(cx, typeClass->proto->get());
     JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
     JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
     args.rval().set(objVal);
@@ -4823,7 +4735,7 @@ void js_cocos2d_PolygonInfo_finalize(JSFreeOp *fop, JSObject *obj) {
 
 void js_register_cocos2dx_PolygonInfo(JSContext *cx, JS::HandleObject global)
 {
-    const JSClassOps PolygonInfo_classOps = {
+    static const JSClassOps PolygonInfo_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_cocos2d_PolygonInfo_finalize,
@@ -4831,14 +4743,13 @@ void js_register_cocos2dx_PolygonInfo(JSContext *cx, JS::HandleObject global)
     };
     static JSClass PolygonInfo_class = {
         "PolygonInfo",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &PolygonInfo_classOps
     };
     jsb_cocos2d_PolygonInfo_class = &PolygonInfo_class;
     
     static JSPropertySpec properties[] =
     {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PSGS("rect", js_get_PolygonInfo_rect, js_set_PolygonInfo_rect, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PSGS("filename", js_get_PolygonInfo_filename, js_set_PolygonInfo_filename, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
@@ -4852,21 +4763,24 @@ void js_register_cocos2dx_PolygonInfo(JSContext *cx, JS::HandleObject global)
         JS_FN("getVertCount", js_cocos2dx_PolygonInfo_getVertCount, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
-
-    JSFunctionSpec *st_funcs = nullptr;
-
+    
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_cocos2d_PolygonInfo_prototype = JS_InitClass(cx, global,
-                                                     nullptr, // parent proto
+                                                     parent_proto,
                                                      jsb_cocos2d_PolygonInfo_class,
                                                      js_cocos2dx_PolygonInfo_constructor, 0, // constructor
                                                      properties,
                                                      funcs,
                                                      nullptr, // no static properties
-                                                     st_funcs);
+                                                     nullptr);
 
     // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_cocos2d_PolygonInfo_prototype);
     jsb_register_class<cocos2d::PolygonInfo>(cx, jsb_cocos2d_PolygonInfo_class, proto);
+    
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "PolygonInfo"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
 
 JSClass  *jsb_cocos2d_AutoPolygon_class;
@@ -4952,7 +4866,7 @@ bool js_cocos2dx_AutoPolygon_constructor(JSContext *cx, uint32_t argc, JS::Value
     CCASSERT(typeMapIter != _js_global_type_map.end(), "Can't find the class type!");
     typeClass = typeMapIter->second;
     CCASSERT(typeClass, "The value is null.");
-    JS::RootedObject proto(cx, typeClass->proto);
+    JS::RootedObject proto(cx, typeClass->proto->get());
     JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
     JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
     args.rval().set(objVal);
@@ -4981,7 +4895,7 @@ void js_cocos2d_AutoPolygon_finalize(JSFreeOp *fop, JSObject *obj) {
 
 void js_register_cocos2dx_AutoPolygon(JSContext *cx, JS::HandleObject global)
 {
-    const JSClassOps AutoPolygon_classOps = {
+    static const JSClassOps AutoPolygon_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         js_cocos2d_AutoPolygon_finalize,
@@ -4989,32 +4903,24 @@ void js_register_cocos2dx_AutoPolygon(JSContext *cx, JS::HandleObject global)
     };
     static JSClass AutoPolygon_class = {
         "AutoPolygon",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &AutoPolygon_classOps
     };
     jsb_cocos2d_AutoPolygon_class = &AutoPolygon_class;
-
-    static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_PS_END
-    };
-
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
-    };
 
     static JSFunctionSpec st_funcs[] = {
         JS_FN("generatePolygon", js_cocos2dx_AutoPolygon_generatePolygon, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
-
+    
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_cocos2d_AutoPolygon_prototype = JS_InitClass(cx, global,
-                                                     nullptr, // parent proto
+                                                     parent_proto,
                                                      jsb_cocos2d_AutoPolygon_class,
                                                      js_cocos2dx_AutoPolygon_constructor, 0, // constructor
-                                                     properties,
-                                                     funcs,
-                                                     NULL, // no static properties
+                                                     nullptr,
+                                                     nullptr,
+                                                     nullptr,
                                                      st_funcs);
 
     // add the proto and JSClass to the type->js info hash table
@@ -5111,7 +5017,7 @@ void jsb_ObjFinalizeHook_finalize(JSFreeOp *fop, JSObject *obj)
 
 void jsb_register_RefFinalizeHook(JSContext *cx, JS::HandleObject global)
 {
-    const JSClassOps RefFinalizeHook_classOps = {
+    static const JSClassOps RefFinalizeHook_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         jsb_RefFinalizeHook_finalize,
@@ -5119,20 +5025,21 @@ void jsb_register_RefFinalizeHook(JSContext *cx, JS::HandleObject global)
     };
     static JSClass RefFinalizeHook_class = {
         "RefFinalizeHook",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &RefFinalizeHook_classOps
     };
     jsb_RefFinalizeHook_class = &RefFinalizeHook_class;
-
+    
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_RefFinalizeHook_prototype = JS_InitClass(cx, global,
-                                              nullptr, // parent proto
+                                              parent_proto,
                                               jsb_RefFinalizeHook_class,
                                               jsb_RefFinalizeHook_constructor, 0, // constructor
                                               nullptr, nullptr, nullptr, nullptr);
 }
 void jsb_register_ObjFinalizeHook(JSContext *cx, JS::HandleObject global)
 {
-    const JSClassOps ObjFinalizeHook_classOps = {
+    static const JSClassOps ObjFinalizeHook_classOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
         jsb_ObjFinalizeHook_finalize,
@@ -5140,13 +5047,14 @@ void jsb_register_ObjFinalizeHook(JSContext *cx, JS::HandleObject global)
     };
     static JSClass ObjFinalizeHook_class = {
         "ObjFinalizeHook",
-        JSCLASS_HAS_PRIVATE,
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
         &ObjFinalizeHook_classOps
     };
     jsb_ObjFinalizeHook_class = &ObjFinalizeHook_class;
     
+    JS::RootedObject parent_proto(cx, nullptr);
     jsb_ObjFinalizeHook_prototype = JS_InitClass(cx, global,
-                                              nullptr, // parent proto
+                                              parent_proto,
                                               jsb_ObjFinalizeHook_class,
                                               jsb_ObjFinalizeHook_constructor, 0, // constructor
                                               nullptr, nullptr, nullptr, nullptr);
@@ -5269,10 +5177,6 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     JS_DefineFunction(cx, tmpObj, "init", js_cocos2dx_CCLayer_init, 0, JSPROP_ENUMERATE  | JSPROP_PERMANENT);
 
     tmpObj.set(jsb_cocos2d_FileUtils_prototype);
-    JS_DefineFunction(cx, tmpObj, "setSearchResolutionsOrder", js_cocos2dx_CCFileUtils_setSearchResolutionsOrder, 1, JSPROP_PERMANENT );
-    JS_DefineFunction(cx, tmpObj, "setSearchPaths", js_cocos2dx_CCFileUtils_setSearchPaths, 1, JSPROP_PERMANENT );
-    JS_DefineFunction(cx, tmpObj, "getSearchPaths", js_cocos2dx_CCFileUtils_getSearchPaths, 0, JSPROP_PERMANENT );
-    JS_DefineFunction(cx, tmpObj, "getSearchResolutionsOrder", js_cocos2dx_CCFileUtils_getSearchResolutionsOrder, 0, JSPROP_PERMANENT );
     JS_DefineFunction(cx, tmpObj, "createDictionaryWithContentsOfFile", js_cocos2dx_FileUtils_createDictionaryWithContentsOfFile, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "getDataFromFile", js_cocos2dx_CCFileUtils_getDataFromFile, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "writeDataToFile", js_cocos2dx_CCFileUtils_writeDataToFile, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);

@@ -81,8 +81,9 @@ class CC_JS_DLL ScriptingCore : public cocos2d::ScriptEngineProtocol
 {
 private:
     JSContext *_cx;
-    JS::PersistentRootedObject _global;
+    JS::PersistentRootedObject *_global;
     JS::PersistentRootedObject _debugGlobal;
+    JSCompartment *_oldCompartment;
     SimpleRunLoop* _runLoop;
     bool _jsInited;
     bool _needCleanup;
@@ -477,7 +478,7 @@ public:
      * Gets the global object
      * @return @~english The global object
      */
-    JSObject* getGlobalObject() { return _global.get(); }
+    JSObject* getGlobalObject() { return _global->get(); }
     
     /**@~english
      * Checks whether a C++ function is overrided in js prototype chain
@@ -540,7 +541,7 @@ public:
 
     bool handleKeyboardEvent(void* nativeObj, cocos2d::EventKeyboard::KeyCode keyCode, bool isPressed, cocos2d::Event* event);
     bool handleFocusEvent(void* nativeObj, cocos2d::ui::Widget* widgetLoseFocus, cocos2d::ui::Widget* widgetGetFocus);
-
+    
     void restartVM();
 };
 
@@ -554,12 +555,14 @@ js_type_class_t *jsb_register_class(JSContext *cx, JSClass *jsClass, JS::HandleO
         p = (js_type_class_t *)malloc(sizeof(js_type_class_t));
         memset(p, 0, sizeof(js_type_class_t));
         p->jsclass = jsClass;
-        p->proto = proto;
+        p->proto = new JS::PersistentRootedObject(cx, proto);
         
         _js_global_type_map.insert(std::make_pair(typeName, p));
     }
     return p;
 }
+
+void make_class_extend(JSContext *cx, JS::HandleObject proto);
 
 /** creates two new proxies: one associated with the nativeObj,
  and another one associated with the JsObj */
