@@ -279,6 +279,20 @@ PhysicsCollider.properties = {
         set: function (value) {
             this._restitution = value;
         }
+    },
+
+    /**
+     * !#en
+     * Physics collider will find the rigidbody component on the node and set to this property.
+     * !#zh
+     * 碰撞体会在初始化时查找节点上是否存在刚体，如果查找成功则赋值到这个属性上。
+     * @property {RigidBody} body
+     * @default null
+     */
+    body: {
+        default: null,
+        type: cc.RigidBody,
+        visible: false
     }
 };
 

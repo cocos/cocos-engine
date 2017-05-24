@@ -125,7 +125,7 @@ var Joint = cc.Class({
      * Get the anchor point on rigidbody in world coordinates.
      * !#zh
      * 获取刚体世界坐标系下的锚点。
-     * @method worldAnchor
+     * @method getWorldAnchor
      * @return {Vec2}
      */
     getWorldAnchor: function () {
