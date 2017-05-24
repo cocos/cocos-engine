@@ -60,7 +60,6 @@ bool js_creator_PhysicsContactListener_setEndContact(JSContext *cx, uint32_t arg
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
                 auto lambda = [=](b2Contact* larg0) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                     JS::RootedValue largv(cx);
                     if (larg0) {
                         largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
@@ -105,7 +104,6 @@ bool js_creator_PhysicsContactListener_setBeginContact(JSContext *cx, uint32_t a
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
                 auto lambda = [=](b2Contact* larg0) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                     JS::RootedValue largv(cx);
                     if (larg0) {
                         // box2d will reuse cached memory, need first remove old proxy when create new jsobject
@@ -156,7 +154,6 @@ bool js_creator_PhysicsContactListener_setPreSolve(JSContext *cx, uint32_t argc,
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
                 auto lambda = [=](b2Contact* larg0) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                     JS::RootedValue largv(cx);
                     if (larg0) {
                         largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
@@ -202,7 +199,6 @@ bool js_creator_PhysicsContactListener_setPostSolve(JSContext *cx, uint32_t argc
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
                 auto lambda = [=](b2Contact* larg0, const creator::PhysicsContactImpulse* larg1) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                     JS::AutoValueVector largv(cx);
                     if (larg0) {
                         largv.append(JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0)));

@@ -35,7 +35,6 @@ bool js_cocos2dx_network_Downloader_setOnTaskError(JSContext *cx, uint32_t argc,
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](const cocos2d::network::DownloadTask & larg0, int larg1, int larg2, const std::basic_string<char> & larg3) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            largv = downloadTask_to_jsval(cx, larg0);
@@ -90,7 +89,6 @@ bool js_cocos2dx_network_Downloader_setOnTaskProgress(JSContext *cx, uint32_t ar
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](const cocos2d::network::DownloadTask & larg0, long long larg1, long long larg2, long long larg3) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            largv = downloadTask_to_jsval(cx, larg0);
@@ -183,7 +181,6 @@ bool js_cocos2dx_network_Downloader_setOnFileTaskSuccess(JSContext *cx, uint32_t
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](const cocos2d::network::DownloadTask & larg0) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            largv = downloadTask_to_jsval(cx, larg0);

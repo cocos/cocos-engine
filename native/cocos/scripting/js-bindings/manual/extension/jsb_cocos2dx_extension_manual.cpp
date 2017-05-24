@@ -250,8 +250,6 @@ public:
         }
         if (ok)
         {
-            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-
             Size size;
             bool isSucceed = jsval_to_ccsize(cx, ret, &size);
             if (isSucceed) return size;
@@ -312,8 +310,6 @@ private:
         JS::RootedValue dataVal(cx, JS::ObjectOrNullValue(p->obj));
 
         JS::RootedObject obj(cx, _JSTableViewDataSource);
-        JSAutoCompartment ac(cx, obj);
-
         if (JS_HasProperty(cx, obj, jsFunctionName.c_str(), &hasAction) && hasAction)
         {
             if(!JS_GetProperty(cx, obj, jsFunctionName.c_str(), &temp_retval))
@@ -345,8 +341,6 @@ private:
         dataVal.append(ssize_to_jsval(cx,idx));
 
         JS::RootedObject obj(cx, _JSTableViewDataSource);
-        JSAutoCompartment ac(cx, obj);
-
         if (JS_HasProperty(cx, obj, jsFunctionName.c_str(), &hasAction) && hasAction)
         {
             if(!JS_GetProperty(cx, obj, jsFunctionName.c_str(), &temp_retval))
@@ -736,7 +730,6 @@ bool js_cocos2dx_extension_EventListenerAssetsManagerEx_init(JSContext *cx, uint
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
                 auto lambda = [=](cocos2d::extension::EventAssetsManagerEx* larg0) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                     JS::RootedValue largv(cx, JS::NullValue());
                     do {
                         if (larg0) {
@@ -793,7 +786,6 @@ bool js_cocos2dx_extension_EventListenerAssetsManagerEx_create(JSContext *cx, ui
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1)));
                 wrapper = func.get();
                 auto lambda = [=](cocos2d::extension::EventAssetsManagerEx* larg0) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                     JS::RootedValue largv(cx, JS::NullValue());
                     do {
                         if (larg0) {
@@ -946,8 +938,6 @@ void __JSDownloaderDelegator::onError()
         JS::RootedValue callback(_cx, JS::ObjectOrNullValue(_jsCallback));
         if (!callback.isNull()) {
             JS::RootedObject global(_cx, ScriptingCore::getInstance()->getGlobalObject());
-            JSAutoCompartment ac(_cx, global);
-            
             JS::RootedValue succeed(_cx, JS::FalseHandleValue);
             JS::HandleValueArray args(succeed);
             JS::RootedValue retval(_cx);
@@ -963,8 +953,6 @@ void __JSDownloaderDelegator::onSuccess(Texture2D *tex)
     Director::getInstance()->getScheduler()->performFunctionInCocosThread([this, tex]
     {
         JS::RootedObject global(_cx, ScriptingCore::getInstance()->getGlobalObject());
-        JSAutoCompartment ac(_cx, global);
-
         JS::AutoValueVector valArr(_cx);
         if (tex)
         {

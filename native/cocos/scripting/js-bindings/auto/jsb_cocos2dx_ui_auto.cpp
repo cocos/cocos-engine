@@ -856,7 +856,6 @@ bool js_cocos2dx_ui_Widget_addCCSEventListener(JSContext *cx, uint32_t argc, JS:
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](cocos2d::Ref* larg0, int larg1) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -1666,7 +1665,6 @@ bool js_cocos2dx_ui_Widget_addTouchEventListener(JSContext *cx, uint32_t argc, J
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](cocos2d::Ref* larg0, cocos2d::ui::Widget::TouchEventType larg1) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -1797,7 +1795,6 @@ bool js_cocos2dx_ui_Widget_addClickEventListener(JSContext *cx, uint32_t argc, J
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -4690,7 +4687,6 @@ bool js_cocos2dx_ui_CheckBox_addEventListener(JSContext *cx, uint32_t argc, JS::
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](cocos2d::Ref* larg0, cocos2d::ui::CheckBox::EventType larg1) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -4961,7 +4957,6 @@ bool js_cocos2dx_ui_RadioButton_addEventListener(JSContext *cx, uint32_t argc, J
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](cocos2d::ui::RadioButton* larg0, cocos2d::ui::RadioButton::EventType larg1) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -5361,7 +5356,6 @@ bool js_cocos2dx_ui_RadioButtonGroup_addEventListener(JSContext *cx, uint32_t ar
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](cocos2d::ui::RadioButton* larg0, int larg1, cocos2d::ui::RadioButtonGroup::EventType larg2) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -7887,7 +7881,6 @@ bool js_cocos2dx_ui_ScrollView_addEventListener(JSContext *cx, uint32_t argc, JS
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](cocos2d::Ref* larg0, cocos2d::ui::ScrollView::EventType larg1) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -8980,7 +8973,6 @@ bool js_cocos2dx_ui_ListView_addEventListener(JSContext *cx, uint32_t argc, JS::
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](cocos2d::Ref* larg0, cocos2d::ui::ListView::EventType larg1) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -9862,7 +9854,6 @@ bool js_cocos2dx_ui_Slider_addEventListener(JSContext *cx, uint32_t argc, JS::Va
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](cocos2d::Ref* larg0, cocos2d::ui::Slider::EventType larg1) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -11294,7 +11285,6 @@ bool js_cocos2dx_ui_TextField_addEventListener(JSContext *cx, uint32_t argc, JS:
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](cocos2d::Ref* larg0, cocos2d::ui::TextField::EventType larg1) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -12506,7 +12496,6 @@ bool js_cocos2dx_ui_PageView_addEventListener(JSContext *cx, uint32_t argc, JS::
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](cocos2d::Ref* larg0, cocos2d::ui::PageView::EventType larg1) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -14958,7 +14947,6 @@ bool js_cocos2dx_ui_RichText_initWithXML(JSContext *cx, uint32_t argc, JS::Value
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(2), args.thisv()));
 		        auto lambda = [=](const std::basic_string<char> & larg0) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            largv = std_string_to_jsval(cx, larg0);
@@ -15590,7 +15578,6 @@ bool js_cocos2dx_ui_RichText_createWithXML(JSContext *cx, uint32_t argc, JS::Val
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(2), args.thisv()));
 		        auto lambda = [=](const std::basic_string<char> & larg0) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            largv = std_string_to_jsval(cx, larg0);
@@ -20081,7 +20068,6 @@ bool js_cocos2dx_ui_TabControl_setTabChangedEventListener(JSContext *cx, uint32_
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
 		        auto lambda = [=](int larg0, cocos2d::ui::TabControl::EventType larg1) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            largv = JS::Int32Value(larg0);

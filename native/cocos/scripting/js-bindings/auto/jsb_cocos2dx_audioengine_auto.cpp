@@ -442,7 +442,6 @@ bool js_cocos2dx_audioengine_AudioEngine_preload(JSContext *cx, uint32_t argc, J
 			        }
 			        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
 			        auto lambda = [=](bool larg0) -> void {
-			            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 			            JS::AutoValueVector valArr(cx);
 			            JS::RootedValue largv(cx);
 			            largv = JS::BooleanValue(larg0);
@@ -678,7 +677,6 @@ bool js_cocos2dx_audioengine_AudioEngine_setFinishCallback(JSContext *cx, uint32
 		        }
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
 		        auto lambda = [=](int larg0, const std::basic_string<char> & larg1) -> void {
-		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            largv = JS::Int32Value(larg0);

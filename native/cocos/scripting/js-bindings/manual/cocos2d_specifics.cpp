@@ -493,7 +493,6 @@ void js_add_FinalizeHook(JSContext *cx, JS::HandleObject target, bool isRef)
 
 JS::HandleValue anonEvaluate(JSContext *cx, JS::HandleObject thisObj, const char* string)
 {
-    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
     JS::CompileOptions opts(cx);
     JS::RootedValue out(cx);
     JS::Evaluate(cx, opts, string, (unsigned int)strlen(string), &out);
@@ -513,7 +512,6 @@ void js_add_object_reference(JS::HandleValue owner, JS::HandleValue target)
     ScriptingCore *engine = ScriptingCore::getInstance();
     JSContext *cx = engine->getGlobalContext();
     JS::RootedObject global(cx, engine->getGlobalObject());
-    JSAutoCompartment(cx, global);
     JS::RootedObject jsbObj(cx);
     get_or_create_js_obj(cx, global, "jsb", &jsbObj);
     JS::RootedValue jsbVal(cx, JS::ObjectOrNullValue(jsbObj));
@@ -539,7 +537,6 @@ void js_remove_object_reference(JS::HandleValue owner, JS::HandleValue target)
     ScriptingCore *engine = ScriptingCore::getInstance();
     JSContext *cx = engine->getGlobalContext();
     JS::RootedObject global(cx, engine->getGlobalObject());
-    JSAutoCompartment(cx, global);
     JS::RootedObject ownerObj(cx, owner.toObjectOrNull());
     JS::RootedObject targetObj(cx, target.toObjectOrNull());
 
@@ -569,7 +566,6 @@ void js_add_object_root(JS::HandleValue target)
     ScriptingCore *engine = ScriptingCore::getInstance();
     JSContext *cx = engine->getGlobalContext();
     JS::RootedObject global(cx, engine->getGlobalObject());
-    JSAutoCompartment(cx, global);
     JS::RootedObject jsbObj(cx);
     get_or_create_js_obj(cx, global, "jsb", &jsbObj);
     JS::RootedValue jsbVal(cx, JS::ObjectOrNullValue(jsbObj));
@@ -579,7 +575,7 @@ void js_add_object_root(JS::HandleValue target)
     }
 
     JS::RootedObject root(cx);
-    get_or_create_js_obj(cx, jsbObj, "jsb._root", &root);
+    get_or_create_js_obj(cx, jsbObj, "_root", &root);
     JS::RootedValue valRoot(cx, JS::ObjectOrNullValue(root));
 
     JS::RootedValue retval(cx);
@@ -599,14 +595,6 @@ void js_remove_object_root(JS::HandleValue target)
     ScriptingCore *engine = ScriptingCore::getInstance();
     JSContext *cx = engine->getGlobalContext();
     JS::RootedObject global(cx, engine->getGlobalObject());
-    JSAutoCompartment(cx, global);
-    JS::RootedObject targetObj(cx, target.toObjectOrNull());
-    js_proxy_t *pTarget = jsb_get_js_proxy(cx, targetObj);
-    if (!pTarget)
-    {
-        return;
-    }
-
     JS::RootedObject jsbObj(cx);
     get_or_create_js_obj(cx, global, "jsb", &jsbObj);
     JS::RootedValue jsbVal(cx, JS::ObjectOrNullValue(jsbObj));
@@ -656,7 +644,6 @@ JSCallbackWrapper::~JSCallbackWrapper()
 {
     ScriptingCore* sc = ScriptingCore::getInstance();
     JSContext* cx = sc->getGlobalContext();
-    JSAutoCompartment(cx, sc->getGlobalObject());
     
     JS::RootedValue ownerVal(cx, _owner);
     if (sc->getFinalizing() || ownerVal.isNullOrUndefined())
@@ -699,7 +686,6 @@ void JSCallbackWrapper::setJSCallbackFunc(JS::HandleValue func) {
         JS::RootedValue ownerVal(cx, _owner);
         if (!ownerVal.isNullOrUndefined())
         {
-            JSAutoCompartment(cx, &ownerVal.toObject());
             JS::RootedValue target(cx, _jsCallback);
             if (!target.isNullOrUndefined())
             {
@@ -718,7 +704,6 @@ void JSCallbackWrapper::setJSCallbackThis(JS::HandleValue thisObj) {
         JS::RootedValue ownerVal(cx, _owner);
         if (!ownerVal.isNullOrUndefined())
         {
-            JSAutoCompartment(cx, &ownerVal.toObject());
             JS::RootedValue target(cx, _jsThisObj);
             if (!target.isNullOrUndefined())
             {
@@ -737,7 +722,6 @@ void JSCallbackWrapper::setJSExtraData(JS::HandleValue data) {
         JS::RootedValue ownerVal(cx, _owner);
         if (!ownerVal.isNullOrUndefined())
         {
-            JSAutoCompartment(cx, &ownerVal.toObject());
             JS::RootedValue target(cx, _extraData);
             if (!target.isNullOrUndefined())
             {
@@ -796,7 +780,6 @@ static bool js_callFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
         }
 
         bool ok = ret->initWithFunction([=](Node* sender){
-            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
             JS::RootedValue jsvalThis(cx, tmpCobj->getJSCallbackThis());
             JS::RootedObject thisObj(cx, jsvalThis.toObjectOrNull());
             JS::RootedValue jsvalCallback(cx, tmpCobj->getJSCallbackFunc());
@@ -865,7 +848,6 @@ bool js_cocos2dx_CallFunc_initWithFunction(JSContext *cx, uint32_t argc, JS::Val
         }
 
         action->initWithFunction([=](Node* sender){
-            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
             JS::RootedValue jsvalThis(cx, tmpCobj->getJSCallbackThis());
             JS::RootedObject thisObj(cx, jsvalThis.toObjectOrNull());
             JS::RootedValue jsvalCallback(cx, tmpCobj->getJSCallbackFunc());
@@ -1196,8 +1178,6 @@ void JSScheduleWrapper::dump()
 void JSScheduleWrapper::scheduleFunc(float dt)
 {
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-
-    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
     
     JS::RootedValue data(cx, JS::DoubleValue(dt));
     JS::RootedValue callback(cx, getJSCallbackFunc());
@@ -1220,8 +1200,6 @@ void JSScheduleWrapper::scheduleFunc(float dt)
 
 void JSScheduleWrapper::update(float dt)
 {
-    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-    
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedValue data(cx, JS::DoubleValue(dt));
 
@@ -1924,7 +1902,6 @@ bool js_CCScheduler_schedule(JSContext *cx, uint32_t argc, JS::Value *vp)
 
             std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, targetObj, callbackVal, args.thisv()));
             auto lambda = [=](float larg0) -> void {
-                JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                 JS::RootedValue largv(cx, JS::DoubleValue(larg0));
                 JS::RootedValue rval(cx);
                 JS::HandleValueArray args(largv);
@@ -4259,7 +4236,6 @@ bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, JS::Valu
                     JS::AutoValueVector largv(cx);
                     do {
                         if (larg0) {
-                            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                             largv.append(JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::RenderTexture>(cx, (cocos2d::RenderTexture*)larg0)));
                         } else {
                             largv.append(JS::NullValue());
@@ -4324,7 +4300,6 @@ bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, JS::Valu
                     JS::AutoValueVector largv(cx);
                     do {
                         if (larg0) {
-                            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                             largv.append(JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::RenderTexture>(cx, (cocos2d::RenderTexture*)larg0)));
                         } else {
                             largv.append(JS::NullValue());

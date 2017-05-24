@@ -20,14 +20,14 @@ static bool jsb_cocos2dx_experimental_webView_setOnShouldStartLoading(JSContext 
     if(argc == 1){
         std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, args.get(0), args.thisv()));
         cobj->setOnShouldStartLoading([=](experimental::ui::WebView *sender, const std::string &url)->bool{
-            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-            jsval arg[2];
+            JS::AutoValueVector arg(cx);
             JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
-            arg[0] = JS::ObjectOrNullValue(jsobj);
-            arg[1] = std_string_to_jsval(cx, url);
+            arg.append(JS::ObjectOrNullValue(jsobj));
+            arg.append(std_string_to_jsval(cx, url));
+            JS::HandleValueArray argsv(arg);
             JS::RootedValue rval(cx);
 
-            bool ok = func->invoke(2, arg, &rval);
+            bool ok = func->invoke(argsv, &rval);
             if (!ok && JS_IsExceptionPending(cx)) {
                 handlePendingException(cx);
             }
@@ -51,14 +51,14 @@ static bool jsb_cocos2dx_experimental_webView_setOnDidFinishLoading(JSContext *c
     if(argc == 1){
         std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, args.get(0), args.thisv()));
         cobj->setOnDidFinishLoading([=](experimental::ui::WebView *sender, const std::string &url)->void{
-            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-            jsval arg[2];
+            JS::AutoValueVector arg(cx);
             JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
-            arg[0] = JS::ObjectOrNullValue(jsobj);
-            arg[1] = std_string_to_jsval(cx, url);
+            arg.append(JS::ObjectOrNullValue(jsobj));
+            arg.append(std_string_to_jsval(cx, url));
+            JS::HandleValueArray argsv(arg);
             JS::RootedValue rval(cx);
 
-            bool ok = func->invoke(2, arg, &rval);
+            bool ok = func->invoke(argsv, &rval);
             if (!ok && JS_IsExceptionPending(cx)) {
                 handlePendingException(cx);
             }
@@ -81,14 +81,14 @@ static bool jsb_cocos2dx_experimental_webView_setOnDidFailLoading(JSContext *cx,
     if(argc == 1){
         std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, args.get(0), args.thisv()));
         cobj->setOnDidFailLoading([=](experimental::ui::WebView *sender, const std::string &url)->void{
-            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-            jsval arg[2];
+            JS::AutoValueVector arg(cx);
             JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
-            arg[0] = JS::ObjectOrNullValue(jsobj);
-            arg[1] = std_string_to_jsval(cx, url);
+            arg.append(JS::ObjectOrNullValue(jsobj));
+            arg.append(std_string_to_jsval(cx, url));
+            JS::HandleValueArray argsv(arg);
             JS::RootedValue rval(cx);
 
-            bool ok = func->invoke(2, arg, &rval);
+            bool ok = func->invoke(argsv, &rval);
             if (!ok && JS_IsExceptionPending(cx)) {
                 handlePendingException(cx);
             }
@@ -111,14 +111,14 @@ static bool jsb_cocos2dx_experimental_webView_setOnJSCallback(JSContext *cx, uin
     if(argc == 1){
         std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, args.get(0), args.thisv()));
         cobj->setOnJSCallback([=](experimental::ui::WebView *sender, const std::string &url)->void{
-            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-            jsval arg[2];
+            JS::AutoValueVector arg(cx);
             JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
-            arg[0] = JS::ObjectOrNullValue(jsobj);
-            arg[1] = std_string_to_jsval(cx, url);
+            arg.append(JS::ObjectOrNullValue(jsobj));
+            arg.append(std_string_to_jsval(cx, url));
+            JS::HandleValueArray argsv(arg);
             JS::RootedValue rval(cx);
 
-            bool ok = func->invoke(2, arg, &rval);
+            bool ok = func->invoke(argsv, &rval);
             if (!ok && JS_IsExceptionPending(cx)) {
                 handlePendingException(cx);
             }

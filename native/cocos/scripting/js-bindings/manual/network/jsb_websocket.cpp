@@ -79,8 +79,6 @@ public:
         if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
             return;
 
-        JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
 
         // Set the protocol which server selects.
@@ -107,8 +105,6 @@ public:
 
         if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
             return;
-
-        JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
         JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));
@@ -160,8 +156,6 @@ public:
 
         if (cocos2d::Director::getInstance() != nullptr && cocos2d::Director::getInstance()->getRunningScene() && cocos2d::ScriptEngineManager::getInstance() != nullptr)
         {
-            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-            
             JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
             JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));
             JS::RootedValue vp(cx);
@@ -193,8 +187,6 @@ public:
 
         if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
             return;
-
-        JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
         JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));

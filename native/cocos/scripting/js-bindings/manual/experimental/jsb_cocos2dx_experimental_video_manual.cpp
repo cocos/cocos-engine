@@ -21,13 +21,14 @@ static bool jsb_cocos2dx_experimental_ui_VideoPlayer_addEventListener(JSContext 
     if(argc == 1){
         std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, args.get(0), args.thisv()));
         cobj->addEventListener([=](Ref* widget, experimental::ui::VideoPlayer::EventType type)->void{
-            jsval arg[2];
+            JS::AutoValueVector arg(cx);
             JS::RootedObject jsobj(cx, js_get_or_create_jsobject<Ref>(cx, widget));
-            arg[0] = JS::ObjectOrNullValue(jsobj);
-            arg[1] = int32_to_jsval(cx, (int32_t)type);
+            arg.append(JS::ObjectOrNullValue(jsobj));
+            arg.append(int32_to_jsval(cx, (int32_t)type));
+            JS::HandleValueArray argsv(arg);
             JS::RootedValue rval(cx);
 
-            bool ok = func->invoke(2, arg, &rval);
+            bool ok = func->invoke(argsv, &rval);
             if (!ok && JS_IsExceptionPending(cx)) {
                 handlePendingException(cx);
             }

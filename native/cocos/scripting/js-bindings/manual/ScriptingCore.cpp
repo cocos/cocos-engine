@@ -212,8 +212,6 @@ void ScriptingCore::executeJSFunctionWithThisObj(JS::HandleValue thisObj,
 {
     if (!callback.isNullOrUndefined() || !thisObj.isNullOrUndefined())
     {
-        JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-
         // Very important: The last parameter 'retVal' passed to 'JS_CallFunctionValue' should not be a NULL pointer.
         // If it's a NULL pointer, crash will be triggered in 'JS_CallFunctionValue'. To find out the reason of this crash is very difficult.
         // So we have to check the availability of 'retVal'.
@@ -466,7 +464,6 @@ void ScriptingCore::string_report(JS::HandleValue val)
 
 bool ScriptingCore::evalString(const char *string, JS::MutableHandleValue outVal, const char *filename, JSContext* cx, JS::HandleObject global)
 {
-    JSAutoCompartment ac(cx, global);
     JS::PersistentRootedScript script(cx);
     
     JS::CompileOptions op(cx);
@@ -651,8 +648,6 @@ bool ScriptingCore::compileScript(const std::string& path, JS::HandleObject glob
 
     cocos2d::FileUtils *futil = cocos2d::FileUtils::getInstance();
 
-    JSAutoCompartment ac(_cx, global);
-
     JS::RootedObject obj(_cx, global);
     bool compileSucceed = false;
 
@@ -755,7 +750,6 @@ bool ScriptingCore::runScript(const std::string& path, JS::HandleObject global, 
     bool ok = compileScript(path, global, &script);
     if (ok) {
         JS::RootedValue rval(cx);
-        JSAutoCompartment ac(cx, global);
         ok = JS_ExecuteScript(cx, script, &rval);
         if (false == ok) {
             cocos2d::log("Evaluating %s failed (evaluatedOK == JS_FALSE)", path.c_str());
@@ -778,7 +772,6 @@ bool ScriptingCore::requireScript(const char *path, JS::HandleObject global, JSC
     {
         cx = _cx;
     }
-    JSAutoCompartment ac(cx, global);
 
     JS::RootedScript script(cx);
     bool ok = compileScript(path, global, &script);
@@ -913,7 +906,6 @@ bool ScriptingCore::log(JSContext* cx, uint32_t argc, JS::Value *vp)
 void ScriptingCore::retainScriptObject(cocos2d::Ref* owner, cocos2d::Ref* target)
 {
     JS::RootedObject global(_cx, _global->get());
-    JSAutoCompartment ac(_cx, global);
     JS::RootedObject jsbObj(_cx);
     get_or_create_js_obj(_cx, global, "jsb", &jsbObj);
     JS::RootedValue jsbVal(_cx, JS::ObjectOrNullValue(jsbObj));
@@ -947,7 +939,6 @@ void ScriptingCore::retainScriptObject(cocos2d::Ref* owner, cocos2d::Ref* target
 void ScriptingCore::rootScriptObject(cocos2d::Ref* target)
 {
     JS::RootedObject global(_cx, _global->get());
-    JSAutoCompartment ac(_cx, global);
     JS::RootedObject jsbObj(_cx);
     get_or_create_js_obj(_cx, global, "jsb", &jsbObj);
     JS::RootedValue jsbVal(_cx, JS::ObjectOrNullValue(jsbObj));
@@ -982,7 +973,6 @@ void ScriptingCore::rootScriptObject(cocos2d::Ref* target)
 void ScriptingCore::releaseScriptObject(cocos2d::Ref* owner, cocos2d::Ref* target)
 {
     JS::RootedObject global(_cx, _global->get());
-    JSAutoCompartment ac(_cx, global);
     JS::RootedObject jsbObj(_cx);
     get_or_create_js_obj(_cx, global, "jsb", &jsbObj);
     JS::RootedValue jsbVal(_cx, JS::ObjectOrNullValue(jsbObj));
@@ -1016,7 +1006,6 @@ void ScriptingCore::releaseScriptObject(cocos2d::Ref* owner, cocos2d::Ref* targe
 void ScriptingCore::unrootScriptObject(cocos2d::Ref* target)
 {
     JS::RootedObject global(_cx, _global->get());
-    JSAutoCompartment ac(_cx, global);
     JS::RootedObject jsbObj(_cx);
     get_or_create_js_obj(_cx, global, "jsb", &jsbObj);
     JS::RootedValue jsbVal(_cx, JS::ObjectOrNullValue(jsbObj));
@@ -1061,7 +1050,6 @@ void ScriptingCore::releaseAllChildrenRecursive(cocos2d::Node *node)
 void ScriptingCore::releaseAllNativeRefs(cocos2d::Ref* owner)
 {
     JS::RootedObject global(_cx, _global->get());
-    JSAutoCompartment ac(_cx, global);
     JS::RootedObject jsbObj(_cx);
     get_or_create_js_obj(_cx, global, "jsb", &jsbObj);
     JS::RootedValue jsbVal(_cx, JS::ObjectOrNullValue(jsbObj));
@@ -1194,7 +1182,6 @@ void ScriptingCore::cleanupSchedulesAndActions(js_proxy_t* p)
 bool ScriptingCore::isFunctionOverridedInJS(JS::HandleObject obj, const std::string& name, JSNative native)
 {
     JS::RootedObject jsobj(_cx, obj);
-    JSAutoCompartment ac(_cx, jsobj);
     JS::RootedValue value(_cx);
     bool ok = JS_GetProperty(_cx, jsobj, name.c_str(), &value);
     if (ok && !value.isNullOrUndefined() && !JS_IsNativeFunction(value.toObjectOrNull(), native))
@@ -1219,8 +1206,6 @@ int ScriptingCore::handleActionEvent(void* data)
 
     js_proxy_t * p = jsb_get_native_proxy(actionObject);
     if (!p) return 0;
-
-    JSAutoCompartment ac(_cx, _global->get());
 
     int ret = 0;
     JS::RootedValue retval(_cx);
@@ -1253,8 +1238,6 @@ int ScriptingCore::handleNodeEvent(void* data)
 
     js_proxy_t * p = jsb_get_native_proxy(node);
     if (!p) return 0;
-
-    JSAutoCompartment ac(_cx, _global->get());
 
     int ret = 0;
     JS::RootedValue retval(_cx);
@@ -1320,8 +1303,6 @@ int ScriptingCore::handleComponentEvent(void* data)
     js_proxy_t * p = jsb_get_native_proxy(node);
     if (!p) return 0;
 
-    JSAutoCompartment ac(_cx, _global->get());
-
     int ret = 0;
     JS::RootedValue retval(_cx);
     JS::RootedValue dataVal(_cx, JS::Int32Value(1));
@@ -1362,8 +1343,6 @@ bool ScriptingCore::handleTouchesEvent(void* nativeObj, cocos2d::EventTouch::Eve
 
 bool ScriptingCore::handleTouchesEvent(void* nativeObj, cocos2d::EventTouch::EventCode eventCode, const std::vector<cocos2d::Touch*>& touches, cocos2d::Event* event, JS::MutableHandleValue jsvalRet)
 {
-    JSAutoCompartment ac(_cx, _global->get());
-
     bool ret = false;
     std::string funcName = getTouchesFuncName(eventCode);
     JS::RootedObject jsretArr(_cx, JS_NewArrayObject(_cx, 0));
@@ -1411,8 +1390,6 @@ bool ScriptingCore::handleTouchEvent(void* nativeObj, cocos2d::EventTouch::Event
 
 bool ScriptingCore::handleTouchEvent(void* nativeObj, cocos2d::EventTouch::EventCode eventCode, cocos2d::Touch* touch, cocos2d::Event* event, JS::MutableHandleValue jsvalRet)
 {
-    JSAutoCompartment ac(_cx, _global->get());
-
     std::string funcName = getTouchFuncName(eventCode);
     bool ret = false;
 
@@ -1444,8 +1421,6 @@ bool ScriptingCore::handleMouseEvent(void* nativeObj, cocos2d::EventMouse::Mouse
 
 bool ScriptingCore::handleMouseEvent(void* nativeObj, cocos2d::EventMouse::MouseEventType eventType, cocos2d::Event* event, JS::MutableHandleValue jsvalRet)
 {
-    JSAutoCompartment ac(_cx, _global->get());
-
     std::string funcName = getMouseFuncName(eventType);
     bool ret = false;
 
@@ -1502,8 +1477,6 @@ bool ScriptingCore::executeFunctionWithOwner(JS::HandleValue owner, const char *
 
     do
     {
-        JSAutoCompartment ac(cx, obj);
-
         if (JS_HasProperty(cx, obj, name, &hasFunc) && hasFunc) {
             if (!JS_GetProperty(cx, obj, name, &funcVal)) {
                 break;
@@ -1531,7 +1504,6 @@ bool ScriptingCore::handleKeyboardEvent(void* nativeObj, cocos2d::EventKeyboard:
         return false;
     
     JS::RootedObject listener(_cx, p->obj);
-    JSAutoCompartment ac(_cx, listener);
 
     bool ret = false;
 
@@ -1558,8 +1530,6 @@ bool ScriptingCore::handleKeyboardEvent(void* nativeObj, cocos2d::EventKeyboard:
 
 bool ScriptingCore::handleFocusEvent(void* nativeObj, cocos2d::ui::Widget* widgetLoseFocus, cocos2d::ui::Widget* widgetGetFocus)
 {
-    JSAutoCompartment ac(_cx, _global->get());
-
     js_proxy_t * p = jsb_get_native_proxy(nativeObj);
     if (nullptr == p)
         return false;
@@ -1581,8 +1551,6 @@ bool ScriptingCore::handleFocusEvent(void* nativeObj, cocos2d::ui::Widget* widge
 int ScriptingCore::executeCustomTouchesEvent(EventTouch::EventCode eventType,
                                        const std::vector<Touch*>& touches, JS::HandleObject obj)
 {
-    JSAutoCompartment ac(_cx, _global->get());
-
     std::string funcName = getTouchesFuncName(eventType);
 
     JS::RootedObject jsretArr(_cx, JS_NewArrayObject(_cx, 0));
@@ -1609,8 +1577,6 @@ int ScriptingCore::executeCustomTouchesEvent(EventTouch::EventCode eventType,
 
 int ScriptingCore::executeCustomTouchEvent(EventTouch::EventCode eventType, Touch *touch, JS::HandleObject obj)
 {
-    JSAutoCompartment ac(_cx, _global->get());
-
     JS::RootedValue retval(_cx);
     std::string funcName = getTouchFuncName(eventType);
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Touch>(touch);
@@ -1625,9 +1591,7 @@ int ScriptingCore::executeCustomTouchEvent(EventTouch::EventCode eventType, Touc
 int ScriptingCore::executeCustomTouchEvent(EventTouch::EventCode eventType,
                                            Touch *touch, JS::HandleObject obj,
                                            JS::MutableHandleValue retval)
-{
-    JSAutoCompartment ac(_cx, _global->get());
-    
+{    
     std::string funcName = getTouchFuncName(eventType);
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Touch>(touch);
     JS::RootedValue arg(_cx, JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(_cx, touch, typeClass)));
@@ -1639,9 +1603,7 @@ int ScriptingCore::executeCustomTouchEvent(EventTouch::EventCode eventType,
 }
 
 int ScriptingCore::executeGlobalFunction(const char* functionName)
-{
-    JSAutoCompartment ac(_cx, _global->get());
-    
+{    
     std::string evalStr = functionName;
     JS::RootedValue globalVal(_cx, JS::ObjectOrNullValue(_global->get()));
     return executeFunctionWithOwner(globalVal, functionName, JS::HandleValueArray::empty());
@@ -1652,7 +1614,6 @@ int ScriptingCore::sendEvent(ScriptEvent* evt)
     if (NULL == evt)
         return 0;
 
-    // special type, can't use this code after JSAutoCompartment
     if (evt->type == kRestartGame)
     {
         restartVM();
@@ -1801,9 +1762,7 @@ void ScriptingCore::garbageCollect()
 //}
 
 //void ScriptingCore::debugProcessInput(const std::string& str)
-//{
-//    JSAutoCompartment ac(_cx, _debugGlobal.get());
-//
+//{//
 //    JSString* jsstr = JS_NewStringCopyZ(_cx, str.c_str());
 //    JS::RootedValue argv(_cx, JS::StringValue(jsstr));
 //    JS::RootedValue outval(_cx);
@@ -2028,8 +1987,6 @@ void ScriptingCore::enableDebugger(unsigned int port)
 {
 //    if (!_debugGlobal)
 //    {
-//        JSAutoCompartment ac0(_cx, _global->get());
-//
 //        JS_SetDebugMode(_cx, true);
 //
 //        _debugGlobal = new (std::nothrow) JS::PersistentRootedObject(_cx, NewGlobalObject(_cx, true));
@@ -2037,7 +1994,6 @@ void ScriptingCore::enableDebugger(unsigned int port)
 //        //AddObjectRoot(_cx, &_debugGlobal.ref()); no need, it's persistent rooted now
 //        //JS_WrapObject(_cx, &_debugGlobal.ref()); Not really needed, JS_WrapObject makes a cross-compartment wrapper for the given JS object
 //        JS::RootedObject rootedDebugObj(_cx, _debugGlobal->get());
-//        JSAutoCompartment acDebug(_cx, rootedDebugObj);
 //        // these are used in the debug program
 //        JS_DefineFunction(_cx, rootedDebugObj, "log", ScriptingCore::log, 0, JSPROP_READONLY | JSPROP_ENUMERATE | JSPROP_PERMANENT);
 //        JS_DefineFunction(_cx, rootedDebugObj, "require", ScriptingCore::executeScript, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);

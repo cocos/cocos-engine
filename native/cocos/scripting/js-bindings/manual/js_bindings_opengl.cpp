@@ -43,7 +43,6 @@ void GLNode::onDraw(Mat4 &transform, uint32_t flags)
     if (jsObj.get())
     {
          bool found = false;
-         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
          JS_HasProperty(cx, jsObj, "draw", &found);
          if (found) {

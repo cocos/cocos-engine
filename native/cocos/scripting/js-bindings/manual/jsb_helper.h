@@ -63,15 +63,6 @@ return false; \
 } \
 bool klass::name(JSContext *cx, uint32_t argc, JS::Value *vp)
 
-#define JS_WRAP_OBJECT_IN_VAL(klass, cobj, out) \
-do { \
-JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, &klass::js_class, klass::js_proto)); \
-if (obj) { \
-JS_SetPrivate(obj, cobj); \
-out = JS::ObjectOrNullValue(obj); \
-} \
-} while(0) \
-
 #define JS_BINDED_FUNC_FOR_DEF(klass, name) \
 JS_FN(#name, klass##_func_##name, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT)
 
@@ -116,27 +107,5 @@ JS_PSG(#propName, _js_get_##klass##_##propName, JSPROP_ENUMERATE | JSPROP_PERMAN
 
 #define JS_BINDED_PROP_DEF_ACCESSOR(klass, propName) \
 JS_PSGS(#propName, _js_get_##klass##_##propName, _js_set_##klass##_##propName, JSPROP_ENUMERATE | JSPROP_PERMANENT)
-
-#define JS_CREATE_UINT_WRAPPED(valOut, propName, val) \
-do { \
-JSObject* jsobj = JS_NewPlainObject(cx); \
-jsval propVal = JS::Int32Value(val); \
-JS_SetProperty(cx, jsobj, "__" propName, &propVal); \
-valOut = JS::ObjectOrNullValue(jsobj); \
-} while(0)
-
-#define JS_GET_UINT_WRAPPED(inVal, propName, out) \
-do { \
-if (inVal.isObject()) {\
-JSObject* jsobj = JSVAL_TO_OBJECT(inVal); \
-jsval outVal; \
-JS_GetProperty(cx, jsobj, "__" propName, &outVal); \
-JS_ValueToECMAUint32(cx, outVal, &out); \
-} else { \
-int32_t tmp; \
-JS_ValueToInt32(cx, inVal, &tmp); \
-out = (uint32_t)tmp; \
-} \
-} while (0)
 
 #endif /* __XMLHTTPHELPER_H__ */

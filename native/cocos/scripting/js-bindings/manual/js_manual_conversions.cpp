@@ -120,7 +120,6 @@ JSFunctionWrapper::~JSFunctionWrapper()
 {
     ScriptingCore* sc = ScriptingCore::getInstance();
     JSContext* cx = sc->getGlobalContext();
-    JSAutoCompartment(cx, sc->getGlobalObject());
     JS::RootedValue ownerVal(_cx, _owner);
     
     if (sc->getFinalizing() || ownerVal.isNullOrUndefined())
@@ -178,8 +177,6 @@ void JSFunctionWrapper::setOwner(JSContext* cx, JS::HandleValue owner)
 
 bool JSFunctionWrapper::invoke(JS::HandleValueArray args, JS::MutableHandleValue rval)
 {
-    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-    
     JS::RootedObject thisObj(_cx, _jsthis);
     JS::RootedValue fval(_cx, _fval);
     return JS_CallFunctionValue(_cx, thisObj, fval, args, rval);
@@ -1725,8 +1722,6 @@ JS::HandleValue c_string_to_jsval(JSContext* cx, const char* v, size_t length /*
     {
         length = strlen(v);
     }
-
-    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
     if (0 == length)
     {

@@ -219,7 +219,6 @@ void MinXmlHttpRequest::handle_requestResponse(cocos2d::network::HttpClient *sen
             _errorFlag = true;
             _status = 0;
             _statusText.clear();
-            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
             JS::RootedObject callback(_cx);
             if (_onerrorCallback)
             {
@@ -1036,7 +1035,6 @@ void MinXmlHttpRequest::_notify(JS::HandleObject callback, JS::HandleValueArray 
         if (callback)
         {
             JS::RootedObject obj(_cx, p->obj);
-            JSAutoCompartment ac(_cx, obj);
             //JS_IsExceptionPending(cx) && handlePendingException(cx);
             JS::RootedValue callbackVal(_cx, JS::ObjectOrNullValue(callback));
             JS::RootedValue out(_cx);

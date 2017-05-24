@@ -180,7 +180,6 @@ bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, JS::Value
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0)));
                 wrapper = func.get();
                 auto lambda = [=](Acceleration* acc, Event* event) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                     JS::AutoValueVector largv(cx);
                     largv.append(ccacceleration_to_jsval(cx, *acc));
                     if (event) {
@@ -254,7 +253,6 @@ bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, JS::Value *vp)
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1)));
                 wrapper = func.get();
                 auto lambda = [=](EventCustom* event) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                     JS::RootedValue largv(cx);
                     if (event) {
                         js_type_class_t *typeClassEvent = js_get_type_from_native<EventCustom>(event);
@@ -309,7 +307,6 @@ bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, JS:
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
                 auto lambda = [=](cocos2d::EventCustom* event) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
                     JS::RootedValue largv(cx);
                     if (event) {
                         js_type_class_t *typeClassEvent = js_get_type_from_native<EventCustom>(event);

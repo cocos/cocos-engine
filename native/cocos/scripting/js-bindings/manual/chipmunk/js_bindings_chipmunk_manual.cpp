@@ -920,8 +920,6 @@ static cpBool myCollisionBegin(cpArbiter *arb, cpSpace *space, void *data)
         return cpTrue;
     }
     struct collision_handler *handler = (struct collision_handler*) data;
-    
-    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
     JSContext *cx = handler->cx;
     JS::AutoValueVector args(cx);
@@ -956,8 +954,6 @@ static cpBool myCollisionPre(cpArbiter *arb, cpSpace *space, void *data)
     }
     struct collision_handler *handler = (struct collision_handler*) data;
     
-    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-    
     JSContext *cx = handler->cx;
     JS::AutoValueVector args(cx);
     if( handler->is_oo ) {
@@ -991,8 +987,6 @@ static void myCollisionPost(cpArbiter *arb, cpSpace *space, void *data)
     }
     struct collision_handler *handler = (struct collision_handler*) data;
     
-    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-    
     JSContext *cx = handler->cx;
     JS::AutoValueVector args(cx);
     if (handler->is_oo) {
@@ -1018,8 +1012,6 @@ static void myCollisionSeparate(cpArbiter *arb, cpSpace *space, void *data)
     struct collision_handler *handler = (struct collision_handler*) data;
     if (handler == nullptr || !handler->cx || !handler->space)
         return;
-    
-    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
     
     JSContext *cx = handler->cx;
     JS::RootedValue jssep(cx, JS::ObjectOrNullValue(handler->separate));
@@ -1598,7 +1590,6 @@ void JSB_cpSpace_pointQuery_func(cpShape *shape, cpVect point, cpFloat distance,
     auto proxy = jsb_get_native_proxy(shape);
     if(proxy)
     {
-        JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
         JSContext* cx = ((JSB_cp_each_UserData*)data)->cx;
         JS::RootedObject jsCpObject(cx, proxy->obj);
         JS::RootedValue func(cx, *((JSB_cp_each_UserData*)data)->func);
@@ -1656,7 +1647,6 @@ bool JSB_cpSpace_pointQuery(JSContext *cx, uint32_t argc, JS::Value *vp)
 //    auto proxy = jsb_get_native_proxy(cpObject);
 //    if (proxy)
 //    {
-//        JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 //        JSContext* cx = ((JSB_cp_each_UserData*)data)->cx;
 //        JS::RootedObject jsCpObject(cx, proxy->obj);
 //        JS::RootedValue func(cx, *((JSB_cp_each_UserData*)data)->func);
@@ -1713,7 +1703,6 @@ void JSB_cpSpace_segmentQuery_func(cpShape *shape, cpVect point, cpVect normal, 
     auto proxy = jsb_get_native_proxy(shape);
     if (proxy)
     {
-        JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
         JSContext* cx = ((JSB_cp_each_UserData*)data)->cx;
         JS::RootedObject jsCpObject(cx, proxy->obj);
         JS::RootedValue func(cx, *((JSB_cp_each_UserData*)data)->func);
@@ -1771,7 +1760,6 @@ void JSB_cpSpace_bbQuery_func(cpShape *shape, void *data)
     auto proxy = jsb_get_native_proxy(shape);
     if (proxy)
     {
-        JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
         JSContext* cx = ((JSB_cp_each_UserData*)data)->cx;
         JS::RootedObject jsCpObject(cx, proxy->obj);
         JS::RootedValue func(cx, *((JSB_cp_each_UserData*)data)->func);
@@ -1819,8 +1807,6 @@ bool JSB_cpSpace_bbQuery(JSContext *cx, uint32_t argc, JS::Value *vp)
 template<typename T>
 void JSB_cpSpace_each_func(T* cpObject, void *data)
 {
-    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-
     auto proxy = jsb_get_native_proxy(cpObject);
     if(proxy)
     {
@@ -1899,8 +1885,6 @@ bool JSB_cpSpace_eachConstraint(JSContext *cx, uint32_t argc, JS::Value *vp)
 template<typename T>
 void JSB_cpBody_each_func(cpBody *body, T* cpObject, void *data)
 {
-    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-
     auto proxy = jsb_get_native_proxy(cpObject);
     if (proxy)
     {
@@ -2040,7 +2024,6 @@ void __JSB_PostStep_callback(cpSpace *space, void *key, __PostStep_data *data)
     JS::RootedValue func(cx, data->func);
     JS::RootedValue rval(cx);
 
-    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
     JS_CallFunctionValue(cx, nullptr, func, JS::HandleValueArray::empty(), &rval);
 
     free(data);
