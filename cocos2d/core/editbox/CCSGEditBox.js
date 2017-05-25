@@ -321,6 +321,12 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._renderCmd.stayOnTop(this._alwaysOnTop);
     },
 
+    onEnter: function () {
+        _ccsg.Node.prototype.onEnter.call(this);
+        //in case the EditBox being used after changing parent
+        this.createDomElementIfNeeded();
+    },
+
     onExit: function () {
         _ccsg.Node.prototype.onExit.call(this);
         this._renderCmd._removeDomFromGameContainer();
