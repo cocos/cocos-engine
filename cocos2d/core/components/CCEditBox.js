@@ -395,7 +395,7 @@ var EditBox = cc.Class({
         /**
          * !#en The event handler to be called when EditBox began to edit text.
          * !#zh 开始编辑文本输入框触发的事件回调。
-         * @property {Component.EventHandler} editingDidBegin
+         * @property {Component.EventHandler} editingDidBegan
          */
         editingDidBegan: {
             default: [],
