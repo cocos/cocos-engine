@@ -625,7 +625,11 @@ var RigidBody = cc.Class({
         if (!this._b2Body) return [];
 
         if (CC_JSB) {
-            return this._b2Body.GetJointList();
+            var joints = this._b2Body.GetJointList();
+            for (var i = 0; i < joints.length; i++) {
+                joints[i] = joints[i]._joint;
+            }
+            return joints;
         }
         else {
             var joints = [];
