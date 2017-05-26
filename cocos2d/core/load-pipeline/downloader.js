@@ -336,14 +336,16 @@ Downloader.prototype.handle = function (item, callback) {
         this._curConcurrent++;
         downloadFunc.call(this, item, function (err, result) {
             // Concurrent logic
-            self._curConcurrent = Math.max(0, self._curConcurrent - 1);
-            while (self._curConcurrent < self.maxConcurrent) {
-                var nextOne = self._loadQueue.shift();
-                if (!nextOne) {
-                    break;
+            setTimeout(function () {
+                self._curConcurrent = Math.max(0, self._curConcurrent - 1);
+                while (self._curConcurrent < self.maxConcurrent) {
+                    var nextOne = self._loadQueue.shift();
+                    if (!nextOne) {
+                        break;
+                    }
+                    self.handle(nextOne.item, nextOne.callback);
                 }
-                self.handle(nextOne.item, nextOne.callback);
-            }
+            }, 0);
 
             callback && callback(err, result);
         });
