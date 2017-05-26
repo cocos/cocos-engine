@@ -33,9 +33,9 @@ var IsEditorOnEnableCalled = Flags.IsEditorOnEnableCalled;
 
 var callerFunctor = CC_EDITOR && require('./utils/misc').tryCatchFunctor_EDITOR;
 var callOnEnableInTryCatch = CC_EDITOR && callerFunctor('onEnable');
-var callStartInTryCatch = CC_EDITOR && callerFunctor('start', null, null, 'target._objFlags |= ' + IsStartCalled);
-var callUpdateInTryCatch = CC_EDITOR && callerFunctor('update', 'dt', 'dt');
-var callLateUpdateInTryCatch = CC_EDITOR && callerFunctor('lateUpdate', 'dt', 'dt');
+var callStartInTryCatch = CC_EDITOR && callerFunctor('start', null, 'target._objFlags |= ' + IsStartCalled);
+var callUpdateInTryCatch = CC_EDITOR && callerFunctor('update', 'dt');
+var callLateUpdateInTryCatch = CC_EDITOR && callerFunctor('lateUpdate', 'dt');
 var callOnDisableInTryCatch = CC_EDITOR && callerFunctor('onDisable');
 
 function sortedIndex (array, comp) {
@@ -69,15 +69,20 @@ function sortedIndex (array, comp) {
     return ~l;
 }
 
-function stableRemoveInactive (iterator) {
+// remove disabled and not invoked component from array
+function stableRemoveInactive (iterator, flagToClear) {
     var array = iterator.array;
-    for (var i = 0; i < array.length;) {
-        var comp = array[i];
+    var next = iterator.i + 1;
+    while (next < array.length) {
+        var comp = array[next];
         if (comp._enabled && comp.node._activeInHierarchy) {
-            ++i;
+            ++next;
         }
         else {
-            iterator.removeAt(i);
+            iterator.removeAt(next);
+            if (flagToClear) {
+                comp._objFlags &= ~flagToClear;
+            }
         }
     }
 }
@@ -121,10 +126,10 @@ var OneOffInvoker = cc.Class({
         var order = comp.constructor._executionOrder;
         (order === 0 ? this._zero : (order < 0 ? this._neg : this._pos)).fastRemove(comp);
     },
-    cancelInactive () {
-        stableRemoveInactive(this._zero);
-        stableRemoveInactive(this._neg);
-        stableRemoveInactive(this._pos);
+    cancelInactive (flagToClear) {
+        stableRemoveInactive(this._zero, flagToClear);
+        stableRemoveInactive(this._neg, flagToClear);
+        stableRemoveInactive(this._pos, flagToClear);
     },
     invoke () {
         var compsNeg = this._neg;
