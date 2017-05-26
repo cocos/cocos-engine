@@ -234,13 +234,14 @@ function Parser (obj, parent) {
     if (this.globalVariables.length > 0) {
         globalVariablesDeclaration = VAR + this.globalVariables.join(',') + ';';
     }
-    var code = flattenCodeArray([globalVariablesDeclaration || [],
-                                 this.codeArray,
-                                 'return o;'], CC_DEV ? '\n' : '');
+    var code = flattenCodeArray(['return (function(R){',
+                                    globalVariablesDeclaration || [],
+                                    this.codeArray,
+                                    'return o;',
+                                 '})'], CC_DEV ? '\n' : '');
 
     // generate method and bind with objs
-    var createFunction = Function('O', 'F', 'R', code);
-    this.result = createFunction.bind(null, this.objs, this.funcs);
+    this.result = Function('O', 'F', code)(this.objs, this.funcs);
 
     // if (CC_TEST && !isPhantomJS) {
     //     console.log(code);
