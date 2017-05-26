@@ -1898,6 +1898,16 @@ cc.macro = {
      * @default true
      */
     ENABLE_TILEDMAP_CULLING: true,
+
+    /**
+     * !#en 
+     * The max concurrent task number for the downloader
+     * !#zh
+     * 下载任务的最大并发数限制，在安卓平台部分机型或版本上可能需要限制在较低的水平
+     * @property {Number} DOWNLOAD_MAX_CONCURRENT
+     * @default 64
+     */
+    DOWNLOAD_MAX_CONCURRENT: 64,
 };
 
 /**
