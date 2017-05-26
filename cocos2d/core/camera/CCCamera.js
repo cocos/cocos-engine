@@ -182,7 +182,7 @@ let Camera = cc.Class({
         return this._targets;
     },
 
-    calculateCaemraTransformIn: function (transform) {
+    calculateCameraTransformIn: function (transform) {
         let node = this.node;
         
         let wt = node.getNodeToWorldTransform();
@@ -218,7 +218,7 @@ let Camera = cc.Class({
 
     lateUpdate: !CC_EDITOR && function () {
         let t = tempTransform;
-        this.calculateCaemraTransformIn(t);
+        this.calculateCameraTransformIn(t);
         this._sgNode.setTransform(t.a, t.b, t.c, t.d, t.tx, t.ty);
     }
 });
