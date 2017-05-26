@@ -42,12 +42,12 @@ bool jsval_to_b2FixtureDef( JSContext *cx, JS::HandleValue vp, b2FixtureDef *ret
 bool jsval_to_b2BodyDef( JSContext *cx, JS::HandleValue vp, b2BodyDef *ret );
 bool jsval_to_b2JointDef( JSContext *cx, JS::HandleValue vp, b2JointType type, b2JointDef *ret );
 
-JS::HandleValue b2Vec2_to_jsval(JSContext *cx, const b2Vec2& v);
-JS::HandleValue b2Manifold_to_jsval(JSContext* cx, const b2Manifold* v);
-JS::HandleValue b2ContactImpulse_to_jsval(JSContext* cx, const b2ContactImpulse* v);
-JS::HandleValue array_of_b2Fixture_to_jsval(JSContext* cx, const std::vector<b2Fixture*>& fixtures);
-JS::HandleValue array_of_b2Vec2_to_jsval(JSContext* cx, const std::vector<b2Vec2>& vs);
-JS::HandleValue b2AABB_to_jsval(JSContext* cx, const b2AABB& v);
+bool b2Vec2_to_jsval(JSContext *cx, const b2Vec2& v, JS::MutableHandleValue ret);
+bool b2Manifold_to_jsval(JSContext* cx, const b2Manifold* v, JS::MutableHandleValue ret);
+bool b2ContactImpulse_to_jsval(JSContext* cx, const b2ContactImpulse* v, JS::MutableHandleValue ret);
+bool array_of_b2Fixture_to_jsval(JSContext* cx, const std::vector<b2Fixture*>& fixtures, JS::MutableHandleValue ret);
+bool array_of_b2Vec2_to_jsval(JSContext* cx, const std::vector<b2Vec2>& vs, JS::MutableHandleValue ret);
+bool b2AABB_to_jsval(JSContext* cx, const b2AABB& v, JS::MutableHandleValue ret);
 
 void register_all_box2dclasses_manual(JSContext* cx, JS::HandleObject obj);
 

@@ -50,181 +50,110 @@ using namespace cocos2d;
 schedFunc_proxy_t *_schedFunc_target_ht = nullptr;
 schedTarget_proxy_t *_schedObj_target_ht = nullptr;
 
-JSTouchDelegate::TouchDelegateMap JSTouchDelegate::sTouchDelegateMap;
 
-JSTouchDelegate::JSTouchDelegate()
-: _touchListenerAllAtOnce(nullptr)
-, _touchListenerOneByOne(nullptr)
+// JSFunctionWrapper
+JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func)
+: _cppOwner(nullptr)
+, _cx(cx)
 {
-    _obj = nullptr;
+    _jsthis = new jsb::Object();
+    _func = new jsb::Object();
+    _owner = new jsb::Object();
+    
+    _jsthis->setObj(cx, jsthis);
+    _func->setObj(cx, func);
+}
+JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
+: _cppOwner(nullptr)
+, _cx(cx)
+{
+    _jsthis = new jsb::Object();
+    _func = new jsb::Object();
+    _owner = new jsb::Object();
+    
+    _jsthis->setObj(cx, jsthis);
+    _func->setObj(cx, func);
+    setOwner(cx, owner);
 }
 
-JSTouchDelegate::~JSTouchDelegate()
+JSFunctionWrapper::~JSFunctionWrapper()
 {
-    CCLOGINFO("In the destructor of JSTouchDelegate.");
-    if (_obj)
+    ScriptingCore* sc = ScriptingCore::getInstance();
+    JSContext* cx = sc->getGlobalContext();
+    JS::RootedObject ownerObj(cx);
+    _owner->getObj(&ownerObj);
+    JS::RootedValue ownerVal(_cx, JS::ObjectOrNullValue(ownerObj));
+    
+    if (sc->getFinalizing() || !ownerVal.isObject())
     {
-        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-        JS::RootedValue objVal(cx, JS::ObjectOrNullValue(_obj));
-        if (!objVal.isNullOrUndefined())
+        return;
+    }
+    if (_cppOwner != nullptr)
+    {
+        js_proxy *t = jsb_get_js_proxy(cx, ownerObj);
+        // JS object already released, no need to do the following release anymore, gc will take care of everything
+        if (t == nullptr || _cppOwner != t->ptr)
         {
-            js_remove_object_root(objVal);
+            return;
+        }
+    }
+    
+    JS::RootedObject obj(cx);
+    _jsthis->getObj(&obj);
+    JS::RootedValue thisVal(_cx, JS::ObjectOrNullValue(obj));
+    if (!thisVal.isNullOrUndefined())
+    {
+        js_remove_object_reference(ownerVal, thisVal);
+    }
+    _func->getObj(&obj);
+    JS::RootedValue funcVal(_cx, JS::ObjectOrNullValue(obj));
+    if (!funcVal.isNullOrUndefined())
+    {
+        js_remove_object_reference(ownerVal, funcVal);
+    }
+    
+    CC_SAFE_DELETE(_jsthis);
+    CC_SAFE_DELETE(_func);
+    CC_SAFE_DELETE(_owner);
+}
+
+void JSFunctionWrapper::setOwner(JSContext* cx, JS::HandleObject owner)
+{
+    JS::RootedValue ownerVal(cx, JS::ObjectOrNullValue(owner));
+    if (!ownerVal.isNullOrUndefined())
+    {
+        _owner->setObj(cx, owner);
+        js_proxy *t = jsb_get_js_proxy(cx, owner);
+        if (t) {
+            _cppOwner = t->ptr;
+        }
+        
+        JS::RootedObject obj(cx);
+        _jsthis->getObj(&obj);
+        JS::RootedValue thisVal(cx, JS::ObjectOrNullValue(obj));
+        if (thisVal.isObject() && obj.get() != owner.get())
+        {
+            js_add_object_reference(ownerVal, thisVal);
+        }
+        _func->getObj(&obj);
+        JS::RootedValue funcVal(cx, JS::ObjectOrNullValue(obj));
+        if (funcVal.isObject())
+        {
+            js_add_object_reference(ownerVal, funcVal);
         }
     }
 }
 
-void JSTouchDelegate::setDelegateForJSObject(JSObject* pJSObj, JSTouchDelegate* pDelegate)
+bool JSFunctionWrapper::invoke(JS::HandleValueArray args, JS::MutableHandleValue rval)
 {
-    CCASSERT(sTouchDelegateMap.find(pJSObj) == sTouchDelegateMap.end(),
-             "pJSObj can't be found in sTouchDelegateMap.");
-    sTouchDelegateMap.insert(TouchDelegatePair(pJSObj, pDelegate));
+    JS::RootedObject obj(_cx);
+    _jsthis->getObj(&obj);
+    JS::RootedObject thisObj(_cx, obj);
+    _func->getObj(&obj);
+    JS::RootedValue fval(_cx, JS::ObjectOrNullValue(obj));
+    return JS_CallFunctionValue(_cx, thisObj, fval, args, rval);
 }
 
-JSTouchDelegate* JSTouchDelegate::getDelegateForJSObject(JSObject* pJSObj)
-{
-    JSTouchDelegate* pRet = nullptr;
-    TouchDelegateMap::iterator iter = sTouchDelegateMap.find(pJSObj);
-    if (iter != sTouchDelegateMap.end())
-    {
-        pRet = iter->second;
-    }
-    return pRet;
-}
-
-void JSTouchDelegate::removeDelegateForJSObject(JSObject* pJSObj)
-{
-    TouchDelegateMap::iterator iter = sTouchDelegateMap.find(pJSObj);
-    CCASSERT(iter != sTouchDelegateMap.end(), "pJSObj can't be found in sTouchDelegateMap!");
-    if (iter != sTouchDelegateMap.end()) {
-        sTouchDelegateMap.erase(pJSObj);
-    }
-}
-
-void JSTouchDelegate::setJSObject(JS::HandleObject obj)
-{
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedValue objVal(cx);
-    if (_obj)
-    {
-        objVal.set(JS::ObjectOrNullValue(_obj));
-        if (!objVal.isNullOrUndefined())
-        {
-            js_remove_object_root(objVal);
-        }
-    }
-
-    _obj = obj;
-
-    objVal.set(JS::ObjectOrNullValue(obj));
-    if (!objVal.isNullOrUndefined())
-    {
-        js_add_object_root(objVal);
-    }
-}
-
-void JSTouchDelegate::registerStandardDelegate(int priority)
-{
-    auto dispatcher = Director::getInstance()->getEventDispatcher();
-    dispatcher->removeEventListener(_touchListenerAllAtOnce);
-
-    auto listener = EventListenerTouchAllAtOnce::create();
-
-    listener->onTouchesBegan = CC_CALLBACK_2(JSTouchDelegate::onTouchesBegan, this);
-    listener->onTouchesMoved = CC_CALLBACK_2(JSTouchDelegate::onTouchesMoved, this);
-    listener->onTouchesEnded = CC_CALLBACK_2(JSTouchDelegate::onTouchesEnded, this);
-    listener->onTouchesCancelled = CC_CALLBACK_2(JSTouchDelegate::onTouchesCancelled, this);
-
-    dispatcher->addEventListenerWithFixedPriority(listener, priority);
-
-    _touchListenerAllAtOnce = listener;
-}
-
-void JSTouchDelegate::registerTargetedDelegate(int priority, bool swallowsTouches)
-{
-    auto dispatcher = Director::getInstance()->getEventDispatcher();
-    dispatcher->removeEventListener(_touchListenerOneByOne);
-
-    auto listener = EventListenerTouchOneByOne::create();
-    listener->setSwallowTouches(swallowsTouches);
-
-    listener->onTouchBegan = CC_CALLBACK_2(JSTouchDelegate::onTouchBegan, this);
-    listener->onTouchMoved = CC_CALLBACK_2(JSTouchDelegate::onTouchMoved, this);
-    listener->onTouchEnded = CC_CALLBACK_2(JSTouchDelegate::onTouchEnded, this);
-    listener->onTouchCancelled = CC_CALLBACK_2(JSTouchDelegate::onTouchCancelled, this);
-
-    dispatcher->addEventListenerWithFixedPriority(listener, priority);
-    _touchListenerOneByOne = listener;
-}
-
-void JSTouchDelegate::unregisterTouchDelegate()
-{
-    auto dispatcher = Director::getInstance()->getEventDispatcher();
-    dispatcher->removeEventListener(_touchListenerAllAtOnce);
-    dispatcher->removeEventListener(_touchListenerOneByOne);
-
-    this->release();
-}
-
-bool JSTouchDelegate::onTouchBegan(Touch *touch, Event* /*event*/)
-{
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedValue retval(cx);
-    bool bRet = false;
-
-    JS::RootedObject obj(cx, _obj);
-    ScriptingCore::getInstance()->executeCustomTouchEvent(EventTouch::EventCode::BEGAN, touch, obj, &retval);
-
-    if(retval.isBoolean())
-    {
-        bRet = retval.toBoolean();
-    }
-
-    return bRet;
-};
-// optional
-
-void JSTouchDelegate::onTouchMoved(Touch *touch, Event* /*event*/)
-{
-    JS::RootedObject obj(ScriptingCore::getInstance()->getGlobalContext(), _obj);
-    ScriptingCore::getInstance()->executeCustomTouchEvent(EventTouch::EventCode::MOVED, touch, obj);
-}
-
-void JSTouchDelegate::onTouchEnded(Touch *touch, Event* /*event*/)
-{
-    JS::RootedObject obj(ScriptingCore::getInstance()->getGlobalContext(), _obj);
-    ScriptingCore::getInstance()->executeCustomTouchEvent(EventTouch::EventCode::ENDED, touch, obj);
-}
-
-void JSTouchDelegate::onTouchCancelled(Touch *touch, Event* /*event*/)
-{
-    JS::RootedObject obj(ScriptingCore::getInstance()->getGlobalContext(), _obj);
-    ScriptingCore::getInstance()->executeCustomTouchEvent(EventTouch::EventCode::CANCELLED, touch, obj);
-}
-
-// optional
-void JSTouchDelegate::onTouchesBegan(const std::vector<Touch*>& touches, Event* /*event*/)
-{
-    JS::RootedObject obj(ScriptingCore::getInstance()->getGlobalContext(), _obj);
-    ScriptingCore::getInstance()->executeCustomTouchesEvent(EventTouch::EventCode::BEGAN, touches, obj);
-}
-
-void JSTouchDelegate::onTouchesMoved(const std::vector<Touch*>& touches, Event* /*event*/)
-{
-    JS::RootedObject obj(ScriptingCore::getInstance()->getGlobalContext(), _obj);
-    ScriptingCore::getInstance()->executeCustomTouchesEvent(EventTouch::EventCode::MOVED, touches, obj);
-}
-
-void JSTouchDelegate::onTouchesEnded(const std::vector<Touch*>& touches, Event* /*event*/)
-{
-    JS::RootedObject obj(ScriptingCore::getInstance()->getGlobalContext(), _obj);
-    ScriptingCore::getInstance()->executeCustomTouchesEvent(EventTouch::EventCode::ENDED, touches, obj);
-}
-
-void JSTouchDelegate::onTouchesCancelled(const std::vector<Touch*>& touches, Event* /*event*/)
-{
-    JS::RootedObject obj(ScriptingCore::getInstance()->getGlobalContext(), _obj);
-    ScriptingCore::getInstance()->executeCustomTouchesEvent(EventTouch::EventCode::CANCELLED, touches, obj);
-}
 
 // cc.EventTouch#getTouches
 bool js_cocos2dx_EventTouch_getTouches(JSContext *cx, uint32_t argc, JS::Value *vp) {
@@ -396,68 +325,6 @@ bool js_cocos2dx_CCScene_init(JSContext *cx, uint32_t argc, JS::Value *vp)
     return false;
 }
 
-bool js_cocos2dx_JSTouchDelegate_registerStandardDelegate(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    if (argc == 1 || argc == 2)
-    {
-        JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-
-        JSTouchDelegate *touch = new (std::nothrow) JSTouchDelegate();
-
-        int priority = 1;
-        if (argc == 2)
-        {
-            priority = args.get(1).toInt32();
-        }
-
-        touch->registerStandardDelegate(priority);
-
-        JS::RootedObject jsobj(cx, args.get(0).toObjectOrNull());
-        touch->setJSObject(jsobj);
-        JSTouchDelegate::setDelegateForJSObject(jsobj, touch);
-        return true;
-    }
-    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 2);
-    return false;
-}
-
-bool js_cocos2dx_JSTouchDelegate_registerTargetedDelegate(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    if (argc == 3)
-    {
-        JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-
-        JSTouchDelegate *touch = new (std::nothrow) JSTouchDelegate();
-        touch->registerTargetedDelegate(args.get(0).toInt32(), args.get(1).toBoolean());
-
-        JS::RootedObject jsobj(cx, args.get(2).toObjectOrNull());
-        touch->setJSObject(jsobj);
-        JSTouchDelegate::setDelegateForJSObject(jsobj, touch);
-
-        return true;
-    }
-    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 3);
-    return false;
-}
-
-bool js_cocos2dx_JSTouchDelegate_unregisterTouchDelegate(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    if (argc == 1) {
-        JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-        JS::RootedObject jsobj(cx, args.get(0).toObjectOrNull());
-        JSTouchDelegate* pDelegate = JSTouchDelegate::getDelegateForJSObject(jsobj);
-        if (pDelegate)
-        {
-            pDelegate->unregisterTouchDelegate();
-            JSTouchDelegate::removeDelegateForJSObject(jsobj);
-        }
-
-        return true;
-    }
-    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
-    return false;
-}
-
 JSObject* getObjectFromNamespace(JSContext* cx, JS::HandleObject ns, const char *name) {
     JS::RootedValue out(cx);
     bool ok = true;
@@ -491,15 +358,15 @@ void js_add_FinalizeHook(JSContext *cx, JS::HandleObject target, bool isRef)
     JS_SetProperty(cx, target, "__hook", hookVal);
 }
 
-JS::HandleValue anonEvaluate(JSContext *cx, JS::HandleObject thisObj, const char* string)
+bool anonEvaluate(JSContext *cx, JS::HandleObject thisObj, const char* string, JS::MutableHandleValue out)
 {
     JS::CompileOptions opts(cx);
-    JS::RootedValue out(cx);
-    JS::Evaluate(cx, opts, string, (unsigned int)strlen(string), &out);
+    JS::Evaluate(cx, opts, string, (unsigned int)strlen(string), out);
     if (JS_IsExceptionPending(cx)) {
         handlePendingException(cx);
+        return false;
     }
-    return out;
+    return true;
 }
 
 void js_add_object_reference(JS::HandleValue owner, JS::HandleValue target)
@@ -1875,24 +1742,23 @@ bool js_CCScheduler_schedule(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc >= 2) {
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
-        JS::RootedObject obj(cx);
-        obj = args.thisv().toObjectOrNull();
+        JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
         js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
         cocos2d::Scheduler *sched = (cocos2d::Scheduler *)(proxy ? proxy->ptr : nullptr);
 
         std::function<void (float)> callback;
         JS::RootedObject targetObj(cx);
         do {
-            JS::RootedValue callbackVal(cx);
+            JS::RootedObject callbackObj(cx);
             if (JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
             {
-                callbackVal.set(args.get(0));
+                callbackObj.set(args.get(0).toObjectOrNull());
                 targetObj.set(args.get(1).toObjectOrNull());
             }
             else if (JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
             {
                 targetObj.set(args.get(0).toObjectOrNull());
-                callbackVal.set(args.get(1));
+                callbackObj.set(args.get(1).toObjectOrNull());
             }
             else
             {
@@ -1900,7 +1766,7 @@ bool js_CCScheduler_schedule(JSContext *cx, uint32_t argc, JS::Value *vp)
                 JSB_PRECONDITION2(false, cx, false, "Error processing arguments");
             }
 
-            std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, targetObj, callbackVal, args.thisv()));
+            std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, targetObj, callbackObj, obj));
             auto lambda = [=](float larg0) -> void {
                 JS::RootedValue largv(cx, JS::DoubleValue(larg0));
                 JS::RootedValue rval(cx);
@@ -2526,7 +2392,7 @@ bool js_cocos2dx_CCNode_convertToWorldSpace(JSContext *cx, uint32_t argc, JS::Va
 
     cocos2d::Vec2 ret = cobj->convertToWorldSpace(arg0);
     JS::RootedValue jsret(cx);
-    jsret = vector2_to_jsval(cx, ret);
+    vector2_to_jsval(cx, ret, &jsret);
     args.rval().set(jsret);
     return true;
 }
@@ -2550,7 +2416,8 @@ bool js_cocos2dx_CCNode_convertToWorldSpaceAR(JSContext *cx, uint32_t argc, JS::
     }
 
     cocos2d::Vec2 ret = cobj->convertToWorldSpaceAR(arg0);
-    JS::RootedValue jsret(cx, vector2_to_jsval(cx, ret));
+    JS::RootedValue jsret(cx);
+    vector2_to_jsval(cx, ret, &jsret);
     args.rval().set(jsret);
     return true;
 }
@@ -3242,7 +3109,8 @@ bool js_cocos2dx_ccmat4CreateTranslation(JSContext *cx, uint32_t argc, JS::Value
 
         cocos2d::Mat4 ret;
         cocos2d::Mat4::createTranslation(arg0, &ret);
-        JS::RootedValue jsret(cx, matrix_to_jsval(cx, ret));
+        JS::RootedValue jsret(cx);
+        matrix_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
@@ -3262,8 +3130,8 @@ bool js_cocos2dx_ccmat4CreateRotation(JSContext *cx, uint32_t argc, JS::Value *v
 
         cocos2d::Mat4 ret;
         cocos2d::Mat4::createRotation(arg0, &ret);
-        JS::RootedValue jsret(cx, matrix_to_jsval(cx, ret));
-
+        JS::RootedValue jsret(cx);
+        matrix_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
@@ -3284,8 +3152,8 @@ bool js_cocos2dx_ccmat4Multiply(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         cocos2d::Mat4 ret = arg0 * arg1;
-        JS::RootedValue jsret(cx, matrix_to_jsval(cx, ret));
-
+        JS::RootedValue jsret(cx);
+        matrix_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
@@ -3306,8 +3174,8 @@ bool js_cocos2dx_ccmat4MultiplyVec3(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         cocos2d::Vec3 ret = arg0 * arg1;
-        JS::RootedValue jsret(cx, vector3_to_jsval(cx, ret));
-
+        JS::RootedValue jsret(cx);
+        vector3_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
@@ -3325,7 +3193,8 @@ bool js_cocos2dx_ccmat4GetInversed(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ok = jsval_to_matrix(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
-        JS::RootedValue jsret(cx, matrix_to_jsval(cx, arg0.getInversed()));
+        JS::RootedValue jsret(cx);
+        matrix_to_jsval(cx, arg0.getInversed(), &jsret);
         args.rval().set(jsret);
         return true;
     }
@@ -3348,7 +3217,8 @@ bool js_cocos2dx_ccmat4TransformVector(JSContext *cx, uint32_t argc, JS::Value *
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         arg0.transformVector(arg1, &ret);
-        JS::RootedValue jsret(cx, vector4_to_jsval(cx, ret));
+        JS::RootedValue jsret(cx);
+        vector4_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
@@ -3367,7 +3237,8 @@ bool js_cocos2dx_ccmat4TransformVector(JSContext *cx, uint32_t argc, JS::Value *
         arg4 = args.get(4).toNumber();
 
         arg0.transformVector(arg1, arg2, arg3, arg4, &ret);
-        JS::RootedValue jsret(cx, vector3_to_jsval(cx, ret));
+        JS::RootedValue jsret(cx);
+        vector3_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
@@ -3390,7 +3261,8 @@ bool js_cocos2dx_ccmat4TransformPoint(JSContext *cx, uint32_t argc, JS::Value *v
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         arg0.transformPoint(arg1, &ret);
-        JS::RootedValue jsret(cx, vector3_to_jsval(cx, ret));
+        JS::RootedValue jsret(cx);
+        vector3_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
@@ -3411,7 +3283,8 @@ bool js_cocos2dx_ccquatMultiply(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         cocos2d::Quaternion ret = arg0 * arg1;
-        JS::RootedValue jsret(cx, quaternion_to_jsval(cx, ret));
+        JS::RootedValue jsret(cx);
+        quaternion_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
@@ -3646,8 +3519,9 @@ static JS::HandleValue string_vector_to_jsval(JSContext* cx, const std::vector<s
 
     int i = 0;
     for(std::vector<std::string>::const_iterator iter = arr.begin(); iter != arr.end(); ++iter, ++i) {
-        JS::RootedValue arrElement(cx, std_string_to_jsval(cx, *iter));
-        if(!JS_SetElement(cx, jsretArr, i, arrElement)) {
+        JS::RootedValue arrElement(cx);
+        bool ok = std_string_to_jsval(cx, *iter, &arrElement);
+        if(!ok || !JS_SetElement(cx, jsretArr, i, arrElement)) {
             break;
         }
     }
@@ -3744,7 +3618,8 @@ static bool js_cocos2dx_FileUtils_createDictionaryWithContentsOfFile(JSContext *
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
         cocos2d::ValueMap ret = FileUtils::getInstance()->getValueMapFromFile(arg0);
-        JS::RootedValue jsret(cx, ccvaluemap_to_jsval(cx, ret));
+        JS::RootedValue jsret(cx);
+        ccvaluemap_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
@@ -3980,15 +3855,16 @@ bool js_PlistParser_parse(JSContext *cx, unsigned argc, JS::Value *vp) {
     if (argc == 1) {
         std::string arg0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         std::string parsedStr = delegator->parseText(arg0);
         std::replace(parsedStr.begin(), parsedStr.end(), '\n', ' ');
 
-        JS::RootedValue strVal(cx, std_string_to_jsval(cx, parsedStr));
+        JS::RootedValue strVal(cx);
+        ok &= std_string_to_jsval(cx, parsedStr, &strVal);
+        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+        
         // create a new js obj of the parsed string
         JS::RootedValue outVal(cx);
-
         //JS_GetStringCharsZ was removed in SpiderMonkey 33
         JS::RootedString jsout(cx, strVal.toString());
         ok = JS_ParseJSON(cx, jsout, &outVal);
@@ -4231,7 +4107,8 @@ bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, JS::Valu
             arg2 = jsarg2.toBoolean();
             std::function<void (cocos2d::RenderTexture *, const std::basic_string<char> &)> arg3;
             do {
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, args.get(3), args.thisv()));
+                JS::RootedObject jsfunc(cx, args.get(3).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, jsfunc, obj));
                 auto lambda = [=](cocos2d::RenderTexture* larg0, const std::string& larg1) -> void {
                     JS::AutoValueVector largv(cx);
                     do {
@@ -4242,7 +4119,9 @@ bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, JS::Valu
                         }
                     } while (0);
                     do {
-                        largv.append(std_string_to_jsval(cx, larg1));
+                        JS::RootedValue larg(cx);
+                        std_string_to_jsval(cx, larg1, &larg);
+                        largv.append(larg);
                     } while (0);
                     JS::RootedValue rval(cx);
                     JS::HandleValueArray largs(largv);
@@ -4295,7 +4174,8 @@ bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, JS::Valu
             bool arg1 = args.get(1).toBoolean();
             std::function<void (cocos2d::RenderTexture *, const std::basic_string<char> &)> arg2;
             do {
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, args.get(2), args.thisv()));
+                JS::RootedObject jsfunc(cx, args.get(2).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, jsfunc, obj));
                 auto lambda = [=](cocos2d::RenderTexture* larg0, const std::string& larg1) -> void {
                     JS::AutoValueVector largv(cx);
                     do {
@@ -4306,7 +4186,9 @@ bool js_cocos2dx_RenderTexture_saveToFile(JSContext *cx, uint32_t argc, JS::Valu
                         }
                     } while (0);
                     do {
-                        largv.append(std_string_to_jsval(cx, larg1));
+                        JS::RootedValue larg(cx);
+                        std_string_to_jsval(cx, larg1, &larg);
+                        largv.append(larg);
                     } while (0);
                     JS::RootedValue rval(cx);
                     JS::HandleValueArray largs(largv);
@@ -4464,7 +4346,8 @@ void js_register_cocos2dx_EventKeyboard(JSContext *cx, JS::HandleObject global) 
     JS::RootedObject proto(cx, jsb_cocos2d_EventKeyboard_prototype);
     jsb_register_class<cocos2d::EventKeyboard>(cx, jsb_cocos2d_EventKeyboard_class, proto);
     
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventKeyboard"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventKeyboard", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
@@ -4565,7 +4448,7 @@ bool js_cocos2dx_PolygonInfo_getTrianglesCount(JSContext *cx, uint32_t argc, JS:
     if (argc == 0)
     {
         const unsigned int ret = cobj->getTrianglesCount();
-        JS::RootedValue jsret(cx, uint32_to_jsval(cx, ret));
+        JS::RootedValue jsret(cx, JS::NumberValue(ret));
         args.rval().set(jsret);
         return true;
     }
@@ -4583,7 +4466,7 @@ bool js_cocos2dx_PolygonInfo_getVertCount(JSContext *cx, uint32_t argc, JS::Valu
     if (argc == 0)
     {
         const unsigned int ret = cobj->getVertCount();
-        JS::RootedValue jsret(cx, uint32_to_jsval(cx, ret));
+        JS::RootedValue jsret(cx, JS::NumberValue(ret));
         args.rval().set(jsret);
         return true;
     }
@@ -4601,9 +4484,8 @@ bool js_get_PolygonInfo_rect(JSContext* cx, uint32_t argc, JS::Value* vp)
     cocos2d::PolygonInfo* cobj = (cocos2d::PolygonInfo *)(proxy ? proxy->ptr : nullptr);
     if (cobj)
     {
-        JS::RootedValue ret(cx, ccrect_to_jsval(cx, cobj->rect));
-
-        if (!ret.isNullOrUndefined())
+        JS::RootedValue ret(cx);
+        if (ccrect_to_jsval(cx, cobj->rect, &ret) && ret.isObject())
         {
             args.rval().set(ret);
             return true;
@@ -4639,9 +4521,10 @@ bool js_get_PolygonInfo_filename(JSContext* cx, uint32_t argc, JS::Value* vp)
     cocos2d::PolygonInfo* cobj = (cocos2d::PolygonInfo *)(proxy ? proxy->ptr : nullptr);
     if (cobj)
     {
-        JS::RootedValue ret(cx, std_string_to_jsval(cx, cobj->filename));
+        JS::RootedValue ret(cx);
+        bool ok = std_string_to_jsval(cx, cobj->filename, &ret);
 
-        if (!ret.isNullOrUndefined())
+        if (ok && !ret.isNullOrUndefined())
         {
             args.rval().set(ret);
             return true;
@@ -4753,7 +4636,8 @@ void js_register_cocos2dx_PolygonInfo(JSContext *cx, JS::HandleObject global)
     JS::RootedObject proto(cx, jsb_cocos2d_PolygonInfo_prototype);
     jsb_register_class<cocos2d::PolygonInfo>(cx, jsb_cocos2d_PolygonInfo_class, proto);
     
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "PolygonInfo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "PolygonInfo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }
@@ -5267,10 +5151,6 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     JS_DefineFunction(cx, tmpObj, "init", js_cocos2dx_ClippingNode_init, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     JS_DefineFunction(cx, ccObj, "glEnableVertexAttribs", js_cocos2dx_ccGLEnableVertexAttribs, 1, JSPROP_READONLY | JSPROP_PERMANENT);
-
-    JS_DefineFunction(cx, ccObj, "registerTargetedDelegate", js_cocos2dx_JSTouchDelegate_registerTargetedDelegate, 1, JSPROP_READONLY | JSPROP_PERMANENT);
-    JS_DefineFunction(cx, ccObj, "registerStandardDelegate", js_cocos2dx_JSTouchDelegate_registerStandardDelegate, 1, JSPROP_READONLY | JSPROP_PERMANENT);
-    JS_DefineFunction(cx, ccObj, "unregisterTouchDelegate", js_cocos2dx_JSTouchDelegate_unregisterTouchDelegate, 1, JSPROP_READONLY | JSPROP_PERMANENT);
 
     get_or_create_js_obj(cx, ccObj, "math", &tmpObj);
 

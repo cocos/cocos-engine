@@ -26,7 +26,8 @@ bool JSB_localStorageGetItem(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
     ok = localStorageGetItem(arg0, &ret_val);
     if (ok) {
-        JS::RootedValue ret_jsval(cx, std_string_to_jsval(cx, ret_val));
+        JS::RootedValue ret_jsval(cx);
+        std_string_to_jsval(cx, ret_val, &ret_jsval);
         args.rval().set(ret_jsval);
     }
     else {

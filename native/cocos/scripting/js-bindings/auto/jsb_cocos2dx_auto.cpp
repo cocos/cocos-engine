@@ -14,201 +14,13 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 
 static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return false;
-<<<<<<< b03fa66bfb6f24dc545031968ef248080db5ed05
-}
-
-static bool js_is_native_obj(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().setBoolean(true);
-    return true;
-}
-JSClass  *jsb_cocos2d_Acceleration_class;
-JSObject *jsb_cocos2d_Acceleration_prototype;
-
-bool js_cocos2dx_Acceleration_get_x(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
-    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_get_x : Invalid Native Object");
-
-    JS::RootedValue jsret(cx);
-    jsret = DOUBLE_TO_JSVAL(cobj->x);
-    args.rval().set(jsret);
-    return true;
-}
-bool js_cocos2dx_Acceleration_set_x(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
-    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_set_x : Invalid Native Object");
-
-    bool ok = true;
-    double arg0 = 0;
-    ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
-    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_set_x : Error processing new value");
-    cobj->x = arg0;
-    return true;
-}
-bool js_cocos2dx_Acceleration_get_y(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
-    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_get_y : Invalid Native Object");
-
-    JS::RootedValue jsret(cx);
-    jsret = DOUBLE_TO_JSVAL(cobj->y);
-    args.rval().set(jsret);
-    return true;
-}
-bool js_cocos2dx_Acceleration_set_y(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
-    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_set_y : Invalid Native Object");
-
-    bool ok = true;
-    double arg0 = 0;
-    ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
-    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_set_y : Error processing new value");
-    cobj->y = arg0;
-    return true;
-}
-bool js_cocos2dx_Acceleration_get_z(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
-    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_get_z : Invalid Native Object");
-
-    JS::RootedValue jsret(cx);
-    jsret = DOUBLE_TO_JSVAL(cobj->z);
-    args.rval().set(jsret);
-    return true;
-}
-bool js_cocos2dx_Acceleration_set_z(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
-    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_set_z : Invalid Native Object");
-
-    bool ok = true;
-    double arg0 = 0;
-    ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
-    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_set_z : Error processing new value");
-    cobj->z = arg0;
-    return true;
-}
-bool js_cocos2dx_Acceleration_get_timestamp(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
-    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_get_timestamp : Invalid Native Object");
-
-    JS::RootedValue jsret(cx);
-    jsret = DOUBLE_TO_JSVAL(cobj->timestamp);
-    args.rval().set(jsret);
-    return true;
-}
-bool js_cocos2dx_Acceleration_set_timestamp(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(jsthis);
-    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_set_timestamp : Invalid Native Object");
-
-    bool ok = true;
-    double arg0 = 0;
-    ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
-    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_set_timestamp : Error processing new value");
-    cobj->timestamp = arg0;
-    return true;
-}
-bool js_cocos2dx_Acceleration_constructor(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
-    cocos2d::Acceleration* cobj = new (std::nothrow) cocos2d::Acceleration();
-
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Acceleration>(cobj);
-
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::Acceleration"));
-    args.rval().set(OBJECT_TO_JSVAL(jsobj));
-    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
-    return true;
-}
-
-
-void js_register_cocos2dx_Acceleration(JSContext *cx, JS::HandleObject global) {
-    jsb_cocos2d_Acceleration_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_cocos2d_Acceleration_class->name = "Acceleration";
-    jsb_cocos2d_Acceleration_class->addProperty = JS_PropertyStub;
-    jsb_cocos2d_Acceleration_class->delProperty = JS_DeletePropertyStub;
-    jsb_cocos2d_Acceleration_class->getProperty = JS_PropertyStub;
-    jsb_cocos2d_Acceleration_class->setProperty = JS_StrictPropertyStub;
-    jsb_cocos2d_Acceleration_class->enumerate = JS_EnumerateStub;
-    jsb_cocos2d_Acceleration_class->resolve = JS_ResolveStub;
-    jsb_cocos2d_Acceleration_class->convert = JS_ConvertStub;
-    jsb_cocos2d_Acceleration_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
-
-    static JSPropertySpec properties[] = {
-        JS_PSGS("x", js_cocos2dx_Acceleration_get_x, js_cocos2dx_Acceleration_set_x, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_PSGS("y", js_cocos2dx_Acceleration_get_y, js_cocos2dx_Acceleration_set_y, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_PSGS("z", js_cocos2dx_Acceleration_get_z, js_cocos2dx_Acceleration_set_z, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_PSGS("timestamp", js_cocos2dx_Acceleration_get_timestamp, js_cocos2dx_Acceleration_set_timestamp, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_PS_END
-    };
-
-    static JSFunctionSpec funcs[] = {
-        JS_FS_END
-    };
-
-    JSFunctionSpec *st_funcs = NULL;
-
-    jsb_cocos2d_Acceleration_prototype = JS_InitClass(
-        cx, global,
-        JS::NullPtr(),
-        jsb_cocos2d_Acceleration_class,
-        js_cocos2dx_Acceleration_constructor, 0, // constructor
-        properties,
-        funcs,
-        NULL, // no static properties
-        st_funcs);
-
-    JS::RootedObject proto(cx, jsb_cocos2d_Acceleration_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Acceleration"));
-    JS_SetProperty(cx, proto, "_className", className);
-    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
-    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Acceleration>(cx, jsb_cocos2d_Acceleration_class, proto, JS::NullPtr());
-}
-
-JSClass  *jsb_cocos2d_Texture2D_class;
-=======
 }JSClass  *jsb_cocos2d_Texture2D_class;
->>>>>>> Upgrade to Spidermonkey v52. pass 5: Compilation passed on v52
 JSObject *jsb_cocos2d_Texture2D_prototype;
 
 bool js_cocos2dx_Texture2D_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -221,6 +33,7 @@ bool js_cocos2dx_Texture2D_getGLProgram(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getGLProgram : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -231,6 +44,7 @@ bool js_cocos2dx_Texture2D_getGLProgram(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Texture2D_getMaxT(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -239,6 +53,7 @@ bool js_cocos2dx_Texture2D_getMaxT(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getMaxT();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getMaxT : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -277,6 +92,7 @@ bool js_cocos2dx_Texture2D_setAlphaTexture(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Texture2D_getStringForFormat(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -284,7 +100,8 @@ bool js_cocos2dx_Texture2D_getStringForFormat(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         const char* ret = cobj->getStringForFormat();
         JS::RootedValue jsret(cx);
-        jsret = c_string_to_jsval(cx, ret);
+        ok &= c_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getStringForFormat : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -322,6 +139,7 @@ bool js_cocos2dx_Texture2D_initWithImage(JSContext *cx, uint32_t argc, JS::Value
             bool ret = cobj->initWithImage(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_initWithImage : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -344,6 +162,7 @@ bool js_cocos2dx_Texture2D_initWithImage(JSContext *cx, uint32_t argc, JS::Value
             bool ret = cobj->initWithImage(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_initWithImage : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -383,6 +202,7 @@ bool js_cocos2dx_Texture2D_setGLProgram(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Texture2D_getMaxS(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -391,6 +211,7 @@ bool js_cocos2dx_Texture2D_getMaxS(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getMaxS();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getMaxS : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -401,6 +222,7 @@ bool js_cocos2dx_Texture2D_getMaxS(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Texture2D_hasPremultipliedAlpha(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -409,6 +231,7 @@ bool js_cocos2dx_Texture2D_hasPremultipliedAlpha(JSContext *cx, uint32_t argc, J
         bool ret = cobj->hasPremultipliedAlpha();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_hasPremultipliedAlpha : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -419,6 +242,7 @@ bool js_cocos2dx_Texture2D_hasPremultipliedAlpha(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_Texture2D_getPixelsHigh(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -427,6 +251,7 @@ bool js_cocos2dx_Texture2D_getPixelsHigh(JSContext *cx, uint32_t argc, JS::Value
         int ret = cobj->getPixelsHigh();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getPixelsHigh : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -437,6 +262,7 @@ bool js_cocos2dx_Texture2D_getPixelsHigh(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Texture2D_getAlphaTextureName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -445,6 +271,7 @@ bool js_cocos2dx_Texture2D_getAlphaTextureName(JSContext *cx, uint32_t argc, JS:
         unsigned int ret = cobj->getAlphaTextureName();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getAlphaTextureName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -471,16 +298,19 @@ bool js_cocos2dx_Texture2D_getBitsPerPixelForFormat(JSContext *cx, uint32_t argc
             unsigned int ret = cobj->getBitsPerPixelForFormat(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::NumberValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getBitsPerPixelForFormat : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             unsigned int ret = cobj->getBitsPerPixelForFormat();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::NumberValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getBitsPerPixelForFormat : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -492,6 +322,7 @@ bool js_cocos2dx_Texture2D_getBitsPerPixelForFormat(JSContext *cx, uint32_t argc
 bool js_cocos2dx_Texture2D_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -500,6 +331,7 @@ bool js_cocos2dx_Texture2D_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
         unsigned int ret = cobj->getName();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -529,6 +361,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
             bool ret = cobj->initWithString(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_initWithString : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -549,6 +382,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
             bool ret = cobj->initWithString(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_initWithString : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -572,6 +406,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
             bool ret = cobj->initWithString(arg0, arg1, arg2, arg3);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_initWithString : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -598,6 +433,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
             bool ret = cobj->initWithString(arg0, arg1, arg2, arg3, arg4);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_initWithString : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -627,6 +463,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
             bool ret = cobj->initWithString(arg0, arg1, arg2, arg3, arg4, arg5);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_initWithString : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -658,6 +495,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
             bool ret = cobj->initWithString(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_initWithString : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -692,6 +530,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
             bool ret = cobj->initWithString(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_initWithString : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -723,6 +562,7 @@ bool js_cocos2dx_Texture2D_setMaxT(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Texture2D_getPath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -730,7 +570,8 @@ bool js_cocos2dx_Texture2D_getPath(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         std::string ret = cobj->getPath();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getPath : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -761,6 +602,7 @@ bool js_cocos2dx_Texture2D_drawInRect(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Texture2D_getContentSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -768,7 +610,8 @@ bool js_cocos2dx_Texture2D_getContentSize(JSContext *cx, uint32_t argc, JS::Valu
     if (argc == 0) {
         cocos2d::Size ret = cobj->getContentSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getContentSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -827,6 +670,7 @@ bool js_cocos2dx_Texture2D_generateMipmap(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Texture2D_getDescription(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -834,7 +678,8 @@ bool js_cocos2dx_Texture2D_getDescription(JSContext *cx, uint32_t argc, JS::Valu
     if (argc == 0) {
         std::string ret = cobj->getDescription();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getDescription : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -845,6 +690,7 @@ bool js_cocos2dx_Texture2D_getDescription(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Texture2D_getPixelFormat(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -853,6 +699,7 @@ bool js_cocos2dx_Texture2D_getPixelFormat(JSContext *cx, uint32_t argc, JS::Valu
         int ret = (int)cobj->getPixelFormat();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getPixelFormat : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -863,6 +710,7 @@ bool js_cocos2dx_Texture2D_getPixelFormat(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Texture2D_getContentSizeInPixels(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -870,7 +718,8 @@ bool js_cocos2dx_Texture2D_getContentSizeInPixels(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         const cocos2d::Size& ret = cobj->getContentSizeInPixels();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getContentSizeInPixels : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -897,6 +746,7 @@ bool js_cocos2dx_Texture2D_releaseGLTexture(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Texture2D_getPixelsWide(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -905,6 +755,7 @@ bool js_cocos2dx_Texture2D_getPixelsWide(JSContext *cx, uint32_t argc, JS::Value
         int ret = cobj->getPixelsWide();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getPixelsWide : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -935,6 +786,7 @@ bool js_cocos2dx_Texture2D_drawAtPoint(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Texture2D_hasMipmaps(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -943,6 +795,7 @@ bool js_cocos2dx_Texture2D_hasMipmaps(JSContext *cx, uint32_t argc, JS::Value *v
         bool ret = cobj->hasMipmaps();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_hasMipmaps : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -989,11 +842,13 @@ bool js_cocos2dx_Texture2D_setDefaultAlphaPixelFormat(JSContext *cx, uint32_t ar
 bool js_cocos2dx_Texture2D_getDefaultAlphaPixelFormat(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         int ret = (int)cocos2d::Texture2D::getDefaultAlphaPixelFormat();
         JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Texture2D_getDefaultAlphaPixelFormat : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1086,7 +941,8 @@ void js_register_cocos2dx_Texture2D(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Texture2D_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Texture2D"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Texture2D", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -1100,6 +956,7 @@ JSObject *jsb_cocos2d_Touch_prototype;
 bool js_cocos2dx_Touch_getPreviousLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1107,7 +964,8 @@ bool js_cocos2dx_Touch_getPreviousLocationInView(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getPreviousLocationInView();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Touch_getPreviousLocationInView : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1118,6 +976,7 @@ bool js_cocos2dx_Touch_getPreviousLocationInView(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_Touch_getLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1125,7 +984,8 @@ bool js_cocos2dx_Touch_getLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getLocation();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Touch_getLocation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1136,6 +996,7 @@ bool js_cocos2dx_Touch_getLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Touch_getDelta(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1143,7 +1004,8 @@ bool js_cocos2dx_Touch_getDelta(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getDelta();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Touch_getDelta : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1154,6 +1016,7 @@ bool js_cocos2dx_Touch_getDelta(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Touch_getStartLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1161,7 +1024,8 @@ bool js_cocos2dx_Touch_getStartLocationInView(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getStartLocationInView();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Touch_getStartLocationInView : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1172,6 +1036,7 @@ bool js_cocos2dx_Touch_getStartLocationInView(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Touch_getCurrentForce(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1180,6 +1045,7 @@ bool js_cocos2dx_Touch_getCurrentForce(JSContext *cx, uint32_t argc, JS::Value *
         double ret = cobj->getCurrentForce();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Touch_getCurrentForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1190,6 +1056,7 @@ bool js_cocos2dx_Touch_getCurrentForce(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Touch_getStartLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1197,7 +1064,8 @@ bool js_cocos2dx_Touch_getStartLocation(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getStartLocation();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Touch_getStartLocation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1208,6 +1076,7 @@ bool js_cocos2dx_Touch_getStartLocation(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Touch_getID(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1216,6 +1085,7 @@ bool js_cocos2dx_Touch_getID(JSContext *cx, uint32_t argc, JS::Value *vp)
         int ret = cobj->getID();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Touch_getID : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1281,6 +1151,7 @@ bool js_cocos2dx_Touch_setTouchInfo(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Touch_getMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1289,6 +1160,7 @@ bool js_cocos2dx_Touch_getMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getMaxForce();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Touch_getMaxForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1299,6 +1171,7 @@ bool js_cocos2dx_Touch_getMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Touch_getLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1306,7 +1179,8 @@ bool js_cocos2dx_Touch_getLocationInView(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getLocationInView();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Touch_getLocationInView : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1317,6 +1191,7 @@ bool js_cocos2dx_Touch_getLocationInView(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Touch_getPreviousLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1324,7 +1199,8 @@ bool js_cocos2dx_Touch_getPreviousLocation(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getPreviousLocation();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Touch_getPreviousLocation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1394,7 +1270,8 @@ void js_register_cocos2dx_Touch(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Touch_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Touch"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Touch", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -1408,6 +1285,7 @@ JSObject *jsb_cocos2d_Event_prototype;
 bool js_cocos2dx_Event_isStopped(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Event* cobj = (cocos2d::Event *)(proxy ? proxy->ptr : NULL);
@@ -1416,6 +1294,7 @@ bool js_cocos2dx_Event_isStopped(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->isStopped();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Event_isStopped : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1426,6 +1305,7 @@ bool js_cocos2dx_Event_isStopped(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Event_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Event* cobj = (cocos2d::Event *)(proxy ? proxy->ptr : NULL);
@@ -1434,6 +1314,7 @@ bool js_cocos2dx_Event_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
         int ret = (int)cobj->getType();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Event_getType : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1444,6 +1325,7 @@ bool js_cocos2dx_Event_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Event_getCurrentTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Event* cobj = (cocos2d::Event *)(proxy ? proxy->ptr : NULL);
@@ -1456,6 +1338,7 @@ bool js_cocos2dx_Event_getCurrentTarget(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Event_getCurrentTarget : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1537,7 +1420,8 @@ void js_register_cocos2dx_Event(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Event_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Event"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Event", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -1551,6 +1435,7 @@ JSObject *jsb_cocos2d_EventTouch_prototype;
 bool js_cocos2dx_EventTouch_getEventCode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventTouch* cobj = (cocos2d::EventTouch *)(proxy ? proxy->ptr : NULL);
@@ -1559,6 +1444,7 @@ bool js_cocos2dx_EventTouch_getEventCode(JSContext *cx, uint32_t argc, JS::Value
         int ret = (int)cobj->getEventCode();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventTouch_getEventCode : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1641,7 +1527,8 @@ void js_register_cocos2dx_EventTouch(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EventTouch_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventTouch"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventTouch", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -1699,6 +1586,7 @@ bool js_cocos2dx_ComponentContainer_remove(JSContext *cx, uint32_t argc, JS::Val
             bool ret = cobj->remove(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ComponentContainer_remove : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -1713,6 +1601,7 @@ bool js_cocos2dx_ComponentContainer_remove(JSContext *cx, uint32_t argc, JS::Val
             bool ret = cobj->remove(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ComponentContainer_remove : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -1760,6 +1649,7 @@ bool js_cocos2dx_ComponentContainer_add(JSContext *cx, uint32_t argc, JS::Value 
         bool ret = cobj->add(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ComponentContainer_add : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1770,6 +1660,7 @@ bool js_cocos2dx_ComponentContainer_add(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_ComponentContainer_isEmpty(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ComponentContainer* cobj = (cocos2d::ComponentContainer *)(proxy ? proxy->ptr : NULL);
@@ -1778,6 +1669,7 @@ bool js_cocos2dx_ComponentContainer_isEmpty(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->isEmpty();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ComponentContainer_isEmpty : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1804,6 +1696,7 @@ bool js_cocos2dx_ComponentContainer_get(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ComponentContainer_get : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1848,7 +1741,8 @@ void js_register_cocos2dx_ComponentContainer(JSContext *cx, JS::HandleObject glo
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ComponentContainer_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ComponentContainer"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ComponentContainer", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -1902,6 +1796,7 @@ bool js_cocos2dx_Component_setName(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Component_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
@@ -1910,6 +1805,7 @@ bool js_cocos2dx_Component_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp
         bool ret = cobj->isEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Component_isEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1920,6 +1816,7 @@ bool js_cocos2dx_Component_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Component_getOwner(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
@@ -1932,6 +1829,7 @@ bool js_cocos2dx_Component_getOwner(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Component_getOwner : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1942,6 +1840,7 @@ bool js_cocos2dx_Component_getOwner(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Component_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
@@ -1950,6 +1849,7 @@ bool js_cocos2dx_Component_init(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Component_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1988,6 +1888,7 @@ bool js_cocos2dx_Component_setOwner(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Component_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
@@ -1995,7 +1896,8 @@ bool js_cocos2dx_Component_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         const std::string& ret = cobj->getName();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Component_getName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2006,6 +1908,7 @@ bool js_cocos2dx_Component_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Component_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::Component::create();
@@ -2100,7 +2003,8 @@ void js_register_cocos2dx_Component(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Component_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Component"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Component", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -2247,6 +2151,7 @@ bool js_cocos2dx_Node_removeComponent(JSContext *cx, uint32_t argc, JS::Value *v
             bool ret = cobj->removeComponent(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_removeComponent : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -2261,6 +2166,7 @@ bool js_cocos2dx_Node_removeComponent(JSContext *cx, uint32_t argc, JS::Value *v
             bool ret = cobj->removeComponent(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_removeComponent : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -2272,6 +2178,7 @@ bool js_cocos2dx_Node_removeComponent(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Node_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2284,6 +2191,7 @@ bool js_cocos2dx_Node_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getGLProgram : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2294,6 +2202,7 @@ bool js_cocos2dx_Node_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getDescription(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2301,7 +2210,8 @@ bool js_cocos2dx_Node_getDescription(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         std::string ret = cobj->getDescription();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getDescription : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2360,20 +2270,24 @@ bool js_cocos2dx_Node_getChildren(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_getChildren : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const cocos2d::Vector<cocos2d::Node *>& ret = cobj->getChildren();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvector_to_jsval(cx, ret);
+            ok &= ccvector_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getChildren : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::Vector<cocos2d::Node *>& ret = cobj->getChildren();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvector_to_jsval(cx, ret);
+            ok &= ccvector_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getChildren : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -2415,13 +2329,12 @@ bool js_cocos2dx_Node_setOnExitCallback(JSContext *cx, uint32_t argc, JS::Value 
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=]() -> void {
+		            bool ok = true;
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            bool succeed = func->invoke(JS::HandleValueArray::empty(), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -2448,6 +2361,7 @@ bool js_cocos2dx_Node_setOnExitCallback(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Node_isIgnoreAnchorPointForPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2456,6 +2370,7 @@ bool js_cocos2dx_Node_isIgnoreAnchorPointForPosition(JSContext *cx, uint32_t arg
         bool ret = cobj->isIgnoreAnchorPointForPosition();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_isIgnoreAnchorPointForPosition : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2482,6 +2397,7 @@ bool js_cocos2dx_Node_getChildByName(JSContext *cx, uint32_t argc, JS::Value *vp
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getChildByName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2512,6 +2428,7 @@ bool js_cocos2dx_Node_updateDisplayedOpacity(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Node_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2520,6 +2437,7 @@ bool js_cocos2dx_Node_init(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2530,6 +2448,7 @@ bool js_cocos2dx_Node_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getCameraMask(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2538,6 +2457,7 @@ bool js_cocos2dx_Node_getCameraMask(JSContext *cx, uint32_t argc, JS::Value *vp)
         unsigned short ret = cobj->getCameraMask();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getCameraMask : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2628,6 +2548,7 @@ bool js_cocos2dx_Node_setScaleX(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2635,7 +2556,8 @@ bool js_cocos2dx_Node_getColor(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         const cocos2d::Color3B& ret = cobj->getColor();
         JS::RootedValue jsret(cx);
-        jsret = cccolor3b_to_jsval(cx, ret);
+        ok &= cccolor3b_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getColor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2656,13 +2578,12 @@ bool js_cocos2dx_Node_setonEnterTransitionDidFinishCallback(JSContext *cx, uint3
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=]() -> void {
+		            bool ok = true;
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            bool succeed = func->invoke(JS::HandleValueArray::empty(), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -2755,6 +2676,7 @@ bool js_cocos2dx_Node_setCameraMask(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2763,6 +2685,7 @@ bool js_cocos2dx_Node_getTag(JSContext *cx, uint32_t argc, JS::Value *vp)
         int ret = cobj->getTag();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getTag : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2783,13 +2706,11 @@ bool js_cocos2dx_Node_setAfterVisitCallback(JSContext *cx, uint32_t argc, JS::Va
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Renderer* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -2798,6 +2719,7 @@ bool js_cocos2dx_Node_setAfterVisitCallback(JSContext *cx, uint32_t argc, JS::Va
 		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -2825,6 +2747,7 @@ bool js_cocos2dx_Node_setAfterVisitCallback(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Node_getNodeToWorldAffineTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2832,7 +2755,8 @@ bool js_cocos2dx_Node_getNodeToWorldAffineTransform(JSContext *cx, uint32_t argc
     if (argc == 0) {
         cocos2d::AffineTransform ret = cobj->getNodeToWorldAffineTransform();
         JS::RootedValue jsret(cx);
-        jsret = ccaffinetransform_to_jsval(cx, ret);
+        ok &= ccaffinetransform_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getNodeToWorldAffineTransform : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2889,6 +2813,7 @@ bool js_cocos2dx_Node_removeChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2901,6 +2826,7 @@ bool js_cocos2dx_Node_getScene(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getScene : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2911,6 +2837,7 @@ bool js_cocos2dx_Node_getScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getEventDispatcher(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2923,6 +2850,7 @@ bool js_cocos2dx_Node_getEventDispatcher(JSContext *cx, uint32_t argc, JS::Value
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getEventDispatcher : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2991,13 +2919,12 @@ bool js_cocos2dx_Node_setOnEnterCallback(JSContext *cx, uint32_t argc, JS::Value
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=]() -> void {
+		            bool ok = true;
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            bool succeed = func->invoke(JS::HandleValueArray::empty(), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -3074,13 +3001,12 @@ bool js_cocos2dx_Node_setonExitTransitionDidStartCallback(JSContext *cx, uint32_
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=]() -> void {
+		            bool ok = true;
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            bool succeed = func->invoke(JS::HandleValueArray::empty(), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -3126,7 +3052,8 @@ bool js_cocos2dx_Node_convertTouchToNodeSpace(JSContext *cx, uint32_t argc, JS::
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_convertTouchToNodeSpace : Error processing arguments");
         cocos2d::Vec2 ret = cobj->convertTouchToNodeSpace(arg0);
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_convertTouchToNodeSpace : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3169,6 +3096,7 @@ bool js_cocos2dx_Node_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_Node_getRotationSkewX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3177,6 +3105,7 @@ bool js_cocos2dx_Node_getRotationSkewX(JSContext *cx, uint32_t argc, JS::Value *
         double ret = cobj->getRotationSkewX();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getRotationSkewX : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3187,6 +3116,7 @@ bool js_cocos2dx_Node_getRotationSkewX(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Node_getRotationSkewY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3195,6 +3125,7 @@ bool js_cocos2dx_Node_getRotationSkewY(JSContext *cx, uint32_t argc, JS::Value *
         double ret = cobj->getRotationSkewY();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getRotationSkewY : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3205,6 +3136,7 @@ bool js_cocos2dx_Node_getRotationSkewY(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Node_getNodeToWorldTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3212,7 +3144,8 @@ bool js_cocos2dx_Node_getNodeToWorldTransform(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         cocos2d::Mat4 ret = cobj->getNodeToWorldTransform();
         JS::RootedValue jsret(cx);
-        jsret = matrix_to_jsval(cx, ret);
+        ok &= matrix_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getNodeToWorldTransform : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3223,6 +3156,7 @@ bool js_cocos2dx_Node_getNodeToWorldTransform(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Node_isCascadeOpacityEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3231,6 +3165,7 @@ bool js_cocos2dx_Node_isCascadeOpacityEnabled(JSContext *cx, uint32_t argc, JS::
         bool ret = cobj->isCascadeOpacityEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_isCascadeOpacityEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3269,6 +3204,7 @@ bool js_cocos2dx_Node_setParent(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3276,7 +3212,8 @@ bool js_cocos2dx_Node_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         const std::string& ret = cobj->getName();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3310,17 +3247,20 @@ bool js_cocos2dx_Node_getNodeToParentAffineTransform(JSContext *cx, uint32_t arg
             if (!ok) { ok = true; break; }
             cocos2d::AffineTransform ret = cobj->getNodeToParentAffineTransform(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccaffinetransform_to_jsval(cx, ret);
+            ok &= ccaffinetransform_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getNodeToParentAffineTransform : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::AffineTransform ret = cobj->getNodeToParentAffineTransform();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccaffinetransform_to_jsval(cx, ret);
+            ok &= ccaffinetransform_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getNodeToParentAffineTransform : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -3332,6 +3272,7 @@ bool js_cocos2dx_Node_getNodeToParentAffineTransform(JSContext *cx, uint32_t arg
 bool js_cocos2dx_Node_isOpacityModifyRGB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3340,6 +3281,7 @@ bool js_cocos2dx_Node_isOpacityModifyRGB(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->isOpacityModifyRGB();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_isOpacityModifyRGB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3480,6 +3422,7 @@ bool js_cocos2dx_Node_setNodeToParentTransform(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Node_getAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3487,7 +3430,8 @@ bool js_cocos2dx_Node_getAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         const cocos2d::Vec2& ret = cobj->getAnchorPoint();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getAnchorPoint : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3498,6 +3442,7 @@ bool js_cocos2dx_Node_getAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Node_getNumberOfRunningActions(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3505,7 +3450,8 @@ bool js_cocos2dx_Node_getNumberOfRunningActions(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         ssize_t ret = cobj->getNumberOfRunningActions();
         JS::RootedValue jsret(cx);
-        jsret = ssize_to_jsval(cx, ret);
+        ok &= ssize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getNumberOfRunningActions : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3532,6 +3478,7 @@ bool js_cocos2dx_Node_updateTransform(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Node_isVisible(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3540,6 +3487,7 @@ bool js_cocos2dx_Node_isVisible(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->isVisible();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_isVisible : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3550,6 +3498,7 @@ bool js_cocos2dx_Node_isVisible(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getChildrenCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3557,7 +3506,8 @@ bool js_cocos2dx_Node_getChildrenCount(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         ssize_t ret = cobj->getChildrenCount();
         JS::RootedValue jsret(cx);
-        jsret = ssize_to_jsval(cx, ret);
+        ok &= ssize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getChildrenCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3591,17 +3541,20 @@ bool js_cocos2dx_Node_getNodeToParentTransform(JSContext *cx, uint32_t argc, JS:
             if (!ok) { ok = true; break; }
             cocos2d::Mat4 ret = cobj->getNodeToParentTransform(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = matrix_to_jsval(cx, ret);
+            ok &= matrix_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getNodeToParentTransform : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             const cocos2d::Mat4& ret = cobj->getNodeToParentTransform();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = matrix_to_jsval(cx, ret);
+            ok &= matrix_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getNodeToParentTransform : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -3624,7 +3577,8 @@ bool js_cocos2dx_Node_convertToNodeSpaceAR(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_convertToNodeSpaceAR : Error processing arguments");
         cocos2d::Vec2 ret = cobj->convertToNodeSpaceAR(arg0);
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_convertToNodeSpaceAR : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3655,6 +3609,7 @@ bool js_cocos2dx_Node_addComponent(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->addComponent(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_addComponent : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3689,6 +3644,7 @@ bool js_cocos2dx_Node_runAction(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_runAction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3727,6 +3683,7 @@ bool js_cocos2dx_Node_setGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getRotation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3735,6 +3692,7 @@ bool js_cocos2dx_Node_getRotation(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getRotation();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getRotation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3745,6 +3703,7 @@ bool js_cocos2dx_Node_getRotation(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getAnchorPointInPoints(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3752,7 +3711,8 @@ bool js_cocos2dx_Node_getAnchorPointInPoints(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         const cocos2d::Vec2& ret = cobj->getAnchorPointInPoints();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getAnchorPointInPoints : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3860,6 +3820,7 @@ bool js_cocos2dx_Node_setPositionZ(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getGLProgramState(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3872,6 +3833,7 @@ bool js_cocos2dx_Node_getGLProgramState(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getGLProgramState : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3926,6 +3888,7 @@ bool js_cocos2dx_Node_stopAllActions(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Node_getSkewX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3934,6 +3897,7 @@ bool js_cocos2dx_Node_getSkewX(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getSkewX();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getSkewX : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3944,6 +3908,7 @@ bool js_cocos2dx_Node_getSkewX(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getSkewY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3952,6 +3917,7 @@ bool js_cocos2dx_Node_getSkewY(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getSkewY();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getSkewY : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3974,6 +3940,7 @@ bool js_cocos2dx_Node_isScheduled(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->isScheduled(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_isScheduled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3984,6 +3951,7 @@ bool js_cocos2dx_Node_isScheduled(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getDisplayedColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3991,7 +3959,8 @@ bool js_cocos2dx_Node_getDisplayedColor(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         const cocos2d::Color3B& ret = cobj->getDisplayedColor();
         JS::RootedValue jsret(cx);
-        jsret = cccolor3b_to_jsval(cx, ret);
+        ok &= cccolor3b_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getDisplayedColor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4018,6 +3987,7 @@ bool js_cocos2dx_Node_getActionByTag(JSContext *cx, uint32_t argc, JS::Value *vp
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getActionByTag : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4088,6 +4058,7 @@ bool js_cocos2dx_Node_setName(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getDisplayedOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4096,6 +4067,7 @@ bool js_cocos2dx_Node_getDisplayedOpacity(JSContext *cx, uint32_t argc, JS::Valu
         uint16_t ret = cobj->getDisplayedOpacity();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getDisplayedOpacity : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4106,6 +4078,7 @@ bool js_cocos2dx_Node_getDisplayedOpacity(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Node_getLocalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4114,6 +4087,7 @@ bool js_cocos2dx_Node_getLocalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp
         int ret = cobj->getLocalZOrder();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getLocalZOrder : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4132,6 +4106,7 @@ bool js_cocos2dx_Node_getScheduler(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_getScheduler : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const cocos2d::Scheduler* ret = cobj->getScheduler();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4140,12 +4115,14 @@ bool js_cocos2dx_Node_getScheduler(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getScheduler : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::Scheduler* ret = cobj->getScheduler();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4154,6 +4131,7 @@ bool js_cocos2dx_Node_getScheduler(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getScheduler : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -4175,13 +4153,11 @@ bool js_cocos2dx_Node_setBeforeVisitCallback(JSContext *cx, uint32_t argc, JS::V
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Renderer* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -4190,6 +4166,7 @@ bool js_cocos2dx_Node_setBeforeVisitCallback(JSContext *cx, uint32_t argc, JS::V
 		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -4270,10 +4247,12 @@ bool js_cocos2dx_Node_getPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             const cocos2d::Vec2& ret = cobj->getPosition();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = vector2_to_jsval(cx, ret);
+            ok &= vector2_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getPosition : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -4323,6 +4302,7 @@ bool js_cocos2dx_Node_insertChildBefore(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Node_isRunning(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4331,6 +4311,7 @@ bool js_cocos2dx_Node_isRunning(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->isRunning();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_isRunning : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4349,6 +4330,7 @@ bool js_cocos2dx_Node_getParent(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_getParent : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const cocos2d::Node* ret = cobj->getParent();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4357,12 +4339,14 @@ bool js_cocos2dx_Node_getParent(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getParent : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::Node* ret = cobj->getParent();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4371,6 +4355,7 @@ bool js_cocos2dx_Node_getParent(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getParent : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -4382,6 +4367,7 @@ bool js_cocos2dx_Node_getParent(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getWorldToNodeTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4389,7 +4375,8 @@ bool js_cocos2dx_Node_getWorldToNodeTransform(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         cocos2d::Mat4 ret = cobj->getWorldToNodeTransform();
         JS::RootedValue jsret(cx);
-        jsret = matrix_to_jsval(cx, ret);
+        ok &= matrix_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getWorldToNodeTransform : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4400,6 +4387,7 @@ bool js_cocos2dx_Node_getWorldToNodeTransform(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Node_getPositionY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4408,6 +4396,7 @@ bool js_cocos2dx_Node_getPositionY(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getPositionY();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getPositionY : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4418,6 +4407,7 @@ bool js_cocos2dx_Node_getPositionY(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getPositionX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4426,6 +4416,7 @@ bool js_cocos2dx_Node_getPositionX(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getPositionX();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getPositionX : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4506,6 +4497,7 @@ bool js_cocos2dx_Node_setVisible(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getParentToNodeAffineTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4513,7 +4505,8 @@ bool js_cocos2dx_Node_getParentToNodeAffineTransform(JSContext *cx, uint32_t arg
     if (argc == 0) {
         cocos2d::AffineTransform ret = cobj->getParentToNodeAffineTransform();
         JS::RootedValue jsret(cx);
-        jsret = ccaffinetransform_to_jsval(cx, ret);
+        ok &= ccaffinetransform_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getParentToNodeAffineTransform : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4524,6 +4517,7 @@ bool js_cocos2dx_Node_getParentToNodeAffineTransform(JSContext *cx, uint32_t arg
 bool js_cocos2dx_Node_getPositionZ(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4532,6 +4526,7 @@ bool js_cocos2dx_Node_getPositionZ(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getPositionZ();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getPositionZ : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4618,6 +4613,7 @@ bool js_cocos2dx_Node_getChildByTag(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getChildByTag : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4628,6 +4624,7 @@ bool js_cocos2dx_Node_getChildByTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getScaleZ(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4636,6 +4633,7 @@ bool js_cocos2dx_Node_getScaleZ(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getScaleZ();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getScaleZ : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4646,6 +4644,7 @@ bool js_cocos2dx_Node_getScaleZ(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getScaleY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4654,6 +4653,7 @@ bool js_cocos2dx_Node_getScaleY(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getScaleY();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getScaleY : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4664,6 +4664,7 @@ bool js_cocos2dx_Node_getScaleY(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getScaleX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4672,6 +4673,7 @@ bool js_cocos2dx_Node_getScaleX(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getScaleX();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getScaleX : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4758,6 +4760,7 @@ bool js_cocos2dx_Node_getComponent(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getComponent : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4768,6 +4771,7 @@ bool js_cocos2dx_Node_getComponent(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getContentSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4775,7 +4779,8 @@ bool js_cocos2dx_Node_getContentSize(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         const cocos2d::Size& ret = cobj->getContentSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getContentSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4806,6 +4811,7 @@ bool js_cocos2dx_Node_stopAllActionsByTag(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Node_getBoundingBox(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4813,7 +4819,8 @@ bool js_cocos2dx_Node_getBoundingBox(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         cocos2d::Rect ret = cobj->getBoundingBox();
         JS::RootedValue jsret(cx);
-        jsret = ccrect_to_jsval(cx, ret);
+        ok &= ccrect_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getBoundingBox : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4872,6 +4879,7 @@ bool js_cocos2dx_Node_setEventDispatcher(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Node_getGlobalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4880,6 +4888,7 @@ bool js_cocos2dx_Node_getGlobalZOrder(JSContext *cx, uint32_t argc, JS::Value *v
         double ret = cobj->getGlobalZOrder();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getGlobalZOrder : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4977,13 +4986,11 @@ bool js_cocos2dx_Node_enumerateChildren(JSContext *cx, uint32_t argc, JS::Value 
         do {
 		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Node* larg0) -> bool {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -4992,13 +4999,13 @@ bool js_cocos2dx_Node_enumerateChildren(JSContext *cx, uint32_t argc, JS::Value 
 		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
+		            JSB_PRECONDITION2(ok, cx, false, "lambda function : Error parsing arguments");
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
 		                handlePendingException(cx);
 		            }
-		            bool ok = true;
 		            bool ret;
 		            ret = rval.toBoolean();
 		            JSB_PRECONDITION2(ok, cx, false, "lambda function : Error processing return value with type bool");
@@ -5075,7 +5082,8 @@ bool js_cocos2dx_Node_convertTouchToNodeSpaceAR(JSContext *cx, uint32_t argc, JS
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_convertTouchToNodeSpaceAR : Error processing arguments");
         cocos2d::Vec2 ret = cobj->convertTouchToNodeSpaceAR(arg0);
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_convertTouchToNodeSpaceAR : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5122,6 +5130,7 @@ bool js_cocos2dx_Node_sortAllChildren(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Node_getWorldToNodeAffineTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5129,7 +5138,8 @@ bool js_cocos2dx_Node_getWorldToNodeAffineTransform(JSContext *cx, uint32_t argc
     if (argc == 0) {
         cocos2d::AffineTransform ret = cobj->getWorldToNodeAffineTransform();
         JS::RootedValue jsret(cx);
-        jsret = ccaffinetransform_to_jsval(cx, ret);
+        ok &= ccaffinetransform_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getWorldToNodeAffineTransform : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5140,6 +5150,7 @@ bool js_cocos2dx_Node_getWorldToNodeAffineTransform(JSContext *cx, uint32_t argc
 bool js_cocos2dx_Node_getScale(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5148,6 +5159,7 @@ bool js_cocos2dx_Node_getScale(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getScale();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getScale : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5158,6 +5170,7 @@ bool js_cocos2dx_Node_getScale(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5166,6 +5179,7 @@ bool js_cocos2dx_Node_getOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
         uint16_t ret = cobj->getOpacity();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getOpacity : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5192,6 +5206,7 @@ bool js_cocos2dx_Node_updateOrderOfArrival(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Node_getNormalizedPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5199,7 +5214,8 @@ bool js_cocos2dx_Node_getNormalizedPosition(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         const cocos2d::Vec2& ret = cobj->getNormalizedPosition();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getNormalizedPosition : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5210,6 +5226,7 @@ bool js_cocos2dx_Node_getNormalizedPosition(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Node_getParentToNodeTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5217,7 +5234,8 @@ bool js_cocos2dx_Node_getParentToNodeTransform(JSContext *cx, uint32_t argc, JS:
     if (argc == 0) {
         const cocos2d::Mat4& ret = cobj->getParentToNodeTransform();
         JS::RootedValue jsret(cx);
-        jsret = matrix_to_jsval(cx, ret);
+        ok &= matrix_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getParentToNodeTransform : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5239,7 +5257,8 @@ bool js_cocos2dx_Node_convertToNodeSpace(JSContext *cx, uint32_t argc, JS::Value
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_convertToNodeSpace : Error processing arguments");
         cocos2d::Vec2 ret = cobj->convertToNodeSpace(arg0);
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_convertToNodeSpace : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5270,6 +5289,7 @@ bool js_cocos2dx_Node_setTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_isCascadeColorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5278,6 +5298,7 @@ bool js_cocos2dx_Node_isCascadeColorEnabled(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->isCascadeColorEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_isCascadeColorEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5324,6 +5345,7 @@ bool js_cocos2dx_Node_getActionManager(JSContext *cx, uint32_t argc, JS::Value *
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_getActionManager : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const cocos2d::ActionManager* ret = cobj->getActionManager();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -5332,12 +5354,14 @@ bool js_cocos2dx_Node_getActionManager(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getActionManager : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::ActionManager* ret = cobj->getActionManager();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -5346,6 +5370,7 @@ bool js_cocos2dx_Node_getActionManager(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Node_getActionManager : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -5357,6 +5382,7 @@ bool js_cocos2dx_Node_getActionManager(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Node_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::Node::create();
@@ -5572,7 +5598,8 @@ void js_register_cocos2dx_Node(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Node_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Node"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Node", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -5599,6 +5626,7 @@ bool js_cocos2dx_Scene_initWithSize(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->initWithSize(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Scene_initWithSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5686,6 +5714,7 @@ bool js_cocos2dx_Scene_createWithSize(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Scene_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::Scene::create();
@@ -5778,7 +5807,8 @@ void js_register_cocos2dx_Scene(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Scene_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Scene"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Scene", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -5815,6 +5845,7 @@ bool js_cocos2dx_GLView_setFrameSize(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_GLView_getViewPortRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -5822,7 +5853,8 @@ bool js_cocos2dx_GLView_getViewPortRect(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         const cocos2d::Rect& ret = cobj->getViewPortRect();
         JS::RootedValue jsret(cx);
-        jsret = ccrect_to_jsval(cx, ret);
+        ok &= ccrect_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_getViewPortRect : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5845,6 +5877,7 @@ bool js_cocos2dx_GLView_setContentScaleFactor(JSContext *cx, uint32_t argc, JS::
         bool ret = cobj->setContentScaleFactor(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_setContentScaleFactor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5855,6 +5888,7 @@ bool js_cocos2dx_GLView_setContentScaleFactor(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_GLView_getContentScaleFactor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -5863,6 +5897,7 @@ bool js_cocos2dx_GLView_getContentScaleFactor(JSContext *cx, uint32_t argc, JS::
         double ret = cobj->getContentScaleFactor();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_getContentScaleFactor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5893,6 +5928,7 @@ bool js_cocos2dx_GLView_setIMEKeyboardState(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_GLView_isAntiAliasEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -5901,6 +5937,7 @@ bool js_cocos2dx_GLView_isAntiAliasEnabled(JSContext *cx, uint32_t argc, JS::Val
         bool ret = cobj->isAntiAliasEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_isAntiAliasEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5937,6 +5974,7 @@ bool js_cocos2dx_GLView_setScissorInPoints(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_GLView_getViewName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -5944,7 +5982,8 @@ bool js_cocos2dx_GLView_getViewName(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         const std::string& ret = cobj->getViewName();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_getViewName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5955,6 +5994,7 @@ bool js_cocos2dx_GLView_getViewName(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_GLView_isOpenGLReady(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -5963,6 +6003,7 @@ bool js_cocos2dx_GLView_isOpenGLReady(JSContext *cx, uint32_t argc, JS::Value *v
         bool ret = cobj->isOpenGLReady();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_isOpenGLReady : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5993,6 +6034,7 @@ bool js_cocos2dx_GLView_setCursorVisible(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_GLView_getScaleY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6001,6 +6043,7 @@ bool js_cocos2dx_GLView_getScaleY(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getScaleY();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_getScaleY : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6011,6 +6054,7 @@ bool js_cocos2dx_GLView_getScaleY(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_GLView_getScaleX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6019,6 +6063,7 @@ bool js_cocos2dx_GLView_getScaleX(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getScaleX();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_getScaleX : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6029,6 +6074,7 @@ bool js_cocos2dx_GLView_getScaleX(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_GLView_getVisibleOrigin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6036,7 +6082,8 @@ bool js_cocos2dx_GLView_getVisibleOrigin(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getVisibleOrigin();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_getVisibleOrigin : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6047,6 +6094,7 @@ bool js_cocos2dx_GLView_getVisibleOrigin(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_GLView_getFrameSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6054,7 +6102,8 @@ bool js_cocos2dx_GLView_getFrameSize(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         const cocos2d::Size& ret = cobj->getFrameSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_getFrameSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6085,6 +6134,7 @@ bool js_cocos2dx_GLView_setFrameZoomFactor(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_GLView_getFrameZoomFactor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6093,6 +6143,7 @@ bool js_cocos2dx_GLView_getFrameZoomFactor(JSContext *cx, uint32_t argc, JS::Val
         double ret = cobj->getFrameZoomFactor();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_getFrameZoomFactor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6103,6 +6154,7 @@ bool js_cocos2dx_GLView_getFrameZoomFactor(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_GLView_getDesignResolutionSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6110,7 +6162,8 @@ bool js_cocos2dx_GLView_getDesignResolutionSize(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         const cocos2d::Size& ret = cobj->getDesignResolutionSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_getDesignResolutionSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6121,6 +6174,7 @@ bool js_cocos2dx_GLView_getDesignResolutionSize(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_GLView_windowShouldClose(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6129,6 +6183,7 @@ bool js_cocos2dx_GLView_windowShouldClose(JSContext *cx, uint32_t argc, JS::Valu
         bool ret = cobj->windowShouldClose();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_windowShouldClose : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6163,6 +6218,7 @@ bool js_cocos2dx_GLView_setDesignResolutionSize(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_GLView_getResolutionPolicy(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6171,6 +6227,7 @@ bool js_cocos2dx_GLView_getResolutionPolicy(JSContext *cx, uint32_t argc, JS::Va
         int ret = (int)cobj->getResolutionPolicy();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_getResolutionPolicy : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6181,6 +6238,7 @@ bool js_cocos2dx_GLView_getResolutionPolicy(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_GLView_isRetinaDisplay(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6189,6 +6247,7 @@ bool js_cocos2dx_GLView_isRetinaDisplay(JSContext *cx, uint32_t argc, JS::Value 
         bool ret = cobj->isRetinaDisplay();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_isRetinaDisplay : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6263,6 +6322,7 @@ bool js_cocos2dx_GLView_setViewPortInPoints(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_GLView_getScissorRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6270,7 +6330,8 @@ bool js_cocos2dx_GLView_getScissorRect(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         cocos2d::Rect ret = cobj->getScissorRect();
         JS::RootedValue jsret(cx);
-        jsret = ccrect_to_jsval(cx, ret);
+        ok &= ccrect_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_getScissorRect : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6301,6 +6362,7 @@ bool js_cocos2dx_GLView_enableAntiAlias(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_GLView_getRetinaFactor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6309,6 +6371,7 @@ bool js_cocos2dx_GLView_getRetinaFactor(JSContext *cx, uint32_t argc, JS::Value 
         int ret = cobj->getRetinaFactor();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_getRetinaFactor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6339,6 +6402,7 @@ bool js_cocos2dx_GLView_setViewName(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_GLView_getVisibleRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6346,7 +6410,8 @@ bool js_cocos2dx_GLView_getVisibleRect(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         cocos2d::Rect ret = cobj->getVisibleRect();
         JS::RootedValue jsret(cx);
-        jsret = ccrect_to_jsval(cx, ret);
+        ok &= ccrect_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_getVisibleRect : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6357,6 +6422,7 @@ bool js_cocos2dx_GLView_getVisibleRect(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_GLView_getVisibleSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6364,7 +6430,8 @@ bool js_cocos2dx_GLView_getVisibleSize(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         cocos2d::Size ret = cobj->getVisibleSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_getVisibleSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6375,6 +6442,7 @@ bool js_cocos2dx_GLView_getVisibleSize(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_GLView_isScissorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6383,6 +6451,7 @@ bool js_cocos2dx_GLView_isScissorEnabled(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->isScissorEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLView_isScissorEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6490,7 +6559,8 @@ void js_register_cocos2dx_GLView(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_GLView_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "GLView"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "GLView", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -6520,6 +6590,7 @@ bool js_cocos2dx_Director_pause(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_isPurgeDirectorInNextLoop(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6528,6 +6599,7 @@ bool js_cocos2dx_Director_isPurgeDirectorInNextLoop(JSContext *cx, uint32_t argc
         bool ret = cobj->isPurgeDirectorInNextLoop();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_isPurgeDirectorInNextLoop : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6586,6 +6658,7 @@ bool js_cocos2dx_Director_setContentScaleFactor(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Director_getContentScaleFactor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6594,6 +6667,7 @@ bool js_cocos2dx_Director_getContentScaleFactor(JSContext *cx, uint32_t argc, JS
         double ret = cobj->getContentScaleFactor();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getContentScaleFactor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6604,6 +6678,7 @@ bool js_cocos2dx_Director_getContentScaleFactor(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Director_getWinSizeInPixels(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6611,7 +6686,8 @@ bool js_cocos2dx_Director_getWinSizeInPixels(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         cocos2d::Size ret = cobj->getWinSizeInPixels();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getWinSizeInPixels : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6622,6 +6698,7 @@ bool js_cocos2dx_Director_getWinSizeInPixels(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Director_getDeltaTime(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6630,6 +6707,7 @@ bool js_cocos2dx_Director_getDeltaTime(JSContext *cx, uint32_t argc, JS::Value *
         double ret = cobj->getDeltaTime();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getDeltaTime : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6742,6 +6820,7 @@ bool js_cocos2dx_Director_loadMatrix(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Director_getNotificationNode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6754,6 +6833,7 @@ bool js_cocos2dx_Director_getNotificationNode(JSContext *cx, uint32_t argc, JS::
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getNotificationNode : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6764,6 +6844,7 @@ bool js_cocos2dx_Director_getNotificationNode(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Director_getWinSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6771,7 +6852,8 @@ bool js_cocos2dx_Director_getWinSize(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         const cocos2d::Size& ret = cobj->getWinSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getWinSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6798,6 +6880,7 @@ bool js_cocos2dx_Director_end(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_getTextureCache(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6810,6 +6893,7 @@ bool js_cocos2dx_Director_getTextureCache(JSContext *cx, uint32_t argc, JS::Valu
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getTextureCache : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6820,6 +6904,7 @@ bool js_cocos2dx_Director_getTextureCache(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Director_isSendCleanupToScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6828,6 +6913,7 @@ bool js_cocos2dx_Director_isSendCleanupToScene(JSContext *cx, uint32_t argc, JS:
         bool ret = cobj->isSendCleanupToScene();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_isSendCleanupToScene : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6838,6 +6924,7 @@ bool js_cocos2dx_Director_isSendCleanupToScene(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Director_getVisibleOrigin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6845,7 +6932,8 @@ bool js_cocos2dx_Director_getVisibleOrigin(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getVisibleOrigin();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getVisibleOrigin : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6892,6 +6980,7 @@ bool js_cocos2dx_Director_setDepthTest(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Director_getFrameRate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6900,6 +6989,7 @@ bool js_cocos2dx_Director_getFrameRate(JSContext *cx, uint32_t argc, JS::Value *
         double ret = cobj->getFrameRate();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getFrameRate : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6910,6 +7000,7 @@ bool js_cocos2dx_Director_getFrameRate(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Director_getSecondsPerFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6918,6 +7009,7 @@ bool js_cocos2dx_Director_getSecondsPerFrame(JSContext *cx, uint32_t argc, JS::V
         double ret = cobj->getSecondsPerFrame();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getSecondsPerFrame : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6955,7 +7047,8 @@ bool js_cocos2dx_Director_convertToUI(JSContext *cx, uint32_t argc, JS::Value *v
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_convertToUI : Error processing arguments");
         cocos2d::Vec2 ret = cobj->convertToUI(arg0);
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_convertToUI : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7002,6 +7095,7 @@ bool js_cocos2dx_Director_setDefaultValues(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Director_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7010,6 +7104,7 @@ bool js_cocos2dx_Director_init(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7059,7 +7154,8 @@ bool js_cocos2dx_Director_getMatrix(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getMatrix : Error processing arguments");
         const cocos2d::Mat4& ret = cobj->getMatrix(arg0);
         JS::RootedValue jsret(cx);
-        jsret = matrix_to_jsval(cx, ret);
+        ok &= matrix_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getMatrix : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7070,6 +7166,7 @@ bool js_cocos2dx_Director_getMatrix(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_isValid(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7078,6 +7175,7 @@ bool js_cocos2dx_Director_isValid(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->isValid();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_isValid : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7104,6 +7202,7 @@ bool js_cocos2dx_Director_startAnimation(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Director_getOpenGLView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7116,6 +7215,7 @@ bool js_cocos2dx_Director_getOpenGLView(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getOpenGLView : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7126,6 +7226,7 @@ bool js_cocos2dx_Director_getOpenGLView(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Director_getRunningScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7138,6 +7239,7 @@ bool js_cocos2dx_Director_getRunningScene(JSContext *cx, uint32_t argc, JS::Valu
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getRunningScene : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7216,6 +7318,7 @@ bool js_cocos2dx_Director_resume(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_isNextDeltaTimeZero(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7224,6 +7327,7 @@ bool js_cocos2dx_Director_isNextDeltaTimeZero(JSContext *cx, uint32_t argc, JS::
         bool ret = cobj->isNextDeltaTimeZero();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_isNextDeltaTimeZero : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7293,7 +7397,8 @@ bool js_cocos2dx_Director_convertToGL(JSContext *cx, uint32_t argc, JS::Value *v
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_convertToGL : Error processing arguments");
         cocos2d::Vec2 ret = cobj->convertToGL(arg0);
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_convertToGL : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7320,6 +7425,7 @@ bool js_cocos2dx_Director_purgeCachedData(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Director_getTotalFrames(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7328,6 +7434,7 @@ bool js_cocos2dx_Director_getTotalFrames(JSContext *cx, uint32_t argc, JS::Value
         unsigned int ret = cobj->getTotalFrames();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getTotalFrames : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7462,6 +7569,7 @@ bool js_cocos2dx_Director_loadIdentityMatrix(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Director_isDisplayStats(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7470,6 +7578,7 @@ bool js_cocos2dx_Director_isDisplayStats(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->isDisplayStats();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_isDisplayStats : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7522,6 +7631,7 @@ bool js_cocos2dx_Director_multiplyMatrix(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Director_getZEye(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7530,6 +7640,7 @@ bool js_cocos2dx_Director_getZEye(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getZEye();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getZEye : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7580,6 +7691,7 @@ bool js_cocos2dx_Director_popMatrix(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_getVisibleSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7587,7 +7699,8 @@ bool js_cocos2dx_Director_getVisibleSize(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         cocos2d::Size ret = cobj->getVisibleSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getVisibleSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7598,6 +7711,7 @@ bool js_cocos2dx_Director_getVisibleSize(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Director_getScheduler(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7610,6 +7724,7 @@ bool js_cocos2dx_Director_getScheduler(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getScheduler : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7648,6 +7763,7 @@ bool js_cocos2dx_Director_pushScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_getAnimationInterval(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7656,6 +7772,7 @@ bool js_cocos2dx_Director_getAnimationInterval(JSContext *cx, uint32_t argc, JS:
         double ret = cobj->getAnimationInterval();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getAnimationInterval : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7666,6 +7783,7 @@ bool js_cocos2dx_Director_getAnimationInterval(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Director_isPaused(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7674,6 +7792,7 @@ bool js_cocos2dx_Director_isPaused(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->isPaused();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_isPaused : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7704,6 +7823,7 @@ bool js_cocos2dx_Director_setDisplayStats(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Director_getEventDispatcher(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7716,6 +7836,7 @@ bool js_cocos2dx_Director_getEventDispatcher(JSContext *cx, uint32_t argc, JS::V
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getEventDispatcher : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7774,6 +7895,7 @@ bool js_cocos2dx_Director_setAnimationInterval(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Director_getActionManager(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7786,6 +7908,7 @@ bool js_cocos2dx_Director_getActionManager(JSContext *cx, uint32_t argc, JS::Val
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Director_getActionManager : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7796,6 +7919,7 @@ bool js_cocos2dx_Director_getActionManager(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Director_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::Director::getInstance();
@@ -7909,7 +8033,8 @@ void js_register_cocos2dx_Director(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Director_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Director"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Director", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -8013,13 +8138,12 @@ bool js_cocos2dx_Scheduler_performFunctionInCocosThread(JSContext *cx, uint32_t 
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=]() -> void {
+		            bool ok = true;
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            bool succeed = func->invoke(JS::HandleValueArray::empty(), &rval);
 		            if (!succeed && JS_IsExceptionPending(cx)) {
@@ -8062,6 +8186,7 @@ bool js_cocos2dx_Scheduler_unscheduleAll(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Scheduler_getTimeScale(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : NULL);
@@ -8070,6 +8195,7 @@ bool js_cocos2dx_Scheduler_getTimeScale(JSContext *cx, uint32_t argc, JS::Value 
         double ret = cobj->getTimeScale();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Scheduler_getTimeScale : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8135,7 +8261,8 @@ void js_register_cocos2dx_Scheduler(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Scheduler_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Scheduler"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Scheduler", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -8181,6 +8308,7 @@ bool js_cocos2dx_AsyncTaskPool_destroyInstance(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_AsyncTaskPool_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         cocos2d::AsyncTaskPool* ret = cocos2d::AsyncTaskPool::getInstance();
@@ -8190,6 +8318,7 @@ bool js_cocos2dx_AsyncTaskPool_getInstance(JSContext *cx, uint32_t argc, JS::Val
     } else {
         jsret = JS::NullHandleValue;
     };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_AsyncTaskPool_getInstance : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8235,7 +8364,8 @@ void js_register_cocos2dx_AsyncTaskPool(JSContext *cx, JS::HandleObject global) 
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_AsyncTaskPool_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "AsyncTaskPool"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "AsyncTaskPool", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -8249,6 +8379,7 @@ JSObject *jsb_cocos2d_Configuration_prototype;
 bool js_cocos2dx_Configuration_supportsPVRTC(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8257,6 +8388,7 @@ bool js_cocos2dx_Configuration_supportsPVRTC(JSContext *cx, uint32_t argc, JS::V
         bool ret = cobj->supportsPVRTC();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_supportsPVRTC : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8267,6 +8399,7 @@ bool js_cocos2dx_Configuration_supportsPVRTC(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Configuration_supportsOESDepth24(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8275,6 +8408,7 @@ bool js_cocos2dx_Configuration_supportsOESDepth24(JSContext *cx, uint32_t argc, 
         bool ret = cobj->supportsOESDepth24();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_supportsOESDepth24 : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8285,6 +8419,7 @@ bool js_cocos2dx_Configuration_supportsOESDepth24(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_Configuration_getMaxModelviewStackDepth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8293,6 +8428,7 @@ bool js_cocos2dx_Configuration_getMaxModelviewStackDepth(JSContext *cx, uint32_t
         int ret = cobj->getMaxModelviewStackDepth();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_getMaxModelviewStackDepth : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8303,6 +8439,7 @@ bool js_cocos2dx_Configuration_getMaxModelviewStackDepth(JSContext *cx, uint32_t
 bool js_cocos2dx_Configuration_supportsShareableVAO(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8311,6 +8448,7 @@ bool js_cocos2dx_Configuration_supportsShareableVAO(JSContext *cx, uint32_t argc
         bool ret = cobj->supportsShareableVAO();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_supportsShareableVAO : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8321,6 +8459,7 @@ bool js_cocos2dx_Configuration_supportsShareableVAO(JSContext *cx, uint32_t argc
 bool js_cocos2dx_Configuration_supportsBGRA8888(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8329,6 +8468,7 @@ bool js_cocos2dx_Configuration_supportsBGRA8888(JSContext *cx, uint32_t argc, JS
         bool ret = cobj->supportsBGRA8888();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_supportsBGRA8888 : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8351,6 +8491,7 @@ bool js_cocos2dx_Configuration_checkForGLExtension(JSContext *cx, uint32_t argc,
         bool ret = cobj->checkForGLExtension(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_checkForGLExtension : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8361,6 +8502,7 @@ bool js_cocos2dx_Configuration_checkForGLExtension(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_Configuration_supportsNPOT(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8369,6 +8511,7 @@ bool js_cocos2dx_Configuration_supportsNPOT(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->supportsNPOT();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_supportsNPOT : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8379,6 +8522,7 @@ bool js_cocos2dx_Configuration_supportsNPOT(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Configuration_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8387,6 +8531,7 @@ bool js_cocos2dx_Configuration_init(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8397,6 +8542,7 @@ bool js_cocos2dx_Configuration_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Configuration_getMaxSupportPointLightInShader(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8405,6 +8551,7 @@ bool js_cocos2dx_Configuration_getMaxSupportPointLightInShader(JSContext *cx, ui
         int ret = cobj->getMaxSupportPointLightInShader();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_getMaxSupportPointLightInShader : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8415,6 +8562,7 @@ bool js_cocos2dx_Configuration_getMaxSupportPointLightInShader(JSContext *cx, ui
 bool js_cocos2dx_Configuration_getMaxTextureSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8423,6 +8571,7 @@ bool js_cocos2dx_Configuration_getMaxTextureSize(JSContext *cx, uint32_t argc, J
         int ret = cobj->getMaxTextureSize();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_getMaxTextureSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8455,6 +8604,7 @@ bool js_cocos2dx_Configuration_setValue(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Configuration_getMaxSupportSpotLightInShader(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8463,6 +8613,7 @@ bool js_cocos2dx_Configuration_getMaxSupportSpotLightInShader(JSContext *cx, uin
         int ret = cobj->getMaxSupportSpotLightInShader();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_getMaxSupportSpotLightInShader : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8473,6 +8624,7 @@ bool js_cocos2dx_Configuration_getMaxSupportSpotLightInShader(JSContext *cx, uin
 bool js_cocos2dx_Configuration_supportsETC(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8481,6 +8633,7 @@ bool js_cocos2dx_Configuration_supportsETC(JSContext *cx, uint32_t argc, JS::Val
         bool ret = cobj->supportsETC();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_supportsETC : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8491,6 +8644,7 @@ bool js_cocos2dx_Configuration_supportsETC(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Configuration_getMaxSupportDirLightInShader(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8499,6 +8653,7 @@ bool js_cocos2dx_Configuration_getMaxSupportDirLightInShader(JSContext *cx, uint
         int ret = cobj->getMaxSupportDirLightInShader();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_getMaxSupportDirLightInShader : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8529,6 +8684,7 @@ bool js_cocos2dx_Configuration_loadConfigFile(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Configuration_supportsDiscardFramebuffer(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8537,6 +8693,7 @@ bool js_cocos2dx_Configuration_supportsDiscardFramebuffer(JSContext *cx, uint32_
         bool ret = cobj->supportsDiscardFramebuffer();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_supportsDiscardFramebuffer : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8547,6 +8704,7 @@ bool js_cocos2dx_Configuration_supportsDiscardFramebuffer(JSContext *cx, uint32_
 bool js_cocos2dx_Configuration_supportsOESPackedDepthStencil(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8555,6 +8713,7 @@ bool js_cocos2dx_Configuration_supportsOESPackedDepthStencil(JSContext *cx, uint
         bool ret = cobj->supportsOESPackedDepthStencil();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_supportsOESPackedDepthStencil : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8565,6 +8724,7 @@ bool js_cocos2dx_Configuration_supportsOESPackedDepthStencil(JSContext *cx, uint
 bool js_cocos2dx_Configuration_getInfo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8572,7 +8732,8 @@ bool js_cocos2dx_Configuration_getInfo(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         std::string ret = cobj->getInfo();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_getInfo : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8583,6 +8744,7 @@ bool js_cocos2dx_Configuration_getInfo(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Configuration_getMaxTextureUnits(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8591,6 +8753,7 @@ bool js_cocos2dx_Configuration_getMaxTextureUnits(JSContext *cx, uint32_t argc, 
         int ret = cobj->getMaxTextureUnits();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_getMaxTextureUnits : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8612,7 +8775,8 @@ bool js_cocos2dx_Configuration_getValue(JSContext *cx, uint32_t argc, JS::Value 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_getValue : Error processing arguments");
         const cocos2d::Value& ret = cobj->getValue(arg0);
         JS::RootedValue jsret(cx);
-        jsret = ccvalue_to_jsval(cx, ret);
+        ok &= ccvalue_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_getValue : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8624,7 +8788,8 @@ bool js_cocos2dx_Configuration_getValue(JSContext *cx, uint32_t argc, JS::Value 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_getValue : Error processing arguments");
         const cocos2d::Value& ret = cobj->getValue(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = ccvalue_to_jsval(cx, ret);
+        ok &= ccvalue_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_getValue : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8651,6 +8816,7 @@ bool js_cocos2dx_Configuration_gatherGPUInfo(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Configuration_supportsMapBuffer(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8659,6 +8825,7 @@ bool js_cocos2dx_Configuration_supportsMapBuffer(JSContext *cx, uint32_t argc, J
         bool ret = cobj->supportsMapBuffer();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Configuration_supportsMapBuffer : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8681,6 +8848,7 @@ bool js_cocos2dx_Configuration_destroyInstance(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Configuration_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::Configuration::getInstance();
@@ -8752,7 +8920,8 @@ void js_register_cocos2dx_Configuration(JSContext *cx, JS::HandleObject global) 
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Configuration_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Configuration"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Configuration", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -8779,7 +8948,8 @@ bool js_cocos2dx_Properties_getVariable(JSContext *cx, uint32_t argc, JS::Value 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getVariable : Error processing arguments");
         const char* ret = cobj->getVariable(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = c_string_to_jsval(cx, ret);
+        ok &= c_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getVariable : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8803,7 +8973,8 @@ bool js_cocos2dx_Properties_getString(JSContext *cx, uint32_t argc, JS::Value *v
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getString : Error processing arguments");
         const char* ret = cobj->getString(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = c_string_to_jsval(cx, ret);
+        ok &= c_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getString : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8825,7 +8996,8 @@ bool js_cocos2dx_Properties_getLong(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getLong : Error processing arguments");
         long ret = cobj->getLong(arg0);
         JS::RootedValue jsret(cx);
-        jsret = long_to_jsval(cx, ret);
+        ok &= long_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getLong : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8844,10 +9016,12 @@ bool js_cocos2dx_Properties_getNamespace(JSContext *cx, uint32_t argc, JS::Value
     cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Properties_getNamespace : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const char* ret = cobj->getNamespace();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = c_string_to_jsval(cx, ret);
+            ok &= c_string_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getNamespace : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -8866,6 +9040,7 @@ bool js_cocos2dx_Properties_getNamespace(JSContext *cx, uint32_t argc, JS::Value
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getNamespace : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -8886,6 +9061,7 @@ bool js_cocos2dx_Properties_getNamespace(JSContext *cx, uint32_t argc, JS::Value
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getNamespace : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -8908,6 +9084,7 @@ bool js_cocos2dx_Properties_getNamespace(JSContext *cx, uint32_t argc, JS::Value
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getNamespace : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -8934,6 +9111,7 @@ bool js_cocos2dx_Properties_getPath(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->getPath(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getPath : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8966,6 +9144,7 @@ bool js_cocos2dx_Properties_getMat4(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->getMat4(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getMat4 : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8988,6 +9167,7 @@ bool js_cocos2dx_Properties_exists(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->exists(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_exists : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9012,6 +9192,7 @@ bool js_cocos2dx_Properties_setString(JSContext *cx, uint32_t argc, JS::Value *v
         bool ret = cobj->setString(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_setString : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9022,6 +9203,7 @@ bool js_cocos2dx_Properties_setString(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Properties_getId(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9029,7 +9211,8 @@ bool js_cocos2dx_Properties_getId(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         const char* ret = cobj->getId();
         JS::RootedValue jsret(cx);
-        jsret = c_string_to_jsval(cx, ret);
+        ok &= c_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getId : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9090,6 +9273,7 @@ bool js_cocos2dx_Properties_getBool(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->getBool(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getBool : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9102,6 +9286,7 @@ bool js_cocos2dx_Properties_getBool(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->getBool(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getBool : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9139,6 +9324,7 @@ bool js_cocos2dx_Properties_getColor(JSContext *cx, uint32_t argc, JS::Value *vp
             bool ret = cobj->getColor(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getColor : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -9164,6 +9350,7 @@ bool js_cocos2dx_Properties_getColor(JSContext *cx, uint32_t argc, JS::Value *vp
             bool ret = cobj->getColor(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getColor : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -9187,6 +9374,7 @@ bool js_cocos2dx_Properties_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
         int ret = (int)cobj->getType(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getType : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9197,6 +9385,7 @@ bool js_cocos2dx_Properties_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Properties_getNextNamespace(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9209,6 +9398,7 @@ bool js_cocos2dx_Properties_getNextNamespace(JSContext *cx, uint32_t argc, JS::V
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getNextNamespace : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9231,6 +9421,7 @@ bool js_cocos2dx_Properties_getInt(JSContext *cx, uint32_t argc, JS::Value *vp)
         int ret = cobj->getInt(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getInt : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9263,6 +9454,7 @@ bool js_cocos2dx_Properties_getVec3(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->getVec3(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getVec3 : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9287,6 +9479,7 @@ bool js_cocos2dx_Properties_getVec2(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->getVec2(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getVec2 : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9319,6 +9512,7 @@ bool js_cocos2dx_Properties_getVec4(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->getVec4(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getVec4 : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9329,6 +9523,7 @@ bool js_cocos2dx_Properties_getVec4(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Properties_getNextProperty(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9336,7 +9531,8 @@ bool js_cocos2dx_Properties_getNextProperty(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         const char* ret = cobj->getNextProperty();
         JS::RootedValue jsret(cx);
-        jsret = c_string_to_jsval(cx, ret);
+        ok &= c_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getNextProperty : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9359,6 +9555,7 @@ bool js_cocos2dx_Properties_getFloat(JSContext *cx, uint32_t argc, JS::Value *vp
         double ret = cobj->getFloat(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getFloat : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9391,6 +9588,7 @@ bool js_cocos2dx_Properties_getQuaternionFromAxisAngle(JSContext *cx, uint32_t a
         bool ret = cobj->getQuaternionFromAxisAngle(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_getQuaternionFromAxisAngle : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9422,6 +9620,7 @@ bool js_cocos2dx_Properties_parseColor(JSContext *cx, uint32_t argc, JS::Value *
             bool ret = cocos2d::Properties::parseColor(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_parseColor : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -9447,6 +9646,7 @@ bool js_cocos2dx_Properties_parseColor(JSContext *cx, uint32_t argc, JS::Value *
             bool ret = cocos2d::Properties::parseColor(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_parseColor : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -9476,6 +9676,7 @@ bool js_cocos2dx_Properties_parseVec3(JSContext *cx, uint32_t argc, JS::Value *v
         bool ret = cocos2d::Properties::parseVec3(arg0, arg1);
         JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_parseVec3 : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9505,6 +9706,7 @@ bool js_cocos2dx_Properties_parseAxisAngle(JSContext *cx, uint32_t argc, JS::Val
         bool ret = cocos2d::Properties::parseAxisAngle(arg0, arg1);
         JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_parseAxisAngle : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9526,6 +9728,7 @@ bool js_cocos2dx_Properties_parseVec2(JSContext *cx, uint32_t argc, JS::Value *v
         bool ret = cocos2d::Properties::parseVec2(arg0, arg1);
         JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_parseVec2 : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9549,6 +9752,7 @@ bool js_cocos2dx_Properties_createNonRefCounted(JSContext *cx, uint32_t argc, JS
     } else {
         jsret = JS::NullHandleValue;
     };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_createNonRefCounted : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9578,6 +9782,7 @@ bool js_cocos2dx_Properties_parseVec4(JSContext *cx, uint32_t argc, JS::Value *v
         bool ret = cocos2d::Properties::parseVec4(arg0, arg1);
         JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Properties_parseVec4 : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9648,7 +9853,8 @@ void js_register_cocos2dx_Properties(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Properties_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Properties"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Properties", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -9673,7 +9879,8 @@ bool js_cocos2dx_FileUtils_fullPathForFilename(JSContext *cx, uint32_t argc, JS:
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_fullPathForFilename : Error processing arguments");
         std::string ret = cobj->fullPathForFilename(arg0);
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_fullPathForFilename : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9695,7 +9902,8 @@ bool js_cocos2dx_FileUtils_getStringFromFile(JSContext *cx, uint32_t argc, JS::V
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getStringFromFile : Error processing arguments");
         std::string ret = cobj->getStringFromFile(arg0);
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getStringFromFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9718,6 +9926,7 @@ bool js_cocos2dx_FileUtils_removeFile(JSContext *cx, uint32_t argc, JS::Value *v
         bool ret = cobj->removeFile(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_removeFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9740,6 +9949,7 @@ bool js_cocos2dx_FileUtils_isAbsolutePath(JSContext *cx, uint32_t argc, JS::Valu
         bool ret = cobj->isAbsolutePath(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_isAbsolutePath : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9769,6 +9979,7 @@ bool js_cocos2dx_FileUtils_renameFile(JSContext *cx, uint32_t argc, JS::Value *v
             bool ret = cobj->renameFile(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_renameFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -9789,6 +10000,7 @@ bool js_cocos2dx_FileUtils_renameFile(JSContext *cx, uint32_t argc, JS::Value *v
             bool ret = cobj->renameFile(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_renameFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -9820,6 +10032,7 @@ bool js_cocos2dx_FileUtils_loadFilenameLookupDictionaryFromFile(JSContext *cx, u
 bool js_cocos2dx_FileUtils_isPopupNotify(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -9828,6 +10041,7 @@ bool js_cocos2dx_FileUtils_isPopupNotify(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->isPopupNotify();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_isPopupNotify : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9849,7 +10063,8 @@ bool js_cocos2dx_FileUtils_getValueVectorFromFile(JSContext *cx, uint32_t argc, 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getValueVectorFromFile : Error processing arguments");
         cocos2d::ValueVector ret = cobj->getValueVectorFromFile(arg0);
         JS::RootedValue jsret(cx);
-        jsret = ccvaluevector_to_jsval(cx, ret);
+        ok &= ccvaluevector_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getValueVectorFromFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9860,6 +10075,7 @@ bool js_cocos2dx_FileUtils_getValueVectorFromFile(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_FileUtils_getSearchPaths(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -9867,7 +10083,8 @@ bool js_cocos2dx_FileUtils_getSearchPaths(JSContext *cx, uint32_t argc, JS::Valu
     if (argc == 0) {
         const std::vector<std::string>& ret = cobj->getSearchPaths();
         JS::RootedValue jsret(cx);
-        jsret = std_vector_string_to_jsval(cx, ret);
+        ok &= std_vector_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getSearchPaths : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9892,6 +10109,7 @@ bool js_cocos2dx_FileUtils_writeToFile(JSContext *cx, uint32_t argc, JS::Value *
         bool ret = cobj->writeToFile(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_writeToFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9913,7 +10131,8 @@ bool js_cocos2dx_FileUtils_listFiles(JSContext *cx, uint32_t argc, JS::Value *vp
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_listFiles : Error processing arguments");
         std::vector<std::string> ret = cobj->listFiles(arg0);
         JS::RootedValue jsret(cx);
-        jsret = std_vector_string_to_jsval(cx, ret);
+        ok &= std_vector_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_listFiles : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9935,7 +10154,8 @@ bool js_cocos2dx_FileUtils_getValueMapFromFile(JSContext *cx, uint32_t argc, JS:
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getValueMapFromFile : Error processing arguments");
         cocos2d::ValueMap ret = cobj->getValueMapFromFile(arg0);
         JS::RootedValue jsret(cx);
-        jsret = ccvaluemap_to_jsval(cx, ret);
+        ok &= ccvaluemap_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getValueMapFromFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9957,7 +10177,8 @@ bool js_cocos2dx_FileUtils_getFileSize(JSContext *cx, uint32_t argc, JS::Value *
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getFileSize : Error processing arguments");
         long ret = cobj->getFileSize(arg0);
         JS::RootedValue jsret(cx);
-        jsret = long_to_jsval(cx, ret);
+        ok &= long_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getFileSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9981,7 +10202,8 @@ bool js_cocos2dx_FileUtils_getValueMapFromData(JSContext *cx, uint32_t argc, JS:
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getValueMapFromData : Error processing arguments");
         cocos2d::ValueMap ret = cobj->getValueMapFromData(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = ccvaluemap_to_jsval(cx, ret);
+        ok &= ccvaluemap_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getValueMapFromData : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10004,6 +10226,7 @@ bool js_cocos2dx_FileUtils_removeDirectory(JSContext *cx, uint32_t argc, JS::Val
         bool ret = cobj->removeDirectory(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_removeDirectory : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10048,6 +10271,7 @@ bool js_cocos2dx_FileUtils_writeStringToFile(JSContext *cx, uint32_t argc, JS::V
         bool ret = cobj->writeStringToFile(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_writeStringToFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10152,6 +10376,7 @@ bool js_cocos2dx_FileUtils_writeValueVectorToFile(JSContext *cx, uint32_t argc, 
         bool ret = cobj->writeValueVectorToFile(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_writeValueVectorToFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10174,6 +10399,7 @@ bool js_cocos2dx_FileUtils_isFileExist(JSContext *cx, uint32_t argc, JS::Value *
         bool ret = cobj->isFileExist(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_isFileExist : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10213,7 +10439,8 @@ bool js_cocos2dx_FileUtils_fullPathFromRelativeFile(JSContext *cx, uint32_t argc
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_fullPathFromRelativeFile : Error processing arguments");
         std::string ret = cobj->fullPathFromRelativeFile(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_fullPathFromRelativeFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10235,7 +10462,8 @@ bool js_cocos2dx_FileUtils_getSuitableFOpen(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getSuitableFOpen : Error processing arguments");
         std::string ret = cobj->getSuitableFOpen(arg0);
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getSuitableFOpen : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10260,6 +10488,7 @@ bool js_cocos2dx_FileUtils_writeValueMapToFile(JSContext *cx, uint32_t argc, JS:
         bool ret = cobj->writeValueMapToFile(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_writeValueMapToFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10281,7 +10510,8 @@ bool js_cocos2dx_FileUtils_getFileExtension(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getFileExtension : Error processing arguments");
         std::string ret = cobj->getFileExtension(arg0);
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getFileExtension : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10344,6 +10574,7 @@ bool js_cocos2dx_FileUtils_isDirectoryExist(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->isDirectoryExist(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_isDirectoryExist : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10374,6 +10605,7 @@ bool js_cocos2dx_FileUtils_setDefaultResourceRootPath(JSContext *cx, uint32_t ar
 bool js_cocos2dx_FileUtils_getSearchResolutionsOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10381,7 +10613,8 @@ bool js_cocos2dx_FileUtils_getSearchResolutionsOrder(JSContext *cx, uint32_t arg
     if (argc == 0) {
         const std::vector<std::string>& ret = cobj->getSearchResolutionsOrder();
         JS::RootedValue jsret(cx);
-        jsret = std_vector_string_to_jsval(cx, ret);
+        ok &= std_vector_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getSearchResolutionsOrder : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10404,6 +10637,7 @@ bool js_cocos2dx_FileUtils_createDirectory(JSContext *cx, uint32_t argc, JS::Val
         bool ret = cobj->createDirectory(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_createDirectory : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10444,6 +10678,7 @@ bool js_cocos2dx_FileUtils_listFilesRecursively(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_FileUtils_getWritablePath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10451,7 +10686,8 @@ bool js_cocos2dx_FileUtils_getWritablePath(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         std::string ret = cobj->getWritablePath();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getWritablePath : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10486,6 +10722,7 @@ bool js_cocos2dx_FileUtils_setDelegate(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_FileUtils_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         cocos2d::FileUtils* ret = cocos2d::FileUtils::getInstance();
@@ -10495,6 +10732,7 @@ bool js_cocos2dx_FileUtils_getInstance(JSContext *cx, uint32_t argc, JS::Value *
     } else {
         jsret = JS::NullHandleValue;
     };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_getInstance : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10574,7 +10812,8 @@ void js_register_cocos2dx_FileUtils(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_FileUtils_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "FileUtils"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "FileUtils", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -10637,7 +10876,8 @@ void js_register_cocos2dx_EventAcceleration(JSContext *cx, JS::HandleObject glob
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EventAcceleration_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventAcceleration"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventAcceleration", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -10651,6 +10891,7 @@ JSObject *jsb_cocos2d_EventCustom_prototype;
 bool js_cocos2dx_EventCustom_getEventName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventCustom* cobj = (cocos2d::EventCustom *)(proxy ? proxy->ptr : NULL);
@@ -10658,7 +10899,8 @@ bool js_cocos2dx_EventCustom_getEventName(JSContext *cx, uint32_t argc, JS::Valu
     if (argc == 0) {
         const std::string& ret = cobj->getEventName();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventCustom_getEventName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10723,7 +10965,8 @@ void js_register_cocos2dx_EventCustom(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EventCustom_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventCustom"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventCustom", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -10757,6 +11000,7 @@ bool js_cocos2dx_EventListener_setEnabled(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_EventListener_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListener* cobj = (cocos2d::EventListener *)(proxy ? proxy->ptr : NULL);
@@ -10765,6 +11009,7 @@ bool js_cocos2dx_EventListener_isEnabled(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->isEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListener_isEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10775,6 +11020,7 @@ bool js_cocos2dx_EventListener_isEnabled(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_EventListener_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListener* cobj = (cocos2d::EventListener *)(proxy ? proxy->ptr : NULL);
@@ -10787,6 +11033,7 @@ bool js_cocos2dx_EventListener_clone(JSContext *cx, uint32_t argc, JS::Value *vp
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListener_clone : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10797,6 +11044,7 @@ bool js_cocos2dx_EventListener_clone(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_EventListener_checkAvailable(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListener* cobj = (cocos2d::EventListener *)(proxy ? proxy->ptr : NULL);
@@ -10805,6 +11053,7 @@ bool js_cocos2dx_EventListener_checkAvailable(JSContext *cx, uint32_t argc, JS::
         bool ret = cobj->checkAvailable();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListener_checkAvailable : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -10847,7 +11096,8 @@ void js_register_cocos2dx_EventListener(JSContext *cx, JS::HandleObject global) 
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EventListener_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventListener"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventListener", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -11148,6 +11398,7 @@ bool js_cocos2dx_EventDispatcher_hasEventListener(JSContext *cx, uint32_t argc, 
         bool ret = cobj->hasEventListener(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventDispatcher_hasEventListener : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -11252,6 +11503,7 @@ bool js_cocos2dx_EventDispatcher_removeEventListener(JSContext *cx, uint32_t arg
 bool js_cocos2dx_EventDispatcher_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
@@ -11260,6 +11512,7 @@ bool js_cocos2dx_EventDispatcher_isEnabled(JSContext *cx, uint32_t argc, JS::Val
         bool ret = cobj->isEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventDispatcher_isEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -11331,7 +11584,8 @@ void js_register_cocos2dx_EventDispatcher(JSContext *cx, JS::HandleObject global
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EventDispatcher_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventDispatcher"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventDispatcher", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -11412,7 +11666,8 @@ void js_register_cocos2dx_EventFocus(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EventFocus_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventFocus"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventFocus", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -11436,16 +11691,14 @@ bool js_cocos2dx_EventListenerAcceleration_init(JSContext *cx, uint32_t argc, JS
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Acceleration* larg0, cocos2d::Event* larg1) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = ccacceleration_to_jsval(cx, *larg0);
+		            ok &= ccacceleration_to_jsval(cx, *larg0, &largv);
 		            valArr.append(largv);
 		            if (larg1) {
 		            largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Event>(cx, (cocos2d::Event*)larg1));
@@ -11453,6 +11706,7 @@ bool js_cocos2dx_EventListenerAcceleration_init(JSContext *cx, uint32_t argc, JS
 		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -11472,6 +11726,7 @@ bool js_cocos2dx_EventListenerAcceleration_init(JSContext *cx, uint32_t argc, JS
         bool ret = cobj->init(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerAcceleration_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -11533,7 +11788,8 @@ void js_register_cocos2dx_EventListenerAcceleration(JSContext *cx, JS::HandleObj
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EventListenerAcceleration_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventListenerAcceleration"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventListenerAcceleration", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -11593,7 +11849,8 @@ void js_register_cocos2dx_EventListenerCustom(JSContext *cx, JS::HandleObject gl
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EventListenerCustom_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventListenerCustom"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventListenerCustom", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -11607,6 +11864,7 @@ JSObject *jsb_cocos2d_EventListenerFocus_prototype;
 bool js_cocos2dx_EventListenerFocus_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListenerFocus* cobj = (cocos2d::EventListenerFocus *)(proxy ? proxy->ptr : NULL);
@@ -11615,6 +11873,7 @@ bool js_cocos2dx_EventListenerFocus_init(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerFocus_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -11676,7 +11935,8 @@ void js_register_cocos2dx_EventListenerFocus(JSContext *cx, JS::HandleObject glo
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EventListenerFocus_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventListenerFocus"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventListenerFocus", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -11690,6 +11950,7 @@ JSObject *jsb_cocos2d_EventListenerKeyboard_prototype;
 bool js_cocos2dx_EventListenerKeyboard_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListenerKeyboard* cobj = (cocos2d::EventListenerKeyboard *)(proxy ? proxy->ptr : NULL);
@@ -11698,6 +11959,7 @@ bool js_cocos2dx_EventListenerKeyboard_init(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerKeyboard_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -11759,7 +12021,8 @@ void js_register_cocos2dx_EventListenerKeyboard(JSContext *cx, JS::HandleObject 
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EventListenerKeyboard_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventListenerKeyboard"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventListenerKeyboard", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -11773,6 +12036,7 @@ JSObject *jsb_cocos2d_EventMouse_prototype;
 bool js_cocos2dx_EventMouse_getMouseButton(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -11781,6 +12045,7 @@ bool js_cocos2dx_EventMouse_getMouseButton(JSContext *cx, uint32_t argc, JS::Val
         int ret = cobj->getMouseButton();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventMouse_getMouseButton : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -11791,6 +12056,7 @@ bool js_cocos2dx_EventMouse_getMouseButton(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_EventMouse_getLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -11798,7 +12064,8 @@ bool js_cocos2dx_EventMouse_getLocation(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getLocation();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventMouse_getLocation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -11851,6 +12118,7 @@ bool js_cocos2dx_EventMouse_setScrollData(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_EventMouse_getPreviousLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -11858,7 +12126,8 @@ bool js_cocos2dx_EventMouse_getPreviousLocationInView(JSContext *cx, uint32_t ar
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getPreviousLocationInView();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventMouse_getPreviousLocationInView : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -11869,6 +12138,7 @@ bool js_cocos2dx_EventMouse_getPreviousLocationInView(JSContext *cx, uint32_t ar
 bool js_cocos2dx_EventMouse_getDelta(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -11876,7 +12146,8 @@ bool js_cocos2dx_EventMouse_getDelta(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getDelta();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventMouse_getDelta : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -11887,6 +12158,7 @@ bool js_cocos2dx_EventMouse_getDelta(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_EventMouse_getStartLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -11894,7 +12166,8 @@ bool js_cocos2dx_EventMouse_getStartLocation(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getStartLocation();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventMouse_getStartLocation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -11905,6 +12178,7 @@ bool js_cocos2dx_EventMouse_getStartLocation(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_EventMouse_getCursorY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -11913,6 +12187,7 @@ bool js_cocos2dx_EventMouse_getCursorY(JSContext *cx, uint32_t argc, JS::Value *
         double ret = cobj->getCursorY();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventMouse_getCursorY : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -11923,6 +12198,7 @@ bool js_cocos2dx_EventMouse_getCursorY(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_EventMouse_getCursorX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -11931,6 +12207,7 @@ bool js_cocos2dx_EventMouse_getCursorX(JSContext *cx, uint32_t argc, JS::Value *
         double ret = cobj->getCursorX();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventMouse_getCursorX : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -11941,6 +12218,7 @@ bool js_cocos2dx_EventMouse_getCursorX(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_EventMouse_getLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -11948,7 +12226,8 @@ bool js_cocos2dx_EventMouse_getLocationInView(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getLocationInView();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventMouse_getLocationInView : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -11959,6 +12238,7 @@ bool js_cocos2dx_EventMouse_getLocationInView(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_EventMouse_getScrollY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -11967,6 +12247,7 @@ bool js_cocos2dx_EventMouse_getScrollY(JSContext *cx, uint32_t argc, JS::Value *
         double ret = cobj->getScrollY();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventMouse_getScrollY : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -11999,6 +12280,7 @@ bool js_cocos2dx_EventMouse_setCursorPosition(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_EventMouse_getScrollX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12007,6 +12289,7 @@ bool js_cocos2dx_EventMouse_getScrollX(JSContext *cx, uint32_t argc, JS::Value *
         double ret = cobj->getScrollX();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventMouse_getScrollX : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12017,6 +12300,7 @@ bool js_cocos2dx_EventMouse_getScrollX(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_EventMouse_getPreviousLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12024,7 +12308,8 @@ bool js_cocos2dx_EventMouse_getPreviousLocation(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getPreviousLocation();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventMouse_getPreviousLocation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12035,6 +12320,7 @@ bool js_cocos2dx_EventMouse_getPreviousLocation(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_EventMouse_getStartLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12042,7 +12328,8 @@ bool js_cocos2dx_EventMouse_getStartLocationInView(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getStartLocationInView();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventMouse_getStartLocationInView : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12121,7 +12408,8 @@ void js_register_cocos2dx_EventMouse(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EventMouse_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventMouse"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventMouse", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -12135,6 +12423,7 @@ JSObject *jsb_cocos2d_EventListenerMouse_prototype;
 bool js_cocos2dx_EventListenerMouse_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListenerMouse* cobj = (cocos2d::EventListenerMouse *)(proxy ? proxy->ptr : NULL);
@@ -12143,6 +12432,7 @@ bool js_cocos2dx_EventListenerMouse_init(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerMouse_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12204,7 +12494,8 @@ void js_register_cocos2dx_EventListenerMouse(JSContext *cx, JS::HandleObject glo
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EventListenerMouse_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventListenerMouse"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventListenerMouse", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -12218,6 +12509,7 @@ JSObject *jsb_cocos2d_EventListenerTouchOneByOne_prototype;
 bool js_cocos2dx_EventListenerTouchOneByOne_isSwallowTouches(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListenerTouchOneByOne* cobj = (cocos2d::EventListenerTouchOneByOne *)(proxy ? proxy->ptr : NULL);
@@ -12226,6 +12518,7 @@ bool js_cocos2dx_EventListenerTouchOneByOne_isSwallowTouches(JSContext *cx, uint
         bool ret = cobj->isSwallowTouches();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerTouchOneByOne_isSwallowTouches : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12256,6 +12549,7 @@ bool js_cocos2dx_EventListenerTouchOneByOne_setSwallowTouches(JSContext *cx, uin
 bool js_cocos2dx_EventListenerTouchOneByOne_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListenerTouchOneByOne* cobj = (cocos2d::EventListenerTouchOneByOne *)(proxy ? proxy->ptr : NULL);
@@ -12264,6 +12558,7 @@ bool js_cocos2dx_EventListenerTouchOneByOne_init(JSContext *cx, uint32_t argc, J
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerTouchOneByOne_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12331,7 +12626,8 @@ void js_register_cocos2dx_EventListenerTouchOneByOne(JSContext *cx, JS::HandleOb
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EventListenerTouchOneByOne_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventListenerTouchOneByOne"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventListenerTouchOneByOne", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -12345,6 +12641,7 @@ JSObject *jsb_cocos2d_EventListenerTouchAllAtOnce_prototype;
 bool js_cocos2dx_EventListenerTouchAllAtOnce_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListenerTouchAllAtOnce* cobj = (cocos2d::EventListenerTouchAllAtOnce *)(proxy ? proxy->ptr : NULL);
@@ -12353,6 +12650,7 @@ bool js_cocos2dx_EventListenerTouchAllAtOnce_init(JSContext *cx, uint32_t argc, 
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerTouchAllAtOnce_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12418,7 +12716,8 @@ void js_register_cocos2dx_EventListenerTouchAllAtOnce(JSContext *cx, JS::HandleO
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EventListenerTouchAllAtOnce_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EventListenerTouchAllAtOnce"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EventListenerTouchAllAtOnce", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -12488,6 +12787,7 @@ bool js_cocos2dx_Action_setOriginalTarget(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Action_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12500,6 +12800,7 @@ bool js_cocos2dx_Action_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Action_clone : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12510,6 +12811,7 @@ bool js_cocos2dx_Action_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_getOriginalTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12522,6 +12824,7 @@ bool js_cocos2dx_Action_getOriginalTarget(JSContext *cx, uint32_t argc, JS::Valu
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Action_getOriginalTarget : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12568,6 +12871,7 @@ bool js_cocos2dx_Action_update(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_getTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12580,6 +12884,7 @@ bool js_cocos2dx_Action_getTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Action_getTarget : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12590,6 +12895,7 @@ bool js_cocos2dx_Action_getTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_getFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12598,6 +12904,7 @@ bool js_cocos2dx_Action_getFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
         unsigned int ret = cobj->getFlags();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Action_getFlags : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12668,6 +12975,7 @@ bool js_cocos2dx_Action_setFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_getTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12676,6 +12984,7 @@ bool js_cocos2dx_Action_getTag(JSContext *cx, uint32_t argc, JS::Value *vp)
         int ret = cobj->getTag();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Action_getTag : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12714,6 +13023,7 @@ bool js_cocos2dx_Action_setTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_isDone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12722,6 +13032,7 @@ bool js_cocos2dx_Action_isDone(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->isDone();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Action_isDone : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12732,6 +13043,7 @@ bool js_cocos2dx_Action_isDone(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_reverse(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12744,6 +13056,7 @@ bool js_cocos2dx_Action_reverse(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Action_reverse : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12797,7 +13110,8 @@ void js_register_cocos2dx_Action(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Action_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Action"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Action", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -12831,6 +13145,7 @@ bool js_cocos2dx_FiniteTimeAction_setDuration(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_FiniteTimeAction_getDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FiniteTimeAction* cobj = (cocos2d::FiniteTimeAction *)(proxy ? proxy->ptr : NULL);
@@ -12839,6 +13154,7 @@ bool js_cocos2dx_FiniteTimeAction_getDuration(JSContext *cx, uint32_t argc, JS::
         double ret = cobj->getDuration();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FiniteTimeAction_getDuration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12881,7 +13197,8 @@ void js_register_cocos2dx_FiniteTimeAction(JSContext *cx, JS::HandleObject globa
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_FiniteTimeAction_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "FiniteTimeAction"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "FiniteTimeAction", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -12923,6 +13240,7 @@ bool js_cocos2dx_Speed_setInnerAction(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Speed_getSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Speed* cobj = (cocos2d::Speed *)(proxy ? proxy->ptr : NULL);
@@ -12931,6 +13249,7 @@ bool js_cocos2dx_Speed_getSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getSpeed();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Speed_getSpeed : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12983,6 +13302,7 @@ bool js_cocos2dx_Speed_initWithAction(JSContext *cx, uint32_t argc, JS::Value *v
         bool ret = cobj->initWithAction(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Speed_initWithAction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -12993,6 +13313,7 @@ bool js_cocos2dx_Speed_initWithAction(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Speed_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Speed* cobj = (cocos2d::Speed *)(proxy ? proxy->ptr : NULL);
@@ -13005,6 +13326,7 @@ bool js_cocos2dx_Speed_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *v
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Speed_getInnerAction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13070,7 +13392,8 @@ void js_register_cocos2dx_Speed(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Speed_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Speed"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Speed", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -13124,6 +13447,7 @@ bool js_cocos2dx_Follow_initWithTarget(JSContext *cx, uint32_t argc, JS::Value *
         bool ret = cobj->initWithTarget(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTarget : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13144,6 +13468,7 @@ bool js_cocos2dx_Follow_initWithTarget(JSContext *cx, uint32_t argc, JS::Value *
         bool ret = cobj->initWithTarget(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTarget : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13178,6 +13503,7 @@ bool js_cocos2dx_Follow_initWithTargetAndOffset(JSContext *cx, uint32_t argc, JS
         bool ret = cobj->initWithTargetAndOffset(arg0, arg1, arg2);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTargetAndOffset : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13202,6 +13528,7 @@ bool js_cocos2dx_Follow_initWithTargetAndOffset(JSContext *cx, uint32_t argc, JS
         bool ret = cobj->initWithTargetAndOffset(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTargetAndOffset : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13212,6 +13539,7 @@ bool js_cocos2dx_Follow_initWithTargetAndOffset(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Follow_isBoundarySet(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Follow* cobj = (cocos2d::Follow *)(proxy ? proxy->ptr : NULL);
@@ -13220,6 +13548,7 @@ bool js_cocos2dx_Follow_isBoundarySet(JSContext *cx, uint32_t argc, JS::Value *v
         bool ret = cobj->isBoundarySet();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_isBoundarySet : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13303,7 +13632,8 @@ void js_register_cocos2dx_Follow(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Follow_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Follow"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Follow", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -13318,6 +13648,7 @@ JSObject *jsb_cocos2d_Image_prototype;
 bool js_cocos2dx_Image_hasPremultipliedAlpha(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13326,6 +13657,7 @@ bool js_cocos2dx_Image_hasPremultipliedAlpha(JSContext *cx, uint32_t argc, JS::V
         bool ret = cobj->hasPremultipliedAlpha();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Image_hasPremultipliedAlpha : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13336,6 +13668,7 @@ bool js_cocos2dx_Image_hasPremultipliedAlpha(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Image_getDataLen(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13343,7 +13676,8 @@ bool js_cocos2dx_Image_getDataLen(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         ssize_t ret = cobj->getDataLen();
         JS::RootedValue jsret(cx);
-        jsret = ssize_to_jsval(cx, ret);
+        ok &= ssize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Image_getDataLen : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13366,6 +13700,7 @@ bool js_cocos2dx_Image_saveToFile(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->saveToFile(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Image_saveToFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13378,6 +13713,7 @@ bool js_cocos2dx_Image_saveToFile(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->saveToFile(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Image_saveToFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13388,6 +13724,7 @@ bool js_cocos2dx_Image_saveToFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Image_hasAlpha(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13396,6 +13733,7 @@ bool js_cocos2dx_Image_hasAlpha(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->hasAlpha();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Image_hasAlpha : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13406,6 +13744,7 @@ bool js_cocos2dx_Image_hasAlpha(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Image_isCompressed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13414,6 +13753,7 @@ bool js_cocos2dx_Image_isCompressed(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->isCompressed();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Image_isCompressed : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13424,6 +13764,7 @@ bool js_cocos2dx_Image_isCompressed(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Image_getHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13432,6 +13773,7 @@ bool js_cocos2dx_Image_getHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
         int ret = cobj->getHeight();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Image_getHeight : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13454,6 +13796,7 @@ bool js_cocos2dx_Image_initWithImageFile(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->initWithImageFile(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Image_initWithImageFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13464,6 +13807,7 @@ bool js_cocos2dx_Image_initWithImageFile(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Image_getWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13472,6 +13816,7 @@ bool js_cocos2dx_Image_getWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
         int ret = cobj->getWidth();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Image_getWidth : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13482,6 +13827,7 @@ bool js_cocos2dx_Image_getWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Image_getBitPerPixel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13490,6 +13836,7 @@ bool js_cocos2dx_Image_getBitPerPixel(JSContext *cx, uint32_t argc, JS::Value *v
         int ret = cobj->getBitPerPixel();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Image_getBitPerPixel : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13500,6 +13847,7 @@ bool js_cocos2dx_Image_getBitPerPixel(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Image_getFileType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13508,6 +13856,7 @@ bool js_cocos2dx_Image_getFileType(JSContext *cx, uint32_t argc, JS::Value *vp)
         int ret = (int)cobj->getFileType();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Image_getFileType : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13518,6 +13867,7 @@ bool js_cocos2dx_Image_getFileType(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Image_getFilePath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13525,7 +13875,8 @@ bool js_cocos2dx_Image_getFilePath(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         std::string ret = cobj->getFilePath();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Image_getFilePath : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13536,6 +13887,7 @@ bool js_cocos2dx_Image_getFilePath(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Image_getNumberOfMipmaps(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13544,6 +13896,7 @@ bool js_cocos2dx_Image_getNumberOfMipmaps(JSContext *cx, uint32_t argc, JS::Valu
         int ret = cobj->getNumberOfMipmaps();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Image_getNumberOfMipmaps : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13554,6 +13907,7 @@ bool js_cocos2dx_Image_getNumberOfMipmaps(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Image_getRenderFormat(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13562,6 +13916,7 @@ bool js_cocos2dx_Image_getRenderFormat(JSContext *cx, uint32_t argc, JS::Value *
         int ret = (int)cobj->getRenderFormat();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Image_getRenderFormat : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13671,7 +14026,8 @@ void js_register_cocos2dx_Image(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Image_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Image"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Image", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -13702,13 +14058,11 @@ bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc,
             do {
 			    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 			    {
-			        JS::RootedObject jstarget(cx);
-			        if (args.thisv().isObject())
-			        {
-			            jstarget = args.thisv().toObjectOrNull();
-			        }
-			        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
+			        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+			        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
+			        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 			        auto lambda = [=](cocos2d::GLProgram* larg0, cocos2d::Uniform* larg1) -> void {
+			            bool ok = true;
 			            JS::AutoValueVector valArr(cx);
 			            JS::RootedValue largv(cx);
 			            if (larg0) {
@@ -13717,8 +14071,9 @@ bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc,
 			            largv = JS::NullHandleValue;
 			        };
 			            valArr.append(largv);
-			            largv = larg1 == nullptr ? JS::NullHandleValue : uniform_to_jsval(cx, larg1);
+			            if (larg1) { ok &= uniform_to_jsval(cx, larg1, &largv); } else { largv = JS::NullHandleValue; };
 			            valArr.append(largv);
+			            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 			            JS::RootedValue rval(cx);
 			            JS::HandleValueArray largsv(valArr);
 			            bool succeed = func->invoke(largsv, &rval);
@@ -13751,13 +14106,11 @@ bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc,
             do {
 			    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 			    {
-			        JS::RootedObject jstarget(cx);
-			        if (args.thisv().isObject())
-			        {
-			            jstarget = args.thisv().toObjectOrNull();
-			        }
-			        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
+			        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+			        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
+			        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 			        auto lambda = [=](cocos2d::GLProgram* larg0, cocos2d::Uniform* larg1) -> void {
+			            bool ok = true;
 			            JS::AutoValueVector valArr(cx);
 			            JS::RootedValue largv(cx);
 			            if (larg0) {
@@ -13766,8 +14119,9 @@ bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc,
 			            largv = JS::NullHandleValue;
 			        };
 			            valArr.append(largv);
-			            largv = larg1 == nullptr ? JS::NullHandleValue : uniform_to_jsval(cx, larg1);
+			            if (larg1) { ok &= uniform_to_jsval(cx, larg1, &largv); } else { largv = JS::NullHandleValue; };
 			            valArr.append(largv);
+			            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 			            JS::RootedValue rval(cx);
 			            JS::HandleValueArray largsv(valArr);
 			            bool succeed = func->invoke(largsv, &rval);
@@ -13796,6 +14150,7 @@ bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_GLProgramState_getVertexAttribsFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -13804,6 +14159,7 @@ bool js_cocos2dx_GLProgramState_getVertexAttribsFlags(JSContext *cx, uint32_t ar
         unsigned int ret = cobj->getVertexAttribsFlags();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgramState_getVertexAttribsFlags : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -13934,13 +14290,11 @@ bool js_cocos2dx_GLProgramState_setVertexAttribCallback(JSContext *cx, uint32_t 
         do {
 		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::VertexAttrib* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -13949,6 +14303,7 @@ bool js_cocos2dx_GLProgramState_setVertexAttribCallback(JSContext *cx, uint32_t 
 		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -13996,6 +14351,7 @@ bool js_cocos2dx_GLProgramState_apply(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_GLProgramState_getNodeBinding(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14008,6 +14364,7 @@ bool js_cocos2dx_GLProgramState_getNodeBinding(JSContext *cx, uint32_t argc, JS:
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgramState_getNodeBinding : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -14180,6 +14537,7 @@ bool js_cocos2dx_GLProgramState_setUniformVec2v(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_GLProgramState_getUniformCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14187,7 +14545,8 @@ bool js_cocos2dx_GLProgramState_getUniformCount(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         ssize_t ret = cobj->getUniformCount();
         JS::RootedValue jsret(cx);
-        jsret = ssize_to_jsval(cx, ret);
+        ok &= ssize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgramState_getUniformCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -14223,6 +14582,7 @@ bool js_cocos2dx_GLProgramState_applyAttributes(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_GLProgramState_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14235,6 +14595,7 @@ bool js_cocos2dx_GLProgramState_clone(JSContext *cx, uint32_t argc, JS::Value *v
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgramState_clone : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -14324,6 +14685,7 @@ bool js_cocos2dx_GLProgramState_setUniformFloatv(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_GLProgramState_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14336,6 +14698,7 @@ bool js_cocos2dx_GLProgramState_getGLProgram(JSContext *cx, uint32_t argc, JS::V
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgramState_getGLProgram : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -14602,6 +14965,7 @@ bool js_cocos2dx_GLProgramState_setUniformVec3v(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_GLProgramState_getVertexAttribCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14609,7 +14973,8 @@ bool js_cocos2dx_GLProgramState_getVertexAttribCount(JSContext *cx, uint32_t arg
     if (argc == 0) {
         ssize_t ret = cobj->getVertexAttribCount();
         JS::RootedValue jsret(cx);
-        jsret = ssize_to_jsval(cx, ret);
+        ok &= ssize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgramState_getVertexAttribCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -14660,6 +15025,7 @@ bool js_cocos2dx_GLProgramState_getOrCreateWithGLProgramName(JSContext *cx, uint
     } else {
         jsret = JS::NullHandleValue;
     };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgramState_getOrCreateWithGLProgramName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -14691,6 +15057,7 @@ bool js_cocos2dx_GLProgramState_getOrCreateWithGLProgram(JSContext *cx, uint32_t
     } else {
         jsret = JS::NullHandleValue;
     };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgramState_getOrCreateWithGLProgram : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -14718,6 +15085,7 @@ bool js_cocos2dx_GLProgramState_getOrCreateWithShaders(JSContext *cx, uint32_t a
     } else {
         jsret = JS::NullHandleValue;
     };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgramState_getOrCreateWithShaders : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -14789,7 +15157,8 @@ void js_register_cocos2dx_GLProgramState(JSContext *cx, JS::HandleObject global)
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_GLProgramState_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "GLProgramState"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "GLProgramState", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -14851,6 +15220,7 @@ bool js_cocos2dx_SpriteFrame_setTexture(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_SpriteFrame_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -14863,6 +15233,7 @@ bool js_cocos2dx_SpriteFrame_getTexture(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_getTexture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -14893,6 +15264,7 @@ bool js_cocos2dx_SpriteFrame_setOffsetInPixels(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_SpriteFrame_getOriginalSizeInPixels(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -14900,7 +15272,8 @@ bool js_cocos2dx_SpriteFrame_getOriginalSizeInPixels(JSContext *cx, uint32_t arg
     if (argc == 0) {
         const cocos2d::Size& ret = cobj->getOriginalSizeInPixels();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_getOriginalSizeInPixels : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -14951,6 +15324,7 @@ bool js_cocos2dx_SpriteFrame_setRectInPixels(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_SpriteFrame_getRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -14958,7 +15332,8 @@ bool js_cocos2dx_SpriteFrame_getRect(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         const cocos2d::Rect& ret = cobj->getRect();
         JS::RootedValue jsret(cx);
-        jsret = ccrect_to_jsval(cx, ret);
+        ok &= ccrect_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_getRect : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15016,6 +15391,7 @@ bool js_cocos2dx_SpriteFrame_initWithTextureFilename(JSContext *cx, uint32_t arg
             bool ret = cobj->initWithTextureFilename(arg0, arg1, arg2, arg3, arg4);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_initWithTextureFilename : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -15033,6 +15409,7 @@ bool js_cocos2dx_SpriteFrame_initWithTextureFilename(JSContext *cx, uint32_t arg
             bool ret = cobj->initWithTextureFilename(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_initWithTextureFilename : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -15099,6 +15476,7 @@ bool js_cocos2dx_SpriteFrame_initWithTexture(JSContext *cx, uint32_t argc, JS::V
             bool ret = cobj->initWithTexture(arg0, arg1, arg2, arg3, arg4);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_initWithTexture : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -15124,6 +15502,7 @@ bool js_cocos2dx_SpriteFrame_initWithTexture(JSContext *cx, uint32_t argc, JS::V
             bool ret = cobj->initWithTexture(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_initWithTexture : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -15135,6 +15514,7 @@ bool js_cocos2dx_SpriteFrame_initWithTexture(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_SpriteFrame_getOriginalSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15142,7 +15522,8 @@ bool js_cocos2dx_SpriteFrame_getOriginalSize(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         const cocos2d::Size& ret = cobj->getOriginalSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_getOriginalSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15153,6 +15534,7 @@ bool js_cocos2dx_SpriteFrame_getOriginalSize(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_SpriteFrame_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15165,6 +15547,7 @@ bool js_cocos2dx_SpriteFrame_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_clone : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15175,6 +15558,7 @@ bool js_cocos2dx_SpriteFrame_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_SpriteFrame_getRectInPixels(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15182,7 +15566,8 @@ bool js_cocos2dx_SpriteFrame_getRectInPixels(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         const cocos2d::Rect& ret = cobj->getRectInPixels();
         JS::RootedValue jsret(cx);
-        jsret = ccrect_to_jsval(cx, ret);
+        ok &= ccrect_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_getRectInPixels : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15193,6 +15578,7 @@ bool js_cocos2dx_SpriteFrame_getRectInPixels(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_SpriteFrame_isRotated(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15201,6 +15587,7 @@ bool js_cocos2dx_SpriteFrame_isRotated(JSContext *cx, uint32_t argc, JS::Value *
         bool ret = cobj->isRotated();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_isRotated : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15231,6 +15618,7 @@ bool js_cocos2dx_SpriteFrame_setRotated(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_SpriteFrame_getOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15238,7 +15626,8 @@ bool js_cocos2dx_SpriteFrame_getOffset(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         const cocos2d::Vec2& ret = cobj->getOffset();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_getOffset : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15269,6 +15658,7 @@ bool js_cocos2dx_SpriteFrame_setOriginalSizeInPixels(JSContext *cx, uint32_t arg
 bool js_cocos2dx_SpriteFrame_getAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15276,7 +15666,8 @@ bool js_cocos2dx_SpriteFrame_getAnchorPoint(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         const cocos2d::Vec2& ret = cobj->getAnchorPoint();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_getAnchorPoint : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15287,6 +15678,7 @@ bool js_cocos2dx_SpriteFrame_getAnchorPoint(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_SpriteFrame_hasAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15295,6 +15687,7 @@ bool js_cocos2dx_SpriteFrame_hasAnchorPoint(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->hasAnchorPoint();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_hasAnchorPoint : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15305,6 +15698,7 @@ bool js_cocos2dx_SpriteFrame_hasAnchorPoint(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_SpriteFrame_getOffsetInPixels(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15312,7 +15706,8 @@ bool js_cocos2dx_SpriteFrame_getOffsetInPixels(JSContext *cx, uint32_t argc, JS:
     if (argc == 0) {
         const cocos2d::Vec2& ret = cobj->getOffsetInPixels();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_getOffsetInPixels : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15349,6 +15744,7 @@ bool js_cocos2dx_SpriteFrame_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -15370,6 +15766,7 @@ bool js_cocos2dx_SpriteFrame_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -15414,6 +15811,7 @@ bool js_cocos2dx_SpriteFrame_createWithTexture(JSContext *cx, uint32_t argc, JS:
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_createWithTexture : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -15443,6 +15841,7 @@ bool js_cocos2dx_SpriteFrame_createWithTexture(JSContext *cx, uint32_t argc, JS:
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrame_createWithTexture : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -15548,7 +15947,8 @@ void js_register_cocos2dx_SpriteFrame(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_SpriteFrame_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "SpriteFrame"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "SpriteFrame", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -15563,6 +15963,7 @@ JSObject *jsb_cocos2d_ActionInterval_prototype;
 bool js_cocos2dx_ActionInterval_getAmplitudeRate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionInterval* cobj = (cocos2d::ActionInterval *)(proxy ? proxy->ptr : NULL);
@@ -15571,6 +15972,7 @@ bool js_cocos2dx_ActionInterval_getAmplitudeRate(JSContext *cx, uint32_t argc, J
         double ret = cobj->getAmplitudeRate();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionInterval_getAmplitudeRate : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15593,6 +15995,7 @@ bool js_cocos2dx_ActionInterval_initWithDuration(JSContext *cx, uint32_t argc, J
         bool ret = cobj->initWithDuration(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionInterval_initWithDuration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15623,6 +16026,7 @@ bool js_cocos2dx_ActionInterval_setAmplitudeRate(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_ActionInterval_getElapsed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionInterval* cobj = (cocos2d::ActionInterval *)(proxy ? proxy->ptr : NULL);
@@ -15631,6 +16035,7 @@ bool js_cocos2dx_ActionInterval_getElapsed(JSContext *cx, uint32_t argc, JS::Val
         double ret = cobj->getElapsed();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionInterval_getElapsed : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15675,7 +16080,8 @@ void js_register_cocos2dx_ActionInterval(JSContext *cx, JS::HandleObject global)
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ActionInterval"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ActionInterval", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -15701,6 +16107,7 @@ bool js_cocos2dx_Sequence_init(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->init(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sequence_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15741,6 +16148,7 @@ bool js_cocos2dx_Sequence_initWithTwoActions(JSContext *cx, uint32_t argc, JS::V
         bool ret = cobj->initWithTwoActions(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sequence_initWithTwoActions : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15822,7 +16230,8 @@ void js_register_cocos2dx_Sequence(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Sequence_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Sequence"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Sequence", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -15887,6 +16296,7 @@ bool js_cocos2dx_Repeat_initWithAction(JSContext *cx, uint32_t argc, JS::Value *
         bool ret = cobj->initWithAction(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Repeat_initWithAction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15897,6 +16307,7 @@ bool js_cocos2dx_Repeat_initWithAction(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Repeat_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Repeat* cobj = (cocos2d::Repeat *)(proxy ? proxy->ptr : NULL);
@@ -15909,6 +16320,7 @@ bool js_cocos2dx_Repeat_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Repeat_getInnerAction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -15991,7 +16403,8 @@ void js_register_cocos2dx_Repeat(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Repeat_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Repeat"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Repeat", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -16054,6 +16467,7 @@ bool js_cocos2dx_RepeatForever_initWithAction(JSContext *cx, uint32_t argc, JS::
         bool ret = cobj->initWithAction(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RepeatForever_initWithAction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -16064,6 +16478,7 @@ bool js_cocos2dx_RepeatForever_initWithAction(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_RepeatForever_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RepeatForever* cobj = (cocos2d::RepeatForever *)(proxy ? proxy->ptr : NULL);
@@ -16076,6 +16491,7 @@ bool js_cocos2dx_RepeatForever_getInnerAction(JSContext *cx, uint32_t argc, JS::
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RepeatForever_getInnerAction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -16158,7 +16574,8 @@ void js_register_cocos2dx_RepeatForever(JSContext *cx, JS::HandleObject global) 
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_RepeatForever_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "RepeatForever"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "RepeatForever", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -16185,6 +16602,7 @@ bool js_cocos2dx_Spawn_init(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->init(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Spawn_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -16225,6 +16643,7 @@ bool js_cocos2dx_Spawn_initWithTwoActions(JSContext *cx, uint32_t argc, JS::Valu
         bool ret = cobj->initWithTwoActions(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Spawn_initWithTwoActions : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -16306,7 +16725,8 @@ void js_register_cocos2dx_Spawn(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Spawn_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Spawn"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Spawn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -16337,6 +16757,7 @@ bool js_cocos2dx_RotateTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Val
         bool ret = cobj->initWithDuration(arg0, arg1, arg2);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RotateTo_initWithDuration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -16364,6 +16785,7 @@ bool js_cocos2dx_RotateTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RotateTo_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -16388,6 +16810,7 @@ bool js_cocos2dx_RotateTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RotateTo_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -16473,7 +16896,8 @@ void js_register_cocos2dx_RotateTo(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_RotateTo_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "RotateTo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "RotateTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -16510,6 +16934,7 @@ bool js_cocos2dx_RotateBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Val
             bool ret = cobj->initWithDuration(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RotateBy_initWithDuration : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -16527,6 +16952,7 @@ bool js_cocos2dx_RotateBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Val
             bool ret = cobj->initWithDuration(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RotateBy_initWithDuration : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -16558,6 +16984,7 @@ bool js_cocos2dx_RotateBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RotateBy_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -16579,6 +17006,7 @@ bool js_cocos2dx_RotateBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RotateBy_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -16664,7 +17092,8 @@ void js_register_cocos2dx_RotateBy(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_RotateBy_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "RotateBy"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "RotateBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -16693,6 +17122,7 @@ bool js_cocos2dx_MoveBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->initWithDuration(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MoveBy_initWithDuration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -16799,7 +17229,8 @@ void js_register_cocos2dx_MoveBy(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_MoveBy_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "MoveBy"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "MoveBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -16828,6 +17259,7 @@ bool js_cocos2dx_MoveTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->initWithDuration(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MoveTo_initWithDuration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -16934,7 +17366,8 @@ void js_register_cocos2dx_MoveTo(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_MoveTo_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "MoveTo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "MoveTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -16965,6 +17398,7 @@ bool js_cocos2dx_SkewTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->initWithDuration(arg0, arg1, arg2);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SkewTo_initWithDuration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -17073,7 +17507,8 @@ void js_register_cocos2dx_SkewTo(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_SkewTo_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "SkewTo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "SkewTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -17104,6 +17539,7 @@ bool js_cocos2dx_SkewBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->initWithDuration(arg0, arg1, arg2);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SkewBy_initWithDuration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -17212,7 +17648,8 @@ void js_register_cocos2dx_SkewBy(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_SkewBy_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "SkewBy"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "SkewBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -17245,6 +17682,7 @@ bool js_cocos2dx_JumpBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->initWithDuration(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_JumpBy_initWithDuration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -17355,7 +17793,8 @@ void js_register_cocos2dx_JumpBy(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_JumpBy_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "JumpBy"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "JumpBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -17388,6 +17827,7 @@ bool js_cocos2dx_JumpTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->initWithDuration(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_JumpTo_initWithDuration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -17498,7 +17938,8 @@ void js_register_cocos2dx_JumpTo(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_JumpTo_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "JumpTo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "JumpTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -17577,7 +18018,8 @@ void js_register_cocos2dx_BezierBy(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_BezierBy_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "BezierBy"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "BezierBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -17656,7 +18098,8 @@ void js_register_cocos2dx_BezierTo(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_BezierTo_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "BezierTo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "BezierTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -17693,6 +18136,7 @@ bool js_cocos2dx_ScaleTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Valu
             bool ret = cobj->initWithDuration(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ScaleTo_initWithDuration : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -17710,6 +18154,7 @@ bool js_cocos2dx_ScaleTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Valu
             bool ret = cobj->initWithDuration(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ScaleTo_initWithDuration : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -17733,6 +18178,7 @@ bool js_cocos2dx_ScaleTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Valu
             bool ret = cobj->initWithDuration(arg0, arg1, arg2, arg3);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ScaleTo_initWithDuration : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -17764,6 +18210,7 @@ bool js_cocos2dx_ScaleTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ScaleTo_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -17785,6 +18232,7 @@ bool js_cocos2dx_ScaleTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ScaleTo_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -17812,6 +18260,7 @@ bool js_cocos2dx_ScaleTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ScaleTo_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -17897,7 +18346,8 @@ void js_register_cocos2dx_ScaleTo(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ScaleTo_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ScaleTo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ScaleTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -17932,6 +18382,7 @@ bool js_cocos2dx_ScaleBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ScaleBy_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -17953,6 +18404,7 @@ bool js_cocos2dx_ScaleBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ScaleBy_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -17980,6 +18432,7 @@ bool js_cocos2dx_ScaleBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ScaleBy_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -18059,7 +18512,8 @@ void js_register_cocos2dx_ScaleBy(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ScaleBy_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ScaleBy"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ScaleBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -18088,6 +18542,7 @@ bool js_cocos2dx_Blink_initWithDuration(JSContext *cx, uint32_t argc, JS::Value 
         bool ret = cobj->initWithDuration(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Blink_initWithDuration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -18194,7 +18649,8 @@ void js_register_cocos2dx_Blink(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Blink_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Blink"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Blink", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -18223,6 +18679,7 @@ bool js_cocos2dx_FadeTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->initWithDuration(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FadeTo_initWithDuration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -18329,7 +18786,8 @@ void js_register_cocos2dx_FadeTo(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_FadeTo_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "FadeTo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "FadeTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -18466,7 +18924,8 @@ void js_register_cocos2dx_FadeIn(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_FadeIn_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "FadeIn"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "FadeIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -18603,7 +19062,8 @@ void js_register_cocos2dx_FadeOut(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_FadeOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "FadeOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "FadeOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -18636,6 +19096,7 @@ bool js_cocos2dx_TintTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->initWithDuration(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TintTo_initWithDuration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -18663,6 +19124,7 @@ bool js_cocos2dx_TintTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TintTo_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -18690,6 +19152,7 @@ bool js_cocos2dx_TintTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TintTo_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -18775,7 +19238,8 @@ void js_register_cocos2dx_TintTo(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TintTo_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TintTo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TintTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -18808,6 +19272,7 @@ bool js_cocos2dx_TintBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->initWithDuration(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TintBy_initWithDuration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -18918,7 +19383,8 @@ void js_register_cocos2dx_TintBy(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TintBy_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TintBy"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TintBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -19021,7 +19487,8 @@ void js_register_cocos2dx_DelayTime(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_DelayTime_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "DelayTime"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "DelayTime", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -19056,6 +19523,7 @@ bool js_cocos2dx_ReverseTime_initWithAction(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->initWithAction(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ReverseTime_initWithAction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -19168,7 +19636,8 @@ void js_register_cocos2dx_ReverseTime(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ReverseTime_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ReverseTime"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ReverseTime", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -19191,6 +19660,7 @@ bool js_cocos2dx_TargetedAction_getForcedTarget(JSContext *cx, uint32_t argc, JS
     cobj = (cocos2d::TargetedAction *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TargetedAction_getForcedTarget : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const cocos2d::Node* ret = cobj->getForcedTarget();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -19199,12 +19669,14 @@ bool js_cocos2dx_TargetedAction_getForcedTarget(JSContext *cx, uint32_t argc, JS
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TargetedAction_getForcedTarget : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::Node* ret = cobj->getForcedTarget();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -19213,6 +19685,7 @@ bool js_cocos2dx_TargetedAction_getForcedTarget(JSContext *cx, uint32_t argc, JS
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TargetedAction_getForcedTarget : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -19254,6 +19727,7 @@ bool js_cocos2dx_TargetedAction_initWithTarget(JSContext *cx, uint32_t argc, JS:
         bool ret = cobj->initWithTarget(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TargetedAction_initWithTarget : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -19364,7 +19838,8 @@ void js_register_cocos2dx_TargetedAction(JSContext *cx, JS::HandleObject global)
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TargetedAction_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TargetedAction"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TargetedAction", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -19379,6 +19854,7 @@ JSObject *jsb_cocos2d_CardinalSplineTo_prototype;
 bool js_cocos2dx_CardinalSplineTo_getPoints(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::CardinalSplineTo* cobj = (cocos2d::CardinalSplineTo *)(proxy ? proxy->ptr : NULL);
@@ -19391,6 +19867,7 @@ bool js_cocos2dx_CardinalSplineTo_getPoints(JSContext *cx, uint32_t argc, JS::Va
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_CardinalSplineTo_getPoints : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -19473,7 +19950,8 @@ void js_register_cocos2dx_CardinalSplineTo(JSContext *cx, JS::HandleObject globa
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_CardinalSplineTo_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "CardinalSplineTo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "CardinalSplineTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -19533,7 +20011,8 @@ void js_register_cocos2dx_CardinalSplineBy(JSContext *cx, JS::HandleObject globa
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_CardinalSplineBy_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "CardinalSplineBy"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "CardinalSplineBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -19573,7 +20052,8 @@ void js_register_cocos2dx_CatmullRomTo(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_CatmullRomTo_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "CatmullRomTo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "CatmullRomTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -19613,7 +20093,8 @@ void js_register_cocos2dx_CatmullRomBy(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_CatmullRomBy_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "CatmullRomBy"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "CatmullRomBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -19647,6 +20128,7 @@ bool js_cocos2dx_ActionEase_initWithAction(JSContext *cx, uint32_t argc, JS::Val
         bool ret = cobj->initWithAction(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionEase_initWithAction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -19657,6 +20139,7 @@ bool js_cocos2dx_ActionEase_initWithAction(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ActionEase_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionEase* cobj = (cocos2d::ActionEase *)(proxy ? proxy->ptr : NULL);
@@ -19669,6 +20152,7 @@ bool js_cocos2dx_ActionEase_getInnerAction(JSContext *cx, uint32_t argc, JS::Val
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionEase_getInnerAction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -19711,7 +20195,8 @@ void js_register_cocos2dx_ActionEase(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ActionEase_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ActionEase"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ActionEase", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -19767,6 +20252,7 @@ bool js_cocos2dx_EaseRateAction_initWithAction(JSContext *cx, uint32_t argc, JS:
         bool ret = cobj->initWithAction(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseRateAction_initWithAction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -19777,6 +20263,7 @@ bool js_cocos2dx_EaseRateAction_initWithAction(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_EaseRateAction_getRate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EaseRateAction* cobj = (cocos2d::EaseRateAction *)(proxy ? proxy->ptr : NULL);
@@ -19785,6 +20272,7 @@ bool js_cocos2dx_EaseRateAction_getRate(JSContext *cx, uint32_t argc, JS::Value 
         double ret = cobj->getRate();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseRateAction_getRate : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -19862,7 +20350,8 @@ void js_register_cocos2dx_EaseRateAction(JSContext *cx, JS::HandleObject global)
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseRateAction_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseRateAction"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseRateAction", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -19974,7 +20463,8 @@ void js_register_cocos2dx_EaseIn(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseIn_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseIn"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -20087,7 +20577,8 @@ void js_register_cocos2dx_EaseOut(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -20200,7 +20691,8 @@ void js_register_cocos2dx_EaseInOut(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseInOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseInOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -20311,7 +20803,8 @@ void js_register_cocos2dx_EaseExponentialIn(JSContext *cx, JS::HandleObject glob
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialIn_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseExponentialIn"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseExponentialIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -20422,7 +20915,8 @@ void js_register_cocos2dx_EaseExponentialOut(JSContext *cx, JS::HandleObject glo
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseExponentialOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseExponentialOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -20533,7 +21027,8 @@ void js_register_cocos2dx_EaseExponentialInOut(JSContext *cx, JS::HandleObject g
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialInOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseExponentialInOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseExponentialInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -20644,7 +21139,8 @@ void js_register_cocos2dx_EaseSineIn(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseSineIn_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseSineIn"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseSineIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -20755,7 +21251,8 @@ void js_register_cocos2dx_EaseSineOut(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseSineOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseSineOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseSineOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -20866,7 +21363,8 @@ void js_register_cocos2dx_EaseSineInOut(JSContext *cx, JS::HandleObject global) 
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseSineInOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseSineInOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseSineInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -20921,6 +21419,7 @@ bool js_cocos2dx_EaseElastic_initWithAction(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->initWithAction(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseElastic_initWithAction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -20941,6 +21440,7 @@ bool js_cocos2dx_EaseElastic_initWithAction(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->initWithAction(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseElastic_initWithAction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -20951,6 +21451,7 @@ bool js_cocos2dx_EaseElastic_initWithAction(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_EaseElastic_getPeriod(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EaseElastic* cobj = (cocos2d::EaseElastic *)(proxy ? proxy->ptr : NULL);
@@ -20959,6 +21460,7 @@ bool js_cocos2dx_EaseElastic_getPeriod(JSContext *cx, uint32_t argc, JS::Value *
         double ret = cobj->getPeriod();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseElastic_getPeriod : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -21002,7 +21504,8 @@ void js_register_cocos2dx_EaseElastic(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseElastic_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseElastic"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseElastic", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -21038,6 +21541,7 @@ bool js_cocos2dx_EaseElasticIn_create(JSContext *cx, uint32_t argc, JS::Value *v
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseElasticIn_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -21067,6 +21571,7 @@ bool js_cocos2dx_EaseElasticIn_create(JSContext *cx, uint32_t argc, JS::Value *v
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseElasticIn_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -21146,7 +21651,8 @@ void js_register_cocos2dx_EaseElasticIn(JSContext *cx, JS::HandleObject global) 
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseElasticIn_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseElasticIn"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseElasticIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -21183,6 +21689,7 @@ bool js_cocos2dx_EaseElasticOut_create(JSContext *cx, uint32_t argc, JS::Value *
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseElasticOut_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -21212,6 +21719,7 @@ bool js_cocos2dx_EaseElasticOut_create(JSContext *cx, uint32_t argc, JS::Value *
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseElasticOut_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -21291,7 +21799,8 @@ void js_register_cocos2dx_EaseElasticOut(JSContext *cx, JS::HandleObject global)
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseElasticOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseElasticOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseElasticOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -21328,6 +21837,7 @@ bool js_cocos2dx_EaseElasticInOut_create(JSContext *cx, uint32_t argc, JS::Value
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseElasticInOut_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -21357,6 +21867,7 @@ bool js_cocos2dx_EaseElasticInOut_create(JSContext *cx, uint32_t argc, JS::Value
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseElasticInOut_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -21436,7 +21947,8 @@ void js_register_cocos2dx_EaseElasticInOut(JSContext *cx, JS::HandleObject globa
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseElasticInOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseElasticInOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseElasticInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -21477,7 +21989,8 @@ void js_register_cocos2dx_EaseBounce(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseBounce_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBounce"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseBounce", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -21587,7 +22100,8 @@ void js_register_cocos2dx_EaseBounceIn(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceIn_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBounceIn"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseBounceIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -21698,7 +22212,8 @@ void js_register_cocos2dx_EaseBounceOut(JSContext *cx, JS::HandleObject global) 
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBounceOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseBounceOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -21809,7 +22324,8 @@ void js_register_cocos2dx_EaseBounceInOut(JSContext *cx, JS::HandleObject global
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceInOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBounceInOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseBounceInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -21920,7 +22436,8 @@ void js_register_cocos2dx_EaseBackIn(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseBackIn_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBackIn"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseBackIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -22031,7 +22548,8 @@ void js_register_cocos2dx_EaseBackOut(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseBackOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBackOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseBackOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -22142,7 +22660,8 @@ void js_register_cocos2dx_EaseBackInOut(JSContext *cx, JS::HandleObject global) 
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseBackInOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBackInOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseBackInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -22285,7 +22804,8 @@ void js_register_cocos2dx_EaseBezierAction(JSContext *cx, JS::HandleObject globa
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseBezierAction_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseBezierAction"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseBezierAction", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -22396,7 +22916,8 @@ void js_register_cocos2dx_EaseQuadraticActionIn(JSContext *cx, JS::HandleObject 
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionIn_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuadraticActionIn"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseQuadraticActionIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -22507,7 +23028,8 @@ void js_register_cocos2dx_EaseQuadraticActionOut(JSContext *cx, JS::HandleObject
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuadraticActionOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseQuadraticActionOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -22618,7 +23140,8 @@ void js_register_cocos2dx_EaseQuadraticActionInOut(JSContext *cx, JS::HandleObje
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionInOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuadraticActionInOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseQuadraticActionInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -22729,7 +23252,8 @@ void js_register_cocos2dx_EaseQuarticActionIn(JSContext *cx, JS::HandleObject gl
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionIn_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuarticActionIn"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseQuarticActionIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -22840,7 +23364,8 @@ void js_register_cocos2dx_EaseQuarticActionOut(JSContext *cx, JS::HandleObject g
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuarticActionOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseQuarticActionOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -22951,7 +23476,8 @@ void js_register_cocos2dx_EaseQuarticActionInOut(JSContext *cx, JS::HandleObject
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionInOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuarticActionInOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseQuarticActionInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -23062,7 +23588,8 @@ void js_register_cocos2dx_EaseQuinticActionIn(JSContext *cx, JS::HandleObject gl
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionIn_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuinticActionIn"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseQuinticActionIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -23173,7 +23700,8 @@ void js_register_cocos2dx_EaseQuinticActionOut(JSContext *cx, JS::HandleObject g
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuinticActionOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseQuinticActionOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -23284,7 +23812,8 @@ void js_register_cocos2dx_EaseQuinticActionInOut(JSContext *cx, JS::HandleObject
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionInOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseQuinticActionInOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseQuinticActionInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -23395,7 +23924,8 @@ void js_register_cocos2dx_EaseCircleActionIn(JSContext *cx, JS::HandleObject glo
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionIn_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseCircleActionIn"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseCircleActionIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -23506,7 +24036,8 @@ void js_register_cocos2dx_EaseCircleActionOut(JSContext *cx, JS::HandleObject gl
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseCircleActionOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseCircleActionOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -23617,7 +24148,8 @@ void js_register_cocos2dx_EaseCircleActionInOut(JSContext *cx, JS::HandleObject 
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionInOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseCircleActionInOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseCircleActionInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -23728,7 +24260,8 @@ void js_register_cocos2dx_EaseCubicActionIn(JSContext *cx, JS::HandleObject glob
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionIn_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseCubicActionIn"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseCubicActionIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -23839,7 +24372,8 @@ void js_register_cocos2dx_EaseCubicActionOut(JSContext *cx, JS::HandleObject glo
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseCubicActionOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseCubicActionOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -23950,7 +24484,8 @@ void js_register_cocos2dx_EaseCubicActionInOut(JSContext *cx, JS::HandleObject g
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionInOut_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "EaseCubicActionInOut"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "EaseCubicActionInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -23991,7 +24526,8 @@ void js_register_cocos2dx_ActionInstant(JSContext *cx, JS::HandleObject global) 
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ActionInstant_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ActionInstant"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ActionInstant", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -24005,6 +24541,7 @@ JSObject *jsb_cocos2d_Show_prototype;
 bool js_cocos2dx_Show_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::Show::create();
@@ -24089,7 +24626,8 @@ void js_register_cocos2dx_Show(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Show_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Show"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Show", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -24104,6 +24642,7 @@ JSObject *jsb_cocos2d_Hide_prototype;
 bool js_cocos2dx_Hide_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::Hide::create();
@@ -24188,7 +24727,8 @@ void js_register_cocos2dx_Hide(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Hide_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Hide"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Hide", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -24203,6 +24743,7 @@ JSObject *jsb_cocos2d_ToggleVisibility_prototype;
 bool js_cocos2dx_ToggleVisibility_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::ToggleVisibility::create();
@@ -24269,7 +24810,8 @@ void js_register_cocos2dx_ToggleVisibility(JSContext *cx, JS::HandleObject globa
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ToggleVisibility_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ToggleVisibility"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ToggleVisibility", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -24295,6 +24837,7 @@ bool js_cocos2dx_RemoveSelf_init(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->init(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RemoveSelf_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -24388,7 +24931,8 @@ void js_register_cocos2dx_RemoveSelf(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_RemoveSelf_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "RemoveSelf"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "RemoveSelf", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -24414,6 +24958,7 @@ bool js_cocos2dx_FlipX_initWithFlipX(JSContext *cx, uint32_t argc, JS::Value *vp
         bool ret = cobj->initWithFlipX(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FlipX_initWithFlipX : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -24518,7 +25063,8 @@ void js_register_cocos2dx_FlipX(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_FlipX_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "FlipX"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "FlipX", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -24545,6 +25091,7 @@ bool js_cocos2dx_FlipY_initWithFlipY(JSContext *cx, uint32_t argc, JS::Value *vp
         bool ret = cobj->initWithFlipY(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FlipY_initWithFlipY : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -24649,7 +25196,8 @@ void js_register_cocos2dx_FlipY(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_FlipY_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "FlipY"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "FlipY", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -24676,6 +25224,7 @@ bool js_cocos2dx_Place_initWithPosition(JSContext *cx, uint32_t argc, JS::Value 
         bool ret = cobj->initWithPosition(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Place_initWithPosition : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -24780,7 +25329,8 @@ void js_register_cocos2dx_Place(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Place_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Place"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Place", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -24881,7 +25431,8 @@ void js_register_cocos2dx_CallFunc(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_CallFunc_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "CallFunc"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "CallFunc", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -24960,7 +25511,8 @@ void js_register_cocos2dx_CallFuncN(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_CallFuncN_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "CallFuncN"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "CallFuncN", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -25001,6 +25553,7 @@ bool js_cocos2dx_ActionManager_getActionByTag(JSContext *cx, uint32_t argc, JS::
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_getActionByTag : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -25222,7 +25775,8 @@ bool js_cocos2dx_ActionManager_getNumberOfRunningActionsInTarget(JSContext *cx, 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_getNumberOfRunningActionsInTarget : Error processing arguments");
         ssize_t ret = cobj->getNumberOfRunningActionsInTarget(arg0);
         JS::RootedValue jsret(cx);
-        jsret = ssize_to_jsval(cx, ret);
+        ok &= ssize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_getNumberOfRunningActionsInTarget : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -25339,6 +25893,7 @@ bool js_cocos2dx_ActionManager_removeAllActionsByTag(JSContext *cx, uint32_t arg
 bool js_cocos2dx_ActionManager_pauseAllRunningActions(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
@@ -25346,7 +25901,8 @@ bool js_cocos2dx_ActionManager_pauseAllRunningActions(JSContext *cx, uint32_t ar
     if (argc == 0) {
         cocos2d::Vector<cocos2d::Node *> ret = cobj->pauseAllRunningActions();
         JS::RootedValue jsret(cx);
-        jsret = ccvector_to_jsval(cx, ret);
+        ok &= ccvector_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ActionManager_pauseAllRunningActions : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -25438,7 +25994,8 @@ void js_register_cocos2dx_ActionManager(JSContext *cx, JS::HandleObject global) 
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ActionManager_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ActionManager"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ActionManager", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -25487,6 +26044,7 @@ bool js_cocos2dx_AtlasNode_initWithTileFile(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->initWithTileFile(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_AtlasNode_initWithTileFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -25497,6 +26055,7 @@ bool js_cocos2dx_AtlasNode_initWithTileFile(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_AtlasNode_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode *)(proxy ? proxy->ptr : NULL);
@@ -25509,6 +26068,7 @@ bool js_cocos2dx_AtlasNode_getTexture(JSContext *cx, uint32_t argc, JS::Value *v
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_AtlasNode_getTexture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -25567,6 +26127,7 @@ bool js_cocos2dx_AtlasNode_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_AtlasNode_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode *)(proxy ? proxy->ptr : NULL);
@@ -25579,6 +26140,7 @@ bool js_cocos2dx_AtlasNode_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Val
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_AtlasNode_getTextureAtlas : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -25589,6 +26151,7 @@ bool js_cocos2dx_AtlasNode_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_AtlasNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode *)(proxy ? proxy->ptr : NULL);
@@ -25596,7 +26159,8 @@ bool js_cocos2dx_AtlasNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         const cocos2d::BlendFunc& ret = cobj->getBlendFunc();
         JS::RootedValue jsret(cx);
-        jsret = blendfunc_to_jsval(cx, ret);
+        ok &= blendfunc_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_AtlasNode_getBlendFunc : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -25607,6 +26171,7 @@ bool js_cocos2dx_AtlasNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_AtlasNode_getQuadsToDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode *)(proxy ? proxy->ptr : NULL);
@@ -25614,7 +26179,8 @@ bool js_cocos2dx_AtlasNode_getQuadsToDraw(JSContext *cx, uint32_t argc, JS::Valu
     if (argc == 0) {
         ssize_t ret = cobj->getQuadsToDraw();
         JS::RootedValue jsret(cx);
-        jsret = ssize_to_jsval(cx, ret);
+        ok &= ssize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_AtlasNode_getQuadsToDraw : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -25679,6 +26245,7 @@ bool js_cocos2dx_AtlasNode_initWithTexture(JSContext *cx, uint32_t argc, JS::Val
         bool ret = cobj->initWithTexture(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_AtlasNode_initWithTexture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -25800,7 +26367,8 @@ void js_register_cocos2dx_AtlasNode(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_AtlasNode_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "AtlasNode"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "AtlasNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -25814,6 +26382,7 @@ JSObject *jsb_cocos2d_ClippingNode_prototype;
 bool js_cocos2dx_ClippingNode_hasContent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ClippingNode* cobj = (cocos2d::ClippingNode *)(proxy ? proxy->ptr : NULL);
@@ -25822,6 +26391,7 @@ bool js_cocos2dx_ClippingNode_hasContent(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->hasContent();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ClippingNode_hasContent : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -25880,6 +26450,7 @@ bool js_cocos2dx_ClippingNode_setStencil(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_ClippingNode_getAlphaThreshold(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ClippingNode* cobj = (cocos2d::ClippingNode *)(proxy ? proxy->ptr : NULL);
@@ -25888,6 +26459,7 @@ bool js_cocos2dx_ClippingNode_getAlphaThreshold(JSContext *cx, uint32_t argc, JS
         double ret = cobj->getAlphaThreshold();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ClippingNode_getAlphaThreshold : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -25898,6 +26470,7 @@ bool js_cocos2dx_ClippingNode_getAlphaThreshold(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ClippingNode_getStencil(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ClippingNode* cobj = (cocos2d::ClippingNode *)(proxy ? proxy->ptr : NULL);
@@ -25910,6 +26483,7 @@ bool js_cocos2dx_ClippingNode_getStencil(JSContext *cx, uint32_t argc, JS::Value
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ClippingNode_getStencil : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -25940,6 +26514,7 @@ bool js_cocos2dx_ClippingNode_setAlphaThreshold(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ClippingNode_isInverted(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ClippingNode* cobj = (cocos2d::ClippingNode *)(proxy ? proxy->ptr : NULL);
@@ -25948,6 +26523,7 @@ bool js_cocos2dx_ClippingNode_isInverted(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->isInverted();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ClippingNode_isInverted : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -25980,12 +26556,14 @@ bool js_cocos2dx_ClippingNode_create(JSContext *cx, uint32_t argc, JS::Value *vp
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ClippingNode_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while (0);
     
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::ClippingNode* ret = cocos2d::ClippingNode::create();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -25994,6 +26572,7 @@ bool js_cocos2dx_ClippingNode_create(JSContext *cx, uint32_t argc, JS::Value *vp
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ClippingNode_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -26066,7 +26645,8 @@ void js_register_cocos2dx_ClippingNode(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ClippingNode_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ClippingNode"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ClippingNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -26430,6 +27010,7 @@ bool js_cocos2dx_DrawNode_drawSegment(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_DrawNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -26437,7 +27018,8 @@ bool js_cocos2dx_DrawNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         const cocos2d::BlendFunc& ret = cobj->getBlendFunc();
         JS::RootedValue jsret(cx);
-        jsret = blendfunc_to_jsval(cx, ret);
+        ok &= blendfunc_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_DrawNode_getBlendFunc : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -26735,6 +27317,7 @@ bool js_cocos2dx_DrawNode_drawSolidRect(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_DrawNode_getLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -26743,6 +27326,7 @@ bool js_cocos2dx_DrawNode_getLineWidth(JSContext *cx, uint32_t argc, JS::Value *
         double ret = cobj->getLineWidth();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_DrawNode_getLineWidth : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -26932,7 +27516,8 @@ void js_register_cocos2dx_DrawNode(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_DrawNode_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "DrawNode"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "DrawNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -26947,6 +27532,7 @@ JSObject *jsb_cocos2d_Label_prototype;
 bool js_cocos2dx_Label_isClipMarginEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -26955,6 +27541,7 @@ bool js_cocos2dx_Label_isClipMarginEnabled(JSContext *cx, uint32_t argc, JS::Val
         bool ret = cobj->isClipMarginEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_isClipMarginEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27034,6 +27621,7 @@ bool js_cocos2dx_Label_setDimensions(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_getWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27042,6 +27630,7 @@ bool js_cocos2dx_Label_getWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getWidth();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getWidth : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27052,6 +27641,7 @@ bool js_cocos2dx_Label_getWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27059,7 +27649,8 @@ bool js_cocos2dx_Label_getString(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         const std::string& ret = cobj->getString();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getString : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27070,6 +27661,7 @@ bool js_cocos2dx_Label_getString(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27078,6 +27670,7 @@ bool js_cocos2dx_Label_getHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->getHeight();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getHeight : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27121,6 +27714,7 @@ bool js_cocos2dx_Label_disableEffect(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_getTextColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27128,7 +27722,8 @@ bool js_cocos2dx_Label_getTextColor(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         const cocos2d::Color4B& ret = cobj->getTextColor();
         JS::RootedValue jsret(cx);
-        jsret = cccolor4b_to_jsval(cx, ret);
+        ok &= cccolor4b_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getTextColor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27139,6 +27734,7 @@ bool js_cocos2dx_Label_getTextColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27146,7 +27742,8 @@ bool js_cocos2dx_Label_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         const cocos2d::BlendFunc& ret = cobj->getBlendFunc();
         JS::RootedValue jsret(cx);
-        jsret = blendfunc_to_jsval(cx, ret);
+        ok &= blendfunc_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getBlendFunc : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27197,6 +27794,7 @@ bool js_cocos2dx_Label_setWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getAdditionalKerning(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27205,6 +27803,7 @@ bool js_cocos2dx_Label_getAdditionalKerning(JSContext *cx, uint32_t argc, JS::Va
         double ret = cobj->getAdditionalKerning();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getAdditionalKerning : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27215,6 +27814,7 @@ bool js_cocos2dx_Label_getAdditionalKerning(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Label_getBMFontSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27223,6 +27823,7 @@ bool js_cocos2dx_Label_getBMFontSize(JSContext *cx, uint32_t argc, JS::Value *vp
         double ret = cobj->getBMFontSize();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getBMFontSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27233,6 +27834,7 @@ bool js_cocos2dx_Label_getBMFontSize(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_getMaxLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27241,6 +27843,7 @@ bool js_cocos2dx_Label_getMaxLineWidth(JSContext *cx, uint32_t argc, JS::Value *
         double ret = cobj->getMaxLineWidth();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getMaxLineWidth : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27251,6 +27854,7 @@ bool js_cocos2dx_Label_getMaxLineWidth(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Label_getHorizontalAlignment(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27259,6 +27863,7 @@ bool js_cocos2dx_Label_getHorizontalAlignment(JSContext *cx, uint32_t argc, JS::
         int ret = (int)cobj->getHorizontalAlignment();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getHorizontalAlignment : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27269,6 +27874,7 @@ bool js_cocos2dx_Label_getHorizontalAlignment(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Label_getShadowOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27276,7 +27882,8 @@ bool js_cocos2dx_Label_getShadowOffset(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         cocos2d::Size ret = cobj->getShadowOffset();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getShadowOffset : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27287,6 +27894,7 @@ bool js_cocos2dx_Label_getShadowOffset(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Label_getLineSpacing(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27295,6 +27903,7 @@ bool js_cocos2dx_Label_getLineSpacing(JSContext *cx, uint32_t argc, JS::Value *v
         double ret = cobj->getLineSpacing();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getLineSpacing : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27365,6 +27974,7 @@ bool js_cocos2dx_Label_setSystemFontName(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Label_isWrapEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27373,6 +27983,7 @@ bool js_cocos2dx_Label_isWrapEnabled(JSContext *cx, uint32_t argc, JS::Value *vp
         bool ret = cobj->isWrapEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_isWrapEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27383,6 +27994,7 @@ bool js_cocos2dx_Label_isWrapEnabled(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_getOutlineSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27391,6 +28003,7 @@ bool js_cocos2dx_Label_getOutlineSize(JSContext *cx, uint32_t argc, JS::Value *v
         int ret = cobj->getOutlineSize();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getOutlineSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27423,6 +28036,7 @@ bool js_cocos2dx_Label_setBMFontFilePath(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->setBMFontFilePath(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_setBMFontFilePath : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27445,6 +28059,7 @@ bool js_cocos2dx_Label_setBMFontFilePath(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->setBMFontFilePath(arg0, arg1, arg2);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_setBMFontFilePath : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27469,6 +28084,7 @@ bool js_cocos2dx_Label_setBMFontFilePath(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->setBMFontFilePath(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_setBMFontFilePath : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27498,6 +28114,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
             bool ret = cobj->initWithTTF(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_initWithTTF : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -27518,6 +28135,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
             bool ret = cobj->initWithTTF(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_initWithTTF : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -27541,6 +28159,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
             bool ret = cobj->initWithTTF(arg0, arg1, arg2, arg3);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_initWithTTF : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -27561,6 +28180,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
             bool ret = cobj->initWithTTF(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_initWithTTF : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -27584,6 +28204,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
             bool ret = cobj->initWithTTF(arg0, arg1, arg2, arg3);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_initWithTTF : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -27610,6 +28231,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
             bool ret = cobj->initWithTTF(arg0, arg1, arg2, arg3, arg4);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_initWithTTF : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -27639,6 +28261,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
             bool ret = cobj->initWithTTF(arg0, arg1, arg2, arg3, arg4, arg5);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_initWithTTF : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -27742,6 +28365,7 @@ bool js_cocos2dx_Label_updateContent(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_getStringLength(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27750,6 +28374,7 @@ bool js_cocos2dx_Label_getStringLength(JSContext *cx, uint32_t argc, JS::Value *
         int ret = cobj->getStringLength();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getStringLength : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27780,6 +28405,7 @@ bool js_cocos2dx_Label_setLineBreakWithoutSpace(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Label_getStringNumLines(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27788,6 +28414,7 @@ bool js_cocos2dx_Label_getStringNumLines(JSContext *cx, uint32_t argc, JS::Value
         int ret = cobj->getStringNumLines();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getStringNumLines : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27828,6 +28455,7 @@ bool js_cocos2dx_Label_enableOutline(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_getShadowBlurRadius(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27836,6 +28464,7 @@ bool js_cocos2dx_Label_getShadowBlurRadius(JSContext *cx, uint32_t argc, JS::Val
         double ret = cobj->getShadowBlurRadius();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getShadowBlurRadius : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27846,6 +28475,7 @@ bool js_cocos2dx_Label_getShadowBlurRadius(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Label_getEffectColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27853,7 +28483,8 @@ bool js_cocos2dx_Label_getEffectColor(JSContext *cx, uint32_t argc, JS::Value *v
     if (argc == 0) {
         cocos2d::Color4F ret = cobj->getEffectColor();
         JS::RootedValue jsret(cx);
-        jsret = cccolor4f_to_jsval(cx, ret);
+        ok &= cccolor4f_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getEffectColor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27917,6 +28548,7 @@ bool js_cocos2dx_Label_setCharMap(JSContext *cx, uint32_t argc, JS::Value *vp)
             bool ret = cobj->setCharMap(arg0, arg1, arg2, arg3);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_setCharMap : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -27940,6 +28572,7 @@ bool js_cocos2dx_Label_setCharMap(JSContext *cx, uint32_t argc, JS::Value *vp)
             bool ret = cobj->setCharMap(arg0, arg1, arg2, arg3);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_setCharMap : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -27954,6 +28587,7 @@ bool js_cocos2dx_Label_setCharMap(JSContext *cx, uint32_t argc, JS::Value *vp)
             bool ret = cobj->setCharMap(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_setCharMap : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -27965,6 +28599,7 @@ bool js_cocos2dx_Label_setCharMap(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getFontDefinition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27972,7 +28607,8 @@ bool js_cocos2dx_Label_getFontDefinition(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         cocos2d::FontDefinition ret = cobj->getFontDefinition();
         JS::RootedValue jsret(cx);
-        jsret = FontDefinition_to_jsval(cx, ret);
+        ok &= FontDefinition_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getFontDefinition : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -27983,6 +28619,7 @@ bool js_cocos2dx_Label_getFontDefinition(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Label_getDimensions(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27990,7 +28627,8 @@ bool js_cocos2dx_Label_getDimensions(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         const cocos2d::Size& ret = cobj->getDimensions();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getDimensions : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -28021,6 +28659,7 @@ bool js_cocos2dx_Label_setMaxLineWidth(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Label_getSystemFontName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28028,7 +28667,8 @@ bool js_cocos2dx_Label_getSystemFontName(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         const std::string& ret = cobj->getSystemFontName();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getSystemFontName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -28079,6 +28719,7 @@ bool js_cocos2dx_Label_setLineSpacing(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Label_getLineHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28087,6 +28728,7 @@ bool js_cocos2dx_Label_getLineHeight(JSContext *cx, uint32_t argc, JS::Value *vp
         double ret = cobj->getLineHeight();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getLineHeight : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -28097,6 +28739,7 @@ bool js_cocos2dx_Label_getLineHeight(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_getShadowColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28104,7 +28747,8 @@ bool js_cocos2dx_Label_getShadowColor(JSContext *cx, uint32_t argc, JS::Value *v
     if (argc == 0) {
         cocos2d::Color4F ret = cobj->getShadowColor();
         JS::RootedValue jsret(cx);
-        jsret = cccolor4f_to_jsval(cx, ret);
+        ok &= cccolor4f_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getShadowColor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -28115,6 +28759,7 @@ bool js_cocos2dx_Label_getShadowColor(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Label_getTTFConfig(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28123,6 +28768,7 @@ bool js_cocos2dx_Label_getTTFConfig(JSContext *cx, uint32_t argc, JS::Value *vp)
         const cocos2d::TTFConfig& ret = cobj->getTTFConfig();
         JS::RootedValue jsret(cx);
         #pragma warning NO CONVERSION FROM NATIVE FOR _ttfConfig;
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getTTFConfig : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -28185,6 +28831,7 @@ bool js_cocos2dx_Label_getLetter(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getLetter : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -28215,6 +28862,7 @@ bool js_cocos2dx_Label_setHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_isShadowEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28223,6 +28871,7 @@ bool js_cocos2dx_Label_isShadowEnabled(JSContext *cx, uint32_t argc, JS::Value *
         bool ret = cobj->isShadowEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_isShadowEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -28253,6 +28902,7 @@ bool js_cocos2dx_Label_enableGlow(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getOverflow(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28261,6 +28911,7 @@ bool js_cocos2dx_Label_getOverflow(JSContext *cx, uint32_t argc, JS::Value *vp)
         int ret = (int)cobj->getOverflow();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getOverflow : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -28271,6 +28922,7 @@ bool js_cocos2dx_Label_getOverflow(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getVerticalAlignment(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28279,6 +28931,7 @@ bool js_cocos2dx_Label_getVerticalAlignment(JSContext *cx, uint32_t argc, JS::Va
         int ret = (int)cobj->getVerticalAlignment();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getVerticalAlignment : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -28309,6 +28962,7 @@ bool js_cocos2dx_Label_setAdditionalKerning(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Label_getSystemFontSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28317,6 +28971,7 @@ bool js_cocos2dx_Label_getSystemFontSize(JSContext *cx, uint32_t argc, JS::Value
         double ret = cobj->getSystemFontSize();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getSystemFontSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -28347,6 +29002,7 @@ bool js_cocos2dx_Label_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getTextAlignment(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28355,6 +29011,7 @@ bool js_cocos2dx_Label_getTextAlignment(JSContext *cx, uint32_t argc, JS::Value 
         int ret = (int)cobj->getTextAlignment();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getTextAlignment : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -28365,6 +29022,7 @@ bool js_cocos2dx_Label_getTextAlignment(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Label_getBMFontFilePath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28372,7 +29030,8 @@ bool js_cocos2dx_Label_getBMFontFilePath(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         const std::string& ret = cobj->getBMFontFilePath();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getBMFontFilePath : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -28435,6 +29094,7 @@ bool js_cocos2dx_Label_enableUnderline(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Label_getLabelEffectType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28443,6 +29103,7 @@ bool js_cocos2dx_Label_getLabelEffectType(JSContext *cx, uint32_t argc, JS::Valu
         int ret = (int)cobj->getLabelEffectType();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getLabelEffectType : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -28661,6 +29322,7 @@ bool js_cocos2dx_Label_createWithBMFont(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Label_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::Label::create();
@@ -28707,6 +29369,7 @@ bool js_cocos2dx_Label_createWithCharMap(JSContext *cx, uint32_t argc, JS::Value
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_createWithCharMap : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -28734,6 +29397,7 @@ bool js_cocos2dx_Label_createWithCharMap(JSContext *cx, uint32_t argc, JS::Value
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_createWithCharMap : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -28752,6 +29416,7 @@ bool js_cocos2dx_Label_createWithCharMap(JSContext *cx, uint32_t argc, JS::Value
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_createWithCharMap : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -28986,7 +29651,8 @@ void js_register_cocos2dx_Label(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Label_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Label"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Label", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -29001,6 +29667,7 @@ JSObject *jsb_cocos2d_LabelTTF_prototype;
 bool js_cocos2dx_LabelTTF_getRenderLabel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LabelTTF* cobj = (cocos2d::LabelTTF *)(proxy ? proxy->ptr : NULL);
@@ -29013,6 +29680,7 @@ bool js_cocos2dx_LabelTTF_getRenderLabel(JSContext *cx, uint32_t argc, JS::Value
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LabelTTF_getRenderLabel : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -29093,7 +29761,8 @@ void js_register_cocos2dx_LabelTTF(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_LabelTTF_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "LabelTTF"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "LabelTTF", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -29108,6 +29777,7 @@ JSObject *jsb_cocos2d_Layer_prototype;
 bool js_cocos2dx_Layer_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::Layer::create();
@@ -29192,7 +29862,8 @@ void js_register_cocos2dx_Layer(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Layer_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Layer"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Layer", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -29229,6 +29900,7 @@ bool js_cocos2dx_LayerColor_changeWidthAndHeight(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_LayerColor_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerColor* cobj = (cocos2d::LayerColor *)(proxy ? proxy->ptr : NULL);
@@ -29236,7 +29908,8 @@ bool js_cocos2dx_LayerColor_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         const cocos2d::BlendFunc& ret = cobj->getBlendFunc();
         JS::RootedValue jsret(cx);
-        jsret = blendfunc_to_jsval(cx, ret);
+        ok &= blendfunc_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerColor_getBlendFunc : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -29303,6 +29976,7 @@ bool js_cocos2dx_LayerColor_initWithColor(JSContext *cx, uint32_t argc, JS::Valu
             bool ret = cobj->initWithColor(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerColor_initWithColor : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -29323,6 +29997,7 @@ bool js_cocos2dx_LayerColor_initWithColor(JSContext *cx, uint32_t argc, JS::Valu
             bool ret = cobj->initWithColor(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerColor_initWithColor : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -29374,12 +30049,14 @@ bool js_cocos2dx_LayerColor_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerColor_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while (0);
     
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::LayerColor* ret = cocos2d::LayerColor::create();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -29388,6 +30065,7 @@ bool js_cocos2dx_LayerColor_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerColor_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -29406,6 +30084,7 @@ bool js_cocos2dx_LayerColor_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerColor_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -29496,7 +30175,8 @@ void js_register_cocos2dx_LayerColor(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_LayerColor_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "LayerColor"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "LayerColor", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -29511,6 +30191,7 @@ JSObject *jsb_cocos2d_LayerGradient_prototype;
 bool js_cocos2dx_LayerGradient_getStartColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -29518,7 +30199,8 @@ bool js_cocos2dx_LayerGradient_getStartColor(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         const cocos2d::Color3B& ret = cobj->getStartColor();
         JS::RootedValue jsret(cx);
-        jsret = cccolor3b_to_jsval(cx, ret);
+        ok &= cccolor3b_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerGradient_getStartColor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -29529,6 +30211,7 @@ bool js_cocos2dx_LayerGradient_getStartColor(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_LayerGradient_isCompressedInterpolation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -29537,6 +30220,7 @@ bool js_cocos2dx_LayerGradient_isCompressedInterpolation(JSContext *cx, uint32_t
         bool ret = cobj->isCompressedInterpolation();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerGradient_isCompressedInterpolation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -29547,6 +30231,7 @@ bool js_cocos2dx_LayerGradient_isCompressedInterpolation(JSContext *cx, uint32_t
 bool js_cocos2dx_LayerGradient_getStartOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -29555,6 +30240,7 @@ bool js_cocos2dx_LayerGradient_getStartOpacity(JSContext *cx, uint32_t argc, JS:
         uint16_t ret = cobj->getStartOpacity();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerGradient_getStartOpacity : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -29645,6 +30331,7 @@ bool js_cocos2dx_LayerGradient_setEndOpacity(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_LayerGradient_getVector(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -29652,7 +30339,8 @@ bool js_cocos2dx_LayerGradient_getVector(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         const cocos2d::Vec2& ret = cobj->getVector();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerGradient_getVector : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -29705,6 +30393,7 @@ bool js_cocos2dx_LayerGradient_initWithColor(JSContext *cx, uint32_t argc, JS::V
             bool ret = cobj->initWithColor(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerGradient_initWithColor : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -29722,6 +30411,7 @@ bool js_cocos2dx_LayerGradient_initWithColor(JSContext *cx, uint32_t argc, JS::V
             bool ret = cobj->initWithColor(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerGradient_initWithColor : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -29733,6 +30423,7 @@ bool js_cocos2dx_LayerGradient_initWithColor(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_LayerGradient_getEndColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -29740,7 +30431,8 @@ bool js_cocos2dx_LayerGradient_getEndColor(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         const cocos2d::Color3B& ret = cobj->getEndColor();
         JS::RootedValue jsret(cx);
-        jsret = cccolor3b_to_jsval(cx, ret);
+        ok &= cccolor3b_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerGradient_getEndColor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -29751,6 +30443,7 @@ bool js_cocos2dx_LayerGradient_getEndColor(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_LayerGradient_getEndOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -29759,6 +30452,7 @@ bool js_cocos2dx_LayerGradient_getEndOpacity(JSContext *cx, uint32_t argc, JS::V
         uint16_t ret = cobj->getEndOpacity();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerGradient_getEndOpacity : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -29806,12 +30500,14 @@ bool js_cocos2dx_LayerGradient_create(JSContext *cx, uint32_t argc, JS::Value *v
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerGradient_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while (0);
     
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::LayerGradient* ret = cocos2d::LayerGradient::create();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -29820,6 +30516,7 @@ bool js_cocos2dx_LayerGradient_create(JSContext *cx, uint32_t argc, JS::Value *v
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerGradient_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -29844,6 +30541,7 @@ bool js_cocos2dx_LayerGradient_create(JSContext *cx, uint32_t argc, JS::Value *v
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerGradient_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -29941,7 +30639,8 @@ void js_register_cocos2dx_LayerGradient(JSContext *cx, JS::HandleObject global) 
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_LayerGradient_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "LayerGradient"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "LayerGradient", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -29968,6 +30667,7 @@ bool js_cocos2dx_LayerMultiplex_initWithArray(JSContext *cx, uint32_t argc, JS::
         bool ret = cobj->initWithArray(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_LayerMultiplex_initWithArray : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -30119,7 +30819,8 @@ void js_register_cocos2dx_LayerMultiplex(JSContext *cx, JS::HandleObject global)
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_LayerMultiplex_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "LayerMultiplex"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "LayerMultiplex", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -30180,13 +30881,11 @@ bool js_cocos2dx_MenuItem_initWithCallback(JSContext *cx, uint32_t argc, JS::Val
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -30195,6 +30894,7 @@ bool js_cocos2dx_MenuItem_initWithCallback(JSContext *cx, uint32_t argc, JS::Val
 		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -30214,6 +30914,7 @@ bool js_cocos2dx_MenuItem_initWithCallback(JSContext *cx, uint32_t argc, JS::Val
         bool ret = cobj->initWithCallback(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItem_initWithCallback : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -30224,6 +30925,7 @@ bool js_cocos2dx_MenuItem_initWithCallback(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_MenuItem_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItem* cobj = (cocos2d::MenuItem *)(proxy ? proxy->ptr : NULL);
@@ -30232,6 +30934,7 @@ bool js_cocos2dx_MenuItem_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->isEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItem_isEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -30258,6 +30961,7 @@ bool js_cocos2dx_MenuItem_selected(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_MenuItem_isSelected(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItem* cobj = (cocos2d::MenuItem *)(proxy ? proxy->ptr : NULL);
@@ -30266,6 +30970,7 @@ bool js_cocos2dx_MenuItem_isSelected(JSContext *cx, uint32_t argc, JS::Value *vp
         bool ret = cobj->isSelected();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItem_isSelected : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -30286,13 +30991,11 @@ bool js_cocos2dx_MenuItem_setCallback(JSContext *cx, uint32_t argc, JS::Value *v
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -30301,6 +31004,7 @@ bool js_cocos2dx_MenuItem_setCallback(JSContext *cx, uint32_t argc, JS::Value *v
 		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -30344,6 +31048,7 @@ bool js_cocos2dx_MenuItem_unselected(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_MenuItem_rect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItem* cobj = (cocos2d::MenuItem *)(proxy ? proxy->ptr : NULL);
@@ -30351,7 +31056,8 @@ bool js_cocos2dx_MenuItem_rect(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         cocos2d::Rect ret = cobj->rect();
         JS::RootedValue jsret(cx);
-        jsret = ccrect_to_jsval(cx, ret);
+        ok &= ccrect_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItem_rect : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -30440,7 +31146,8 @@ void js_register_cocos2dx_MenuItem(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_MenuItem_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "MenuItem"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "MenuItem", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -30483,6 +31190,7 @@ bool js_cocos2dx_MenuItemLabel_setLabel(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_MenuItemLabel_getString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemLabel* cobj = (cocos2d::MenuItemLabel *)(proxy ? proxy->ptr : NULL);
@@ -30490,7 +31198,8 @@ bool js_cocos2dx_MenuItemLabel_getString(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         std::string ret = cobj->getString();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemLabel_getString : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -30501,6 +31210,7 @@ bool js_cocos2dx_MenuItemLabel_getString(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_MenuItemLabel_getDisabledColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemLabel* cobj = (cocos2d::MenuItemLabel *)(proxy ? proxy->ptr : NULL);
@@ -30508,7 +31218,8 @@ bool js_cocos2dx_MenuItemLabel_getDisabledColor(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         const cocos2d::Color3B& ret = cobj->getDisabledColor();
         JS::RootedValue jsret(cx);
-        jsret = cccolor3b_to_jsval(cx, ret);
+        ok &= cccolor3b_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemLabel_getDisabledColor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -30559,13 +31270,11 @@ bool js_cocos2dx_MenuItemLabel_initWithLabel(JSContext *cx, uint32_t argc, JS::V
         do {
 		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -30574,6 +31283,7 @@ bool js_cocos2dx_MenuItemLabel_initWithLabel(JSContext *cx, uint32_t argc, JS::V
 		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -30593,6 +31303,7 @@ bool js_cocos2dx_MenuItemLabel_initWithLabel(JSContext *cx, uint32_t argc, JS::V
         bool ret = cobj->initWithLabel(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemLabel_initWithLabel : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -30623,6 +31334,7 @@ bool js_cocos2dx_MenuItemLabel_setDisabledColor(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_MenuItemLabel_getLabel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemLabel* cobj = (cocos2d::MenuItemLabel *)(proxy ? proxy->ptr : NULL);
@@ -30635,6 +31347,7 @@ bool js_cocos2dx_MenuItemLabel_getLabel(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemLabel_getLabel : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -30721,7 +31434,8 @@ void js_register_cocos2dx_MenuItemLabel(JSContext *cx, JS::HandleObject global) 
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_MenuItemLabel_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "MenuItemLabel"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "MenuItemLabel", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -30756,13 +31470,11 @@ bool js_cocos2dx_MenuItemAtlasFont_initWithString(JSContext *cx, uint32_t argc, 
         do {
 		    if(JS_TypeOfValue(cx, args.get(5)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(5), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(5).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -30771,6 +31483,7 @@ bool js_cocos2dx_MenuItemAtlasFont_initWithString(JSContext *cx, uint32_t argc, 
 		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -30790,6 +31503,7 @@ bool js_cocos2dx_MenuItemAtlasFont_initWithString(JSContext *cx, uint32_t argc, 
         bool ret = cobj->initWithString(arg0, arg1, arg2, arg3, arg4, arg5);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemAtlasFont_initWithString : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -30870,7 +31584,8 @@ void js_register_cocos2dx_MenuItemAtlasFont(JSContext *cx, JS::HandleObject glob
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_MenuItemAtlasFont_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "MenuItemAtlasFont"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "MenuItemAtlasFont", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -30905,6 +31620,7 @@ bool js_cocos2dx_MenuItemFont_setFontNameObj(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_MenuItemFont_getFontSizeObj(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemFont* cobj = (cocos2d::MenuItemFont *)(proxy ? proxy->ptr : NULL);
@@ -30913,6 +31629,7 @@ bool js_cocos2dx_MenuItemFont_getFontSizeObj(JSContext *cx, uint32_t argc, JS::V
         int ret = cobj->getFontSizeObj();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemFont_getFontSizeObj : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -30955,13 +31672,11 @@ bool js_cocos2dx_MenuItemFont_initWithString(JSContext *cx, uint32_t argc, JS::V
         do {
 		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -30970,6 +31685,7 @@ bool js_cocos2dx_MenuItemFont_initWithString(JSContext *cx, uint32_t argc, JS::V
 		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -30989,6 +31705,7 @@ bool js_cocos2dx_MenuItemFont_initWithString(JSContext *cx, uint32_t argc, JS::V
         bool ret = cobj->initWithString(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemFont_initWithString : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -30999,6 +31716,7 @@ bool js_cocos2dx_MenuItemFont_initWithString(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_MenuItemFont_getFontNameObj(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemFont* cobj = (cocos2d::MenuItemFont *)(proxy ? proxy->ptr : NULL);
@@ -31006,7 +31724,8 @@ bool js_cocos2dx_MenuItemFont_getFontNameObj(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         const std::string& ret = cobj->getFontNameObj();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemFont_getFontNameObj : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -31033,11 +31752,13 @@ bool js_cocos2dx_MenuItemFont_setFontName(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_MenuItemFont_getFontSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         int ret = cocos2d::MenuItemFont::getFontSize();
         JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemFont_getFontSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -31048,11 +31769,13 @@ bool js_cocos2dx_MenuItemFont_getFontSize(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_MenuItemFont_getFontName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         const std::string& ret = cocos2d::MenuItemFont::getFontName();
         JS::RootedValue jsret(cx, JS::NullHandleValue);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemFont_getFontName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -31161,7 +31884,8 @@ void js_register_cocos2dx_MenuItemFont(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_MenuItemFont_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "MenuItemFont"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "MenuItemFont", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -31308,13 +32032,11 @@ bool js_cocos2dx_MenuItemSprite_initWithNormalSprite(JSContext *cx, uint32_t arg
         do {
 		    if(JS_TypeOfValue(cx, args.get(3)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(3), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(3).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -31323,6 +32045,7 @@ bool js_cocos2dx_MenuItemSprite_initWithNormalSprite(JSContext *cx, uint32_t arg
 		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -31342,6 +32065,7 @@ bool js_cocos2dx_MenuItemSprite_initWithNormalSprite(JSContext *cx, uint32_t arg
         bool ret = cobj->initWithNormalSprite(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemSprite_initWithNormalSprite : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -31380,6 +32104,7 @@ bool js_cocos2dx_MenuItemSprite_setSelectedImage(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_MenuItemSprite_getDisabledImage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemSprite* cobj = (cocos2d::MenuItemSprite *)(proxy ? proxy->ptr : NULL);
@@ -31392,6 +32117,7 @@ bool js_cocos2dx_MenuItemSprite_getDisabledImage(JSContext *cx, uint32_t argc, J
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemSprite_getDisabledImage : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -31402,6 +32128,7 @@ bool js_cocos2dx_MenuItemSprite_getDisabledImage(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_MenuItemSprite_getSelectedImage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemSprite* cobj = (cocos2d::MenuItemSprite *)(proxy ? proxy->ptr : NULL);
@@ -31414,6 +32141,7 @@ bool js_cocos2dx_MenuItemSprite_getSelectedImage(JSContext *cx, uint32_t argc, J
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemSprite_getSelectedImage : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -31424,6 +32152,7 @@ bool js_cocos2dx_MenuItemSprite_getSelectedImage(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_MenuItemSprite_getNormalImage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemSprite* cobj = (cocos2d::MenuItemSprite *)(proxy ? proxy->ptr : NULL);
@@ -31436,6 +32165,7 @@ bool js_cocos2dx_MenuItemSprite_getNormalImage(JSContext *cx, uint32_t argc, JS:
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemSprite_getNormalImage : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -31541,7 +32271,8 @@ void js_register_cocos2dx_MenuItemSprite(JSContext *cx, JS::HandleObject global)
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_MenuItemSprite_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "MenuItemSprite"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "MenuItemSprite", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -31640,6 +32371,7 @@ bool js_cocos2dx_MenuItemImage_setNormalSpriteFrame(JSContext *cx, uint32_t argc
 bool js_cocos2dx_MenuItemImage_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemImage* cobj = (cocos2d::MenuItemImage *)(proxy ? proxy->ptr : NULL);
@@ -31648,6 +32380,7 @@ bool js_cocos2dx_MenuItemImage_init(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemImage_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -31674,13 +32407,11 @@ bool js_cocos2dx_MenuItemImage_initWithNormalImage(JSContext *cx, uint32_t argc,
         do {
 		    if(JS_TypeOfValue(cx, args.get(3)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(3), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(3).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -31689,6 +32420,7 @@ bool js_cocos2dx_MenuItemImage_initWithNormalImage(JSContext *cx, uint32_t argc,
 		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -31708,6 +32440,7 @@ bool js_cocos2dx_MenuItemImage_initWithNormalImage(JSContext *cx, uint32_t argc,
         bool ret = cobj->initWithNormalImage(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemImage_initWithNormalImage : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -31792,7 +32525,8 @@ void js_register_cocos2dx_MenuItemImage(JSContext *cx, JS::HandleObject global) 
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_MenuItemImage_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "MenuItemImage"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "MenuItemImage", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -31847,6 +32581,7 @@ bool js_cocos2dx_MenuItemToggle_initWithItem(JSContext *cx, uint32_t argc, JS::V
         bool ret = cobj->initWithItem(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemToggle_initWithItem : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -31857,6 +32592,7 @@ bool js_cocos2dx_MenuItemToggle_initWithItem(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_MenuItemToggle_getSelectedIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemToggle* cobj = (cocos2d::MenuItemToggle *)(proxy ? proxy->ptr : NULL);
@@ -31865,6 +32601,7 @@ bool js_cocos2dx_MenuItemToggle_getSelectedIndex(JSContext *cx, uint32_t argc, J
         unsigned int ret = cobj->getSelectedIndex();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemToggle_getSelectedIndex : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -31903,6 +32640,7 @@ bool js_cocos2dx_MenuItemToggle_addSubItem(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_MenuItemToggle_getSelectedItem(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemToggle* cobj = (cocos2d::MenuItemToggle *)(proxy ? proxy->ptr : NULL);
@@ -31915,6 +32653,7 @@ bool js_cocos2dx_MenuItemToggle_getSelectedItem(JSContext *cx, uint32_t argc, JS
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MenuItemToggle_getSelectedItem : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -32020,7 +32759,8 @@ void js_register_cocos2dx_MenuItemToggle(JSContext *cx, JS::HandleObject global)
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_MenuItemToggle_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "MenuItemToggle"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "MenuItemToggle", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -32047,6 +32787,7 @@ bool js_cocos2dx_Menu_initWithArray(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->initWithArray(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Menu_initWithArray : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -32093,6 +32834,7 @@ bool js_cocos2dx_Menu_alignItemsVertically(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Menu_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Menu* cobj = (cocos2d::Menu *)(proxy ? proxy->ptr : NULL);
@@ -32101,6 +32843,7 @@ bool js_cocos2dx_Menu_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->isEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Menu_isEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -32243,7 +32986,8 @@ void js_register_cocos2dx_Menu(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Menu_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Menu"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Menu", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -32322,6 +33066,7 @@ bool js_cocos2dx_MotionStreak_setMinSeg(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_MotionStreak_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -32334,6 +33079,7 @@ bool js_cocos2dx_MotionStreak_getTexture(JSContext *cx, uint32_t argc, JS::Value
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MotionStreak_getTexture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -32364,6 +33110,7 @@ bool js_cocos2dx_MotionStreak_tintWithColor(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_MotionStreak_getMinSeg(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -32372,6 +33119,7 @@ bool js_cocos2dx_MotionStreak_getMinSeg(JSContext *cx, uint32_t argc, JS::Value 
         double ret = cobj->getMinSeg();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MotionStreak_getMinSeg : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -32442,6 +33190,7 @@ bool js_cocos2dx_MotionStreak_setStartingPositionInitialized(JSContext *cx, uint
 bool js_cocos2dx_MotionStreak_getFadeTime(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -32450,6 +33199,7 @@ bool js_cocos2dx_MotionStreak_getFadeTime(JSContext *cx, uint32_t argc, JS::Valu
         double ret = cobj->getFadeTime();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MotionStreak_getFadeTime : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -32460,6 +33210,7 @@ bool js_cocos2dx_MotionStreak_getFadeTime(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_MotionStreak_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -32467,7 +33218,8 @@ bool js_cocos2dx_MotionStreak_getBlendFunc(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         const cocos2d::BlendFunc& ret = cobj->getBlendFunc();
         JS::RootedValue jsret(cx);
-        jsret = blendfunc_to_jsval(cx, ret);
+        ok &= blendfunc_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MotionStreak_getBlendFunc : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -32478,6 +33230,7 @@ bool js_cocos2dx_MotionStreak_getBlendFunc(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_MotionStreak_isStartingPositionInitialized(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -32486,6 +33239,7 @@ bool js_cocos2dx_MotionStreak_isStartingPositionInitialized(JSContext *cx, uint3
         bool ret = cobj->isStartingPositionInitialized();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MotionStreak_isStartingPositionInitialized : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -32496,6 +33250,7 @@ bool js_cocos2dx_MotionStreak_isStartingPositionInitialized(JSContext *cx, uint3
 bool js_cocos2dx_MotionStreak_isFastMode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -32504,6 +33259,7 @@ bool js_cocos2dx_MotionStreak_isFastMode(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->isFastMode();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MotionStreak_isFastMode : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -32514,6 +33270,7 @@ bool js_cocos2dx_MotionStreak_isFastMode(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_MotionStreak_getStroke(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -32522,6 +33279,7 @@ bool js_cocos2dx_MotionStreak_getStroke(JSContext *cx, uint32_t argc, JS::Value 
         double ret = cobj->getStroke();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MotionStreak_getStroke : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -32568,6 +33326,7 @@ bool js_cocos2dx_MotionStreak_initWithFade(JSContext *cx, uint32_t argc, JS::Val
             bool ret = cobj->initWithFade(arg0, arg1, arg2, arg3, arg4);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MotionStreak_initWithFade : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -32594,6 +33353,7 @@ bool js_cocos2dx_MotionStreak_initWithFade(JSContext *cx, uint32_t argc, JS::Val
             bool ret = cobj->initWithFade(arg0, arg1, arg2, arg3, arg4);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MotionStreak_initWithFade : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -32679,6 +33439,7 @@ bool js_cocos2dx_MotionStreak_create(JSContext *cx, uint32_t argc, JS::Value *vp
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MotionStreak_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -32709,6 +33470,7 @@ bool js_cocos2dx_MotionStreak_create(JSContext *cx, uint32_t argc, JS::Value *vp
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MotionStreak_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -32810,7 +33572,8 @@ void js_register_cocos2dx_MotionStreak(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_MotionStreak_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "MotionStreak"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "MotionStreak", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -32875,6 +33638,7 @@ bool js_cocos2dx_ParticleBatchNode_initWithTexture(JSContext *cx, uint32_t argc,
         bool ret = cobj->initWithTexture(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleBatchNode_initWithTexture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -32905,6 +33669,7 @@ bool js_cocos2dx_ParticleBatchNode_disableParticle(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_ParticleBatchNode_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -32917,6 +33682,7 @@ bool js_cocos2dx_ParticleBatchNode_getTexture(JSContext *cx, uint32_t argc, JS::
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleBatchNode_getTexture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -32969,6 +33735,7 @@ bool js_cocos2dx_ParticleBatchNode_initWithFile(JSContext *cx, uint32_t argc, JS
         bool ret = cobj->initWithFile(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleBatchNode_initWithFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33019,6 +33786,7 @@ bool js_cocos2dx_ParticleBatchNode_removeAllChildrenWithCleanup(JSContext *cx, u
 bool js_cocos2dx_ParticleBatchNode_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -33031,6 +33799,7 @@ bool js_cocos2dx_ParticleBatchNode_getTextureAtlas(JSContext *cx, uint32_t argc,
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleBatchNode_getTextureAtlas : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33041,6 +33810,7 @@ bool js_cocos2dx_ParticleBatchNode_getTextureAtlas(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_ParticleBatchNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -33048,7 +33818,8 @@ bool js_cocos2dx_ParticleBatchNode_getBlendFunc(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         const cocos2d::BlendFunc& ret = cobj->getBlendFunc();
         JS::RootedValue jsret(cx);
-        jsret = blendfunc_to_jsval(cx, ret);
+        ok &= blendfunc_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleBatchNode_getBlendFunc : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33278,7 +34049,8 @@ void js_register_cocos2dx_ParticleBatchNode(JSContext *cx, JS::HandleObject glob
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleBatchNode_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleBatchNode"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleBatchNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -33309,6 +34081,7 @@ bool js_cocos2dx_ParticleData_release(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_ParticleData_getMaxCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleData* cobj = (cocos2d::ParticleData *)(proxy ? proxy->ptr : NULL);
@@ -33317,6 +34090,7 @@ bool js_cocos2dx_ParticleData_getMaxCount(JSContext *cx, uint32_t argc, JS::Valu
         unsigned int ret = cobj->getMaxCount();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleData_getMaxCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33339,6 +34113,7 @@ bool js_cocos2dx_ParticleData_init(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->init(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleData_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33447,7 +34222,8 @@ void js_register_cocos2dx_ParticleData(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleData_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleData"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleData", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -33461,6 +34237,7 @@ JSObject *jsb_cocos2d_ParticleSystem_prototype;
 bool js_cocos2dx_ParticleSystem_getStartSizeVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33469,6 +34246,7 @@ bool js_cocos2dx_ParticleSystem_getStartSizeVar(JSContext *cx, uint32_t argc, JS
         double ret = cobj->getStartSizeVar();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getStartSizeVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33479,6 +34257,7 @@ bool js_cocos2dx_ParticleSystem_getStartSizeVar(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33491,6 +34270,7 @@ bool js_cocos2dx_ParticleSystem_getTexture(JSContext *cx, uint32_t argc, JS::Val
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getTexture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33501,6 +34281,7 @@ bool js_cocos2dx_ParticleSystem_getTexture(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystem_isFull(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33509,6 +34290,7 @@ bool js_cocos2dx_ParticleSystem_isFull(JSContext *cx, uint32_t argc, JS::Value *
         bool ret = cobj->isFull();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_isFull : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33519,6 +34301,7 @@ bool js_cocos2dx_ParticleSystem_isFull(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_ParticleSystem_getBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33531,6 +34314,7 @@ bool js_cocos2dx_ParticleSystem_getBatchNode(JSContext *cx, uint32_t argc, JS::V
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getBatchNode : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33541,6 +34325,7 @@ bool js_cocos2dx_ParticleSystem_getBatchNode(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_getStartColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33548,7 +34333,8 @@ bool js_cocos2dx_ParticleSystem_getStartColor(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         const cocos2d::Color4F& ret = cobj->getStartColor();
         JS::RootedValue jsret(cx);
-        jsret = cccolor4f_to_jsval(cx, ret);
+        ok &= cccolor4f_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getStartColor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33559,6 +34345,7 @@ bool js_cocos2dx_ParticleSystem_getStartColor(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ParticleSystem_getPositionType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33567,6 +34354,7 @@ bool js_cocos2dx_ParticleSystem_getPositionType(JSContext *cx, uint32_t argc, JS
         int ret = (int)cobj->getPositionType();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getPositionType : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33597,6 +34385,7 @@ bool js_cocos2dx_ParticleSystem_setPosVar(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_ParticleSystem_getEndSpin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33605,6 +34394,7 @@ bool js_cocos2dx_ParticleSystem_getEndSpin(JSContext *cx, uint32_t argc, JS::Val
         double ret = cobj->getEndSpin();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getEndSpin : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33635,6 +34425,7 @@ bool js_cocos2dx_ParticleSystem_setRotatePerSecondVar(JSContext *cx, uint32_t ar
 bool js_cocos2dx_ParticleSystem_getStartSpinVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33643,6 +34434,7 @@ bool js_cocos2dx_ParticleSystem_getStartSpinVar(JSContext *cx, uint32_t argc, JS
         double ret = cobj->getStartSpinVar();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getStartSpinVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33653,6 +34445,7 @@ bool js_cocos2dx_ParticleSystem_getStartSpinVar(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getRadialAccelVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33661,6 +34454,7 @@ bool js_cocos2dx_ParticleSystem_getRadialAccelVar(JSContext *cx, uint32_t argc, 
         double ret = cobj->getRadialAccelVar();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getRadialAccelVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33671,6 +34465,7 @@ bool js_cocos2dx_ParticleSystem_getRadialAccelVar(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_ParticleSystem_getEndSizeVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33679,6 +34474,7 @@ bool js_cocos2dx_ParticleSystem_getEndSizeVar(JSContext *cx, uint32_t argc, JS::
         double ret = cobj->getEndSizeVar();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getEndSizeVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33709,6 +34505,7 @@ bool js_cocos2dx_ParticleSystem_setTangentialAccel(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_ParticleSystem_getRadialAccel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33717,6 +34514,7 @@ bool js_cocos2dx_ParticleSystem_getRadialAccel(JSContext *cx, uint32_t argc, JS:
         double ret = cobj->getRadialAccel();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getRadialAccel : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33787,6 +34585,7 @@ bool js_cocos2dx_ParticleSystem_setEndSize(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystem_getGravity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33794,7 +34593,8 @@ bool js_cocos2dx_ParticleSystem_getGravity(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         const cocos2d::Vec2& ret = cobj->getGravity();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getGravity : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33821,6 +34621,7 @@ bool js_cocos2dx_ParticleSystem_resumeEmissions(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getTangentialAccel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33829,6 +34630,7 @@ bool js_cocos2dx_ParticleSystem_getTangentialAccel(JSContext *cx, uint32_t argc,
         double ret = cobj->getTangentialAccel();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getTangentialAccel : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33859,6 +34661,7 @@ bool js_cocos2dx_ParticleSystem_setEndRadius(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_getSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33867,6 +34670,7 @@ bool js_cocos2dx_ParticleSystem_getSpeed(JSContext *cx, uint32_t argc, JS::Value
         double ret = cobj->getSpeed();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getSpeed : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33893,6 +34697,7 @@ bool js_cocos2dx_ParticleSystem_pauseEmissions(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_ParticleSystem_getAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -33901,6 +34706,7 @@ bool js_cocos2dx_ParticleSystem_getAngle(JSContext *cx, uint32_t argc, JS::Value
         double ret = cobj->getAngle();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getAngle : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -33983,6 +34789,7 @@ bool js_cocos2dx_ParticleSystem_initWithTotalParticles(JSContext *cx, uint32_t a
         bool ret = cobj->initWithTotalParticles(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_initWithTotalParticles : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34041,6 +34848,7 @@ bool js_cocos2dx_ParticleSystem_setTexture(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystem_getPosVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34048,7 +34856,8 @@ bool js_cocos2dx_ParticleSystem_getPosVar(JSContext *cx, uint32_t argc, JS::Valu
     if (argc == 0) {
         const cocos2d::Vec2& ret = cobj->getPosVar();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getPosVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34075,6 +34884,7 @@ bool js_cocos2dx_ParticleSystem_updateWithNoTime(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_ParticleSystem_isBlendAdditive(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34083,6 +34893,7 @@ bool js_cocos2dx_ParticleSystem_isBlendAdditive(JSContext *cx, uint32_t argc, JS
         bool ret = cobj->isBlendAdditive();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_isBlendAdditive : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34093,6 +34904,7 @@ bool js_cocos2dx_ParticleSystem_isBlendAdditive(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getSpeedVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34101,6 +34913,7 @@ bool js_cocos2dx_ParticleSystem_getSpeedVar(JSContext *cx, uint32_t argc, JS::Va
         double ret = cobj->getSpeedVar();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getSpeedVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34147,6 +34960,7 @@ bool js_cocos2dx_ParticleSystem_stopSystem(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystem_getSourcePosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34154,7 +34968,8 @@ bool js_cocos2dx_ParticleSystem_getSourcePosition(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         const cocos2d::Vec2& ret = cobj->getSourcePosition();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getSourcePosition : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34225,6 +35040,7 @@ bool js_cocos2dx_ParticleSystem_setEndColorVar(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_ParticleSystem_getAtlasIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34233,6 +35049,7 @@ bool js_cocos2dx_ParticleSystem_getAtlasIndex(JSContext *cx, uint32_t argc, JS::
         int ret = cobj->getAtlasIndex();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getAtlasIndex : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34243,6 +35060,7 @@ bool js_cocos2dx_ParticleSystem_getAtlasIndex(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ParticleSystem_getStartSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34251,6 +35069,7 @@ bool js_cocos2dx_ParticleSystem_getStartSize(JSContext *cx, uint32_t argc, JS::V
         double ret = cobj->getStartSize();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getStartSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34357,6 +35176,7 @@ bool js_cocos2dx_ParticleSystem_setEndRadiusVar(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getEndRadius(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34365,6 +35185,7 @@ bool js_cocos2dx_ParticleSystem_getEndRadius(JSContext *cx, uint32_t argc, JS::V
         double ret = cobj->getEndRadius();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getEndRadius : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34375,6 +35196,7 @@ bool js_cocos2dx_ParticleSystem_getEndRadius(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_isActive(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34383,6 +35205,7 @@ bool js_cocos2dx_ParticleSystem_isActive(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->isActive();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_isActive : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34453,6 +35276,7 @@ bool js_cocos2dx_ParticleSystem_setSpeed(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_ParticleSystem_getStartSpin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34461,6 +35285,7 @@ bool js_cocos2dx_ParticleSystem_getStartSpin(JSContext *cx, uint32_t argc, JS::V
         double ret = cobj->getStartSpin();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getStartSpin : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34471,6 +35296,7 @@ bool js_cocos2dx_ParticleSystem_getStartSpin(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_getResourceFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34478,7 +35304,8 @@ bool js_cocos2dx_ParticleSystem_getResourceFile(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         const std::string& ret = cobj->getResourceFile();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getResourceFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34489,6 +35316,7 @@ bool js_cocos2dx_ParticleSystem_getResourceFile(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getRotatePerSecond(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34497,6 +35325,7 @@ bool js_cocos2dx_ParticleSystem_getRotatePerSecond(JSContext *cx, uint32_t argc,
         double ret = cobj->getRotatePerSecond();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getRotatePerSecond : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34527,6 +35356,7 @@ bool js_cocos2dx_ParticleSystem_setEmitterMode(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_ParticleSystem_getDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34535,6 +35365,7 @@ bool js_cocos2dx_ParticleSystem_getDuration(JSContext *cx, uint32_t argc, JS::Va
         double ret = cobj->getDuration();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getDuration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34597,6 +35428,7 @@ bool js_cocos2dx_ParticleSystem_updateParticleQuads(JSContext *cx, uint32_t argc
 bool js_cocos2dx_ParticleSystem_getEndSpinVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34605,6 +35437,7 @@ bool js_cocos2dx_ParticleSystem_getEndSpinVar(JSContext *cx, uint32_t argc, JS::
         double ret = cobj->getEndSpinVar();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getEndSpinVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34779,6 +35612,7 @@ bool js_cocos2dx_ParticleSystem_setBatchNode(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_getTangentialAccelVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34787,6 +35621,7 @@ bool js_cocos2dx_ParticleSystem_getTangentialAccelVar(JSContext *cx, uint32_t ar
         double ret = cobj->getTangentialAccelVar();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getTangentialAccelVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34797,6 +35632,7 @@ bool js_cocos2dx_ParticleSystem_getTangentialAccelVar(JSContext *cx, uint32_t ar
 bool js_cocos2dx_ParticleSystem_getEmitterMode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34805,6 +35641,7 @@ bool js_cocos2dx_ParticleSystem_getEmitterMode(JSContext *cx, uint32_t argc, JS:
         int ret = (int)cobj->getEmitterMode();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getEmitterMode : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34847,6 +35684,7 @@ bool js_cocos2dx_ParticleSystem_initWithFile(JSContext *cx, uint32_t argc, JS::V
         bool ret = cobj->initWithFile(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_initWithFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34857,6 +35695,7 @@ bool js_cocos2dx_ParticleSystem_initWithFile(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_getAngleVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34865,6 +35704,7 @@ bool js_cocos2dx_ParticleSystem_getAngleVar(JSContext *cx, uint32_t argc, JS::Va
         double ret = cobj->getAngleVar();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getAngleVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34895,6 +35735,7 @@ bool js_cocos2dx_ParticleSystem_setStartColor(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ParticleSystem_getRotatePerSecondVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34903,6 +35744,7 @@ bool js_cocos2dx_ParticleSystem_getRotatePerSecondVar(JSContext *cx, uint32_t ar
         double ret = cobj->getRotatePerSecondVar();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getRotatePerSecondVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34913,6 +35755,7 @@ bool js_cocos2dx_ParticleSystem_getRotatePerSecondVar(JSContext *cx, uint32_t ar
 bool js_cocos2dx_ParticleSystem_getEndSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34921,6 +35764,7 @@ bool js_cocos2dx_ParticleSystem_getEndSize(JSContext *cx, uint32_t argc, JS::Val
         double ret = cobj->getEndSize();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getEndSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34931,6 +35775,7 @@ bool js_cocos2dx_ParticleSystem_getEndSize(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystem_getLife(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34939,6 +35784,7 @@ bool js_cocos2dx_ParticleSystem_getLife(JSContext *cx, uint32_t argc, JS::Value 
         double ret = cobj->getLife();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getLife : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -34949,6 +35795,7 @@ bool js_cocos2dx_ParticleSystem_getLife(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_ParticleSystem_isPaused(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34957,6 +35804,7 @@ bool js_cocos2dx_ParticleSystem_isPaused(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->isPaused();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_isPaused : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -35063,6 +35911,7 @@ bool js_cocos2dx_ParticleSystem_setEmissionRate(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getEndColorVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35070,7 +35919,8 @@ bool js_cocos2dx_ParticleSystem_getEndColorVar(JSContext *cx, uint32_t argc, JS:
     if (argc == 0) {
         const cocos2d::Color4F& ret = cobj->getEndColorVar();
         JS::RootedValue jsret(cx);
-        jsret = cccolor4f_to_jsval(cx, ret);
+        ok &= cccolor4f_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getEndColorVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -35081,6 +35931,7 @@ bool js_cocos2dx_ParticleSystem_getEndColorVar(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_ParticleSystem_getRotationIsDir(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35089,6 +35940,7 @@ bool js_cocos2dx_ParticleSystem_getRotationIsDir(JSContext *cx, uint32_t argc, J
         bool ret = cobj->getRotationIsDir();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getRotationIsDir : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -35099,6 +35951,7 @@ bool js_cocos2dx_ParticleSystem_getRotationIsDir(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_ParticleSystem_getEmissionRate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35107,6 +35960,7 @@ bool js_cocos2dx_ParticleSystem_getEmissionRate(JSContext *cx, uint32_t argc, JS
         double ret = cobj->getEmissionRate();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getEmissionRate : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -35117,6 +35971,7 @@ bool js_cocos2dx_ParticleSystem_getEmissionRate(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getEndColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35124,7 +35979,8 @@ bool js_cocos2dx_ParticleSystem_getEndColor(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         const cocos2d::Color4F& ret = cobj->getEndColor();
         JS::RootedValue jsret(cx);
-        jsret = cccolor4f_to_jsval(cx, ret);
+        ok &= cccolor4f_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getEndColor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -35135,6 +35991,7 @@ bool js_cocos2dx_ParticleSystem_getEndColor(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_ParticleSystem_getLifeVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35143,6 +36000,7 @@ bool js_cocos2dx_ParticleSystem_getLifeVar(JSContext *cx, uint32_t argc, JS::Val
         double ret = cobj->getLifeVar();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getLifeVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -35173,6 +36031,7 @@ bool js_cocos2dx_ParticleSystem_setStartSizeVar(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getStartRadius(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35181,6 +36040,7 @@ bool js_cocos2dx_ParticleSystem_getStartRadius(JSContext *cx, uint32_t argc, JS:
         double ret = cobj->getStartRadius();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getStartRadius : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -35191,6 +36051,7 @@ bool js_cocos2dx_ParticleSystem_getStartRadius(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_ParticleSystem_getParticleCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35199,6 +36060,7 @@ bool js_cocos2dx_ParticleSystem_getParticleCount(JSContext *cx, uint32_t argc, J
         unsigned int ret = cobj->getParticleCount();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getParticleCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -35209,6 +36071,7 @@ bool js_cocos2dx_ParticleSystem_getParticleCount(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_ParticleSystem_getStartRadiusVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35217,6 +36080,7 @@ bool js_cocos2dx_ParticleSystem_getStartRadiusVar(JSContext *cx, uint32_t argc, 
         double ret = cobj->getStartRadiusVar();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getStartRadiusVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -35227,6 +36091,7 @@ bool js_cocos2dx_ParticleSystem_getStartRadiusVar(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_ParticleSystem_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35234,7 +36099,8 @@ bool js_cocos2dx_ParticleSystem_getBlendFunc(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         const cocos2d::BlendFunc& ret = cobj->getBlendFunc();
         JS::RootedValue jsret(cx);
-        jsret = blendfunc_to_jsval(cx, ret);
+        ok &= blendfunc_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getBlendFunc : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -35324,6 +36190,7 @@ bool js_cocos2dx_ParticleSystem_initWithDictionary(JSContext *cx, uint32_t argc,
             bool ret = cobj->initWithDictionary(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_initWithDictionary : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -35338,6 +36205,7 @@ bool js_cocos2dx_ParticleSystem_initWithDictionary(JSContext *cx, uint32_t argc,
             bool ret = cobj->initWithDictionary(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_initWithDictionary : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -35349,6 +36217,7 @@ bool js_cocos2dx_ParticleSystem_initWithDictionary(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_ParticleSystem_isAutoRemoveOnFinish(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35357,6 +36226,7 @@ bool js_cocos2dx_ParticleSystem_isAutoRemoveOnFinish(JSContext *cx, uint32_t arg
         bool ret = cobj->isAutoRemoveOnFinish();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_isAutoRemoveOnFinish : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -35367,6 +36237,7 @@ bool js_cocos2dx_ParticleSystem_isAutoRemoveOnFinish(JSContext *cx, uint32_t arg
 bool js_cocos2dx_ParticleSystem_getTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35375,6 +36246,7 @@ bool js_cocos2dx_ParticleSystem_getTotalParticles(JSContext *cx, uint32_t argc, 
         int ret = cobj->getTotalParticles();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getTotalParticles : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -35425,6 +36297,7 @@ bool js_cocos2dx_ParticleSystem_setBlendFunc(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_getEndRadiusVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35433,6 +36306,7 @@ bool js_cocos2dx_ParticleSystem_getEndRadiusVar(JSContext *cx, uint32_t argc, JS
         double ret = cobj->getEndRadiusVar();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getEndRadiusVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -35443,6 +36317,7 @@ bool js_cocos2dx_ParticleSystem_getEndRadiusVar(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getStartColorVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35450,7 +36325,8 @@ bool js_cocos2dx_ParticleSystem_getStartColorVar(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         const cocos2d::Color4F& ret = cobj->getStartColorVar();
         JS::RootedValue jsret(cx);
-        jsret = cccolor4f_to_jsval(cx, ret);
+        ok &= cccolor4f_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_getStartColorVar : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -35678,7 +36554,8 @@ void js_register_cocos2dx_ParticleSystem(JSContext *cx, JS::HandleObject global)
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleSystem_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleSystem"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleSystem", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -35793,12 +36670,14 @@ bool js_cocos2dx_ParticleSystemQuad_create(JSContext *cx, uint32_t argc, JS::Val
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystemQuad_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while (0);
     
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::ParticleSystemQuad* ret = cocos2d::ParticleSystemQuad::create();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -35807,6 +36686,7 @@ bool js_cocos2dx_ParticleSystemQuad_create(JSContext *cx, uint32_t argc, JS::Val
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystemQuad_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -35825,6 +36705,7 @@ bool js_cocos2dx_ParticleSystemQuad_create(JSContext *cx, uint32_t argc, JS::Val
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystemQuad_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -35913,7 +36794,8 @@ void js_register_cocos2dx_ParticleSystemQuad(JSContext *cx, JS::HandleObject glo
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleSystemQuad"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleSystemQuad", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -35927,6 +36809,7 @@ JSObject *jsb_cocos2d_ParticleFire_prototype;
 bool js_cocos2dx_ParticleFire_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleFire::create();
@@ -36013,7 +36896,8 @@ void js_register_cocos2dx_ParticleFire(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleFire_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleFire"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleFire", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -36027,6 +36911,7 @@ JSObject *jsb_cocos2d_ParticleFireworks_prototype;
 bool js_cocos2dx_ParticleFireworks_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleFireworks* cobj = (cocos2d::ParticleFireworks *)(proxy ? proxy->ptr : NULL);
@@ -36035,6 +36920,7 @@ bool js_cocos2dx_ParticleFireworks_init(JSContext *cx, uint32_t argc, JS::Value 
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleFireworks_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36057,6 +36943,7 @@ bool js_cocos2dx_ParticleFireworks_initWithTotalParticles(JSContext *cx, uint32_
         bool ret = cobj->initWithTotalParticles(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleFireworks_initWithTotalParticles : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36067,6 +36954,7 @@ bool js_cocos2dx_ParticleFireworks_initWithTotalParticles(JSContext *cx, uint32_
 bool js_cocos2dx_ParticleFireworks_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleFireworks::create();
@@ -36159,7 +37047,8 @@ void js_register_cocos2dx_ParticleFireworks(JSContext *cx, JS::HandleObject glob
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleFireworks_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleFireworks"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleFireworks", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -36173,6 +37062,7 @@ JSObject *jsb_cocos2d_ParticleSun_prototype;
 bool js_cocos2dx_ParticleSun_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSun* cobj = (cocos2d::ParticleSun *)(proxy ? proxy->ptr : NULL);
@@ -36181,6 +37071,7 @@ bool js_cocos2dx_ParticleSun_init(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSun_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36203,6 +37094,7 @@ bool js_cocos2dx_ParticleSun_initWithTotalParticles(JSContext *cx, uint32_t argc
         bool ret = cobj->initWithTotalParticles(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSun_initWithTotalParticles : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36213,6 +37105,7 @@ bool js_cocos2dx_ParticleSun_initWithTotalParticles(JSContext *cx, uint32_t argc
 bool js_cocos2dx_ParticleSun_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleSun::create();
@@ -36305,7 +37198,8 @@ void js_register_cocos2dx_ParticleSun(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleSun_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleSun"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleSun", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -36319,6 +37213,7 @@ JSObject *jsb_cocos2d_ParticleGalaxy_prototype;
 bool js_cocos2dx_ParticleGalaxy_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleGalaxy* cobj = (cocos2d::ParticleGalaxy *)(proxy ? proxy->ptr : NULL);
@@ -36327,6 +37222,7 @@ bool js_cocos2dx_ParticleGalaxy_init(JSContext *cx, uint32_t argc, JS::Value *vp
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleGalaxy_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36349,6 +37245,7 @@ bool js_cocos2dx_ParticleGalaxy_initWithTotalParticles(JSContext *cx, uint32_t a
         bool ret = cobj->initWithTotalParticles(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleGalaxy_initWithTotalParticles : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36359,6 +37256,7 @@ bool js_cocos2dx_ParticleGalaxy_initWithTotalParticles(JSContext *cx, uint32_t a
 bool js_cocos2dx_ParticleGalaxy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleGalaxy::create();
@@ -36451,7 +37349,8 @@ void js_register_cocos2dx_ParticleGalaxy(JSContext *cx, JS::HandleObject global)
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleGalaxy_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleGalaxy"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleGalaxy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -36465,6 +37364,7 @@ JSObject *jsb_cocos2d_ParticleFlower_prototype;
 bool js_cocos2dx_ParticleFlower_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleFlower* cobj = (cocos2d::ParticleFlower *)(proxy ? proxy->ptr : NULL);
@@ -36473,6 +37373,7 @@ bool js_cocos2dx_ParticleFlower_init(JSContext *cx, uint32_t argc, JS::Value *vp
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleFlower_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36495,6 +37396,7 @@ bool js_cocos2dx_ParticleFlower_initWithTotalParticles(JSContext *cx, uint32_t a
         bool ret = cobj->initWithTotalParticles(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleFlower_initWithTotalParticles : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36505,6 +37407,7 @@ bool js_cocos2dx_ParticleFlower_initWithTotalParticles(JSContext *cx, uint32_t a
 bool js_cocos2dx_ParticleFlower_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleFlower::create();
@@ -36597,7 +37500,8 @@ void js_register_cocos2dx_ParticleFlower(JSContext *cx, JS::HandleObject global)
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleFlower_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleFlower"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleFlower", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -36611,6 +37515,7 @@ JSObject *jsb_cocos2d_ParticleMeteor_prototype;
 bool js_cocos2dx_ParticleMeteor_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleMeteor* cobj = (cocos2d::ParticleMeteor *)(proxy ? proxy->ptr : NULL);
@@ -36619,6 +37524,7 @@ bool js_cocos2dx_ParticleMeteor_init(JSContext *cx, uint32_t argc, JS::Value *vp
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleMeteor_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36641,6 +37547,7 @@ bool js_cocos2dx_ParticleMeteor_initWithTotalParticles(JSContext *cx, uint32_t a
         bool ret = cobj->initWithTotalParticles(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleMeteor_initWithTotalParticles : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36651,6 +37558,7 @@ bool js_cocos2dx_ParticleMeteor_initWithTotalParticles(JSContext *cx, uint32_t a
 bool js_cocos2dx_ParticleMeteor_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleMeteor::create();
@@ -36743,7 +37651,8 @@ void js_register_cocos2dx_ParticleMeteor(JSContext *cx, JS::HandleObject global)
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleMeteor_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleMeteor"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleMeteor", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -36757,6 +37666,7 @@ JSObject *jsb_cocos2d_ParticleSpiral_prototype;
 bool js_cocos2dx_ParticleSpiral_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSpiral* cobj = (cocos2d::ParticleSpiral *)(proxy ? proxy->ptr : NULL);
@@ -36765,6 +37675,7 @@ bool js_cocos2dx_ParticleSpiral_init(JSContext *cx, uint32_t argc, JS::Value *vp
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSpiral_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36787,6 +37698,7 @@ bool js_cocos2dx_ParticleSpiral_initWithTotalParticles(JSContext *cx, uint32_t a
         bool ret = cobj->initWithTotalParticles(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSpiral_initWithTotalParticles : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36797,6 +37709,7 @@ bool js_cocos2dx_ParticleSpiral_initWithTotalParticles(JSContext *cx, uint32_t a
 bool js_cocos2dx_ParticleSpiral_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleSpiral::create();
@@ -36889,7 +37802,8 @@ void js_register_cocos2dx_ParticleSpiral(JSContext *cx, JS::HandleObject global)
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleSpiral_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleSpiral"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleSpiral", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -36903,6 +37817,7 @@ JSObject *jsb_cocos2d_ParticleExplosion_prototype;
 bool js_cocos2dx_ParticleExplosion_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleExplosion* cobj = (cocos2d::ParticleExplosion *)(proxy ? proxy->ptr : NULL);
@@ -36911,6 +37826,7 @@ bool js_cocos2dx_ParticleExplosion_init(JSContext *cx, uint32_t argc, JS::Value 
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleExplosion_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36933,6 +37849,7 @@ bool js_cocos2dx_ParticleExplosion_initWithTotalParticles(JSContext *cx, uint32_
         bool ret = cobj->initWithTotalParticles(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleExplosion_initWithTotalParticles : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36943,6 +37860,7 @@ bool js_cocos2dx_ParticleExplosion_initWithTotalParticles(JSContext *cx, uint32_
 bool js_cocos2dx_ParticleExplosion_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleExplosion::create();
@@ -37035,7 +37953,8 @@ void js_register_cocos2dx_ParticleExplosion(JSContext *cx, JS::HandleObject glob
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleExplosion_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleExplosion"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleExplosion", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -37049,6 +37968,7 @@ JSObject *jsb_cocos2d_ParticleSmoke_prototype;
 bool js_cocos2dx_ParticleSmoke_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSmoke* cobj = (cocos2d::ParticleSmoke *)(proxy ? proxy->ptr : NULL);
@@ -37057,6 +37977,7 @@ bool js_cocos2dx_ParticleSmoke_init(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSmoke_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -37079,6 +38000,7 @@ bool js_cocos2dx_ParticleSmoke_initWithTotalParticles(JSContext *cx, uint32_t ar
         bool ret = cobj->initWithTotalParticles(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSmoke_initWithTotalParticles : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -37089,6 +38011,7 @@ bool js_cocos2dx_ParticleSmoke_initWithTotalParticles(JSContext *cx, uint32_t ar
 bool js_cocos2dx_ParticleSmoke_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleSmoke::create();
@@ -37181,7 +38104,8 @@ void js_register_cocos2dx_ParticleSmoke(JSContext *cx, JS::HandleObject global) 
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleSmoke_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleSmoke"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleSmoke", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -37195,6 +38119,7 @@ JSObject *jsb_cocos2d_ParticleSnow_prototype;
 bool js_cocos2dx_ParticleSnow_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSnow* cobj = (cocos2d::ParticleSnow *)(proxy ? proxy->ptr : NULL);
@@ -37203,6 +38128,7 @@ bool js_cocos2dx_ParticleSnow_init(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSnow_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -37225,6 +38151,7 @@ bool js_cocos2dx_ParticleSnow_initWithTotalParticles(JSContext *cx, uint32_t arg
         bool ret = cobj->initWithTotalParticles(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSnow_initWithTotalParticles : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -37235,6 +38162,7 @@ bool js_cocos2dx_ParticleSnow_initWithTotalParticles(JSContext *cx, uint32_t arg
 bool js_cocos2dx_ParticleSnow_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleSnow::create();
@@ -37327,7 +38255,8 @@ void js_register_cocos2dx_ParticleSnow(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleSnow_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleSnow"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleSnow", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -37341,6 +38270,7 @@ JSObject *jsb_cocos2d_ParticleRain_prototype;
 bool js_cocos2dx_ParticleRain_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleRain* cobj = (cocos2d::ParticleRain *)(proxy ? proxy->ptr : NULL);
@@ -37349,6 +38279,7 @@ bool js_cocos2dx_ParticleRain_init(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleRain_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -37371,6 +38302,7 @@ bool js_cocos2dx_ParticleRain_initWithTotalParticles(JSContext *cx, uint32_t arg
         bool ret = cobj->initWithTotalParticles(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleRain_initWithTotalParticles : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -37381,6 +38313,7 @@ bool js_cocos2dx_ParticleRain_initWithTotalParticles(JSContext *cx, uint32_t arg
 bool js_cocos2dx_ParticleRain_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleRain::create();
@@ -37473,7 +38406,8 @@ void js_register_cocos2dx_ParticleRain(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParticleRain_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParticleRain"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParticleRain", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -37713,6 +38647,7 @@ bool js_cocos2dx_ProtectedNode_getProtectedChildByTag(JSContext *cx, uint32_t ar
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ProtectedNode_getProtectedChildByTag : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -37785,6 +38720,7 @@ bool js_cocos2dx_ProtectedNode_removeAllProtectedChildren(JSContext *cx, uint32_
 bool js_cocos2dx_ProtectedNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::ProtectedNode::create();
@@ -37865,7 +38801,8 @@ void js_register_cocos2dx_ProtectedNode(JSContext *cx, JS::HandleObject global) 
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ProtectedNode_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ProtectedNode"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ProtectedNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -37969,6 +38906,7 @@ bool js_cocos2dx_Sprite_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Sprite_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -37981,6 +38919,7 @@ bool js_cocos2dx_Sprite_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_getTexture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38071,6 +39010,7 @@ bool js_cocos2dx_Sprite_setRotationSkewY(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Sprite_getResourceType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38079,6 +39019,7 @@ bool js_cocos2dx_Sprite_getResourceType(JSContext *cx, uint32_t argc, JS::Value 
         int ret = cobj->getResourceType();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_getResourceType : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38116,6 +39057,7 @@ bool js_cocos2dx_Sprite_initWithTexture(JSContext *cx, uint32_t argc, JS::Value 
             bool ret = cobj->initWithTexture(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_initWithTexture : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -38138,6 +39080,7 @@ bool js_cocos2dx_Sprite_initWithTexture(JSContext *cx, uint32_t argc, JS::Value 
             bool ret = cobj->initWithTexture(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_initWithTexture : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -38165,6 +39108,7 @@ bool js_cocos2dx_Sprite_initWithTexture(JSContext *cx, uint32_t argc, JS::Value 
             bool ret = cobj->initWithTexture(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_initWithTexture : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -38176,6 +39120,7 @@ bool js_cocos2dx_Sprite_initWithTexture(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Sprite_getBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38188,6 +39133,7 @@ bool js_cocos2dx_Sprite_getBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_getBatchNode : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38198,6 +39144,7 @@ bool js_cocos2dx_Sprite_getBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Sprite_getOffsetPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38205,7 +39152,8 @@ bool js_cocos2dx_Sprite_getOffsetPosition(JSContext *cx, uint32_t argc, JS::Valu
     if (argc == 0) {
         const cocos2d::Vec2& ret = cobj->getOffsetPosition();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_getOffsetPosition : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38290,6 +39238,7 @@ bool js_cocos2dx_Sprite_initWithSpriteFrameName(JSContext *cx, uint32_t argc, JS
         bool ret = cobj->initWithSpriteFrameName(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_initWithSpriteFrameName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38320,6 +39269,7 @@ bool js_cocos2dx_Sprite_isFrameDisplayed(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->isFrameDisplayed(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_isFrameDisplayed : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38330,6 +39280,7 @@ bool js_cocos2dx_Sprite_isFrameDisplayed(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Sprite_getAtlasIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38337,7 +39288,8 @@ bool js_cocos2dx_Sprite_getAtlasIndex(JSContext *cx, uint32_t argc, JS::Value *v
     if (argc == 0) {
         ssize_t ret = cobj->getAtlasIndex();
         JS::RootedValue jsret(cx);
-        jsret = ssize_to_jsval(cx, ret);
+        ok &= ssize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_getAtlasIndex : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38376,6 +39328,7 @@ bool js_cocos2dx_Sprite_setBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Sprite_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38383,7 +39336,8 @@ bool js_cocos2dx_Sprite_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         const cocos2d::BlendFunc& ret = cobj->getBlendFunc();
         JS::RootedValue jsret(cx);
-        jsret = blendfunc_to_jsval(cx, ret);
+        ok &= blendfunc_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_getBlendFunc : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38444,6 +39398,7 @@ bool js_cocos2dx_Sprite_setTextureAtlas(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Sprite_getSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38456,6 +39411,7 @@ bool js_cocos2dx_Sprite_getSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_getSpriteFrame : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38466,6 +39422,7 @@ bool js_cocos2dx_Sprite_getSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Sprite_getResourceName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38473,7 +39430,8 @@ bool js_cocos2dx_Sprite_getResourceName(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         const std::string& ret = cobj->getResourceName();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_getResourceName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38484,6 +39442,7 @@ bool js_cocos2dx_Sprite_getResourceName(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Sprite_isDirty(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38492,6 +39451,7 @@ bool js_cocos2dx_Sprite_isDirty(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->isDirty();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_isDirty : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38542,6 +39502,7 @@ bool js_cocos2dx_Sprite_setDirty(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Sprite_isTextureRectRotated(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38550,6 +39511,7 @@ bool js_cocos2dx_Sprite_isTextureRectRotated(JSContext *cx, uint32_t argc, JS::V
         bool ret = cobj->isTextureRectRotated();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_isTextureRectRotated : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38560,6 +39522,7 @@ bool js_cocos2dx_Sprite_isTextureRectRotated(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Sprite_getTextureRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38567,7 +39530,8 @@ bool js_cocos2dx_Sprite_getTextureRect(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         const cocos2d::Rect& ret = cobj->getTextureRect();
         JS::RootedValue jsret(cx);
-        jsret = ccrect_to_jsval(cx, ret);
+        ok &= ccrect_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_getTextureRect : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38597,6 +39561,7 @@ bool js_cocos2dx_Sprite_initWithFile(JSContext *cx, uint32_t argc, JS::Value *vp
             bool ret = cobj->initWithFile(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_initWithFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -38611,6 +39576,7 @@ bool js_cocos2dx_Sprite_initWithFile(JSContext *cx, uint32_t argc, JS::Value *vp
             bool ret = cobj->initWithFile(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_initWithFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -38642,6 +39608,7 @@ bool js_cocos2dx_Sprite_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Sprite_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38654,6 +39621,7 @@ bool js_cocos2dx_Sprite_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_getTextureAtlas : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38684,6 +39652,7 @@ bool js_cocos2dx_Sprite_initWithSpriteFrame(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->initWithSpriteFrame(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_initWithSpriteFrame : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38694,6 +39663,7 @@ bool js_cocos2dx_Sprite_initWithSpriteFrame(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Sprite_isFlippedX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38702,6 +39672,7 @@ bool js_cocos2dx_Sprite_isFlippedX(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->isFlippedX();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_isFlippedX : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38712,6 +39683,7 @@ bool js_cocos2dx_Sprite_isFlippedX(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Sprite_isFlippedY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38720,6 +39692,7 @@ bool js_cocos2dx_Sprite_isFlippedY(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->isFlippedY();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Sprite_isFlippedY : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38853,7 +39826,8 @@ void js_register_cocos2dx_Sprite(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Sprite_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Sprite"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Sprite", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -38912,6 +39886,7 @@ bool js_cocos2dx_RenderTexture_clearStencil(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_RenderTexture_getClearDepth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -38920,6 +39895,7 @@ bool js_cocos2dx_RenderTexture_getClearDepth(JSContext *cx, uint32_t argc, JS::V
         double ret = cobj->getClearDepth();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderTexture_getClearDepth : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -38930,6 +39906,7 @@ bool js_cocos2dx_RenderTexture_getClearDepth(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_RenderTexture_getClearStencil(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -38938,6 +39915,7 @@ bool js_cocos2dx_RenderTexture_getClearStencil(JSContext *cx, uint32_t argc, JS:
         int ret = cobj->getClearStencil();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderTexture_getClearStencil : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -39012,6 +39990,7 @@ bool js_cocos2dx_RenderTexture_setSprite(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_RenderTexture_getSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -39024,6 +40003,7 @@ bool js_cocos2dx_RenderTexture_getSprite(JSContext *cx, uint32_t argc, JS::Value
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderTexture_getSprite : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -39034,6 +40014,7 @@ bool js_cocos2dx_RenderTexture_getSprite(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_RenderTexture_isAutoDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -39042,6 +40023,7 @@ bool js_cocos2dx_RenderTexture_isAutoDraw(JSContext *cx, uint32_t argc, JS::Valu
         bool ret = cobj->isAutoDraw();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderTexture_isAutoDraw : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -39253,6 +40235,7 @@ bool js_cocos2dx_RenderTexture_clearDepth(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_RenderTexture_getClearColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -39260,7 +40243,8 @@ bool js_cocos2dx_RenderTexture_getClearColor(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         const cocos2d::Color4F& ret = cobj->getClearColor();
         JS::RootedValue jsret(cx);
-        jsret = cccolor4f_to_jsval(cx, ret);
+        ok &= cccolor4f_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderTexture_getClearColor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -39297,6 +40281,7 @@ bool js_cocos2dx_RenderTexture_clear(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_RenderTexture_getClearFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -39305,6 +40290,7 @@ bool js_cocos2dx_RenderTexture_getClearFlags(JSContext *cx, uint32_t argc, JS::V
         unsigned int ret = cobj->getClearFlags();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderTexture_getClearFlags : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -39328,6 +40314,7 @@ bool js_cocos2dx_RenderTexture_newImage(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderTexture_newImage : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -39342,6 +40329,7 @@ bool js_cocos2dx_RenderTexture_newImage(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderTexture_newImage : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -39397,6 +40385,7 @@ bool js_cocos2dx_RenderTexture_initWithWidthAndHeight(JSContext *cx, uint32_t ar
             bool ret = cobj->initWithWidthAndHeight(arg0, arg1, arg2, arg3);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderTexture_initWithWidthAndHeight : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -39417,6 +40406,7 @@ bool js_cocos2dx_RenderTexture_initWithWidthAndHeight(JSContext *cx, uint32_t ar
             bool ret = cobj->initWithWidthAndHeight(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderTexture_initWithWidthAndHeight : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -39448,6 +40438,7 @@ bool js_cocos2dx_RenderTexture_create(JSContext *cx, uint32_t argc, JS::Value *v
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderTexture_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -39475,6 +40466,7 @@ bool js_cocos2dx_RenderTexture_create(JSContext *cx, uint32_t argc, JS::Value *v
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderTexture_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -39496,6 +40488,7 @@ bool js_cocos2dx_RenderTexture_create(JSContext *cx, uint32_t argc, JS::Value *v
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderTexture_create : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -39602,7 +40595,8 @@ void js_register_cocos2dx_RenderTexture(JSContext *cx, JS::HandleObject global) 
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_RenderTexture_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "RenderTexture"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "RenderTexture", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -39617,6 +40611,7 @@ JSObject *jsb_cocos2d_GLProgram_prototype;
 bool js_cocos2dx_GLProgram_getFragmentShaderLog(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -39624,7 +40619,8 @@ bool js_cocos2dx_GLProgram_getFragmentShaderLog(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         std::string ret = cobj->getFragmentShaderLog();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_getFragmentShaderLog : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -39657,6 +40653,7 @@ bool js_cocos2dx_GLProgram_bindAttribLocation(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_GLProgram_getUniformFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -39665,6 +40662,7 @@ bool js_cocos2dx_GLProgram_getUniformFlags(JSContext *cx, uint32_t argc, JS::Val
         const cocos2d::GLProgram::UniformFlags& ret = cobj->getUniformFlags();
         JS::RootedValue jsret(cx);
         #pragma warning NO CONVERSION FROM NATIVE FOR UniformFlags;
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_getUniformFlags : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -39687,6 +40685,7 @@ bool js_cocos2dx_GLProgram_getUniformLocationForName(JSContext *cx, uint32_t arg
         int ret = cobj->getUniformLocationForName(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_getUniformLocationForName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -39713,6 +40712,7 @@ bool js_cocos2dx_GLProgram_use(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_GLProgram_getVertexShaderLog(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -39720,7 +40720,8 @@ bool js_cocos2dx_GLProgram_getVertexShaderLog(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         std::string ret = cobj->getVertexShaderLog();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_getVertexShaderLog : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -39742,7 +40743,8 @@ bool js_cocos2dx_GLProgram_getUniform(JSContext *cx, uint32_t argc, JS::Value *v
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_getUniform : Error processing arguments");
         cocos2d::Uniform* ret = cobj->getUniform(arg0);
         JS::RootedValue jsret(cx);
-        jsret = ret == nullptr ? JS::NullHandleValue : uniform_to_jsval(cx, ret);
+        if (ret) { ok &= uniform_to_jsval(cx, ret, &jsret); } else { jsret = JS::NullHandleValue; };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_getUniform : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -39775,6 +40777,7 @@ bool js_cocos2dx_GLProgram_initWithByteArrays(JSContext *cx, uint32_t argc, JS::
             bool ret = cobj->initWithByteArrays(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_initWithByteArrays : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -39792,6 +40795,7 @@ bool js_cocos2dx_GLProgram_initWithByteArrays(JSContext *cx, uint32_t argc, JS::
             bool ret = cobj->initWithByteArrays(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_initWithByteArrays : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -39847,6 +40851,7 @@ bool js_cocos2dx_GLProgram_initWithFilenames(JSContext *cx, uint32_t argc, JS::V
             bool ret = cobj->initWithFilenames(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_initWithFilenames : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -39864,6 +40869,7 @@ bool js_cocos2dx_GLProgram_initWithFilenames(JSContext *cx, uint32_t argc, JS::V
             bool ret = cobj->initWithFilenames(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_initWithFilenames : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -40016,6 +41022,7 @@ bool js_cocos2dx_GLProgram_getUniformLocation(JSContext *cx, uint32_t argc, JS::
         int ret = cobj->getUniformLocation(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_getUniformLocation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -40026,6 +41033,7 @@ bool js_cocos2dx_GLProgram_getUniformLocation(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_GLProgram_link(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -40034,6 +41042,7 @@ bool js_cocos2dx_GLProgram_link(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->link();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_link : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -40072,6 +41081,7 @@ bool js_cocos2dx_GLProgram_getAttribLocation(JSContext *cx, uint32_t argc, JS::V
         int ret = cobj->getAttribLocation(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_getAttribLocation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -40094,6 +41104,7 @@ bool js_cocos2dx_GLProgram_getVertexAttrib(JSContext *cx, uint32_t argc, JS::Val
         cocos2d::VertexAttrib* ret = cobj->getVertexAttrib(arg0);
         JS::RootedValue jsret(cx);
         #pragma warning NO CONVERSION FROM NATIVE FOR VertexAttrib*;
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_getVertexAttrib : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -40222,6 +41233,7 @@ bool js_cocos2dx_GLProgram_createWithByteArrays(JSContext *cx, uint32_t argc, JS
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_createWithByteArrays : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -40243,6 +41255,7 @@ bool js_cocos2dx_GLProgram_createWithByteArrays(JSContext *cx, uint32_t argc, JS
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_createWithByteArrays : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -40273,6 +41286,7 @@ bool js_cocos2dx_GLProgram_createWithFilenames(JSContext *cx, uint32_t argc, JS:
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_createWithFilenames : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -40294,6 +41308,7 @@ bool js_cocos2dx_GLProgram_createWithFilenames(JSContext *cx, uint32_t argc, JS:
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_createWithFilenames : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -40401,7 +41416,8 @@ void js_register_cocos2dx_GLProgram(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_GLProgram_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "GLProgram"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "GLProgram", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -40510,6 +41526,7 @@ bool js_cocos2dx_GLProgramCache_getGLProgram(JSContext *cx, uint32_t argc, JS::V
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgramCache_getGLProgram : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -40532,6 +41549,7 @@ bool js_cocos2dx_GLProgramCache_destroyInstance(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_GLProgramCache_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::GLProgramCache::getInstance();
@@ -40606,7 +41624,8 @@ void js_register_cocos2dx_GLProgramCache(JSContext *cx, JS::HandleObject global)
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_GLProgramCache_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "GLProgramCache"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "GLProgramCache", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -40672,6 +41691,7 @@ bool js_cocos2dx_RenderState_getTopmost(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderState_getTopmost : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -40682,6 +41702,7 @@ bool js_cocos2dx_RenderState_getTopmost(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_RenderState_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderState* cobj = (cocos2d::RenderState *)(proxy ? proxy->ptr : NULL);
@@ -40694,6 +41715,7 @@ bool js_cocos2dx_RenderState_getTexture(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderState_getTexture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -40732,6 +41754,7 @@ bool js_cocos2dx_RenderState_bind(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_RenderState_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderState* cobj = (cocos2d::RenderState *)(proxy ? proxy->ptr : NULL);
@@ -40739,7 +41762,8 @@ bool js_cocos2dx_RenderState_getName(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         std::string ret = cobj->getName();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderState_getName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -40750,6 +41774,7 @@ bool js_cocos2dx_RenderState_getName(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_RenderState_getStateBlock(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderState* cobj = (cocos2d::RenderState *)(proxy ? proxy->ptr : NULL);
@@ -40762,6 +41787,7 @@ bool js_cocos2dx_RenderState_getStateBlock(JSContext *cx, uint32_t argc, JS::Val
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RenderState_getStateBlock : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -40865,7 +41891,8 @@ void js_register_cocos2dx_RenderState(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_RenderState_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "RenderState"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "RenderState", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -40934,6 +41961,7 @@ bool js_cocos2dx_Pass_bind(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Pass_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Pass* cobj = (cocos2d::Pass *)(proxy ? proxy->ptr : NULL);
@@ -40946,6 +41974,7 @@ bool js_cocos2dx_Pass_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Pass_clone : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -40956,6 +41985,7 @@ bool js_cocos2dx_Pass_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Pass_getGLProgramState(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Pass* cobj = (cocos2d::Pass *)(proxy ? proxy->ptr : NULL);
@@ -40968,6 +41998,7 @@ bool js_cocos2dx_Pass_getGLProgramState(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Pass_getGLProgramState : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -40978,6 +42009,7 @@ bool js_cocos2dx_Pass_getGLProgramState(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Pass_getVertexAttributeBinding(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Pass* cobj = (cocos2d::Pass *)(proxy ? proxy->ptr : NULL);
@@ -40990,6 +42022,7 @@ bool js_cocos2dx_Pass_getVertexAttributeBinding(JSContext *cx, uint32_t argc, JS
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Pass_getVertexAttributeBinding : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41000,6 +42033,7 @@ bool js_cocos2dx_Pass_getVertexAttributeBinding(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Pass_getHash(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Pass* cobj = (cocos2d::Pass *)(proxy ? proxy->ptr : NULL);
@@ -41008,6 +42042,7 @@ bool js_cocos2dx_Pass_getHash(JSContext *cx, uint32_t argc, JS::Value *vp)
         unsigned int ret = cobj->getHash();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Pass_getHash : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41153,7 +42188,8 @@ void js_register_cocos2dx_Pass(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Pass_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Pass"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Pass", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -41167,6 +42203,7 @@ JSObject *jsb_cocos2d_Material_prototype;
 bool js_cocos2dx_Material_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -41179,6 +42216,7 @@ bool js_cocos2dx_Material_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Material_clone : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41189,6 +42227,7 @@ bool js_cocos2dx_Material_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Material_getTechniqueCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -41196,7 +42235,8 @@ bool js_cocos2dx_Material_getTechniqueCount(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         ssize_t ret = cobj->getTechniqueCount();
         JS::RootedValue jsret(cx);
-        jsret = ssize_to_jsval(cx, ret);
+        ok &= ssize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Material_getTechniqueCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41243,6 +42283,7 @@ bool js_cocos2dx_Material_getTechniqueByIndex(JSContext *cx, uint32_t argc, JS::
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Material_getTechniqueByIndex : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41253,6 +42294,7 @@ bool js_cocos2dx_Material_getTechniqueByIndex(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Material_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -41260,7 +42302,8 @@ bool js_cocos2dx_Material_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
         std::string ret = cobj->getName();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Material_getName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41271,6 +42314,7 @@ bool js_cocos2dx_Material_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Material_getTechniques(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -41278,7 +42322,8 @@ bool js_cocos2dx_Material_getTechniques(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         const cocos2d::Vector<cocos2d::Technique *>& ret = cobj->getTechniques();
         JS::RootedValue jsret(cx);
-        jsret = ccvector_to_jsval(cx, ret);
+        ok &= ccvector_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Material_getTechniques : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41325,6 +42370,7 @@ bool js_cocos2dx_Material_getTechniqueByName(JSContext *cx, uint32_t argc, JS::V
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Material_getTechniqueByName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41363,6 +42409,7 @@ bool js_cocos2dx_Material_addTechnique(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Material_getTechnique(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -41375,6 +42422,7 @@ bool js_cocos2dx_Material_getTechnique(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Material_getTechnique : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41505,7 +42553,8 @@ void js_register_cocos2dx_Material(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Material_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Material"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Material", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -41531,6 +42580,7 @@ bool js_cocos2dx_TextureCache_reloadTexture(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->reloadTexture(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextureCache_reloadTexture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41605,13 +42655,11 @@ bool js_cocos2dx_TextureCache_addImageAsync(JSContext *cx, uint32_t argc, JS::Va
         do {
 		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Texture2D* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
 		            if (larg0) {
@@ -41620,6 +42668,7 @@ bool js_cocos2dx_TextureCache_addImageAsync(JSContext *cx, uint32_t argc, JS::Va
 		            largv = JS::NullHandleValue;
 		        };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -41647,6 +42696,7 @@ bool js_cocos2dx_TextureCache_addImageAsync(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TextureCache_getAllTextures(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : NULL);
@@ -41654,7 +42704,8 @@ bool js_cocos2dx_TextureCache_getAllTextures(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         cocos2d::Vector<cocos2d::Texture2D *> ret = cobj->getAllTextures();
         JS::RootedValue jsret(cx);
-        jsret = ccvector_to_jsval(cx, ret);
+        ok &= ccvector_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextureCache_getAllTextures : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41665,6 +42716,7 @@ bool js_cocos2dx_TextureCache_getAllTextures(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TextureCache_getDescription(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : NULL);
@@ -41672,7 +42724,8 @@ bool js_cocos2dx_TextureCache_getDescription(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         std::string ret = cobj->getDescription();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextureCache_getDescription : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41683,6 +42736,7 @@ bool js_cocos2dx_TextureCache_getDescription(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TextureCache_getCachedTextureInfo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : NULL);
@@ -41690,7 +42744,8 @@ bool js_cocos2dx_TextureCache_getCachedTextureInfo(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         std::string ret = cobj->getCachedTextureInfo();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextureCache_getCachedTextureInfo : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41732,6 +42787,7 @@ bool js_cocos2dx_TextureCache_addImage(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextureCache_addImage : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -41750,6 +42806,7 @@ bool js_cocos2dx_TextureCache_addImage(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextureCache_addImage : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -41797,6 +42854,7 @@ bool js_cocos2dx_TextureCache_getTextureForKey(JSContext *cx, uint32_t argc, JS:
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextureCache_getTextureForKey : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41826,7 +42884,8 @@ bool js_cocos2dx_TextureCache_getTextureFilePath(JSContext *cx, uint32_t argc, J
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextureCache_getTextureFilePath : Error processing arguments");
         std::string ret = cobj->getTextureFilePath(arg0);
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextureCache_getTextureFilePath : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -41983,7 +43042,8 @@ void js_register_cocos2dx_TextureCache(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TextureCache_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TextureCache"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TextureCache", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -42061,11 +43121,13 @@ bool js_cocos2dx_Device_vibrate(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Device_getDPI(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         int ret = cocos2d::Device::getDPI();
         JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Device_getDPI : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42109,7 +43171,8 @@ void js_register_cocos2dx_Device(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Device_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Device"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Device", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -42135,6 +43198,7 @@ bool js_cocos2dx_SAXParser_init(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->init(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SAXParser_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42174,7 +43238,8 @@ void js_register_cocos2dx_SAXParser(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_SAXParser_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "SAXParser"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "SAXParser", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -42188,6 +43253,7 @@ JSObject *jsb_cocos2d_Application_prototype;
 bool js_cocos2dx_Application_getTargetPlatform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Application* cobj = (cocos2d::Application *)(proxy ? proxy->ptr : NULL);
@@ -42196,6 +43262,7 @@ bool js_cocos2dx_Application_getTargetPlatform(JSContext *cx, uint32_t argc, JS:
         int ret = (int)cobj->getTargetPlatform();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Application_getTargetPlatform : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42206,6 +43273,7 @@ bool js_cocos2dx_Application_getTargetPlatform(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Application_getCurrentLanguage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Application* cobj = (cocos2d::Application *)(proxy ? proxy->ptr : NULL);
@@ -42214,6 +43282,7 @@ bool js_cocos2dx_Application_getCurrentLanguage(JSContext *cx, uint32_t argc, JS
         int ret = (int)cobj->getCurrentLanguage();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Application_getCurrentLanguage : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42236,6 +43305,7 @@ bool js_cocos2dx_Application_openURL(JSContext *cx, uint32_t argc, JS::Value *vp
         bool ret = cobj->openURL(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Application_openURL : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42246,6 +43316,7 @@ bool js_cocos2dx_Application_openURL(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Application_getVersion(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Application* cobj = (cocos2d::Application *)(proxy ? proxy->ptr : NULL);
@@ -42253,7 +43324,8 @@ bool js_cocos2dx_Application_getVersion(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         std::string ret = cobj->getVersion();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Application_getVersion : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42276,6 +43348,7 @@ bool js_cocos2dx_Application_destroyInstance(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Application_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         cocos2d::Application* ret = cocos2d::Application::getInstance();
@@ -42285,6 +43358,7 @@ bool js_cocos2dx_Application_getInstance(JSContext *cx, uint32_t argc, JS::Value
     } else {
         jsret = JS::NullHandleValue;
     };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Application_getInstance : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42333,7 +43407,8 @@ void js_register_cocos2dx_Application(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_Application_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Application"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Application", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -42403,6 +43478,7 @@ bool js_cocos2dx_SpriteBatchNode_addSpriteWithoutQuad(JSContext *cx, uint32_t ar
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_addSpriteWithoutQuad : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42453,6 +43529,7 @@ bool js_cocos2dx_SpriteBatchNode_initWithTexture(JSContext *cx, uint32_t argc, J
         bool ret = cobj->initWithTexture(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_initWithTexture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42473,6 +43550,7 @@ bool js_cocos2dx_SpriteBatchNode_initWithTexture(JSContext *cx, uint32_t argc, J
         bool ret = cobj->initWithTexture(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_initWithTexture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42483,6 +43561,7 @@ bool js_cocos2dx_SpriteBatchNode_initWithTexture(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_SpriteBatchNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -42490,7 +43569,8 @@ bool js_cocos2dx_SpriteBatchNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         const cocos2d::BlendFunc& ret = cobj->getBlendFunc();
         JS::RootedValue jsret(cx);
-        jsret = blendfunc_to_jsval(cx, ret);
+        ok &= blendfunc_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_getBlendFunc : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42520,7 +43600,8 @@ bool js_cocos2dx_SpriteBatchNode_lowestAtlasIndexInChild(JSContext *cx, uint32_t
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_lowestAtlasIndexInChild : Error processing arguments");
         ssize_t ret = cobj->lowestAtlasIndexInChild(arg0);
         JS::RootedValue jsret(cx);
-        jsret = ssize_to_jsval(cx, ret);
+        ok &= ssize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_lowestAtlasIndexInChild : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42552,7 +43633,8 @@ bool js_cocos2dx_SpriteBatchNode_atlasIndexForChild(JSContext *cx, uint32_t argc
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_atlasIndexForChild : Error processing arguments");
         ssize_t ret = cobj->atlasIndexForChild(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = ssize_to_jsval(cx, ret);
+        ok &= ssize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_atlasIndexForChild : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42603,6 +43685,7 @@ bool js_cocos2dx_SpriteBatchNode_initWithFile(JSContext *cx, uint32_t argc, JS::
         bool ret = cobj->initWithFile(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_initWithFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42615,6 +43698,7 @@ bool js_cocos2dx_SpriteBatchNode_initWithFile(JSContext *cx, uint32_t argc, JS::
         bool ret = cobj->initWithFile(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_initWithFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42625,6 +43709,7 @@ bool js_cocos2dx_SpriteBatchNode_initWithFile(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_SpriteBatchNode_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -42637,6 +43722,7 @@ bool js_cocos2dx_SpriteBatchNode_getTexture(JSContext *cx, uint32_t argc, JS::Va
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_getTexture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42663,6 +43749,7 @@ bool js_cocos2dx_SpriteBatchNode_increaseAtlasCapacity(JSContext *cx, uint32_t a
 bool js_cocos2dx_SpriteBatchNode_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -42675,6 +43762,7 @@ bool js_cocos2dx_SpriteBatchNode_getTextureAtlas(JSContext *cx, uint32_t argc, J
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_getTextureAtlas : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42764,7 +43852,8 @@ bool js_cocos2dx_SpriteBatchNode_rebuildIndexInOrder(JSContext *cx, uint32_t arg
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_rebuildIndexInOrder : Error processing arguments");
         ssize_t ret = cobj->rebuildIndexInOrder(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = ssize_to_jsval(cx, ret);
+        ok &= ssize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_rebuildIndexInOrder : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -42794,7 +43883,8 @@ bool js_cocos2dx_SpriteBatchNode_highestAtlasIndexInChild(JSContext *cx, uint32_
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_highestAtlasIndexInChild : Error processing arguments");
         ssize_t ret = cobj->highestAtlasIndexInChild(arg0);
         JS::RootedValue jsret(cx);
-        jsret = ssize_to_jsval(cx, ret);
+        ok &= ssize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_highestAtlasIndexInChild : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -43049,7 +44139,8 @@ void js_register_cocos2dx_SpriteBatchNode(JSContext *cx, JS::HandleObject global
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_SpriteBatchNode_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "SpriteBatchNode"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "SpriteBatchNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -43076,6 +44167,7 @@ bool js_cocos2dx_SpriteFrameCache_reloadTexture(JSContext *cx, uint32_t argc, JS
         bool ret = cobj->reloadTexture(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrameCache_reloadTexture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -43225,6 +44317,7 @@ bool js_cocos2dx_SpriteFrameCache_getSpriteFrameByName(JSContext *cx, uint32_t a
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrameCache_getSpriteFrameByName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -43255,6 +44348,7 @@ bool js_cocos2dx_SpriteFrameCache_removeSpriteFramesFromFile(JSContext *cx, uint
 bool js_cocos2dx_SpriteFrameCache_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrameCache* cobj = (cocos2d::SpriteFrameCache *)(proxy ? proxy->ptr : NULL);
@@ -43263,6 +44357,7 @@ bool js_cocos2dx_SpriteFrameCache_init(JSContext *cx, uint32_t argc, JS::Value *
         bool ret = cobj->init();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrameCache_init : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -43357,6 +44452,7 @@ bool js_cocos2dx_SpriteFrameCache_isSpriteFramesWithFileLoaded(JSContext *cx, ui
         bool ret = cobj->isSpriteFramesWithFileLoaded(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteFrameCache_isSpriteFramesWithFileLoaded : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -43407,6 +44503,7 @@ bool js_cocos2dx_SpriteFrameCache_destroyInstance(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_SpriteFrameCache_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::SpriteFrameCache::getInstance();
@@ -43469,7 +44566,8 @@ void js_register_cocos2dx_SpriteFrameCache(JSContext *cx, JS::HandleObject globa
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_SpriteFrameCache_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "SpriteFrameCache"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "SpriteFrameCache", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -43483,6 +44581,7 @@ JSObject *jsb_cocos2d_TextFieldTTF_prototype;
 bool js_cocos2dx_TextFieldTTF_getCharCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -43490,7 +44589,8 @@ bool js_cocos2dx_TextFieldTTF_getCharCount(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         unsigned long ret = cobj->getCharCount();
         JS::RootedValue jsret(cx);
-        jsret = ulong_to_jsval(cx, ret);
+        ok &= ulong_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextFieldTTF_getCharCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -43561,6 +44661,7 @@ bool js_cocos2dx_TextFieldTTF_setCursorEnabled(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_TextFieldTTF_getColorSpaceHolder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -43568,7 +44669,8 @@ bool js_cocos2dx_TextFieldTTF_getColorSpaceHolder(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         const cocos2d::Color4B& ret = cobj->getColorSpaceHolder();
         JS::RootedValue jsret(cx);
-        jsret = cccolor4b_to_jsval(cx, ret);
+        ok &= cccolor4b_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextFieldTTF_getColorSpaceHolder : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -43601,6 +44703,7 @@ bool js_cocos2dx_TextFieldTTF_initWithPlaceHolder(JSContext *cx, uint32_t argc, 
             bool ret = cobj->initWithPlaceHolder(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextFieldTTF_initWithPlaceHolder : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -43627,6 +44730,7 @@ bool js_cocos2dx_TextFieldTTF_initWithPlaceHolder(JSContext *cx, uint32_t argc, 
             bool ret = cobj->initWithPlaceHolder(arg0, arg1, arg2, arg3, arg4);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextFieldTTF_initWithPlaceHolder : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -43658,6 +44762,7 @@ bool js_cocos2dx_TextFieldTTF_appendString(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TextFieldTTF_getPasswordTextStyle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -43665,7 +44770,8 @@ bool js_cocos2dx_TextFieldTTF_getPasswordTextStyle(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         std::string ret = cobj->getPasswordTextStyle();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextFieldTTF_getPasswordTextStyle : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -43733,6 +44839,7 @@ bool js_cocos2dx_TextFieldTTF_setColorSpaceHolder(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_TextFieldTTF_detachWithIME(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -43741,6 +44848,7 @@ bool js_cocos2dx_TextFieldTTF_detachWithIME(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->detachWithIME();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextFieldTTF_detachWithIME : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -43791,6 +44899,7 @@ bool js_cocos2dx_TextFieldTTF_setCursorFromPoint(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_TextFieldTTF_isSecureTextEntry(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -43799,6 +44908,7 @@ bool js_cocos2dx_TextFieldTTF_isSecureTextEntry(JSContext *cx, uint32_t argc, JS
         bool ret = cobj->isSecureTextEntry();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextFieldTTF_isSecureTextEntry : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -43809,6 +44919,7 @@ bool js_cocos2dx_TextFieldTTF_isSecureTextEntry(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_TextFieldTTF_getPlaceHolder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -43816,7 +44927,8 @@ bool js_cocos2dx_TextFieldTTF_getPlaceHolder(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         const std::string& ret = cobj->getPlaceHolder();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextFieldTTF_getPlaceHolder : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -43847,6 +44959,7 @@ bool js_cocos2dx_TextFieldTTF_setCursorPosition(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_TextFieldTTF_attachWithIME(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -43855,6 +44968,7 @@ bool js_cocos2dx_TextFieldTTF_attachWithIME(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->attachWithIME();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextFieldTTF_attachWithIME : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -43885,6 +44999,7 @@ bool js_cocos2dx_TextFieldTTF_textFieldWithPlaceHolder(JSContext *cx, uint32_t a
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextFieldTTF_textFieldWithPlaceHolder : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -43915,6 +45030,7 @@ bool js_cocos2dx_TextFieldTTF_textFieldWithPlaceHolder(JSContext *cx, uint32_t a
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TextFieldTTF_textFieldWithPlaceHolder : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -44016,7 +45132,8 @@ void js_register_cocos2dx_TextFieldTTF(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TextFieldTTF_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TextFieldTTF"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TextFieldTTF", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -44085,6 +45202,7 @@ bool js_cocos2dx_ParallaxNode_removeAllChildrenWithCleanup(JSContext *cx, uint32
 bool js_cocos2dx_ParallaxNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::ParallaxNode::create();
@@ -44176,7 +45294,8 @@ void js_register_cocos2dx_ParallaxNode(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_ParallaxNode_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "ParallaxNode"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ParallaxNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -44191,6 +45310,7 @@ JSObject *jsb_cocos2d_TMXObject_prototype;
 bool js_cocos2dx_TMXObject_getGid(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -44199,6 +45319,7 @@ bool js_cocos2dx_TMXObject_getGid(JSContext *cx, uint32_t argc, JS::Value *vp)
         unsigned int ret = cobj->getGid();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObject_getGid : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44229,6 +45350,7 @@ bool js_cocos2dx_TMXObject_setObjectName(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXObject_getObjectSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -44236,7 +45358,8 @@ bool js_cocos2dx_TMXObject_getObjectSize(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         cocos2d::Size ret = cobj->getObjectSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObject_getObjectSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44258,7 +45381,8 @@ bool js_cocos2dx_TMXObject_getProperty(JSContext *cx, uint32_t argc, JS::Value *
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObject_getProperty : Error processing arguments");
         cocos2d::Value ret = cobj->getProperty(arg0);
         JS::RootedValue jsret(cx);
-        jsret = ccvalue_to_jsval(cx, ret);
+        ok &= ccvalue_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObject_getProperty : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44269,6 +45393,7 @@ bool js_cocos2dx_TMXObject_getProperty(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_TMXObject_getObjectVisible(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -44277,6 +45402,7 @@ bool js_cocos2dx_TMXObject_getObjectVisible(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->getObjectVisible();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObject_getObjectVisible : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44287,6 +45413,7 @@ bool js_cocos2dx_TMXObject_getObjectVisible(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXObject_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -44295,6 +45422,7 @@ bool js_cocos2dx_TMXObject_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
         int ret = (int)cobj->getType();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObject_getType : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44305,6 +45433,7 @@ bool js_cocos2dx_TMXObject_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_TMXObject_getId(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -44313,6 +45442,7 @@ bool js_cocos2dx_TMXObject_getId(JSContext *cx, uint32_t argc, JS::Value *vp)
         int ret = cobj->getId();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObject_getId : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44323,6 +45453,7 @@ bool js_cocos2dx_TMXObject_getId(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_TMXObject_getObjectRotation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -44331,6 +45462,7 @@ bool js_cocos2dx_TMXObject_getObjectRotation(JSContext *cx, uint32_t argc, JS::V
         double ret = cobj->getObjectRotation();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObject_getObjectRotation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44341,6 +45473,7 @@ bool js_cocos2dx_TMXObject_getObjectRotation(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TMXObject_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -44348,7 +45481,8 @@ bool js_cocos2dx_TMXObject_getProperties(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         const cocos2d::ValueMap& ret = cobj->getProperties();
         JS::RootedValue jsret(cx);
-        jsret = ccvaluemap_to_jsval(cx, ret);
+        ok &= ccvaluemap_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObject_getProperties : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44359,6 +45493,7 @@ bool js_cocos2dx_TMXObject_getProperties(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXObject_getOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -44366,7 +45501,8 @@ bool js_cocos2dx_TMXObject_getOffset(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
         cocos2d::Vec2 ret = cobj->getOffset();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObject_getOffset : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44397,6 +45533,7 @@ bool js_cocos2dx_TMXObject_setProperties(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXObject_getObjectName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -44404,7 +45541,8 @@ bool js_cocos2dx_TMXObject_getObjectName(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         const std::string& ret = cobj->getObjectName();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObject_getObjectName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44415,6 +45553,7 @@ bool js_cocos2dx_TMXObject_getObjectName(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXObject_getNode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -44427,6 +45566,7 @@ bool js_cocos2dx_TMXObject_getNode(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObject_getNode : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44515,7 +45655,8 @@ void js_register_cocos2dx_TMXObject(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TMXObject_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TMXObject"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TMXObject", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -44596,7 +45737,8 @@ void js_register_cocos2dx_TMXObjectImage(JSContext *cx, JS::HandleObject global)
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TMXObjectImage_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TMXObjectImage"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TMXObjectImage", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -44679,7 +45821,8 @@ void js_register_cocos2dx_TMXObjectShape(JSContext *cx, JS::HandleObject global)
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TMXObjectShape_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TMXObjectShape"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TMXObjectShape", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -44724,7 +45867,8 @@ bool js_cocos2dx_TMXObjectGroup_getProperty(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObjectGroup_getProperty : Error processing arguments");
         cocos2d::Value ret = cobj->getProperty(arg0);
         JS::RootedValue jsret(cx);
-        jsret = ccvalue_to_jsval(cx, ret);
+        ok &= ccvalue_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObjectGroup_getProperty : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44735,6 +45879,7 @@ bool js_cocos2dx_TMXObjectGroup_getProperty(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXObjectGroup_getPositionOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObjectGroup* cobj = (cocos2d::TMXObjectGroup *)(proxy ? proxy->ptr : NULL);
@@ -44742,7 +45887,8 @@ bool js_cocos2dx_TMXObjectGroup_getPositionOffset(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         const cocos2d::Vec2& ret = cobj->getPositionOffset();
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObjectGroup_getPositionOffset : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44769,6 +45915,7 @@ bool js_cocos2dx_TMXObjectGroup_getObject(JSContext *cx, uint32_t argc, JS::Valu
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObjectGroup_getObject : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44779,6 +45926,7 @@ bool js_cocos2dx_TMXObjectGroup_getObject(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_TMXObjectGroup_getObjects(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObjectGroup* cobj = (cocos2d::TMXObjectGroup *)(proxy ? proxy->ptr : NULL);
@@ -44786,7 +45934,8 @@ bool js_cocos2dx_TMXObjectGroup_getObjects(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         const cocos2d::Vector<cocos2d::TMXObject *>& ret = cobj->getObjects();
         JS::RootedValue jsret(cx);
-        jsret = ccvector_to_jsval(cx, ret);
+        ok &= ccvector_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObjectGroup_getObjects : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44825,20 +45974,24 @@ bool js_cocos2dx_TMXObjectGroup_getProperties(JSContext *cx, uint32_t argc, JS::
     cobj = (cocos2d::TMXObjectGroup *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXObjectGroup_getProperties : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::ValueMap& ret = cobj->getProperties();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvaluemap_to_jsval(cx, ret);
+            ok &= ccvaluemap_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObjectGroup_getProperties : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             const cocos2d::ValueMap& ret = cobj->getProperties();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvaluemap_to_jsval(cx, ret);
+            ok &= ccvaluemap_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObjectGroup_getProperties : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -44850,6 +46003,7 @@ bool js_cocos2dx_TMXObjectGroup_getProperties(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_TMXObjectGroup_getGroupName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObjectGroup* cobj = (cocos2d::TMXObjectGroup *)(proxy ? proxy->ptr : NULL);
@@ -44857,7 +46011,8 @@ bool js_cocos2dx_TMXObjectGroup_getGroupName(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         const std::string& ret = cobj->getGroupName();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObjectGroup_getGroupName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -44968,7 +46123,8 @@ void js_register_cocos2dx_TMXObjectGroup(JSContext *cx, JS::HandleObject global)
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TMXObjectGroup_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TMXObjectGroup"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TMXObjectGroup", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -45002,6 +46158,7 @@ bool js_cocos2dx_TMXLayerInfo_setProperties(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXLayerInfo_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayerInfo* cobj = (cocos2d::TMXLayerInfo *)(proxy ? proxy->ptr : NULL);
@@ -45009,7 +46166,8 @@ bool js_cocos2dx_TMXLayerInfo_getProperties(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         cocos2d::ValueMap& ret = cobj->getProperties();
         JS::RootedValue jsret(cx);
-        jsret = ccvaluemap_to_jsval(cx, ret);
+        ok &= ccvaluemap_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayerInfo_getProperties : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45074,7 +46232,8 @@ void js_register_cocos2dx_TMXLayerInfo(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TMXLayerInfo_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TMXLayerInfo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TMXLayerInfo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -45108,6 +46267,7 @@ bool js_cocos2dx_TMXObjectGroupInfo_setProperties(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_TMXObjectGroupInfo_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObjectGroupInfo* cobj = (cocos2d::TMXObjectGroupInfo *)(proxy ? proxy->ptr : NULL);
@@ -45115,7 +46275,8 @@ bool js_cocos2dx_TMXObjectGroupInfo_getProperties(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         cocos2d::ValueMap& ret = cobj->getProperties();
         JS::RootedValue jsret(cx);
-        jsret = ccvaluemap_to_jsval(cx, ret);
+        ok &= ccvaluemap_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObjectGroupInfo_getProperties : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45180,7 +46341,8 @@ void js_register_cocos2dx_TMXObjectGroupInfo(JSContext *cx, JS::HandleObject glo
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TMXObjectGroupInfo_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TMXObjectGroupInfo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TMXObjectGroupInfo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -45205,7 +46367,8 @@ bool js_cocos2dx_TMXTilesetInfo_getRectForGID(JSContext *cx, uint32_t argc, JS::
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTilesetInfo_getRectForGID : Error processing arguments");
         cocos2d::Rect ret = cobj->getRectForGID(arg0);
         JS::RootedValue jsret(cx);
-        jsret = ccrect_to_jsval(cx, ret);
+        ok &= ccrect_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTilesetInfo_getRectForGID : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45269,7 +46432,8 @@ void js_register_cocos2dx_TMXTilesetInfo(JSContext *cx, JS::HandleObject global)
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TMXTilesetInfo_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TMXTilesetInfo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TMXTilesetInfo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -45291,20 +46455,24 @@ bool js_cocos2dx_TMXMapInfo_getAllChildren(JSContext *cx, uint32_t argc, JS::Val
     cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXMapInfo_getAllChildren : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::Vector<cocos2d::Ref *>& ret = cobj->getAllChildren();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvector_to_jsval(cx, ret);
+            ok &= ccvector_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getAllChildren : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             const cocos2d::Vector<cocos2d::Ref *>& ret = cobj->getAllChildren();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvector_to_jsval(cx, ret);
+            ok &= ccvector_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getAllChildren : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -45316,6 +46484,7 @@ bool js_cocos2dx_TMXMapInfo_getAllChildren(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TMXMapInfo_getHexSideLength(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -45324,6 +46493,7 @@ bool js_cocos2dx_TMXMapInfo_getHexSideLength(JSContext *cx, uint32_t argc, JS::V
         int ret = cobj->getHexSideLength();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getHexSideLength : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45366,6 +46536,7 @@ bool js_cocos2dx_TMXMapInfo_initWithTMXFile(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->initWithTMXFile(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_initWithTMXFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45376,6 +46547,7 @@ bool js_cocos2dx_TMXMapInfo_initWithTMXFile(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXMapInfo_getOrientation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -45384,6 +46556,7 @@ bool js_cocos2dx_TMXMapInfo_getOrientation(JSContext *cx, uint32_t argc, JS::Val
         int ret = cobj->getOrientation();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getOrientation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45446,6 +46619,7 @@ bool js_cocos2dx_TMXMapInfo_parseXMLFile(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->parseXMLFile(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_parseXMLFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45456,6 +46630,7 @@ bool js_cocos2dx_TMXMapInfo_parseXMLFile(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXMapInfo_getParentElement(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -45464,6 +46639,7 @@ bool js_cocos2dx_TMXMapInfo_getParentElement(JSContext *cx, uint32_t argc, JS::V
         int ret = cobj->getParentElement();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getParentElement : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45506,6 +46682,7 @@ bool js_cocos2dx_TMXMapInfo_parseXMLString(JSContext *cx, uint32_t argc, JS::Val
         bool ret = cobj->parseXMLString(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_parseXMLString : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45524,20 +46701,24 @@ bool js_cocos2dx_TMXMapInfo_getLayers(JSContext *cx, uint32_t argc, JS::Value *v
     cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXMapInfo_getLayers : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::Vector<cocos2d::TMXLayerInfo *>& ret = cobj->getLayers();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvector_to_jsval(cx, ret);
+            ok &= ccvector_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getLayers : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             const cocos2d::Vector<cocos2d::TMXLayerInfo *>& ret = cobj->getLayers();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvector_to_jsval(cx, ret);
+            ok &= ccvector_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getLayers : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -45549,6 +46730,7 @@ bool js_cocos2dx_TMXMapInfo_getLayers(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_TMXMapInfo_getStaggerAxis(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -45557,6 +46739,7 @@ bool js_cocos2dx_TMXMapInfo_getStaggerAxis(JSContext *cx, uint32_t argc, JS::Val
         int ret = cobj->getStaggerAxis();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getStaggerAxis : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45595,20 +46778,24 @@ bool js_cocos2dx_TMXMapInfo_getTilesets(JSContext *cx, uint32_t argc, JS::Value 
     cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXMapInfo_getTilesets : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::Vector<cocos2d::TMXTilesetInfo *>& ret = cobj->getTilesets();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvector_to_jsval(cx, ret);
+            ok &= ccvector_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getTilesets : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             const cocos2d::Vector<cocos2d::TMXTilesetInfo *>& ret = cobj->getTilesets();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvector_to_jsval(cx, ret);
+            ok &= ccvector_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getTilesets : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -45620,6 +46807,7 @@ bool js_cocos2dx_TMXMapInfo_getTilesets(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_TMXMapInfo_getParentGID(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -45628,6 +46816,7 @@ bool js_cocos2dx_TMXMapInfo_getParentGID(JSContext *cx, uint32_t argc, JS::Value
         int ret = cobj->getParentGID();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getParentGID : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45672,6 +46861,7 @@ bool js_cocos2dx_TMXMapInfo_initWithXML(JSContext *cx, uint32_t argc, JS::Value 
         bool ret = cobj->initWithXML(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_initWithXML : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45702,6 +46892,7 @@ bool js_cocos2dx_TMXMapInfo_setParentGID(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXMapInfo_getLayerAttribs(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -45710,6 +46901,7 @@ bool js_cocos2dx_TMXMapInfo_getLayerAttribs(JSContext *cx, uint32_t argc, JS::Va
         int ret = cobj->getLayerAttribs();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getLayerAttribs : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45720,6 +46912,7 @@ bool js_cocos2dx_TMXMapInfo_getLayerAttribs(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXMapInfo_getTileSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -45727,7 +46920,8 @@ bool js_cocos2dx_TMXMapInfo_getTileSize(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         const cocos2d::Size& ret = cobj->getTileSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getTileSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45758,6 +46952,7 @@ bool js_cocos2dx_TMXMapInfo_setAllChildren(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TMXMapInfo_getTileProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -45765,7 +46960,8 @@ bool js_cocos2dx_TMXMapInfo_getTileProperties(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         cocos2d::ValueMapIntKey& ret = cobj->getTileProperties();
         JS::RootedValue jsret(cx);
-        jsret = ccvaluemapintkey_to_jsval(cx, ret);
+        ok &= ccvaluemapintkey_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getTileProperties : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45776,6 +46972,7 @@ bool js_cocos2dx_TMXMapInfo_getTileProperties(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_TMXMapInfo_isStoringCharacters(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -45784,6 +46981,7 @@ bool js_cocos2dx_TMXMapInfo_isStoringCharacters(JSContext *cx, uint32_t argc, JS
         bool ret = cobj->isStoringCharacters();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_isStoringCharacters : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45794,6 +46992,7 @@ bool js_cocos2dx_TMXMapInfo_isStoringCharacters(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_TMXMapInfo_getExternalTilesetFileName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -45801,7 +47000,8 @@ bool js_cocos2dx_TMXMapInfo_getExternalTilesetFileName(JSContext *cx, uint32_t a
     if (argc == 0) {
         const std::string& ret = cobj->getExternalTilesetFileName();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getExternalTilesetFileName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45820,20 +47020,24 @@ bool js_cocos2dx_TMXMapInfo_getObjectGroups(JSContext *cx, uint32_t argc, JS::Va
     cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXMapInfo_getObjectGroups : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::Vector<cocos2d::TMXObjectGroupInfo *>& ret = cobj->getObjectGroups();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvector_to_jsval(cx, ret);
+            ok &= ccvector_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getObjectGroups : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             const cocos2d::Vector<cocos2d::TMXObjectGroupInfo *>& ret = cobj->getObjectGroups();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvector_to_jsval(cx, ret);
+            ok &= ccvector_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getObjectGroups : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -45845,6 +47049,7 @@ bool js_cocos2dx_TMXMapInfo_getObjectGroups(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXMapInfo_getTMXFileName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -45852,7 +47057,8 @@ bool js_cocos2dx_TMXMapInfo_getTMXFileName(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         const std::string& ret = cobj->getTMXFileName();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getTMXFileName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -45983,6 +47189,7 @@ bool js_cocos2dx_TMXMapInfo_setMapSize(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_TMXMapInfo_getCurrentString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -45990,7 +47197,8 @@ bool js_cocos2dx_TMXMapInfo_getCurrentString(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         const std::string& ret = cobj->getCurrentString();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getCurrentString : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -46041,6 +47249,7 @@ bool js_cocos2dx_TMXMapInfo_setStaggerAxis(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TMXMapInfo_getMapSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46048,7 +47257,8 @@ bool js_cocos2dx_TMXMapInfo_getMapSize(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         const cocos2d::Size& ret = cobj->getMapSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getMapSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -46087,20 +47297,24 @@ bool js_cocos2dx_TMXMapInfo_getProperties(JSContext *cx, uint32_t argc, JS::Valu
     cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXMapInfo_getProperties : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::ValueMap& ret = cobj->getProperties();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvaluemap_to_jsval(cx, ret);
+            ok &= ccvaluemap_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getProperties : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             const cocos2d::ValueMap& ret = cobj->getProperties();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvaluemap_to_jsval(cx, ret);
+            ok &= ccvaluemap_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getProperties : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -46112,6 +47326,7 @@ bool js_cocos2dx_TMXMapInfo_getProperties(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_TMXMapInfo_getStaggerIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46120,6 +47335,7 @@ bool js_cocos2dx_TMXMapInfo_getStaggerIndex(JSContext *cx, uint32_t argc, JS::Va
         int ret = cobj->getStaggerIndex();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_getStaggerIndex : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -46304,7 +47520,8 @@ void js_register_cocos2dx_TMXMapInfo(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TMXMapInfo_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TMXMapInfo"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TMXMapInfo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -46331,6 +47548,7 @@ bool js_cocos2dx_TMXLayer_getTileGIDAt(JSContext *cx, uint32_t argc, JS::Value *
         unsigned int ret = cobj->getTileGIDAt(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_getTileGIDAt : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -46343,6 +47561,7 @@ bool js_cocos2dx_TMXLayer_getTileGIDAt(JSContext *cx, uint32_t argc, JS::Value *
         unsigned int ret = cobj->getTileGIDAt(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_getTileGIDAt : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -46364,7 +47583,8 @@ bool js_cocos2dx_TMXLayer_getPositionAt(JSContext *cx, uint32_t argc, JS::Value 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_getPositionAt : Error processing arguments");
         cocos2d::Vec2 ret = cobj->getPositionAt(arg0);
         JS::RootedValue jsret(cx);
-        jsret = vector2_to_jsval(cx, ret);
+        ok &= vector2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_getPositionAt : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -46431,6 +47651,7 @@ bool js_cocos2dx_TMXLayer_releaseMap(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_TMXLayer_getLayerSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -46438,7 +47659,8 @@ bool js_cocos2dx_TMXLayer_getLayerSize(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         const cocos2d::Size& ret = cobj->getLayerSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_getLayerSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -46469,6 +47691,7 @@ bool js_cocos2dx_TMXLayer_setMapTileSize(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXLayer_getLayerOrientation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -46477,6 +47700,7 @@ bool js_cocos2dx_TMXLayer_getLayerOrientation(JSContext *cx, uint32_t argc, JS::
         int ret = cobj->getLayerOrientation();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_getLayerOrientation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -46587,6 +47811,7 @@ bool js_cocos2dx_TMXLayer_initWithTilesetInfo(JSContext *cx, uint32_t argc, JS::
         bool ret = cobj->initWithTilesetInfo(arg0, arg1, arg2);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_initWithTilesetInfo : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -46659,6 +47884,7 @@ bool js_cocos2dx_TMXLayer_setTileGID(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_TMXLayer_getMapTileSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -46666,7 +47892,8 @@ bool js_cocos2dx_TMXLayer_getMapTileSize(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         const cocos2d::Size& ret = cobj->getMapTileSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_getMapTileSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -46688,7 +47915,8 @@ bool js_cocos2dx_TMXLayer_getProperty(JSContext *cx, uint32_t argc, JS::Value *v
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_getProperty : Error processing arguments");
         cocos2d::Value ret = cobj->getProperty(arg0);
         JS::RootedValue jsret(cx);
-        jsret = ccvalue_to_jsval(cx, ret);
+        ok &= ccvalue_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_getProperty : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -46719,6 +47947,7 @@ bool js_cocos2dx_TMXLayer_setLayerSize(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_TMXLayer_getLayerName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -46726,7 +47955,8 @@ bool js_cocos2dx_TMXLayer_getLayerName(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         const std::string& ret = cobj->getLayerName();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_getLayerName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -46765,6 +47995,7 @@ bool js_cocos2dx_TMXLayer_setTileSet(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_TMXLayer_getTileSet(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -46777,6 +48008,7 @@ bool js_cocos2dx_TMXLayer_getTileSet(JSContext *cx, uint32_t argc, JS::Value *vp
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_getTileSet : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -46795,20 +48027,24 @@ bool js_cocos2dx_TMXLayer_getProperties(JSContext *cx, uint32_t argc, JS::Value 
     cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXLayer_getProperties : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             cocos2d::ValueMap& ret = cobj->getProperties();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvaluemap_to_jsval(cx, ret);
+            ok &= ccvaluemap_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_getProperties : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             const cocos2d::ValueMap& ret = cobj->getProperties();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvaluemap_to_jsval(cx, ret);
+            ok &= ccvaluemap_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_getProperties : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -46836,6 +48072,7 @@ bool js_cocos2dx_TMXLayer_getTileAt(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_getTileAt : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -46989,7 +48226,8 @@ void js_register_cocos2dx_TMXLayer(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TMXLayer_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TMXLayer"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TMXLayer", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -47015,7 +48253,8 @@ bool js_cocos2dx_TMXTiledMap_getProperty(JSContext *cx, uint32_t argc, JS::Value
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_getProperty : Error processing arguments");
         cocos2d::Value ret = cobj->getProperty(arg0);
         JS::RootedValue jsret(cx);
-        jsret = ccvalue_to_jsval(cx, ret);
+        ok &= ccvalue_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_getProperty : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47026,6 +48265,7 @@ bool js_cocos2dx_TMXTiledMap_getProperty(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXTiledMap_getLayerNum(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -47034,6 +48274,7 @@ bool js_cocos2dx_TMXTiledMap_getLayerNum(JSContext *cx, uint32_t argc, JS::Value
         int ret = cobj->getLayerNum();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_getLayerNum : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47080,6 +48321,7 @@ bool js_cocos2dx_TMXTiledMap_getObjectGroup(JSContext *cx, uint32_t argc, JS::Va
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_getObjectGroup : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47090,6 +48332,7 @@ bool js_cocos2dx_TMXTiledMap_getObjectGroup(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXTiledMap_getObjectGroups(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -47097,7 +48340,8 @@ bool js_cocos2dx_TMXTiledMap_getObjectGroups(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         cocos2d::Vector<cocos2d::TMXObjectGroup *> ret = cobj->getObjectGroups();
         JS::RootedValue jsret(cx);
-        jsret = ccvector_to_jsval(cx, ret);
+        ok &= ccvector_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_getObjectGroups : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47108,6 +48352,7 @@ bool js_cocos2dx_TMXTiledMap_getObjectGroups(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TMXTiledMap_getResourceFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -47115,7 +48360,8 @@ bool js_cocos2dx_TMXTiledMap_getResourceFile(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         const std::string& ret = cobj->getResourceFile();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_getResourceFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47138,6 +48384,7 @@ bool js_cocos2dx_TMXTiledMap_initWithTMXFile(JSContext *cx, uint32_t argc, JS::V
         bool ret = cobj->initWithTMXFile(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_initWithTMXFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47148,6 +48395,7 @@ bool js_cocos2dx_TMXTiledMap_initWithTMXFile(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TMXTiledMap_getTileSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -47155,7 +48403,8 @@ bool js_cocos2dx_TMXTiledMap_getTileSize(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
         const cocos2d::Size& ret = cobj->getTileSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_getTileSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47166,6 +48415,7 @@ bool js_cocos2dx_TMXTiledMap_getTileSize(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXTiledMap_getMapSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -47173,7 +48423,8 @@ bool js_cocos2dx_TMXTiledMap_getMapSize(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         const cocos2d::Size& ret = cobj->getMapSize();
         JS::RootedValue jsret(cx);
-        jsret = ccsize_to_jsval(cx, ret);
+        ok &= ccsize_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_getMapSize : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47198,6 +48449,7 @@ bool js_cocos2dx_TMXTiledMap_initWithXML(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->initWithXML(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_initWithXML : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47208,6 +48460,7 @@ bool js_cocos2dx_TMXTiledMap_initWithXML(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXTiledMap_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -47215,7 +48468,8 @@ bool js_cocos2dx_TMXTiledMap_getProperties(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         cocos2d::ValueMap& ret = cobj->getProperties();
         JS::RootedValue jsret(cx);
-        jsret = ccvaluemap_to_jsval(cx, ret);
+        ok &= ccvaluemap_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_getProperties : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47253,6 +48507,7 @@ bool js_cocos2dx_TMXTiledMap_getPropertiesForGID(JSContext *cx, uint32_t argc, J
             bool ret = cobj->getPropertiesForGID(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_getPropertiesForGID : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -47266,7 +48521,8 @@ bool js_cocos2dx_TMXTiledMap_getPropertiesForGID(JSContext *cx, uint32_t argc, J
             if (!ok) { ok = true; break; }
             cocos2d::Value ret = cobj->getPropertiesForGID(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = ccvalue_to_jsval(cx, ret);
+            ok &= ccvalue_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_getPropertiesForGID : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -47334,6 +48590,7 @@ bool js_cocos2dx_TMXTiledMap_getLayer(JSContext *cx, uint32_t argc, JS::Value *v
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_getLayer : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47344,6 +48601,7 @@ bool js_cocos2dx_TMXTiledMap_getLayer(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_TMXTiledMap_getMapOrientation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -47352,6 +48610,7 @@ bool js_cocos2dx_TMXTiledMap_getMapOrientation(JSContext *cx, uint32_t argc, JS:
         int ret = cobj->getMapOrientation();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_getMapOrientation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47514,7 +48773,8 @@ void js_register_cocos2dx_TMXTiledMap(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TMXTiledMap_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TMXTiledMap"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TMXTiledMap", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -47547,6 +48807,7 @@ bool js_cocos2dx_TileMapAtlas_initWithTileFile(JSContext *cx, uint32_t argc, JS:
         bool ret = cobj->initWithTileFile(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TileMapAtlas_initWithTileFile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47584,7 +48845,8 @@ bool js_cocos2dx_TileMapAtlas_getTileAt(JSContext *cx, uint32_t argc, JS::Value 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TileMapAtlas_getTileAt : Error processing arguments");
         cocos2d::Color3B ret = cobj->getTileAt(arg0);
         JS::RootedValue jsret(cx);
-        jsret = cccolor3b_to_jsval(cx, ret);
+        ok &= cccolor3b_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TileMapAtlas_getTileAt : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47720,7 +48982,8 @@ void js_register_cocos2dx_TileMapAtlas(JSContext *cx, JS::HandleObject global) {
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_TileMapAtlas_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "TileMapAtlas"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "TileMapAtlas", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -47796,6 +49059,7 @@ bool js_cocos2dx_SimpleAudioEngine_stopAllEffects(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_SimpleAudioEngine_getBackgroundMusicVolume(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -47804,6 +49068,7 @@ bool js_cocos2dx_SimpleAudioEngine_getBackgroundMusicVolume(JSContext *cx, uint3
         double ret = cobj->getBackgroundMusicVolume();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SimpleAudioEngine_getBackgroundMusicVolume : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47870,6 +49135,7 @@ bool js_cocos2dx_SimpleAudioEngine_preloadEffect(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_SimpleAudioEngine_isBackgroundMusicPlaying(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -47878,6 +49144,7 @@ bool js_cocos2dx_SimpleAudioEngine_isBackgroundMusicPlaying(JSContext *cx, uint3
         bool ret = cobj->isBackgroundMusicPlaying();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SimpleAudioEngine_isBackgroundMusicPlaying : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47888,6 +49155,7 @@ bool js_cocos2dx_SimpleAudioEngine_isBackgroundMusicPlaying(JSContext *cx, uint3
 bool js_cocos2dx_SimpleAudioEngine_getEffectsVolume(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -47896,6 +49164,7 @@ bool js_cocos2dx_SimpleAudioEngine_getEffectsVolume(JSContext *cx, uint32_t argc
         double ret = cobj->getEffectsVolume();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SimpleAudioEngine_getEffectsVolume : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47906,6 +49175,7 @@ bool js_cocos2dx_SimpleAudioEngine_getEffectsVolume(JSContext *cx, uint32_t argc
 bool js_cocos2dx_SimpleAudioEngine_willPlayBackgroundMusic(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -47914,6 +49184,7 @@ bool js_cocos2dx_SimpleAudioEngine_willPlayBackgroundMusic(JSContext *cx, uint32
         bool ret = cobj->willPlayBackgroundMusic();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SimpleAudioEngine_willPlayBackgroundMusic : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47956,6 +49227,7 @@ bool js_cocos2dx_SimpleAudioEngine_playEffect(JSContext *cx, uint32_t argc, JS::
         unsigned int ret = cobj->playEffect(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SimpleAudioEngine_playEffect : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47968,6 +49240,7 @@ bool js_cocos2dx_SimpleAudioEngine_playEffect(JSContext *cx, uint32_t argc, JS::
         unsigned int ret = cobj->playEffect(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SimpleAudioEngine_playEffect : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47982,6 +49255,7 @@ bool js_cocos2dx_SimpleAudioEngine_playEffect(JSContext *cx, uint32_t argc, JS::
         unsigned int ret = cobj->playEffect(arg0, arg1, arg2);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SimpleAudioEngine_playEffect : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -47998,6 +49272,7 @@ bool js_cocos2dx_SimpleAudioEngine_playEffect(JSContext *cx, uint32_t argc, JS::
         unsigned int ret = cobj->playEffect(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SimpleAudioEngine_playEffect : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -48016,6 +49291,7 @@ bool js_cocos2dx_SimpleAudioEngine_playEffect(JSContext *cx, uint32_t argc, JS::
         unsigned int ret = cobj->playEffect(arg0, arg1, arg2, arg3, arg4);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SimpleAudioEngine_playEffect : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -48212,6 +49488,7 @@ bool js_cocos2dx_SimpleAudioEngine_end(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_SimpleAudioEngine_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         CocosDenshion::SimpleAudioEngine* ret = CocosDenshion::SimpleAudioEngine::getInstance();
@@ -48221,6 +49498,7 @@ bool js_cocos2dx_SimpleAudioEngine_getInstance(JSContext *cx, uint32_t argc, JS:
     } else {
         jsret = JS::NullHandleValue;
     };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SimpleAudioEngine_getInstance : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -48286,7 +49564,8 @@ void js_register_cocos2dx_SimpleAudioEngine(JSContext *cx, JS::HandleObject glob
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_CocosDenshion_SimpleAudioEngine_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "SimpleAudioEngine"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "SimpleAudioEngine", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -48299,7 +49578,6 @@ void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj) {
     JS::RootedObject ns(cx);
     get_or_create_js_obj(cx, obj, "cc", &ns);
 
-    js_register_cocos2dx_Acceleration(cx, ns);
     js_register_cocos2dx_RenderState(cx, ns);
     js_register_cocos2dx_Material(cx, ns);
     js_register_cocos2dx_Action(cx, ns);

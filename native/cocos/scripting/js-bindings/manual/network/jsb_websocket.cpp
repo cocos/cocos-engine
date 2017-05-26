@@ -82,13 +82,14 @@ public:
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
 
         // Set the protocol which server selects.
-        JS::RootedValue jsprotocol(cx, std_string_to_jsval(cx, ws->getProtocol()));
+        JS::RootedValue jsprotocol(cx);
+        std_string_to_jsval(cx, ws->getProtocol(), &jsprotocol);
         JS::RootedObject wsObj(cx, p->obj);
         JS_SetProperty(cx, wsObj, "protocol", jsprotocol);
 
         JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));
         JS::RootedValue vp(cx);
-        vp = c_string_to_jsval(cx, "open");
+        c_string_to_jsval(cx, "open", &vp);
         JS_SetProperty(cx, jsobj, "type", vp);
         
         JS::RootedValue jsobjVal(cx, JS::ObjectOrNullValue(jsobj));
@@ -109,7 +110,7 @@ public:
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
         JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));
         JS::RootedValue vp(cx);
-        vp = c_string_to_jsval(cx, "message");
+        c_string_to_jsval(cx, "message", &vp);
         JS_SetProperty(cx, jsobj, "type", vp);
 
         JS::RootedValue arg(cx, JS::ObjectOrNullValue(jsobj));
@@ -134,7 +135,7 @@ public:
             }
             else
             {// Normal string
-                dataVal = c_string_to_jsval(cx, data.bytes);
+                c_string_to_jsval(cx, data.bytes, &dataVal);
             }
             if (dataVal.isNullOrUndefined())
             {
@@ -159,7 +160,7 @@ public:
             JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
             JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));
             JS::RootedValue vp(cx);
-            vp = c_string_to_jsval(cx, "close");
+            c_string_to_jsval(cx, "close", &vp);
             JS_SetProperty(cx, jsobj, "type", vp);
             
             JS::RootedValue delegate(cx, JS::ObjectOrNullValue(_JSDelegate));
@@ -191,7 +192,7 @@ public:
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
         JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));
         JS::RootedValue vp(cx);
-        vp = c_string_to_jsval(cx, "error");
+        c_string_to_jsval(cx, "error", &vp);
         JS_SetProperty(cx, jsobj, "type", vp);
         
         JS::RootedValue delegate(cx, JS::ObjectOrNullValue(_JSDelegate));
@@ -388,7 +389,8 @@ bool js_cocos2dx_extension_WebSocket_constructor(JSContext *cx, uint32_t argc, J
         JS_DefineProperty(cx, obj, "URL", args.get(0), JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY);
 
         // Initialize protocol property with an empty string, it will be assigned in onOpen delegate.
-        JS::RootedValue jsprotocol(cx, c_string_to_jsval(cx, ""));
+        JS::RootedValue jsprotocol(cx);
+        c_string_to_jsval(cx, "", &jsprotocol);
         JS_DefineProperty(cx, obj, "protocol", jsprotocol, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
         // link the native object with the javascript object
@@ -459,10 +461,14 @@ void register_jsb_websocket(JSContext *cx, JS::HandleObject global)
                                                 nullptr, // no static properties
                                                 nullptr);
 
-    JS::RootedObject jsclassObj(cx, anonEvaluate(cx, global, "(function () { return WebSocket; })()").toObjectOrNull());
-
-    JS_DefineProperty(cx, jsclassObj, "CONNECTING", (int)WebSocket::State::CONNECTING, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY);
-    JS_DefineProperty(cx, jsclassObj, "OPEN", (int)WebSocket::State::OPEN, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY);
-    JS_DefineProperty(cx, jsclassObj, "CLOSING", (int)WebSocket::State::CLOSING, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY);
-    JS_DefineProperty(cx, jsclassObj, "CLOSED", (int)WebSocket::State::CLOSED, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY);
+    JS::RootedValue jsclassVal(cx);
+    bool ok = anonEvaluate(cx, global, "(function () { return WebSocket; })()", &jsclassVal);
+    if (ok)
+    {
+        JS::RootedObject jsclassObj(cx, jsclassVal.toObjectOrNull());
+        JS_DefineProperty(cx, jsclassObj, "CONNECTING", (int)WebSocket::State::CONNECTING, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY);
+        JS_DefineProperty(cx, jsclassObj, "OPEN", (int)WebSocket::State::OPEN, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY);
+        JS_DefineProperty(cx, jsclassObj, "CLOSING", (int)WebSocket::State::CLOSING, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY);
+        JS_DefineProperty(cx, jsclassObj, "CLOSED", (int)WebSocket::State::CLOSED, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY);
+    }
 }

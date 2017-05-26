@@ -177,11 +177,14 @@ bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, JS::Value
             if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0)));
+                JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc));
                 wrapper = func.get();
                 auto lambda = [=](Acceleration* acc, Event* event) -> void {
                     JS::AutoValueVector largv(cx);
-                    largv.append(ccacceleration_to_jsval(cx, *acc));
+                    JS::RootedValue larg(cx);
+                    ccacceleration_to_jsval(cx, *acc, &larg);
+                    largv.append(larg);
                     if (event) {
                         js_type_class_t *typeClassEvent = js_get_type_from_native<Event>(event);
                         largv.append(JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent)));
@@ -205,10 +208,11 @@ bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, JS::Value
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerAcceleration_create : Error processing arguments");
         
         auto ret = EventListenerAcceleration::create(arg0);
-        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerAcceleration>(cx, ret)));
+        JS::RootedObject jslistener(cx, js_get_or_create_jsobject<EventListenerAcceleration>(cx, ret));
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(jslistener));
         if (wrapper)
         {
-            wrapper->setOwner(cx, jsret);
+            wrapper->setOwner(cx, jslistener);
         }
         args.rval().set(jsret);
         return true;
@@ -250,7 +254,8 @@ bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1)));
+                JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc));
                 wrapper = func.get();
                 auto lambda = [=](EventCustom* event) -> void {
                     JS::RootedValue largv(cx);
@@ -276,10 +281,11 @@ bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerCustom_create : Error processing arguments");
 
         auto ret = EventListenerCustom::create(arg0, arg1);
-        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerCustom>(cx, ret)));
+        JS::RootedObject jslistener(cx, js_get_or_create_jsobject<EventListenerCustom>(cx, ret));
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(jslistener));
         if (wrapper)
         {
-            wrapper->setOwner(cx, jsret);
+            wrapper->setOwner(cx, jslistener);
         }
         args.rval().set(jsret);
         return true;
@@ -305,7 +311,8 @@ bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, JS:
             if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
+                JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
                 auto lambda = [=](cocos2d::EventCustom* event) -> void {
                     JS::RootedValue largv(cx);
                     if (event) {

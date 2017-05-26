@@ -264,7 +264,8 @@ bool JSBCore_version(JSContext *cx, uint32_t argc, JS::Value *vp)
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     std::string version = cocos2dVersion();
-    JS::RootedValue js_version(cx, std_string_to_jsval(cx, version));
+    JS::RootedValue js_version(cx);
+    std_string_to_jsval(cx, version, &js_version);
 
     args.rval().set(js_version);
     return true;
@@ -284,25 +285,25 @@ bool JSBCore_os(JSContext *cx, uint32_t argc, JS::Value *vp)
 
     // osx, ios, android, windows, linux, etc..
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    os = c_string_to_jsval(cx, "iOS");
+    c_string_to_jsval(cx, "iOS", &os);
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    os = c_string_to_jsval(cx, "Android");
+    c_string_to_jsval(cx, "Android", &os);
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
-    os = c_string_to_jsval(cx, "Windows");
+    c_string_to_jsval(cx, "Windows", &os);
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_MARMALADE)
-    os = c_string_to_jsval(cx, "Marmalade");
+    c_string_to_jsval(cx, "Marmalade", &os);
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-    os = c_string_to_jsval(cx, "Linux");
+    c_string_to_jsval(cx, "Linux", &os);
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_BADA)
-    os = c_string_to_jsval(cx, "Bada");
+    c_string_to_jsval(cx, "Bada", &os);
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_BLACKBERRY)
-    os = c_string_to_jsval(cx, "Blackberry");
+    c_string_to_jsval(cx, "Blackberry", &os);
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
-    os = c_string_to_jsval(cx, "OS X");
+    c_string_to_jsval(cx, "OS X", &os);
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-    os = c_string_to_jsval(cx, "WINRT");
+    c_string_to_jsval(cx, "WINRT", &os);
 #else
-    os = c_string_to_jsval(cx, "Unknown");
+    c_string_to_jsval(cx, "Unknown", &os);
 #endif
 
     args.rval().set(os);
@@ -532,7 +533,27 @@ void jsbWeakPointerCompartmentCallback(JSContext* cx, JSCompartment* comp, void*
     while (it_js != _native_js_global_map.end())
     {
         js_proxy_t *proxy = it_js->second;
-        JS_UpdateWeakPointerAfterGC(&proxy->obj);
+        if (proxy->obj)
+        {
+            JS_UpdateWeakPointerAfterGC(&proxy->obj);
+        }
+        it_js++;
+    }
+}
+static void
+on_garbage_collect(JSContext* cx, JSGCStatus status, void* data)
+{
+    /* We finalize any pending toggle refs before doing any garbage collection,
+     * so that we can collect the JS wrapper objects, and in order to minimize
+     * the chances of objects having a pending toggle up queued when they are
+     * garbage collected. */
+    if (status == JSGC_BEGIN)
+    {
+        printf("on_garbage_collect: begin, Native -> JS map count: %d\n", (int)_native_js_global_map.size());
+    }
+    else if (status == JSGC_END)
+    {
+        printf("on_garbage_collect: end, Native -> JS map count: %d\n", (int)_native_js_global_map.size());
     }
 }
 
@@ -563,13 +584,15 @@ void ScriptingCore::createGlobalContext() {
     JS_SetDefaultLocale(_cx, "UTF-8");
     JS::SetWarningReporter(_cx, ScriptingCore::reportError);
     
+    JS_SetGCCallback(_cx, on_garbage_collect, nullptr);
+    
     if (!JS::InitSelfHostedCode(_cx))
     {
         return;
     }
     
 //#if defined(JS_GC_ZEAL) && defined(DEBUG)
-    JS_SetGCZeal(_cx, 2, JS_DEFAULT_ZEAL_FREQ);
+//    JS_SetGCZeal(_cx, 2, JS_DEFAULT_ZEAL_FREQ);
 //#endif
     
     JS_BeginRequest(_cx);
@@ -874,9 +897,12 @@ void ScriptingCore::reportError(JSContext *cx, JSErrorReport *report)
         }
         
         JS::AutoValueVector valArr(cx);
-        valArr.append(std_string_to_jsval(cx, fileName));
-        valArr.append(int32_to_jsval(cx, lineno));
-        valArr.append(std_string_to_jsval(cx, msg));
+        JS::RootedValue argv(cx);
+        std_string_to_jsval(cx, fileName, &argv);
+        valArr.append(argv);
+        valArr.append(JS::Int32Value(lineno));
+        std_string_to_jsval(cx, msg, &argv);
+        valArr.append(argv);
         JS::HandleValueArray args(valArr);
         
         JS::RootedValue rval(cx);
@@ -1473,7 +1499,9 @@ bool ScriptingCore::executeFunctionWithOwner(JS::HandleValue owner, const char *
     JSContext* cx = this->_cx;
     JS::RootedValue funcVal(cx);
     JS::RootedValue ownerval(cx, owner);
-    JS::RootedObject obj(cx, ownerval.toObjectOrNull());
+    JS::RootedObject obj(cx);
+    if (ownerval.isObject())
+        obj = ownerval.toObjectOrNull();
 
     do
     {
@@ -1509,7 +1537,7 @@ bool ScriptingCore::handleKeyboardEvent(void* nativeObj, cocos2d::EventKeyboard:
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventKeyboard>((cocos2d::EventKeyboard*)event);
     JS::AutoValueVector valArr(_cx);
-    valArr.append( int32_to_jsval(_cx, (int32_t)keyCode) );
+    valArr.append( JS::Int32Value((int32_t)keyCode) );
     valArr.append( JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(_cx, event, typeClass)) );
     JS::HandleValueArray args(valArr);
     JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
@@ -1662,8 +1690,10 @@ int ScriptingCore::sendEvent(ScriptEvent* evt)
 bool ScriptingCore::parseConfig(ConfigType type, const std::string &str)
 {
     JS::AutoValueVector valArr(_cx);
-    valArr.append(int32_to_jsval(_cx, static_cast<int>(type)));
-    valArr.append(std_string_to_jsval(_cx, str));
+    valArr.append(JS::Int32Value(static_cast<int>(type)));
+    JS::RootedValue argv(_cx);
+    std_string_to_jsval(_cx, str, &argv);
+    valArr.append(argv);
     JS::HandleValueArray args(valArr);
     JS::RootedValue globalVal(_cx, JS::ObjectOrNullValue(_global->get()));
     return (true == executeFunctionWithOwner(globalVal, "__onParseConfig", args));
@@ -2040,10 +2070,9 @@ void make_class_extend(JSContext *cx, JS::HandleObject proto)
     }
 }
 
-js_proxy_t* jsb_new_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsHandle)
+js_proxy_t* jsb_new_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsObj)
 {
     js_proxy_t* proxy = nullptr;
-    JS::RootedObject jsObj(cx, jsHandle);
     JS::RootedValue objVal(cx, JS::ObjectOrNullValue(jsObj));
 
     if (nativeObj && objVal.isObject())
@@ -2060,11 +2089,10 @@ js_proxy_t* jsb_new_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsHan
         // native to JS index
         proxy = (js_proxy_t *)malloc(sizeof(js_proxy_t));
         CC_ASSERT(proxy && "not enough memory");
-
         CC_ASSERT(_native_js_global_map.find(nativeObj) == _native_js_global_map.end() && "Native Key should not be present");
         
         proxy->ptr = nativeObj;
-        proxy->obj = jsObj.get();
+        proxy->obj = jsObj;
 
         // One Proxy in two entries
         _native_js_global_map[nativeObj] = proxy;
@@ -2072,6 +2100,26 @@ js_proxy_t* jsb_new_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsHan
     }
     else CCLOG("jsb_new_proxy: Invalid keys");
 
+    return proxy;
+}
+
+js_proxy_t* jsb_bind_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsObj)
+{
+    js_proxy_t* proxy = nullptr;
+    JS::RootedValue objVal(cx, JS::ObjectOrNullValue(jsObj));
+    
+    if (nativeObj && objVal.isObject())
+    {
+        // native to JS index
+        proxy = (js_proxy_t *)malloc(sizeof(js_proxy_t));
+        CC_ASSERT(proxy && "not enough memory");
+        CC_ASSERT(_native_js_global_map.find(nativeObj) == _native_js_global_map.end() && "Native Key should not be present");
+        
+        proxy->ptr = nativeObj;
+        proxy->obj = jsObj;
+        _native_js_global_map[nativeObj] = proxy;
+    }
+    else CCLOG("jsb_bind_proxy: Invalid keys");
     return proxy;
 }
 
@@ -2087,9 +2135,10 @@ js_proxy_t* jsb_get_js_proxy(JSContext *cx, JS::HandleObject jsObj)
 {
     JS::RootedValue hook(cx);
     JS_GetProperty(cx, jsObj, "__hook", &hook);
-    JSObject *hookObj = hook.toObjectOrNull();
-    if (hookObj)
+    
+    if (hook.isObject())
     {
+        JSObject *hookObj = hook.toObjectOrNull();
         const JSClass *jsClass = JS_GetClass(hookObj);
         if (jsClass == jsb_RefFinalizeHook_class || jsClass == jsb_ObjFinalizeHook_class)
         {
@@ -2101,32 +2150,29 @@ js_proxy_t* jsb_get_js_proxy(JSContext *cx, JS::HandleObject jsObj)
     return nullptr;
 }
 
-void jsb_remove_proxy(js_proxy_t* nativeProxy, js_proxy_t* jsProxy)
+void jsb_remove_proxy(js_proxy_t* proxy)
 {
-    js_proxy_t* proxy = nativeProxy ? nativeProxy : jsProxy;
-    jsb_remove_proxy(proxy);
+    jsb_unbind_proxy(proxy);
+    CC_SAFE_FREE(proxy);
 }
 
-void jsb_remove_proxy(js_proxy_t* proxy)
+void jsb_unbind_proxy(js_proxy_t* proxy)
 {
     void* nativeKey = proxy->ptr;
     JSObject* jsKey = proxy->obj;
-
     CC_ASSERT(nativeKey && "Invalid nativeKey");
-    CC_ASSERT(jsKey && "Invalid JSKey");
-
-    auto it_nat = _native_js_global_map.find(nativeKey);
     
     // delete private data link to the proxy
-    JS_SetPrivate(jsKey, nullptr);
+    if (jsKey)
+    {
+        JS_SetPrivate(jsKey, nullptr);
+    }
     // delete proxy and entry in native proxy map
+    auto it_nat = _native_js_global_map.find(nativeKey);
     if (it_nat != _native_js_global_map.end())
     {
-        // Free it once, since we only have one proxy alloced entry
-        free(it_nat->second);
         _native_js_global_map.erase(it_nat);
     }
-    else CCLOG("jsb_remove_proxy: failed. Native key not found");
 }
 
 //

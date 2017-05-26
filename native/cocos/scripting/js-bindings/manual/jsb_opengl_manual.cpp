@@ -197,7 +197,9 @@ bool JSB_glGetProgramInfoLog(JSContext *cx, uint32_t argc, JS::Value *vp)
     GLchar* src = new (std::nothrow) GLchar[length];
     glGetProgramInfoLog(arg0, length, NULL, src);
 
-    args.rval().set(charptr_to_jsval(cx, src));
+    JS::RootedValue ret(cx);
+    c_string_to_jsval(cx, src, &ret);
+    args.rval().set(ret);
     CC_SAFE_DELETE_ARRAY(src);
     return true;
 }
@@ -218,7 +220,9 @@ bool JSB_glGetShaderInfoLog(JSContext *cx, uint32_t argc, JS::Value *vp)
     GLchar* src = new (std::nothrow) GLchar[length];
     glGetShaderInfoLog(arg0, length, NULL, src);
 
-    args.rval().set(charptr_to_jsval(cx, src));
+    JS::RootedValue ret(cx);
+    c_string_to_jsval(cx, src, &ret);
+    args.rval().set(ret);
     CC_SAFE_DELETE_ARRAY(src);
     return true;
 }
@@ -239,7 +243,9 @@ bool JSB_glGetShaderSource(JSContext *cx, uint32_t argc, JS::Value *vp)
     GLchar* src = new (std::nothrow) GLchar[length];
     glGetShaderSource(arg0, length, NULL, src);
 
-    args.rval().set(charptr_to_jsval(cx, src));
+    JS::RootedValue ret(cx);
+    c_string_to_jsval(cx, src, &ret);
+    args.rval().set(ret);
     CC_SAFE_DELETE_ARRAY(src);
     return true;
 }
@@ -271,9 +277,10 @@ bool JSB_glGetActiveAttrib(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::RootedObject object(cx, JS_NewPlainObject(cx));
     JSB_PRECONDITION2(ok, cx, false, "Error creating JS Object");
 
-    JS::RootedValue jsname(cx, charptr_to_jsval(cx, buffer));
+    JS::RootedValue jsname(cx);
     if (!JS_DefineProperty(cx, object, "size", (int32_t)size, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
         !JS_DefineProperty(cx, object, "type", (int32_t)type, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
+        !c_string_to_jsval(cx, buffer, &jsname) ||
         !JS_DefineProperty(cx, object, "name", jsname, JSPROP_ENUMERATE | JSPROP_PERMANENT))
         return false;
     
@@ -312,9 +319,10 @@ bool JSB_glGetActiveUniform(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::RootedObject object(cx, JS_NewPlainObject(cx));
     JSB_PRECONDITION2(ok, cx, false, "Error creating JS Object");
 
-    JS::RootedValue jsname(cx, charptr_to_jsval(cx, buffer));
+    JS::RootedValue jsname(cx);
     if (!JS_DefineProperty(cx, object, "size", (int32_t)size, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
         !JS_DefineProperty(cx, object, "type", (int32_t)type, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
+        !c_string_to_jsval(cx, buffer, &jsname) ||
         !JS_DefineProperty(cx, object, "name", jsname, JSPROP_ENUMERATE | JSPROP_PERMANENT))
         return false;
     
@@ -378,8 +386,9 @@ bool JSB_glGetSupportedExtensions(JSContext *cx, uint32_t argc, JS::Value *vp)
         if( copy[i]==' ' || copy[i]==',' || i==len ) {
             copy[i] = 0;
 
-            JS::RootedValue str(cx, charptr_to_jsval(cx, (const char*)&copy[start_extension]));
-            JS_SetElement(cx, jsobj, element++, str );
+            JS::RootedValue str(cx);
+            c_string_to_jsval(cx, (const char*)&copy[start_extension], &str);
+            JS_SetElement(cx, jsobj, element++, str);
 
             start_extension = i + 1;
 

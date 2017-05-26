@@ -71,26 +71,6 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(JSStringWrapper);
 };
 
-// wraps a function and "this" object
-class JSFunctionWrapper
-{
-public:
-    JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval);
-    JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval, JS::HandleValue owner);
-    ~JSFunctionWrapper();
-
-    void setOwner(JSContext* cx, JS::HandleValue owner);
-    bool invoke(JS::HandleValueArray args, JS::MutableHandleValue rval);
-private:
-    JSContext *_cx;
-    JS::Heap<JSObject*> _jsthis;
-    JS::Heap<JS::Value> _fval;
-    JS::Heap<JS::Value> _owner;
-    void* _cppOwner;
-
-    CC_DISALLOW_COPY_AND_ASSIGN(JSFunctionWrapper);
-};
-
 bool jsval_to_opaque( JSContext *cx, JS::HandleValue vp, void **out );
 bool jsval_to_int( JSContext *cx, JS::HandleValue vp, int *out);
 bool jsval_to_uint( JSContext *cx, JS::HandleValue vp, unsigned int *out);
@@ -101,8 +81,6 @@ bool jsval_to_charptr( JSContext *cx, JS::HandleValue vp, const char **out);
 JS::HandleValue opaque_to_jsval( JSContext *cx, void* opaque);
 JS::HandleValue c_class_to_jsval( JSContext *cx, void* handle, JS::HandleObject object, JSClass *klass, const char* class_name);
 
-/* Converts a char ptr into a js value (using JS string) */
-JS::HandleValue charptr_to_jsval( JSContext *cx, const char *str);
 bool JSB_jsval_typedarray_to_dataptr( JSContext *cx, JS::HandleValue vp, GLsizei *count, void **data, js::Scalar::Type t);
 bool JSB_get_arraybufferview_dataptr( JSContext *cx, JS::HandleValue vp, GLsizei *count, GLvoid **data );
 
@@ -276,27 +254,24 @@ bool jsval_to_ccmap_string_key(JSContext *cx, JS::HandleValue v, cocos2d::Map<st
 }
 
 // from native
-JS::HandleValue int32_to_jsval( JSContext *cx, int32_t l);
-JS::HandleValue uint32_to_jsval( JSContext *cx, uint32_t number );
-JS::HandleValue ushort_to_jsval( JSContext *cx, unsigned short number );
-JS::HandleValue long_to_jsval( JSContext *cx, long number );
-JS::HandleValue ulong_to_jsval(JSContext* cx, unsigned long v);
-JS::HandleValue long_long_to_jsval(JSContext* cx, long long v);
-CC_JS_DLL JS::HandleValue std_string_to_jsval(JSContext* cx, const std::string& v);
-JS::HandleValue c_string_to_jsval(JSContext* cx, const char* v, size_t length = -1);
-JS::HandleValue ccpoint_to_jsval(JSContext* cx, const cocos2d::Point& v);
-JS::HandleValue ccrect_to_jsval(JSContext* cx, const cocos2d::Rect& v);
-JS::HandleValue ccsize_to_jsval(JSContext* cx, const cocos2d::Size& v);
-JS::HandleValue cccolor4b_to_jsval(JSContext* cx, const cocos2d::Color4B& v);
-JS::HandleValue cccolor4f_to_jsval(JSContext* cx, const cocos2d::Color4F& v);
-JS::HandleValue cccolor3b_to_jsval(JSContext* cx, const cocos2d::Color3B& v);
-JS::HandleValue ccacceleration_to_jsval(JSContext* cx, const cocos2d::Acceleration& v);
-JS::HandleValue ccaffinetransform_to_jsval(JSContext* cx, const cocos2d::AffineTransform& t);
-JS::HandleValue FontDefinition_to_jsval(JSContext* cx, const cocos2d::FontDefinition& t);
-JS::HandleValue quaternion_to_jsval(JSContext* cx, const cocos2d::Quaternion& q);
-JS::HandleValue uniform_to_jsval(JSContext* cx, const cocos2d::Uniform* uniform);
-JS::HandleValue resourcedata_to_jsval(JSContext* cx, const cocos2d::ResourceData& v);
-JS::HandleValue asset_to_jsval(JSContext* cx, const cocos2d::extension::ManifestAsset& v);
+bool long_to_jsval( JSContext *cx, long number, JS::MutableHandleValue ret );
+bool ulong_to_jsval(JSContext* cx, unsigned long v, JS::MutableHandleValue ret);
+bool long_long_to_jsval(JSContext* cx, long long v, JS::MutableHandleValue ret);
+CC_JS_DLL bool std_string_to_jsval(JSContext* cx, const std::string& v, JS::MutableHandleValue ret);
+bool c_string_to_jsval(JSContext* cx, const char* v, JS::MutableHandleValue ret, size_t length = -1);
+bool ccpoint_to_jsval(JSContext* cx, const cocos2d::Point& v, JS::MutableHandleValue ret);
+bool ccrect_to_jsval(JSContext* cx, const cocos2d::Rect& v, JS::MutableHandleValue ret);
+bool ccsize_to_jsval(JSContext* cx, const cocos2d::Size& v, JS::MutableHandleValue ret);
+bool cccolor4b_to_jsval(JSContext* cx, const cocos2d::Color4B& v, JS::MutableHandleValue ret);
+bool cccolor4f_to_jsval(JSContext* cx, const cocos2d::Color4F& v, JS::MutableHandleValue ret);
+bool cccolor3b_to_jsval(JSContext* cx, const cocos2d::Color3B& v, JS::MutableHandleValue ret);
+bool ccacceleration_to_jsval(JSContext* cx, const cocos2d::Acceleration& v, JS::MutableHandleValue ret);
+bool ccaffinetransform_to_jsval(JSContext* cx, const cocos2d::AffineTransform& t, JS::MutableHandleValue ret);
+bool FontDefinition_to_jsval(JSContext* cx, const cocos2d::FontDefinition& t, JS::MutableHandleValue ret);
+bool quaternion_to_jsval(JSContext* cx, const cocos2d::Quaternion& q, JS::MutableHandleValue ret);
+bool uniform_to_jsval(JSContext* cx, const cocos2d::Uniform* uniform, JS::MutableHandleValue ret);
+bool resourcedata_to_jsval(JSContext* cx, const cocos2d::ResourceData& v, JS::MutableHandleValue ret);
+bool asset_to_jsval(JSContext* cx, const cocos2d::extension::ManifestAsset& v, JS::MutableHandleValue ret);
 
 // forward declaration
 template <class T>
@@ -304,7 +279,7 @@ js_type_class_t *js_get_type_from_native(T* native_obj);
 
 // Ref version of ccvector_to_jsval
 template <class T>
-JS::HandleValue ccvector_to_jsval(JSContext* cx, const cocos2d::Vector<T>& v)
+bool ccvector_to_jsval(JSContext* cx, const cocos2d::Vector<T>& v, JS::MutableHandleValue ret)
 {
     JS::RootedObject jsretArr(cx, JS_NewArrayObject(cx, 0));
 
@@ -325,12 +300,12 @@ JS::HandleValue ccvector_to_jsval(JSContext* cx, const cocos2d::Vector<T>& v)
         }
         ++i;
     }
-    JS::RootedValue ret(cx, JS::ObjectOrNullValue(jsretArr));
-    return ret;
+    ret.set(JS::ObjectOrNullValue(jsretArr));
+    return true;
 }
 
 template <class T>
-JS::HandleValue ccmap_string_key_to_jsval(JSContext* cx, const cocos2d::Map<std::string, T>& v)
+bool ccmap_string_key_to_jsval(JSContext* cx, const cocos2d::Map<std::string, T>& v, JS::MutableHandleValue ret)
 {
     JS::RootedObject jsRet(cx, JS_NewPlainObject(cx));
 
@@ -354,24 +329,24 @@ JS::HandleValue ccmap_string_key_to_jsval(JSContext* cx, const cocos2d::Map<std:
             JS_SetProperty(cx, jsRet, key.c_str(), element);
         }
     }
-    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsRet));
-    return retVal;
+    ret.set(JS::ObjectOrNullValue(jsRet));
+    return true;
 }
 
-JS::HandleValue ccvalue_to_jsval(JSContext* cx, const cocos2d::Value& v);
-JS::HandleValue ccvaluemap_to_jsval(JSContext* cx, const cocos2d::ValueMap& v);
-JS::HandleValue ccvaluemapintkey_to_jsval(JSContext* cx, const cocos2d::ValueMapIntKey& v);
-JS::HandleValue ccvaluevector_to_jsval(JSContext* cx, const cocos2d::ValueVector& v);
-JS::HandleValue ssize_to_jsval(JSContext *cx, ssize_t v);
-JS::HandleValue std_vector_string_to_jsval( JSContext *cx, const std::vector<std::string>& v);
-JS::HandleValue std_vector_int_to_jsval( JSContext *cx, const std::vector<int>& v);
-JS::HandleValue std_vector_float_to_jsval( JSContext *cx, const std::vector<float>& v);
-JS::HandleValue matrix_to_jsval(JSContext *cx, const cocos2d::Mat4& v);
-JS::HandleValue vector2_to_jsval(JSContext *cx, const cocos2d::Vec2& v);
-JS::HandleValue vector3_to_jsval(JSContext *cx, const cocos2d::Vec3& v);
-JS::HandleValue vector4_to_jsval(JSContext *cx, const cocos2d::Vec4& v);
-JS::HandleValue blendfunc_to_jsval(JSContext *cx, const cocos2d::BlendFunc& v);
-JS::HandleValue vector_vec2_to_jsval(JSContext *cx, const std::vector<cocos2d::Vec2>& v);
-JS::HandleValue std_map_string_string_to_jsval(JSContext* cx, const std::map<std::string, std::string>& v);
+bool ccvalue_to_jsval(JSContext* cx, const cocos2d::Value& v, JS::MutableHandleValue ret);
+bool ccvaluemap_to_jsval(JSContext* cx, const cocos2d::ValueMap& v, JS::MutableHandleValue ret);
+bool ccvaluemapintkey_to_jsval(JSContext* cx, const cocos2d::ValueMapIntKey& v, JS::MutableHandleValue ret);
+bool ccvaluevector_to_jsval(JSContext* cx, const cocos2d::ValueVector& v, JS::MutableHandleValue ret);
+bool ssize_to_jsval(JSContext *cx, ssize_t v, JS::MutableHandleValue ret);
+bool std_vector_string_to_jsval( JSContext *cx, const std::vector<std::string>& v, JS::MutableHandleValue ret);
+bool std_vector_int_to_jsval( JSContext *cx, const std::vector<int>& v, JS::MutableHandleValue ret);
+bool std_vector_float_to_jsval( JSContext *cx, const std::vector<float>& v, JS::MutableHandleValue ret);
+bool matrix_to_jsval(JSContext *cx, const cocos2d::Mat4& v, JS::MutableHandleValue ret);
+bool vector2_to_jsval(JSContext *cx, const cocos2d::Vec2& v, JS::MutableHandleValue ret);
+bool vector3_to_jsval(JSContext *cx, const cocos2d::Vec3& v, JS::MutableHandleValue ret);
+bool vector4_to_jsval(JSContext *cx, const cocos2d::Vec4& v, JS::MutableHandleValue ret);
+bool blendfunc_to_jsval(JSContext *cx, const cocos2d::BlendFunc& v, JS::MutableHandleValue ret);
+bool vector_vec2_to_jsval(JSContext *cx, const std::vector<cocos2d::Vec2>& v, JS::MutableHandleValue ret);
+bool std_map_string_string_to_jsval(JSContext* cx, const std::map<std::string, std::string>& v, JS::MutableHandleValue ret);
 
 #endif /* __JS_MANUAL_CONVERSIONS_H__ */

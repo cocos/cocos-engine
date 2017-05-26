@@ -237,7 +237,7 @@ bool js_cocos2dx_dragonbones_DragonBonesData_get_armatureNames(JSContext *cx, un
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_DragonBonesData_get_armatureNames : Invalid Native Object");
     const std::vector<std::string>& ret = cobj->getArmatureNames();
     JS::RootedValue jsret(cx);
-    jsret = std_vector_string_to_jsval(cx, ret);
+    std_vector_string_to_jsval(cx, ret, &jsret);
     args.rval().set(jsret);
     return true;
 }

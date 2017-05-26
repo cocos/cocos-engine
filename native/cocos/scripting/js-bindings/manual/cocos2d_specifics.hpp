@@ -33,6 +33,11 @@
 #include "base/uthash.h"
 #include "platform/CCSAXParser.h"
 
+extern JSClass  *jsb_RefFinalizeHook_class;
+extern JSObject *jsb_RefFinalizeHook_prototype;
+extern JSClass  *jsb_ObjFinalizeHook_class;
+extern JSObject *jsb_ObjFinalizeHook_prototype;
+
 class JSScheduleWrapper;
 
 namespace JSBinding
@@ -52,6 +57,58 @@ namespace JSBinding
         Array data;
     };
 }
+
+namespace jsb
+{
+    class Object
+    {
+    private:
+        js_proxy_t *_proxy;
+    public:
+        void ～Object()
+        {
+            if (_proxy)
+            {
+                jsb_remove_proxy(_proxy);
+            }
+        }
+        void setObj(JSContext *cx, JS::HandleObject jsobj)
+        {
+            if (_proxy)
+            {
+                jsb_unbind_proxy(_proxy);
+            }
+            _proxy = jsb_bind_proxy(cx, this, jsobj);
+        }
+        bool getObj(JS::MutableHandleObject obj)
+        {
+            obj.set(_proxy->obj);
+            return true;
+        }
+    };
+}
+
+// wraps a function and "this" object
+class JSFunctionWrapper
+{
+public:
+    JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func);
+    JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner);
+    ~JSFunctionWrapper();
+    
+    void setOwner(JSContext* cx, JS::HandleObject owner);
+    bool invoke(JS::HandleValueArray args, JS::MutableHandleValue rval);
+private:
+    JSContext *_cx;
+    jsb::Object *_jsthis;
+    jsb::Object *_func;
+    jsb::Object *_owner;
+    //    jsb::Object *_data;
+    void* _cppOwner;
+    
+    CC_DISALLOW_COPY_AND_ASSIGN(JSFunctionWrapper);
+};
+
 
 // JSScheduleWrapper* --> Array* since one js function may correspond to many targets.
 // To debug this, you could refer to JSScheduleWrapper::dump function.
@@ -78,11 +135,6 @@ typedef struct jsCallFuncTarget_proxy {
 extern schedFunc_proxy_t *_schedFunc_target_ht;
 extern schedTarget_proxy_t *_schedObj_target_ht;
 extern callfuncTarget_proxy_t *_callfuncTarget_native_ht;
-
-extern JSClass  *jsb_RefFinalizeHook_class;
-extern JSObject *jsb_RefFinalizeHook_prototype;
-extern JSClass  *jsb_ObjFinalizeHook_class;
-extern JSObject *jsb_ObjFinalizeHook_prototype;
 
 /**
  * You don't need to manage the returned pointer. They live for the whole life of
@@ -151,7 +203,7 @@ void js_remove_object_reference(JS::HandleValue owner, JS::HandleValue target);
 void js_add_object_root(JS::HandleValue target);
 void js_remove_object_root(JS::HandleValue target);
 
-JS::HandleValue anonEvaluate(JSContext *cx, JS::HandleObject thisObj, const char* string);
+bool anonEvaluate(JSContext *cx, JS::HandleObject thisObj, const char* string, JS::MutableHandleValue out);
 void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject obj);
 
 

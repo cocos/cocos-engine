@@ -152,7 +152,9 @@ public:
         
         JS::AutoValueVector valArr(cx);
         valArr.append(JS::ObjectOrNullValue(p->obj));
-        valArr.append(std_string_to_jsval(cx, text));
+        JS::RootedValue argv(cx);
+        std_string_to_jsval(cx, text, &argv);
+        valArr.append(argv);
         JS::HandleValueArray args(valArr);
         
         JS::RootedValue delegateVal(cx, _JSDelegate);

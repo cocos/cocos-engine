@@ -50,17 +50,22 @@ bool jsval_to_DownloaderHints(JSContext *cx, JS::HandleValue v, cocos2d::network
     return true;
 }
 
-JS::HandleValue downloadTask_to_jsval(JSContext *cx, const cocos2d::network::DownloadTask& v)
+bool downloadTask_to_jsval(JSContext *cx, const cocos2d::network::DownloadTask& v, JS::MutableHandleValue ret)
 {
     JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
-    JS::RootedValue ret(cx, JS::NullValue());
-    if (!tmp) return ret;
-    bool ok = JS_DefineProperty(cx, tmp, "identifier", JS::RootedValue(cx, std_string_to_jsval(cx, v.identifier)), JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-    JS_DefineProperty(cx, tmp, "requestURL", JS::RootedValue(cx, std_string_to_jsval(cx, v.requestURL)), JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-    JS_DefineProperty(cx, tmp, "storagePath", JS::RootedValue(cx, std_string_to_jsval(cx, v.storagePath)), JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    if (!tmp) return false;
+    JS::RootedValue idVal(cx);
+    JS::RootedValue urlVal(cx);
+    JS::RootedValue pathVal(cx);
+    bool ok = std_string_to_jsval(cx, v.identifier, &idVal) &&
+        std_string_to_jsval(cx, v.requestURL, &urlVal) &&
+        std_string_to_jsval(cx, v.storagePath, &pathVal) &&
+        JS_DefineProperty(cx, tmp, "identifier", idVal, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "requestURL", urlVal, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "storagePath", pathVal, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     if (ok) {
-        ret = JS::ObjectOrNullValue(tmp);
+        ret.set(JS::ObjectOrNullValue(tmp));
     }
-    return ret;
+    return ok;
 }
 

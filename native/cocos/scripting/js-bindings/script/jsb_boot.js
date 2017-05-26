@@ -26,7 +26,6 @@
 
 'use strict';
 
-
 //+++++++++++++++++++++++++Engine initialization function begin+++++++++++++++++++++++++++
 
 // Define singleton objects
@@ -62,6 +61,7 @@ cc.view.setResolutionPolicy = function(resolutionPolicy){
     var size = cc.view.getDesignResolutionSize();
     cc.view.setDesignResolutionSize(size.width,size.height,resolutionPolicy);
 };
+
 cc.view.getCanvasSize = cc.view.getFrameSize;
 cc.view.getVisibleSizeInPixel = cc.view.getVisibleSize;
 cc.view.getVisibleOriginInPixel = cc.view.getVisibleOrigin;

@@ -244,6 +244,7 @@ bool js_box2dclasses_b2Draw_DrawSolidCircle(JSContext *cx, uint32_t argc, JS::Va
 bool js_box2dclasses_b2Draw_GetFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Draw* cobj = (b2Draw *)(proxy ? proxy->ptr : NULL);
@@ -252,6 +253,7 @@ bool js_box2dclasses_b2Draw_GetFlags(JSContext *cx, uint32_t argc, JS::Value *vp
         unsigned int ret = cobj->GetFlags();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Draw_GetFlags : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -301,7 +303,8 @@ void js_register_box2dclasses_b2Draw(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2Draw_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2Draw"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2Draw", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -362,6 +365,7 @@ bool js_box2dclasses_b2Shape_Clone(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Shape_Clone : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -372,6 +376,7 @@ bool js_box2dclasses_b2Shape_Clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_box2dclasses_b2Shape_GetType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Shape* cobj = (b2Shape *)(proxy ? proxy->ptr : NULL);
@@ -380,6 +385,7 @@ bool js_box2dclasses_b2Shape_GetType(JSContext *cx, uint32_t argc, JS::Value *vp
         int ret = (int)cobj->GetType();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Shape_GetType : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -411,6 +417,7 @@ bool js_box2dclasses_b2Shape_RayCast(JSContext *cx, uint32_t argc, JS::Value *vp
         bool ret = cobj->RayCast(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Shape_RayCast : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -447,6 +454,7 @@ bool js_box2dclasses_b2Shape_ComputeAABB(JSContext *cx, uint32_t argc, JS::Value
 bool js_box2dclasses_b2Shape_GetChildCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Shape* cobj = (b2Shape *)(proxy ? proxy->ptr : NULL);
@@ -455,6 +463,7 @@ bool js_box2dclasses_b2Shape_GetChildCount(JSContext *cx, uint32_t argc, JS::Val
         int ret = cobj->GetChildCount();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Shape_GetChildCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -480,6 +489,7 @@ bool js_box2dclasses_b2Shape_TestPoint(JSContext *cx, uint32_t argc, JS::Value *
         bool ret = cobj->TestPoint(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Shape_TestPoint : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -529,7 +539,8 @@ void js_register_box2dclasses_b2Shape(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2Shape_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2Shape"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2Shape", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -577,7 +588,8 @@ bool js_box2dclasses_b2CircleShape_GetVertex(JSContext *cx, uint32_t argc, JS::V
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_GetVertex : Error processing arguments");
         const b2Vec2& ret = cobj->GetVertex(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_GetVertex : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -612,6 +624,7 @@ bool js_box2dclasses_b2CircleShape_Clone(JSContext *cx, uint32_t argc, JS::Value
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_Clone : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -643,6 +656,7 @@ bool js_box2dclasses_b2CircleShape_RayCast(JSContext *cx, uint32_t argc, JS::Val
         bool ret = cobj->RayCast(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_RayCast : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -679,6 +693,7 @@ bool js_box2dclasses_b2CircleShape_ComputeAABB(JSContext *cx, uint32_t argc, JS:
 bool js_box2dclasses_b2CircleShape_GetVertexCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2CircleShape* cobj = (b2CircleShape *)(proxy ? proxy->ptr : NULL);
@@ -687,6 +702,7 @@ bool js_box2dclasses_b2CircleShape_GetVertexCount(JSContext *cx, uint32_t argc, 
         int ret = cobj->GetVertexCount();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_GetVertexCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -697,6 +713,7 @@ bool js_box2dclasses_b2CircleShape_GetVertexCount(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2CircleShape_GetChildCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2CircleShape* cobj = (b2CircleShape *)(proxy ? proxy->ptr : NULL);
@@ -705,6 +722,7 @@ bool js_box2dclasses_b2CircleShape_GetChildCount(JSContext *cx, uint32_t argc, J
         int ret = cobj->GetChildCount();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_GetChildCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -730,6 +748,7 @@ bool js_box2dclasses_b2CircleShape_TestPoint(JSContext *cx, uint32_t argc, JS::V
         bool ret = cobj->TestPoint(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_TestPoint : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -751,7 +770,8 @@ bool js_box2dclasses_b2CircleShape_GetSupportVertex(JSContext *cx, uint32_t argc
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_GetSupportVertex : Error processing arguments");
         const b2Vec2& ret = cobj->GetSupportVertex(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_GetSupportVertex : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -774,6 +794,7 @@ bool js_box2dclasses_b2CircleShape_GetSupport(JSContext *cx, uint32_t argc, JS::
         int ret = cobj->GetSupport(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_GetSupport : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -868,7 +889,8 @@ void js_register_box2dclasses_b2CircleShape(JSContext *cx, JS::HandleObject glob
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2CircleShape_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2CircleShape"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2CircleShape", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -951,6 +973,7 @@ bool js_box2dclasses_b2EdgeShape_Clone(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2EdgeShape_Clone : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -982,6 +1005,7 @@ bool js_box2dclasses_b2EdgeShape_RayCast(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->RayCast(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2EdgeShape_RayCast : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1018,6 +1042,7 @@ bool js_box2dclasses_b2EdgeShape_ComputeAABB(JSContext *cx, uint32_t argc, JS::V
 bool js_box2dclasses_b2EdgeShape_GetChildCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2EdgeShape* cobj = (b2EdgeShape *)(proxy ? proxy->ptr : NULL);
@@ -1026,6 +1051,7 @@ bool js_box2dclasses_b2EdgeShape_GetChildCount(JSContext *cx, uint32_t argc, JS:
         int ret = cobj->GetChildCount();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2EdgeShape_GetChildCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1051,6 +1077,7 @@ bool js_box2dclasses_b2EdgeShape_TestPoint(JSContext *cx, uint32_t argc, JS::Val
         bool ret = cobj->TestPoint(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2EdgeShape_TestPoint : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1142,7 +1169,8 @@ void js_register_box2dclasses_b2EdgeShape(JSContext *cx, JS::HandleObject global
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2EdgeShape_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2EdgeShape"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2EdgeShape", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -1210,6 +1238,7 @@ bool js_box2dclasses_b2ChainShape_TestPoint(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->TestPoint(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2ChainShape_TestPoint : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1271,6 +1300,7 @@ bool js_box2dclasses_b2ChainShape_RayCast(JSContext *cx, uint32_t argc, JS::Valu
         bool ret = cobj->RayCast(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2ChainShape_RayCast : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1307,6 +1337,7 @@ bool js_box2dclasses_b2ChainShape_ComputeAABB(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2ChainShape_GetChildCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2ChainShape* cobj = (b2ChainShape *)(proxy ? proxy->ptr : NULL);
@@ -1315,6 +1346,7 @@ bool js_box2dclasses_b2ChainShape_GetChildCount(JSContext *cx, uint32_t argc, JS
         int ret = cobj->GetChildCount();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2ChainShape_GetChildCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1389,6 +1421,7 @@ bool js_box2dclasses_b2ChainShape_Clone(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2ChainShape_Clone : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1483,7 +1516,8 @@ void js_register_box2dclasses_b2ChainShape(JSContext *cx, JS::HandleObject globa
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2ChainShape_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2ChainShape"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2ChainShape", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -1531,7 +1565,8 @@ bool js_box2dclasses_b2PolygonShape_GetVertex(JSContext *cx, uint32_t argc, JS::
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PolygonShape_GetVertex : Error processing arguments");
         const b2Vec2& ret = cobj->GetVertex(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PolygonShape_GetVertex : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1566,6 +1601,7 @@ bool js_box2dclasses_b2PolygonShape_Clone(JSContext *cx, uint32_t argc, JS::Valu
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PolygonShape_Clone : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1597,6 +1633,7 @@ bool js_box2dclasses_b2PolygonShape_RayCast(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->RayCast(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PolygonShape_RayCast : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1633,6 +1670,7 @@ bool js_box2dclasses_b2PolygonShape_ComputeAABB(JSContext *cx, uint32_t argc, JS
 bool js_box2dclasses_b2PolygonShape_GetVertexCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PolygonShape* cobj = (b2PolygonShape *)(proxy ? proxy->ptr : NULL);
@@ -1641,6 +1679,7 @@ bool js_box2dclasses_b2PolygonShape_GetVertexCount(JSContext *cx, uint32_t argc,
         int ret = cobj->GetVertexCount();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PolygonShape_GetVertexCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1651,6 +1690,7 @@ bool js_box2dclasses_b2PolygonShape_GetVertexCount(JSContext *cx, uint32_t argc,
 bool js_box2dclasses_b2PolygonShape_GetChildCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PolygonShape* cobj = (b2PolygonShape *)(proxy ? proxy->ptr : NULL);
@@ -1659,6 +1699,7 @@ bool js_box2dclasses_b2PolygonShape_GetChildCount(JSContext *cx, uint32_t argc, 
         int ret = cobj->GetChildCount();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PolygonShape_GetChildCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1684,6 +1725,7 @@ bool js_box2dclasses_b2PolygonShape_TestPoint(JSContext *cx, uint32_t argc, JS::
         bool ret = cobj->TestPoint(arg0, arg1);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PolygonShape_TestPoint : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1694,6 +1736,7 @@ bool js_box2dclasses_b2PolygonShape_TestPoint(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2PolygonShape_Validate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PolygonShape* cobj = (b2PolygonShape *)(proxy ? proxy->ptr : NULL);
@@ -1702,6 +1745,7 @@ bool js_box2dclasses_b2PolygonShape_Validate(JSContext *cx, uint32_t argc, JS::V
         bool ret = cobj->Validate();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PolygonShape_Validate : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1795,7 +1839,8 @@ void js_register_box2dclasses_b2PolygonShape(JSContext *cx, JS::HandleObject glo
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2PolygonShape_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2PolygonShape"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2PolygonShape", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -1809,6 +1854,7 @@ JSObject *jsb_b2Body_prototype;
 bool js_box2dclasses_b2Body_GetAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -1817,6 +1863,7 @@ bool js_box2dclasses_b2Body_GetAngle(JSContext *cx, uint32_t argc, JS::Value *vp
         double ret = cobj->GetAngle();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetAngle : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1827,6 +1874,7 @@ bool js_box2dclasses_b2Body_GetAngle(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_box2dclasses_b2Body_IsSleepingAllowed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -1835,6 +1883,7 @@ bool js_box2dclasses_b2Body_IsSleepingAllowed(JSContext *cx, uint32_t argc, JS::
         bool ret = cobj->IsSleepingAllowed();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_IsSleepingAllowed : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1905,6 +1954,7 @@ bool js_box2dclasses_b2Body_SetGravityScale(JSContext *cx, uint32_t argc, JS::Va
 bool js_box2dclasses_b2Body_GetAngularVelocity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -1913,6 +1963,7 @@ bool js_box2dclasses_b2Body_GetAngularVelocity(JSContext *cx, uint32_t argc, JS:
         double ret = cobj->GetAngularVelocity();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetAngularVelocity : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1931,6 +1982,7 @@ bool js_box2dclasses_b2Body_GetFixtureList(JSContext *cx, uint32_t argc, JS::Val
     cobj = (b2Body *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetFixtureList : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2Fixture* ret = cobj->GetFixtureList();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -1939,12 +1991,14 @@ bool js_box2dclasses_b2Body_GetFixtureList(JSContext *cx, uint32_t argc, JS::Val
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetFixtureList : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2Fixture* ret = cobj->GetFixtureList();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -1953,6 +2007,7 @@ bool js_box2dclasses_b2Body_GetFixtureList(JSContext *cx, uint32_t argc, JS::Val
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetFixtureList : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -1999,7 +2054,8 @@ bool js_box2dclasses_b2Body_GetLocalPoint(JSContext *cx, uint32_t argc, JS::Valu
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetLocalPoint : Error processing arguments");
         b2Vec2 ret = cobj->GetLocalPoint(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetLocalPoint : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2038,20 +2094,24 @@ bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, JS::Value
     cobj = (b2Body *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetJointList : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2JointEdge* ret = cobj->GetJointList();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             #pragma warning NO CONVERSION FROM NATIVE FOR b2JointEdge*;
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetJointList : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2JointEdge* ret = cobj->GetJointList();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             #pragma warning NO CONVERSION FROM NATIVE FOR b2JointEdge*;
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetJointList : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -2063,6 +2123,7 @@ bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, JS::Value
 bool js_box2dclasses_b2Body_GetLinearVelocity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2070,7 +2131,8 @@ bool js_box2dclasses_b2Body_GetLinearVelocity(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLinearVelocity();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetLinearVelocity : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2089,6 +2151,7 @@ bool js_box2dclasses_b2Body_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (b2Body *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetNext : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2Body* ret = cobj->GetNext();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -2097,12 +2160,14 @@ bool js_box2dclasses_b2Body_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetNext : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2Body* ret = cobj->GetNext();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -2111,6 +2176,7 @@ bool js_box2dclasses_b2Body_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp)
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetNext : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -2164,6 +2230,7 @@ bool js_box2dclasses_b2Body_SetTransform(JSContext *cx, uint32_t argc, JS::Value
 bool js_box2dclasses_b2Body_GetMass(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2172,6 +2239,7 @@ bool js_box2dclasses_b2Body_GetMass(JSContext *cx, uint32_t argc, JS::Value *vp)
         double ret = cobj->GetMass();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetMass : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2234,7 +2302,8 @@ bool js_box2dclasses_b2Body_GetLinearVelocityFromWorldPoint(JSContext *cx, uint3
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetLinearVelocityFromWorldPoint : Error processing arguments");
         b2Vec2 ret = cobj->GetLinearVelocityFromWorldPoint(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetLinearVelocityFromWorldPoint : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2305,6 +2374,7 @@ bool js_box2dclasses_b2Body_ApplyTorque(JSContext *cx, uint32_t argc, JS::Value 
 bool js_box2dclasses_b2Body_IsAwake(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2313,6 +2383,7 @@ bool js_box2dclasses_b2Body_IsAwake(JSContext *cx, uint32_t argc, JS::Value *vp)
         bool ret = cobj->IsAwake();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_IsAwake : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2364,6 +2435,7 @@ bool js_box2dclasses_b2Body_SetMassData(JSContext *cx, uint32_t argc, JS::Value 
 bool js_box2dclasses_b2Body_GetTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2372,6 +2444,7 @@ bool js_box2dclasses_b2Body_GetTransform(JSContext *cx, uint32_t argc, JS::Value
         const b2Transform& ret = cobj->GetTransform();
         JS::RootedValue jsret(cx);
         #pragma warning NO CONVERSION FROM NATIVE FOR b2Transform;
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetTransform : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2382,6 +2455,7 @@ bool js_box2dclasses_b2Body_GetTransform(JSContext *cx, uint32_t argc, JS::Value
 bool js_box2dclasses_b2Body_GetWorldCenter(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2389,7 +2463,8 @@ bool js_box2dclasses_b2Body_GetWorldCenter(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetWorldCenter();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetWorldCenter : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2400,6 +2475,7 @@ bool js_box2dclasses_b2Body_GetWorldCenter(JSContext *cx, uint32_t argc, JS::Val
 bool js_box2dclasses_b2Body_GetAngularDamping(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2408,6 +2484,7 @@ bool js_box2dclasses_b2Body_GetAngularDamping(JSContext *cx, uint32_t argc, JS::
         double ret = cobj->GetAngularDamping();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetAngularDamping : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2442,6 +2519,7 @@ bool js_box2dclasses_b2Body_ApplyLinearImpulse(JSContext *cx, uint32_t argc, JS:
 bool js_box2dclasses_b2Body_IsFixedRotation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2450,6 +2528,7 @@ bool js_box2dclasses_b2Body_IsFixedRotation(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->IsFixedRotation();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_IsFixedRotation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2460,6 +2539,7 @@ bool js_box2dclasses_b2Body_IsFixedRotation(JSContext *cx, uint32_t argc, JS::Va
 bool js_box2dclasses_b2Body_GetLocalCenter(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2467,7 +2547,8 @@ bool js_box2dclasses_b2Body_GetLocalCenter(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalCenter();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetLocalCenter : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2489,7 +2570,8 @@ bool js_box2dclasses_b2Body_GetWorldVector(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetWorldVector : Error processing arguments");
         b2Vec2 ret = cobj->GetWorldVector(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetWorldVector : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2511,7 +2593,8 @@ bool js_box2dclasses_b2Body_GetLinearVelocityFromLocalPoint(JSContext *cx, uint3
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetLinearVelocityFromLocalPoint : Error processing arguments");
         b2Vec2 ret = cobj->GetLinearVelocityFromLocalPoint(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetLinearVelocityFromLocalPoint : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2530,20 +2613,24 @@ bool js_box2dclasses_b2Body_GetContactList(JSContext *cx, uint32_t argc, JS::Val
     cobj = (b2Body *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetContactList : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2ContactEdge* ret = cobj->GetContactList();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             #pragma warning NO CONVERSION FROM NATIVE FOR b2ContactEdge*;
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetContactList : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2ContactEdge* ret = cobj->GetContactList();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             #pragma warning NO CONVERSION FROM NATIVE FOR b2ContactEdge*;
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetContactList : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -2566,7 +2653,8 @@ bool js_box2dclasses_b2Body_GetWorldPoint(JSContext *cx, uint32_t argc, JS::Valu
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetWorldPoint : Error processing arguments");
         b2Vec2 ret = cobj->GetWorldPoint(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetWorldPoint : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2597,6 +2685,7 @@ bool js_box2dclasses_b2Body_SetAwake(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_box2dclasses_b2Body_GetLinearDamping(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2605,6 +2694,7 @@ bool js_box2dclasses_b2Body_GetLinearDamping(JSContext *cx, uint32_t argc, JS::V
         double ret = cobj->GetLinearDamping();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetLinearDamping : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2615,6 +2705,7 @@ bool js_box2dclasses_b2Body_GetLinearDamping(JSContext *cx, uint32_t argc, JS::V
 bool js_box2dclasses_b2Body_IsBullet(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2623,6 +2714,7 @@ bool js_box2dclasses_b2Body_IsBullet(JSContext *cx, uint32_t argc, JS::Value *vp
         bool ret = cobj->IsBullet();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_IsBullet : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2641,6 +2733,7 @@ bool js_box2dclasses_b2Body_GetWorld(JSContext *cx, uint32_t argc, JS::Value *vp
     cobj = (b2Body *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetWorld : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2World* ret = cobj->GetWorld();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -2649,12 +2742,14 @@ bool js_box2dclasses_b2Body_GetWorld(JSContext *cx, uint32_t argc, JS::Value *vp
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetWorld : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2World* ret = cobj->GetWorld();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -2663,6 +2758,7 @@ bool js_box2dclasses_b2Body_GetWorld(JSContext *cx, uint32_t argc, JS::Value *vp
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetWorld : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -2685,7 +2781,8 @@ bool js_box2dclasses_b2Body_GetLocalVector(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetLocalVector : Error processing arguments");
         b2Vec2 ret = cobj->GetLocalVector(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetLocalVector : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2752,6 +2849,7 @@ bool js_box2dclasses_b2Body_SetBullet(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_box2dclasses_b2Body_GetType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2760,6 +2858,7 @@ bool js_box2dclasses_b2Body_GetType(JSContext *cx, uint32_t argc, JS::Value *vp)
         int ret = (int)cobj->GetType();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetType : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2770,6 +2869,7 @@ bool js_box2dclasses_b2Body_GetType(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_box2dclasses_b2Body_GetGravityScale(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2778,6 +2878,7 @@ bool js_box2dclasses_b2Body_GetGravityScale(JSContext *cx, uint32_t argc, JS::Va
         double ret = cobj->GetGravityScale();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetGravityScale : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2816,6 +2917,7 @@ bool js_box2dclasses_b2Body_DestroyFixture(JSContext *cx, uint32_t argc, JS::Val
 bool js_box2dclasses_b2Body_GetInertia(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2824,6 +2926,7 @@ bool js_box2dclasses_b2Body_GetInertia(JSContext *cx, uint32_t argc, JS::Value *
         double ret = cobj->GetInertia();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetInertia : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2834,6 +2937,7 @@ bool js_box2dclasses_b2Body_GetInertia(JSContext *cx, uint32_t argc, JS::Value *
 bool js_box2dclasses_b2Body_IsActive(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2842,6 +2946,7 @@ bool js_box2dclasses_b2Body_IsActive(JSContext *cx, uint32_t argc, JS::Value *vp
         bool ret = cobj->IsActive();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_IsActive : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2894,6 +2999,7 @@ bool js_box2dclasses_b2Body_ApplyAngularImpulse(JSContext *cx, uint32_t argc, JS
 bool js_box2dclasses_b2Body_GetPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Body* cobj = (b2Body *)(proxy ? proxy->ptr : NULL);
@@ -2901,7 +3007,8 @@ bool js_box2dclasses_b2Body_GetPosition(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetPosition();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Body_GetPosition : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -2991,7 +3098,8 @@ void js_register_box2dclasses_b2Body(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2Body_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2Body"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2Body", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -3005,6 +3113,7 @@ JSObject *jsb_b2Fixture_prototype;
 bool js_box2dclasses_b2Fixture_GetRestitution(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
@@ -3013,6 +3122,7 @@ bool js_box2dclasses_b2Fixture_GetRestitution(JSContext *cx, uint32_t argc, JS::
         double ret = cobj->GetRestitution();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_GetRestitution : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3072,6 +3182,7 @@ bool js_box2dclasses_b2Fixture_GetShape(JSContext *cx, uint32_t argc, JS::Value 
     cobj = (b2Fixture *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_GetShape : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2Shape* ret = cobj->GetShape();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -3080,12 +3191,14 @@ bool js_box2dclasses_b2Fixture_GetShape(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_GetShape : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2Shape* ret = cobj->GetShape();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -3094,6 +3207,7 @@ bool js_box2dclasses_b2Fixture_GetShape(JSContext *cx, uint32_t argc, JS::Value 
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_GetShape : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -3133,6 +3247,7 @@ bool js_box2dclasses_b2Fixture_GetBody(JSContext *cx, uint32_t argc, JS::Value *
     cobj = (b2Fixture *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_GetBody : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2Body* ret = cobj->GetBody();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -3141,12 +3256,14 @@ bool js_box2dclasses_b2Fixture_GetBody(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_GetBody : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2Body* ret = cobj->GetBody();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -3155,6 +3272,7 @@ bool js_box2dclasses_b2Fixture_GetBody(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_GetBody : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -3174,6 +3292,7 @@ bool js_box2dclasses_b2Fixture_GetNext(JSContext *cx, uint32_t argc, JS::Value *
     cobj = (b2Fixture *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Fixture_GetNext : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2Fixture* ret = cobj->GetNext();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -3182,12 +3301,14 @@ bool js_box2dclasses_b2Fixture_GetNext(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_GetNext : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2Fixture* ret = cobj->GetNext();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -3196,6 +3317,7 @@ bool js_box2dclasses_b2Fixture_GetNext(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_GetNext : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -3207,6 +3329,7 @@ bool js_box2dclasses_b2Fixture_GetNext(JSContext *cx, uint32_t argc, JS::Value *
 bool js_box2dclasses_b2Fixture_GetFriction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
@@ -3215,6 +3338,7 @@ bool js_box2dclasses_b2Fixture_GetFriction(JSContext *cx, uint32_t argc, JS::Val
         double ret = cobj->GetFriction();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_GetFriction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3297,7 +3421,8 @@ bool js_box2dclasses_b2Fixture_GetAABB(JSContext *cx, uint32_t argc, JS::Value *
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_GetAABB : Error processing arguments");
         const b2AABB& ret = cobj->GetAABB(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2AABB_to_jsval(cx, ret);
+        ok &= b2AABB_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_GetAABB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3320,6 +3445,7 @@ bool js_box2dclasses_b2Fixture_TestPoint(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->TestPoint(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_TestPoint : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3348,6 +3474,7 @@ bool js_box2dclasses_b2Fixture_RayCast(JSContext *cx, uint32_t argc, JS::Value *
         bool ret = cobj->RayCast(arg0, arg1, arg2);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_RayCast : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3394,6 +3521,7 @@ bool js_box2dclasses_b2Fixture_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_box2dclasses_b2Fixture_GetFilterData(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
@@ -3402,6 +3530,7 @@ bool js_box2dclasses_b2Fixture_GetFilterData(JSContext *cx, uint32_t argc, JS::V
         const b2Filter& ret = cobj->GetFilterData();
         JS::RootedValue jsret(cx);
         #pragma warning NO CONVERSION FROM NATIVE FOR b2Filter;
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_GetFilterData : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3412,6 +3541,7 @@ bool js_box2dclasses_b2Fixture_GetFilterData(JSContext *cx, uint32_t argc, JS::V
 bool js_box2dclasses_b2Fixture_IsSensor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
@@ -3420,6 +3550,7 @@ bool js_box2dclasses_b2Fixture_IsSensor(JSContext *cx, uint32_t argc, JS::Value 
         bool ret = cobj->IsSensor();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_IsSensor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3430,6 +3561,7 @@ bool js_box2dclasses_b2Fixture_IsSensor(JSContext *cx, uint32_t argc, JS::Value 
 bool js_box2dclasses_b2Fixture_GetType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
@@ -3438,6 +3570,7 @@ bool js_box2dclasses_b2Fixture_GetType(JSContext *cx, uint32_t argc, JS::Value *
         int ret = (int)cobj->GetType();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_GetType : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3448,6 +3581,7 @@ bool js_box2dclasses_b2Fixture_GetType(JSContext *cx, uint32_t argc, JS::Value *
 bool js_box2dclasses_b2Fixture_GetDensity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Fixture* cobj = (b2Fixture *)(proxy ? proxy->ptr : NULL);
@@ -3456,6 +3590,7 @@ bool js_box2dclasses_b2Fixture_GetDensity(JSContext *cx, uint32_t argc, JS::Valu
         double ret = cobj->GetDensity();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Fixture_GetDensity : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3514,7 +3649,8 @@ void js_register_box2dclasses_b2Fixture(JSContext *cx, JS::HandleObject global) 
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2Fixture_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2Fixture"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2Fixture", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -3678,7 +3814,8 @@ void js_register_box2dclasses_b2ContactListener(JSContext *cx, JS::HandleObject 
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2ContactListener_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2ContactListener"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2ContactListener", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -3712,6 +3849,7 @@ bool js_box2dclasses_b2QueryCallback_ReportFixture(JSContext *cx, uint32_t argc,
         bool ret = cobj->ReportFixture(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2QueryCallback_ReportFixture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3751,7 +3889,8 @@ void js_register_box2dclasses_b2QueryCallback(JSContext *cx, JS::HandleObject gl
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2QueryCallback_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2QueryCallback"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2QueryCallback", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -3791,6 +3930,7 @@ bool js_box2dclasses_b2RayCastCallback_ReportFixture(JSContext *cx, uint32_t arg
         double ret = cobj->ReportFixture(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RayCastCallback_ReportFixture : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3830,7 +3970,8 @@ void js_register_box2dclasses_b2RayCastCallback(JSContext *cx, JS::HandleObject 
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2RayCastCallback_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2RayCastCallback"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2RayCastCallback", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -3914,6 +4055,7 @@ bool js_box2dclasses_b2World_SetSubStepping(JSContext *cx, uint32_t argc, JS::Va
 bool js_box2dclasses_b2World_GetTreeQuality(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -3922,6 +4064,7 @@ bool js_box2dclasses_b2World_GetTreeQuality(JSContext *cx, uint32_t argc, JS::Va
         double ret = cobj->GetTreeQuality();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetTreeQuality : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3932,6 +4075,7 @@ bool js_box2dclasses_b2World_GetTreeQuality(JSContext *cx, uint32_t argc, JS::Va
 bool js_box2dclasses_b2World_GetTreeHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -3940,6 +4084,7 @@ bool js_box2dclasses_b2World_GetTreeHeight(JSContext *cx, uint32_t argc, JS::Val
         int ret = cobj->GetTreeHeight();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetTreeHeight : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3950,6 +4095,7 @@ bool js_box2dclasses_b2World_GetTreeHeight(JSContext *cx, uint32_t argc, JS::Val
 bool js_box2dclasses_b2World_GetProfile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -3958,6 +4104,7 @@ bool js_box2dclasses_b2World_GetProfile(JSContext *cx, uint32_t argc, JS::Value 
         const b2Profile& ret = cobj->GetProfile();
         JS::RootedValue jsret(cx);
         #pragma warning NO CONVERSION FROM NATIVE FOR b2Profile;
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetProfile : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3968,6 +4115,7 @@ bool js_box2dclasses_b2World_GetProfile(JSContext *cx, uint32_t argc, JS::Value 
 bool js_box2dclasses_b2World_GetTreeBalance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -3976,6 +4124,7 @@ bool js_box2dclasses_b2World_GetTreeBalance(JSContext *cx, uint32_t argc, JS::Va
         int ret = cobj->GetTreeBalance();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetTreeBalance : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -3986,6 +4135,7 @@ bool js_box2dclasses_b2World_GetTreeBalance(JSContext *cx, uint32_t argc, JS::Va
 bool js_box2dclasses_b2World_GetSubStepping(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -3994,6 +4144,7 @@ bool js_box2dclasses_b2World_GetSubStepping(JSContext *cx, uint32_t argc, JS::Va
         bool ret = cobj->GetSubStepping();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetSubStepping : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4088,6 +4239,7 @@ bool js_box2dclasses_b2World_SetGravity(JSContext *cx, uint32_t argc, JS::Value 
 bool js_box2dclasses_b2World_GetBodyCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -4096,6 +4248,7 @@ bool js_box2dclasses_b2World_GetBodyCount(JSContext *cx, uint32_t argc, JS::Valu
         int ret = cobj->GetBodyCount();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetBodyCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4106,6 +4259,7 @@ bool js_box2dclasses_b2World_GetBodyCount(JSContext *cx, uint32_t argc, JS::Valu
 bool js_box2dclasses_b2World_GetAutoClearForces(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -4114,6 +4268,7 @@ bool js_box2dclasses_b2World_GetAutoClearForces(JSContext *cx, uint32_t argc, JS
         bool ret = cobj->GetAutoClearForces();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetAutoClearForces : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4124,6 +4279,7 @@ bool js_box2dclasses_b2World_GetAutoClearForces(JSContext *cx, uint32_t argc, JS
 bool js_box2dclasses_b2World_GetContinuousPhysics(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -4132,6 +4288,7 @@ bool js_box2dclasses_b2World_GetContinuousPhysics(JSContext *cx, uint32_t argc, 
         bool ret = cobj->GetContinuousPhysics();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetContinuousPhysics : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4150,6 +4307,7 @@ bool js_box2dclasses_b2World_GetJointList(JSContext *cx, uint32_t argc, JS::Valu
     cobj = (b2World *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetJointList : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2Joint* ret = cobj->GetJointList();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4158,12 +4316,14 @@ bool js_box2dclasses_b2World_GetJointList(JSContext *cx, uint32_t argc, JS::Valu
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetJointList : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2Joint* ret = cobj->GetJointList();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4172,6 +4332,7 @@ bool js_box2dclasses_b2World_GetJointList(JSContext *cx, uint32_t argc, JS::Valu
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetJointList : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -4191,6 +4352,7 @@ bool js_box2dclasses_b2World_GetBodyList(JSContext *cx, uint32_t argc, JS::Value
     cobj = (b2World *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetBodyList : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2Body* ret = cobj->GetBodyList();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4199,12 +4361,14 @@ bool js_box2dclasses_b2World_GetBodyList(JSContext *cx, uint32_t argc, JS::Value
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetBodyList : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2Body* ret = cobj->GetBodyList();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4213,6 +4377,7 @@ bool js_box2dclasses_b2World_GetBodyList(JSContext *cx, uint32_t argc, JS::Value
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetBodyList : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -4280,6 +4445,7 @@ bool js_box2dclasses_b2World_DestroyJoint(JSContext *cx, uint32_t argc, JS::Valu
 bool js_box2dclasses_b2World_GetJointCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -4288,6 +4454,7 @@ bool js_box2dclasses_b2World_GetJointCount(JSContext *cx, uint32_t argc, JS::Val
         int ret = cobj->GetJointCount();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetJointCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4338,6 +4505,7 @@ bool js_box2dclasses_b2World_ClearForces(JSContext *cx, uint32_t argc, JS::Value
 bool js_box2dclasses_b2World_GetWarmStarting(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -4346,6 +4514,7 @@ bool js_box2dclasses_b2World_GetWarmStarting(JSContext *cx, uint32_t argc, JS::V
         bool ret = cobj->GetWarmStarting();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetWarmStarting : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4404,6 +4573,7 @@ bool js_box2dclasses_b2World_DestroyBody(JSContext *cx, uint32_t argc, JS::Value
 bool js_box2dclasses_b2World_GetAllowSleeping(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -4412,6 +4582,7 @@ bool js_box2dclasses_b2World_GetAllowSleeping(JSContext *cx, uint32_t argc, JS::
         bool ret = cobj->GetAllowSleeping();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetAllowSleeping : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4422,6 +4593,7 @@ bool js_box2dclasses_b2World_GetAllowSleeping(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2World_GetProxyCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -4430,6 +4602,7 @@ bool js_box2dclasses_b2World_GetProxyCount(JSContext *cx, uint32_t argc, JS::Val
         int ret = cobj->GetProxyCount();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetProxyCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4472,6 +4645,7 @@ bool js_box2dclasses_b2World_RayCast(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_box2dclasses_b2World_IsLocked(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -4480,6 +4654,7 @@ bool js_box2dclasses_b2World_IsLocked(JSContext *cx, uint32_t argc, JS::Value *v
         bool ret = cobj->IsLocked();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_IsLocked : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4498,6 +4673,7 @@ bool js_box2dclasses_b2World_GetContactList(JSContext *cx, uint32_t argc, JS::Va
     cobj = (b2World *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2World_GetContactList : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2Contact* ret = cobj->GetContactList();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4506,12 +4682,14 @@ bool js_box2dclasses_b2World_GetContactList(JSContext *cx, uint32_t argc, JS::Va
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetContactList : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2Contact* ret = cobj->GetContactList();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4520,6 +4698,7 @@ bool js_box2dclasses_b2World_GetContactList(JSContext *cx, uint32_t argc, JS::Va
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetContactList : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -4595,6 +4774,7 @@ bool js_box2dclasses_b2World_SetAutoClearForces(JSContext *cx, uint32_t argc, JS
 bool js_box2dclasses_b2World_GetGravity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -4602,7 +4782,8 @@ bool js_box2dclasses_b2World_GetGravity(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         b2Vec2 ret = cobj->GetGravity();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetGravity : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4613,6 +4794,7 @@ bool js_box2dclasses_b2World_GetGravity(JSContext *cx, uint32_t argc, JS::Value 
 bool js_box2dclasses_b2World_GetContactCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2World* cobj = (b2World *)(proxy ? proxy->ptr : NULL);
@@ -4621,6 +4803,7 @@ bool js_box2dclasses_b2World_GetContactCount(JSContext *cx, uint32_t argc, JS::V
         int ret = cobj->GetContactCount();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_GetContactCount : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4787,7 +4970,8 @@ void js_register_box2dclasses_b2World(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2World_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2World"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2World", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -4809,6 +4993,7 @@ bool js_box2dclasses_b2Contact_GetNext(JSContext *cx, uint32_t argc, JS::Value *
     cobj = (b2Contact *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_GetNext : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2Contact* ret = cobj->GetNext();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4817,12 +5002,14 @@ bool js_box2dclasses_b2Contact_GetNext(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_GetNext : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2Contact* ret = cobj->GetNext();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4831,6 +5018,7 @@ bool js_box2dclasses_b2Contact_GetNext(JSContext *cx, uint32_t argc, JS::Value *
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_GetNext : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -4883,6 +5071,7 @@ bool js_box2dclasses_b2Contact_GetWorldManifold(JSContext *cx, uint32_t argc, JS
 bool js_box2dclasses_b2Contact_GetRestitution(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
@@ -4891,6 +5080,7 @@ bool js_box2dclasses_b2Contact_GetRestitution(JSContext *cx, uint32_t argc, JS::
         double ret = cobj->GetRestitution();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_GetRestitution : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4917,6 +5107,7 @@ bool js_box2dclasses_b2Contact_ResetFriction(JSContext *cx, uint32_t argc, JS::V
 bool js_box2dclasses_b2Contact_GetFriction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
@@ -4925,6 +5116,7 @@ bool js_box2dclasses_b2Contact_GetFriction(JSContext *cx, uint32_t argc, JS::Val
         double ret = cobj->GetFriction();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_GetFriction : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4935,6 +5127,7 @@ bool js_box2dclasses_b2Contact_GetFriction(JSContext *cx, uint32_t argc, JS::Val
 bool js_box2dclasses_b2Contact_IsTouching(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
@@ -4943,6 +5136,7 @@ bool js_box2dclasses_b2Contact_IsTouching(JSContext *cx, uint32_t argc, JS::Valu
         bool ret = cobj->IsTouching();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_IsTouching : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4953,6 +5147,7 @@ bool js_box2dclasses_b2Contact_IsTouching(JSContext *cx, uint32_t argc, JS::Valu
 bool js_box2dclasses_b2Contact_IsEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
@@ -4961,6 +5156,7 @@ bool js_box2dclasses_b2Contact_IsEnabled(JSContext *cx, uint32_t argc, JS::Value
         bool ret = cobj->IsEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_IsEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -4979,6 +5175,7 @@ bool js_box2dclasses_b2Contact_GetFixtureB(JSContext *cx, uint32_t argc, JS::Val
     cobj = (b2Contact *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_GetFixtureB : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2Fixture* ret = cobj->GetFixtureB();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4987,12 +5184,14 @@ bool js_box2dclasses_b2Contact_GetFixtureB(JSContext *cx, uint32_t argc, JS::Val
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_GetFixtureB : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2Fixture* ret = cobj->GetFixtureB();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -5001,6 +5200,7 @@ bool js_box2dclasses_b2Contact_GetFixtureB(JSContext *cx, uint32_t argc, JS::Val
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_GetFixtureB : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -5040,6 +5240,7 @@ bool js_box2dclasses_b2Contact_GetFixtureA(JSContext *cx, uint32_t argc, JS::Val
     cobj = (b2Contact *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_GetFixtureA : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2Fixture* ret = cobj->GetFixtureA();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -5048,12 +5249,14 @@ bool js_box2dclasses_b2Contact_GetFixtureA(JSContext *cx, uint32_t argc, JS::Val
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_GetFixtureA : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2Fixture* ret = cobj->GetFixtureA();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -5062,6 +5265,7 @@ bool js_box2dclasses_b2Contact_GetFixtureA(JSContext *cx, uint32_t argc, JS::Val
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_GetFixtureA : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -5073,6 +5277,7 @@ bool js_box2dclasses_b2Contact_GetFixtureA(JSContext *cx, uint32_t argc, JS::Val
 bool js_box2dclasses_b2Contact_GetChildIndexA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
@@ -5081,6 +5286,7 @@ bool js_box2dclasses_b2Contact_GetChildIndexA(JSContext *cx, uint32_t argc, JS::
         int ret = cobj->GetChildIndexA();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_GetChildIndexA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5091,6 +5297,7 @@ bool js_box2dclasses_b2Contact_GetChildIndexA(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2Contact_GetChildIndexB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
@@ -5099,6 +5306,7 @@ bool js_box2dclasses_b2Contact_GetChildIndexB(JSContext *cx, uint32_t argc, JS::
         int ret = cobj->GetChildIndexB();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_GetChildIndexB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5129,6 +5337,7 @@ bool js_box2dclasses_b2Contact_SetTangentSpeed(JSContext *cx, uint32_t argc, JS:
 bool js_box2dclasses_b2Contact_GetTangentSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Contact* cobj = (b2Contact *)(proxy ? proxy->ptr : NULL);
@@ -5137,6 +5346,7 @@ bool js_box2dclasses_b2Contact_GetTangentSpeed(JSContext *cx, uint32_t argc, JS:
         double ret = cobj->GetTangentSpeed();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_GetTangentSpeed : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5175,20 +5385,24 @@ bool js_box2dclasses_b2Contact_GetManifold(JSContext *cx, uint32_t argc, JS::Val
     cobj = (b2Contact *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Contact_GetManifold : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2Manifold* ret = cobj->GetManifold();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = b2Manifold_to_jsval(cx, ret);
+            ok &= b2Manifold_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_GetManifold : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2Manifold* ret = cobj->GetManifold();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
-            jsret = b2Manifold_to_jsval(cx, ret);
+            ok &= b2Manifold_to_jsval(cx, ret, &jsret);
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Contact_GetManifold : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -5290,7 +5504,8 @@ void js_register_box2dclasses_b2Contact(JSContext *cx, JS::HandleObject global) 
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2Contact_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2Contact"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2Contact", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -5312,6 +5527,7 @@ bool js_box2dclasses_b2Joint_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp
     cobj = (b2Joint *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Joint_GetNext : Invalid Native Object");
     do {
+        bool ok = true;
         if (argc == 0) {
             const b2Joint* ret = cobj->GetNext();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -5320,12 +5536,14 @@ bool js_box2dclasses_b2Joint_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Joint_GetNext : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while(0);
 
     do {
+        bool ok = true;
         if (argc == 0) {
             b2Joint* ret = cobj->GetNext();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -5334,6 +5552,7 @@ bool js_box2dclasses_b2Joint_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp
         } else {
             jsret = JS::NullHandleValue;
         };
+            JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Joint_GetNext : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -5345,6 +5564,7 @@ bool js_box2dclasses_b2Joint_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_box2dclasses_b2Joint_GetBodyA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
@@ -5357,6 +5577,7 @@ bool js_box2dclasses_b2Joint_GetBodyA(JSContext *cx, uint32_t argc, JS::Value *v
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Joint_GetBodyA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5367,6 +5588,7 @@ bool js_box2dclasses_b2Joint_GetBodyA(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_box2dclasses_b2Joint_GetBodyB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
@@ -5379,6 +5601,7 @@ bool js_box2dclasses_b2Joint_GetBodyB(JSContext *cx, uint32_t argc, JS::Value *v
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Joint_GetBodyB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5401,6 +5624,7 @@ bool js_box2dclasses_b2Joint_GetReactionTorque(JSContext *cx, uint32_t argc, JS:
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Joint_GetReactionTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5411,6 +5635,7 @@ bool js_box2dclasses_b2Joint_GetReactionTorque(JSContext *cx, uint32_t argc, JS:
 bool js_box2dclasses_b2Joint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
@@ -5418,7 +5643,8 @@ bool js_box2dclasses_b2Joint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Joint_GetAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5449,6 +5675,7 @@ bool js_box2dclasses_b2Joint_ShiftOrigin(JSContext *cx, uint32_t argc, JS::Value
 bool js_box2dclasses_b2Joint_GetType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
@@ -5457,6 +5684,7 @@ bool js_box2dclasses_b2Joint_GetType(JSContext *cx, uint32_t argc, JS::Value *vp
         int ret = (int)cobj->GetType();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Joint_GetType : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5467,6 +5695,7 @@ bool js_box2dclasses_b2Joint_GetType(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_box2dclasses_b2Joint_GetCollideConnected(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
@@ -5475,6 +5704,7 @@ bool js_box2dclasses_b2Joint_GetCollideConnected(JSContext *cx, uint32_t argc, J
         bool ret = cobj->GetCollideConnected();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Joint_GetCollideConnected : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5501,6 +5731,7 @@ bool js_box2dclasses_b2Joint_Dump(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_box2dclasses_b2Joint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
@@ -5508,7 +5739,8 @@ bool js_box2dclasses_b2Joint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value 
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Joint_GetAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5530,7 +5762,8 @@ bool js_box2dclasses_b2Joint_GetReactionForce(JSContext *cx, uint32_t argc, JS::
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Joint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Joint_GetReactionForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5541,6 +5774,7 @@ bool js_box2dclasses_b2Joint_GetReactionForce(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2Joint_IsActive(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2Joint* cobj = (b2Joint *)(proxy ? proxy->ptr : NULL);
@@ -5549,6 +5783,7 @@ bool js_box2dclasses_b2Joint_IsActive(JSContext *cx, uint32_t argc, JS::Value *v
         bool ret = cobj->IsActive();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2Joint_IsActive : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5599,7 +5834,8 @@ void js_register_box2dclasses_b2Joint(JSContext *cx, JS::HandleObject global) {
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2Joint_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2Joint"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2Joint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -5633,6 +5869,7 @@ bool js_box2dclasses_b2DistanceJoint_SetDampingRatio(JSContext *cx, uint32_t arg
 bool js_box2dclasses_b2DistanceJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
@@ -5640,7 +5877,8 @@ bool js_box2dclasses_b2DistanceJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_GetAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5663,6 +5901,7 @@ bool js_box2dclasses_b2DistanceJoint_GetReactionTorque(JSContext *cx, uint32_t a
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_GetReactionTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5709,6 +5948,7 @@ bool js_box2dclasses_b2DistanceJoint_SetFrequency(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2DistanceJoint_GetLength(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
@@ -5717,6 +5957,7 @@ bool js_box2dclasses_b2DistanceJoint_GetLength(JSContext *cx, uint32_t argc, JS:
         double ret = cobj->GetLength();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_GetLength : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5727,6 +5968,7 @@ bool js_box2dclasses_b2DistanceJoint_GetLength(JSContext *cx, uint32_t argc, JS:
 bool js_box2dclasses_b2DistanceJoint_GetDampingRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
@@ -5735,6 +5977,7 @@ bool js_box2dclasses_b2DistanceJoint_GetDampingRatio(JSContext *cx, uint32_t arg
         double ret = cobj->GetDampingRatio();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_GetDampingRatio : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5745,6 +5988,7 @@ bool js_box2dclasses_b2DistanceJoint_GetDampingRatio(JSContext *cx, uint32_t arg
 bool js_box2dclasses_b2DistanceJoint_GetFrequency(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
@@ -5753,6 +5997,7 @@ bool js_box2dclasses_b2DistanceJoint_GetFrequency(JSContext *cx, uint32_t argc, 
         double ret = cobj->GetFrequency();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_GetFrequency : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5763,6 +6008,7 @@ bool js_box2dclasses_b2DistanceJoint_GetFrequency(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2DistanceJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
@@ -5770,7 +6016,8 @@ bool js_box2dclasses_b2DistanceJoint_GetLocalAnchorA(JSContext *cx, uint32_t arg
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_GetLocalAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5781,6 +6028,7 @@ bool js_box2dclasses_b2DistanceJoint_GetLocalAnchorA(JSContext *cx, uint32_t arg
 bool js_box2dclasses_b2DistanceJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
@@ -5788,7 +6036,8 @@ bool js_box2dclasses_b2DistanceJoint_GetLocalAnchorB(JSContext *cx, uint32_t arg
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_GetLocalAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5799,6 +6048,7 @@ bool js_box2dclasses_b2DistanceJoint_GetLocalAnchorB(JSContext *cx, uint32_t arg
 bool js_box2dclasses_b2DistanceJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2DistanceJoint* cobj = (b2DistanceJoint *)(proxy ? proxy->ptr : NULL);
@@ -5806,7 +6056,8 @@ bool js_box2dclasses_b2DistanceJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_GetAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5828,7 +6079,8 @@ bool js_box2dclasses_b2DistanceJoint_GetReactionForce(JSContext *cx, uint32_t ar
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2DistanceJoint_GetReactionForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5902,7 +6154,8 @@ void js_register_box2dclasses_b2DistanceJoint(JSContext *cx, JS::HandleObject gl
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2DistanceJoint_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2DistanceJoint"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2DistanceJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -5936,6 +6189,7 @@ bool js_box2dclasses_b2FrictionJoint_SetMaxTorque(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2FrictionJoint_GetMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
@@ -5944,6 +6198,7 @@ bool js_box2dclasses_b2FrictionJoint_GetMaxForce(JSContext *cx, uint32_t argc, J
         double ret = cobj->GetMaxForce();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2FrictionJoint_GetMaxForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5954,6 +6209,7 @@ bool js_box2dclasses_b2FrictionJoint_GetMaxForce(JSContext *cx, uint32_t argc, J
 bool js_box2dclasses_b2FrictionJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
@@ -5961,7 +6217,8 @@ bool js_box2dclasses_b2FrictionJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2FrictionJoint_GetAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -5984,6 +6241,7 @@ bool js_box2dclasses_b2FrictionJoint_GetReactionTorque(JSContext *cx, uint32_t a
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2FrictionJoint_GetReactionTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6030,6 +6288,7 @@ bool js_box2dclasses_b2FrictionJoint_SetMaxForce(JSContext *cx, uint32_t argc, J
 bool js_box2dclasses_b2FrictionJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
@@ -6037,7 +6296,8 @@ bool js_box2dclasses_b2FrictionJoint_GetLocalAnchorA(JSContext *cx, uint32_t arg
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2FrictionJoint_GetLocalAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6048,6 +6308,7 @@ bool js_box2dclasses_b2FrictionJoint_GetLocalAnchorA(JSContext *cx, uint32_t arg
 bool js_box2dclasses_b2FrictionJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
@@ -6055,7 +6316,8 @@ bool js_box2dclasses_b2FrictionJoint_GetLocalAnchorB(JSContext *cx, uint32_t arg
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2FrictionJoint_GetLocalAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6066,6 +6328,7 @@ bool js_box2dclasses_b2FrictionJoint_GetLocalAnchorB(JSContext *cx, uint32_t arg
 bool js_box2dclasses_b2FrictionJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
@@ -6073,7 +6336,8 @@ bool js_box2dclasses_b2FrictionJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2FrictionJoint_GetAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6095,7 +6359,8 @@ bool js_box2dclasses_b2FrictionJoint_GetReactionForce(JSContext *cx, uint32_t ar
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2FrictionJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2FrictionJoint_GetReactionForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6106,6 +6371,7 @@ bool js_box2dclasses_b2FrictionJoint_GetReactionForce(JSContext *cx, uint32_t ar
 bool js_box2dclasses_b2FrictionJoint_GetMaxTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2FrictionJoint* cobj = (b2FrictionJoint *)(proxy ? proxy->ptr : NULL);
@@ -6114,6 +6380,7 @@ bool js_box2dclasses_b2FrictionJoint_GetMaxTorque(JSContext *cx, uint32_t argc, 
         double ret = cobj->GetMaxTorque();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2FrictionJoint_GetMaxTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6165,7 +6432,8 @@ void js_register_box2dclasses_b2FrictionJoint(JSContext *cx, JS::HandleObject gl
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2FrictionJoint_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2FrictionJoint"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2FrictionJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -6179,6 +6447,7 @@ JSObject *jsb_b2GearJoint_prototype;
 bool js_box2dclasses_b2GearJoint_GetJoint1(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2GearJoint* cobj = (b2GearJoint *)(proxy ? proxy->ptr : NULL);
@@ -6191,6 +6460,7 @@ bool js_box2dclasses_b2GearJoint_GetJoint1(JSContext *cx, uint32_t argc, JS::Val
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2GearJoint_GetJoint1 : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6201,6 +6471,7 @@ bool js_box2dclasses_b2GearJoint_GetJoint1(JSContext *cx, uint32_t argc, JS::Val
 bool js_box2dclasses_b2GearJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2GearJoint* cobj = (b2GearJoint *)(proxy ? proxy->ptr : NULL);
@@ -6208,7 +6479,8 @@ bool js_box2dclasses_b2GearJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2GearJoint_GetAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6219,6 +6491,7 @@ bool js_box2dclasses_b2GearJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Va
 bool js_box2dclasses_b2GearJoint_GetJoint2(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2GearJoint* cobj = (b2GearJoint *)(proxy ? proxy->ptr : NULL);
@@ -6231,6 +6504,7 @@ bool js_box2dclasses_b2GearJoint_GetJoint2(JSContext *cx, uint32_t argc, JS::Val
         } else {
             jsret = JS::NullHandleValue;
         };
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2GearJoint_GetJoint2 : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6253,6 +6527,7 @@ bool js_box2dclasses_b2GearJoint_GetReactionTorque(JSContext *cx, uint32_t argc,
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2GearJoint_GetReactionTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6299,6 +6574,7 @@ bool js_box2dclasses_b2GearJoint_SetRatio(JSContext *cx, uint32_t argc, JS::Valu
 bool js_box2dclasses_b2GearJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2GearJoint* cobj = (b2GearJoint *)(proxy ? proxy->ptr : NULL);
@@ -6306,7 +6582,8 @@ bool js_box2dclasses_b2GearJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2GearJoint_GetAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6328,7 +6605,8 @@ bool js_box2dclasses_b2GearJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2GearJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2GearJoint_GetReactionForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6339,6 +6617,7 @@ bool js_box2dclasses_b2GearJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2GearJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2GearJoint* cobj = (b2GearJoint *)(proxy ? proxy->ptr : NULL);
@@ -6347,6 +6626,7 @@ bool js_box2dclasses_b2GearJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Valu
         double ret = cobj->GetRatio();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2GearJoint_GetRatio : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6396,7 +6676,8 @@ void js_register_box2dclasses_b2GearJoint(JSContext *cx, JS::HandleObject global
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2GearJoint_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2GearJoint"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2GearJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -6430,6 +6711,7 @@ bool js_box2dclasses_b2MotorJoint_SetMaxTorque(JSContext *cx, uint32_t argc, JS:
 bool js_box2dclasses_b2MotorJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
@@ -6437,7 +6719,8 @@ bool js_box2dclasses_b2MotorJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_GetAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6460,6 +6743,7 @@ bool js_box2dclasses_b2MotorJoint_GetReactionTorque(JSContext *cx, uint32_t argc
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_GetReactionTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6470,6 +6754,7 @@ bool js_box2dclasses_b2MotorJoint_GetReactionTorque(JSContext *cx, uint32_t argc
 bool js_box2dclasses_b2MotorJoint_GetCorrectionFactor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
@@ -6478,6 +6763,7 @@ bool js_box2dclasses_b2MotorJoint_GetCorrectionFactor(JSContext *cx, uint32_t ar
         double ret = cobj->GetCorrectionFactor();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_GetCorrectionFactor : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6528,6 +6814,7 @@ bool js_box2dclasses_b2MotorJoint_SetLinearOffset(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2MotorJoint_GetMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
@@ -6536,6 +6823,7 @@ bool js_box2dclasses_b2MotorJoint_GetMaxForce(JSContext *cx, uint32_t argc, JS::
         double ret = cobj->GetMaxForce();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_GetMaxForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6582,6 +6870,7 @@ bool js_box2dclasses_b2MotorJoint_SetAngularOffset(JSContext *cx, uint32_t argc,
 bool js_box2dclasses_b2MotorJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
@@ -6589,7 +6878,8 @@ bool js_box2dclasses_b2MotorJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_GetAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6611,7 +6901,8 @@ bool js_box2dclasses_b2MotorJoint_GetReactionForce(JSContext *cx, uint32_t argc,
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_GetReactionForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6622,6 +6913,7 @@ bool js_box2dclasses_b2MotorJoint_GetReactionForce(JSContext *cx, uint32_t argc,
 bool js_box2dclasses_b2MotorJoint_GetAngularOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
@@ -6630,6 +6922,7 @@ bool js_box2dclasses_b2MotorJoint_GetAngularOffset(JSContext *cx, uint32_t argc,
         double ret = cobj->GetAngularOffset();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_GetAngularOffset : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6640,6 +6933,7 @@ bool js_box2dclasses_b2MotorJoint_GetAngularOffset(JSContext *cx, uint32_t argc,
 bool js_box2dclasses_b2MotorJoint_GetLinearOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
@@ -6647,7 +6941,8 @@ bool js_box2dclasses_b2MotorJoint_GetLinearOffset(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLinearOffset();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_GetLinearOffset : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6658,6 +6953,7 @@ bool js_box2dclasses_b2MotorJoint_GetLinearOffset(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2MotorJoint_GetMaxTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MotorJoint* cobj = (b2MotorJoint *)(proxy ? proxy->ptr : NULL);
@@ -6666,6 +6962,7 @@ bool js_box2dclasses_b2MotorJoint_GetMaxTorque(JSContext *cx, uint32_t argc, JS:
         double ret = cobj->GetMaxTorque();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MotorJoint_GetMaxTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6741,7 +7038,8 @@ void js_register_box2dclasses_b2MotorJoint(JSContext *cx, JS::HandleObject globa
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2MotorJoint_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2MotorJoint"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2MotorJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -6775,6 +7073,7 @@ bool js_box2dclasses_b2MouseJoint_SetDampingRatio(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2MouseJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
@@ -6782,7 +7081,8 @@ bool js_box2dclasses_b2MouseJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MouseJoint_GetAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6805,6 +7105,7 @@ bool js_box2dclasses_b2MouseJoint_GetReactionTorque(JSContext *cx, uint32_t argc
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MouseJoint_GetReactionTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6851,6 +7152,7 @@ bool js_box2dclasses_b2MouseJoint_SetFrequency(JSContext *cx, uint32_t argc, JS:
 bool js_box2dclasses_b2MouseJoint_GetDampingRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
@@ -6859,6 +7161,7 @@ bool js_box2dclasses_b2MouseJoint_GetDampingRatio(JSContext *cx, uint32_t argc, 
         double ret = cobj->GetDampingRatio();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MouseJoint_GetDampingRatio : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6909,6 +7212,7 @@ bool js_box2dclasses_b2MouseJoint_SetMaxForce(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2MouseJoint_GetFrequency(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
@@ -6917,6 +7221,7 @@ bool js_box2dclasses_b2MouseJoint_GetFrequency(JSContext *cx, uint32_t argc, JS:
         double ret = cobj->GetFrequency();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MouseJoint_GetFrequency : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6927,6 +7232,7 @@ bool js_box2dclasses_b2MouseJoint_GetFrequency(JSContext *cx, uint32_t argc, JS:
 bool js_box2dclasses_b2MouseJoint_GetTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
@@ -6934,7 +7240,8 @@ bool js_box2dclasses_b2MouseJoint_GetTarget(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetTarget();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MouseJoint_GetTarget : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6945,6 +7252,7 @@ bool js_box2dclasses_b2MouseJoint_GetTarget(JSContext *cx, uint32_t argc, JS::Va
 bool js_box2dclasses_b2MouseJoint_GetMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
@@ -6953,6 +7261,7 @@ bool js_box2dclasses_b2MouseJoint_GetMaxForce(JSContext *cx, uint32_t argc, JS::
         double ret = cobj->GetMaxForce();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MouseJoint_GetMaxForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6963,6 +7272,7 @@ bool js_box2dclasses_b2MouseJoint_GetMaxForce(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2MouseJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2MouseJoint* cobj = (b2MouseJoint *)(proxy ? proxy->ptr : NULL);
@@ -6970,7 +7280,8 @@ bool js_box2dclasses_b2MouseJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MouseJoint_GetAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -6992,7 +7303,8 @@ bool js_box2dclasses_b2MouseJoint_GetReactionForce(JSContext *cx, uint32_t argc,
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MouseJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2MouseJoint_GetReactionForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7067,7 +7379,8 @@ void js_register_box2dclasses_b2MouseJoint(JSContext *cx, JS::HandleObject globa
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2MouseJoint_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2MouseJoint"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2MouseJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -7081,6 +7394,7 @@ JSObject *jsb_b2PrismaticJoint_prototype;
 bool js_box2dclasses_b2PrismaticJoint_GetLocalAxisA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
@@ -7088,7 +7402,8 @@ bool js_box2dclasses_b2PrismaticJoint_GetLocalAxisA(JSContext *cx, uint32_t argc
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAxisA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetLocalAxisA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7099,6 +7414,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetLocalAxisA(JSContext *cx, uint32_t argc
 bool js_box2dclasses_b2PrismaticJoint_GetLowerLimit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
@@ -7107,6 +7423,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetLowerLimit(JSContext *cx, uint32_t argc
         double ret = cobj->GetLowerLimit();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetLowerLimit : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7117,6 +7434,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetLowerLimit(JSContext *cx, uint32_t argc
 bool js_box2dclasses_b2PrismaticJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
@@ -7124,7 +7442,8 @@ bool js_box2dclasses_b2PrismaticJoint_GetAnchorA(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7135,6 +7454,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetAnchorA(JSContext *cx, uint32_t argc, J
 bool js_box2dclasses_b2PrismaticJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
@@ -7142,7 +7462,8 @@ bool js_box2dclasses_b2PrismaticJoint_GetLocalAnchorA(JSContext *cx, uint32_t ar
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetLocalAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7173,6 +7494,7 @@ bool js_box2dclasses_b2PrismaticJoint_SetMotorSpeed(JSContext *cx, uint32_t argc
 bool js_box2dclasses_b2PrismaticJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
@@ -7180,7 +7502,8 @@ bool js_box2dclasses_b2PrismaticJoint_GetLocalAnchorB(JSContext *cx, uint32_t ar
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetLocalAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7191,6 +7514,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetLocalAnchorB(JSContext *cx, uint32_t ar
 bool js_box2dclasses_b2PrismaticJoint_GetMotorSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
@@ -7199,6 +7523,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetMotorSpeed(JSContext *cx, uint32_t argc
         double ret = cobj->GetMotorSpeed();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetMotorSpeed : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7249,6 +7574,7 @@ bool js_box2dclasses_b2PrismaticJoint_EnableLimit(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2PrismaticJoint_IsMotorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
@@ -7257,6 +7583,7 @@ bool js_box2dclasses_b2PrismaticJoint_IsMotorEnabled(JSContext *cx, uint32_t arg
         bool ret = cobj->IsMotorEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_IsMotorEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7278,7 +7605,8 @@ bool js_box2dclasses_b2PrismaticJoint_GetReactionForce(JSContext *cx, uint32_t a
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetReactionForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7289,6 +7617,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetReactionForce(JSContext *cx, uint32_t a
 bool js_box2dclasses_b2PrismaticJoint_GetMaxMotorForce(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
@@ -7297,6 +7626,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetMaxMotorForce(JSContext *cx, uint32_t a
         double ret = cobj->GetMaxMotorForce();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetMaxMotorForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7307,6 +7637,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetMaxMotorForce(JSContext *cx, uint32_t a
 bool js_box2dclasses_b2PrismaticJoint_GetJointSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
@@ -7315,6 +7646,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetJointSpeed(JSContext *cx, uint32_t argc
         double ret = cobj->GetJointSpeed();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetJointSpeed : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7345,6 +7677,7 @@ bool js_box2dclasses_b2PrismaticJoint_EnableMotor(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2PrismaticJoint_GetReferenceAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
@@ -7353,6 +7686,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetReferenceAngle(JSContext *cx, uint32_t 
         double ret = cobj->GetReferenceAngle();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetReferenceAngle : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7391,6 +7725,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetMotorForce(JSContext *cx, uint32_t argc
         double ret = cobj->GetMotorForce(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetMotorForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7401,6 +7736,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetMotorForce(JSContext *cx, uint32_t argc
 bool js_box2dclasses_b2PrismaticJoint_GetJointTranslation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
@@ -7409,6 +7745,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetJointTranslation(JSContext *cx, uint32_
         double ret = cobj->GetJointTranslation();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetJointTranslation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7419,6 +7756,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetJointTranslation(JSContext *cx, uint32_
 bool js_box2dclasses_b2PrismaticJoint_IsLimitEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
@@ -7427,6 +7765,7 @@ bool js_box2dclasses_b2PrismaticJoint_IsLimitEnabled(JSContext *cx, uint32_t arg
         bool ret = cobj->IsLimitEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_IsLimitEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7449,6 +7788,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetReactionTorque(JSContext *cx, uint32_t 
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetReactionTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7481,6 +7821,7 @@ bool js_box2dclasses_b2PrismaticJoint_SetLimits(JSContext *cx, uint32_t argc, JS
 bool js_box2dclasses_b2PrismaticJoint_GetUpperLimit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
@@ -7489,6 +7830,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetUpperLimit(JSContext *cx, uint32_t argc
         double ret = cobj->GetUpperLimit();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetUpperLimit : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7499,6 +7841,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetUpperLimit(JSContext *cx, uint32_t argc
 bool js_box2dclasses_b2PrismaticJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PrismaticJoint* cobj = (b2PrismaticJoint *)(proxy ? proxy->ptr : NULL);
@@ -7506,7 +7849,8 @@ bool js_box2dclasses_b2PrismaticJoint_GetAnchorB(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PrismaticJoint_GetAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7570,7 +7914,8 @@ void js_register_box2dclasses_b2PrismaticJoint(JSContext *cx, JS::HandleObject g
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2PrismaticJoint_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2PrismaticJoint"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2PrismaticJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -7584,6 +7929,7 @@ JSObject *jsb_b2PulleyJoint_prototype;
 bool js_box2dclasses_b2PulleyJoint_GetCurrentLengthA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
@@ -7592,6 +7938,7 @@ bool js_box2dclasses_b2PulleyJoint_GetCurrentLengthA(JSContext *cx, uint32_t arg
         double ret = cobj->GetCurrentLengthA();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PulleyJoint_GetCurrentLengthA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7602,6 +7949,7 @@ bool js_box2dclasses_b2PulleyJoint_GetCurrentLengthA(JSContext *cx, uint32_t arg
 bool js_box2dclasses_b2PulleyJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
@@ -7609,7 +7957,8 @@ bool js_box2dclasses_b2PulleyJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PulleyJoint_GetAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7620,6 +7969,7 @@ bool js_box2dclasses_b2PulleyJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2PulleyJoint_GetGroundAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
@@ -7627,7 +7977,8 @@ bool js_box2dclasses_b2PulleyJoint_GetGroundAnchorB(JSContext *cx, uint32_t argc
     if (argc == 0) {
         b2Vec2 ret = cobj->GetGroundAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PulleyJoint_GetGroundAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7650,6 +8001,7 @@ bool js_box2dclasses_b2PulleyJoint_GetReactionTorque(JSContext *cx, uint32_t arg
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PulleyJoint_GetReactionTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7676,6 +8028,7 @@ bool js_box2dclasses_b2PulleyJoint_Dump(JSContext *cx, uint32_t argc, JS::Value 
 bool js_box2dclasses_b2PulleyJoint_GetGroundAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
@@ -7683,7 +8036,8 @@ bool js_box2dclasses_b2PulleyJoint_GetGroundAnchorA(JSContext *cx, uint32_t argc
     if (argc == 0) {
         b2Vec2 ret = cobj->GetGroundAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PulleyJoint_GetGroundAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7694,6 +8048,7 @@ bool js_box2dclasses_b2PulleyJoint_GetGroundAnchorA(JSContext *cx, uint32_t argc
 bool js_box2dclasses_b2PulleyJoint_GetLengthB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
@@ -7702,6 +8057,7 @@ bool js_box2dclasses_b2PulleyJoint_GetLengthB(JSContext *cx, uint32_t argc, JS::
         double ret = cobj->GetLengthB();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PulleyJoint_GetLengthB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7712,6 +8068,7 @@ bool js_box2dclasses_b2PulleyJoint_GetLengthB(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2PulleyJoint_GetLengthA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
@@ -7720,6 +8077,7 @@ bool js_box2dclasses_b2PulleyJoint_GetLengthA(JSContext *cx, uint32_t argc, JS::
         double ret = cobj->GetLengthA();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PulleyJoint_GetLengthA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7730,6 +8088,7 @@ bool js_box2dclasses_b2PulleyJoint_GetLengthA(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2PulleyJoint_GetCurrentLengthB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
@@ -7738,6 +8097,7 @@ bool js_box2dclasses_b2PulleyJoint_GetCurrentLengthB(JSContext *cx, uint32_t arg
         double ret = cobj->GetCurrentLengthB();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PulleyJoint_GetCurrentLengthB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7748,6 +8108,7 @@ bool js_box2dclasses_b2PulleyJoint_GetCurrentLengthB(JSContext *cx, uint32_t arg
 bool js_box2dclasses_b2PulleyJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
@@ -7755,7 +8116,8 @@ bool js_box2dclasses_b2PulleyJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PulleyJoint_GetAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7777,7 +8139,8 @@ bool js_box2dclasses_b2PulleyJoint_GetReactionForce(JSContext *cx, uint32_t argc
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PulleyJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PulleyJoint_GetReactionForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7808,6 +8171,7 @@ bool js_box2dclasses_b2PulleyJoint_ShiftOrigin(JSContext *cx, uint32_t argc, JS:
 bool js_box2dclasses_b2PulleyJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2PulleyJoint* cobj = (b2PulleyJoint *)(proxy ? proxy->ptr : NULL);
@@ -7816,6 +8180,7 @@ bool js_box2dclasses_b2PulleyJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Va
         double ret = cobj->GetRatio();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PulleyJoint_GetRatio : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7869,7 +8234,8 @@ void js_register_box2dclasses_b2PulleyJoint(JSContext *cx, JS::HandleObject glob
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2PulleyJoint_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2PulleyJoint"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2PulleyJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -7883,6 +8249,7 @@ JSObject *jsb_b2RevoluteJoint_prototype;
 bool js_box2dclasses_b2RevoluteJoint_GetLowerLimit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
@@ -7891,6 +8258,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetLowerLimit(JSContext *cx, uint32_t argc,
         double ret = cobj->GetLowerLimit();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetLowerLimit : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7901,6 +8269,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetLowerLimit(JSContext *cx, uint32_t argc,
 bool js_box2dclasses_b2RevoluteJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
@@ -7908,7 +8277,8 @@ bool js_box2dclasses_b2RevoluteJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7919,6 +8289,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS
 bool js_box2dclasses_b2RevoluteJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
@@ -7926,7 +8297,8 @@ bool js_box2dclasses_b2RevoluteJoint_GetLocalAnchorA(JSContext *cx, uint32_t arg
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetLocalAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7957,6 +8329,7 @@ bool js_box2dclasses_b2RevoluteJoint_SetMotorSpeed(JSContext *cx, uint32_t argc,
 bool js_box2dclasses_b2RevoluteJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
@@ -7964,7 +8337,8 @@ bool js_box2dclasses_b2RevoluteJoint_GetLocalAnchorB(JSContext *cx, uint32_t arg
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetLocalAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7975,6 +8349,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetLocalAnchorB(JSContext *cx, uint32_t arg
 bool js_box2dclasses_b2RevoluteJoint_GetJointAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
@@ -7983,6 +8358,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetJointAngle(JSContext *cx, uint32_t argc,
         double ret = cobj->GetJointAngle();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetJointAngle : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -7993,6 +8369,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetJointAngle(JSContext *cx, uint32_t argc,
 bool js_box2dclasses_b2RevoluteJoint_GetMotorSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
@@ -8001,6 +8378,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetMotorSpeed(JSContext *cx, uint32_t argc,
         double ret = cobj->GetMotorSpeed();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetMotorSpeed : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8023,6 +8401,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetMotorTorque(JSContext *cx, uint32_t argc
         double ret = cobj->GetMotorTorque(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetMotorTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8033,6 +8412,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetMotorTorque(JSContext *cx, uint32_t argc
 bool js_box2dclasses_b2RevoluteJoint_IsLimitEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
@@ -8041,6 +8421,7 @@ bool js_box2dclasses_b2RevoluteJoint_IsLimitEnabled(JSContext *cx, uint32_t argc
         bool ret = cobj->IsLimitEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_IsLimitEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8071,6 +8452,7 @@ bool js_box2dclasses_b2RevoluteJoint_EnableLimit(JSContext *cx, uint32_t argc, J
 bool js_box2dclasses_b2RevoluteJoint_IsMotorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
@@ -8079,6 +8461,7 @@ bool js_box2dclasses_b2RevoluteJoint_IsMotorEnabled(JSContext *cx, uint32_t argc
         bool ret = cobj->IsMotorEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_IsMotorEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8100,7 +8483,8 @@ bool js_box2dclasses_b2RevoluteJoint_GetReactionForce(JSContext *cx, uint32_t ar
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetReactionForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8131,6 +8515,7 @@ bool js_box2dclasses_b2RevoluteJoint_SetMaxMotorTorque(JSContext *cx, uint32_t a
 bool js_box2dclasses_b2RevoluteJoint_GetJointSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
@@ -8139,6 +8524,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetJointSpeed(JSContext *cx, uint32_t argc,
         double ret = cobj->GetJointSpeed();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetJointSpeed : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8169,6 +8555,7 @@ bool js_box2dclasses_b2RevoluteJoint_EnableMotor(JSContext *cx, uint32_t argc, J
 bool js_box2dclasses_b2RevoluteJoint_GetReferenceAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
@@ -8177,6 +8564,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetReferenceAngle(JSContext *cx, uint32_t a
         double ret = cobj->GetReferenceAngle();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetReferenceAngle : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8225,6 +8613,7 @@ bool js_box2dclasses_b2RevoluteJoint_SetLimits(JSContext *cx, uint32_t argc, JS:
 bool js_box2dclasses_b2RevoluteJoint_GetMaxMotorTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
@@ -8233,6 +8622,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetMaxMotorTorque(JSContext *cx, uint32_t a
         double ret = cobj->GetMaxMotorTorque();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetMaxMotorTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8255,6 +8645,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetReactionTorque(JSContext *cx, uint32_t a
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetReactionTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8265,6 +8656,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetReactionTorque(JSContext *cx, uint32_t a
 bool js_box2dclasses_b2RevoluteJoint_GetUpperLimit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
@@ -8273,6 +8665,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetUpperLimit(JSContext *cx, uint32_t argc,
         double ret = cobj->GetUpperLimit();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetUpperLimit : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8283,6 +8676,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetUpperLimit(JSContext *cx, uint32_t argc,
 bool js_box2dclasses_b2RevoluteJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RevoluteJoint* cobj = (b2RevoluteJoint *)(proxy ? proxy->ptr : NULL);
@@ -8290,7 +8684,8 @@ bool js_box2dclasses_b2RevoluteJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RevoluteJoint_GetAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8353,7 +8748,8 @@ void js_register_box2dclasses_b2RevoluteJoint(JSContext *cx, JS::HandleObject gl
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2RevoluteJoint_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2RevoluteJoint"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2RevoluteJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -8367,6 +8763,7 @@ JSObject *jsb_b2RopeJoint_prototype;
 bool js_box2dclasses_b2RopeJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
@@ -8374,7 +8771,8 @@ bool js_box2dclasses_b2RopeJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RopeJoint_GetAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8397,6 +8795,7 @@ bool js_box2dclasses_b2RopeJoint_GetReactionTorque(JSContext *cx, uint32_t argc,
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RopeJoint_GetReactionTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8407,6 +8806,7 @@ bool js_box2dclasses_b2RopeJoint_GetReactionTorque(JSContext *cx, uint32_t argc,
 bool js_box2dclasses_b2RopeJoint_GetMaxLength(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
@@ -8415,6 +8815,7 @@ bool js_box2dclasses_b2RopeJoint_GetMaxLength(JSContext *cx, uint32_t argc, JS::
         double ret = cobj->GetMaxLength();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RopeJoint_GetMaxLength : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8425,6 +8826,7 @@ bool js_box2dclasses_b2RopeJoint_GetMaxLength(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2RopeJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
@@ -8432,7 +8834,8 @@ bool js_box2dclasses_b2RopeJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RopeJoint_GetLocalAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8479,6 +8882,7 @@ bool js_box2dclasses_b2RopeJoint_SetMaxLength(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2RopeJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
@@ -8486,7 +8890,8 @@ bool js_box2dclasses_b2RopeJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RopeJoint_GetLocalAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8497,6 +8902,7 @@ bool js_box2dclasses_b2RopeJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, J
 bool js_box2dclasses_b2RopeJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
@@ -8504,7 +8910,8 @@ bool js_box2dclasses_b2RopeJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RopeJoint_GetAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8526,7 +8933,8 @@ bool js_box2dclasses_b2RopeJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RopeJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RopeJoint_GetReactionForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8537,6 +8945,7 @@ bool js_box2dclasses_b2RopeJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2RopeJoint_GetLimitState(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2RopeJoint* cobj = (b2RopeJoint *)(proxy ? proxy->ptr : NULL);
@@ -8545,6 +8954,7 @@ bool js_box2dclasses_b2RopeJoint_GetLimitState(JSContext *cx, uint32_t argc, JS:
         int ret = (int)cobj->GetLimitState();
         JS::RootedValue jsret(cx);
         jsret = JS::Int32Value(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2RopeJoint_GetLimitState : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8595,7 +9005,8 @@ void js_register_box2dclasses_b2RopeJoint(JSContext *cx, JS::HandleObject global
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2RopeJoint_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2RopeJoint"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2RopeJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -8629,6 +9040,7 @@ bool js_box2dclasses_b2WeldJoint_SetDampingRatio(JSContext *cx, uint32_t argc, J
 bool js_box2dclasses_b2WeldJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
@@ -8636,7 +9048,8 @@ bool js_box2dclasses_b2WeldJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WeldJoint_GetAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8659,6 +9072,7 @@ bool js_box2dclasses_b2WeldJoint_GetReactionTorque(JSContext *cx, uint32_t argc,
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WeldJoint_GetReactionTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8705,6 +9119,7 @@ bool js_box2dclasses_b2WeldJoint_SetFrequency(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2WeldJoint_GetDampingRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
@@ -8713,6 +9128,7 @@ bool js_box2dclasses_b2WeldJoint_GetDampingRatio(JSContext *cx, uint32_t argc, J
         double ret = cobj->GetDampingRatio();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WeldJoint_GetDampingRatio : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8723,6 +9139,7 @@ bool js_box2dclasses_b2WeldJoint_GetDampingRatio(JSContext *cx, uint32_t argc, J
 bool js_box2dclasses_b2WeldJoint_GetFrequency(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
@@ -8731,6 +9148,7 @@ bool js_box2dclasses_b2WeldJoint_GetFrequency(JSContext *cx, uint32_t argc, JS::
         double ret = cobj->GetFrequency();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WeldJoint_GetFrequency : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8741,6 +9159,7 @@ bool js_box2dclasses_b2WeldJoint_GetFrequency(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2WeldJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
@@ -8748,7 +9167,8 @@ bool js_box2dclasses_b2WeldJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WeldJoint_GetLocalAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8759,6 +9179,7 @@ bool js_box2dclasses_b2WeldJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, J
 bool js_box2dclasses_b2WeldJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
@@ -8766,7 +9187,8 @@ bool js_box2dclasses_b2WeldJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WeldJoint_GetLocalAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8777,6 +9199,7 @@ bool js_box2dclasses_b2WeldJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, J
 bool js_box2dclasses_b2WeldJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
@@ -8784,7 +9207,8 @@ bool js_box2dclasses_b2WeldJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WeldJoint_GetAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8806,7 +9230,8 @@ bool js_box2dclasses_b2WeldJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WeldJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WeldJoint_GetReactionForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8817,6 +9242,7 @@ bool js_box2dclasses_b2WeldJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2WeldJoint_GetReferenceAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WeldJoint* cobj = (b2WeldJoint *)(proxy ? proxy->ptr : NULL);
@@ -8825,6 +9251,7 @@ bool js_box2dclasses_b2WeldJoint_GetReferenceAngle(JSContext *cx, uint32_t argc,
         double ret = cobj->GetReferenceAngle();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WeldJoint_GetReferenceAngle : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8877,7 +9304,8 @@ void js_register_box2dclasses_b2WeldJoint(JSContext *cx, JS::HandleObject global
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2WeldJoint_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2WeldJoint"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2WeldJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
@@ -8891,6 +9319,7 @@ JSObject *jsb_b2WheelJoint_prototype;
 bool js_box2dclasses_b2WheelJoint_IsMotorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
@@ -8899,6 +9328,7 @@ bool js_box2dclasses_b2WheelJoint_IsMotorEnabled(JSContext *cx, uint32_t argc, J
         bool ret = cobj->IsMotorEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_IsMotorEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8909,6 +9339,7 @@ bool js_box2dclasses_b2WheelJoint_IsMotorEnabled(JSContext *cx, uint32_t argc, J
 bool js_box2dclasses_b2WheelJoint_GetMotorSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
@@ -8917,6 +9348,7 @@ bool js_box2dclasses_b2WheelJoint_GetMotorSpeed(JSContext *cx, uint32_t argc, JS
         double ret = cobj->GetMotorSpeed();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetMotorSpeed : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8927,6 +9359,7 @@ bool js_box2dclasses_b2WheelJoint_GetMotorSpeed(JSContext *cx, uint32_t argc, JS
 bool js_box2dclasses_b2WheelJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
@@ -8934,7 +9367,8 @@ bool js_box2dclasses_b2WheelJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -8957,6 +9391,7 @@ bool js_box2dclasses_b2WheelJoint_GetReactionTorque(JSContext *cx, uint32_t argc
         double ret = cobj->GetReactionTorque(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetReactionTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9003,6 +9438,7 @@ bool js_box2dclasses_b2WheelJoint_SetSpringDampingRatio(JSContext *cx, uint32_t 
 bool js_box2dclasses_b2WheelJoint_GetSpringFrequencyHz(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
@@ -9011,6 +9447,7 @@ bool js_box2dclasses_b2WheelJoint_GetSpringFrequencyHz(JSContext *cx, uint32_t a
         double ret = cobj->GetSpringFrequencyHz();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetSpringFrequencyHz : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9021,6 +9458,7 @@ bool js_box2dclasses_b2WheelJoint_GetSpringFrequencyHz(JSContext *cx, uint32_t a
 bool js_box2dclasses_b2WheelJoint_GetJointTranslation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
@@ -9029,6 +9467,7 @@ bool js_box2dclasses_b2WheelJoint_GetJointTranslation(JSContext *cx, uint32_t ar
         double ret = cobj->GetJointTranslation();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetJointTranslation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9039,6 +9478,7 @@ bool js_box2dclasses_b2WheelJoint_GetJointTranslation(JSContext *cx, uint32_t ar
 bool js_box2dclasses_b2WheelJoint_GetSpringDampingRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
@@ -9047,6 +9487,7 @@ bool js_box2dclasses_b2WheelJoint_GetSpringDampingRatio(JSContext *cx, uint32_t 
         double ret = cobj->GetSpringDampingRatio();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetSpringDampingRatio : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9057,6 +9498,7 @@ bool js_box2dclasses_b2WheelJoint_GetSpringDampingRatio(JSContext *cx, uint32_t 
 bool js_box2dclasses_b2WheelJoint_GetLocalAxisA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
@@ -9064,7 +9506,8 @@ bool js_box2dclasses_b2WheelJoint_GetLocalAxisA(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAxisA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetLocalAxisA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9095,6 +9538,7 @@ bool js_box2dclasses_b2WheelJoint_SetSpringFrequencyHz(JSContext *cx, uint32_t a
 bool js_box2dclasses_b2WheelJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
@@ -9102,7 +9546,8 @@ bool js_box2dclasses_b2WheelJoint_GetLocalAnchorA(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAnchorA();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetLocalAnchorA : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9133,6 +9578,7 @@ bool js_box2dclasses_b2WheelJoint_SetMotorSpeed(JSContext *cx, uint32_t argc, JS
 bool js_box2dclasses_b2WheelJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
@@ -9140,7 +9586,8 @@ bool js_box2dclasses_b2WheelJoint_GetLocalAnchorB(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         const b2Vec2& ret = cobj->GetLocalAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetLocalAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9171,6 +9618,7 @@ bool js_box2dclasses_b2WheelJoint_SetMaxMotorTorque(JSContext *cx, uint32_t argc
 bool js_box2dclasses_b2WheelJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
@@ -9178,7 +9626,8 @@ bool js_box2dclasses_b2WheelJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::V
     if (argc == 0) {
         b2Vec2 ret = cobj->GetAnchorB();
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetAnchorB : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9200,7 +9649,8 @@ bool js_box2dclasses_b2WheelJoint_GetReactionForce(JSContext *cx, uint32_t argc,
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetReactionForce : Error processing arguments");
         b2Vec2 ret = cobj->GetReactionForce(arg0);
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        ok &= b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetReactionForce : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9223,6 +9673,7 @@ bool js_box2dclasses_b2WheelJoint_GetMotorTorque(JSContext *cx, uint32_t argc, J
         double ret = cobj->GetMotorTorque(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetMotorTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9233,6 +9684,7 @@ bool js_box2dclasses_b2WheelJoint_GetMotorTorque(JSContext *cx, uint32_t argc, J
 bool js_box2dclasses_b2WheelJoint_GetJointSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
@@ -9241,6 +9693,7 @@ bool js_box2dclasses_b2WheelJoint_GetJointSpeed(JSContext *cx, uint32_t argc, JS
         double ret = cobj->GetJointSpeed();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetJointSpeed : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9251,6 +9704,7 @@ bool js_box2dclasses_b2WheelJoint_GetJointSpeed(JSContext *cx, uint32_t argc, JS
 bool js_box2dclasses_b2WheelJoint_GetMaxMotorTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     b2WheelJoint* cobj = (b2WheelJoint *)(proxy ? proxy->ptr : NULL);
@@ -9259,6 +9713,7 @@ bool js_box2dclasses_b2WheelJoint_GetMaxMotorTorque(JSContext *cx, uint32_t argc
         double ret = cobj->GetMaxMotorTorque();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2WheelJoint_GetMaxMotorTorque : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -9340,7 +9795,8 @@ void js_register_box2dclasses_b2WheelJoint(JSContext *cx, JS::HandleObject globa
         nullptr);
 
     JS::RootedObject proto(cx, jsb_b2WheelJoint_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "b2WheelJoint"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "b2WheelJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);

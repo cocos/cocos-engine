@@ -28,23 +28,22 @@ bool js_cocos2dx_network_Downloader_setOnTaskError(JSContext *cx, uint32_t argc,
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](const cocos2d::network::DownloadTask & larg0, int larg1, int larg2, const std::basic_string<char> & larg3) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = downloadTask_to_jsval(cx, larg0);
+		            ok &= downloadTask_to_jsval(cx, larg0, &largv);
 		            valArr.append(largv);
 		            largv = JS::Int32Value(larg1);
 		            valArr.append(largv);
 		            largv = JS::Int32Value(larg2);
 		            valArr.append(largv);
-		            largv = std_string_to_jsval(cx, larg3);
+		            ok &= std_string_to_jsval(cx, larg3, &largv);
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -82,23 +81,22 @@ bool js_cocos2dx_network_Downloader_setOnTaskProgress(JSContext *cx, uint32_t ar
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](const cocos2d::network::DownloadTask & larg0, long long larg1, long long larg2, long long larg3) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = downloadTask_to_jsval(cx, larg0);
+		            ok &= downloadTask_to_jsval(cx, larg0, &largv);
 		            valArr.append(largv);
-		            largv = long_long_to_jsval(cx, larg1);
+		            ok &= long_long_to_jsval(cx, larg1, &largv);
 		            valArr.append(largv);
-		            largv = long_long_to_jsval(cx, larg2);
+		            ok &= long_long_to_jsval(cx, larg2, &largv);
 		            valArr.append(largv);
-		            largv = long_long_to_jsval(cx, larg3);
+		            ok &= long_long_to_jsval(cx, larg3, &largv);
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -139,7 +137,8 @@ bool js_cocos2dx_network_Downloader_createDownloadFileTask(JSContext *cx, uint32
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_network_Downloader_createDownloadFileTask : Error processing arguments");
         std::shared_ptr<const cocos2d::network::DownloadTask> ret = cobj->createDownloadFileTask(arg0, arg1);
         JS::RootedValue jsret(cx);
-        jsret = downloadTask_to_jsval(cx, *ret);
+        ok &= downloadTask_to_jsval(cx, *ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_network_Downloader_createDownloadFileTask : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -153,7 +152,8 @@ bool js_cocos2dx_network_Downloader_createDownloadFileTask(JSContext *cx, uint32
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_network_Downloader_createDownloadFileTask : Error processing arguments");
         std::shared_ptr<const cocos2d::network::DownloadTask> ret = cobj->createDownloadFileTask(arg0, arg1, arg2);
         JS::RootedValue jsret(cx);
-        jsret = downloadTask_to_jsval(cx, *ret);
+        ok &= downloadTask_to_jsval(cx, *ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_network_Downloader_createDownloadFileTask : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -174,17 +174,16 @@ bool js_cocos2dx_network_Downloader_setOnFileTaskSuccess(JSContext *cx, uint32_t
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](const cocos2d::network::DownloadTask & larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = downloadTask_to_jsval(cx, larg0);
+		            ok &= downloadTask_to_jsval(cx, larg0, &largv);
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -315,7 +314,8 @@ void js_register_cocos2dx_network_Downloader(JSContext *cx, JS::HandleObject glo
         nullptr);
 
     JS::RootedObject proto(cx, jsb_cocos2d_network_Downloader_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "Downloader"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Downloader", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);

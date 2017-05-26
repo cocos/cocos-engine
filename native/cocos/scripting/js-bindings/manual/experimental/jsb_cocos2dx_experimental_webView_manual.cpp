@@ -18,12 +18,15 @@ static bool jsb_cocos2dx_experimental_webView_setOnShouldStartLoading(JSContext 
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 
     if(argc == 1){
-        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, args.get(0), args.thisv()));
+        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, jsfunc, obj));
         cobj->setOnShouldStartLoading([=](experimental::ui::WebView *sender, const std::string &url)->bool{
             JS::AutoValueVector arg(cx);
             JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
             arg.append(JS::ObjectOrNullValue(jsobj));
-            arg.append(std_string_to_jsval(cx, url));
+            JS::RootedValue larg(cx);
+            std_string_to_jsval(cx, url, &larg);
+            arg.append(larg);
             JS::HandleValueArray argsv(arg);
             JS::RootedValue rval(cx);
 
@@ -49,12 +52,15 @@ static bool jsb_cocos2dx_experimental_webView_setOnDidFinishLoading(JSContext *c
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 
     if(argc == 1){
-        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, args.get(0), args.thisv()));
+        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, jsfunc, obj));
         cobj->setOnDidFinishLoading([=](experimental::ui::WebView *sender, const std::string &url)->void{
             JS::AutoValueVector arg(cx);
             JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
             arg.append(JS::ObjectOrNullValue(jsobj));
-            arg.append(std_string_to_jsval(cx, url));
+            JS::RootedValue larg(cx);
+            std_string_to_jsval(cx, url, &larg);
+            arg.append(larg);
             JS::HandleValueArray argsv(arg);
             JS::RootedValue rval(cx);
 
@@ -79,12 +85,15 @@ static bool jsb_cocos2dx_experimental_webView_setOnDidFailLoading(JSContext *cx,
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 
     if(argc == 1){
-        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, args.get(0), args.thisv()));
+        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, jsfunc, obj));
         cobj->setOnDidFailLoading([=](experimental::ui::WebView *sender, const std::string &url)->void{
             JS::AutoValueVector arg(cx);
             JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
             arg.append(JS::ObjectOrNullValue(jsobj));
-            arg.append(std_string_to_jsval(cx, url));
+            JS::RootedValue larg(cx);
+            std_string_to_jsval(cx, url, &larg);
+            arg.append(larg);
             JS::HandleValueArray argsv(arg);
             JS::RootedValue rval(cx);
 
@@ -109,12 +118,15 @@ static bool jsb_cocos2dx_experimental_webView_setOnJSCallback(JSContext *cx, uin
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 
     if(argc == 1){
-        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, args.get(0), args.thisv()));
+        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, jsfunc, obj));
         cobj->setOnJSCallback([=](experimental::ui::WebView *sender, const std::string &url)->void{
             JS::AutoValueVector arg(cx);
             JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
             arg.append(JS::ObjectOrNullValue(jsobj));
-            arg.append(std_string_to_jsval(cx, url));
+            JS::RootedValue larg(cx);
+            std_string_to_jsval(cx, url, &larg);
+            arg.append(larg);
             JS::HandleValueArray argsv(arg);
             JS::RootedValue rval(cx);
 

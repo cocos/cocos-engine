@@ -48,7 +48,7 @@ JS::Value JavaScriptObjCBridge::convertReturnValue(JSContext *cx, ReturnValue re
         case TypeBoolean:
             ret = JS::BooleanValue(retValue.boolValue);
         case TypeString:
-            ret = c_string_to_jsval(cx, retValue.stringValue->c_str(),retValue.stringValue->size());
+            c_string_to_jsval(cx, retValue.stringValue->c_str(), &ret, retValue.stringValue->size());
         default:
             break;
     }
@@ -257,14 +257,12 @@ static void basic_object_finalize(JSFreeOp *freeOp, JSObject *obj)
 {
     CCLOG("basic_object_finalize %p ...", obj);
     
-    js_proxy_t* nproxy;
     js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
     jsproxy = jsb_get_js_proxy(cx, jsobj);
     if (jsproxy) {
-        nproxy = jsb_get_native_proxy(jsproxy->ptr);
-        jsb_remove_proxy(nproxy, jsproxy);
+        jsb_remove_proxy(jsproxy);
     }
 }
 
@@ -314,7 +312,8 @@ void JavaScriptObjCBridge::_js_register(JSContext *cx, JS::HandleObject global)
     JS::RootedObject proto(cx, JavaScriptObjCBridge::js_proto);
     jsb_register_class<JavaScriptObjCBridge>(cx, JavaScriptObjCBridge::js_class, proto);
     
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "JavaScriptObjCBridge"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "JavaScriptObjCBridge", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }

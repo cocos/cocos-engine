@@ -2403,13 +2403,11 @@ void JSB_cpBase_finalize(JSFreeOp *fop, JSObject *obj)
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
 
-    js_proxy_t* nproxy = nullptr;
     js_proxy_t* jsproxy = nullptr;
     jsproxy = jsb_get_js_proxy(cx, jsobj);
     if (jsproxy)
     {
-        nproxy = jsb_get_native_proxy(jsproxy->ptr);
-        jsb_remove_proxy(nproxy, jsproxy);
+        jsb_remove_proxy(jsproxy);
     }
 }
 
@@ -2473,7 +2471,8 @@ void JSB_cpBase_createClass(JSContext *cx, JS::HandleObject globalObj, const cha
     JS::RootedObject proto(cx, JSB_cpBase_object);
     jsb_register_class<cpBase>(cx, JSB_cpBase_class, proto);
     
-    JS::RootedValue className(cx, std_string_to_jsval(cx, name));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, name, &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }

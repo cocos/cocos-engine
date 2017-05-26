@@ -4321,7 +4321,9 @@ bool JSB_cpShape_getCollisionType(JSContext *cx, uint32_t argc, JS::Value *vp) {
 	cpCollisionType ret_val;
 
 	ret_val = cpShapeGetCollisionType((cpShape*)arg0);
-	args.rval().set(long_to_jsval( cx, (cpCollisionType)ret_val));
+    JS::RootedValue ret(cx);
+    long_to_jsval( cx, (cpCollisionType)ret_val, &ret);
+	args.rval().set(ret);
 	return true;
 }
 

@@ -564,16 +564,17 @@ js_type_class_t *jsb_register_class(JSContext *cx, JSClass *jsClass, JS::HandleO
 
 void make_class_extend(JSContext *cx, JS::HandleObject proto);
 
-/** creates two new proxies: one associated with the nativeObj,
- and another one associated with the JsObj */
+/** creates proxy that associated the nativeObj with the JsObj, add it to the global map and set the proxy to the hook's private slot*/
 js_proxy_t* jsb_new_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsObj);
+/** Add a new native js proxy to the global map */
+js_proxy_t* jsb_bind_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsHandle);
 /** returns the proxy associated with the Native* */
 js_proxy_t* jsb_get_native_proxy(void* nativeObj);
 /** returns the proxy associated with the JSObject* */
 js_proxy_t* jsb_get_js_proxy(JSContext *cx, JS::HandleObject jsObj);
-/** deprecated: use jsb_remove_proxy(js_proxy_t* proxy) instead */
-void jsb_remove_proxy(js_proxy_t* nativeProxy, js_proxy_t* jsProxy);
-/** removes both the native and js proxies */
+/** removes the native proxy from the global map */
+void jsb_unbind_proxy(js_proxy_t* proxy);
+/** removes the proxy */
 void jsb_remove_proxy(js_proxy_t* proxy);
 /** removes the native js object proxy and unroot the js object (if necessary), 
  it's often used when JS object is created by native object */

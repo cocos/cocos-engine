@@ -38,6 +38,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_setTimeScale(JSContext *cx, uint32_t arg
 bool js_cocos2dx_spine_SkeletonRenderer_getDebugSlotsEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer *)(proxy ? proxy->ptr : NULL);
@@ -46,6 +47,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_getDebugSlotsEnabled(JSContext *cx, uint
         bool ret = cobj->getDebugSlotsEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonRenderer_getDebugSlotsEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -75,6 +77,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_setAttachment(JSContext *cx, uint32_t ar
             bool ret = cobj->setAttachment(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonRenderer_setAttachment : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -92,6 +95,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_setAttachment(JSContext *cx, uint32_t ar
             bool ret = cobj->setAttachment(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonRenderer_setAttachment : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -333,6 +337,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_setToSetupPose(JSContext *cx, uint32_t a
 bool js_cocos2dx_spine_SkeletonRenderer_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer *)(proxy ? proxy->ptr : NULL);
@@ -340,7 +345,8 @@ bool js_cocos2dx_spine_SkeletonRenderer_getBlendFunc(JSContext *cx, uint32_t arg
     if (argc == 0) {
         const cocos2d::BlendFunc& ret = cobj->getBlendFunc();
         JS::RootedValue jsret(cx);
-        jsret = blendfunc_to_jsval(cx, ret);
+        ok &= blendfunc_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonRenderer_getBlendFunc : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -403,6 +409,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_setDebugBonesEnabled(JSContext *cx, uint
 bool js_cocos2dx_spine_SkeletonRenderer_getDebugBonesEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer *)(proxy ? proxy->ptr : NULL);
@@ -411,6 +418,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_getDebugBonesEnabled(JSContext *cx, uint
         bool ret = cobj->getDebugBonesEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonRenderer_getDebugBonesEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -421,6 +429,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_getDebugBonesEnabled(JSContext *cx, uint
 bool js_cocos2dx_spine_SkeletonRenderer_getTimeScale(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer *)(proxy ? proxy->ptr : NULL);
@@ -429,6 +438,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_getTimeScale(JSContext *cx, uint32_t arg
         double ret = cobj->getTimeScale();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonRenderer_getTimeScale : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -475,6 +485,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_setSkin(JSContext *cx, uint32_t argc, JS
             bool ret = cobj->setSkin(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonRenderer_setSkin : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -489,6 +500,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_setSkin(JSContext *cx, uint32_t argc, JS
             bool ret = cobj->setSkin(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             jsret = JS::BooleanValue(ret);
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonRenderer_setSkin : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -500,6 +512,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_setSkin(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_spine_SkeletonRenderer_getSkeleton(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer *)(proxy ? proxy->ptr : NULL);
@@ -507,7 +520,8 @@ bool js_cocos2dx_spine_SkeletonRenderer_getSkeleton(JSContext *cx, uint32_t argc
     if (argc == 0) {
         spSkeleton* ret = cobj->getSkeleton();
         JS::RootedValue jsret(cx);
-        jsret = ret == nullptr ? JS::NullHandleValue : spskeleton_to_jsval(cx, *ret);
+        if (ret) { ok &= spskeleton_to_jsval(cx, *ret, &jsret); } else { jsret = JS::NullHandleValue; };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonRenderer_getSkeleton : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -568,6 +582,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(JSContext *cx, uint32_t a
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -592,12 +607,14 @@ bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(JSContext *cx, uint32_t a
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
     } while (0);
     
     do {
+        bool ok = true;
         if (argc == 0) {
             spine::SkeletonRenderer* ret = spine::SkeletonRenderer::create();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -606,6 +623,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(JSContext *cx, uint32_t a
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -627,6 +645,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(JSContext *cx, uint32_t a
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -650,6 +669,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(JSContext *cx, uint32_t a
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -869,7 +889,8 @@ void js_register_cocos2dx_spine_SkeletonRenderer(JSContext *cx, JS::HandleObject
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_spine_SkeletonRenderer_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "SkeletonRenderer"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "SkeletonRenderer", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
@@ -894,7 +915,8 @@ bool js_cocos2dx_spine_SkeletonAnimation_findAnimation(JSContext *cx, uint32_t a
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonAnimation_findAnimation : Error processing arguments");
         spAnimation* ret = cobj->findAnimation(arg0);
         JS::RootedValue jsret(cx);
-        jsret = ret == nullptr ? JS::NullHandleValue : spanimation_to_jsval(cx, *ret);
+        if (ret) { ok &= spanimation_to_jsval(cx, *ret, &jsret); } else { jsret = JS::NullHandleValue; };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonAnimation_findAnimation : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -939,17 +961,16 @@ bool js_cocos2dx_spine_SkeletonAnimation_setDisposeListener(JSContext *cx, uint3
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = larg0 == nullptr ? JS::NullHandleValue : sptrackentry_to_jsval(cx, *larg0);
+		            if (larg0) { ok &= sptrackentry_to_jsval(cx, *larg0, &largv); } else { largv = JS::NullHandleValue; };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -987,17 +1008,16 @@ bool js_cocos2dx_spine_SkeletonAnimation_setEndListener(JSContext *cx, uint32_t 
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = larg0 == nullptr ? JS::NullHandleValue : sptrackentry_to_jsval(cx, *larg0);
+		            if (larg0) { ok &= sptrackentry_to_jsval(cx, *larg0, &largv); } else { largv = JS::NullHandleValue; };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -1025,6 +1045,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_setEndListener(JSContext *cx, uint32_t 
 bool js_cocos2dx_spine_SkeletonAnimation_getState(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation *)(proxy ? proxy->ptr : NULL);
@@ -1032,7 +1053,8 @@ bool js_cocos2dx_spine_SkeletonAnimation_getState(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         spAnimationState* ret = cobj->getState();
         JS::RootedValue jsret(cx);
-        jsret = ret == nullptr ? JS::NullHandleValue : spanimationstate_to_jsval(cx, *ret);
+        if (ret) { ok &= spanimationstate_to_jsval(cx, *ret, &jsret); } else { jsret = JS::NullHandleValue; };
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonAnimation_getState : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -1053,17 +1075,16 @@ bool js_cocos2dx_spine_SkeletonAnimation_setCompleteListener(JSContext *cx, uint
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = larg0 == nullptr ? JS::NullHandleValue : sptrackentry_to_jsval(cx, *larg0);
+		            if (larg0) { ok &= sptrackentry_to_jsval(cx, *larg0, &largv); } else { largv = JS::NullHandleValue; };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -1101,19 +1122,18 @@ bool js_cocos2dx_spine_SkeletonAnimation_setEventListener(JSContext *cx, uint32_
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](spTrackEntry* larg0, spEvent* larg1) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = larg0 == nullptr ? JS::NullHandleValue : sptrackentry_to_jsval(cx, *larg0);
+		            if (larg0) { ok &= sptrackentry_to_jsval(cx, *larg0, &largv); } else { largv = JS::NullHandleValue; };
 		            valArr.append(largv);
-		            largv = larg1 == nullptr ? JS::NullHandleValue : spevent_to_jsval(cx, *larg1);
+		            if (larg1) { ok &= spevent_to_jsval(cx, *larg1, &largv); } else { largv = JS::NullHandleValue; };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -1176,17 +1196,16 @@ bool js_cocos2dx_spine_SkeletonAnimation_setInterruptListener(JSContext *cx, uin
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = larg0 == nullptr ? JS::NullHandleValue : sptrackentry_to_jsval(cx, *larg0);
+		            if (larg0) { ok &= sptrackentry_to_jsval(cx, *larg0, &largv); } else { largv = JS::NullHandleValue; };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -1240,17 +1259,16 @@ bool js_cocos2dx_spine_SkeletonAnimation_setStartListener(JSContext *cx, uint32_
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx);
-		        if (args.thisv().isObject())
-		        {
-		            jstarget = args.thisv().toObjectOrNull();
-		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](spTrackEntry* larg0) -> void {
+		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
 		            JS::RootedValue largv(cx);
-		            largv = larg0 == nullptr ? JS::NullHandleValue : sptrackentry_to_jsval(cx, *larg0);
+		            if (larg0) { ok &= sptrackentry_to_jsval(cx, *larg0, &largv); } else { largv = JS::NullHandleValue; };
 		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
 		            JS::RootedValue rval(cx);
 		            JS::HandleValueArray largsv(valArr);
 		            bool succeed = func->invoke(largsv, &rval);
@@ -1295,6 +1313,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile(JSContext *cx, uin
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -1318,6 +1337,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile(JSContext *cx, uin
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -1340,6 +1360,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile(JSContext *cx, uin
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -1364,6 +1385,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile(JSContext *cx, uin
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -1374,6 +1396,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile(JSContext *cx, uin
 bool js_cocos2dx_spine_SkeletonAnimation_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = spine::SkeletonAnimation::create();
@@ -1406,6 +1429,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile(JSContext *cx, uint3
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -1429,6 +1453,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile(JSContext *cx, uint3
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -1451,6 +1476,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile(JSContext *cx, uint3
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -1475,6 +1501,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile(JSContext *cx, uint3
             } else {
                 jsret = JS::NullHandleValue;
             };
+            JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile : error parsing return value");
             args.rval().set(jsret);
             return true;
         }
@@ -1823,7 +1850,8 @@ void js_register_cocos2dx_spine_SkeletonAnimation(JSContext *cx, JS::HandleObjec
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_spine_SkeletonAnimation_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "SkeletonAnimation"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "SkeletonAnimation", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);

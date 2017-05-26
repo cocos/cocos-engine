@@ -58,7 +58,8 @@ bool js_creator_PhysicsContactListener_setEndContact(JSContext *cx, uint32_t arg
             if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+                JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
                 auto lambda = [=](b2Contact* larg0) -> void {
                     JS::RootedValue largv(cx);
                     if (larg0) {
@@ -102,7 +103,8 @@ bool js_creator_PhysicsContactListener_setBeginContact(JSContext *cx, uint32_t a
             if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+                JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
                 auto lambda = [=](b2Contact* larg0) -> void {
                     JS::RootedValue largv(cx);
                     if (larg0) {
@@ -152,7 +154,8 @@ bool js_creator_PhysicsContactListener_setPreSolve(JSContext *cx, uint32_t argc,
             if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+                JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
                 auto lambda = [=](b2Contact* larg0) -> void {
                     JS::RootedValue largv(cx);
                     if (larg0) {
@@ -197,7 +200,8 @@ bool js_creator_PhysicsContactListener_setPostSolve(JSContext *cx, uint32_t argc
             if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+                JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
                 auto lambda = [=](b2Contact* larg0, const creator::PhysicsContactImpulse* larg1) -> void {
                     JS::AutoValueVector largv(cx);
                     if (larg0) {
@@ -245,7 +249,8 @@ bool js_creator_PhysicsAABBQueryCallback_getFixtures(JSContext *cx, uint32_t arg
     if (argc == 0) {
         std::vector<b2Fixture *> ret = cobj->getFixtures();
         
-        JS::RootedValue jsret(cx, array_of_b2Fixture_to_jsval(cx, ret));
+        JS::RootedValue jsret(cx);
+        array_of_b2Fixture_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
@@ -264,7 +269,8 @@ bool js_creator_PhysicsRayCastCallback_getFixtures(JSContext *cx, uint32_t argc,
     if (argc == 0) {
         std::vector<b2Fixture *> ret = cobj->getFixtures();
        
-        JS::RootedValue jsret(cx, array_of_b2Fixture_to_jsval(cx, ret));
+        JS::RootedValue jsret(cx);
+        array_of_b2Fixture_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
@@ -283,7 +289,8 @@ bool js_creator_PhysicsRayCastCallback_getPoints(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
         std::vector<b2Vec2, std::allocator<b2Vec2> >& ret = cobj->getPoints();
         
-        JS::RootedValue jsret(cx, array_of_b2Vec2_to_jsval(cx, ret));
+        JS::RootedValue jsret(cx);
+        array_of_b2Vec2_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
@@ -301,7 +308,8 @@ bool js_creator_PhysicsRayCastCallback_getNormals(JSContext *cx, uint32_t argc, 
     if (argc == 0) {
         std::vector<b2Vec2, std::allocator<b2Vec2> >& ret = cobj->getNormals();
         
-        JS::RootedValue jsret(cx, array_of_b2Vec2_to_jsval(cx, ret));
+        JS::RootedValue jsret(cx);
+        array_of_b2Vec2_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }

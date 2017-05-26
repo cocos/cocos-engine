@@ -79,16 +79,16 @@ bool jsval_to_b2Vec2( JSContext *cx, JS::HandleValue vp, b2Vec2 *ret )
     return true;
 }
 
-JS::HandleValue b2Vec2_to_jsval(JSContext *cx, const b2Vec2& v)
+bool b2Vec2_to_jsval(JSContext *cx, const b2Vec2& v, JS::MutableHandleValue ret)
 {
     JS::RootedObject object(cx, JS_NewPlainObject(cx));
-    JS::RootedValue ret(cx);
-
     if (JS_DefineProperty(cx, object, "x", v.x, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
         JS_DefineProperty(cx, object, "y", v.y, JSPROP_ENUMERATE | JSPROP_PERMANENT) )
-        ret = JS::ObjectOrNullValue(object);
-    
-    return ret;
+    {
+        ret.set(JS::ObjectOrNullValue(object));
+        return true;
+    }
+    return false;
 }
 
 
@@ -595,28 +595,33 @@ bool jsval_to_array_of_b2Vec2(JSContext* cx, JS::HandleValue v, b2Vec2 *points, 
     return true;
 }
 
-
-JS::HandleValue b2Manifold_to_jsval(JSContext* cx, const b2Manifold* v)
+bool b2Manifold_to_jsval(JSContext* cx, const b2Manifold* v, JS::MutableHandleValue ret)
 {
     JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
-    JS::RootedValue ret(cx);
+    JS::RootedValue localPointVal(cx);
+    JS::RootedValue localNormalVal(cx);
     
-    bool ok = JS_DefineProperty(cx, tmp, "localPoint", JS::RootedValue(cx, b2Vec2_to_jsval(cx, v->localPoint)), JSPROP_ENUMERATE | JSPROP_PERMANENT);
-    ok &= JS_DefineProperty(cx, tmp, "localNormal", JS::RootedValue(cx, b2Vec2_to_jsval(cx, v->localNormal)), JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    bool ok = b2Vec2_to_jsval(cx, v->localPoint, &localPointVal);
+    ok &= JS_DefineProperty(cx, tmp, "localPoint", localPointVal, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    ok &= b2Vec2_to_jsval(cx, v->localNormal, &localNormalVal);
+    ok &= JS_DefineProperty(cx, tmp, "localNormal", localNormalVal, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     ok &= JS_DefineProperty(cx, tmp, "pointCount", v->pointCount, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     ok &= JS_DefineProperty(cx, tmp, "type", v->type, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
     JS::RootedObject jsretArr(cx, JS_NewArrayObject(cx, 0));
+    JS::RootedObject arrElement(cx);
+    localPointVal.set(JS::NullHandleValue);
     
     for (int i = 0; i < v->pointCount; i++)
     {
         const b2ManifoldPoint& p = v->points[i];
         
-        JS::RootedObject arrElement(cx, JS_NewPlainObject(cx));
+        arrElement = JS_NewPlainObject(cx);
         
         ok &= JS_DefineProperty(cx, arrElement, "normalImpulse", p.normalImpulse, JSPROP_ENUMERATE | JSPROP_PERMANENT);
         ok &= JS_DefineProperty(cx, arrElement, "tangentImpulse", p.tangentImpulse, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-        ok &= JS_DefineProperty(cx, arrElement, "localPoint", JS::RootedValue(cx, b2Vec2_to_jsval(cx, p.localPoint)), JSPROP_ENUMERATE | JSPROP_PERMANENT);
+        ok &= b2Vec2_to_jsval(cx, p.localPoint, &localPointVal);
+        ok &= JS_DefineProperty(cx, arrElement, "localPoint", localPointVal, JSPROP_ENUMERATE | JSPROP_PERMANENT);
         
         if (!JS_SetElement(cx, jsretArr, i, arrElement)) {
             break;
@@ -626,15 +631,14 @@ JS::HandleValue b2Manifold_to_jsval(JSContext* cx, const b2Manifold* v)
     ok &= JS_DefineProperty(cx, tmp, "points", jsretArr, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
     if (ok) {
-        ret = JS::ObjectOrNullValue(tmp);
+        ret.set(JS::ObjectOrNullValue(tmp));
     }
-    return ret;
+    return ok;
 }
 
-JS::HandleValue b2ContactImpulse_to_jsval(JSContext* cx, const b2ContactImpulse* v)
+bool b2ContactImpulse_to_jsval(JSContext* cx, const b2ContactImpulse* v, JS::MutableHandleValue ret)
 {
     JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
-    JS::RootedValue ret(cx);
     
     bool ok = true;
     
@@ -661,15 +665,14 @@ JS::HandleValue b2ContactImpulse_to_jsval(JSContext* cx, const b2ContactImpulse*
     ok &= JS_DefineProperty(cx, tmp, "tangentImpulses", jsretTangent, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
     if (ok) {
-        ret = JS::ObjectOrNullValue(tmp);
+        ret.set(JS::ObjectOrNullValue(tmp));
     }
-    return ret;
+    return ok;
 }
 
-JS::HandleValue array_of_b2Fixture_to_jsval(JSContext* cx, const std::vector<b2Fixture*>& fixtures)
+bool array_of_b2Fixture_to_jsval(JSContext* cx, const std::vector<b2Fixture*>& fixtures, JS::MutableHandleValue ret)
 {
     JS::RootedObject jsret(cx, JS_NewArrayObject(cx, 0));
-    JS::RootedValue ret(cx);
     
     auto count = fixtures.size();
     for (int i = 0; i < count; i++)
@@ -684,14 +687,13 @@ JS::HandleValue array_of_b2Fixture_to_jsval(JSContext* cx, const std::vector<b2F
         }
     }
     
-    ret = JS::ObjectOrNullValue(jsret);
-    return ret;
+    ret.set(JS::ObjectOrNullValue(jsret));
+    return true;
 }
 
-JS::HandleValue array_of_b2Vec2_to_jsval(JSContext* cx, const std::vector<b2Vec2>& vs)
+bool array_of_b2Vec2_to_jsval(JSContext* cx, const std::vector<b2Vec2>& vs, JS::MutableHandleValue ret)
 {
     JS::RootedObject jsret(cx, JS_NewArrayObject(cx, 0));
-    JS::RootedValue ret(cx);
     
     auto count = vs.size();
     for (int i = 0; i < count; i++)
@@ -699,41 +701,40 @@ JS::HandleValue array_of_b2Vec2_to_jsval(JSContext* cx, const std::vector<b2Vec2
         const b2Vec2& v = vs[i];
         
         JS::RootedValue arrElement(cx);
-        arrElement = b2Vec2_to_jsval(cx, v);
+        bool ok = b2Vec2_to_jsval(cx, v, &arrElement);
         
-        if (!JS_SetElement(cx, jsret, i, arrElement)) {
+        if (!ok || !JS_SetElement(cx, jsret, i, arrElement)) {
             break;
         }
     }
     
-    ret = JS::ObjectOrNullValue(jsret);
-    return ret;
+    ret.set(JS::ObjectOrNullValue(jsret));
+    return true;
 }
 
-JS::HandleValue b2AABB_to_jsval(JSContext* cx, const b2AABB& v)
+bool b2AABB_to_jsval(JSContext* cx, const b2AABB& v, JS::MutableHandleValue ret)
 {
     JS::RootedObject object(cx, JS_NewPlainObject(cx));
-    JS::RootedValue ret(cx);
     
     JS::RootedObject lowerBound(cx, JS_NewPlainObject(cx));
     if (!JS_DefineProperty(cx, lowerBound, "x", v.lowerBound.x, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
         !JS_DefineProperty(cx, lowerBound, "y", v.lowerBound.y, JSPROP_ENUMERATE | JSPROP_PERMANENT) ) {
-        return ret;
+        return false;
     }
     
     JS::RootedObject upperBound(cx, JS_NewPlainObject(cx));
     if (!JS_DefineProperty(cx, upperBound, "x", v.upperBound.x, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
         !JS_DefineProperty(cx, upperBound, "y", v.upperBound.y, JSPROP_ENUMERATE | JSPROP_PERMANENT) ) {
-        return ret;
+        return false;
     }
     
     if (!JS_DefineProperty(cx, object, "lowerBound", lowerBound, JSPROP_ENUMERATE | JSPROP_PERMANENT) ||
         !JS_DefineProperty(cx, object, "upperBound", upperBound, JSPROP_ENUMERATE | JSPROP_PERMANENT) ) {
-        return ret;
+        return false;
     }
     
-    ret = JS::ObjectOrNullValue(object);
-    return ret;
+    ret.set(JS::ObjectOrNullValue(object));
+    return true;
 }
 
 
@@ -750,7 +751,7 @@ bool js_box2dclasses_b2Shape_GetRadius(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
         float32 ret = cobj->m_radius;
         JS::RootedValue jsret(cx);
-        jsret = long_to_jsval(cx, ret);
+        long_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
@@ -789,7 +790,8 @@ bool js_box2dclasses_b2CircleShape_GetPosition(JSContext *cx, uint32_t argc, JS:
     if (argc == 0) {
         b2Vec2& ret = cobj->m_p;
         JS::RootedValue jsret(cx);
-        jsret = b2Vec2_to_jsval(cx, ret);
+        bool ok = b2Vec2_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2CircleShape_GetPosition : error parsing return value.");
         args.rval().set(jsret);
         return true;
     }

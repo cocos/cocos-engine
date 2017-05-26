@@ -88,7 +88,7 @@ public:
             args = JS::NullValue();
         } else
         {
-            args = std_string_to_jsval(cx, data);
+            std_string_to_jsval(cx, data, &args);
         }
         
         JSB_SIOCallbackRegistry::iterator it = _eventRegistry.find(eventName);
@@ -119,7 +119,6 @@ public:
 private:
     mozilla::Maybe<JS::PersistentRootedObject> _JSDelegate;
     JSB_SIOCallbackRegistry _eventRegistry;
-
 };
 
 JSClass  *js_cocos2dx_socketio_class;
@@ -345,7 +344,9 @@ static bool _js_get_SIOClient_tag(JSContext* cx, uint32_t argc, JS::Value* vp)
     
     if (cobj)
     {
-        args.rval().set(std_string_to_jsval(cx, cobj->getTag()));
+        JS::RootedValue ret(cx);
+        std_string_to_jsval(cx, cobj->getTag(), &ret);
+        args.rval().set(ret);
         return true;
     } else
     {
@@ -376,7 +377,8 @@ bool js_cocos2dx_SocketIO_on(JSContext* cx, uint32_t argc, JS::Value* vp)
 
         CCLOG("JSB SocketIO eventName to: '%s'", eventName.c_str());
         
-        std::shared_ptr<JSFunctionWrapper> callback(new JSFunctionWrapper(cx, obj, args.get(1), args.thisv()));
+        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
+        std::shared_ptr<JSFunctionWrapper> callback(new JSFunctionWrapper(cx, obj, jsfunc, obj));
 
         ((JSB_SocketIODelegate *)cobj->getDelegate())->addEvent(eventName, callback);
 

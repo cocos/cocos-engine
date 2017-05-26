@@ -18,6 +18,7 @@ JSObject *jsb_cocos2d_experimental_ui_VideoPlayer_prototype;
 bool js_cocos2dx_experimental_video_VideoPlayer_getFileName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -25,7 +26,8 @@ bool js_cocos2dx_experimental_video_VideoPlayer_getFileName(JSContext *cx, uint3
     if (argc == 0) {
         const std::string& ret = cobj->getFileName();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_getFileName : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -36,6 +38,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_getFileName(JSContext *cx, uint3
 bool js_cocos2dx_experimental_video_VideoPlayer_getURL(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -43,7 +46,8 @@ bool js_cocos2dx_experimental_video_VideoPlayer_getURL(JSContext *cx, uint32_t a
     if (argc == 0) {
         const std::string& ret = cobj->getURL();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        ok &= std_string_to_jsval(cx, ret, &jsret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_getURL : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -90,6 +94,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled(JSCont
 bool js_cocos2dx_experimental_video_VideoPlayer_currentTime(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -98,6 +103,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_currentTime(JSContext *cx, uint3
         double ret = cobj->currentTime();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_currentTime : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -184,6 +190,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_setURL(JSContext *cx, uint32_t a
 bool js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -192,6 +199,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled(JSConte
         bool ret = cobj->isKeepAspectRatioEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -222,6 +230,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent(JSContext *cx, uint3
 bool js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -230,6 +239,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled(JSContext *c
         bool ret = cobj->isFullScreenEnabled();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -240,6 +250,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled(JSContext *c
 bool js_cocos2dx_experimental_video_VideoPlayer_duration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -248,6 +259,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_duration(JSContext *cx, uint32_t
         double ret = cobj->duration();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_duration : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -258,6 +270,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_duration(JSContext *cx, uint32_t
 bool js_cocos2dx_experimental_video_VideoPlayer_isPlaying(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -266,6 +279,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_isPlaying(JSContext *cx, uint32_
         bool ret = cobj->isPlaying();
         JS::RootedValue jsret(cx);
         jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_isPlaying : error parsing return value");
         args.rval().set(jsret);
         return true;
     }
@@ -296,6 +310,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_seekTo(JSContext *cx, uint32_t a
 bool js_cocos2dx_experimental_video_VideoPlayer_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     if (argc == 0) {
 
         auto ret = cocos2d::experimental::ui::VideoPlayer::create();
@@ -381,7 +396,8 @@ void js_register_cocos2dx_experimental_video_VideoPlayer(JSContext *cx, JS::Hand
         st_funcs);
 
     JS::RootedObject proto(cx, jsb_cocos2d_experimental_ui_VideoPlayer_prototype);
-    JS::RootedValue className(cx, std_string_to_jsval(cx, "VideoPlayer"));
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "VideoPlayer", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
