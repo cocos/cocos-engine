@@ -238,10 +238,10 @@ function createInvokeImpl (code, useDt) {
                    code +
                    '}';
         if (useDt) {
-            return new Function('it', 'dt', body);
+            return Function('it', 'dt', body);
         }
         else {
-            return new Function('it', body);
+            return Function('it', body);
         }
     }
 }

@@ -32,7 +32,6 @@ var Attr = require('./attribute');
 var DELIMETER = Attr.DELIMETER;
 var getTypeChecker = Attr.getTypeChecker;
 var preprocess = require('./preprocess-class');
-var Misc = require('../utils/misc');
 require('./requiring-frame');
 
 var BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', '__ctor__', 'properties', 'statics', 'editor', '__ES6__'];
@@ -465,7 +464,7 @@ function compileProps (actualClass) {
 
     // functions for generated code
     var F = [];
-    var func = '(function(){\n';
+    var func = '';
 
     for (var i = 0; i < propList.length; i++) {
         var prop = propList[i];
@@ -512,16 +511,19 @@ function compileProps (actualClass) {
         }
     }
 
-    func += '})';
-
     // if (CC_TEST && !isPhantomJS) {
     //     console.log(func);
     // }
 
     // Overwite __initProps__ to avoid compile again.
-    // Use eval to bind scoped variable just in one function, so that we don't have to bind this.
-    var initProps = actualClass.prototype.__initProps__ = Misc.cleanEval_F(func, F);
-
+    var initProps;
+    if (F.length === 0) {
+        initProps = Function(func);
+    }
+    else {
+        initProps = Function('F', 'return (function(){\n' + func + '})')(F);
+    }
+    actualClass.prototype.__initProps__ = initProps;
     // call instantiateProps immediately, no need to pass actualClass into it anymore
     // (use call to manually bind `this` because `this` may not instanceof actualClass)
     initProps.call(this);
@@ -531,21 +533,16 @@ function _createCtor (ctors, baseClass, className, options) {
     // bound super calls
     var superCallBounded = baseClass && boundSuperCalls(baseClass, options, className);
 
-    var body;
     var args = CC_JSB ? '...args' : '';
-    if (CC_DEV) {
-        body = '(function ' + normalizeClassName_DEV(className) + '(' + args + '){\n';
-    }
-    else {
-        body = '(function(' + args + '){\n';
-    }
+    var ctorName = CC_DEV ? normalizeClassName_DEV(className) : 'CCClass';
+    var body = 'return function ' + ctorName + '(' + args + '){\n';
 
     if (superCallBounded) {
         body += 'this._super=null;\n';
     }
 
     // instantiate props
-    body += 'this.__initProps__(fireClass);\n';
+    body += 'this.__initProps__(' + ctorName + ');\n';
 
     // call user constructors
     var ctorLen = ctors.length;
@@ -556,10 +553,10 @@ function _createCtor (ctors, baseClass, className, options) {
         }
         var SNIPPET = CC_JSB ? '].apply(this,args);\n' : '].apply(this,arguments);\n';
         if (ctorLen === 1) {
-            body += 'fireClass.__ctors__[0' + SNIPPET;
+            body += ctorName + '.__ctors__[0' + SNIPPET;
         }
         else {
-            body += 'var cs=fireClass.__ctors__;\n';
+            body += 'var cs=' + ctorName + '.__ctors__;\n';
             for (var i = 0; i < ctorLen; i++) {
                 body += 'cs[' + i + SNIPPET;
             }
@@ -570,9 +567,9 @@ function _createCtor (ctors, baseClass, className, options) {
                     '}\n';
         }
     }
-    body += '})';
+    body += '}';
 
-    return Misc.cleanEval_fireClass(body);
+    return Function(body)();
 }
 
 function _validateCtor_DEV (ctor, baseClass, className, options) {
