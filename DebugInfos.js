@@ -49,16 +49,17 @@ if (CC_DEV) {
         "1403": "Sorry, cc.audioEngine.willPlayMusic is removed.", //willPlayMusicError
         "1404": "cc.spriteFrameCache is removed, please use cc.loader to load and cache sprite frames of atlas format.",
         //Scheduler: 1500
-        "1500": "CCSheduler#scheduleCallback. Callback already scheduled. Updating interval from:%s to %s", //scheduleCallbackForTarget
-        "1501": "cc.scheduler.scheduleCallbackForTarget(): callback_fn should be non-null.", //scheduleCallbackForTarget_2
-        "1502": "cc.scheduler.scheduleCallbackForTarget(): target should be non-null.", //scheduleCallbackForTarget_3
-        "1503": "cc.Scheduler.pauseTarget():target should be non-null", //pauseTarget
-        "1504": "cc.Scheduler.resumeTarget():target should be non-null", //resumeTarget
-        "1505": "cc.Scheduler.isTargetPaused():target should be non-null", //isTargetPaused
+        "1500": "cc.Scheduler#schedule: Callback already scheduled. Updating interval from:%s to %s", //scheduleCallbackForTarget
+        "1501": "cc.Scheduler#scheduleCallbackForTarget(): callback_fn should be non-null.", //scheduleCallbackForTarget_2
+        "1502": "cc.Scheduler#scheduleCallbackForTarget(): target should be non-null.", //scheduleCallbackForTarget_3
+        "1503": "cc.Scheduler#pauseTarget():target should be non-null", //pauseTarget
+        "1504": "cc.Scheduler#resumeTarget():target should be non-null", //resumeTarget
+        "1505": "cc.Scheduler#isTargetPaused():target should be non-null", //isTargetPaused
         "1506": "warning: you CANNOT change update priority in scheduled function", //_schedulePerFrame
-        "1507": "CCScheduler#scheduleSelector. Selector already scheduled. Updating interval from: %.4f to %.4f", //schedule
+        "1507": "cc.Scheduler#scheduleSelector: Selector already scheduled. Updating interval from: %.4f to %.4f", //schedule
         "1508": "Argument callback must not be empty", //isScheduled
         "1509": "Argument target must be non-nullptr", //isScheduled
+        "1510": "cc.Scheduler: Illegal target which doesn't have uuid or instanceId",
         //Node: 1600
         "1600": "getZOrder is deprecated. Please use getLocalZOrder instead.", //getZOrder
         "1601": "setZOrder is deprecated. Please use setLocalZOrder instead.", //setZOrder
