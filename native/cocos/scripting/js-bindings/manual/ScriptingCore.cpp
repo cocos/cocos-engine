@@ -1102,7 +1102,7 @@ void ScriptingCore::removeScriptObjectByObject(Ref* pObj)
     auto proxy = jsb_get_native_proxy(pObj);
     if (proxy)
     {
-        JSContext *cx = getGlobalContext();
+//        JSContext *cx = getGlobalContext();
 //        JS::RemoveObjectRoot(cx, &proxy->obj);
         jsb_remove_proxy(proxy);
     }
@@ -1723,7 +1723,7 @@ void ScriptingCore::rootObject(Ref* ref)
 {
     auto proxy = jsb_get_native_proxy(ref);
     if (proxy) {
-        JSContext *cx = getGlobalContext();
+//        JSContext *cx = getGlobalContext();
 //        JS::AddNamedObjectRoot(cx, &proxy->obj, typeid(*ref).name());
         ref->_rooted = true;
     }
@@ -1734,7 +1734,7 @@ void ScriptingCore::unrootObject(Ref* ref)
 {
     auto proxy = jsb_get_native_proxy(ref);
     if (proxy) {
-        JSContext *cx = getGlobalContext();
+//        JSContext *cx = getGlobalContext();
 //        JS::RemoveObjectRoot(cx, &proxy->obj);
         ref->_rooted = false;
     }

@@ -3,22 +3,13 @@
 #include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 #include "ui/UIVideoPlayer.h"
 
-template<class T>
-static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS_ReportErrorUTF8(cx, "Constructor for the requested class is not available, please refer to the API reference.");
-    return false;
-}
-
-static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
-    return false;
-}JSClass  *jsb_cocos2d_experimental_ui_VideoPlayer_class;
+JSClass  *jsb_cocos2d_experimental_ui_VideoPlayer_class;
 JSObject *jsb_cocos2d_experimental_ui_VideoPlayer_prototype;
 
 bool js_cocos2dx_experimental_video_VideoPlayer_getFileName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -38,7 +29,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_getFileName(JSContext *cx, uint3
 bool js_cocos2dx_experimental_video_VideoPlayer_getURL(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -74,7 +65,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_play(JSContext *cx, uint32_t arg
 bool js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -94,7 +85,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled(JSCont
 bool js_cocos2dx_experimental_video_VideoPlayer_currentTime(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -130,7 +121,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_stop(JSContext *cx, uint32_t arg
 bool js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -150,7 +141,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled(JSContext *
 bool js_cocos2dx_experimental_video_VideoPlayer_setFileName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -170,7 +161,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_setFileName(JSContext *cx, uint3
 bool js_cocos2dx_experimental_video_VideoPlayer_setURL(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -190,7 +181,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_setURL(JSContext *cx, uint32_t a
 bool js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -210,7 +201,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled(JSConte
 bool js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -230,7 +221,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent(JSContext *cx, uint3
 bool js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -250,7 +241,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled(JSContext *c
 bool js_cocos2dx_experimental_video_VideoPlayer_duration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -270,7 +261,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_duration(JSContext *cx, uint32_t
 bool js_cocos2dx_experimental_video_VideoPlayer_isPlaying(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -290,7 +281,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_isPlaying(JSContext *cx, uint32_
 bool js_cocos2dx_experimental_video_VideoPlayer_seekTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer *)(proxy ? proxy->ptr : NULL);
@@ -310,7 +301,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_seekTo(JSContext *cx, uint32_t a
 bool js_cocos2dx_experimental_video_VideoPlayer_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::experimental::ui::VideoPlayer::create();

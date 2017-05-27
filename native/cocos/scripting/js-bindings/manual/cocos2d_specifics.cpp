@@ -3487,48 +3487,6 @@ bool js_cocos2dx_CCTMXLayer_getTileFlagsAt(JSContext *cx, uint32_t argc, JS::Val
     return false;
 }
 
-static bool jsval_to_string_vector(JSContext* cx, JS::HandleValue v, std::vector<std::string>& ret) {
-    JS::RootedObject jsobj(cx);
-    JS::RootedValue jsv(cx, v);
-    bool ok = JS_ValueToObject(cx, jsv, &jsobj);
-    JSB_PRECONDITION2(ok, cx, false, "Error converting value to object");
-    JSB_PRECONDITION2(JS_IsArrayObject( cx, jsobj, &ok) && ok,  cx, false, "Object must be an array");
-
-    uint32_t len = 0;
-    JS_GetArrayLength(cx, jsobj, &len);
-
-    for (uint32_t i=0; i < len; i++) {
-        JS::RootedValue elt(cx);
-        if (JS_GetElement(cx, jsobj, i, &elt)) {
-
-            if (elt.isString())
-            {
-                JSStringWrapper str(elt.toString());
-                ret.push_back(str.get());
-            }
-        }
-    }
-
-    return true;
-}
-
-
-static JS::HandleValue string_vector_to_jsval(JSContext* cx, const std::vector<std::string>& arr) {
-
-    JS::RootedObject jsretArr(cx, JS_NewArrayObject(cx, 0));
-
-    int i = 0;
-    for(std::vector<std::string>::const_iterator iter = arr.begin(); iter != arr.end(); ++iter, ++i) {
-        JS::RootedValue arrElement(cx);
-        bool ok = std_string_to_jsval(cx, *iter, &arrElement);
-        if(!ok || !JS_SetElement(cx, jsretArr, i, arrElement)) {
-            break;
-        }
-    }
-    JS::RootedValue jsret(cx, JS::ObjectOrNullValue(jsretArr));
-    return jsret;
-}
-
 bool js_cocos2dx_CCFileUtils_getDataFromFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);

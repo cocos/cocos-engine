@@ -3,22 +3,13 @@
 #include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 #include "ui/UIWebView.h"
 
-template<class T>
-static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS_ReportErrorUTF8(cx, "Constructor for the requested class is not available, please refer to the API reference.");
-    return false;
-}
-
-static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
-    return false;
-}JSClass  *jsb_cocos2d_experimental_ui_WebView_class;
+JSClass  *jsb_cocos2d_experimental_ui_WebView_class;
 JSObject *jsb_cocos2d_experimental_ui_WebView_prototype;
 
 bool js_cocos2dx_experimental_webView_WebView_canGoBack(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
@@ -38,7 +29,7 @@ bool js_cocos2dx_experimental_webView_WebView_canGoBack(JSContext *cx, uint32_t 
 bool js_cocos2dx_experimental_webView_WebView_loadHTMLString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
@@ -100,7 +91,7 @@ bool js_cocos2dx_experimental_webView_WebView_goBack(JSContext *cx, uint32_t arg
 bool js_cocos2dx_experimental_webView_WebView_setScalesPageToFit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
@@ -120,7 +111,7 @@ bool js_cocos2dx_experimental_webView_WebView_setScalesPageToFit(JSContext *cx, 
 bool js_cocos2dx_experimental_webView_WebView_getOnDidFailLoading(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
@@ -140,7 +131,7 @@ bool js_cocos2dx_experimental_webView_WebView_getOnDidFailLoading(JSContext *cx,
 bool js_cocos2dx_experimental_webView_WebView_loadFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
@@ -160,7 +151,7 @@ bool js_cocos2dx_experimental_webView_WebView_loadFile(JSContext *cx, uint32_t a
 bool js_cocos2dx_experimental_webView_WebView_loadURL(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
@@ -180,7 +171,7 @@ bool js_cocos2dx_experimental_webView_WebView_loadURL(JSContext *cx, uint32_t ar
 bool js_cocos2dx_experimental_webView_WebView_setBounces(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
@@ -200,7 +191,7 @@ bool js_cocos2dx_experimental_webView_WebView_setBounces(JSContext *cx, uint32_t
 bool js_cocos2dx_experimental_webView_WebView_evaluateJS(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
@@ -220,7 +211,7 @@ bool js_cocos2dx_experimental_webView_WebView_evaluateJS(JSContext *cx, uint32_t
 bool js_cocos2dx_experimental_webView_WebView_getOnJSCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
@@ -240,7 +231,7 @@ bool js_cocos2dx_experimental_webView_WebView_getOnJSCallback(JSContext *cx, uin
 bool js_cocos2dx_experimental_webView_WebView_canGoForward(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
@@ -260,7 +251,7 @@ bool js_cocos2dx_experimental_webView_WebView_canGoForward(JSContext *cx, uint32
 bool js_cocos2dx_experimental_webView_WebView_getOnShouldStartLoading(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
@@ -312,7 +303,7 @@ bool js_cocos2dx_experimental_webView_WebView_reload(JSContext *cx, uint32_t arg
 bool js_cocos2dx_experimental_webView_WebView_setJavascriptInterfaceScheme(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
@@ -332,7 +323,7 @@ bool js_cocos2dx_experimental_webView_WebView_setJavascriptInterfaceScheme(JSCon
 bool js_cocos2dx_experimental_webView_WebView_getOnDidFinishLoading(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
@@ -352,7 +343,7 @@ bool js_cocos2dx_experimental_webView_WebView_getOnDidFinishLoading(JSContext *c
 bool js_cocos2dx_experimental_webView_WebView_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::experimental::ui::WebView::create();

@@ -35,11 +35,6 @@ USING_NS_CC_EXT;
 // Function declarations
 void static freeSpaceChildren(cpSpace *space);
 
-template<class T>
-static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
-    return false;
-}
-
 #pragma mark - conversions
 
 /*

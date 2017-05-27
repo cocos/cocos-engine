@@ -3,16 +3,7 @@
 #include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 #include "audio/include/AudioEngine.h"
 
-template<class T>
-static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS_ReportErrorUTF8(cx, "Constructor for the requested class is not available, please refer to the API reference.");
-    return false;
-}
-
-static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
-    return false;
-}JSClass  *jsb_cocos2d_experimental_AudioProfile_class;
+JSClass  *jsb_cocos2d_experimental_AudioProfile_class;
 JSObject *jsb_cocos2d_experimental_AudioProfile_prototype;
 
 bool js_cocos2dx_audioengine_AudioProfile_get_name(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -194,7 +185,7 @@ JSObject *jsb_cocos2d_experimental_AudioEngine_prototype;
 bool js_cocos2dx_audioengine_AudioEngine_lazyInit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         bool ret = cocos2d::experimental::AudioEngine::lazyInit();
@@ -211,7 +202,7 @@ bool js_cocos2dx_audioengine_AudioEngine_lazyInit(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_audioengine_AudioEngine_setCurrentTime(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         int arg0 = 0;
         double arg1 = 0;
@@ -233,7 +224,7 @@ bool js_cocos2dx_audioengine_AudioEngine_setCurrentTime(JSContext *cx, uint32_t 
 bool js_cocos2dx_audioengine_AudioEngine_getVolume(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -253,7 +244,7 @@ bool js_cocos2dx_audioengine_AudioEngine_getVolume(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_audioengine_AudioEngine_uncache(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         std::string arg0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -293,7 +284,7 @@ bool js_cocos2dx_audioengine_AudioEngine_stopAll(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_audioengine_AudioEngine_pause(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -321,7 +312,7 @@ bool js_cocos2dx_audioengine_AudioEngine_end(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_audioengine_AudioEngine_getMaxAudioInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         int ret = cocos2d::experimental::AudioEngine::getMaxAudioInstance();
@@ -338,7 +329,7 @@ bool js_cocos2dx_audioengine_AudioEngine_getMaxAudioInstance(JSContext *cx, uint
 bool js_cocos2dx_audioengine_AudioEngine_getCurrentTime(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -358,7 +349,7 @@ bool js_cocos2dx_audioengine_AudioEngine_getCurrentTime(JSContext *cx, uint32_t 
 bool js_cocos2dx_audioengine_AudioEngine_setMaxAudioInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -378,7 +369,7 @@ bool js_cocos2dx_audioengine_AudioEngine_setMaxAudioInstance(JSContext *cx, uint
 bool js_cocos2dx_audioengine_AudioEngine_isLoop(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -422,7 +413,7 @@ bool js_cocos2dx_audioengine_AudioEngine_uncacheAll(JSContext *cx, uint32_t argc
 bool js_cocos2dx_audioengine_AudioEngine_setVolume(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         int arg0 = 0;
         double arg1 = 0;
@@ -442,7 +433,7 @@ bool js_cocos2dx_audioengine_AudioEngine_preload(JSContext *cx, uint32_t argc, J
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -492,7 +483,7 @@ bool js_cocos2dx_audioengine_AudioEngine_preload(JSContext *cx, uint32_t argc, J
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -507,7 +498,7 @@ bool js_cocos2dx_audioengine_AudioEngine_preload(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_audioengine_AudioEngine_play2d(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         std::string arg0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -583,7 +574,7 @@ bool js_cocos2dx_audioengine_AudioEngine_play2d(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_audioengine_AudioEngine_getState(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -603,7 +594,7 @@ bool js_cocos2dx_audioengine_AudioEngine_getState(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_audioengine_AudioEngine_resume(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -619,7 +610,7 @@ bool js_cocos2dx_audioengine_AudioEngine_resume(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_audioengine_AudioEngine_stop(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -635,7 +626,7 @@ bool js_cocos2dx_audioengine_AudioEngine_stop(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_audioengine_AudioEngine_getDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -655,7 +646,7 @@ bool js_cocos2dx_audioengine_AudioEngine_getDuration(JSContext *cx, uint32_t arg
 bool js_cocos2dx_audioengine_AudioEngine_setLoop(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         int arg0 = 0;
         bool arg1;
@@ -673,7 +664,7 @@ bool js_cocos2dx_audioengine_AudioEngine_setLoop(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_audioengine_AudioEngine_getDefaultProfile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         cocos2d::experimental::AudioProfile* ret = cocos2d::experimental::AudioEngine::getDefaultProfile();
@@ -694,7 +685,7 @@ bool js_cocos2dx_audioengine_AudioEngine_getDefaultProfile(JSContext *cx, uint32
 bool js_cocos2dx_audioengine_AudioEngine_setFinishCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         int arg0 = 0;
         std::function<void (int, const std::basic_string<char> &)> arg1;
@@ -752,7 +743,7 @@ bool js_cocos2dx_audioengine_AudioEngine_getProfile(JSContext *cx, uint32_t argc
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -771,7 +762,7 @@ bool js_cocos2dx_audioengine_AudioEngine_getProfile(JSContext *cx, uint32_t argc
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 1) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);

@@ -5,22 +5,13 @@
 #include "2d/CCProtectedNode.h"
 #include "base/CCAsyncTaskPool.h"
 
-template<class T>
-static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS_ReportErrorUTF8(cx, "Constructor for the requested class is not available, please refer to the API reference.");
-    return false;
-}
-
-static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
-    return false;
-}JSClass  *jsb_cocos2d_Texture2D_class;
+JSClass  *jsb_cocos2d_Texture2D_class;
 JSObject *jsb_cocos2d_Texture2D_prototype;
 
 bool js_cocos2dx_Texture2D_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -44,7 +35,7 @@ bool js_cocos2dx_Texture2D_getGLProgram(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Texture2D_getMaxT(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -64,7 +55,7 @@ bool js_cocos2dx_Texture2D_getMaxT(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Texture2D_setAlphaTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -92,7 +83,7 @@ bool js_cocos2dx_Texture2D_setAlphaTexture(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Texture2D_getStringForFormat(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -111,6 +102,7 @@ bool js_cocos2dx_Texture2D_getStringForFormat(JSContext *cx, uint32_t argc, JS::
 }
 bool js_cocos2dx_Texture2D_initWithImage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Texture2D* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -120,7 +112,7 @@ bool js_cocos2dx_Texture2D_initWithImage(JSContext *cx, uint32_t argc, JS::Value
     cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Texture2D_initWithImage : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             cocos2d::Image* arg0 = nullptr;
             do {
@@ -146,7 +138,7 @@ bool js_cocos2dx_Texture2D_initWithImage(JSContext *cx, uint32_t argc, JS::Value
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Image* arg0 = nullptr;
             do {
@@ -174,7 +166,7 @@ bool js_cocos2dx_Texture2D_initWithImage(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Texture2D_setGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -202,7 +194,7 @@ bool js_cocos2dx_Texture2D_setGLProgram(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Texture2D_getMaxS(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -222,7 +214,7 @@ bool js_cocos2dx_Texture2D_getMaxS(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Texture2D_hasPremultipliedAlpha(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -242,7 +234,7 @@ bool js_cocos2dx_Texture2D_hasPremultipliedAlpha(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_Texture2D_getPixelsHigh(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -262,7 +254,7 @@ bool js_cocos2dx_Texture2D_getPixelsHigh(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Texture2D_getAlphaTextureName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -281,6 +273,7 @@ bool js_cocos2dx_Texture2D_getAlphaTextureName(JSContext *cx, uint32_t argc, JS:
 }
 bool js_cocos2dx_Texture2D_getBitsPerPixelForFormat(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Texture2D* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -290,7 +283,7 @@ bool js_cocos2dx_Texture2D_getBitsPerPixelForFormat(JSContext *cx, uint32_t argc
     cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Texture2D_getBitsPerPixelForFormat : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Texture2D::PixelFormat arg0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -305,7 +298,7 @@ bool js_cocos2dx_Texture2D_getBitsPerPixelForFormat(JSContext *cx, uint32_t argc
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             unsigned int ret = cobj->getBitsPerPixelForFormat();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -322,7 +315,7 @@ bool js_cocos2dx_Texture2D_getBitsPerPixelForFormat(JSContext *cx, uint32_t argc
 bool js_cocos2dx_Texture2D_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -341,6 +334,7 @@ bool js_cocos2dx_Texture2D_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Texture2D* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -350,7 +344,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
     cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Texture2D_initWithString : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -368,7 +362,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -389,7 +383,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 4) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -413,7 +407,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 5) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -440,7 +434,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 6) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -470,7 +464,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 7) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -502,7 +496,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 8) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -542,7 +536,7 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Texture2D_setMaxT(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -562,7 +556,7 @@ bool js_cocos2dx_Texture2D_setMaxT(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Texture2D_getPath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -582,7 +576,7 @@ bool js_cocos2dx_Texture2D_getPath(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Texture2D_drawInRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -602,7 +596,7 @@ bool js_cocos2dx_Texture2D_drawInRect(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Texture2D_getContentSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -670,7 +664,7 @@ bool js_cocos2dx_Texture2D_generateMipmap(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Texture2D_getDescription(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -690,7 +684,7 @@ bool js_cocos2dx_Texture2D_getDescription(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Texture2D_getPixelFormat(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -710,7 +704,7 @@ bool js_cocos2dx_Texture2D_getPixelFormat(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Texture2D_getContentSizeInPixels(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -746,7 +740,7 @@ bool js_cocos2dx_Texture2D_releaseGLTexture(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Texture2D_getPixelsWide(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -766,7 +760,7 @@ bool js_cocos2dx_Texture2D_getPixelsWide(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Texture2D_drawAtPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -786,7 +780,7 @@ bool js_cocos2dx_Texture2D_drawAtPoint(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Texture2D_hasMipmaps(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -806,7 +800,7 @@ bool js_cocos2dx_Texture2D_hasMipmaps(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Texture2D_setMaxS(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D *)(proxy ? proxy->ptr : NULL);
@@ -826,7 +820,7 @@ bool js_cocos2dx_Texture2D_setMaxS(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Texture2D_setDefaultAlphaPixelFormat(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::Texture2D::PixelFormat arg0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -842,7 +836,7 @@ bool js_cocos2dx_Texture2D_setDefaultAlphaPixelFormat(JSContext *cx, uint32_t ar
 bool js_cocos2dx_Texture2D_getDefaultAlphaPixelFormat(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         int ret = (int)cocos2d::Texture2D::getDefaultAlphaPixelFormat();
@@ -956,7 +950,7 @@ JSObject *jsb_cocos2d_Touch_prototype;
 bool js_cocos2dx_Touch_getPreviousLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -976,7 +970,7 @@ bool js_cocos2dx_Touch_getPreviousLocationInView(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_Touch_getLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -996,7 +990,7 @@ bool js_cocos2dx_Touch_getLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Touch_getDelta(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1016,7 +1010,7 @@ bool js_cocos2dx_Touch_getDelta(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Touch_getStartLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1036,7 +1030,7 @@ bool js_cocos2dx_Touch_getStartLocationInView(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Touch_getCurrentForce(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1056,7 +1050,7 @@ bool js_cocos2dx_Touch_getCurrentForce(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Touch_getStartLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1076,7 +1070,7 @@ bool js_cocos2dx_Touch_getStartLocation(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Touch_getID(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1095,6 +1089,7 @@ bool js_cocos2dx_Touch_getID(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 bool js_cocos2dx_Touch_setTouchInfo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Touch* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1104,7 +1099,7 @@ bool js_cocos2dx_Touch_setTouchInfo(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Touch_setTouchInfo : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 5) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -1128,7 +1123,7 @@ bool js_cocos2dx_Touch_setTouchInfo(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -1151,7 +1146,7 @@ bool js_cocos2dx_Touch_setTouchInfo(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Touch_getMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1171,7 +1166,7 @@ bool js_cocos2dx_Touch_getMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Touch_getLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1191,7 +1186,7 @@ bool js_cocos2dx_Touch_getLocationInView(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Touch_getPreviousLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Touch* cobj = (cocos2d::Touch *)(proxy ? proxy->ptr : NULL);
@@ -1285,7 +1280,7 @@ JSObject *jsb_cocos2d_Event_prototype;
 bool js_cocos2dx_Event_isStopped(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Event* cobj = (cocos2d::Event *)(proxy ? proxy->ptr : NULL);
@@ -1305,7 +1300,7 @@ bool js_cocos2dx_Event_isStopped(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Event_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Event* cobj = (cocos2d::Event *)(proxy ? proxy->ptr : NULL);
@@ -1325,7 +1320,7 @@ bool js_cocos2dx_Event_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Event_getCurrentTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Event* cobj = (cocos2d::Event *)(proxy ? proxy->ptr : NULL);
@@ -1435,7 +1430,7 @@ JSObject *jsb_cocos2d_EventTouch_prototype;
 bool js_cocos2dx_EventTouch_getEventCode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventTouch* cobj = (cocos2d::EventTouch *)(proxy ? proxy->ptr : NULL);
@@ -1455,7 +1450,7 @@ bool js_cocos2dx_EventTouch_getEventCode(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_EventTouch_setEventCode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventTouch* cobj = (cocos2d::EventTouch *)(proxy ? proxy->ptr : NULL);
@@ -1542,7 +1537,7 @@ JSObject *jsb_cocos2d_ComponentContainer_prototype;
 bool js_cocos2dx_ComponentContainer_visit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ComponentContainer* cobj = (cocos2d::ComponentContainer *)(proxy ? proxy->ptr : NULL);
@@ -1561,6 +1556,7 @@ bool js_cocos2dx_ComponentContainer_visit(JSContext *cx, uint32_t argc, JS::Valu
 }
 bool js_cocos2dx_ComponentContainer_remove(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::ComponentContainer* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1570,7 +1566,7 @@ bool js_cocos2dx_ComponentContainer_remove(JSContext *cx, uint32_t argc, JS::Val
     cobj = (cocos2d::ComponentContainer *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ComponentContainer_remove : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Component* arg0 = nullptr;
             do {
@@ -1593,7 +1589,7 @@ bool js_cocos2dx_ComponentContainer_remove(JSContext *cx, uint32_t argc, JS::Val
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -1629,7 +1625,7 @@ bool js_cocos2dx_ComponentContainer_removeAll(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ComponentContainer_add(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ComponentContainer* cobj = (cocos2d::ComponentContainer *)(proxy ? proxy->ptr : NULL);
@@ -1660,7 +1656,7 @@ bool js_cocos2dx_ComponentContainer_add(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_ComponentContainer_isEmpty(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ComponentContainer* cobj = (cocos2d::ComponentContainer *)(proxy ? proxy->ptr : NULL);
@@ -1680,7 +1676,7 @@ bool js_cocos2dx_ComponentContainer_isEmpty(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_ComponentContainer_get(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ComponentContainer* cobj = (cocos2d::ComponentContainer *)(proxy ? proxy->ptr : NULL);
@@ -1756,7 +1752,7 @@ JSObject *jsb_cocos2d_Component_prototype;
 bool js_cocos2dx_Component_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
@@ -1776,7 +1772,7 @@ bool js_cocos2dx_Component_setEnabled(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Component_setName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
@@ -1796,7 +1792,7 @@ bool js_cocos2dx_Component_setName(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Component_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
@@ -1816,7 +1812,7 @@ bool js_cocos2dx_Component_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Component_getOwner(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
@@ -1840,7 +1836,7 @@ bool js_cocos2dx_Component_getOwner(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Component_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
@@ -1860,7 +1856,7 @@ bool js_cocos2dx_Component_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Component_setOwner(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
@@ -1888,7 +1884,7 @@ bool js_cocos2dx_Component_setOwner(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Component_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Component* cobj = (cocos2d::Component *)(proxy ? proxy->ptr : NULL);
@@ -1908,7 +1904,7 @@ bool js_cocos2dx_Component_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Component_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::Component::create();
@@ -2018,6 +2014,7 @@ JSObject *jsb_cocos2d_Node_prototype;
 
 bool js_cocos2dx_Node_addChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Node* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -2027,7 +2024,7 @@ bool js_cocos2dx_Node_addChild(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_addChild : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             cocos2d::Node* arg0 = nullptr;
             do {
@@ -2050,7 +2047,7 @@ bool js_cocos2dx_Node_addChild(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Node* arg0 = nullptr;
             do {
@@ -2070,7 +2067,7 @@ bool js_cocos2dx_Node_addChild(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             cocos2d::Node* arg0 = nullptr;
             do {
@@ -2096,7 +2093,7 @@ bool js_cocos2dx_Node_addChild(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             cocos2d::Node* arg0 = nullptr;
             do {
@@ -2126,6 +2123,7 @@ bool js_cocos2dx_Node_addChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 bool js_cocos2dx_Node_removeComponent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Node* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -2135,7 +2133,7 @@ bool js_cocos2dx_Node_removeComponent(JSContext *cx, uint32_t argc, JS::Value *v
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_removeComponent : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Component* arg0 = nullptr;
             do {
@@ -2158,7 +2156,7 @@ bool js_cocos2dx_Node_removeComponent(JSContext *cx, uint32_t argc, JS::Value *v
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -2178,7 +2176,7 @@ bool js_cocos2dx_Node_removeComponent(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Node_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2202,7 +2200,7 @@ bool js_cocos2dx_Node_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getDescription(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2222,7 +2220,7 @@ bool js_cocos2dx_Node_getDescription(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Node_setOpacityModifyRGB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2242,7 +2240,7 @@ bool js_cocos2dx_Node_setOpacityModifyRGB(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Node_setCascadeOpacityEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2261,6 +2259,7 @@ bool js_cocos2dx_Node_setCascadeOpacityEnabled(JSContext *cx, uint32_t argc, JS:
 }
 bool js_cocos2dx_Node_getChildren(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Node* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -2270,7 +2269,7 @@ bool js_cocos2dx_Node_getChildren(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_getChildren : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const cocos2d::Vector<cocos2d::Node *>& ret = cobj->getChildren();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -2282,7 +2281,7 @@ bool js_cocos2dx_Node_getChildren(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             cocos2d::Vector<cocos2d::Node *>& ret = cobj->getChildren();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -2319,7 +2318,7 @@ bool js_cocos2dx_Node_setOnExitCallback(JSContext *cx, uint32_t argc, JS::Value 
 >>>>>>> Upgrade to spider monkey 52, pass 1
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2361,7 +2360,7 @@ bool js_cocos2dx_Node_setOnExitCallback(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Node_isIgnoreAnchorPointForPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2381,7 +2380,7 @@ bool js_cocos2dx_Node_isIgnoreAnchorPointForPosition(JSContext *cx, uint32_t arg
 bool js_cocos2dx_Node_getChildByName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2408,7 +2407,7 @@ bool js_cocos2dx_Node_getChildByName(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Node_updateDisplayedOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2428,7 +2427,7 @@ bool js_cocos2dx_Node_updateDisplayedOpacity(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Node_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2448,7 +2447,7 @@ bool js_cocos2dx_Node_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getCameraMask(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2468,7 +2467,7 @@ bool js_cocos2dx_Node_getCameraMask(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setRotation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2488,7 +2487,7 @@ bool js_cocos2dx_Node_setRotation(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setScaleZ(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2508,7 +2507,7 @@ bool js_cocos2dx_Node_setScaleZ(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setScaleY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2528,7 +2527,7 @@ bool js_cocos2dx_Node_setScaleY(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setScaleX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2548,7 +2547,7 @@ bool js_cocos2dx_Node_setScaleX(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2568,7 +2567,7 @@ bool js_cocos2dx_Node_getColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setonEnterTransitionDidFinishCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2626,7 +2625,7 @@ bool js_cocos2dx_Node_removeAllComponents(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Node__setLocalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2646,7 +2645,7 @@ bool js_cocos2dx_Node__setLocalZOrder(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Node_setCameraMask(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2676,7 +2675,7 @@ bool js_cocos2dx_Node_setCameraMask(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2696,7 +2695,7 @@ bool js_cocos2dx_Node_getTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setAfterVisitCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2747,7 +2746,7 @@ bool js_cocos2dx_Node_setAfterVisitCallback(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Node_getNodeToWorldAffineTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2767,7 +2766,7 @@ bool js_cocos2dx_Node_getNodeToWorldAffineTransform(JSContext *cx, uint32_t argc
 bool js_cocos2dx_Node_removeChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2813,7 +2812,7 @@ bool js_cocos2dx_Node_removeChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2837,7 +2836,7 @@ bool js_cocos2dx_Node_getScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getEventDispatcher(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2861,7 +2860,7 @@ bool js_cocos2dx_Node_getEventDispatcher(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Node_setSkewX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2881,7 +2880,7 @@ bool js_cocos2dx_Node_setSkewX(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setGLProgramState(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2909,7 +2908,7 @@ bool js_cocos2dx_Node_setGLProgramState(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Node_setOnEnterCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2951,7 +2950,7 @@ bool js_cocos2dx_Node_setOnEnterCallback(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Node_stopActionsByFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2971,7 +2970,7 @@ bool js_cocos2dx_Node_stopActionsByFlags(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Node_setNormalizedPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -2991,7 +2990,7 @@ bool js_cocos2dx_Node_setNormalizedPosition(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Node_setonExitTransitionDidStartCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3033,7 +3032,7 @@ bool js_cocos2dx_Node_setonExitTransitionDidStartCallback(JSContext *cx, uint32_
 bool js_cocos2dx_Node_convertTouchToNodeSpace(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3063,6 +3062,7 @@ bool js_cocos2dx_Node_convertTouchToNodeSpace(JSContext *cx, uint32_t argc, JS::
 }
 bool js_cocos2dx_Node_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Node* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -3072,7 +3072,7 @@ bool js_cocos2dx_Node_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc,
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_removeAllChildrenWithCleanup : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             bool arg0;
             arg0 = args.get(0).toBoolean();
@@ -3083,6 +3083,7 @@ bool js_cocos2dx_Node_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc,
     } while(0);
 
     do {
+        ok = true;
         if (argc == 0) {
             cobj->removeAllChildren();
             args.rval().setUndefined();
@@ -3096,7 +3097,7 @@ bool js_cocos2dx_Node_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_Node_getRotationSkewX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3116,7 +3117,7 @@ bool js_cocos2dx_Node_getRotationSkewX(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Node_getRotationSkewY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3136,7 +3137,7 @@ bool js_cocos2dx_Node_getRotationSkewY(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Node_getNodeToWorldTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3156,7 +3157,7 @@ bool js_cocos2dx_Node_getNodeToWorldTransform(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Node_isCascadeOpacityEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3176,7 +3177,7 @@ bool js_cocos2dx_Node_isCascadeOpacityEnabled(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Node_setParent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3204,7 +3205,7 @@ bool js_cocos2dx_Node_setParent(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3223,6 +3224,7 @@ bool js_cocos2dx_Node_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 bool js_cocos2dx_Node_getNodeToParentAffineTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Node* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -3232,7 +3234,7 @@ bool js_cocos2dx_Node_getNodeToParentAffineTransform(JSContext *cx, uint32_t arg
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_getNodeToParentAffineTransform : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Node* arg0 = nullptr;
             do {
@@ -3255,7 +3257,7 @@ bool js_cocos2dx_Node_getNodeToParentAffineTransform(JSContext *cx, uint32_t arg
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             cocos2d::AffineTransform ret = cobj->getNodeToParentAffineTransform();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -3272,7 +3274,7 @@ bool js_cocos2dx_Node_getNodeToParentAffineTransform(JSContext *cx, uint32_t arg
 bool js_cocos2dx_Node_isOpacityModifyRGB(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3292,7 +3294,7 @@ bool js_cocos2dx_Node_isOpacityModifyRGB(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Node_stopActionByTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3312,7 +3314,7 @@ bool js_cocos2dx_Node_stopActionByTag(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Node_reorderChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3342,7 +3344,7 @@ bool js_cocos2dx_Node_reorderChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setSkewY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3362,7 +3364,7 @@ bool js_cocos2dx_Node_setSkewY(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setPositionY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3382,7 +3384,7 @@ bool js_cocos2dx_Node_setPositionY(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setPositionX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3402,7 +3404,7 @@ bool js_cocos2dx_Node_setPositionX(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setNodeToParentTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3422,7 +3424,7 @@ bool js_cocos2dx_Node_setNodeToParentTransform(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Node_getAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3442,7 +3444,7 @@ bool js_cocos2dx_Node_getAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Node_getNumberOfRunningActions(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3478,7 +3480,7 @@ bool js_cocos2dx_Node_updateTransform(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Node_isVisible(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3498,7 +3500,7 @@ bool js_cocos2dx_Node_isVisible(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getChildrenCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3517,6 +3519,7 @@ bool js_cocos2dx_Node_getChildrenCount(JSContext *cx, uint32_t argc, JS::Value *
 }
 bool js_cocos2dx_Node_getNodeToParentTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Node* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -3526,7 +3529,7 @@ bool js_cocos2dx_Node_getNodeToParentTransform(JSContext *cx, uint32_t argc, JS:
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_getNodeToParentTransform : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Node* arg0 = nullptr;
             do {
@@ -3549,7 +3552,7 @@ bool js_cocos2dx_Node_getNodeToParentTransform(JSContext *cx, uint32_t argc, JS:
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const cocos2d::Mat4& ret = cobj->getNodeToParentTransform();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -3566,7 +3569,7 @@ bool js_cocos2dx_Node_getNodeToParentTransform(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Node_convertToNodeSpaceAR(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3589,7 +3592,7 @@ bool js_cocos2dx_Node_convertToNodeSpaceAR(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Node_addComponent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3620,7 +3623,7 @@ bool js_cocos2dx_Node_addComponent(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_runAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3655,7 +3658,7 @@ bool js_cocos2dx_Node_runAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3683,7 +3686,7 @@ bool js_cocos2dx_Node_setGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getRotation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3703,7 +3706,7 @@ bool js_cocos2dx_Node_getRotation(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getAnchorPointInPoints(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3722,6 +3725,7 @@ bool js_cocos2dx_Node_getAnchorPointInPoints(JSContext *cx, uint32_t argc, JS::V
 }
 bool js_cocos2dx_Node_visit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Node* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -3731,6 +3735,7 @@ bool js_cocos2dx_Node_visit(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_visit : Invalid Native Object");
     do {
+        ok = true;
         if (argc == 0) {
             cobj->visit();
             args.rval().setUndefined();
@@ -3739,7 +3744,7 @@ bool js_cocos2dx_Node_visit(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             cocos2d::Renderer* arg0 = nullptr;
             do {
@@ -3770,7 +3775,7 @@ bool js_cocos2dx_Node_visit(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_removeChildByName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3800,7 +3805,7 @@ bool js_cocos2dx_Node_removeChildByName(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Node_setPositionZ(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3820,7 +3825,7 @@ bool js_cocos2dx_Node_setPositionZ(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getGLProgramState(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3844,7 +3849,7 @@ bool js_cocos2dx_Node_getGLProgramState(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Node_setScheduler(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3888,7 +3893,7 @@ bool js_cocos2dx_Node_stopAllActions(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Node_getSkewX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3908,7 +3913,7 @@ bool js_cocos2dx_Node_getSkewX(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getSkewY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3928,7 +3933,7 @@ bool js_cocos2dx_Node_getSkewY(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_isScheduled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3951,7 +3956,7 @@ bool js_cocos2dx_Node_isScheduled(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getDisplayedColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3971,7 +3976,7 @@ bool js_cocos2dx_Node_getDisplayedColor(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Node_getActionByTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -3998,7 +4003,7 @@ bool js_cocos2dx_Node_getActionByTag(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Node_setRotationSkewX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4018,7 +4023,7 @@ bool js_cocos2dx_Node_setRotationSkewX(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Node_setRotationSkewY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4038,7 +4043,7 @@ bool js_cocos2dx_Node_setRotationSkewY(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Node_setName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4058,7 +4063,7 @@ bool js_cocos2dx_Node_setName(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getDisplayedOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4078,7 +4083,7 @@ bool js_cocos2dx_Node_getDisplayedOpacity(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Node_getLocalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4097,6 +4102,7 @@ bool js_cocos2dx_Node_getLocalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp
 }
 bool js_cocos2dx_Node_getScheduler(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Node* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -4106,7 +4112,7 @@ bool js_cocos2dx_Node_getScheduler(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_getScheduler : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const cocos2d::Scheduler* ret = cobj->getScheduler();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4122,7 +4128,7 @@ bool js_cocos2dx_Node_getScheduler(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             cocos2d::Scheduler* ret = cobj->getScheduler();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4143,7 +4149,7 @@ bool js_cocos2dx_Node_getScheduler(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setBeforeVisitCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4194,7 +4200,7 @@ bool js_cocos2dx_Node_setBeforeVisitCallback(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Node_setActionManager(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4221,6 +4227,7 @@ bool js_cocos2dx_Node_setActionManager(JSContext *cx, uint32_t argc, JS::Value *
 }
 bool js_cocos2dx_Node_getPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Node* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -4230,7 +4237,7 @@ bool js_cocos2dx_Node_getPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_getPosition : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             float* arg0 = 0;
             #pragma warning NO CONVERSION TO NATIVE FOR float*
@@ -4247,7 +4254,7 @@ bool js_cocos2dx_Node_getPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const cocos2d::Vec2& ret = cobj->getPosition();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4264,7 +4271,7 @@ bool js_cocos2dx_Node_getPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_insertChildBefore(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4302,7 +4309,7 @@ bool js_cocos2dx_Node_insertChildBefore(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Node_isRunning(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4321,6 +4328,7 @@ bool js_cocos2dx_Node_isRunning(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 bool js_cocos2dx_Node_getParent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Node* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -4330,7 +4338,7 @@ bool js_cocos2dx_Node_getParent(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_getParent : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const cocos2d::Node* ret = cobj->getParent();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4346,7 +4354,7 @@ bool js_cocos2dx_Node_getParent(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             cocos2d::Node* ret = cobj->getParent();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -4367,7 +4375,7 @@ bool js_cocos2dx_Node_getParent(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getWorldToNodeTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4387,7 +4395,7 @@ bool js_cocos2dx_Node_getWorldToNodeTransform(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Node_getPositionY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4407,7 +4415,7 @@ bool js_cocos2dx_Node_getPositionY(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getPositionX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4427,7 +4435,7 @@ bool js_cocos2dx_Node_getPositionX(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_removeChildByTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4457,7 +4465,7 @@ bool js_cocos2dx_Node_removeChildByTag(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Node_updateDisplayedColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4477,7 +4485,7 @@ bool js_cocos2dx_Node_updateDisplayedColor(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Node_setVisible(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4497,7 +4505,7 @@ bool js_cocos2dx_Node_setVisible(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getParentToNodeAffineTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4517,7 +4525,7 @@ bool js_cocos2dx_Node_getParentToNodeAffineTransform(JSContext *cx, uint32_t arg
 bool js_cocos2dx_Node_getPositionZ(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4537,7 +4545,7 @@ bool js_cocos2dx_Node_getPositionZ(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setGlobalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4556,6 +4564,7 @@ bool js_cocos2dx_Node_setGlobalZOrder(JSContext *cx, uint32_t argc, JS::Value *v
 }
 bool js_cocos2dx_Node_setScale(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Node* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -4565,7 +4574,7 @@ bool js_cocos2dx_Node_setScale(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_setScale : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -4580,7 +4589,7 @@ bool js_cocos2dx_Node_setScale(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -4597,7 +4606,7 @@ bool js_cocos2dx_Node_setScale(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getChildByTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4624,7 +4633,7 @@ bool js_cocos2dx_Node_getChildByTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getScaleZ(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4644,7 +4653,7 @@ bool js_cocos2dx_Node_getScaleZ(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getScaleY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4664,7 +4673,7 @@ bool js_cocos2dx_Node_getScaleY(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getScaleX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4684,7 +4693,7 @@ bool js_cocos2dx_Node_getScaleX(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setLocalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4704,7 +4713,7 @@ bool js_cocos2dx_Node_setLocalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Node_setCascadeColorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4724,7 +4733,7 @@ bool js_cocos2dx_Node_setCascadeColorEnabled(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Node_setOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4744,7 +4753,7 @@ bool js_cocos2dx_Node_setOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getComponent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4771,7 +4780,7 @@ bool js_cocos2dx_Node_getComponent(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getContentSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4791,7 +4800,7 @@ bool js_cocos2dx_Node_getContentSize(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Node_stopAllActionsByTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4811,7 +4820,7 @@ bool js_cocos2dx_Node_stopAllActionsByTag(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Node_getBoundingBox(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4831,7 +4840,7 @@ bool js_cocos2dx_Node_getBoundingBox(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Node_setIgnoreAnchorPointForPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4851,7 +4860,7 @@ bool js_cocos2dx_Node_setIgnoreAnchorPointForPosition(JSContext *cx, uint32_t ar
 bool js_cocos2dx_Node_setEventDispatcher(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4879,7 +4888,7 @@ bool js_cocos2dx_Node_setEventDispatcher(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Node_getGlobalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4898,6 +4907,7 @@ bool js_cocos2dx_Node_getGlobalZOrder(JSContext *cx, uint32_t argc, JS::Value *v
 }
 bool js_cocos2dx_Node_draw(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Node* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -4907,6 +4917,7 @@ bool js_cocos2dx_Node_draw(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_draw : Invalid Native Object");
     do {
+        ok = true;
         if (argc == 0) {
             cobj->draw();
             args.rval().setUndefined();
@@ -4915,7 +4926,7 @@ bool js_cocos2dx_Node_draw(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             cocos2d::Renderer* arg0 = nullptr;
             do {
@@ -4946,7 +4957,7 @@ bool js_cocos2dx_Node_draw(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_setUserObject(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -4974,7 +4985,7 @@ bool js_cocos2dx_Node_setUserObject(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_enumerateChildren(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5030,6 +5041,7 @@ bool js_cocos2dx_Node_enumerateChildren(JSContext *cx, uint32_t argc, JS::Value 
 }
 bool js_cocos2dx_Node_removeFromParentAndCleanup(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Node* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -5039,7 +5051,7 @@ bool js_cocos2dx_Node_removeFromParentAndCleanup(JSContext *cx, uint32_t argc, J
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_removeFromParentAndCleanup : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             bool arg0;
             arg0 = args.get(0).toBoolean();
@@ -5050,6 +5062,7 @@ bool js_cocos2dx_Node_removeFromParentAndCleanup(JSContext *cx, uint32_t argc, J
     } while(0);
 
     do {
+        ok = true;
         if (argc == 0) {
             cobj->removeFromParent();
             args.rval().setUndefined();
@@ -5063,7 +5076,7 @@ bool js_cocos2dx_Node_removeFromParentAndCleanup(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_Node_convertTouchToNodeSpaceAR(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5094,7 +5107,7 @@ bool js_cocos2dx_Node_convertTouchToNodeSpaceAR(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Node_update(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5130,7 +5143,7 @@ bool js_cocos2dx_Node_sortAllChildren(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Node_getWorldToNodeAffineTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5150,7 +5163,7 @@ bool js_cocos2dx_Node_getWorldToNodeAffineTransform(JSContext *cx, uint32_t argc
 bool js_cocos2dx_Node_getScale(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5170,7 +5183,7 @@ bool js_cocos2dx_Node_getScale(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_getOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5206,7 +5219,7 @@ bool js_cocos2dx_Node_updateOrderOfArrival(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Node_getNormalizedPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5226,7 +5239,7 @@ bool js_cocos2dx_Node_getNormalizedPosition(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Node_getParentToNodeTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5246,7 +5259,7 @@ bool js_cocos2dx_Node_getParentToNodeTransform(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Node_convertToNodeSpace(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5269,7 +5282,7 @@ bool js_cocos2dx_Node_convertToNodeSpace(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Node_setTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5289,7 +5302,7 @@ bool js_cocos2dx_Node_setTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Node_isCascadeColorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5309,7 +5322,7 @@ bool js_cocos2dx_Node_isCascadeColorEnabled(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Node_stopAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
@@ -5336,6 +5349,7 @@ bool js_cocos2dx_Node_stopAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 bool js_cocos2dx_Node_getActionManager(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Node* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -5345,7 +5359,7 @@ bool js_cocos2dx_Node_getActionManager(JSContext *cx, uint32_t argc, JS::Value *
     cobj = (cocos2d::Node *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_getActionManager : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const cocos2d::ActionManager* ret = cobj->getActionManager();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -5361,7 +5375,7 @@ bool js_cocos2dx_Node_getActionManager(JSContext *cx, uint32_t argc, JS::Value *
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             cocos2d::ActionManager* ret = cobj->getActionManager();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -5382,7 +5396,7 @@ bool js_cocos2dx_Node_getActionManager(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Node_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::Node::create();
@@ -5614,7 +5628,7 @@ JSObject *jsb_cocos2d_Scene_prototype;
 bool js_cocos2dx_Scene_initWithSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Scene* cobj = (cocos2d::Scene *)(proxy ? proxy->ptr : NULL);
@@ -5637,7 +5651,7 @@ bool js_cocos2dx_Scene_initWithSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Scene_render(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Scene* cobj = (cocos2d::Scene *)(proxy ? proxy->ptr : NULL);
@@ -5695,7 +5709,7 @@ bool js_cocos2dx_Scene_render(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Scene_createWithSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::Size arg0;
         ok &= jsval_to_ccsize(cx, args.get(0), &arg0);
@@ -5714,7 +5728,7 @@ bool js_cocos2dx_Scene_createWithSize(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Scene_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::Scene::create();
@@ -5823,7 +5837,7 @@ JSObject *jsb_cocos2d_GLView_prototype;
 bool js_cocos2dx_GLView_setFrameSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -5845,7 +5859,7 @@ bool js_cocos2dx_GLView_setFrameSize(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_GLView_getViewPortRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -5865,7 +5879,7 @@ bool js_cocos2dx_GLView_getViewPortRect(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_GLView_setContentScaleFactor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -5888,7 +5902,7 @@ bool js_cocos2dx_GLView_setContentScaleFactor(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_GLView_getContentScaleFactor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -5908,7 +5922,7 @@ bool js_cocos2dx_GLView_getContentScaleFactor(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_GLView_setIMEKeyboardState(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -5928,7 +5942,7 @@ bool js_cocos2dx_GLView_setIMEKeyboardState(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_GLView_isAntiAliasEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -5948,7 +5962,7 @@ bool js_cocos2dx_GLView_isAntiAliasEnabled(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_GLView_setScissorInPoints(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -5974,7 +5988,7 @@ bool js_cocos2dx_GLView_setScissorInPoints(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_GLView_getViewName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -5994,7 +6008,7 @@ bool js_cocos2dx_GLView_getViewName(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_GLView_isOpenGLReady(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6014,7 +6028,7 @@ bool js_cocos2dx_GLView_isOpenGLReady(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_GLView_setCursorVisible(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6034,7 +6048,7 @@ bool js_cocos2dx_GLView_setCursorVisible(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_GLView_getScaleY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6054,7 +6068,7 @@ bool js_cocos2dx_GLView_getScaleY(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_GLView_getScaleX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6074,7 +6088,7 @@ bool js_cocos2dx_GLView_getScaleX(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_GLView_getVisibleOrigin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6094,7 +6108,7 @@ bool js_cocos2dx_GLView_getVisibleOrigin(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_GLView_getFrameSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6114,7 +6128,7 @@ bool js_cocos2dx_GLView_getFrameSize(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_GLView_setFrameZoomFactor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6134,7 +6148,7 @@ bool js_cocos2dx_GLView_setFrameZoomFactor(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_GLView_getFrameZoomFactor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6154,7 +6168,7 @@ bool js_cocos2dx_GLView_getFrameZoomFactor(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_GLView_getDesignResolutionSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6174,7 +6188,7 @@ bool js_cocos2dx_GLView_getDesignResolutionSize(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_GLView_windowShouldClose(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6194,7 +6208,7 @@ bool js_cocos2dx_GLView_windowShouldClose(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_GLView_setDesignResolutionSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6218,7 +6232,7 @@ bool js_cocos2dx_GLView_setDesignResolutionSize(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_GLView_getResolutionPolicy(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6238,7 +6252,7 @@ bool js_cocos2dx_GLView_getResolutionPolicy(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_GLView_isRetinaDisplay(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6258,7 +6272,7 @@ bool js_cocos2dx_GLView_isRetinaDisplay(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_GLView_renderScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6296,7 +6310,7 @@ bool js_cocos2dx_GLView_renderScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_GLView_setViewPortInPoints(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6322,7 +6336,7 @@ bool js_cocos2dx_GLView_setViewPortInPoints(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_GLView_getScissorRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6342,7 +6356,7 @@ bool js_cocos2dx_GLView_getScissorRect(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_GLView_enableAntiAlias(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6362,7 +6376,7 @@ bool js_cocos2dx_GLView_enableAntiAlias(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_GLView_getRetinaFactor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6382,7 +6396,7 @@ bool js_cocos2dx_GLView_getRetinaFactor(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_GLView_setViewName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6402,7 +6416,7 @@ bool js_cocos2dx_GLView_setViewName(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_GLView_getVisibleRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6422,7 +6436,7 @@ bool js_cocos2dx_GLView_getVisibleRect(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_GLView_getVisibleSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6442,7 +6456,7 @@ bool js_cocos2dx_GLView_getVisibleSize(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_GLView_isScissorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLView* cobj = (cocos2d::GLView *)(proxy ? proxy->ptr : NULL);
@@ -6478,7 +6492,7 @@ bool js_cocos2dx_GLView_pollEvents(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_GLView_setGLContextAttrs(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         GLContextAttrs arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GLContextAttrs
@@ -6590,7 +6604,7 @@ bool js_cocos2dx_Director_pause(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_isPurgeDirectorInNextLoop(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6610,7 +6624,7 @@ bool js_cocos2dx_Director_isPurgeDirectorInNextLoop(JSContext *cx, uint32_t argc
 bool js_cocos2dx_Director_setEventDispatcher(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6638,7 +6652,7 @@ bool js_cocos2dx_Director_setEventDispatcher(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Director_setContentScaleFactor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6658,7 +6672,7 @@ bool js_cocos2dx_Director_setContentScaleFactor(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Director_getContentScaleFactor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6678,7 +6692,7 @@ bool js_cocos2dx_Director_getContentScaleFactor(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Director_getWinSizeInPixels(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6698,7 +6712,7 @@ bool js_cocos2dx_Director_getWinSizeInPixels(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Director_getDeltaTime(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6734,7 +6748,7 @@ bool js_cocos2dx_Director_setGLDefaultValues(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Director_setActionManager(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6762,7 +6776,7 @@ bool js_cocos2dx_Director_setActionManager(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Director_setAlphaBlending(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6798,7 +6812,7 @@ bool js_cocos2dx_Director_popToRootScene(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Director_loadMatrix(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6820,7 +6834,7 @@ bool js_cocos2dx_Director_loadMatrix(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Director_getNotificationNode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6844,7 +6858,7 @@ bool js_cocos2dx_Director_getNotificationNode(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Director_getWinSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6880,7 +6894,7 @@ bool js_cocos2dx_Director_end(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_getTextureCache(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6904,7 +6918,7 @@ bool js_cocos2dx_Director_getTextureCache(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Director_isSendCleanupToScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6924,7 +6938,7 @@ bool js_cocos2dx_Director_isSendCleanupToScene(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Director_getVisibleOrigin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6960,7 +6974,7 @@ bool js_cocos2dx_Director_mainLoop(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_setDepthTest(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -6980,7 +6994,7 @@ bool js_cocos2dx_Director_setDepthTest(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Director_getFrameRate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7000,7 +7014,7 @@ bool js_cocos2dx_Director_getFrameRate(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Director_getSecondsPerFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7036,7 +7050,7 @@ bool js_cocos2dx_Director_resetMatrixStack(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Director_convertToUI(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7059,7 +7073,7 @@ bool js_cocos2dx_Director_convertToUI(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Director_pushMatrix(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7095,7 +7109,7 @@ bool js_cocos2dx_Director_setDefaultValues(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Director_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7115,7 +7129,7 @@ bool js_cocos2dx_Director_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_setScheduler(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7143,7 +7157,7 @@ bool js_cocos2dx_Director_setScheduler(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Director_getMatrix(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7166,7 +7180,7 @@ bool js_cocos2dx_Director_getMatrix(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_isValid(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7202,7 +7216,7 @@ bool js_cocos2dx_Director_startAnimation(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Director_getOpenGLView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7226,7 +7240,7 @@ bool js_cocos2dx_Director_getOpenGLView(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Director_getRunningScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7282,7 +7296,7 @@ bool js_cocos2dx_Director_stopAnimation(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Director_popToSceneStackLevel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7318,7 +7332,7 @@ bool js_cocos2dx_Director_resume(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_isNextDeltaTimeZero(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7338,7 +7352,7 @@ bool js_cocos2dx_Director_isNextDeltaTimeZero(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Director_setClearColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7358,7 +7372,7 @@ bool js_cocos2dx_Director_setClearColor(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Director_setOpenGLView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7386,7 +7400,7 @@ bool js_cocos2dx_Director_setOpenGLView(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Director_convertToGL(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7425,7 +7439,7 @@ bool js_cocos2dx_Director_purgeCachedData(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Director_getTotalFrames(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7445,7 +7459,7 @@ bool js_cocos2dx_Director_getTotalFrames(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Director_runWithScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7473,7 +7487,7 @@ bool js_cocos2dx_Director_runWithScene(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Director_setNotificationNode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7549,7 +7563,7 @@ bool js_cocos2dx_Director_popScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_loadIdentityMatrix(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7569,7 +7583,7 @@ bool js_cocos2dx_Director_loadIdentityMatrix(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Director_isDisplayStats(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7589,7 +7603,7 @@ bool js_cocos2dx_Director_isDisplayStats(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Director_setProjection(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7609,7 +7623,7 @@ bool js_cocos2dx_Director_setProjection(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Director_multiplyMatrix(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7631,7 +7645,7 @@ bool js_cocos2dx_Director_multiplyMatrix(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Director_getZEye(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7651,7 +7665,7 @@ bool js_cocos2dx_Director_getZEye(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_setNextDeltaTimeZero(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7671,7 +7685,7 @@ bool js_cocos2dx_Director_setNextDeltaTimeZero(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Director_popMatrix(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7691,7 +7705,7 @@ bool js_cocos2dx_Director_popMatrix(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_getVisibleSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7711,7 +7725,7 @@ bool js_cocos2dx_Director_getVisibleSize(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Director_getScheduler(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7735,7 +7749,7 @@ bool js_cocos2dx_Director_getScheduler(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Director_pushScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7763,7 +7777,7 @@ bool js_cocos2dx_Director_pushScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_getAnimationInterval(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7783,7 +7797,7 @@ bool js_cocos2dx_Director_getAnimationInterval(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Director_isPaused(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7803,7 +7817,7 @@ bool js_cocos2dx_Director_isPaused(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Director_setDisplayStats(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7823,7 +7837,7 @@ bool js_cocos2dx_Director_setDisplayStats(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Director_getEventDispatcher(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7847,7 +7861,7 @@ bool js_cocos2dx_Director_getEventDispatcher(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Director_replaceScene(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7875,7 +7889,7 @@ bool js_cocos2dx_Director_replaceScene(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Director_setAnimationInterval(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7895,7 +7909,7 @@ bool js_cocos2dx_Director_setAnimationInterval(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Director_getActionManager(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Director* cobj = (cocos2d::Director *)(proxy ? proxy->ptr : NULL);
@@ -7919,7 +7933,7 @@ bool js_cocos2dx_Director_getActionManager(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Director_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::Director::getInstance();
@@ -8048,7 +8062,7 @@ JSObject *jsb_cocos2d_Scheduler_prototype;
 bool js_cocos2dx_Scheduler_setTimeScale(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : NULL);
@@ -8068,7 +8082,7 @@ bool js_cocos2dx_Scheduler_setTimeScale(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Scheduler_unscheduleAllWithMinPriority(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : NULL);
@@ -8088,7 +8102,7 @@ bool js_cocos2dx_Scheduler_unscheduleAllWithMinPriority(JSContext *cx, uint32_t 
 bool js_cocos2dx_Scheduler_update(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : NULL);
@@ -8108,7 +8122,7 @@ bool js_cocos2dx_Scheduler_update(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Scheduler_unscheduleScriptEntry(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : NULL);
@@ -8128,7 +8142,7 @@ bool js_cocos2dx_Scheduler_unscheduleScriptEntry(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_Scheduler_performFunctionInCocosThread(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : NULL);
@@ -8186,7 +8200,7 @@ bool js_cocos2dx_Scheduler_unscheduleAll(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Scheduler_getTimeScale(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : NULL);
@@ -8276,7 +8290,7 @@ JSObject *jsb_cocos2d_AsyncTaskPool_prototype;
 bool js_cocos2dx_AsyncTaskPool_stopTasks(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AsyncTaskPool* cobj = (cocos2d::AsyncTaskPool *)(proxy ? proxy->ptr : NULL);
@@ -8308,7 +8322,7 @@ bool js_cocos2dx_AsyncTaskPool_destroyInstance(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_AsyncTaskPool_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         cocos2d::AsyncTaskPool* ret = cocos2d::AsyncTaskPool::getInstance();
@@ -8379,7 +8393,7 @@ JSObject *jsb_cocos2d_Configuration_prototype;
 bool js_cocos2dx_Configuration_supportsPVRTC(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8399,7 +8413,7 @@ bool js_cocos2dx_Configuration_supportsPVRTC(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Configuration_supportsOESDepth24(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8419,7 +8433,7 @@ bool js_cocos2dx_Configuration_supportsOESDepth24(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_Configuration_getMaxModelviewStackDepth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8439,7 +8453,7 @@ bool js_cocos2dx_Configuration_getMaxModelviewStackDepth(JSContext *cx, uint32_t
 bool js_cocos2dx_Configuration_supportsShareableVAO(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8459,7 +8473,7 @@ bool js_cocos2dx_Configuration_supportsShareableVAO(JSContext *cx, uint32_t argc
 bool js_cocos2dx_Configuration_supportsBGRA8888(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8479,7 +8493,7 @@ bool js_cocos2dx_Configuration_supportsBGRA8888(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Configuration_checkForGLExtension(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8502,7 +8516,7 @@ bool js_cocos2dx_Configuration_checkForGLExtension(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_Configuration_supportsNPOT(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8522,7 +8536,7 @@ bool js_cocos2dx_Configuration_supportsNPOT(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Configuration_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8542,7 +8556,7 @@ bool js_cocos2dx_Configuration_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Configuration_getMaxSupportPointLightInShader(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8562,7 +8576,7 @@ bool js_cocos2dx_Configuration_getMaxSupportPointLightInShader(JSContext *cx, ui
 bool js_cocos2dx_Configuration_getMaxTextureSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8582,7 +8596,7 @@ bool js_cocos2dx_Configuration_getMaxTextureSize(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_Configuration_setValue(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8604,7 +8618,7 @@ bool js_cocos2dx_Configuration_setValue(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Configuration_getMaxSupportSpotLightInShader(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8624,7 +8638,7 @@ bool js_cocos2dx_Configuration_getMaxSupportSpotLightInShader(JSContext *cx, uin
 bool js_cocos2dx_Configuration_supportsETC(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8644,7 +8658,7 @@ bool js_cocos2dx_Configuration_supportsETC(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Configuration_getMaxSupportDirLightInShader(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8664,7 +8678,7 @@ bool js_cocos2dx_Configuration_getMaxSupportDirLightInShader(JSContext *cx, uint
 bool js_cocos2dx_Configuration_loadConfigFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8684,7 +8698,7 @@ bool js_cocos2dx_Configuration_loadConfigFile(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Configuration_supportsDiscardFramebuffer(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8704,7 +8718,7 @@ bool js_cocos2dx_Configuration_supportsDiscardFramebuffer(JSContext *cx, uint32_
 bool js_cocos2dx_Configuration_supportsOESPackedDepthStencil(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8724,7 +8738,7 @@ bool js_cocos2dx_Configuration_supportsOESPackedDepthStencil(JSContext *cx, uint
 bool js_cocos2dx_Configuration_getInfo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8744,7 +8758,7 @@ bool js_cocos2dx_Configuration_getInfo(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Configuration_getMaxTextureUnits(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8764,7 +8778,7 @@ bool js_cocos2dx_Configuration_getMaxTextureUnits(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_Configuration_getValue(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8816,7 +8830,7 @@ bool js_cocos2dx_Configuration_gatherGPUInfo(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Configuration_supportsMapBuffer(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Configuration* cobj = (cocos2d::Configuration *)(proxy ? proxy->ptr : NULL);
@@ -8848,7 +8862,7 @@ bool js_cocos2dx_Configuration_destroyInstance(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Configuration_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::Configuration::getInstance();
@@ -8935,7 +8949,7 @@ JSObject *jsb_cocos2d_Properties_prototype;
 bool js_cocos2dx_Properties_getVariable(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -8960,7 +8974,7 @@ bool js_cocos2dx_Properties_getVariable(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Properties_getString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -8985,7 +8999,7 @@ bool js_cocos2dx_Properties_getString(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Properties_getLong(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9007,6 +9021,7 @@ bool js_cocos2dx_Properties_getLong(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 bool js_cocos2dx_Properties_getNamespace(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Properties* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -9016,7 +9031,7 @@ bool js_cocos2dx_Properties_getNamespace(JSContext *cx, uint32_t argc, JS::Value
     cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Properties_getNamespace : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const char* ret = cobj->getNamespace();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -9028,7 +9043,7 @@ bool js_cocos2dx_Properties_getNamespace(JSContext *cx, uint32_t argc, JS::Value
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             const char* arg0 = nullptr;
             std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
@@ -9047,7 +9062,7 @@ bool js_cocos2dx_Properties_getNamespace(JSContext *cx, uint32_t argc, JS::Value
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             const char* arg0 = nullptr;
             std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
@@ -9068,7 +9083,7 @@ bool js_cocos2dx_Properties_getNamespace(JSContext *cx, uint32_t argc, JS::Value
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             const char* arg0 = nullptr;
             std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
@@ -9096,7 +9111,7 @@ bool js_cocos2dx_Properties_getNamespace(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Properties_getPath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9122,7 +9137,7 @@ bool js_cocos2dx_Properties_getPath(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Properties_getMat4(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9155,7 +9170,7 @@ bool js_cocos2dx_Properties_getMat4(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Properties_exists(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9178,7 +9193,7 @@ bool js_cocos2dx_Properties_exists(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Properties_setString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9203,7 +9218,7 @@ bool js_cocos2dx_Properties_setString(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Properties_getId(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9239,7 +9254,7 @@ bool js_cocos2dx_Properties_rewind(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Properties_setVariable(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9261,7 +9276,7 @@ bool js_cocos2dx_Properties_setVariable(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Properties_getBool(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9296,6 +9311,7 @@ bool js_cocos2dx_Properties_getBool(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 bool js_cocos2dx_Properties_getColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Properties* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -9305,7 +9321,7 @@ bool js_cocos2dx_Properties_getColor(JSContext *cx, uint32_t argc, JS::Value *vp
     cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Properties_getColor : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             const char* arg0 = nullptr;
             std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
@@ -9331,7 +9347,7 @@ bool js_cocos2dx_Properties_getColor(JSContext *cx, uint32_t argc, JS::Value *vp
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             const char* arg0 = nullptr;
             std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
@@ -9362,7 +9378,7 @@ bool js_cocos2dx_Properties_getColor(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Properties_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9385,7 +9401,7 @@ bool js_cocos2dx_Properties_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Properties_getNextNamespace(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9409,7 +9425,7 @@ bool js_cocos2dx_Properties_getNextNamespace(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Properties_getInt(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9432,7 +9448,7 @@ bool js_cocos2dx_Properties_getInt(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Properties_getVec3(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9465,7 +9481,7 @@ bool js_cocos2dx_Properties_getVec3(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Properties_getVec2(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9490,7 +9506,7 @@ bool js_cocos2dx_Properties_getVec2(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Properties_getVec4(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9523,7 +9539,7 @@ bool js_cocos2dx_Properties_getVec4(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Properties_getNextProperty(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9543,7 +9559,7 @@ bool js_cocos2dx_Properties_getNextProperty(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Properties_getFloat(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9566,7 +9582,7 @@ bool js_cocos2dx_Properties_getFloat(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Properties_getQuaternionFromAxisAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Properties* cobj = (cocos2d::Properties *)(proxy ? proxy->ptr : NULL);
@@ -9601,7 +9617,7 @@ bool js_cocos2dx_Properties_parseColor(JSContext *cx, uint32_t argc, JS::Value *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             const char* arg0 = nullptr;
             std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
@@ -9627,7 +9643,7 @@ bool js_cocos2dx_Properties_parseColor(JSContext *cx, uint32_t argc, JS::Value *
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             const char* arg0 = nullptr;
             std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
@@ -9657,7 +9673,7 @@ bool js_cocos2dx_Properties_parseColor(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Properties_parseVec3(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         const char* arg0 = nullptr;
         cocos2d::Vec3* arg1 = nullptr;
@@ -9687,7 +9703,7 @@ bool js_cocos2dx_Properties_parseVec3(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Properties_parseAxisAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         const char* arg0 = nullptr;
         cocos2d::Quaternion* arg1 = nullptr;
@@ -9717,7 +9733,7 @@ bool js_cocos2dx_Properties_parseAxisAngle(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Properties_parseVec2(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         const char* arg0 = nullptr;
         cocos2d::Vec2* arg1 = nullptr;
@@ -9739,7 +9755,7 @@ bool js_cocos2dx_Properties_parseVec2(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Properties_createNonRefCounted(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         std::string arg0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -9763,7 +9779,7 @@ bool js_cocos2dx_Properties_createNonRefCounted(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Properties_parseVec4(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         const char* arg0 = nullptr;
         cocos2d::Vec4* arg1 = nullptr;
@@ -9868,7 +9884,7 @@ JSObject *jsb_cocos2d_FileUtils_prototype;
 bool js_cocos2dx_FileUtils_fullPathForFilename(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -9891,7 +9907,7 @@ bool js_cocos2dx_FileUtils_fullPathForFilename(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_FileUtils_getStringFromFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -9914,7 +9930,7 @@ bool js_cocos2dx_FileUtils_getStringFromFile(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_FileUtils_removeFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -9937,7 +9953,7 @@ bool js_cocos2dx_FileUtils_removeFile(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_FileUtils_isAbsolutePath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -9959,6 +9975,7 @@ bool js_cocos2dx_FileUtils_isAbsolutePath(JSContext *cx, uint32_t argc, JS::Valu
 }
 bool js_cocos2dx_FileUtils_renameFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::FileUtils* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -9968,7 +9985,7 @@ bool js_cocos2dx_FileUtils_renameFile(JSContext *cx, uint32_t argc, JS::Value *v
     cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_FileUtils_renameFile : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -9986,7 +10003,7 @@ bool js_cocos2dx_FileUtils_renameFile(JSContext *cx, uint32_t argc, JS::Value *v
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -10012,7 +10029,7 @@ bool js_cocos2dx_FileUtils_renameFile(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_FileUtils_loadFilenameLookupDictionaryFromFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10032,7 +10049,7 @@ bool js_cocos2dx_FileUtils_loadFilenameLookupDictionaryFromFile(JSContext *cx, u
 bool js_cocos2dx_FileUtils_isPopupNotify(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10052,7 +10069,7 @@ bool js_cocos2dx_FileUtils_isPopupNotify(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_FileUtils_getValueVectorFromFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10075,7 +10092,7 @@ bool js_cocos2dx_FileUtils_getValueVectorFromFile(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_FileUtils_getSearchPaths(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10095,7 +10112,7 @@ bool js_cocos2dx_FileUtils_getSearchPaths(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_FileUtils_writeToFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10120,7 +10137,7 @@ bool js_cocos2dx_FileUtils_writeToFile(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_FileUtils_listFiles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10143,7 +10160,7 @@ bool js_cocos2dx_FileUtils_listFiles(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_FileUtils_getValueMapFromFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10166,7 +10183,7 @@ bool js_cocos2dx_FileUtils_getValueMapFromFile(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_FileUtils_getFileSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10189,7 +10206,7 @@ bool js_cocos2dx_FileUtils_getFileSize(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_FileUtils_getValueMapFromData(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10214,7 +10231,7 @@ bool js_cocos2dx_FileUtils_getValueMapFromData(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_FileUtils_removeDirectory(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10237,7 +10254,7 @@ bool js_cocos2dx_FileUtils_removeDirectory(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_FileUtils_setSearchPaths(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10257,7 +10274,7 @@ bool js_cocos2dx_FileUtils_setSearchPaths(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_FileUtils_writeStringToFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10282,7 +10299,7 @@ bool js_cocos2dx_FileUtils_writeStringToFile(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_FileUtils_setSearchResolutionsOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10302,7 +10319,7 @@ bool js_cocos2dx_FileUtils_setSearchResolutionsOrder(JSContext *cx, uint32_t arg
 bool js_cocos2dx_FileUtils_addSearchResolutionsOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10332,7 +10349,7 @@ bool js_cocos2dx_FileUtils_addSearchResolutionsOrder(JSContext *cx, uint32_t arg
 bool js_cocos2dx_FileUtils_addSearchPath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10362,7 +10379,7 @@ bool js_cocos2dx_FileUtils_addSearchPath(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_FileUtils_writeValueVectorToFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10387,7 +10404,7 @@ bool js_cocos2dx_FileUtils_writeValueVectorToFile(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_FileUtils_isFileExist(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10426,7 +10443,7 @@ bool js_cocos2dx_FileUtils_purgeCachedEntries(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_FileUtils_fullPathFromRelativeFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10451,7 +10468,7 @@ bool js_cocos2dx_FileUtils_fullPathFromRelativeFile(JSContext *cx, uint32_t argc
 bool js_cocos2dx_FileUtils_getSuitableFOpen(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10474,7 +10491,7 @@ bool js_cocos2dx_FileUtils_getSuitableFOpen(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_FileUtils_writeValueMapToFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10499,7 +10516,7 @@ bool js_cocos2dx_FileUtils_writeValueMapToFile(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_FileUtils_getFileExtension(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10522,7 +10539,7 @@ bool js_cocos2dx_FileUtils_getFileExtension(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_FileUtils_setWritablePath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10542,7 +10559,7 @@ bool js_cocos2dx_FileUtils_setWritablePath(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_FileUtils_setPopupNotify(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10562,7 +10579,7 @@ bool js_cocos2dx_FileUtils_setPopupNotify(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_FileUtils_isDirectoryExist(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10585,7 +10602,7 @@ bool js_cocos2dx_FileUtils_isDirectoryExist(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_FileUtils_setDefaultResourceRootPath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10605,7 +10622,7 @@ bool js_cocos2dx_FileUtils_setDefaultResourceRootPath(JSContext *cx, uint32_t ar
 bool js_cocos2dx_FileUtils_getSearchResolutionsOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10625,7 +10642,7 @@ bool js_cocos2dx_FileUtils_getSearchResolutionsOrder(JSContext *cx, uint32_t arg
 bool js_cocos2dx_FileUtils_createDirectory(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10648,7 +10665,7 @@ bool js_cocos2dx_FileUtils_createDirectory(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_FileUtils_listFilesRecursively(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10678,7 +10695,7 @@ bool js_cocos2dx_FileUtils_listFilesRecursively(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_FileUtils_getWritablePath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
@@ -10698,7 +10715,7 @@ bool js_cocos2dx_FileUtils_getWritablePath(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_FileUtils_setDelegate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::FileUtils* arg0 = nullptr;
         do {
@@ -10722,7 +10739,7 @@ bool js_cocos2dx_FileUtils_setDelegate(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_FileUtils_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         cocos2d::FileUtils* ret = cocos2d::FileUtils::getInstance();
@@ -10891,7 +10908,7 @@ JSObject *jsb_cocos2d_EventCustom_prototype;
 bool js_cocos2dx_EventCustom_getEventName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventCustom* cobj = (cocos2d::EventCustom *)(proxy ? proxy->ptr : NULL);
@@ -10980,7 +10997,7 @@ JSObject *jsb_cocos2d_EventListener_prototype;
 bool js_cocos2dx_EventListener_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListener* cobj = (cocos2d::EventListener *)(proxy ? proxy->ptr : NULL);
@@ -11000,7 +11017,7 @@ bool js_cocos2dx_EventListener_setEnabled(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_EventListener_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListener* cobj = (cocos2d::EventListener *)(proxy ? proxy->ptr : NULL);
@@ -11020,7 +11037,7 @@ bool js_cocos2dx_EventListener_isEnabled(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_EventListener_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListener* cobj = (cocos2d::EventListener *)(proxy ? proxy->ptr : NULL);
@@ -11044,7 +11061,7 @@ bool js_cocos2dx_EventListener_clone(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_EventListener_checkAvailable(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListener* cobj = (cocos2d::EventListener *)(proxy ? proxy->ptr : NULL);
@@ -11111,7 +11128,7 @@ JSObject *jsb_cocos2d_EventDispatcher_prototype;
 bool js_cocos2dx_EventDispatcher_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
@@ -11147,7 +11164,7 @@ bool js_cocos2dx_EventDispatcher_removeAllEventListeners(JSContext *cx, uint32_t
 bool js_cocos2dx_EventDispatcher_addEventListenerWithSceneGraphPriority(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
@@ -11185,7 +11202,7 @@ bool js_cocos2dx_EventDispatcher_addEventListenerWithSceneGraphPriority(JSContex
 bool js_cocos2dx_EventDispatcher_addEventListenerWithFixedPriority(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
@@ -11214,6 +11231,7 @@ bool js_cocos2dx_EventDispatcher_addEventListenerWithFixedPriority(JSContext *cx
 }
 bool js_cocos2dx_EventDispatcher_removeEventListenersForTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::EventDispatcher* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -11223,7 +11241,7 @@ bool js_cocos2dx_EventDispatcher_removeEventListenersForTarget(JSContext *cx, ui
     cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_EventDispatcher_removeEventListenersForTarget : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Node* arg0 = nullptr;
             do {
@@ -11243,7 +11261,7 @@ bool js_cocos2dx_EventDispatcher_removeEventListenersForTarget(JSContext *cx, ui
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             cocos2d::Node* arg0 = nullptr;
             do {
@@ -11265,7 +11283,7 @@ bool js_cocos2dx_EventDispatcher_removeEventListenersForTarget(JSContext *cx, ui
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::EventListener::Type arg0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -11282,7 +11300,7 @@ bool js_cocos2dx_EventDispatcher_removeEventListenersForTarget(JSContext *cx, ui
 bool js_cocos2dx_EventDispatcher_resumeEventListenersForTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
@@ -11328,7 +11346,7 @@ bool js_cocos2dx_EventDispatcher_resumeEventListenersForTarget(JSContext *cx, ui
 bool js_cocos2dx_EventDispatcher_setPriority(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
@@ -11358,7 +11376,7 @@ bool js_cocos2dx_EventDispatcher_setPriority(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_EventDispatcher_dispatchEvent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
@@ -11386,7 +11404,7 @@ bool js_cocos2dx_EventDispatcher_dispatchEvent(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_EventDispatcher_hasEventListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
@@ -11409,7 +11427,7 @@ bool js_cocos2dx_EventDispatcher_hasEventListener(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_EventDispatcher_pauseEventListenersForTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
@@ -11455,7 +11473,7 @@ bool js_cocos2dx_EventDispatcher_pauseEventListenersForTarget(JSContext *cx, uin
 bool js_cocos2dx_EventDispatcher_removeCustomEventListeners(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
@@ -11475,7 +11493,7 @@ bool js_cocos2dx_EventDispatcher_removeCustomEventListeners(JSContext *cx, uint3
 bool js_cocos2dx_EventDispatcher_removeEventListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
@@ -11503,7 +11521,7 @@ bool js_cocos2dx_EventDispatcher_removeEventListener(JSContext *cx, uint32_t arg
 bool js_cocos2dx_EventDispatcher_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
@@ -11681,7 +11699,7 @@ JSObject *jsb_cocos2d_EventListenerAcceleration_prototype;
 bool js_cocos2dx_EventListenerAcceleration_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListenerAcceleration* cobj = (cocos2d::EventListenerAcceleration *)(proxy ? proxy->ptr : NULL);
@@ -11864,7 +11882,7 @@ JSObject *jsb_cocos2d_EventListenerFocus_prototype;
 bool js_cocos2dx_EventListenerFocus_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListenerFocus* cobj = (cocos2d::EventListenerFocus *)(proxy ? proxy->ptr : NULL);
@@ -11950,7 +11968,7 @@ JSObject *jsb_cocos2d_EventListenerKeyboard_prototype;
 bool js_cocos2dx_EventListenerKeyboard_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListenerKeyboard* cobj = (cocos2d::EventListenerKeyboard *)(proxy ? proxy->ptr : NULL);
@@ -12036,7 +12054,7 @@ JSObject *jsb_cocos2d_EventMouse_prototype;
 bool js_cocos2dx_EventMouse_getMouseButton(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12056,7 +12074,7 @@ bool js_cocos2dx_EventMouse_getMouseButton(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_EventMouse_getLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12076,7 +12094,7 @@ bool js_cocos2dx_EventMouse_getLocation(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_EventMouse_setMouseButton(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12096,7 +12114,7 @@ bool js_cocos2dx_EventMouse_setMouseButton(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_EventMouse_setScrollData(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12118,7 +12136,7 @@ bool js_cocos2dx_EventMouse_setScrollData(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_EventMouse_getPreviousLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12138,7 +12156,7 @@ bool js_cocos2dx_EventMouse_getPreviousLocationInView(JSContext *cx, uint32_t ar
 bool js_cocos2dx_EventMouse_getDelta(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12158,7 +12176,7 @@ bool js_cocos2dx_EventMouse_getDelta(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_EventMouse_getStartLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12178,7 +12196,7 @@ bool js_cocos2dx_EventMouse_getStartLocation(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_EventMouse_getCursorY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12198,7 +12216,7 @@ bool js_cocos2dx_EventMouse_getCursorY(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_EventMouse_getCursorX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12218,7 +12236,7 @@ bool js_cocos2dx_EventMouse_getCursorX(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_EventMouse_getLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12238,7 +12256,7 @@ bool js_cocos2dx_EventMouse_getLocationInView(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_EventMouse_getScrollY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12258,7 +12276,7 @@ bool js_cocos2dx_EventMouse_getScrollY(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_EventMouse_setCursorPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12280,7 +12298,7 @@ bool js_cocos2dx_EventMouse_setCursorPosition(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_EventMouse_getScrollX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12300,7 +12318,7 @@ bool js_cocos2dx_EventMouse_getScrollX(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_EventMouse_getPreviousLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12320,7 +12338,7 @@ bool js_cocos2dx_EventMouse_getPreviousLocation(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_EventMouse_getStartLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse *)(proxy ? proxy->ptr : NULL);
@@ -12423,7 +12441,7 @@ JSObject *jsb_cocos2d_EventListenerMouse_prototype;
 bool js_cocos2dx_EventListenerMouse_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListenerMouse* cobj = (cocos2d::EventListenerMouse *)(proxy ? proxy->ptr : NULL);
@@ -12509,7 +12527,7 @@ JSObject *jsb_cocos2d_EventListenerTouchOneByOne_prototype;
 bool js_cocos2dx_EventListenerTouchOneByOne_isSwallowTouches(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListenerTouchOneByOne* cobj = (cocos2d::EventListenerTouchOneByOne *)(proxy ? proxy->ptr : NULL);
@@ -12529,7 +12547,7 @@ bool js_cocos2dx_EventListenerTouchOneByOne_isSwallowTouches(JSContext *cx, uint
 bool js_cocos2dx_EventListenerTouchOneByOne_setSwallowTouches(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListenerTouchOneByOne* cobj = (cocos2d::EventListenerTouchOneByOne *)(proxy ? proxy->ptr : NULL);
@@ -12549,7 +12567,7 @@ bool js_cocos2dx_EventListenerTouchOneByOne_setSwallowTouches(JSContext *cx, uin
 bool js_cocos2dx_EventListenerTouchOneByOne_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListenerTouchOneByOne* cobj = (cocos2d::EventListenerTouchOneByOne *)(proxy ? proxy->ptr : NULL);
@@ -12641,7 +12659,7 @@ JSObject *jsb_cocos2d_EventListenerTouchAllAtOnce_prototype;
 bool js_cocos2dx_EventListenerTouchAllAtOnce_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventListenerTouchAllAtOnce* cobj = (cocos2d::EventListenerTouchAllAtOnce *)(proxy ? proxy->ptr : NULL);
@@ -12731,7 +12749,7 @@ JSObject *jsb_cocos2d_Action_prototype;
 bool js_cocos2dx_Action_startWithTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12759,7 +12777,7 @@ bool js_cocos2dx_Action_startWithTarget(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Action_setOriginalTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12787,7 +12805,7 @@ bool js_cocos2dx_Action_setOriginalTarget(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Action_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12811,7 +12829,7 @@ bool js_cocos2dx_Action_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_getOriginalTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12851,7 +12869,7 @@ bool js_cocos2dx_Action_stop(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_update(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12871,7 +12889,7 @@ bool js_cocos2dx_Action_update(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_getTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12895,7 +12913,7 @@ bool js_cocos2dx_Action_getTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_getFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12915,7 +12933,7 @@ bool js_cocos2dx_Action_getFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_step(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12935,7 +12953,7 @@ bool js_cocos2dx_Action_step(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_setTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12955,7 +12973,7 @@ bool js_cocos2dx_Action_setTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_setFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12975,7 +12993,7 @@ bool js_cocos2dx_Action_setFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_getTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -12995,7 +13013,7 @@ bool js_cocos2dx_Action_getTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_setTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -13023,7 +13041,7 @@ bool js_cocos2dx_Action_setTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_isDone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -13043,7 +13061,7 @@ bool js_cocos2dx_Action_isDone(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Action_reverse(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Action* cobj = (cocos2d::Action *)(proxy ? proxy->ptr : NULL);
@@ -13125,7 +13143,7 @@ JSObject *jsb_cocos2d_FiniteTimeAction_prototype;
 bool js_cocos2dx_FiniteTimeAction_setDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FiniteTimeAction* cobj = (cocos2d::FiniteTimeAction *)(proxy ? proxy->ptr : NULL);
@@ -13145,7 +13163,7 @@ bool js_cocos2dx_FiniteTimeAction_setDuration(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_FiniteTimeAction_getDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FiniteTimeAction* cobj = (cocos2d::FiniteTimeAction *)(proxy ? proxy->ptr : NULL);
@@ -13212,7 +13230,7 @@ JSObject *jsb_cocos2d_Speed_prototype;
 bool js_cocos2dx_Speed_setInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Speed* cobj = (cocos2d::Speed *)(proxy ? proxy->ptr : NULL);
@@ -13240,7 +13258,7 @@ bool js_cocos2dx_Speed_setInnerAction(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Speed_getSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Speed* cobj = (cocos2d::Speed *)(proxy ? proxy->ptr : NULL);
@@ -13260,7 +13278,7 @@ bool js_cocos2dx_Speed_getSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Speed_setSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Speed* cobj = (cocos2d::Speed *)(proxy ? proxy->ptr : NULL);
@@ -13280,7 +13298,7 @@ bool js_cocos2dx_Speed_setSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Speed_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Speed* cobj = (cocos2d::Speed *)(proxy ? proxy->ptr : NULL);
@@ -13313,7 +13331,7 @@ bool js_cocos2dx_Speed_initWithAction(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Speed_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Speed* cobj = (cocos2d::Speed *)(proxy ? proxy->ptr : NULL);
@@ -13407,7 +13425,7 @@ JSObject *jsb_cocos2d_Follow_prototype;
 bool js_cocos2dx_Follow_setBoundarySet(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Follow* cobj = (cocos2d::Follow *)(proxy ? proxy->ptr : NULL);
@@ -13427,7 +13445,7 @@ bool js_cocos2dx_Follow_setBoundarySet(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Follow_initWithTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Follow* cobj = (cocos2d::Follow *)(proxy ? proxy->ptr : NULL);
@@ -13479,7 +13497,7 @@ bool js_cocos2dx_Follow_initWithTarget(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Follow_initWithTargetAndOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Follow* cobj = (cocos2d::Follow *)(proxy ? proxy->ptr : NULL);
@@ -13539,7 +13557,7 @@ bool js_cocos2dx_Follow_initWithTargetAndOffset(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Follow_isBoundarySet(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Follow* cobj = (cocos2d::Follow *)(proxy ? proxy->ptr : NULL);
@@ -13648,7 +13666,7 @@ JSObject *jsb_cocos2d_Image_prototype;
 bool js_cocos2dx_Image_hasPremultipliedAlpha(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13668,7 +13686,7 @@ bool js_cocos2dx_Image_hasPremultipliedAlpha(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Image_getDataLen(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13688,7 +13706,7 @@ bool js_cocos2dx_Image_getDataLen(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Image_saveToFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13724,7 +13742,7 @@ bool js_cocos2dx_Image_saveToFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Image_hasAlpha(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13744,7 +13762,7 @@ bool js_cocos2dx_Image_hasAlpha(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Image_isCompressed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13764,7 +13782,7 @@ bool js_cocos2dx_Image_isCompressed(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Image_getHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13784,7 +13802,7 @@ bool js_cocos2dx_Image_getHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Image_initWithImageFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13807,7 +13825,7 @@ bool js_cocos2dx_Image_initWithImageFile(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Image_getWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13827,7 +13845,7 @@ bool js_cocos2dx_Image_getWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Image_getBitPerPixel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13847,7 +13865,7 @@ bool js_cocos2dx_Image_getBitPerPixel(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Image_getFileType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13867,7 +13885,7 @@ bool js_cocos2dx_Image_getFileType(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Image_getFilePath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13887,7 +13905,7 @@ bool js_cocos2dx_Image_getFilePath(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Image_getNumberOfMipmaps(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13907,7 +13925,7 @@ bool js_cocos2dx_Image_getNumberOfMipmaps(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Image_getRenderFormat(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Image* cobj = (cocos2d::Image *)(proxy ? proxy->ptr : NULL);
@@ -13927,7 +13945,7 @@ bool js_cocos2dx_Image_getRenderFormat(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Image_setPVRImagesHavePremultipliedAlpha(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         bool arg0;
         arg0 = args.get(0).toBoolean();
@@ -13943,7 +13961,7 @@ bool js_cocos2dx_Image_setPVRImagesHavePremultipliedAlpha(JSContext *cx, uint32_
 bool js_cocos2dx_Image_setPNGPremultipliedAlphaEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         bool arg0;
         arg0 = args.get(0).toBoolean();
@@ -14040,6 +14058,7 @@ JSObject *jsb_cocos2d_GLProgramState_prototype;
 
 bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::GLProgramState* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -14049,7 +14068,7 @@ bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc,
     cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgramState_setUniformCallback : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -14097,7 +14116,7 @@ bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc,
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -14150,7 +14169,7 @@ bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_GLProgramState_getVertexAttribsFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14170,7 +14189,7 @@ bool js_cocos2dx_GLProgramState_getVertexAttribsFlags(JSContext *cx, uint32_t ar
 bool js_cocos2dx_GLProgramState_applyAutoBinding(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14191,6 +14210,7 @@ bool js_cocos2dx_GLProgramState_applyAutoBinding(JSContext *cx, uint32_t argc, J
 }
 bool js_cocos2dx_GLProgramState_setUniformVec2(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::GLProgramState* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -14200,7 +14220,7 @@ bool js_cocos2dx_GLProgramState_setUniformVec2(JSContext *cx, uint32_t argc, JS:
     cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgramState_setUniformVec2 : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -14215,7 +14235,7 @@ bool js_cocos2dx_GLProgramState_setUniformVec2(JSContext *cx, uint32_t argc, JS:
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -14234,6 +14254,7 @@ bool js_cocos2dx_GLProgramState_setUniformVec2(JSContext *cx, uint32_t argc, JS:
 }
 bool js_cocos2dx_GLProgramState_setUniformVec3(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::GLProgramState* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -14243,7 +14264,7 @@ bool js_cocos2dx_GLProgramState_setUniformVec3(JSContext *cx, uint32_t argc, JS:
     cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgramState_setUniformVec3 : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -14258,7 +14279,7 @@ bool js_cocos2dx_GLProgramState_setUniformVec3(JSContext *cx, uint32_t argc, JS:
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -14278,7 +14299,7 @@ bool js_cocos2dx_GLProgramState_setUniformVec3(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_GLProgramState_setVertexAttribCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14331,7 +14352,7 @@ bool js_cocos2dx_GLProgramState_setVertexAttribCallback(JSContext *cx, uint32_t 
 bool js_cocos2dx_GLProgramState_apply(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14351,7 +14372,7 @@ bool js_cocos2dx_GLProgramState_apply(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_GLProgramState_getNodeBinding(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14375,7 +14396,7 @@ bool js_cocos2dx_GLProgramState_getNodeBinding(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_GLProgramState_applyGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14395,7 +14416,7 @@ bool js_cocos2dx_GLProgramState_applyGLProgram(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_GLProgramState_setNodeBinding(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14422,6 +14443,7 @@ bool js_cocos2dx_GLProgramState_setNodeBinding(JSContext *cx, uint32_t argc, JS:
 }
 bool js_cocos2dx_GLProgramState_setUniformInt(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::GLProgramState* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -14431,7 +14453,7 @@ bool js_cocos2dx_GLProgramState_setUniformInt(JSContext *cx, uint32_t argc, JS::
     cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgramState_setUniformInt : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -14446,7 +14468,7 @@ bool js_cocos2dx_GLProgramState_setUniformInt(JSContext *cx, uint32_t argc, JS::
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -14466,7 +14488,7 @@ bool js_cocos2dx_GLProgramState_setUniformInt(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_GLProgramState_setParameterAutoBinding(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14487,6 +14509,7 @@ bool js_cocos2dx_GLProgramState_setParameterAutoBinding(JSContext *cx, uint32_t 
 }
 bool js_cocos2dx_GLProgramState_setUniformVec2v(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::GLProgramState* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -14496,7 +14519,7 @@ bool js_cocos2dx_GLProgramState_setUniformVec2v(JSContext *cx, uint32_t argc, JS
     cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgramState_setUniformVec2v : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -14514,7 +14537,7 @@ bool js_cocos2dx_GLProgramState_setUniformVec2v(JSContext *cx, uint32_t argc, JS
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -14537,7 +14560,7 @@ bool js_cocos2dx_GLProgramState_setUniformVec2v(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_GLProgramState_getUniformCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14557,7 +14580,7 @@ bool js_cocos2dx_GLProgramState_getUniformCount(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_GLProgramState_applyAttributes(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14582,7 +14605,7 @@ bool js_cocos2dx_GLProgramState_applyAttributes(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_GLProgramState_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14606,7 +14629,7 @@ bool js_cocos2dx_GLProgramState_clone(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_GLProgramState_setGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14633,6 +14656,7 @@ bool js_cocos2dx_GLProgramState_setGLProgram(JSContext *cx, uint32_t argc, JS::V
 }
 bool js_cocos2dx_GLProgramState_setUniformFloatv(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::GLProgramState* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -14642,7 +14666,7 @@ bool js_cocos2dx_GLProgramState_setUniformFloatv(JSContext *cx, uint32_t argc, J
     cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgramState_setUniformFloatv : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -14661,7 +14685,7 @@ bool js_cocos2dx_GLProgramState_setUniformFloatv(JSContext *cx, uint32_t argc, J
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -14685,7 +14709,7 @@ bool js_cocos2dx_GLProgramState_setUniformFloatv(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_GLProgramState_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14708,6 +14732,7 @@ bool js_cocos2dx_GLProgramState_getGLProgram(JSContext *cx, uint32_t argc, JS::V
 }
 bool js_cocos2dx_GLProgramState_setUniformTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::GLProgramState* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -14717,7 +14742,7 @@ bool js_cocos2dx_GLProgramState_setUniformTexture(JSContext *cx, uint32_t argc, 
     cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgramState_setUniformTexture : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -14732,7 +14757,7 @@ bool js_cocos2dx_GLProgramState_setUniformTexture(JSContext *cx, uint32_t argc, 
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -14755,7 +14780,7 @@ bool js_cocos2dx_GLProgramState_setUniformTexture(JSContext *cx, uint32_t argc, 
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -14778,7 +14803,7 @@ bool js_cocos2dx_GLProgramState_setUniformTexture(JSContext *cx, uint32_t argc, 
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -14813,6 +14838,7 @@ bool js_cocos2dx_GLProgramState_applyUniforms(JSContext *cx, uint32_t argc, JS::
 }
 bool js_cocos2dx_GLProgramState_setUniformFloat(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::GLProgramState* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -14822,7 +14848,7 @@ bool js_cocos2dx_GLProgramState_setUniformFloat(JSContext *cx, uint32_t argc, JS
     cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgramState_setUniformFloat : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -14837,7 +14863,7 @@ bool js_cocos2dx_GLProgramState_setUniformFloat(JSContext *cx, uint32_t argc, JS
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -14856,6 +14882,7 @@ bool js_cocos2dx_GLProgramState_setUniformFloat(JSContext *cx, uint32_t argc, JS
 }
 bool js_cocos2dx_GLProgramState_setUniformMat4(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::GLProgramState* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -14865,7 +14892,7 @@ bool js_cocos2dx_GLProgramState_setUniformMat4(JSContext *cx, uint32_t argc, JS:
     cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgramState_setUniformMat4 : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -14880,7 +14907,7 @@ bool js_cocos2dx_GLProgramState_setUniformMat4(JSContext *cx, uint32_t argc, JS:
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -14899,6 +14926,7 @@ bool js_cocos2dx_GLProgramState_setUniformMat4(JSContext *cx, uint32_t argc, JS:
 }
 bool js_cocos2dx_GLProgramState_setUniformVec3v(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::GLProgramState* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -14908,7 +14936,7 @@ bool js_cocos2dx_GLProgramState_setUniformVec3v(JSContext *cx, uint32_t argc, JS
     cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgramState_setUniformVec3v : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -14934,7 +14962,7 @@ bool js_cocos2dx_GLProgramState_setUniformVec3v(JSContext *cx, uint32_t argc, JS
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -14965,7 +14993,7 @@ bool js_cocos2dx_GLProgramState_setUniformVec3v(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_GLProgramState_getVertexAttribCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState *)(proxy ? proxy->ptr : NULL);
@@ -14985,7 +15013,7 @@ bool js_cocos2dx_GLProgramState_getVertexAttribCount(JSContext *cx, uint32_t arg
 bool js_cocos2dx_GLProgramState_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::GLProgram* arg0 = nullptr;
         do {
@@ -15012,7 +15040,7 @@ bool js_cocos2dx_GLProgramState_create(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_GLProgramState_getOrCreateWithGLProgramName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         std::string arg0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -15036,7 +15064,7 @@ bool js_cocos2dx_GLProgramState_getOrCreateWithGLProgramName(JSContext *cx, uint
 bool js_cocos2dx_GLProgramState_getOrCreateWithGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::GLProgram* arg0 = nullptr;
         do {
@@ -15068,7 +15096,7 @@ bool js_cocos2dx_GLProgramState_getOrCreateWithGLProgram(JSContext *cx, uint32_t
 bool js_cocos2dx_GLProgramState_getOrCreateWithShaders(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 3) {
         std::string arg0;
         std::string arg1;
@@ -15172,7 +15200,7 @@ JSObject *jsb_cocos2d_SpriteFrame_prototype;
 bool js_cocos2dx_SpriteFrame_setAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15192,7 +15220,7 @@ bool js_cocos2dx_SpriteFrame_setAnchorPoint(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_SpriteFrame_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15220,7 +15248,7 @@ bool js_cocos2dx_SpriteFrame_setTexture(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_SpriteFrame_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15244,7 +15272,7 @@ bool js_cocos2dx_SpriteFrame_getTexture(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_SpriteFrame_setOffsetInPixels(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15264,7 +15292,7 @@ bool js_cocos2dx_SpriteFrame_setOffsetInPixels(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_SpriteFrame_getOriginalSizeInPixels(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15284,7 +15312,7 @@ bool js_cocos2dx_SpriteFrame_getOriginalSizeInPixels(JSContext *cx, uint32_t arg
 bool js_cocos2dx_SpriteFrame_setOriginalSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15304,7 +15332,7 @@ bool js_cocos2dx_SpriteFrame_setOriginalSize(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_SpriteFrame_setRectInPixels(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15324,7 +15352,7 @@ bool js_cocos2dx_SpriteFrame_setRectInPixels(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_SpriteFrame_getRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15344,7 +15372,7 @@ bool js_cocos2dx_SpriteFrame_getRect(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_SpriteFrame_setOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15363,6 +15391,7 @@ bool js_cocos2dx_SpriteFrame_setOffset(JSContext *cx, uint32_t argc, JS::Value *
 }
 bool js_cocos2dx_SpriteFrame_initWithTextureFilename(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::SpriteFrame* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -15372,7 +15401,7 @@ bool js_cocos2dx_SpriteFrame_initWithTextureFilename(JSContext *cx, uint32_t arg
     cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_SpriteFrame_initWithTextureFilename : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 5) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -15398,7 +15427,7 @@ bool js_cocos2dx_SpriteFrame_initWithTextureFilename(JSContext *cx, uint32_t arg
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -15421,7 +15450,7 @@ bool js_cocos2dx_SpriteFrame_initWithTextureFilename(JSContext *cx, uint32_t arg
 bool js_cocos2dx_SpriteFrame_setRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15440,6 +15469,7 @@ bool js_cocos2dx_SpriteFrame_setRect(JSContext *cx, uint32_t argc, JS::Value *vp
 }
 bool js_cocos2dx_SpriteFrame_initWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::SpriteFrame* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -15449,7 +15479,7 @@ bool js_cocos2dx_SpriteFrame_initWithTexture(JSContext *cx, uint32_t argc, JS::V
     cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_SpriteFrame_initWithTexture : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 5) {
             cocos2d::Texture2D* arg0 = nullptr;
             do {
@@ -15483,7 +15513,7 @@ bool js_cocos2dx_SpriteFrame_initWithTexture(JSContext *cx, uint32_t argc, JS::V
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             cocos2d::Texture2D* arg0 = nullptr;
             do {
@@ -15514,7 +15544,7 @@ bool js_cocos2dx_SpriteFrame_initWithTexture(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_SpriteFrame_getOriginalSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15534,7 +15564,7 @@ bool js_cocos2dx_SpriteFrame_getOriginalSize(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_SpriteFrame_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15558,7 +15588,7 @@ bool js_cocos2dx_SpriteFrame_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_SpriteFrame_getRectInPixels(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15578,7 +15608,7 @@ bool js_cocos2dx_SpriteFrame_getRectInPixels(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_SpriteFrame_isRotated(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15598,7 +15628,7 @@ bool js_cocos2dx_SpriteFrame_isRotated(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_SpriteFrame_setRotated(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15618,7 +15648,7 @@ bool js_cocos2dx_SpriteFrame_setRotated(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_SpriteFrame_getOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15638,7 +15668,7 @@ bool js_cocos2dx_SpriteFrame_getOffset(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_SpriteFrame_setOriginalSizeInPixels(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15658,7 +15688,7 @@ bool js_cocos2dx_SpriteFrame_setOriginalSizeInPixels(JSContext *cx, uint32_t arg
 bool js_cocos2dx_SpriteFrame_getAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15678,7 +15708,7 @@ bool js_cocos2dx_SpriteFrame_getAnchorPoint(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_SpriteFrame_hasAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15698,7 +15728,7 @@ bool js_cocos2dx_SpriteFrame_hasAnchorPoint(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_SpriteFrame_getOffsetInPixels(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame *)(proxy ? proxy->ptr : NULL);
@@ -15720,7 +15750,7 @@ bool js_cocos2dx_SpriteFrame_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 5) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -15751,7 +15781,7 @@ bool js_cocos2dx_SpriteFrame_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -15779,7 +15809,7 @@ bool js_cocos2dx_SpriteFrame_createWithTexture(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 5) {
             cocos2d::Texture2D* arg0 = nullptr;
             do {
@@ -15818,7 +15848,7 @@ bool js_cocos2dx_SpriteFrame_createWithTexture(JSContext *cx, uint32_t argc, JS:
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             cocos2d::Texture2D* arg0 = nullptr;
             do {
@@ -15963,7 +15993,7 @@ JSObject *jsb_cocos2d_ActionInterval_prototype;
 bool js_cocos2dx_ActionInterval_getAmplitudeRate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionInterval* cobj = (cocos2d::ActionInterval *)(proxy ? proxy->ptr : NULL);
@@ -15983,7 +16013,7 @@ bool js_cocos2dx_ActionInterval_getAmplitudeRate(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_ActionInterval_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionInterval* cobj = (cocos2d::ActionInterval *)(proxy ? proxy->ptr : NULL);
@@ -16006,7 +16036,7 @@ bool js_cocos2dx_ActionInterval_initWithDuration(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_ActionInterval_setAmplitudeRate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionInterval* cobj = (cocos2d::ActionInterval *)(proxy ? proxy->ptr : NULL);
@@ -16026,7 +16056,7 @@ bool js_cocos2dx_ActionInterval_setAmplitudeRate(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_ActionInterval_getElapsed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionInterval* cobj = (cocos2d::ActionInterval *)(proxy ? proxy->ptr : NULL);
@@ -16095,7 +16125,7 @@ JSObject *jsb_cocos2d_Sequence_prototype;
 bool js_cocos2dx_Sequence_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sequence* cobj = (cocos2d::Sequence *)(proxy ? proxy->ptr : NULL);
@@ -16118,7 +16148,7 @@ bool js_cocos2dx_Sequence_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Sequence_initWithTwoActions(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sequence* cobj = (cocos2d::Sequence *)(proxy ? proxy->ptr : NULL);
@@ -16246,7 +16276,7 @@ JSObject *jsb_cocos2d_Repeat_prototype;
 bool js_cocos2dx_Repeat_setInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Repeat* cobj = (cocos2d::Repeat *)(proxy ? proxy->ptr : NULL);
@@ -16274,7 +16304,7 @@ bool js_cocos2dx_Repeat_setInnerAction(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Repeat_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Repeat* cobj = (cocos2d::Repeat *)(proxy ? proxy->ptr : NULL);
@@ -16307,7 +16337,7 @@ bool js_cocos2dx_Repeat_initWithAction(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Repeat_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Repeat* cobj = (cocos2d::Repeat *)(proxy ? proxy->ptr : NULL);
@@ -16419,7 +16449,7 @@ JSObject *jsb_cocos2d_RepeatForever_prototype;
 bool js_cocos2dx_RepeatForever_setInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RepeatForever* cobj = (cocos2d::RepeatForever *)(proxy ? proxy->ptr : NULL);
@@ -16447,7 +16477,7 @@ bool js_cocos2dx_RepeatForever_setInnerAction(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_RepeatForever_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RepeatForever* cobj = (cocos2d::RepeatForever *)(proxy ? proxy->ptr : NULL);
@@ -16478,7 +16508,7 @@ bool js_cocos2dx_RepeatForever_initWithAction(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_RepeatForever_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RepeatForever* cobj = (cocos2d::RepeatForever *)(proxy ? proxy->ptr : NULL);
@@ -16590,7 +16620,7 @@ JSObject *jsb_cocos2d_Spawn_prototype;
 bool js_cocos2dx_Spawn_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Spawn* cobj = (cocos2d::Spawn *)(proxy ? proxy->ptr : NULL);
@@ -16613,7 +16643,7 @@ bool js_cocos2dx_Spawn_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Spawn_initWithTwoActions(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Spawn* cobj = (cocos2d::Spawn *)(proxy ? proxy->ptr : NULL);
@@ -16741,7 +16771,7 @@ JSObject *jsb_cocos2d_RotateTo_prototype;
 bool js_cocos2dx_RotateTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RotateTo* cobj = (cocos2d::RotateTo *)(proxy ? proxy->ptr : NULL);
@@ -16770,7 +16800,7 @@ bool js_cocos2dx_RotateTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -16792,7 +16822,7 @@ bool js_cocos2dx_RotateTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 3) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -16911,6 +16941,7 @@ JSObject *jsb_cocos2d_RotateBy_prototype;
 
 bool js_cocos2dx_RotateBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::RotateBy* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -16920,7 +16951,7 @@ bool js_cocos2dx_RotateBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Val
     cobj = (cocos2d::RotateBy *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_RotateBy_initWithDuration : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -16941,7 +16972,7 @@ bool js_cocos2dx_RotateBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Val
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -16966,7 +16997,7 @@ bool js_cocos2dx_RotateBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 3) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -16991,7 +17022,7 @@ bool js_cocos2dx_RotateBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -17108,7 +17139,7 @@ JSObject *jsb_cocos2d_MoveBy_prototype;
 bool js_cocos2dx_MoveBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MoveBy* cobj = (cocos2d::MoveBy *)(proxy ? proxy->ptr : NULL);
@@ -17133,7 +17164,7 @@ bool js_cocos2dx_MoveBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_MoveBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         double arg0 = 0;
         cocos2d::Vec2 arg1;
@@ -17245,7 +17276,7 @@ JSObject *jsb_cocos2d_MoveTo_prototype;
 bool js_cocos2dx_MoveTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MoveTo* cobj = (cocos2d::MoveTo *)(proxy ? proxy->ptr : NULL);
@@ -17270,7 +17301,7 @@ bool js_cocos2dx_MoveTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_MoveTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         double arg0 = 0;
         cocos2d::Vec2 arg1;
@@ -17382,7 +17413,7 @@ JSObject *jsb_cocos2d_SkewTo_prototype;
 bool js_cocos2dx_SkewTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SkewTo* cobj = (cocos2d::SkewTo *)(proxy ? proxy->ptr : NULL);
@@ -17409,7 +17440,7 @@ bool js_cocos2dx_SkewTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_SkewTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 3) {
         double arg0 = 0;
         double arg1 = 0;
@@ -17523,7 +17554,7 @@ JSObject *jsb_cocos2d_SkewBy_prototype;
 bool js_cocos2dx_SkewBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SkewBy* cobj = (cocos2d::SkewBy *)(proxy ? proxy->ptr : NULL);
@@ -17550,7 +17581,7 @@ bool js_cocos2dx_SkewBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_SkewBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 3) {
         double arg0 = 0;
         double arg1 = 0;
@@ -17664,7 +17695,7 @@ JSObject *jsb_cocos2d_JumpBy_prototype;
 bool js_cocos2dx_JumpBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::JumpBy* cobj = (cocos2d::JumpBy *)(proxy ? proxy->ptr : NULL);
@@ -17693,7 +17724,7 @@ bool js_cocos2dx_JumpBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_JumpBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 4) {
         double arg0 = 0;
         cocos2d::Vec2 arg1;
@@ -17809,7 +17840,7 @@ JSObject *jsb_cocos2d_JumpTo_prototype;
 bool js_cocos2dx_JumpTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::JumpTo* cobj = (cocos2d::JumpTo *)(proxy ? proxy->ptr : NULL);
@@ -17838,7 +17869,7 @@ bool js_cocos2dx_JumpTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_JumpTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 4) {
         double arg0 = 0;
         cocos2d::Vec2 arg1;
@@ -18006,6 +18037,11 @@ void js_register_cocos2dx_BezierBy(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_BezierBy_class = &cocos2d_BezierBy_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_BezierBy_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
     jsb_cocos2d_BezierBy_prototype = JS_InitClass(
         cx, global,
@@ -18013,7 +18049,7 @@ void js_register_cocos2dx_BezierBy(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_BezierBy_class,
         js_cocos2dx_BezierBy_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         nullptr);
 
@@ -18086,6 +18122,11 @@ void js_register_cocos2dx_BezierTo(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_BezierTo_class = &cocos2d_BezierTo_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_BezierTo_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     JS::RootedObject parent_proto(cx, jsb_cocos2d_BezierBy_prototype);
     jsb_cocos2d_BezierTo_prototype = JS_InitClass(
         cx, global,
@@ -18093,7 +18134,7 @@ void js_register_cocos2dx_BezierTo(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_BezierTo_class,
         js_cocos2dx_BezierTo_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         nullptr);
 
@@ -18113,6 +18154,7 @@ JSObject *jsb_cocos2d_ScaleTo_prototype;
 
 bool js_cocos2dx_ScaleTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::ScaleTo* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -18122,7 +18164,7 @@ bool js_cocos2dx_ScaleTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Valu
     cobj = (cocos2d::ScaleTo *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ScaleTo_initWithDuration : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -18143,7 +18185,7 @@ bool js_cocos2dx_ScaleTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Valu
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -18161,7 +18203,7 @@ bool js_cocos2dx_ScaleTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Valu
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 4) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -18192,7 +18234,7 @@ bool js_cocos2dx_ScaleTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 3) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -18217,7 +18259,7 @@ bool js_cocos2dx_ScaleTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -18239,7 +18281,7 @@ bool js_cocos2dx_ScaleTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 4) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -18364,7 +18406,7 @@ bool js_cocos2dx_ScaleBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 3) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -18389,7 +18431,7 @@ bool js_cocos2dx_ScaleBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -18411,7 +18453,7 @@ bool js_cocos2dx_ScaleBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 4) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -18495,6 +18537,11 @@ void js_register_cocos2dx_ScaleBy(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_ScaleBy_class = &cocos2d_ScaleBy_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_ScaleBy_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_ScaleBy_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -18507,7 +18554,7 @@ void js_register_cocos2dx_ScaleBy(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_ScaleBy_class,
         js_cocos2dx_ScaleBy_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -18528,7 +18575,7 @@ JSObject *jsb_cocos2d_Blink_prototype;
 bool js_cocos2dx_Blink_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Blink* cobj = (cocos2d::Blink *)(proxy ? proxy->ptr : NULL);
@@ -18553,7 +18600,7 @@ bool js_cocos2dx_Blink_initWithDuration(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Blink_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         double arg0 = 0;
         int arg1 = 0;
@@ -18665,7 +18712,7 @@ JSObject *jsb_cocos2d_FadeTo_prototype;
 bool js_cocos2dx_FadeTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FadeTo* cobj = (cocos2d::FadeTo *)(proxy ? proxy->ptr : NULL);
@@ -18690,7 +18737,7 @@ bool js_cocos2dx_FadeTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_FadeTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         double arg0 = 0;
         uint16_t arg1;
@@ -18802,7 +18849,7 @@ JSObject *jsb_cocos2d_FadeIn_prototype;
 bool js_cocos2dx_FadeIn_setReverseAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FadeIn* cobj = (cocos2d::FadeIn *)(proxy ? proxy->ptr : NULL);
@@ -18830,7 +18877,7 @@ bool js_cocos2dx_FadeIn_setReverseAction(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_FadeIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         double arg0 = 0;
         arg0 = (float)(args.get(0).toNumber());
@@ -18940,7 +18987,7 @@ JSObject *jsb_cocos2d_FadeOut_prototype;
 bool js_cocos2dx_FadeOut_setReverseAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FadeOut* cobj = (cocos2d::FadeOut *)(proxy ? proxy->ptr : NULL);
@@ -18968,7 +19015,7 @@ bool js_cocos2dx_FadeOut_setReverseAction(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_FadeOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         double arg0 = 0;
         arg0 = (float)(args.get(0).toNumber());
@@ -19078,7 +19125,7 @@ JSObject *jsb_cocos2d_TintTo_prototype;
 bool js_cocos2dx_TintTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TintTo* cobj = (cocos2d::TintTo *)(proxy ? proxy->ptr : NULL);
@@ -19109,7 +19156,7 @@ bool js_cocos2dx_TintTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -19131,7 +19178,7 @@ bool js_cocos2dx_TintTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 4) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -19254,7 +19301,7 @@ JSObject *jsb_cocos2d_TintBy_prototype;
 bool js_cocos2dx_TintBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TintBy* cobj = (cocos2d::TintBy *)(proxy ? proxy->ptr : NULL);
@@ -19283,7 +19330,7 @@ bool js_cocos2dx_TintBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TintBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 4) {
         double arg0 = 0;
         int32_t arg1 = 0;
@@ -19399,7 +19446,7 @@ JSObject *jsb_cocos2d_DelayTime_prototype;
 bool js_cocos2dx_DelayTime_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         double arg0 = 0;
         arg0 = (float)(args.get(0).toNumber());
@@ -19470,6 +19517,11 @@ void js_register_cocos2dx_DelayTime(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_DelayTime_class = &cocos2d_DelayTime_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_DelayTime_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_DelayTime_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -19482,7 +19534,7 @@ void js_register_cocos2dx_DelayTime(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_DelayTime_class,
         js_cocos2dx_DelayTime_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -19503,7 +19555,7 @@ JSObject *jsb_cocos2d_ReverseTime_prototype;
 bool js_cocos2dx_ReverseTime_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ReverseTime* cobj = (cocos2d::ReverseTime *)(proxy ? proxy->ptr : NULL);
@@ -19534,7 +19586,7 @@ bool js_cocos2dx_ReverseTime_initWithAction(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_ReverseTime_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::FiniteTimeAction* arg0 = nullptr;
         do {
@@ -19651,6 +19703,7 @@ JSObject *jsb_cocos2d_TargetedAction_prototype;
 
 bool js_cocos2dx_TargetedAction_getForcedTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::TargetedAction* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -19660,7 +19713,7 @@ bool js_cocos2dx_TargetedAction_getForcedTarget(JSContext *cx, uint32_t argc, JS
     cobj = (cocos2d::TargetedAction *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TargetedAction_getForcedTarget : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const cocos2d::Node* ret = cobj->getForcedTarget();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -19676,7 +19729,7 @@ bool js_cocos2dx_TargetedAction_getForcedTarget(JSContext *cx, uint32_t argc, JS
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             cocos2d::Node* ret = cobj->getForcedTarget();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -19697,7 +19750,7 @@ bool js_cocos2dx_TargetedAction_getForcedTarget(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_TargetedAction_initWithTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TargetedAction* cobj = (cocos2d::TargetedAction *)(proxy ? proxy->ptr : NULL);
@@ -19738,7 +19791,7 @@ bool js_cocos2dx_TargetedAction_initWithTarget(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_TargetedAction_setForcedTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TargetedAction* cobj = (cocos2d::TargetedAction *)(proxy ? proxy->ptr : NULL);
@@ -19854,7 +19907,7 @@ JSObject *jsb_cocos2d_CardinalSplineTo_prototype;
 bool js_cocos2dx_CardinalSplineTo_getPoints(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::CardinalSplineTo* cobj = (cocos2d::CardinalSplineTo *)(proxy ? proxy->ptr : NULL);
@@ -19878,7 +19931,7 @@ bool js_cocos2dx_CardinalSplineTo_getPoints(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_CardinalSplineTo_updatePosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::CardinalSplineTo* cobj = (cocos2d::CardinalSplineTo *)(proxy ? proxy->ptr : NULL);
@@ -20108,7 +20161,7 @@ JSObject *jsb_cocos2d_ActionEase_prototype;
 bool js_cocos2dx_ActionEase_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionEase* cobj = (cocos2d::ActionEase *)(proxy ? proxy->ptr : NULL);
@@ -20139,7 +20192,7 @@ bool js_cocos2dx_ActionEase_initWithAction(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ActionEase_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionEase* cobj = (cocos2d::ActionEase *)(proxy ? proxy->ptr : NULL);
@@ -20210,7 +20263,7 @@ JSObject *jsb_cocos2d_EaseRateAction_prototype;
 bool js_cocos2dx_EaseRateAction_setRate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EaseRateAction* cobj = (cocos2d::EaseRateAction *)(proxy ? proxy->ptr : NULL);
@@ -20230,7 +20283,7 @@ bool js_cocos2dx_EaseRateAction_setRate(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_EaseRateAction_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EaseRateAction* cobj = (cocos2d::EaseRateAction *)(proxy ? proxy->ptr : NULL);
@@ -20263,7 +20316,7 @@ bool js_cocos2dx_EaseRateAction_initWithAction(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_EaseRateAction_getRate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EaseRateAction* cobj = (cocos2d::EaseRateAction *)(proxy ? proxy->ptr : NULL);
@@ -20283,7 +20336,7 @@ bool js_cocos2dx_EaseRateAction_getRate(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_EaseRateAction_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         cocos2d::ActionInterval* arg0 = nullptr;
         double arg1 = 0;
@@ -20365,7 +20418,7 @@ JSObject *jsb_cocos2d_EaseIn_prototype;
 bool js_cocos2dx_EaseIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         cocos2d::ActionInterval* arg0 = nullptr;
         double arg1 = 0;
@@ -20446,6 +20499,11 @@ void js_register_cocos2dx_EaseIn(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_EaseIn_class = &cocos2d_EaseIn_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseIn_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -20458,7 +20516,7 @@ void js_register_cocos2dx_EaseIn(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_EaseIn_class,
         js_cocos2dx_EaseIn_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -20479,7 +20537,7 @@ JSObject *jsb_cocos2d_EaseOut_prototype;
 bool js_cocos2dx_EaseOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         cocos2d::ActionInterval* arg0 = nullptr;
         double arg1 = 0;
@@ -20560,6 +20618,11 @@ void js_register_cocos2dx_EaseOut(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_EaseOut_class = &cocos2d_EaseOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseOut_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -20572,7 +20635,7 @@ void js_register_cocos2dx_EaseOut(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_EaseOut_class,
         js_cocos2dx_EaseOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -20593,7 +20656,7 @@ JSObject *jsb_cocos2d_EaseInOut_prototype;
 bool js_cocos2dx_EaseInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         cocos2d::ActionInterval* arg0 = nullptr;
         double arg1 = 0;
@@ -20674,6 +20737,11 @@ void js_register_cocos2dx_EaseInOut(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_EaseInOut_class = &cocos2d_EaseInOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseInOut_create, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -20686,7 +20754,7 @@ void js_register_cocos2dx_EaseInOut(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_EaseInOut_class,
         js_cocos2dx_EaseInOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -20707,7 +20775,7 @@ JSObject *jsb_cocos2d_EaseExponentialIn_prototype;
 bool js_cocos2dx_EaseExponentialIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -20786,6 +20854,11 @@ void js_register_cocos2dx_EaseExponentialIn(JSContext *cx, JS::HandleObject glob
     };
     jsb_cocos2d_EaseExponentialIn_class = &cocos2d_EaseExponentialIn_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseExponentialIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseExponentialIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -20798,7 +20871,7 @@ void js_register_cocos2dx_EaseExponentialIn(JSContext *cx, JS::HandleObject glob
         jsb_cocos2d_EaseExponentialIn_class,
         js_cocos2dx_EaseExponentialIn_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -20819,7 +20892,7 @@ JSObject *jsb_cocos2d_EaseExponentialOut_prototype;
 bool js_cocos2dx_EaseExponentialOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -20898,6 +20971,11 @@ void js_register_cocos2dx_EaseExponentialOut(JSContext *cx, JS::HandleObject glo
     };
     jsb_cocos2d_EaseExponentialOut_class = &cocos2d_EaseExponentialOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseExponentialOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseExponentialOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -20910,7 +20988,7 @@ void js_register_cocos2dx_EaseExponentialOut(JSContext *cx, JS::HandleObject glo
         jsb_cocos2d_EaseExponentialOut_class,
         js_cocos2dx_EaseExponentialOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -20931,7 +21009,7 @@ JSObject *jsb_cocos2d_EaseExponentialInOut_prototype;
 bool js_cocos2dx_EaseExponentialInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -21010,6 +21088,11 @@ void js_register_cocos2dx_EaseExponentialInOut(JSContext *cx, JS::HandleObject g
     };
     jsb_cocos2d_EaseExponentialInOut_class = &cocos2d_EaseExponentialInOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseExponentialInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseExponentialInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -21022,7 +21105,7 @@ void js_register_cocos2dx_EaseExponentialInOut(JSContext *cx, JS::HandleObject g
         jsb_cocos2d_EaseExponentialInOut_class,
         js_cocos2dx_EaseExponentialInOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -21043,7 +21126,7 @@ JSObject *jsb_cocos2d_EaseSineIn_prototype;
 bool js_cocos2dx_EaseSineIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -21122,6 +21205,11 @@ void js_register_cocos2dx_EaseSineIn(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_EaseSineIn_class = &cocos2d_EaseSineIn_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseSineIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseSineIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -21134,7 +21222,7 @@ void js_register_cocos2dx_EaseSineIn(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_EaseSineIn_class,
         js_cocos2dx_EaseSineIn_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -21155,7 +21243,7 @@ JSObject *jsb_cocos2d_EaseSineOut_prototype;
 bool js_cocos2dx_EaseSineOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -21234,6 +21322,11 @@ void js_register_cocos2dx_EaseSineOut(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_EaseSineOut_class = &cocos2d_EaseSineOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseSineOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseSineOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -21246,7 +21339,7 @@ void js_register_cocos2dx_EaseSineOut(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_EaseSineOut_class,
         js_cocos2dx_EaseSineOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -21267,7 +21360,7 @@ JSObject *jsb_cocos2d_EaseSineInOut_prototype;
 bool js_cocos2dx_EaseSineInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -21346,6 +21439,11 @@ void js_register_cocos2dx_EaseSineInOut(JSContext *cx, JS::HandleObject global) 
     };
     jsb_cocos2d_EaseSineInOut_class = &cocos2d_EaseSineInOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseSineInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseSineInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -21358,7 +21456,7 @@ void js_register_cocos2dx_EaseSineInOut(JSContext *cx, JS::HandleObject global) 
         jsb_cocos2d_EaseSineInOut_class,
         js_cocos2dx_EaseSineInOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -21379,7 +21477,7 @@ JSObject *jsb_cocos2d_EaseElastic_prototype;
 bool js_cocos2dx_EaseElastic_setPeriod(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EaseElastic* cobj = (cocos2d::EaseElastic *)(proxy ? proxy->ptr : NULL);
@@ -21399,7 +21497,7 @@ bool js_cocos2dx_EaseElastic_setPeriod(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_EaseElastic_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EaseElastic* cobj = (cocos2d::EaseElastic *)(proxy ? proxy->ptr : NULL);
@@ -21451,7 +21549,7 @@ bool js_cocos2dx_EaseElastic_initWithAction(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_EaseElastic_getPeriod(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EaseElastic* cobj = (cocos2d::EaseElastic *)(proxy ? proxy->ptr : NULL);
@@ -21521,7 +21619,7 @@ bool js_cocos2dx_EaseElasticIn_create(JSContext *cx, uint32_t argc, JS::Value *v
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 1) {
             cocos2d::ActionInterval* arg0 = nullptr;
             do {
@@ -21548,7 +21646,7 @@ bool js_cocos2dx_EaseElasticIn_create(JSContext *cx, uint32_t argc, JS::Value *v
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             cocos2d::ActionInterval* arg0 = nullptr;
             do {
@@ -21634,6 +21732,11 @@ void js_register_cocos2dx_EaseElasticIn(JSContext *cx, JS::HandleObject global) 
     };
     jsb_cocos2d_EaseElasticIn_class = &cocos2d_EaseElasticIn_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseElasticIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseElasticIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -21646,7 +21749,7 @@ void js_register_cocos2dx_EaseElasticIn(JSContext *cx, JS::HandleObject global) 
         jsb_cocos2d_EaseElasticIn_class,
         js_cocos2dx_EaseElasticIn_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -21669,7 +21772,7 @@ bool js_cocos2dx_EaseElasticOut_create(JSContext *cx, uint32_t argc, JS::Value *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 1) {
             cocos2d::ActionInterval* arg0 = nullptr;
             do {
@@ -21696,7 +21799,7 @@ bool js_cocos2dx_EaseElasticOut_create(JSContext *cx, uint32_t argc, JS::Value *
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             cocos2d::ActionInterval* arg0 = nullptr;
             do {
@@ -21782,6 +21885,11 @@ void js_register_cocos2dx_EaseElasticOut(JSContext *cx, JS::HandleObject global)
     };
     jsb_cocos2d_EaseElasticOut_class = &cocos2d_EaseElasticOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseElasticOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseElasticOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -21794,7 +21902,7 @@ void js_register_cocos2dx_EaseElasticOut(JSContext *cx, JS::HandleObject global)
         jsb_cocos2d_EaseElasticOut_class,
         js_cocos2dx_EaseElasticOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -21817,7 +21925,7 @@ bool js_cocos2dx_EaseElasticInOut_create(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 1) {
             cocos2d::ActionInterval* arg0 = nullptr;
             do {
@@ -21844,7 +21952,7 @@ bool js_cocos2dx_EaseElasticInOut_create(JSContext *cx, uint32_t argc, JS::Value
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             cocos2d::ActionInterval* arg0 = nullptr;
             do {
@@ -21930,6 +22038,11 @@ void js_register_cocos2dx_EaseElasticInOut(JSContext *cx, JS::HandleObject globa
     };
     jsb_cocos2d_EaseElasticInOut_class = &cocos2d_EaseElasticInOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseElasticInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseElasticInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -21942,7 +22055,7 @@ void js_register_cocos2dx_EaseElasticInOut(JSContext *cx, JS::HandleObject globa
         jsb_cocos2d_EaseElasticInOut_class,
         js_cocos2dx_EaseElasticInOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -22004,7 +22117,7 @@ JSObject *jsb_cocos2d_EaseBounceIn_prototype;
 bool js_cocos2dx_EaseBounceIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -22083,6 +22196,11 @@ void js_register_cocos2dx_EaseBounceIn(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_EaseBounceIn_class = &cocos2d_EaseBounceIn_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseBounceIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseBounceIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -22095,7 +22213,7 @@ void js_register_cocos2dx_EaseBounceIn(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_EaseBounceIn_class,
         js_cocos2dx_EaseBounceIn_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -22116,7 +22234,7 @@ JSObject *jsb_cocos2d_EaseBounceOut_prototype;
 bool js_cocos2dx_EaseBounceOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -22195,6 +22313,11 @@ void js_register_cocos2dx_EaseBounceOut(JSContext *cx, JS::HandleObject global) 
     };
     jsb_cocos2d_EaseBounceOut_class = &cocos2d_EaseBounceOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseBounceOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseBounceOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -22207,7 +22330,7 @@ void js_register_cocos2dx_EaseBounceOut(JSContext *cx, JS::HandleObject global) 
         jsb_cocos2d_EaseBounceOut_class,
         js_cocos2dx_EaseBounceOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -22228,7 +22351,7 @@ JSObject *jsb_cocos2d_EaseBounceInOut_prototype;
 bool js_cocos2dx_EaseBounceInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -22307,6 +22430,11 @@ void js_register_cocos2dx_EaseBounceInOut(JSContext *cx, JS::HandleObject global
     };
     jsb_cocos2d_EaseBounceInOut_class = &cocos2d_EaseBounceInOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseBounceInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseBounceInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -22319,7 +22447,7 @@ void js_register_cocos2dx_EaseBounceInOut(JSContext *cx, JS::HandleObject global
         jsb_cocos2d_EaseBounceInOut_class,
         js_cocos2dx_EaseBounceInOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -22340,7 +22468,7 @@ JSObject *jsb_cocos2d_EaseBackIn_prototype;
 bool js_cocos2dx_EaseBackIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -22419,6 +22547,11 @@ void js_register_cocos2dx_EaseBackIn(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_EaseBackIn_class = &cocos2d_EaseBackIn_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseBackIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseBackIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -22431,7 +22564,7 @@ void js_register_cocos2dx_EaseBackIn(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_EaseBackIn_class,
         js_cocos2dx_EaseBackIn_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -22452,7 +22585,7 @@ JSObject *jsb_cocos2d_EaseBackOut_prototype;
 bool js_cocos2dx_EaseBackOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -22531,6 +22664,11 @@ void js_register_cocos2dx_EaseBackOut(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_EaseBackOut_class = &cocos2d_EaseBackOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseBackOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseBackOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -22543,7 +22681,7 @@ void js_register_cocos2dx_EaseBackOut(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_EaseBackOut_class,
         js_cocos2dx_EaseBackOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -22564,7 +22702,7 @@ JSObject *jsb_cocos2d_EaseBackInOut_prototype;
 bool js_cocos2dx_EaseBackInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -22643,6 +22781,11 @@ void js_register_cocos2dx_EaseBackInOut(JSContext *cx, JS::HandleObject global) 
     };
     jsb_cocos2d_EaseBackInOut_class = &cocos2d_EaseBackInOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseBackInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseBackInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -22655,7 +22798,7 @@ void js_register_cocos2dx_EaseBackInOut(JSContext *cx, JS::HandleObject global) 
         jsb_cocos2d_EaseBackInOut_class,
         js_cocos2dx_EaseBackInOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -22676,7 +22819,7 @@ JSObject *jsb_cocos2d_EaseBezierAction_prototype;
 bool js_cocos2dx_EaseBezierAction_setBezierParamer(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EaseBezierAction* cobj = (cocos2d::EaseBezierAction *)(proxy ? proxy->ptr : NULL);
@@ -22702,7 +22845,7 @@ bool js_cocos2dx_EaseBezierAction_setBezierParamer(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_EaseBezierAction_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -22820,7 +22963,7 @@ JSObject *jsb_cocos2d_EaseQuadraticActionIn_prototype;
 bool js_cocos2dx_EaseQuadraticActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -22899,6 +23042,11 @@ void js_register_cocos2dx_EaseQuadraticActionIn(JSContext *cx, JS::HandleObject 
     };
     jsb_cocos2d_EaseQuadraticActionIn_class = &cocos2d_EaseQuadraticActionIn_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuadraticActionIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseQuadraticActionIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -22911,7 +23059,7 @@ void js_register_cocos2dx_EaseQuadraticActionIn(JSContext *cx, JS::HandleObject 
         jsb_cocos2d_EaseQuadraticActionIn_class,
         js_cocos2dx_EaseQuadraticActionIn_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -22932,7 +23080,7 @@ JSObject *jsb_cocos2d_EaseQuadraticActionOut_prototype;
 bool js_cocos2dx_EaseQuadraticActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -23011,6 +23159,11 @@ void js_register_cocos2dx_EaseQuadraticActionOut(JSContext *cx, JS::HandleObject
     };
     jsb_cocos2d_EaseQuadraticActionOut_class = &cocos2d_EaseQuadraticActionOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuadraticActionOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseQuadraticActionOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -23023,7 +23176,7 @@ void js_register_cocos2dx_EaseQuadraticActionOut(JSContext *cx, JS::HandleObject
         jsb_cocos2d_EaseQuadraticActionOut_class,
         js_cocos2dx_EaseQuadraticActionOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -23044,7 +23197,7 @@ JSObject *jsb_cocos2d_EaseQuadraticActionInOut_prototype;
 bool js_cocos2dx_EaseQuadraticActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -23123,6 +23276,11 @@ void js_register_cocos2dx_EaseQuadraticActionInOut(JSContext *cx, JS::HandleObje
     };
     jsb_cocos2d_EaseQuadraticActionInOut_class = &cocos2d_EaseQuadraticActionInOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuadraticActionInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseQuadraticActionInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -23135,7 +23293,7 @@ void js_register_cocos2dx_EaseQuadraticActionInOut(JSContext *cx, JS::HandleObje
         jsb_cocos2d_EaseQuadraticActionInOut_class,
         js_cocos2dx_EaseQuadraticActionInOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -23156,7 +23314,7 @@ JSObject *jsb_cocos2d_EaseQuarticActionIn_prototype;
 bool js_cocos2dx_EaseQuarticActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -23235,6 +23393,11 @@ void js_register_cocos2dx_EaseQuarticActionIn(JSContext *cx, JS::HandleObject gl
     };
     jsb_cocos2d_EaseQuarticActionIn_class = &cocos2d_EaseQuarticActionIn_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuarticActionIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseQuarticActionIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -23247,7 +23410,7 @@ void js_register_cocos2dx_EaseQuarticActionIn(JSContext *cx, JS::HandleObject gl
         jsb_cocos2d_EaseQuarticActionIn_class,
         js_cocos2dx_EaseQuarticActionIn_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -23268,7 +23431,7 @@ JSObject *jsb_cocos2d_EaseQuarticActionOut_prototype;
 bool js_cocos2dx_EaseQuarticActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -23347,6 +23510,11 @@ void js_register_cocos2dx_EaseQuarticActionOut(JSContext *cx, JS::HandleObject g
     };
     jsb_cocos2d_EaseQuarticActionOut_class = &cocos2d_EaseQuarticActionOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuarticActionOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseQuarticActionOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -23359,7 +23527,7 @@ void js_register_cocos2dx_EaseQuarticActionOut(JSContext *cx, JS::HandleObject g
         jsb_cocos2d_EaseQuarticActionOut_class,
         js_cocos2dx_EaseQuarticActionOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -23380,7 +23548,7 @@ JSObject *jsb_cocos2d_EaseQuarticActionInOut_prototype;
 bool js_cocos2dx_EaseQuarticActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -23459,6 +23627,11 @@ void js_register_cocos2dx_EaseQuarticActionInOut(JSContext *cx, JS::HandleObject
     };
     jsb_cocos2d_EaseQuarticActionInOut_class = &cocos2d_EaseQuarticActionInOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuarticActionInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseQuarticActionInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -23471,7 +23644,7 @@ void js_register_cocos2dx_EaseQuarticActionInOut(JSContext *cx, JS::HandleObject
         jsb_cocos2d_EaseQuarticActionInOut_class,
         js_cocos2dx_EaseQuarticActionInOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -23492,7 +23665,7 @@ JSObject *jsb_cocos2d_EaseQuinticActionIn_prototype;
 bool js_cocos2dx_EaseQuinticActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -23571,6 +23744,11 @@ void js_register_cocos2dx_EaseQuinticActionIn(JSContext *cx, JS::HandleObject gl
     };
     jsb_cocos2d_EaseQuinticActionIn_class = &cocos2d_EaseQuinticActionIn_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuinticActionIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseQuinticActionIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -23583,7 +23761,7 @@ void js_register_cocos2dx_EaseQuinticActionIn(JSContext *cx, JS::HandleObject gl
         jsb_cocos2d_EaseQuinticActionIn_class,
         js_cocos2dx_EaseQuinticActionIn_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -23604,7 +23782,7 @@ JSObject *jsb_cocos2d_EaseQuinticActionOut_prototype;
 bool js_cocos2dx_EaseQuinticActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -23683,6 +23861,11 @@ void js_register_cocos2dx_EaseQuinticActionOut(JSContext *cx, JS::HandleObject g
     };
     jsb_cocos2d_EaseQuinticActionOut_class = &cocos2d_EaseQuinticActionOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuinticActionOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseQuinticActionOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -23695,7 +23878,7 @@ void js_register_cocos2dx_EaseQuinticActionOut(JSContext *cx, JS::HandleObject g
         jsb_cocos2d_EaseQuinticActionOut_class,
         js_cocos2dx_EaseQuinticActionOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -23716,7 +23899,7 @@ JSObject *jsb_cocos2d_EaseQuinticActionInOut_prototype;
 bool js_cocos2dx_EaseQuinticActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -23795,6 +23978,11 @@ void js_register_cocos2dx_EaseQuinticActionInOut(JSContext *cx, JS::HandleObject
     };
     jsb_cocos2d_EaseQuinticActionInOut_class = &cocos2d_EaseQuinticActionInOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseQuinticActionInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseQuinticActionInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -23807,7 +23995,7 @@ void js_register_cocos2dx_EaseQuinticActionInOut(JSContext *cx, JS::HandleObject
         jsb_cocos2d_EaseQuinticActionInOut_class,
         js_cocos2dx_EaseQuinticActionInOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -23828,7 +24016,7 @@ JSObject *jsb_cocos2d_EaseCircleActionIn_prototype;
 bool js_cocos2dx_EaseCircleActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -23907,6 +24095,11 @@ void js_register_cocos2dx_EaseCircleActionIn(JSContext *cx, JS::HandleObject glo
     };
     jsb_cocos2d_EaseCircleActionIn_class = &cocos2d_EaseCircleActionIn_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseCircleActionIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseCircleActionIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -23919,7 +24112,7 @@ void js_register_cocos2dx_EaseCircleActionIn(JSContext *cx, JS::HandleObject glo
         jsb_cocos2d_EaseCircleActionIn_class,
         js_cocos2dx_EaseCircleActionIn_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -23940,7 +24133,7 @@ JSObject *jsb_cocos2d_EaseCircleActionOut_prototype;
 bool js_cocos2dx_EaseCircleActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -24019,6 +24212,11 @@ void js_register_cocos2dx_EaseCircleActionOut(JSContext *cx, JS::HandleObject gl
     };
     jsb_cocos2d_EaseCircleActionOut_class = &cocos2d_EaseCircleActionOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseCircleActionOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseCircleActionOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -24031,7 +24229,7 @@ void js_register_cocos2dx_EaseCircleActionOut(JSContext *cx, JS::HandleObject gl
         jsb_cocos2d_EaseCircleActionOut_class,
         js_cocos2dx_EaseCircleActionOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -24052,7 +24250,7 @@ JSObject *jsb_cocos2d_EaseCircleActionInOut_prototype;
 bool js_cocos2dx_EaseCircleActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -24131,6 +24329,11 @@ void js_register_cocos2dx_EaseCircleActionInOut(JSContext *cx, JS::HandleObject 
     };
     jsb_cocos2d_EaseCircleActionInOut_class = &cocos2d_EaseCircleActionInOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseCircleActionInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseCircleActionInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -24143,7 +24346,7 @@ void js_register_cocos2dx_EaseCircleActionInOut(JSContext *cx, JS::HandleObject 
         jsb_cocos2d_EaseCircleActionInOut_class,
         js_cocos2dx_EaseCircleActionInOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -24164,7 +24367,7 @@ JSObject *jsb_cocos2d_EaseCubicActionIn_prototype;
 bool js_cocos2dx_EaseCubicActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -24243,6 +24446,11 @@ void js_register_cocos2dx_EaseCubicActionIn(JSContext *cx, JS::HandleObject glob
     };
     jsb_cocos2d_EaseCubicActionIn_class = &cocos2d_EaseCubicActionIn_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseCubicActionIn_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseCubicActionIn_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -24255,7 +24463,7 @@ void js_register_cocos2dx_EaseCubicActionIn(JSContext *cx, JS::HandleObject glob
         jsb_cocos2d_EaseCubicActionIn_class,
         js_cocos2dx_EaseCubicActionIn_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -24276,7 +24484,7 @@ JSObject *jsb_cocos2d_EaseCubicActionOut_prototype;
 bool js_cocos2dx_EaseCubicActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -24355,6 +24563,11 @@ void js_register_cocos2dx_EaseCubicActionOut(JSContext *cx, JS::HandleObject glo
     };
     jsb_cocos2d_EaseCubicActionOut_class = &cocos2d_EaseCubicActionOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseCubicActionOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseCubicActionOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -24367,7 +24580,7 @@ void js_register_cocos2dx_EaseCubicActionOut(JSContext *cx, JS::HandleObject glo
         jsb_cocos2d_EaseCubicActionOut_class,
         js_cocos2dx_EaseCubicActionOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -24388,7 +24601,7 @@ JSObject *jsb_cocos2d_EaseCubicActionInOut_prototype;
 bool js_cocos2dx_EaseCubicActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::ActionInterval* arg0 = nullptr;
         do {
@@ -24467,6 +24680,11 @@ void js_register_cocos2dx_EaseCubicActionInOut(JSContext *cx, JS::HandleObject g
     };
     jsb_cocos2d_EaseCubicActionInOut_class = &cocos2d_EaseCubicActionInOut_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_EaseCubicActionInOut_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_EaseCubicActionInOut_create, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -24479,7 +24697,7 @@ void js_register_cocos2dx_EaseCubicActionInOut(JSContext *cx, JS::HandleObject g
         jsb_cocos2d_EaseCubicActionInOut_class,
         js_cocos2dx_EaseCubicActionInOut_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -24541,7 +24759,7 @@ JSObject *jsb_cocos2d_Show_prototype;
 bool js_cocos2dx_Show_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::Show::create();
@@ -24609,6 +24827,11 @@ void js_register_cocos2dx_Show(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_Show_class = &cocos2d_Show_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_Show_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_Show_create, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -24621,7 +24844,7 @@ void js_register_cocos2dx_Show(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_Show_class,
         js_cocos2dx_Show_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -24642,7 +24865,7 @@ JSObject *jsb_cocos2d_Hide_prototype;
 bool js_cocos2dx_Hide_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::Hide::create();
@@ -24710,6 +24933,11 @@ void js_register_cocos2dx_Hide(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_Hide_class = &cocos2d_Hide_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_Hide_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_Hide_create, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -24722,7 +24950,7 @@ void js_register_cocos2dx_Hide(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_Hide_class,
         js_cocos2dx_Hide_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -24743,7 +24971,7 @@ JSObject *jsb_cocos2d_ToggleVisibility_prototype;
 bool js_cocos2dx_ToggleVisibility_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::ToggleVisibility::create();
@@ -24825,7 +25053,7 @@ JSObject *jsb_cocos2d_RemoveSelf_prototype;
 bool js_cocos2dx_RemoveSelf_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RemoveSelf* cobj = (cocos2d::RemoveSelf *)(proxy ? proxy->ptr : NULL);
@@ -24848,7 +25076,7 @@ bool js_cocos2dx_RemoveSelf_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_RemoveSelf_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::RemoveSelf::create();
@@ -24946,7 +25174,7 @@ JSObject *jsb_cocos2d_FlipX_prototype;
 bool js_cocos2dx_FlipX_initWithFlipX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FlipX* cobj = (cocos2d::FlipX *)(proxy ? proxy->ptr : NULL);
@@ -24969,7 +25197,7 @@ bool js_cocos2dx_FlipX_initWithFlipX(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_FlipX_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         bool arg0;
         arg0 = args.get(0).toBoolean();
@@ -25079,7 +25307,7 @@ JSObject *jsb_cocos2d_FlipY_prototype;
 bool js_cocos2dx_FlipY_initWithFlipY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::FlipY* cobj = (cocos2d::FlipY *)(proxy ? proxy->ptr : NULL);
@@ -25102,7 +25330,7 @@ bool js_cocos2dx_FlipY_initWithFlipY(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_FlipY_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         bool arg0;
         arg0 = args.get(0).toBoolean();
@@ -25212,7 +25440,7 @@ JSObject *jsb_cocos2d_Place_prototype;
 bool js_cocos2dx_Place_initWithPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Place* cobj = (cocos2d::Place *)(proxy ? proxy->ptr : NULL);
@@ -25235,7 +25463,7 @@ bool js_cocos2dx_Place_initWithPosition(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Place_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::Vec2 arg0;
         ok &= jsval_to_vector2(cx, args.get(0), &arg0);
@@ -25499,6 +25727,11 @@ void js_register_cocos2dx_CallFuncN(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_CallFuncN_class = &cocos2d_CallFuncN_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_CallFuncN_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     JS::RootedObject parent_proto(cx, jsb_cocos2d_CallFunc_prototype);
     jsb_cocos2d_CallFuncN_prototype = JS_InitClass(
         cx, global,
@@ -25506,7 +25739,7 @@ void js_register_cocos2dx_CallFuncN(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_CallFuncN_class,
         js_cocos2dx_CallFuncN_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         nullptr);
 
@@ -25527,7 +25760,7 @@ JSObject *jsb_cocos2d_ActionManager_prototype;
 bool js_cocos2dx_ActionManager_getActionByTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
@@ -25564,7 +25797,7 @@ bool js_cocos2dx_ActionManager_getActionByTag(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ActionManager_removeActionByTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
@@ -25594,7 +25827,7 @@ bool js_cocos2dx_ActionManager_removeActionByTag(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_ActionManager_removeActionsByFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
@@ -25640,7 +25873,7 @@ bool js_cocos2dx_ActionManager_removeAllActions(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ActionManager_addAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
@@ -25680,7 +25913,7 @@ bool js_cocos2dx_ActionManager_addAction(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_ActionManager_resumeTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
@@ -25708,7 +25941,7 @@ bool js_cocos2dx_ActionManager_resumeTarget(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_ActionManager_update(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
@@ -25728,7 +25961,7 @@ bool js_cocos2dx_ActionManager_update(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_ActionManager_pauseTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
@@ -25756,7 +25989,7 @@ bool js_cocos2dx_ActionManager_pauseTarget(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ActionManager_getNumberOfRunningActionsInTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
@@ -25787,7 +26020,7 @@ bool js_cocos2dx_ActionManager_getNumberOfRunningActionsInTarget(JSContext *cx, 
 bool js_cocos2dx_ActionManager_removeAllActionsFromTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
@@ -25815,7 +26048,7 @@ bool js_cocos2dx_ActionManager_removeAllActionsFromTarget(JSContext *cx, uint32_
 bool js_cocos2dx_ActionManager_resumeTargets(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
@@ -25835,7 +26068,7 @@ bool js_cocos2dx_ActionManager_resumeTargets(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ActionManager_removeAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
@@ -25863,7 +26096,7 @@ bool js_cocos2dx_ActionManager_removeAction(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_ActionManager_removeAllActionsByTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
@@ -25893,7 +26126,7 @@ bool js_cocos2dx_ActionManager_removeAllActionsByTag(JSContext *cx, uint32_t arg
 bool js_cocos2dx_ActionManager_pauseAllRunningActions(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager *)(proxy ? proxy->ptr : NULL);
@@ -26026,7 +26259,7 @@ bool js_cocos2dx_AtlasNode_updateAtlasValues(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_AtlasNode_initWithTileFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode *)(proxy ? proxy->ptr : NULL);
@@ -26055,7 +26288,7 @@ bool js_cocos2dx_AtlasNode_initWithTileFile(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_AtlasNode_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode *)(proxy ? proxy->ptr : NULL);
@@ -26079,7 +26312,7 @@ bool js_cocos2dx_AtlasNode_getTexture(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_AtlasNode_setTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode *)(proxy ? proxy->ptr : NULL);
@@ -26107,7 +26340,7 @@ bool js_cocos2dx_AtlasNode_setTextureAtlas(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_AtlasNode_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode *)(proxy ? proxy->ptr : NULL);
@@ -26127,7 +26360,7 @@ bool js_cocos2dx_AtlasNode_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_AtlasNode_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode *)(proxy ? proxy->ptr : NULL);
@@ -26151,7 +26384,7 @@ bool js_cocos2dx_AtlasNode_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_AtlasNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode *)(proxy ? proxy->ptr : NULL);
@@ -26171,7 +26404,7 @@ bool js_cocos2dx_AtlasNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_AtlasNode_getQuadsToDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode *)(proxy ? proxy->ptr : NULL);
@@ -26191,7 +26424,7 @@ bool js_cocos2dx_AtlasNode_getQuadsToDraw(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_AtlasNode_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode *)(proxy ? proxy->ptr : NULL);
@@ -26219,7 +26452,7 @@ bool js_cocos2dx_AtlasNode_setTexture(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_AtlasNode_initWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode *)(proxy ? proxy->ptr : NULL);
@@ -26256,7 +26489,7 @@ bool js_cocos2dx_AtlasNode_initWithTexture(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_AtlasNode_setQuadsToDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode *)(proxy ? proxy->ptr : NULL);
@@ -26276,7 +26509,7 @@ bool js_cocos2dx_AtlasNode_setQuadsToDraw(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_AtlasNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 4) {
         std::string arg0;
         int arg1 = 0;
@@ -26382,7 +26615,7 @@ JSObject *jsb_cocos2d_ClippingNode_prototype;
 bool js_cocos2dx_ClippingNode_hasContent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ClippingNode* cobj = (cocos2d::ClippingNode *)(proxy ? proxy->ptr : NULL);
@@ -26402,7 +26635,7 @@ bool js_cocos2dx_ClippingNode_hasContent(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_ClippingNode_setInverted(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ClippingNode* cobj = (cocos2d::ClippingNode *)(proxy ? proxy->ptr : NULL);
@@ -26422,7 +26655,7 @@ bool js_cocos2dx_ClippingNode_setInverted(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_ClippingNode_setStencil(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ClippingNode* cobj = (cocos2d::ClippingNode *)(proxy ? proxy->ptr : NULL);
@@ -26450,7 +26683,7 @@ bool js_cocos2dx_ClippingNode_setStencil(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_ClippingNode_getAlphaThreshold(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ClippingNode* cobj = (cocos2d::ClippingNode *)(proxy ? proxy->ptr : NULL);
@@ -26470,7 +26703,7 @@ bool js_cocos2dx_ClippingNode_getAlphaThreshold(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ClippingNode_getStencil(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ClippingNode* cobj = (cocos2d::ClippingNode *)(proxy ? proxy->ptr : NULL);
@@ -26494,7 +26727,7 @@ bool js_cocos2dx_ClippingNode_getStencil(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_ClippingNode_setAlphaThreshold(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ClippingNode* cobj = (cocos2d::ClippingNode *)(proxy ? proxy->ptr : NULL);
@@ -26514,7 +26747,7 @@ bool js_cocos2dx_ClippingNode_setAlphaThreshold(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ClippingNode_isInverted(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ClippingNode* cobj = (cocos2d::ClippingNode *)(proxy ? proxy->ptr : NULL);
@@ -26536,7 +26769,7 @@ bool js_cocos2dx_ClippingNode_create(JSContext *cx, uint32_t argc, JS::Value *vp
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 1) {
             cocos2d::Node* arg0 = nullptr;
             do {
@@ -26563,7 +26796,7 @@ bool js_cocos2dx_ClippingNode_create(JSContext *cx, uint32_t argc, JS::Value *vp
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 0) {
             cocos2d::ClippingNode* ret = cocos2d::ClippingNode::create();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -26660,7 +26893,7 @@ JSObject *jsb_cocos2d_DrawNode_prototype;
 bool js_cocos2dx_DrawNode_drawLine(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -26683,6 +26916,7 @@ bool js_cocos2dx_DrawNode_drawLine(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 bool js_cocos2dx_DrawNode_drawPoints(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::DrawNode* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -26692,7 +26926,7 @@ bool js_cocos2dx_DrawNode_drawPoints(JSContext *cx, uint32_t argc, JS::Value *vp
     cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_DrawNode_drawPoints : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 4) {
             const cocos2d::Vec2* arg0 = nullptr;
             std::vector<cocos2d::Vec2> tempData;ok &= jsval_to_vector_vec2(cx, args.get(0), &tempData);arg0=tempData.data();
@@ -26713,7 +26947,7 @@ bool js_cocos2dx_DrawNode_drawPoints(JSContext *cx, uint32_t argc, JS::Value *vp
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             const cocos2d::Vec2* arg0 = nullptr;
             std::vector<cocos2d::Vec2> tempData;ok &= jsval_to_vector_vec2(cx, args.get(0), &tempData);arg0=tempData.data();
@@ -26735,6 +26969,7 @@ bool js_cocos2dx_DrawNode_drawPoints(JSContext *cx, uint32_t argc, JS::Value *vp
 }
 bool js_cocos2dx_DrawNode_drawRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::DrawNode* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -26744,7 +26979,7 @@ bool js_cocos2dx_DrawNode_drawRect(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_DrawNode_drawRect : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 5) {
             cocos2d::Vec2 arg0;
             ok &= jsval_to_vector2(cx, args.get(0), &arg0);
@@ -26768,7 +27003,7 @@ bool js_cocos2dx_DrawNode_drawRect(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             cocos2d::Vec2 arg0;
             ok &= jsval_to_vector2(cx, args.get(0), &arg0);
@@ -26790,6 +27025,7 @@ bool js_cocos2dx_DrawNode_drawRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 bool js_cocos2dx_DrawNode_drawSolidCircle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::DrawNode* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -26799,7 +27035,7 @@ bool js_cocos2dx_DrawNode_drawSolidCircle(JSContext *cx, uint32_t argc, JS::Valu
     cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_DrawNode_drawSolidCircle : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 5) {
             cocos2d::Vec2 arg0;
             ok &= jsval_to_vector2(cx, args.get(0), &arg0);
@@ -26823,7 +27059,7 @@ bool js_cocos2dx_DrawNode_drawSolidCircle(JSContext *cx, uint32_t argc, JS::Valu
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 7) {
             cocos2d::Vec2 arg0;
             ok &= jsval_to_vector2(cx, args.get(0), &arg0);
@@ -26858,7 +27094,7 @@ bool js_cocos2dx_DrawNode_drawSolidCircle(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_DrawNode_setLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -26878,7 +27114,7 @@ bool js_cocos2dx_DrawNode_setLineWidth(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_DrawNode_onDrawGLPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -26900,7 +27136,7 @@ bool js_cocos2dx_DrawNode_onDrawGLPoint(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_DrawNode_drawPolygon(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -26928,7 +27164,7 @@ bool js_cocos2dx_DrawNode_drawPolygon(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_DrawNode_drawDot(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -26952,7 +27188,7 @@ bool js_cocos2dx_DrawNode_drawDot(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_DrawNode_drawCatmullRom(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -26984,7 +27220,7 @@ bool js_cocos2dx_DrawNode_drawCatmullRom(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_DrawNode_drawSegment(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -27010,7 +27246,7 @@ bool js_cocos2dx_DrawNode_drawSegment(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_DrawNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -27030,7 +27266,7 @@ bool js_cocos2dx_DrawNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_DrawNode_onDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -27051,6 +27287,7 @@ bool js_cocos2dx_DrawNode_onDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 bool js_cocos2dx_DrawNode_drawCircle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::DrawNode* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -27060,7 +27297,7 @@ bool js_cocos2dx_DrawNode_drawCircle(JSContext *cx, uint32_t argc, JS::Value *vp
     cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_DrawNode_drawCircle : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 6) {
             cocos2d::Vec2 arg0;
             ok &= jsval_to_vector2(cx, args.get(0), &arg0);
@@ -27086,7 +27323,7 @@ bool js_cocos2dx_DrawNode_drawCircle(JSContext *cx, uint32_t argc, JS::Value *vp
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 8) {
             cocos2d::Vec2 arg0;
             ok &= jsval_to_vector2(cx, args.get(0), &arg0);
@@ -27123,7 +27360,7 @@ bool js_cocos2dx_DrawNode_drawCircle(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_DrawNode_drawQuadBezier(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -27151,7 +27388,7 @@ bool js_cocos2dx_DrawNode_drawQuadBezier(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_DrawNode_onDrawGLLine(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -27173,7 +27410,7 @@ bool js_cocos2dx_DrawNode_onDrawGLLine(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_DrawNode_drawSolidPoly(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -27197,7 +27434,7 @@ bool js_cocos2dx_DrawNode_drawSolidPoly(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_DrawNode_drawTriangle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -27223,7 +27460,7 @@ bool js_cocos2dx_DrawNode_drawTriangle(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_DrawNode_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -27259,7 +27496,7 @@ bool js_cocos2dx_DrawNode_clear(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_DrawNode_drawCardinalSpline(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -27293,7 +27530,7 @@ bool js_cocos2dx_DrawNode_drawCardinalSpline(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_DrawNode_drawSolidRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -27317,7 +27554,7 @@ bool js_cocos2dx_DrawNode_drawSolidRect(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_DrawNode_getLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -27337,7 +27574,7 @@ bool js_cocos2dx_DrawNode_getLineWidth(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_DrawNode_drawPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -27361,7 +27598,7 @@ bool js_cocos2dx_DrawNode_drawPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_DrawNode_drawCubicBezier(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode *)(proxy ? proxy->ptr : NULL);
@@ -27391,7 +27628,7 @@ bool js_cocos2dx_DrawNode_drawCubicBezier(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_DrawNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::DrawNode::create();
@@ -27532,7 +27769,7 @@ JSObject *jsb_cocos2d_Label_prototype;
 bool js_cocos2dx_Label_isClipMarginEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27552,7 +27789,7 @@ bool js_cocos2dx_Label_isClipMarginEnabled(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Label_enableShadow(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27599,7 +27836,7 @@ bool js_cocos2dx_Label_enableShadow(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_setDimensions(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27621,7 +27858,7 @@ bool js_cocos2dx_Label_setDimensions(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_getWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27641,7 +27878,7 @@ bool js_cocos2dx_Label_getWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27661,7 +27898,7 @@ bool js_cocos2dx_Label_getString(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27680,6 +27917,7 @@ bool js_cocos2dx_Label_getHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 bool js_cocos2dx_Label_disableEffect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Label* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -27689,7 +27927,7 @@ bool js_cocos2dx_Label_disableEffect(JSContext *cx, uint32_t argc, JS::Value *vp
     cobj = (cocos2d::Label *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Label_disableEffect : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::LabelEffect arg0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -27701,6 +27939,7 @@ bool js_cocos2dx_Label_disableEffect(JSContext *cx, uint32_t argc, JS::Value *vp
     } while(0);
 
     do {
+        ok = true;
         if (argc == 0) {
             cobj->disableEffect();
             args.rval().setUndefined();
@@ -27714,7 +27953,7 @@ bool js_cocos2dx_Label_disableEffect(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_getTextColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27734,7 +27973,7 @@ bool js_cocos2dx_Label_getTextColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27754,7 +27993,7 @@ bool js_cocos2dx_Label_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_enableWrap(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27774,7 +28013,7 @@ bool js_cocos2dx_Label_enableWrap(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_setWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27794,7 +28033,7 @@ bool js_cocos2dx_Label_setWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getAdditionalKerning(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27814,7 +28053,7 @@ bool js_cocos2dx_Label_getAdditionalKerning(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Label_getBMFontSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27834,7 +28073,7 @@ bool js_cocos2dx_Label_getBMFontSize(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_getMaxLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27854,7 +28093,7 @@ bool js_cocos2dx_Label_getMaxLineWidth(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Label_getHorizontalAlignment(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27874,7 +28113,7 @@ bool js_cocos2dx_Label_getHorizontalAlignment(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Label_getShadowOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27894,7 +28133,7 @@ bool js_cocos2dx_Label_getShadowOffset(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Label_getLineSpacing(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27914,7 +28153,7 @@ bool js_cocos2dx_Label_getLineSpacing(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Label_setClipMarginEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27934,7 +28173,7 @@ bool js_cocos2dx_Label_setClipMarginEnabled(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Label_setString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27954,7 +28193,7 @@ bool js_cocos2dx_Label_setString(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_setSystemFontName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27974,7 +28213,7 @@ bool js_cocos2dx_Label_setSystemFontName(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Label_isWrapEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -27994,7 +28233,7 @@ bool js_cocos2dx_Label_isWrapEnabled(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_getOutlineSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28014,7 +28253,7 @@ bool js_cocos2dx_Label_getOutlineSize(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Label_setBMFontFilePath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28094,6 +28333,7 @@ bool js_cocos2dx_Label_setBMFontFilePath(JSContext *cx, uint32_t argc, JS::Value
 }
 bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Label* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -28103,7 +28343,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Label *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Label_initWithTTF : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             cocos2d::TTFConfig arg0;
             ok &= jsval_to_TTFConfig(cx, args.get(0), &arg0);
@@ -28121,7 +28361,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             cocos2d::TTFConfig arg0;
             ok &= jsval_to_TTFConfig(cx, args.get(0), &arg0);
@@ -28142,7 +28382,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 4) {
             cocos2d::TTFConfig arg0;
             ok &= jsval_to_TTFConfig(cx, args.get(0), &arg0);
@@ -28166,7 +28406,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -28187,7 +28427,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 4) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -28211,7 +28451,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 5) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -28238,7 +28478,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 6) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -28273,7 +28513,7 @@ bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_setLineHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28293,7 +28533,7 @@ bool js_cocos2dx_Label_setLineHeight(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_setSystemFontSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28313,7 +28553,7 @@ bool js_cocos2dx_Label_setSystemFontSize(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Label_setOverflow(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28365,7 +28605,7 @@ bool js_cocos2dx_Label_updateContent(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_getStringLength(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28385,7 +28625,7 @@ bool js_cocos2dx_Label_getStringLength(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Label_setLineBreakWithoutSpace(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28405,7 +28645,7 @@ bool js_cocos2dx_Label_setLineBreakWithoutSpace(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Label_getStringNumLines(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28425,7 +28665,7 @@ bool js_cocos2dx_Label_getStringNumLines(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Label_enableOutline(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28455,7 +28695,7 @@ bool js_cocos2dx_Label_enableOutline(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_getShadowBlurRadius(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28475,7 +28715,7 @@ bool js_cocos2dx_Label_getShadowBlurRadius(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Label_getEffectColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28495,7 +28735,7 @@ bool js_cocos2dx_Label_getEffectColor(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Label_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28514,6 +28754,7 @@ bool js_cocos2dx_Label_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc
 }
 bool js_cocos2dx_Label_setCharMap(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Label* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -28523,7 +28764,7 @@ bool js_cocos2dx_Label_setCharMap(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Label *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Label_setCharMap : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 4) {
             cocos2d::Texture2D* arg0 = nullptr;
             do {
@@ -28555,7 +28796,7 @@ bool js_cocos2dx_Label_setCharMap(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 4) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -28579,7 +28820,7 @@ bool js_cocos2dx_Label_setCharMap(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -28599,7 +28840,7 @@ bool js_cocos2dx_Label_setCharMap(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getFontDefinition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28619,7 +28860,7 @@ bool js_cocos2dx_Label_getFontDefinition(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Label_getDimensions(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28639,7 +28880,7 @@ bool js_cocos2dx_Label_getDimensions(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_setMaxLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28659,7 +28900,7 @@ bool js_cocos2dx_Label_setMaxLineWidth(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Label_getSystemFontName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28679,7 +28920,7 @@ bool js_cocos2dx_Label_getSystemFontName(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Label_setVerticalAlignment(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28699,7 +28940,7 @@ bool js_cocos2dx_Label_setVerticalAlignment(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Label_setLineSpacing(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28719,7 +28960,7 @@ bool js_cocos2dx_Label_setLineSpacing(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Label_getLineHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28739,7 +28980,7 @@ bool js_cocos2dx_Label_getLineHeight(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_getShadowColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28754,26 +28995,6 @@ bool js_cocos2dx_Label_getShadowColor(JSContext *cx, uint32_t argc, JS::Value *v
     }
 
     JS_ReportErrorUTF8(cx, "js_cocos2dx_Label_getShadowColor : wrong number of arguments: %d, was expecting %d", argc, 0);
-    return false;
-}
-bool js_cocos2dx_Label_getTTFConfig(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Label_getTTFConfig : Invalid Native Object");
-    if (argc == 0) {
-        const cocos2d::TTFConfig& ret = cobj->getTTFConfig();
-        JS::RootedValue jsret(cx);
-        #pragma warning NO CONVERSION FROM NATIVE FOR _ttfConfig;
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_getTTFConfig : error parsing return value");
-        args.rval().set(jsret);
-        return true;
-    }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_Label_getTTFConfig : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_Label_enableItalics(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -28795,7 +29016,7 @@ bool js_cocos2dx_Label_enableItalics(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_setTextColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28815,7 +29036,7 @@ bool js_cocos2dx_Label_setTextColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getLetter(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28842,7 +29063,7 @@ bool js_cocos2dx_Label_getLetter(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_setHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28862,7 +29083,7 @@ bool js_cocos2dx_Label_setHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_isShadowEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28882,7 +29103,7 @@ bool js_cocos2dx_Label_isShadowEnabled(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Label_enableGlow(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28902,7 +29123,7 @@ bool js_cocos2dx_Label_enableGlow(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getOverflow(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28922,7 +29143,7 @@ bool js_cocos2dx_Label_getOverflow(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getVerticalAlignment(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28942,7 +29163,7 @@ bool js_cocos2dx_Label_getVerticalAlignment(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Label_setAdditionalKerning(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28962,7 +29183,7 @@ bool js_cocos2dx_Label_setAdditionalKerning(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Label_getSystemFontSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -28982,7 +29203,7 @@ bool js_cocos2dx_Label_getSystemFontSize(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Label_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -29002,7 +29223,7 @@ bool js_cocos2dx_Label_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Label_getTextAlignment(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -29022,7 +29243,7 @@ bool js_cocos2dx_Label_getTextAlignment(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Label_getBMFontFilePath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -29042,7 +29263,7 @@ bool js_cocos2dx_Label_getBMFontFilePath(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Label_setHorizontalAlignment(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -29094,7 +29315,7 @@ bool js_cocos2dx_Label_enableUnderline(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Label_getLabelEffectType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -29114,7 +29335,7 @@ bool js_cocos2dx_Label_getLabelEffectType(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Label_setFontDefinition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -29133,6 +29354,7 @@ bool js_cocos2dx_Label_setFontDefinition(JSContext *cx, uint32_t argc, JS::Value
 }
 bool js_cocos2dx_Label_setAlignment(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Label* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -29142,7 +29364,7 @@ bool js_cocos2dx_Label_setAlignment(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Label *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Label_setAlignment : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             cocos2d::TextHAlignment arg0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -29157,7 +29379,7 @@ bool js_cocos2dx_Label_setAlignment(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::TextHAlignment arg0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -29190,7 +29412,7 @@ bool js_cocos2dx_Label_requestSystemFontRefresh(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Label_setBMFontSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Label* cobj = (cocos2d::Label *)(proxy ? proxy->ptr : NULL);
@@ -29210,7 +29432,7 @@ bool js_cocos2dx_Label_setBMFontSize(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Label_createWithBMFont(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 3) {
         std::string arg0;
         std::string arg1;
@@ -29322,7 +29544,7 @@ bool js_cocos2dx_Label_createWithBMFont(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Label_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::Label::create();
@@ -29340,7 +29562,7 @@ bool js_cocos2dx_Label_createWithCharMap(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 4) {
             cocos2d::Texture2D* arg0 = nullptr;
             do {
@@ -29376,7 +29598,7 @@ bool js_cocos2dx_Label_createWithCharMap(JSContext *cx, uint32_t argc, JS::Value
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 4) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -29404,7 +29626,7 @@ bool js_cocos2dx_Label_createWithCharMap(JSContext *cx, uint32_t argc, JS::Value
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -29427,7 +29649,7 @@ bool js_cocos2dx_Label_createWithCharMap(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Label_createWithSystemFont(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 3) {
         std::string arg0;
         std::string arg1;
@@ -29605,7 +29827,6 @@ void js_register_cocos2dx_Label(JSContext *cx, JS::HandleObject global) {
         JS_FN("setLineSpacing", js_cocos2dx_Label_setLineSpacing, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getLineHeight", js_cocos2dx_Label_getLineHeight, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getShadowColor", js_cocos2dx_Label_getShadowColor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("getTTFConfig", js_cocos2dx_Label_getTTFConfig, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("enableItalics", js_cocos2dx_Label_enableItalics, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setTextColor", js_cocos2dx_Label_setTextColor, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getLetter", js_cocos2dx_Label_getLetter, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -29667,7 +29888,7 @@ JSObject *jsb_cocos2d_LabelTTF_prototype;
 bool js_cocos2dx_LabelTTF_getRenderLabel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LabelTTF* cobj = (cocos2d::LabelTTF *)(proxy ? proxy->ptr : NULL);
@@ -29777,7 +29998,7 @@ JSObject *jsb_cocos2d_Layer_prototype;
 bool js_cocos2dx_Layer_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::Layer::create();
@@ -29845,6 +30066,11 @@ void js_register_cocos2dx_Layer(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_Layer_class = &cocos2d_Layer_class;
 
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_Layer_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
     static JSFunctionSpec st_funcs[] = {
         JS_FN("create", js_cocos2dx_Layer_create, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
@@ -29857,7 +30083,7 @@ void js_register_cocos2dx_Layer(JSContext *cx, JS::HandleObject global) {
         jsb_cocos2d_Layer_class,
         js_cocos2dx_Layer_constructor, 0,
         nullptr,
-        nullptr,
+        funcs,
         nullptr,
         st_funcs);
 
@@ -29878,7 +30104,7 @@ JSObject *jsb_cocos2d_LayerColor_prototype;
 bool js_cocos2dx_LayerColor_changeWidthAndHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerColor* cobj = (cocos2d::LayerColor *)(proxy ? proxy->ptr : NULL);
@@ -29900,7 +30126,7 @@ bool js_cocos2dx_LayerColor_changeWidthAndHeight(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_LayerColor_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerColor* cobj = (cocos2d::LayerColor *)(proxy ? proxy->ptr : NULL);
@@ -29920,7 +30146,7 @@ bool js_cocos2dx_LayerColor_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_LayerColor_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerColor* cobj = (cocos2d::LayerColor *)(proxy ? proxy->ptr : NULL);
@@ -29940,7 +30166,7 @@ bool js_cocos2dx_LayerColor_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_LayerColor_changeWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerColor* cobj = (cocos2d::LayerColor *)(proxy ? proxy->ptr : NULL);
@@ -29959,6 +30185,7 @@ bool js_cocos2dx_LayerColor_changeWidth(JSContext *cx, uint32_t argc, JS::Value 
 }
 bool js_cocos2dx_LayerColor_initWithColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::LayerColor* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -29968,7 +30195,7 @@ bool js_cocos2dx_LayerColor_initWithColor(JSContext *cx, uint32_t argc, JS::Valu
     cobj = (cocos2d::LayerColor *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_LayerColor_initWithColor : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Color4B arg0;
             ok &= jsval_to_cccolor4b(cx, args.get(0), &arg0);
@@ -29983,7 +30210,7 @@ bool js_cocos2dx_LayerColor_initWithColor(JSContext *cx, uint32_t argc, JS::Valu
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             cocos2d::Color4B arg0;
             ok &= jsval_to_cccolor4b(cx, args.get(0), &arg0);
@@ -30009,7 +30236,7 @@ bool js_cocos2dx_LayerColor_initWithColor(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_LayerColor_changeHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerColor* cobj = (cocos2d::LayerColor *)(proxy ? proxy->ptr : NULL);
@@ -30031,7 +30258,7 @@ bool js_cocos2dx_LayerColor_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 3) {
             cocos2d::Color4B arg0;
             ok &= jsval_to_cccolor4b(cx, args.get(0), &arg0);
@@ -30056,7 +30283,7 @@ bool js_cocos2dx_LayerColor_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 0) {
             cocos2d::LayerColor* ret = cocos2d::LayerColor::create();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -30072,7 +30299,7 @@ bool js_cocos2dx_LayerColor_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 1) {
             cocos2d::Color4B arg0;
             ok &= jsval_to_cccolor4b(cx, args.get(0), &arg0);
@@ -30191,7 +30418,7 @@ JSObject *jsb_cocos2d_LayerGradient_prototype;
 bool js_cocos2dx_LayerGradient_getStartColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -30211,7 +30438,7 @@ bool js_cocos2dx_LayerGradient_getStartColor(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_LayerGradient_isCompressedInterpolation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -30231,7 +30458,7 @@ bool js_cocos2dx_LayerGradient_isCompressedInterpolation(JSContext *cx, uint32_t
 bool js_cocos2dx_LayerGradient_getStartOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -30251,7 +30478,7 @@ bool js_cocos2dx_LayerGradient_getStartOpacity(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_LayerGradient_setVector(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -30271,7 +30498,7 @@ bool js_cocos2dx_LayerGradient_setVector(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_LayerGradient_setStartOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -30291,7 +30518,7 @@ bool js_cocos2dx_LayerGradient_setStartOpacity(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_LayerGradient_setCompressedInterpolation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -30311,7 +30538,7 @@ bool js_cocos2dx_LayerGradient_setCompressedInterpolation(JSContext *cx, uint32_
 bool js_cocos2dx_LayerGradient_setEndOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -30331,7 +30558,7 @@ bool js_cocos2dx_LayerGradient_setEndOpacity(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_LayerGradient_getVector(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -30351,7 +30578,7 @@ bool js_cocos2dx_LayerGradient_getVector(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_LayerGradient_setEndColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -30370,6 +30597,7 @@ bool js_cocos2dx_LayerGradient_setEndColor(JSContext *cx, uint32_t argc, JS::Val
 }
 bool js_cocos2dx_LayerGradient_initWithColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::LayerGradient* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -30379,7 +30607,7 @@ bool js_cocos2dx_LayerGradient_initWithColor(JSContext *cx, uint32_t argc, JS::V
     cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_LayerGradient_initWithColor : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             cocos2d::Color4B arg0;
             ok &= jsval_to_cccolor4b(cx, args.get(0), &arg0);
@@ -30400,7 +30628,7 @@ bool js_cocos2dx_LayerGradient_initWithColor(JSContext *cx, uint32_t argc, JS::V
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             cocos2d::Color4B arg0;
             ok &= jsval_to_cccolor4b(cx, args.get(0), &arg0);
@@ -30423,7 +30651,7 @@ bool js_cocos2dx_LayerGradient_initWithColor(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_LayerGradient_getEndColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -30443,7 +30671,7 @@ bool js_cocos2dx_LayerGradient_getEndColor(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_LayerGradient_getEndOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -30463,7 +30691,7 @@ bool js_cocos2dx_LayerGradient_getEndOpacity(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_LayerGradient_setStartColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient *)(proxy ? proxy->ptr : NULL);
@@ -30485,7 +30713,7 @@ bool js_cocos2dx_LayerGradient_create(JSContext *cx, uint32_t argc, JS::Value *v
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             cocos2d::Color4B arg0;
             ok &= jsval_to_cccolor4b(cx, args.get(0), &arg0);
@@ -30507,7 +30735,7 @@ bool js_cocos2dx_LayerGradient_create(JSContext *cx, uint32_t argc, JS::Value *v
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 0) {
             cocos2d::LayerGradient* ret = cocos2d::LayerGradient::create();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -30523,7 +30751,7 @@ bool js_cocos2dx_LayerGradient_create(JSContext *cx, uint32_t argc, JS::Value *v
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 3) {
             cocos2d::Color4B arg0;
             ok &= jsval_to_cccolor4b(cx, args.get(0), &arg0);
@@ -30655,7 +30883,7 @@ JSObject *jsb_cocos2d_LayerMultiplex_prototype;
 bool js_cocos2dx_LayerMultiplex_initWithArray(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerMultiplex* cobj = (cocos2d::LayerMultiplex *)(proxy ? proxy->ptr : NULL);
@@ -30678,7 +30906,7 @@ bool js_cocos2dx_LayerMultiplex_initWithArray(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_LayerMultiplex_switchToAndReleaseMe(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerMultiplex* cobj = (cocos2d::LayerMultiplex *)(proxy ? proxy->ptr : NULL);
@@ -30698,7 +30926,7 @@ bool js_cocos2dx_LayerMultiplex_switchToAndReleaseMe(JSContext *cx, uint32_t arg
 bool js_cocos2dx_LayerMultiplex_addLayer(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerMultiplex* cobj = (cocos2d::LayerMultiplex *)(proxy ? proxy->ptr : NULL);
@@ -30726,7 +30954,7 @@ bool js_cocos2dx_LayerMultiplex_addLayer(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_LayerMultiplex_switchTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::LayerMultiplex* cobj = (cocos2d::LayerMultiplex *)(proxy ? proxy->ptr : NULL);
@@ -30835,7 +31063,7 @@ JSObject *jsb_cocos2d_MenuItem_prototype;
 bool js_cocos2dx_MenuItem_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItem* cobj = (cocos2d::MenuItem *)(proxy ? proxy->ptr : NULL);
@@ -30871,7 +31099,7 @@ bool js_cocos2dx_MenuItem_activate(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_MenuItem_initWithCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItem* cobj = (cocos2d::MenuItem *)(proxy ? proxy->ptr : NULL);
@@ -30925,7 +31153,7 @@ bool js_cocos2dx_MenuItem_initWithCallback(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_MenuItem_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItem* cobj = (cocos2d::MenuItem *)(proxy ? proxy->ptr : NULL);
@@ -30961,7 +31189,7 @@ bool js_cocos2dx_MenuItem_selected(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_MenuItem_isSelected(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItem* cobj = (cocos2d::MenuItem *)(proxy ? proxy->ptr : NULL);
@@ -30981,7 +31209,7 @@ bool js_cocos2dx_MenuItem_isSelected(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_MenuItem_setCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItem* cobj = (cocos2d::MenuItem *)(proxy ? proxy->ptr : NULL);
@@ -31048,7 +31276,7 @@ bool js_cocos2dx_MenuItem_unselected(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_MenuItem_rect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItem* cobj = (cocos2d::MenuItem *)(proxy ? proxy->ptr : NULL);
@@ -31162,7 +31390,7 @@ JSObject *jsb_cocos2d_MenuItemLabel_prototype;
 bool js_cocos2dx_MenuItemLabel_setLabel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemLabel* cobj = (cocos2d::MenuItemLabel *)(proxy ? proxy->ptr : NULL);
@@ -31190,7 +31418,7 @@ bool js_cocos2dx_MenuItemLabel_setLabel(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_MenuItemLabel_getString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemLabel* cobj = (cocos2d::MenuItemLabel *)(proxy ? proxy->ptr : NULL);
@@ -31210,7 +31438,7 @@ bool js_cocos2dx_MenuItemLabel_getString(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_MenuItemLabel_getDisabledColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemLabel* cobj = (cocos2d::MenuItemLabel *)(proxy ? proxy->ptr : NULL);
@@ -31230,7 +31458,7 @@ bool js_cocos2dx_MenuItemLabel_getDisabledColor(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_MenuItemLabel_setString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemLabel* cobj = (cocos2d::MenuItemLabel *)(proxy ? proxy->ptr : NULL);
@@ -31250,7 +31478,7 @@ bool js_cocos2dx_MenuItemLabel_setString(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_MenuItemLabel_initWithLabel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemLabel* cobj = (cocos2d::MenuItemLabel *)(proxy ? proxy->ptr : NULL);
@@ -31314,7 +31542,7 @@ bool js_cocos2dx_MenuItemLabel_initWithLabel(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_MenuItemLabel_setDisabledColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemLabel* cobj = (cocos2d::MenuItemLabel *)(proxy ? proxy->ptr : NULL);
@@ -31334,7 +31562,7 @@ bool js_cocos2dx_MenuItemLabel_setDisabledColor(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_MenuItemLabel_getLabel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemLabel* cobj = (cocos2d::MenuItemLabel *)(proxy ? proxy->ptr : NULL);
@@ -31450,7 +31678,7 @@ JSObject *jsb_cocos2d_MenuItemAtlasFont_prototype;
 bool js_cocos2dx_MenuItemAtlasFont_initWithString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemAtlasFont* cobj = (cocos2d::MenuItemAtlasFont *)(proxy ? proxy->ptr : NULL);
@@ -31600,7 +31828,7 @@ JSObject *jsb_cocos2d_MenuItemFont_prototype;
 bool js_cocos2dx_MenuItemFont_setFontNameObj(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemFont* cobj = (cocos2d::MenuItemFont *)(proxy ? proxy->ptr : NULL);
@@ -31620,7 +31848,7 @@ bool js_cocos2dx_MenuItemFont_setFontNameObj(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_MenuItemFont_getFontSizeObj(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemFont* cobj = (cocos2d::MenuItemFont *)(proxy ? proxy->ptr : NULL);
@@ -31640,7 +31868,7 @@ bool js_cocos2dx_MenuItemFont_getFontSizeObj(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_MenuItemFont_setFontSizeObj(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemFont* cobj = (cocos2d::MenuItemFont *)(proxy ? proxy->ptr : NULL);
@@ -31660,7 +31888,7 @@ bool js_cocos2dx_MenuItemFont_setFontSizeObj(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_MenuItemFont_initWithString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemFont* cobj = (cocos2d::MenuItemFont *)(proxy ? proxy->ptr : NULL);
@@ -31716,7 +31944,7 @@ bool js_cocos2dx_MenuItemFont_initWithString(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_MenuItemFont_getFontNameObj(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemFont* cobj = (cocos2d::MenuItemFont *)(proxy ? proxy->ptr : NULL);
@@ -31736,7 +31964,7 @@ bool js_cocos2dx_MenuItemFont_getFontNameObj(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_MenuItemFont_setFontName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         std::string arg0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -31752,7 +31980,7 @@ bool js_cocos2dx_MenuItemFont_setFontName(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_MenuItemFont_getFontSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         int ret = cocos2d::MenuItemFont::getFontSize();
@@ -31769,7 +31997,7 @@ bool js_cocos2dx_MenuItemFont_getFontSize(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_MenuItemFont_getFontName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         const std::string& ret = cocos2d::MenuItemFont::getFontName();
@@ -31786,7 +32014,7 @@ bool js_cocos2dx_MenuItemFont_getFontName(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_MenuItemFont_setFontSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -31900,7 +32128,7 @@ JSObject *jsb_cocos2d_MenuItemSprite_prototype;
 bool js_cocos2dx_MenuItemSprite_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemSprite* cobj = (cocos2d::MenuItemSprite *)(proxy ? proxy->ptr : NULL);
@@ -31936,7 +32164,7 @@ bool js_cocos2dx_MenuItemSprite_selected(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_MenuItemSprite_setNormalImage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemSprite* cobj = (cocos2d::MenuItemSprite *)(proxy ? proxy->ptr : NULL);
@@ -31964,7 +32192,7 @@ bool js_cocos2dx_MenuItemSprite_setNormalImage(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_MenuItemSprite_setDisabledImage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemSprite* cobj = (cocos2d::MenuItemSprite *)(proxy ? proxy->ptr : NULL);
@@ -31992,7 +32220,7 @@ bool js_cocos2dx_MenuItemSprite_setDisabledImage(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_MenuItemSprite_initWithNormalSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemSprite* cobj = (cocos2d::MenuItemSprite *)(proxy ? proxy->ptr : NULL);
@@ -32076,7 +32304,7 @@ bool js_cocos2dx_MenuItemSprite_initWithNormalSprite(JSContext *cx, uint32_t arg
 bool js_cocos2dx_MenuItemSprite_setSelectedImage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemSprite* cobj = (cocos2d::MenuItemSprite *)(proxy ? proxy->ptr : NULL);
@@ -32104,7 +32332,7 @@ bool js_cocos2dx_MenuItemSprite_setSelectedImage(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_MenuItemSprite_getDisabledImage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemSprite* cobj = (cocos2d::MenuItemSprite *)(proxy ? proxy->ptr : NULL);
@@ -32128,7 +32356,7 @@ bool js_cocos2dx_MenuItemSprite_getDisabledImage(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_MenuItemSprite_getSelectedImage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemSprite* cobj = (cocos2d::MenuItemSprite *)(proxy ? proxy->ptr : NULL);
@@ -32152,7 +32380,7 @@ bool js_cocos2dx_MenuItemSprite_getSelectedImage(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_MenuItemSprite_getNormalImage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemSprite* cobj = (cocos2d::MenuItemSprite *)(proxy ? proxy->ptr : NULL);
@@ -32287,7 +32515,7 @@ JSObject *jsb_cocos2d_MenuItemImage_prototype;
 bool js_cocos2dx_MenuItemImage_setDisabledSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemImage* cobj = (cocos2d::MenuItemImage *)(proxy ? proxy->ptr : NULL);
@@ -32315,7 +32543,7 @@ bool js_cocos2dx_MenuItemImage_setDisabledSpriteFrame(JSContext *cx, uint32_t ar
 bool js_cocos2dx_MenuItemImage_setSelectedSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemImage* cobj = (cocos2d::MenuItemImage *)(proxy ? proxy->ptr : NULL);
@@ -32343,7 +32571,7 @@ bool js_cocos2dx_MenuItemImage_setSelectedSpriteFrame(JSContext *cx, uint32_t ar
 bool js_cocos2dx_MenuItemImage_setNormalSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemImage* cobj = (cocos2d::MenuItemImage *)(proxy ? proxy->ptr : NULL);
@@ -32371,7 +32599,7 @@ bool js_cocos2dx_MenuItemImage_setNormalSpriteFrame(JSContext *cx, uint32_t argc
 bool js_cocos2dx_MenuItemImage_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemImage* cobj = (cocos2d::MenuItemImage *)(proxy ? proxy->ptr : NULL);
@@ -32391,7 +32619,7 @@ bool js_cocos2dx_MenuItemImage_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_MenuItemImage_initWithNormalImage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemImage* cobj = (cocos2d::MenuItemImage *)(proxy ? proxy->ptr : NULL);
@@ -32541,7 +32769,7 @@ JSObject *jsb_cocos2d_MenuItemToggle_prototype;
 bool js_cocos2dx_MenuItemToggle_setSubItems(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemToggle* cobj = (cocos2d::MenuItemToggle *)(proxy ? proxy->ptr : NULL);
@@ -32561,7 +32789,7 @@ bool js_cocos2dx_MenuItemToggle_setSubItems(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_MenuItemToggle_initWithItem(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemToggle* cobj = (cocos2d::MenuItemToggle *)(proxy ? proxy->ptr : NULL);
@@ -32592,7 +32820,7 @@ bool js_cocos2dx_MenuItemToggle_initWithItem(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_MenuItemToggle_getSelectedIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemToggle* cobj = (cocos2d::MenuItemToggle *)(proxy ? proxy->ptr : NULL);
@@ -32612,7 +32840,7 @@ bool js_cocos2dx_MenuItemToggle_getSelectedIndex(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_MenuItemToggle_addSubItem(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemToggle* cobj = (cocos2d::MenuItemToggle *)(proxy ? proxy->ptr : NULL);
@@ -32640,7 +32868,7 @@ bool js_cocos2dx_MenuItemToggle_addSubItem(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_MenuItemToggle_getSelectedItem(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemToggle* cobj = (cocos2d::MenuItemToggle *)(proxy ? proxy->ptr : NULL);
@@ -32664,7 +32892,7 @@ bool js_cocos2dx_MenuItemToggle_getSelectedItem(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_MenuItemToggle_setSelectedIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MenuItemToggle* cobj = (cocos2d::MenuItemToggle *)(proxy ? proxy->ptr : NULL);
@@ -32775,7 +33003,7 @@ JSObject *jsb_cocos2d_Menu_prototype;
 bool js_cocos2dx_Menu_initWithArray(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Menu* cobj = (cocos2d::Menu *)(proxy ? proxy->ptr : NULL);
@@ -32798,7 +33026,7 @@ bool js_cocos2dx_Menu_initWithArray(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Menu_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Menu* cobj = (cocos2d::Menu *)(proxy ? proxy->ptr : NULL);
@@ -32834,7 +33062,7 @@ bool js_cocos2dx_Menu_alignItemsVertically(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_Menu_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Menu* cobj = (cocos2d::Menu *)(proxy ? proxy->ptr : NULL);
@@ -32854,7 +33082,7 @@ bool js_cocos2dx_Menu_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Menu_alignItemsHorizontallyWithPadding(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Menu* cobj = (cocos2d::Menu *)(proxy ? proxy->ptr : NULL);
@@ -32874,7 +33102,7 @@ bool js_cocos2dx_Menu_alignItemsHorizontallyWithPadding(JSContext *cx, uint32_t 
 bool js_cocos2dx_Menu_alignItemsVerticallyWithPadding(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Menu* cobj = (cocos2d::Menu *)(proxy ? proxy->ptr : NULL);
@@ -33018,7 +33246,7 @@ bool js_cocos2dx_MotionStreak_reset(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_MotionStreak_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33046,7 +33274,7 @@ bool js_cocos2dx_MotionStreak_setTexture(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_MotionStreak_setMinSeg(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33066,7 +33294,7 @@ bool js_cocos2dx_MotionStreak_setMinSeg(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_MotionStreak_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33090,7 +33318,7 @@ bool js_cocos2dx_MotionStreak_getTexture(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_MotionStreak_tintWithColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33110,7 +33338,7 @@ bool js_cocos2dx_MotionStreak_tintWithColor(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_MotionStreak_getMinSeg(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33130,7 +33358,7 @@ bool js_cocos2dx_MotionStreak_getMinSeg(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_MotionStreak_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33150,7 +33378,7 @@ bool js_cocos2dx_MotionStreak_setBlendFunc(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_MotionStreak_setFadeTime(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33170,7 +33398,7 @@ bool js_cocos2dx_MotionStreak_setFadeTime(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_MotionStreak_setStartingPositionInitialized(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33190,7 +33418,7 @@ bool js_cocos2dx_MotionStreak_setStartingPositionInitialized(JSContext *cx, uint
 bool js_cocos2dx_MotionStreak_getFadeTime(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33210,7 +33438,7 @@ bool js_cocos2dx_MotionStreak_getFadeTime(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_MotionStreak_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33230,7 +33458,7 @@ bool js_cocos2dx_MotionStreak_getBlendFunc(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_MotionStreak_isStartingPositionInitialized(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33250,7 +33478,7 @@ bool js_cocos2dx_MotionStreak_isStartingPositionInitialized(JSContext *cx, uint3
 bool js_cocos2dx_MotionStreak_isFastMode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33270,7 +33498,7 @@ bool js_cocos2dx_MotionStreak_isFastMode(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_MotionStreak_getStroke(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33289,6 +33517,7 @@ bool js_cocos2dx_MotionStreak_getStroke(JSContext *cx, uint32_t argc, JS::Value 
 }
 bool js_cocos2dx_MotionStreak_initWithFade(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::MotionStreak* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -33298,7 +33527,7 @@ bool js_cocos2dx_MotionStreak_initWithFade(JSContext *cx, uint32_t argc, JS::Val
     cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_MotionStreak_initWithFade : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 5) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -33333,7 +33562,7 @@ bool js_cocos2dx_MotionStreak_initWithFade(JSContext *cx, uint32_t argc, JS::Val
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 5) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -33365,7 +33594,7 @@ bool js_cocos2dx_MotionStreak_initWithFade(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_MotionStreak_setFastMode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33385,7 +33614,7 @@ bool js_cocos2dx_MotionStreak_setFastMode(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_MotionStreak_setStroke(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak *)(proxy ? proxy->ptr : NULL);
@@ -33407,7 +33636,7 @@ bool js_cocos2dx_MotionStreak_create(JSContext *cx, uint32_t argc, JS::Value *vp
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 5) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -33446,7 +33675,7 @@ bool js_cocos2dx_MotionStreak_create(JSContext *cx, uint32_t argc, JS::Value *vp
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 5) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -33588,7 +33817,7 @@ JSObject *jsb_cocos2d_ParticleBatchNode_prototype;
 bool js_cocos2dx_ParticleBatchNode_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -33616,7 +33845,7 @@ bool js_cocos2dx_ParticleBatchNode_setTexture(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ParticleBatchNode_initWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -33649,7 +33878,7 @@ bool js_cocos2dx_ParticleBatchNode_initWithTexture(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_ParticleBatchNode_disableParticle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -33669,7 +33898,7 @@ bool js_cocos2dx_ParticleBatchNode_disableParticle(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_ParticleBatchNode_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -33693,7 +33922,7 @@ bool js_cocos2dx_ParticleBatchNode_getTexture(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ParticleBatchNode_setTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -33721,7 +33950,7 @@ bool js_cocos2dx_ParticleBatchNode_setTextureAtlas(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_ParticleBatchNode_initWithFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -33746,7 +33975,7 @@ bool js_cocos2dx_ParticleBatchNode_initWithFile(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleBatchNode_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -33766,7 +33995,7 @@ bool js_cocos2dx_ParticleBatchNode_setBlendFunc(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleBatchNode_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -33786,7 +34015,7 @@ bool js_cocos2dx_ParticleBatchNode_removeAllChildrenWithCleanup(JSContext *cx, u
 bool js_cocos2dx_ParticleBatchNode_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -33810,7 +34039,7 @@ bool js_cocos2dx_ParticleBatchNode_getTextureAtlas(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_ParticleBatchNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -33830,7 +34059,7 @@ bool js_cocos2dx_ParticleBatchNode_getBlendFunc(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleBatchNode_insertChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -33860,7 +34089,7 @@ bool js_cocos2dx_ParticleBatchNode_insertChild(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_ParticleBatchNode_removeChildAtIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -33882,7 +34111,7 @@ bool js_cocos2dx_ParticleBatchNode_removeChildAtIndex(JSContext *cx, uint32_t ar
 bool js_cocos2dx_ParticleBatchNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         std::string arg0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -33914,7 +34143,7 @@ bool js_cocos2dx_ParticleBatchNode_create(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_ParticleBatchNode_createWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::Texture2D* arg0 = nullptr;
         do {
@@ -34081,7 +34310,7 @@ bool js_cocos2dx_ParticleData_release(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_ParticleData_getMaxCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleData* cobj = (cocos2d::ParticleData *)(proxy ? proxy->ptr : NULL);
@@ -34101,7 +34330,7 @@ bool js_cocos2dx_ParticleData_getMaxCount(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_ParticleData_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleData* cobj = (cocos2d::ParticleData *)(proxy ? proxy->ptr : NULL);
@@ -34124,7 +34353,7 @@ bool js_cocos2dx_ParticleData_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_ParticleData_copyParticle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleData* cobj = (cocos2d::ParticleData *)(proxy ? proxy->ptr : NULL);
@@ -34237,7 +34466,7 @@ JSObject *jsb_cocos2d_ParticleSystem_prototype;
 bool js_cocos2dx_ParticleSystem_getStartSizeVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34257,7 +34486,7 @@ bool js_cocos2dx_ParticleSystem_getStartSizeVar(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34281,7 +34510,7 @@ bool js_cocos2dx_ParticleSystem_getTexture(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystem_isFull(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34301,7 +34530,7 @@ bool js_cocos2dx_ParticleSystem_isFull(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_ParticleSystem_getBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34325,7 +34554,7 @@ bool js_cocos2dx_ParticleSystem_getBatchNode(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_getStartColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34345,7 +34574,7 @@ bool js_cocos2dx_ParticleSystem_getStartColor(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ParticleSystem_getPositionType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34365,7 +34594,7 @@ bool js_cocos2dx_ParticleSystem_getPositionType(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_setPosVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34385,7 +34614,7 @@ bool js_cocos2dx_ParticleSystem_setPosVar(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_ParticleSystem_getEndSpin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34405,7 +34634,7 @@ bool js_cocos2dx_ParticleSystem_getEndSpin(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystem_setRotatePerSecondVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34425,7 +34654,7 @@ bool js_cocos2dx_ParticleSystem_setRotatePerSecondVar(JSContext *cx, uint32_t ar
 bool js_cocos2dx_ParticleSystem_getStartSpinVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34445,7 +34674,7 @@ bool js_cocos2dx_ParticleSystem_getStartSpinVar(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getRadialAccelVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34465,7 +34694,7 @@ bool js_cocos2dx_ParticleSystem_getRadialAccelVar(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_ParticleSystem_getEndSizeVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34485,7 +34714,7 @@ bool js_cocos2dx_ParticleSystem_getEndSizeVar(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ParticleSystem_setTangentialAccel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34505,7 +34734,7 @@ bool js_cocos2dx_ParticleSystem_setTangentialAccel(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_ParticleSystem_getRadialAccel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34525,7 +34754,7 @@ bool js_cocos2dx_ParticleSystem_getRadialAccel(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_ParticleSystem_setStartRadius(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34545,7 +34774,7 @@ bool js_cocos2dx_ParticleSystem_setStartRadius(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_ParticleSystem_setRotatePerSecond(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34565,7 +34794,7 @@ bool js_cocos2dx_ParticleSystem_setRotatePerSecond(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_ParticleSystem_setEndSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34585,7 +34814,7 @@ bool js_cocos2dx_ParticleSystem_setEndSize(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystem_getGravity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34621,7 +34850,7 @@ bool js_cocos2dx_ParticleSystem_resumeEmissions(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getTangentialAccel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34641,7 +34870,7 @@ bool js_cocos2dx_ParticleSystem_getTangentialAccel(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_ParticleSystem_setEndRadius(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34661,7 +34890,7 @@ bool js_cocos2dx_ParticleSystem_setEndRadius(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_getSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34697,7 +34926,7 @@ bool js_cocos2dx_ParticleSystem_pauseEmissions(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_ParticleSystem_getAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34717,7 +34946,7 @@ bool js_cocos2dx_ParticleSystem_getAngle(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_ParticleSystem_setEndColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34737,7 +34966,7 @@ bool js_cocos2dx_ParticleSystem_setEndColor(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_ParticleSystem_setStartSpin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34757,7 +34986,7 @@ bool js_cocos2dx_ParticleSystem_setStartSpin(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_setDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34777,7 +35006,7 @@ bool js_cocos2dx_ParticleSystem_setDuration(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_ParticleSystem_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34800,7 +35029,7 @@ bool js_cocos2dx_ParticleSystem_initWithTotalParticles(JSContext *cx, uint32_t a
 bool js_cocos2dx_ParticleSystem_addParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34820,7 +35049,7 @@ bool js_cocos2dx_ParticleSystem_addParticles(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34848,7 +35077,7 @@ bool js_cocos2dx_ParticleSystem_setTexture(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystem_getPosVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34884,7 +35113,7 @@ bool js_cocos2dx_ParticleSystem_updateWithNoTime(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_ParticleSystem_isBlendAdditive(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34904,7 +35133,7 @@ bool js_cocos2dx_ParticleSystem_isBlendAdditive(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getSpeedVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34924,7 +35153,7 @@ bool js_cocos2dx_ParticleSystem_getSpeedVar(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_ParticleSystem_setPositionType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34960,7 +35189,7 @@ bool js_cocos2dx_ParticleSystem_stopSystem(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystem_getSourcePosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -34980,7 +35209,7 @@ bool js_cocos2dx_ParticleSystem_getSourcePosition(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_ParticleSystem_setLifeVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35000,7 +35229,7 @@ bool js_cocos2dx_ParticleSystem_setLifeVar(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystem_setTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35020,7 +35249,7 @@ bool js_cocos2dx_ParticleSystem_setTotalParticles(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_ParticleSystem_setEndColorVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35040,7 +35269,7 @@ bool js_cocos2dx_ParticleSystem_setEndColorVar(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_ParticleSystem_getAtlasIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35060,7 +35289,7 @@ bool js_cocos2dx_ParticleSystem_getAtlasIndex(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ParticleSystem_getStartSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35080,7 +35309,7 @@ bool js_cocos2dx_ParticleSystem_getStartSize(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_setStartSpinVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35116,7 +35345,7 @@ bool js_cocos2dx_ParticleSystem_resetSystem(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_ParticleSystem_setAtlasIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35136,7 +35365,7 @@ bool js_cocos2dx_ParticleSystem_setAtlasIndex(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ParticleSystem_setTangentialAccelVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35156,7 +35385,7 @@ bool js_cocos2dx_ParticleSystem_setTangentialAccelVar(JSContext *cx, uint32_t ar
 bool js_cocos2dx_ParticleSystem_setEndRadiusVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35176,7 +35405,7 @@ bool js_cocos2dx_ParticleSystem_setEndRadiusVar(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getEndRadius(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35196,7 +35425,7 @@ bool js_cocos2dx_ParticleSystem_getEndRadius(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_isActive(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35216,7 +35445,7 @@ bool js_cocos2dx_ParticleSystem_isActive(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_ParticleSystem_setRadialAccelVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35236,7 +35465,7 @@ bool js_cocos2dx_ParticleSystem_setRadialAccelVar(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_ParticleSystem_setStartSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35256,7 +35485,7 @@ bool js_cocos2dx_ParticleSystem_setStartSize(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_setSpeed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35276,7 +35505,7 @@ bool js_cocos2dx_ParticleSystem_setSpeed(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_ParticleSystem_getStartSpin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35296,7 +35525,7 @@ bool js_cocos2dx_ParticleSystem_getStartSpin(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_getResourceFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35316,7 +35545,7 @@ bool js_cocos2dx_ParticleSystem_getResourceFile(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getRotatePerSecond(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35336,7 +35565,7 @@ bool js_cocos2dx_ParticleSystem_getRotatePerSecond(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_ParticleSystem_setEmitterMode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35356,7 +35585,7 @@ bool js_cocos2dx_ParticleSystem_setEmitterMode(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_ParticleSystem_getDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35376,7 +35605,7 @@ bool js_cocos2dx_ParticleSystem_getDuration(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_ParticleSystem_setSourcePosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35428,7 +35657,7 @@ bool js_cocos2dx_ParticleSystem_updateParticleQuads(JSContext *cx, uint32_t argc
 bool js_cocos2dx_ParticleSystem_getEndSpinVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35448,7 +35677,7 @@ bool js_cocos2dx_ParticleSystem_getEndSpinVar(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ParticleSystem_setBlendAdditive(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35468,7 +35697,7 @@ bool js_cocos2dx_ParticleSystem_setBlendAdditive(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_ParticleSystem_setLife(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35488,7 +35717,7 @@ bool js_cocos2dx_ParticleSystem_setLife(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_ParticleSystem_setAngleVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35508,7 +35737,7 @@ bool js_cocos2dx_ParticleSystem_setAngleVar(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_ParticleSystem_setRotationIsDir(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35544,7 +35773,7 @@ bool js_cocos2dx_ParticleSystem_start(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_ParticleSystem_setEndSizeVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35564,7 +35793,7 @@ bool js_cocos2dx_ParticleSystem_setEndSizeVar(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ParticleSystem_setAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35584,7 +35813,7 @@ bool js_cocos2dx_ParticleSystem_setAngle(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_ParticleSystem_setBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35612,7 +35841,7 @@ bool js_cocos2dx_ParticleSystem_setBatchNode(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_getTangentialAccelVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35632,7 +35861,7 @@ bool js_cocos2dx_ParticleSystem_getTangentialAccelVar(JSContext *cx, uint32_t ar
 bool js_cocos2dx_ParticleSystem_getEmitterMode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35652,7 +35881,7 @@ bool js_cocos2dx_ParticleSystem_getEmitterMode(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_ParticleSystem_setEndSpinVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35672,7 +35901,7 @@ bool js_cocos2dx_ParticleSystem_setEndSpinVar(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ParticleSystem_initWithFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35695,7 +35924,7 @@ bool js_cocos2dx_ParticleSystem_initWithFile(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_getAngleVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35715,7 +35944,7 @@ bool js_cocos2dx_ParticleSystem_getAngleVar(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_ParticleSystem_setStartColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35735,7 +35964,7 @@ bool js_cocos2dx_ParticleSystem_setStartColor(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_ParticleSystem_getRotatePerSecondVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35755,7 +35984,7 @@ bool js_cocos2dx_ParticleSystem_getRotatePerSecondVar(JSContext *cx, uint32_t ar
 bool js_cocos2dx_ParticleSystem_getEndSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35775,7 +36004,7 @@ bool js_cocos2dx_ParticleSystem_getEndSize(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystem_getLife(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35795,7 +36024,7 @@ bool js_cocos2dx_ParticleSystem_getLife(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_ParticleSystem_isPaused(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35815,7 +36044,7 @@ bool js_cocos2dx_ParticleSystem_isPaused(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_ParticleSystem_setSpeedVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35835,7 +36064,7 @@ bool js_cocos2dx_ParticleSystem_setSpeedVar(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_ParticleSystem_setAutoRemoveOnFinish(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35855,7 +36084,7 @@ bool js_cocos2dx_ParticleSystem_setAutoRemoveOnFinish(JSContext *cx, uint32_t ar
 bool js_cocos2dx_ParticleSystem_setGravity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35891,7 +36120,7 @@ bool js_cocos2dx_ParticleSystem_postStep(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_ParticleSystem_setEmissionRate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35911,7 +36140,7 @@ bool js_cocos2dx_ParticleSystem_setEmissionRate(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getEndColorVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35931,7 +36160,7 @@ bool js_cocos2dx_ParticleSystem_getEndColorVar(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_ParticleSystem_getRotationIsDir(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35951,7 +36180,7 @@ bool js_cocos2dx_ParticleSystem_getRotationIsDir(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_ParticleSystem_getEmissionRate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35971,7 +36200,7 @@ bool js_cocos2dx_ParticleSystem_getEmissionRate(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getEndColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -35991,7 +36220,7 @@ bool js_cocos2dx_ParticleSystem_getEndColor(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_ParticleSystem_getLifeVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36011,7 +36240,7 @@ bool js_cocos2dx_ParticleSystem_getLifeVar(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystem_setStartSizeVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36031,7 +36260,7 @@ bool js_cocos2dx_ParticleSystem_setStartSizeVar(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getStartRadius(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36051,7 +36280,7 @@ bool js_cocos2dx_ParticleSystem_getStartRadius(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_ParticleSystem_getParticleCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36071,7 +36300,7 @@ bool js_cocos2dx_ParticleSystem_getParticleCount(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_ParticleSystem_getStartRadiusVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36091,7 +36320,7 @@ bool js_cocos2dx_ParticleSystem_getStartRadiusVar(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_ParticleSystem_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36111,7 +36340,7 @@ bool js_cocos2dx_ParticleSystem_getBlendFunc(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_setStartColorVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36131,7 +36360,7 @@ bool js_cocos2dx_ParticleSystem_setStartColorVar(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_ParticleSystem_setEndSpin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36151,7 +36380,7 @@ bool js_cocos2dx_ParticleSystem_setEndSpin(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystem_setRadialAccel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36170,6 +36399,7 @@ bool js_cocos2dx_ParticleSystem_setRadialAccel(JSContext *cx, uint32_t argc, JS:
 }
 bool js_cocos2dx_ParticleSystem_initWithDictionary(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::ParticleSystem* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -36179,7 +36409,7 @@ bool js_cocos2dx_ParticleSystem_initWithDictionary(JSContext *cx, uint32_t argc,
     cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ParticleSystem_initWithDictionary : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             cocos2d::ValueMap arg0;
             ok &= jsval_to_ccvaluemap(cx, args.get(0), &arg0);
@@ -36197,7 +36427,7 @@ bool js_cocos2dx_ParticleSystem_initWithDictionary(JSContext *cx, uint32_t argc,
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::ValueMap arg0;
             ok &= jsval_to_ccvaluemap(cx, args.get(0), &arg0);
@@ -36217,7 +36447,7 @@ bool js_cocos2dx_ParticleSystem_initWithDictionary(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_ParticleSystem_isAutoRemoveOnFinish(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36237,7 +36467,7 @@ bool js_cocos2dx_ParticleSystem_isAutoRemoveOnFinish(JSContext *cx, uint32_t arg
 bool js_cocos2dx_ParticleSystem_getTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36257,7 +36487,7 @@ bool js_cocos2dx_ParticleSystem_getTotalParticles(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_ParticleSystem_setStartRadiusVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36277,7 +36507,7 @@ bool js_cocos2dx_ParticleSystem_setStartRadiusVar(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_ParticleSystem_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36297,7 +36527,7 @@ bool js_cocos2dx_ParticleSystem_setBlendFunc(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_ParticleSystem_getEndRadiusVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36317,7 +36547,7 @@ bool js_cocos2dx_ParticleSystem_getEndRadiusVar(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_ParticleSystem_getStartColorVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem *)(proxy ? proxy->ptr : NULL);
@@ -36337,7 +36567,7 @@ bool js_cocos2dx_ParticleSystem_getStartColorVar(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_ParticleSystem_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         std::string arg0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -36356,7 +36586,7 @@ bool js_cocos2dx_ParticleSystem_create(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_ParticleSystem_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -36570,7 +36800,7 @@ JSObject *jsb_cocos2d_ParticleSystemQuad_prototype;
 bool js_cocos2dx_ParticleSystemQuad_setDisplayFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystemQuad* cobj = (cocos2d::ParticleSystemQuad *)(proxy ? proxy->ptr : NULL);
@@ -36598,7 +36828,7 @@ bool js_cocos2dx_ParticleSystemQuad_setDisplayFrame(JSContext *cx, uint32_t argc
 bool js_cocos2dx_ParticleSystemQuad_setTextureWithRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystemQuad* cobj = (cocos2d::ParticleSystemQuad *)(proxy ? proxy->ptr : NULL);
@@ -36628,7 +36858,7 @@ bool js_cocos2dx_ParticleSystemQuad_setTextureWithRect(JSContext *cx, uint32_t a
 bool js_cocos2dx_ParticleSystemQuad_listenRendererRecreated(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSystemQuad* cobj = (cocos2d::ParticleSystemQuad *)(proxy ? proxy->ptr : NULL);
@@ -36658,7 +36888,7 @@ bool js_cocos2dx_ParticleSystemQuad_create(JSContext *cx, uint32_t argc, JS::Val
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -36677,7 +36907,7 @@ bool js_cocos2dx_ParticleSystemQuad_create(JSContext *cx, uint32_t argc, JS::Val
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 0) {
             cocos2d::ParticleSystemQuad* ret = cocos2d::ParticleSystemQuad::create();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -36693,7 +36923,7 @@ bool js_cocos2dx_ParticleSystemQuad_create(JSContext *cx, uint32_t argc, JS::Val
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 1) {
             cocos2d::ValueMap arg0;
             ok &= jsval_to_ccvaluemap(cx, args.get(0), &arg0);
@@ -36716,7 +36946,7 @@ bool js_cocos2dx_ParticleSystemQuad_create(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_ParticleSystemQuad_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -36809,7 +37039,7 @@ JSObject *jsb_cocos2d_ParticleFire_prototype;
 bool js_cocos2dx_ParticleFire_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleFire::create();
@@ -36825,7 +37055,7 @@ bool js_cocos2dx_ParticleFire_create(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_ParticleFire_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -36911,7 +37141,7 @@ JSObject *jsb_cocos2d_ParticleFireworks_prototype;
 bool js_cocos2dx_ParticleFireworks_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleFireworks* cobj = (cocos2d::ParticleFireworks *)(proxy ? proxy->ptr : NULL);
@@ -36931,7 +37161,7 @@ bool js_cocos2dx_ParticleFireworks_init(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_ParticleFireworks_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleFireworks* cobj = (cocos2d::ParticleFireworks *)(proxy ? proxy->ptr : NULL);
@@ -36954,7 +37184,7 @@ bool js_cocos2dx_ParticleFireworks_initWithTotalParticles(JSContext *cx, uint32_
 bool js_cocos2dx_ParticleFireworks_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleFireworks::create();
@@ -36970,7 +37200,7 @@ bool js_cocos2dx_ParticleFireworks_create(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_ParticleFireworks_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -37062,7 +37292,7 @@ JSObject *jsb_cocos2d_ParticleSun_prototype;
 bool js_cocos2dx_ParticleSun_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSun* cobj = (cocos2d::ParticleSun *)(proxy ? proxy->ptr : NULL);
@@ -37082,7 +37312,7 @@ bool js_cocos2dx_ParticleSun_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_ParticleSun_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSun* cobj = (cocos2d::ParticleSun *)(proxy ? proxy->ptr : NULL);
@@ -37105,7 +37335,7 @@ bool js_cocos2dx_ParticleSun_initWithTotalParticles(JSContext *cx, uint32_t argc
 bool js_cocos2dx_ParticleSun_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleSun::create();
@@ -37121,7 +37351,7 @@ bool js_cocos2dx_ParticleSun_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_ParticleSun_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -37213,7 +37443,7 @@ JSObject *jsb_cocos2d_ParticleGalaxy_prototype;
 bool js_cocos2dx_ParticleGalaxy_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleGalaxy* cobj = (cocos2d::ParticleGalaxy *)(proxy ? proxy->ptr : NULL);
@@ -37233,7 +37463,7 @@ bool js_cocos2dx_ParticleGalaxy_init(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_ParticleGalaxy_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleGalaxy* cobj = (cocos2d::ParticleGalaxy *)(proxy ? proxy->ptr : NULL);
@@ -37256,7 +37486,7 @@ bool js_cocos2dx_ParticleGalaxy_initWithTotalParticles(JSContext *cx, uint32_t a
 bool js_cocos2dx_ParticleGalaxy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleGalaxy::create();
@@ -37272,7 +37502,7 @@ bool js_cocos2dx_ParticleGalaxy_create(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_ParticleGalaxy_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -37364,7 +37594,7 @@ JSObject *jsb_cocos2d_ParticleFlower_prototype;
 bool js_cocos2dx_ParticleFlower_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleFlower* cobj = (cocos2d::ParticleFlower *)(proxy ? proxy->ptr : NULL);
@@ -37384,7 +37614,7 @@ bool js_cocos2dx_ParticleFlower_init(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_ParticleFlower_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleFlower* cobj = (cocos2d::ParticleFlower *)(proxy ? proxy->ptr : NULL);
@@ -37407,7 +37637,7 @@ bool js_cocos2dx_ParticleFlower_initWithTotalParticles(JSContext *cx, uint32_t a
 bool js_cocos2dx_ParticleFlower_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleFlower::create();
@@ -37423,7 +37653,7 @@ bool js_cocos2dx_ParticleFlower_create(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_ParticleFlower_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -37515,7 +37745,7 @@ JSObject *jsb_cocos2d_ParticleMeteor_prototype;
 bool js_cocos2dx_ParticleMeteor_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleMeteor* cobj = (cocos2d::ParticleMeteor *)(proxy ? proxy->ptr : NULL);
@@ -37535,7 +37765,7 @@ bool js_cocos2dx_ParticleMeteor_init(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_ParticleMeteor_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleMeteor* cobj = (cocos2d::ParticleMeteor *)(proxy ? proxy->ptr : NULL);
@@ -37558,7 +37788,7 @@ bool js_cocos2dx_ParticleMeteor_initWithTotalParticles(JSContext *cx, uint32_t a
 bool js_cocos2dx_ParticleMeteor_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleMeteor::create();
@@ -37574,7 +37804,7 @@ bool js_cocos2dx_ParticleMeteor_create(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_ParticleMeteor_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -37666,7 +37896,7 @@ JSObject *jsb_cocos2d_ParticleSpiral_prototype;
 bool js_cocos2dx_ParticleSpiral_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSpiral* cobj = (cocos2d::ParticleSpiral *)(proxy ? proxy->ptr : NULL);
@@ -37686,7 +37916,7 @@ bool js_cocos2dx_ParticleSpiral_init(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_ParticleSpiral_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSpiral* cobj = (cocos2d::ParticleSpiral *)(proxy ? proxy->ptr : NULL);
@@ -37709,7 +37939,7 @@ bool js_cocos2dx_ParticleSpiral_initWithTotalParticles(JSContext *cx, uint32_t a
 bool js_cocos2dx_ParticleSpiral_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleSpiral::create();
@@ -37725,7 +37955,7 @@ bool js_cocos2dx_ParticleSpiral_create(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_ParticleSpiral_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -37817,7 +38047,7 @@ JSObject *jsb_cocos2d_ParticleExplosion_prototype;
 bool js_cocos2dx_ParticleExplosion_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleExplosion* cobj = (cocos2d::ParticleExplosion *)(proxy ? proxy->ptr : NULL);
@@ -37837,7 +38067,7 @@ bool js_cocos2dx_ParticleExplosion_init(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_ParticleExplosion_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleExplosion* cobj = (cocos2d::ParticleExplosion *)(proxy ? proxy->ptr : NULL);
@@ -37860,7 +38090,7 @@ bool js_cocos2dx_ParticleExplosion_initWithTotalParticles(JSContext *cx, uint32_
 bool js_cocos2dx_ParticleExplosion_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleExplosion::create();
@@ -37876,7 +38106,7 @@ bool js_cocos2dx_ParticleExplosion_create(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_ParticleExplosion_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -37968,7 +38198,7 @@ JSObject *jsb_cocos2d_ParticleSmoke_prototype;
 bool js_cocos2dx_ParticleSmoke_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSmoke* cobj = (cocos2d::ParticleSmoke *)(proxy ? proxy->ptr : NULL);
@@ -37988,7 +38218,7 @@ bool js_cocos2dx_ParticleSmoke_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_ParticleSmoke_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSmoke* cobj = (cocos2d::ParticleSmoke *)(proxy ? proxy->ptr : NULL);
@@ -38011,7 +38241,7 @@ bool js_cocos2dx_ParticleSmoke_initWithTotalParticles(JSContext *cx, uint32_t ar
 bool js_cocos2dx_ParticleSmoke_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleSmoke::create();
@@ -38027,7 +38257,7 @@ bool js_cocos2dx_ParticleSmoke_create(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_ParticleSmoke_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -38119,7 +38349,7 @@ JSObject *jsb_cocos2d_ParticleSnow_prototype;
 bool js_cocos2dx_ParticleSnow_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSnow* cobj = (cocos2d::ParticleSnow *)(proxy ? proxy->ptr : NULL);
@@ -38139,7 +38369,7 @@ bool js_cocos2dx_ParticleSnow_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_ParticleSnow_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleSnow* cobj = (cocos2d::ParticleSnow *)(proxy ? proxy->ptr : NULL);
@@ -38162,7 +38392,7 @@ bool js_cocos2dx_ParticleSnow_initWithTotalParticles(JSContext *cx, uint32_t arg
 bool js_cocos2dx_ParticleSnow_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleSnow::create();
@@ -38178,7 +38408,7 @@ bool js_cocos2dx_ParticleSnow_create(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_ParticleSnow_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -38270,7 +38500,7 @@ JSObject *jsb_cocos2d_ParticleRain_prototype;
 bool js_cocos2dx_ParticleRain_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleRain* cobj = (cocos2d::ParticleRain *)(proxy ? proxy->ptr : NULL);
@@ -38290,7 +38520,7 @@ bool js_cocos2dx_ParticleRain_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_ParticleRain_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParticleRain* cobj = (cocos2d::ParticleRain *)(proxy ? proxy->ptr : NULL);
@@ -38313,7 +38543,7 @@ bool js_cocos2dx_ParticleRain_initWithTotalParticles(JSContext *cx, uint32_t arg
 bool js_cocos2dx_ParticleRain_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleRain::create();
@@ -38329,7 +38559,7 @@ bool js_cocos2dx_ParticleRain_create(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_ParticleRain_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -38420,6 +38650,7 @@ JSObject *jsb_cocos2d_ProtectedNode_prototype;
 
 bool js_cocos2dx_ProtectedNode_addProtectedChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::ProtectedNode* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -38429,7 +38660,7 @@ bool js_cocos2dx_ProtectedNode_addProtectedChild(JSContext *cx, uint32_t argc, J
     cobj = (cocos2d::ProtectedNode *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_ProtectedNode_addProtectedChild : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             cocos2d::Node* arg0 = nullptr;
             do {
@@ -38452,7 +38683,7 @@ bool js_cocos2dx_ProtectedNode_addProtectedChild(JSContext *cx, uint32_t argc, J
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Node* arg0 = nullptr;
             do {
@@ -38472,7 +38703,7 @@ bool js_cocos2dx_ProtectedNode_addProtectedChild(JSContext *cx, uint32_t argc, J
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             cocos2d::Node* arg0 = nullptr;
             do {
@@ -38519,7 +38750,7 @@ bool js_cocos2dx_ProtectedNode_disableCascadeColor(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_ProtectedNode_removeProtectedChildByTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ProtectedNode* cobj = (cocos2d::ProtectedNode *)(proxy ? proxy->ptr : NULL);
@@ -38549,7 +38780,7 @@ bool js_cocos2dx_ProtectedNode_removeProtectedChildByTag(JSContext *cx, uint32_t
 bool js_cocos2dx_ProtectedNode_reorderProtectedChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ProtectedNode* cobj = (cocos2d::ProtectedNode *)(proxy ? proxy->ptr : NULL);
@@ -38579,7 +38810,7 @@ bool js_cocos2dx_ProtectedNode_reorderProtectedChild(JSContext *cx, uint32_t arg
 bool js_cocos2dx_ProtectedNode_removeAllProtectedChildrenWithCleanup(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ProtectedNode* cobj = (cocos2d::ProtectedNode *)(proxy ? proxy->ptr : NULL);
@@ -38631,7 +38862,7 @@ bool js_cocos2dx_ProtectedNode_sortAllProtectedChildren(JSContext *cx, uint32_t 
 bool js_cocos2dx_ProtectedNode_getProtectedChildByTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ProtectedNode* cobj = (cocos2d::ProtectedNode *)(proxy ? proxy->ptr : NULL);
@@ -38658,7 +38889,7 @@ bool js_cocos2dx_ProtectedNode_getProtectedChildByTag(JSContext *cx, uint32_t ar
 bool js_cocos2dx_ProtectedNode_removeProtectedChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ProtectedNode* cobj = (cocos2d::ProtectedNode *)(proxy ? proxy->ptr : NULL);
@@ -38720,7 +38951,7 @@ bool js_cocos2dx_ProtectedNode_removeAllProtectedChildren(JSContext *cx, uint32_
 bool js_cocos2dx_ProtectedNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::ProtectedNode::create();
@@ -38815,6 +39046,7 @@ JSObject *jsb_cocos2d_Sprite_prototype;
 
 bool js_cocos2dx_Sprite_setSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Sprite* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -38824,7 +39056,7 @@ bool js_cocos2dx_Sprite_setSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *
     cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Sprite_setSpriteFrame : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::SpriteFrame* arg0 = nullptr;
             do {
@@ -38844,7 +39076,7 @@ bool js_cocos2dx_Sprite_setSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -38860,6 +39092,7 @@ bool js_cocos2dx_Sprite_setSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *
 }
 bool js_cocos2dx_Sprite_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Sprite* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -38869,7 +39102,7 @@ bool js_cocos2dx_Sprite_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Sprite_setTexture : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Texture2D* arg0 = nullptr;
             do {
@@ -38889,7 +39122,7 @@ bool js_cocos2dx_Sprite_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -38906,7 +39139,7 @@ bool js_cocos2dx_Sprite_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Sprite_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38930,7 +39163,7 @@ bool js_cocos2dx_Sprite_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Sprite_setFlippedY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38950,7 +39183,7 @@ bool js_cocos2dx_Sprite_setFlippedY(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Sprite_setFlippedX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38970,7 +39203,7 @@ bool js_cocos2dx_Sprite_setFlippedX(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Sprite_setRotationSkewX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -38990,7 +39223,7 @@ bool js_cocos2dx_Sprite_setRotationSkewX(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Sprite_setRotationSkewY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39010,7 +39243,7 @@ bool js_cocos2dx_Sprite_setRotationSkewY(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Sprite_getResourceType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39029,6 +39262,7 @@ bool js_cocos2dx_Sprite_getResourceType(JSContext *cx, uint32_t argc, JS::Value 
 }
 bool js_cocos2dx_Sprite_initWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Sprite* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -39038,7 +39272,7 @@ bool js_cocos2dx_Sprite_initWithTexture(JSContext *cx, uint32_t argc, JS::Value 
     cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Sprite_initWithTexture : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             cocos2d::Texture2D* arg0 = nullptr;
             do {
@@ -39064,7 +39298,7 @@ bool js_cocos2dx_Sprite_initWithTexture(JSContext *cx, uint32_t argc, JS::Value 
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Texture2D* arg0 = nullptr;
             do {
@@ -39087,7 +39321,7 @@ bool js_cocos2dx_Sprite_initWithTexture(JSContext *cx, uint32_t argc, JS::Value 
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             cocos2d::Texture2D* arg0 = nullptr;
             do {
@@ -39120,7 +39354,7 @@ bool js_cocos2dx_Sprite_initWithTexture(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Sprite_getBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39144,7 +39378,7 @@ bool js_cocos2dx_Sprite_getBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Sprite_getOffsetPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39164,7 +39398,7 @@ bool js_cocos2dx_Sprite_getOffsetPosition(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_Sprite_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39183,6 +39417,7 @@ bool js_cocos2dx_Sprite_removeAllChildrenWithCleanup(JSContext *cx, uint32_t arg
 }
 bool js_cocos2dx_Sprite_setTextureRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Sprite* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -39192,7 +39427,7 @@ bool js_cocos2dx_Sprite_setTextureRect(JSContext *cx, uint32_t argc, JS::Value *
     cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Sprite_setTextureRect : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             cocos2d::Rect arg0;
             ok &= jsval_to_ccrect(cx, args.get(0), &arg0);
@@ -39209,7 +39444,7 @@ bool js_cocos2dx_Sprite_setTextureRect(JSContext *cx, uint32_t argc, JS::Value *
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Rect arg0;
             ok &= jsval_to_ccrect(cx, args.get(0), &arg0);
@@ -39226,7 +39461,7 @@ bool js_cocos2dx_Sprite_setTextureRect(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Sprite_initWithSpriteFrameName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39249,7 +39484,7 @@ bool js_cocos2dx_Sprite_initWithSpriteFrameName(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Sprite_isFrameDisplayed(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39280,7 +39515,7 @@ bool js_cocos2dx_Sprite_isFrameDisplayed(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_Sprite_getAtlasIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39300,7 +39535,7 @@ bool js_cocos2dx_Sprite_getAtlasIndex(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Sprite_setBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39328,7 +39563,7 @@ bool js_cocos2dx_Sprite_setBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Sprite_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39348,7 +39583,7 @@ bool js_cocos2dx_Sprite_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Sprite_setDisplayFrameWithAnimationName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39370,7 +39605,7 @@ bool js_cocos2dx_Sprite_setDisplayFrameWithAnimationName(JSContext *cx, uint32_t
 bool js_cocos2dx_Sprite_setTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39398,7 +39633,7 @@ bool js_cocos2dx_Sprite_setTextureAtlas(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Sprite_getSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39422,7 +39657,7 @@ bool js_cocos2dx_Sprite_getSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Sprite_getResourceName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39442,7 +39677,7 @@ bool js_cocos2dx_Sprite_getResourceName(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Sprite_isDirty(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39462,7 +39697,7 @@ bool js_cocos2dx_Sprite_isDirty(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Sprite_setAtlasIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39482,7 +39717,7 @@ bool js_cocos2dx_Sprite_setAtlasIndex(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Sprite_setDirty(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39502,7 +39737,7 @@ bool js_cocos2dx_Sprite_setDirty(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Sprite_isTextureRectRotated(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39522,7 +39757,7 @@ bool js_cocos2dx_Sprite_isTextureRectRotated(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Sprite_getTextureRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39541,6 +39776,7 @@ bool js_cocos2dx_Sprite_getTextureRect(JSContext *cx, uint32_t argc, JS::Value *
 }
 bool js_cocos2dx_Sprite_initWithFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Sprite* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -39550,7 +39786,7 @@ bool js_cocos2dx_Sprite_initWithFile(JSContext *cx, uint32_t argc, JS::Value *vp
     cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Sprite_initWithFile : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -39568,7 +39804,7 @@ bool js_cocos2dx_Sprite_initWithFile(JSContext *cx, uint32_t argc, JS::Value *vp
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -39588,7 +39824,7 @@ bool js_cocos2dx_Sprite_initWithFile(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Sprite_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39608,7 +39844,7 @@ bool js_cocos2dx_Sprite_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Sprite_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39632,7 +39868,7 @@ bool js_cocos2dx_Sprite_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Sprite_initWithSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39663,7 +39899,7 @@ bool js_cocos2dx_Sprite_initWithSpriteFrame(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Sprite_isFlippedX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39683,7 +39919,7 @@ bool js_cocos2dx_Sprite_isFlippedX(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Sprite_isFlippedY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39703,7 +39939,7 @@ bool js_cocos2dx_Sprite_isFlippedY(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Sprite_setVertexRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Sprite* cobj = (cocos2d::Sprite *)(proxy ? proxy->ptr : NULL);
@@ -39842,7 +40078,7 @@ JSObject *jsb_cocos2d_RenderTexture_prototype;
 bool js_cocos2dx_RenderTexture_setVirtualViewport(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -39866,7 +40102,7 @@ bool js_cocos2dx_RenderTexture_setVirtualViewport(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_RenderTexture_clearStencil(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -39886,7 +40122,7 @@ bool js_cocos2dx_RenderTexture_clearStencil(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_RenderTexture_getClearDepth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -39906,7 +40142,7 @@ bool js_cocos2dx_RenderTexture_getClearDepth(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_RenderTexture_getClearStencil(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -39942,7 +40178,7 @@ bool js_cocos2dx_RenderTexture_end(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_RenderTexture_setClearStencil(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -39962,7 +40198,7 @@ bool js_cocos2dx_RenderTexture_setClearStencil(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_RenderTexture_setSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -39990,7 +40226,7 @@ bool js_cocos2dx_RenderTexture_setSprite(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_RenderTexture_getSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -40014,7 +40250,7 @@ bool js_cocos2dx_RenderTexture_getSprite(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_RenderTexture_isAutoDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -40034,7 +40270,7 @@ bool js_cocos2dx_RenderTexture_isAutoDraw(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_RenderTexture_setKeepMatrix(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -40054,7 +40290,7 @@ bool js_cocos2dx_RenderTexture_setKeepMatrix(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_RenderTexture_setClearFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -40090,7 +40326,7 @@ bool js_cocos2dx_RenderTexture_begin(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_RenderTexture_setAutoDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -40110,7 +40346,7 @@ bool js_cocos2dx_RenderTexture_setAutoDraw(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_RenderTexture_setClearColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -40129,6 +40365,7 @@ bool js_cocos2dx_RenderTexture_setClearColor(JSContext *cx, uint32_t argc, JS::V
 }
 bool js_cocos2dx_RenderTexture_beginWithClear(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::RenderTexture* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -40138,7 +40375,7 @@ bool js_cocos2dx_RenderTexture_beginWithClear(JSContext *cx, uint32_t argc, JS::
     cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_RenderTexture_beginWithClear : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 5) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -40162,7 +40399,7 @@ bool js_cocos2dx_RenderTexture_beginWithClear(JSContext *cx, uint32_t argc, JS::
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 4) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -40183,7 +40420,7 @@ bool js_cocos2dx_RenderTexture_beginWithClear(JSContext *cx, uint32_t argc, JS::
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 6) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -40215,7 +40452,7 @@ bool js_cocos2dx_RenderTexture_beginWithClear(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_RenderTexture_clearDepth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -40235,7 +40472,7 @@ bool js_cocos2dx_RenderTexture_clearDepth(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_RenderTexture_getClearColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -40255,7 +40492,7 @@ bool js_cocos2dx_RenderTexture_getClearColor(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_RenderTexture_clear(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -40281,7 +40518,7 @@ bool js_cocos2dx_RenderTexture_clear(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_RenderTexture_getClearFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -40301,7 +40538,7 @@ bool js_cocos2dx_RenderTexture_getClearFlags(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_RenderTexture_newImage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -40340,7 +40577,7 @@ bool js_cocos2dx_RenderTexture_newImage(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_RenderTexture_setClearDepth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : NULL);
@@ -40359,6 +40596,7 @@ bool js_cocos2dx_RenderTexture_setClearDepth(JSContext *cx, uint32_t argc, JS::V
 }
 bool js_cocos2dx_RenderTexture_initWithWidthAndHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::RenderTexture* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -40368,7 +40606,7 @@ bool js_cocos2dx_RenderTexture_initWithWidthAndHeight(JSContext *cx, uint32_t ar
     cobj = (cocos2d::RenderTexture *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_RenderTexture_initWithWidthAndHeight : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 4) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -40392,7 +40630,7 @@ bool js_cocos2dx_RenderTexture_initWithWidthAndHeight(JSContext *cx, uint32_t ar
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -40420,7 +40658,7 @@ bool js_cocos2dx_RenderTexture_create(JSContext *cx, uint32_t argc, JS::Value *v
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 3) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -40445,7 +40683,7 @@ bool js_cocos2dx_RenderTexture_create(JSContext *cx, uint32_t argc, JS::Value *v
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 4) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -40473,7 +40711,7 @@ bool js_cocos2dx_RenderTexture_create(JSContext *cx, uint32_t argc, JS::Value *v
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -40611,7 +40849,7 @@ JSObject *jsb_cocos2d_GLProgram_prototype;
 bool js_cocos2dx_GLProgram_getFragmentShaderLog(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -40631,7 +40869,7 @@ bool js_cocos2dx_GLProgram_getFragmentShaderLog(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_GLProgram_bindAttribLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -40650,30 +40888,10 @@ bool js_cocos2dx_GLProgram_bindAttribLocation(JSContext *cx, uint32_t argc, JS::
     JS_ReportErrorUTF8(cx, "js_cocos2dx_GLProgram_bindAttribLocation : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
-bool js_cocos2dx_GLProgram_getUniformFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgram_getUniformFlags : Invalid Native Object");
-    if (argc == 0) {
-        const cocos2d::GLProgram::UniformFlags& ret = cobj->getUniformFlags();
-        JS::RootedValue jsret(cx);
-        #pragma warning NO CONVERSION FROM NATIVE FOR UniformFlags;
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_getUniformFlags : error parsing return value");
-        args.rval().set(jsret);
-        return true;
-    }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_GLProgram_getUniformFlags : wrong number of arguments: %d, was expecting %d", argc, 0);
-    return false;
-}
 bool js_cocos2dx_GLProgram_getUniformLocationForName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -40712,7 +40930,7 @@ bool js_cocos2dx_GLProgram_use(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_GLProgram_getVertexShaderLog(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -40732,7 +40950,7 @@ bool js_cocos2dx_GLProgram_getVertexShaderLog(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_GLProgram_getUniform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -40754,6 +40972,7 @@ bool js_cocos2dx_GLProgram_getUniform(JSContext *cx, uint32_t argc, JS::Value *v
 }
 bool js_cocos2dx_GLProgram_initWithByteArrays(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::GLProgram* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -40763,7 +40982,7 @@ bool js_cocos2dx_GLProgram_initWithByteArrays(JSContext *cx, uint32_t argc, JS::
     cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgram_initWithByteArrays : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             const char* arg0 = nullptr;
             std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
@@ -40784,7 +41003,7 @@ bool js_cocos2dx_GLProgram_initWithByteArrays(JSContext *cx, uint32_t argc, JS::
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             const char* arg0 = nullptr;
             std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
@@ -40807,7 +41026,7 @@ bool js_cocos2dx_GLProgram_initWithByteArrays(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_GLProgram_setUniformLocationWith1f(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -40828,6 +41047,7 @@ bool js_cocos2dx_GLProgram_setUniformLocationWith1f(JSContext *cx, uint32_t argc
 }
 bool js_cocos2dx_GLProgram_initWithFilenames(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::GLProgram* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -40837,7 +41057,7 @@ bool js_cocos2dx_GLProgram_initWithFilenames(JSContext *cx, uint32_t argc, JS::V
     cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgram_initWithFilenames : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -40858,7 +41078,7 @@ bool js_cocos2dx_GLProgram_initWithFilenames(JSContext *cx, uint32_t argc, JS::V
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -40881,7 +41101,7 @@ bool js_cocos2dx_GLProgram_initWithFilenames(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_GLProgram_setUniformLocationWith3f(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -40906,6 +41126,7 @@ bool js_cocos2dx_GLProgram_setUniformLocationWith3f(JSContext *cx, uint32_t argc
 }
 bool js_cocos2dx_GLProgram_setUniformsForBuiltins(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::GLProgram* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -40915,6 +41136,7 @@ bool js_cocos2dx_GLProgram_setUniformsForBuiltins(JSContext *cx, uint32_t argc, 
     cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgram_setUniformsForBuiltins : Invalid Native Object");
     do {
+        ok = true;
         if (argc == 0) {
             cobj->setUniformsForBuiltins();
             args.rval().setUndefined();
@@ -40923,7 +41145,7 @@ bool js_cocos2dx_GLProgram_setUniformsForBuiltins(JSContext *cx, uint32_t argc, 
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Mat4 arg0;
             ok &= jsval_to_matrix(cx, args.get(0), &arg0);
@@ -40940,7 +41162,7 @@ bool js_cocos2dx_GLProgram_setUniformsForBuiltins(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_GLProgram_setUniformLocationWith3i(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -40966,7 +41188,7 @@ bool js_cocos2dx_GLProgram_setUniformLocationWith3i(JSContext *cx, uint32_t argc
 bool js_cocos2dx_GLProgram_setUniformLocationWith4f(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -41010,7 +41232,7 @@ bool js_cocos2dx_GLProgram_updateUniforms(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_GLProgram_getUniformLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -41033,7 +41255,7 @@ bool js_cocos2dx_GLProgram_getUniformLocation(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_GLProgram_link(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -41069,7 +41291,7 @@ bool js_cocos2dx_GLProgram_reset(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_GLProgram_getAttribLocation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -41089,33 +41311,10 @@ bool js_cocos2dx_GLProgram_getAttribLocation(JSContext *cx, uint32_t argc, JS::V
     JS_ReportErrorUTF8(cx, "js_cocos2dx_GLProgram_getAttribLocation : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_cocos2dx_GLProgram_getVertexAttrib(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_GLProgram_getVertexAttrib : Invalid Native Object");
-    if (argc == 1) {
-        std::string arg0;
-        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_getVertexAttrib : Error processing arguments");
-        cocos2d::VertexAttrib* ret = cobj->getVertexAttrib(arg0);
-        JS::RootedValue jsret(cx);
-        #pragma warning NO CONVERSION FROM NATIVE FOR VertexAttrib*;
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgram_getVertexAttrib : error parsing return value");
-        args.rval().set(jsret);
-        return true;
-    }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_GLProgram_getVertexAttrib : wrong number of arguments: %d, was expecting %d", argc, 1);
-    return false;
-}
 bool js_cocos2dx_GLProgram_setUniformLocationWith2f(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -41139,7 +41338,7 @@ bool js_cocos2dx_GLProgram_setUniformLocationWith2f(JSContext *cx, uint32_t argc
 bool js_cocos2dx_GLProgram_setUniformLocationWith4i(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -41167,7 +41366,7 @@ bool js_cocos2dx_GLProgram_setUniformLocationWith4i(JSContext *cx, uint32_t argc
 bool js_cocos2dx_GLProgram_setUniformLocationWith1i(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -41189,7 +41388,7 @@ bool js_cocos2dx_GLProgram_setUniformLocationWith1i(JSContext *cx, uint32_t argc
 bool js_cocos2dx_GLProgram_setUniformLocationWith2i(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram *)(proxy ? proxy->ptr : NULL);
@@ -41215,7 +41414,7 @@ bool js_cocos2dx_GLProgram_createWithByteArrays(JSContext *cx, uint32_t argc, JS
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 3) {
             const char* arg0 = nullptr;
             std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
@@ -41240,7 +41439,7 @@ bool js_cocos2dx_GLProgram_createWithByteArrays(JSContext *cx, uint32_t argc, JS
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             const char* arg0 = nullptr;
             std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
@@ -41268,7 +41467,7 @@ bool js_cocos2dx_GLProgram_createWithFilenames(JSContext *cx, uint32_t argc, JS:
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -41293,7 +41492,7 @@ bool js_cocos2dx_GLProgram_createWithFilenames(JSContext *cx, uint32_t argc, JS:
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -41372,7 +41571,6 @@ void js_register_cocos2dx_GLProgram(JSContext *cx, JS::HandleObject global) {
     static JSFunctionSpec funcs[] = {
         JS_FN("getFragmentShaderLog", js_cocos2dx_GLProgram_getFragmentShaderLog, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("addAttribute", js_cocos2dx_GLProgram_bindAttribLocation, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("getUniformFlags", js_cocos2dx_GLProgram_getUniformFlags, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getUniformLocationForName", js_cocos2dx_GLProgram_getUniformLocationForName, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("use", js_cocos2dx_GLProgram_use, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getVertexShaderLog", js_cocos2dx_GLProgram_getVertexShaderLog, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -41389,7 +41587,6 @@ void js_register_cocos2dx_GLProgram(JSContext *cx, JS::HandleObject global) {
         JS_FN("link", js_cocos2dx_GLProgram_link, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("reset", js_cocos2dx_GLProgram_reset, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getAttribLocation", js_cocos2dx_GLProgram_getAttribLocation, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("getVertexAttrib", js_cocos2dx_GLProgram_getVertexAttrib, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setUniformLocationWith2f", js_cocos2dx_GLProgram_setUniformLocationWith2f, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setUniformLocationWith4i", js_cocos2dx_GLProgram_setUniformLocationWith4i, 5, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setUniformLocationI32", js_cocos2dx_GLProgram_setUniformLocationWith1i, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -41464,7 +41661,7 @@ bool js_cocos2dx_GLProgramCache_reloadDefaultGLProgramsRelativeToLights(JSContex
 bool js_cocos2dx_GLProgramCache_addGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramCache* cobj = (cocos2d::GLProgramCache *)(proxy ? proxy->ptr : NULL);
@@ -41510,7 +41707,7 @@ bool js_cocos2dx_GLProgramCache_reloadDefaultGLPrograms(JSContext *cx, uint32_t 
 bool js_cocos2dx_GLProgramCache_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::GLProgramCache* cobj = (cocos2d::GLProgramCache *)(proxy ? proxy->ptr : NULL);
@@ -41549,7 +41746,7 @@ bool js_cocos2dx_GLProgramCache_destroyInstance(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_GLProgramCache_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::GLProgramCache::getInstance();
@@ -41639,7 +41836,7 @@ JSObject *jsb_cocos2d_RenderState_prototype;
 bool js_cocos2dx_RenderState_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderState* cobj = (cocos2d::RenderState *)(proxy ? proxy->ptr : NULL);
@@ -41667,7 +41864,7 @@ bool js_cocos2dx_RenderState_setTexture(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_RenderState_getTopmost(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderState* cobj = (cocos2d::RenderState *)(proxy ? proxy->ptr : NULL);
@@ -41702,7 +41899,7 @@ bool js_cocos2dx_RenderState_getTopmost(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_RenderState_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderState* cobj = (cocos2d::RenderState *)(proxy ? proxy->ptr : NULL);
@@ -41726,7 +41923,7 @@ bool js_cocos2dx_RenderState_getTexture(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_RenderState_bind(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderState* cobj = (cocos2d::RenderState *)(proxy ? proxy->ptr : NULL);
@@ -41754,7 +41951,7 @@ bool js_cocos2dx_RenderState_bind(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_RenderState_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderState* cobj = (cocos2d::RenderState *)(proxy ? proxy->ptr : NULL);
@@ -41774,7 +41971,7 @@ bool js_cocos2dx_RenderState_getName(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_RenderState_getStateBlock(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderState* cobj = (cocos2d::RenderState *)(proxy ? proxy->ptr : NULL);
@@ -41798,7 +41995,7 @@ bool js_cocos2dx_RenderState_getStateBlock(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_RenderState_setParent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::RenderState* cobj = (cocos2d::RenderState *)(proxy ? proxy->ptr : NULL);
@@ -41921,6 +42118,7 @@ bool js_cocos2dx_Pass_unbind(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 bool js_cocos2dx_Pass_bind(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::Pass* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -41930,7 +42128,7 @@ bool js_cocos2dx_Pass_bind(JSContext *cx, uint32_t argc, JS::Value *vp)
     cobj = (cocos2d::Pass *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Pass_bind : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             cocos2d::Mat4 arg0;
             ok &= jsval_to_matrix(cx, args.get(0), &arg0);
@@ -41944,7 +42142,7 @@ bool js_cocos2dx_Pass_bind(JSContext *cx, uint32_t argc, JS::Value *vp)
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Mat4 arg0;
             ok &= jsval_to_matrix(cx, args.get(0), &arg0);
@@ -41961,7 +42159,7 @@ bool js_cocos2dx_Pass_bind(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Pass_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Pass* cobj = (cocos2d::Pass *)(proxy ? proxy->ptr : NULL);
@@ -41985,7 +42183,7 @@ bool js_cocos2dx_Pass_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Pass_getGLProgramState(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Pass* cobj = (cocos2d::Pass *)(proxy ? proxy->ptr : NULL);
@@ -42009,7 +42207,7 @@ bool js_cocos2dx_Pass_getGLProgramState(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Pass_getVertexAttributeBinding(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Pass* cobj = (cocos2d::Pass *)(proxy ? proxy->ptr : NULL);
@@ -42033,7 +42231,7 @@ bool js_cocos2dx_Pass_getVertexAttributeBinding(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Pass_getHash(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Pass* cobj = (cocos2d::Pass *)(proxy ? proxy->ptr : NULL);
@@ -42053,7 +42251,7 @@ bool js_cocos2dx_Pass_getHash(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Pass_setVertexAttribBinding(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Pass* cobj = (cocos2d::Pass *)(proxy ? proxy->ptr : NULL);
@@ -42081,7 +42279,7 @@ bool js_cocos2dx_Pass_setVertexAttribBinding(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Pass_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::Technique* arg0 = nullptr;
         do {
@@ -42108,7 +42306,7 @@ bool js_cocos2dx_Pass_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Pass_createWithGLProgramState(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         cocos2d::Technique* arg0 = nullptr;
         cocos2d::GLProgramState* arg1 = nullptr;
@@ -42203,7 +42401,7 @@ JSObject *jsb_cocos2d_Material_prototype;
 bool js_cocos2dx_Material_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -42227,7 +42425,7 @@ bool js_cocos2dx_Material_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Material_getTechniqueCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -42247,7 +42445,7 @@ bool js_cocos2dx_Material_getTechniqueCount(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Material_setName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -42267,7 +42465,7 @@ bool js_cocos2dx_Material_setName(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Material_getTechniqueByIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -42294,7 +42492,7 @@ bool js_cocos2dx_Material_getTechniqueByIndex(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_Material_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -42314,7 +42512,7 @@ bool js_cocos2dx_Material_getName(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Material_getTechniques(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -42334,7 +42532,7 @@ bool js_cocos2dx_Material_getTechniques(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Material_setTechnique(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -42354,7 +42552,7 @@ bool js_cocos2dx_Material_setTechnique(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Material_getTechniqueByName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -42381,7 +42579,7 @@ bool js_cocos2dx_Material_getTechniqueByName(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Material_addTechnique(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -42409,7 +42607,7 @@ bool js_cocos2dx_Material_addTechnique(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Material_getTechnique(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Material* cobj = (cocos2d::Material *)(proxy ? proxy->ptr : NULL);
@@ -42433,7 +42631,7 @@ bool js_cocos2dx_Material_getTechnique(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_Material_createWithFilename(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         std::string arg0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -42452,7 +42650,7 @@ bool js_cocos2dx_Material_createWithFilename(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Material_createWithGLStateProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::GLProgramState* arg0 = nullptr;
         do {
@@ -42479,7 +42677,7 @@ bool js_cocos2dx_Material_createWithGLStateProgram(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_Material_createWithProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::Properties* arg0 = nullptr;
         do {
@@ -42568,7 +42766,7 @@ JSObject *jsb_cocos2d_TextureCache_prototype;
 bool js_cocos2dx_TextureCache_reloadTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : NULL);
@@ -42607,7 +42805,7 @@ bool js_cocos2dx_TextureCache_unbindAllImageAsync(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_TextureCache_removeTextureForKey(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : NULL);
@@ -42643,7 +42841,7 @@ bool js_cocos2dx_TextureCache_removeAllTextures(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_TextureCache_addImageAsync(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : NULL);
@@ -42696,7 +42894,7 @@ bool js_cocos2dx_TextureCache_addImageAsync(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TextureCache_getAllTextures(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : NULL);
@@ -42716,7 +42914,7 @@ bool js_cocos2dx_TextureCache_getAllTextures(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TextureCache_getDescription(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : NULL);
@@ -42736,7 +42934,7 @@ bool js_cocos2dx_TextureCache_getDescription(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TextureCache_getCachedTextureInfo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : NULL);
@@ -42755,6 +42953,7 @@ bool js_cocos2dx_TextureCache_getCachedTextureInfo(JSContext *cx, uint32_t argc,
 }
 bool js_cocos2dx_TextureCache_addImage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::TextureCache* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -42764,7 +42963,7 @@ bool js_cocos2dx_TextureCache_addImage(JSContext *cx, uint32_t argc, JS::Value *
     cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TextureCache_addImage : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             cocos2d::Image* arg0 = nullptr;
             do {
@@ -42794,7 +42993,7 @@ bool js_cocos2dx_TextureCache_addImage(JSContext *cx, uint32_t argc, JS::Value *
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -42818,7 +43017,7 @@ bool js_cocos2dx_TextureCache_addImage(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_TextureCache_unbindImageAsync(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : NULL);
@@ -42838,7 +43037,7 @@ bool js_cocos2dx_TextureCache_unbindImageAsync(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_TextureCache_getTextureForKey(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : NULL);
@@ -42865,7 +43064,7 @@ bool js_cocos2dx_TextureCache_getTextureForKey(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_TextureCache_getTextureFilePath(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : NULL);
@@ -42896,7 +43095,7 @@ bool js_cocos2dx_TextureCache_getTextureFilePath(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_TextureCache_renameTextureWithKey(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : NULL);
@@ -42934,7 +43133,7 @@ bool js_cocos2dx_TextureCache_removeUnusedTextures(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_TextureCache_removeTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache *)(proxy ? proxy->ptr : NULL);
@@ -43057,7 +43256,7 @@ JSObject *jsb_cocos2d_Device_prototype;
 bool js_cocos2dx_Device_setAccelerometerEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         bool arg0;
         arg0 = args.get(0).toBoolean();
@@ -43073,7 +43272,7 @@ bool js_cocos2dx_Device_setAccelerometerEnabled(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Device_setAccelerometerInterval(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         double arg0 = 0;
         arg0 = (float)(args.get(0).toNumber());
@@ -43089,7 +43288,7 @@ bool js_cocos2dx_Device_setAccelerometerInterval(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_Device_setKeepScreenOn(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         bool arg0;
         arg0 = args.get(0).toBoolean();
@@ -43105,7 +43304,7 @@ bool js_cocos2dx_Device_setKeepScreenOn(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_Device_vibrate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         double arg0 = 0;
         arg0 = (float)(args.get(0).toNumber());
@@ -43121,7 +43320,7 @@ bool js_cocos2dx_Device_vibrate(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_Device_getDPI(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         int ret = cocos2d::Device::getDPI();
@@ -43186,7 +43385,7 @@ JSObject *jsb_cocos2d_SAXParser_prototype;
 bool js_cocos2dx_SAXParser_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SAXParser* cobj = (cocos2d::SAXParser *)(proxy ? proxy->ptr : NULL);
@@ -43253,7 +43452,7 @@ JSObject *jsb_cocos2d_Application_prototype;
 bool js_cocos2dx_Application_getTargetPlatform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Application* cobj = (cocos2d::Application *)(proxy ? proxy->ptr : NULL);
@@ -43273,7 +43472,7 @@ bool js_cocos2dx_Application_getTargetPlatform(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_Application_getCurrentLanguage(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Application* cobj = (cocos2d::Application *)(proxy ? proxy->ptr : NULL);
@@ -43293,7 +43492,7 @@ bool js_cocos2dx_Application_getCurrentLanguage(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_Application_openURL(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Application* cobj = (cocos2d::Application *)(proxy ? proxy->ptr : NULL);
@@ -43316,7 +43515,7 @@ bool js_cocos2dx_Application_openURL(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_Application_getVersion(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Application* cobj = (cocos2d::Application *)(proxy ? proxy->ptr : NULL);
@@ -43348,7 +43547,7 @@ bool js_cocos2dx_Application_destroyInstance(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_Application_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         cocos2d::Application* ret = cocos2d::Application::getInstance();
@@ -43422,7 +43621,7 @@ JSObject *jsb_cocos2d_SpriteBatchNode_prototype;
 bool js_cocos2dx_SpriteBatchNode_appendChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43450,7 +43649,7 @@ bool js_cocos2dx_SpriteBatchNode_appendChild(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_SpriteBatchNode_addSpriteWithoutQuad(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43489,7 +43688,7 @@ bool js_cocos2dx_SpriteBatchNode_addSpriteWithoutQuad(JSContext *cx, uint32_t ar
 bool js_cocos2dx_SpriteBatchNode_reorderBatch(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43509,7 +43708,7 @@ bool js_cocos2dx_SpriteBatchNode_reorderBatch(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_SpriteBatchNode_initWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43561,7 +43760,7 @@ bool js_cocos2dx_SpriteBatchNode_initWithTexture(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_SpriteBatchNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43581,7 +43780,7 @@ bool js_cocos2dx_SpriteBatchNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_SpriteBatchNode_lowestAtlasIndexInChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43612,7 +43811,7 @@ bool js_cocos2dx_SpriteBatchNode_lowestAtlasIndexInChild(JSContext *cx, uint32_t
 bool js_cocos2dx_SpriteBatchNode_atlasIndexForChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43645,7 +43844,7 @@ bool js_cocos2dx_SpriteBatchNode_atlasIndexForChild(JSContext *cx, uint32_t argc
 bool js_cocos2dx_SpriteBatchNode_setTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43673,7 +43872,7 @@ bool js_cocos2dx_SpriteBatchNode_setTextureAtlas(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_SpriteBatchNode_initWithFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43709,7 +43908,7 @@ bool js_cocos2dx_SpriteBatchNode_initWithFile(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_SpriteBatchNode_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43749,7 +43948,7 @@ bool js_cocos2dx_SpriteBatchNode_increaseAtlasCapacity(JSContext *cx, uint32_t a
 bool js_cocos2dx_SpriteBatchNode_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43773,7 +43972,7 @@ bool js_cocos2dx_SpriteBatchNode_getTextureAtlas(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_SpriteBatchNode_insertQuadFromSprite(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43803,7 +44002,7 @@ bool js_cocos2dx_SpriteBatchNode_insertQuadFromSprite(JSContext *cx, uint32_t ar
 bool js_cocos2dx_SpriteBatchNode_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43831,7 +44030,7 @@ bool js_cocos2dx_SpriteBatchNode_setTexture(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_SpriteBatchNode_rebuildIndexInOrder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43864,7 +44063,7 @@ bool js_cocos2dx_SpriteBatchNode_rebuildIndexInOrder(JSContext *cx, uint32_t arg
 bool js_cocos2dx_SpriteBatchNode_highestAtlasIndexInChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43895,7 +44094,7 @@ bool js_cocos2dx_SpriteBatchNode_highestAtlasIndexInChild(JSContext *cx, uint32_
 bool js_cocos2dx_SpriteBatchNode_removeChildAtIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43917,7 +44116,7 @@ bool js_cocos2dx_SpriteBatchNode_removeChildAtIndex(JSContext *cx, uint32_t argc
 bool js_cocos2dx_SpriteBatchNode_removeSpriteFromAtlas(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43945,7 +44144,7 @@ bool js_cocos2dx_SpriteBatchNode_removeSpriteFromAtlas(JSContext *cx, uint32_t a
 bool js_cocos2dx_SpriteBatchNode_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode *)(proxy ? proxy->ptr : NULL);
@@ -43965,7 +44164,7 @@ bool js_cocos2dx_SpriteBatchNode_setBlendFunc(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_SpriteBatchNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         std::string arg0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -43997,7 +44196,7 @@ bool js_cocos2dx_SpriteBatchNode_create(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_SpriteBatchNode_createWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         cocos2d::Texture2D* arg0 = nullptr;
         do {
@@ -44155,7 +44354,7 @@ JSObject *jsb_cocos2d_SpriteFrameCache_prototype;
 bool js_cocos2dx_SpriteFrameCache_reloadTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrameCache* cobj = (cocos2d::SpriteFrameCache *)(proxy ? proxy->ptr : NULL);
@@ -44178,7 +44377,7 @@ bool js_cocos2dx_SpriteFrameCache_reloadTexture(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_SpriteFrameCache_addSpriteFramesWithFileContent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrameCache* cobj = (cocos2d::SpriteFrameCache *)(proxy ? proxy->ptr : NULL);
@@ -44208,7 +44407,7 @@ bool js_cocos2dx_SpriteFrameCache_addSpriteFramesWithFileContent(JSContext *cx, 
 bool js_cocos2dx_SpriteFrameCache_addSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrameCache* cobj = (cocos2d::SpriteFrameCache *)(proxy ? proxy->ptr : NULL);
@@ -44237,6 +44436,7 @@ bool js_cocos2dx_SpriteFrameCache_addSpriteFrame(JSContext *cx, uint32_t argc, J
 }
 bool js_cocos2dx_SpriteFrameCache_addSpriteFramesWithFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::SpriteFrameCache* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -44246,7 +44446,7 @@ bool js_cocos2dx_SpriteFrameCache_addSpriteFramesWithFile(JSContext *cx, uint32_
     cobj = (cocos2d::SpriteFrameCache *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_SpriteFrameCache_addSpriteFramesWithFile : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -44261,7 +44461,7 @@ bool js_cocos2dx_SpriteFrameCache_addSpriteFramesWithFile(JSContext *cx, uint32_
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -44273,7 +44473,7 @@ bool js_cocos2dx_SpriteFrameCache_addSpriteFramesWithFile(JSContext *cx, uint32_
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -44301,7 +44501,7 @@ bool js_cocos2dx_SpriteFrameCache_addSpriteFramesWithFile(JSContext *cx, uint32_
 bool js_cocos2dx_SpriteFrameCache_getSpriteFrameByName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrameCache* cobj = (cocos2d::SpriteFrameCache *)(proxy ? proxy->ptr : NULL);
@@ -44328,7 +44528,7 @@ bool js_cocos2dx_SpriteFrameCache_getSpriteFrameByName(JSContext *cx, uint32_t a
 bool js_cocos2dx_SpriteFrameCache_removeSpriteFramesFromFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrameCache* cobj = (cocos2d::SpriteFrameCache *)(proxy ? proxy->ptr : NULL);
@@ -44348,7 +44548,7 @@ bool js_cocos2dx_SpriteFrameCache_removeSpriteFramesFromFile(JSContext *cx, uint
 bool js_cocos2dx_SpriteFrameCache_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrameCache* cobj = (cocos2d::SpriteFrameCache *)(proxy ? proxy->ptr : NULL);
@@ -44400,7 +44600,7 @@ bool js_cocos2dx_SpriteFrameCache_removeUnusedSpriteFrames(JSContext *cx, uint32
 bool js_cocos2dx_SpriteFrameCache_removeSpriteFramesFromFileContent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrameCache* cobj = (cocos2d::SpriteFrameCache *)(proxy ? proxy->ptr : NULL);
@@ -44420,7 +44620,7 @@ bool js_cocos2dx_SpriteFrameCache_removeSpriteFramesFromFileContent(JSContext *c
 bool js_cocos2dx_SpriteFrameCache_removeSpriteFrameByName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrameCache* cobj = (cocos2d::SpriteFrameCache *)(proxy ? proxy->ptr : NULL);
@@ -44440,7 +44640,7 @@ bool js_cocos2dx_SpriteFrameCache_removeSpriteFrameByName(JSContext *cx, uint32_
 bool js_cocos2dx_SpriteFrameCache_isSpriteFramesWithFileLoaded(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrameCache* cobj = (cocos2d::SpriteFrameCache *)(proxy ? proxy->ptr : NULL);
@@ -44463,7 +44663,7 @@ bool js_cocos2dx_SpriteFrameCache_isSpriteFramesWithFileLoaded(JSContext *cx, ui
 bool js_cocos2dx_SpriteFrameCache_removeSpriteFramesFromTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::SpriteFrameCache* cobj = (cocos2d::SpriteFrameCache *)(proxy ? proxy->ptr : NULL);
@@ -44503,7 +44703,7 @@ bool js_cocos2dx_SpriteFrameCache_destroyInstance(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_SpriteFrameCache_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::SpriteFrameCache::getInstance();
@@ -44581,7 +44781,7 @@ JSObject *jsb_cocos2d_TextFieldTTF_prototype;
 bool js_cocos2dx_TextFieldTTF_getCharCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44601,7 +44801,7 @@ bool js_cocos2dx_TextFieldTTF_getCharCount(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TextFieldTTF_setCursorChar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44621,7 +44821,7 @@ bool js_cocos2dx_TextFieldTTF_setCursorChar(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TextFieldTTF_setSecureTextEntry(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44641,7 +44841,7 @@ bool js_cocos2dx_TextFieldTTF_setSecureTextEntry(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_TextFieldTTF_setCursorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44661,7 +44861,7 @@ bool js_cocos2dx_TextFieldTTF_setCursorEnabled(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_TextFieldTTF_getColorSpaceHolder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44680,6 +44880,7 @@ bool js_cocos2dx_TextFieldTTF_getColorSpaceHolder(JSContext *cx, uint32_t argc, 
 }
 bool js_cocos2dx_TextFieldTTF_initWithPlaceHolder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::TextFieldTTF* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -44689,7 +44890,7 @@ bool js_cocos2dx_TextFieldTTF_initWithPlaceHolder(JSContext *cx, uint32_t argc, 
     cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TextFieldTTF_initWithPlaceHolder : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -44710,7 +44911,7 @@ bool js_cocos2dx_TextFieldTTF_initWithPlaceHolder(JSContext *cx, uint32_t argc, 
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 5) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -44742,7 +44943,7 @@ bool js_cocos2dx_TextFieldTTF_initWithPlaceHolder(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_TextFieldTTF_appendString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44762,7 +44963,7 @@ bool js_cocos2dx_TextFieldTTF_appendString(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TextFieldTTF_getPasswordTextStyle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44782,7 +44983,7 @@ bool js_cocos2dx_TextFieldTTF_getPasswordTextStyle(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_TextFieldTTF_setPasswordTextStyle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44801,6 +45002,7 @@ bool js_cocos2dx_TextFieldTTF_setPasswordTextStyle(JSContext *cx, uint32_t argc,
 }
 bool js_cocos2dx_TextFieldTTF_setColorSpaceHolder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::TextFieldTTF* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -44810,7 +45012,7 @@ bool js_cocos2dx_TextFieldTTF_setColorSpaceHolder(JSContext *cx, uint32_t argc, 
     cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TextFieldTTF_setColorSpaceHolder : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Color4B arg0;
             ok &= jsval_to_cccolor4b(cx, args.get(0), &arg0);
@@ -44822,7 +45024,7 @@ bool js_cocos2dx_TextFieldTTF_setColorSpaceHolder(JSContext *cx, uint32_t argc, 
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Color3B arg0;
             ok &= jsval_to_cccolor3b(cx, args.get(0), &arg0);
@@ -44839,7 +45041,7 @@ bool js_cocos2dx_TextFieldTTF_setColorSpaceHolder(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_TextFieldTTF_detachWithIME(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44859,7 +45061,7 @@ bool js_cocos2dx_TextFieldTTF_detachWithIME(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TextFieldTTF_setPlaceHolder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44879,7 +45081,7 @@ bool js_cocos2dx_TextFieldTTF_setPlaceHolder(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TextFieldTTF_setCursorFromPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44899,7 +45101,7 @@ bool js_cocos2dx_TextFieldTTF_setCursorFromPoint(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_TextFieldTTF_isSecureTextEntry(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44919,7 +45121,7 @@ bool js_cocos2dx_TextFieldTTF_isSecureTextEntry(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_TextFieldTTF_getPlaceHolder(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44939,7 +45141,7 @@ bool js_cocos2dx_TextFieldTTF_getPlaceHolder(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TextFieldTTF_setCursorPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44959,7 +45161,7 @@ bool js_cocos2dx_TextFieldTTF_setCursorPosition(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_TextFieldTTF_attachWithIME(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF *)(proxy ? proxy->ptr : NULL);
@@ -44981,7 +45183,7 @@ bool js_cocos2dx_TextFieldTTF_textFieldWithPlaceHolder(JSContext *cx, uint32_t a
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -45006,7 +45208,7 @@ bool js_cocos2dx_TextFieldTTF_textFieldWithPlaceHolder(JSContext *cx, uint32_t a
     } while (0);
     
     do {
-        bool ok = true;
+        bool ok = true; CC_UNUSED_PARAM(ok);
         if (argc == 5) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -45148,7 +45350,7 @@ JSObject *jsb_cocos2d_ParallaxNode_prototype;
 bool js_cocos2dx_ParallaxNode_addChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParallaxNode* cobj = (cocos2d::ParallaxNode *)(proxy ? proxy->ptr : NULL);
@@ -45182,7 +45384,7 @@ bool js_cocos2dx_ParallaxNode_addChild(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_ParallaxNode_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ParallaxNode* cobj = (cocos2d::ParallaxNode *)(proxy ? proxy->ptr : NULL);
@@ -45202,7 +45404,7 @@ bool js_cocos2dx_ParallaxNode_removeAllChildrenWithCleanup(JSContext *cx, uint32
 bool js_cocos2dx_ParallaxNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = cocos2d::ParallaxNode::create();
@@ -45310,7 +45512,7 @@ JSObject *jsb_cocos2d_TMXObject_prototype;
 bool js_cocos2dx_TMXObject_getGid(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -45330,7 +45532,7 @@ bool js_cocos2dx_TMXObject_getGid(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_TMXObject_setObjectName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -45350,7 +45552,7 @@ bool js_cocos2dx_TMXObject_setObjectName(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXObject_getObjectSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -45370,7 +45572,7 @@ bool js_cocos2dx_TMXObject_getObjectSize(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXObject_getProperty(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -45393,7 +45595,7 @@ bool js_cocos2dx_TMXObject_getProperty(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_TMXObject_getObjectVisible(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -45413,7 +45615,7 @@ bool js_cocos2dx_TMXObject_getObjectVisible(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXObject_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -45433,7 +45635,7 @@ bool js_cocos2dx_TMXObject_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_TMXObject_getId(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -45453,7 +45655,7 @@ bool js_cocos2dx_TMXObject_getId(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_TMXObject_getObjectRotation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -45473,7 +45675,7 @@ bool js_cocos2dx_TMXObject_getObjectRotation(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TMXObject_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -45493,7 +45695,7 @@ bool js_cocos2dx_TMXObject_getProperties(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXObject_getOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -45513,7 +45715,7 @@ bool js_cocos2dx_TMXObject_getOffset(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_TMXObject_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -45533,7 +45735,7 @@ bool js_cocos2dx_TMXObject_setProperties(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXObject_getObjectName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -45553,7 +45755,7 @@ bool js_cocos2dx_TMXObject_getObjectName(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXObject_getNode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject *)(proxy ? proxy->ptr : NULL);
@@ -45836,7 +46038,7 @@ JSObject *jsb_cocos2d_TMXObjectGroup_prototype;
 bool js_cocos2dx_TMXObjectGroup_setPositionOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObjectGroup* cobj = (cocos2d::TMXObjectGroup *)(proxy ? proxy->ptr : NULL);
@@ -45856,7 +46058,7 @@ bool js_cocos2dx_TMXObjectGroup_setPositionOffset(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_TMXObjectGroup_getProperty(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObjectGroup* cobj = (cocos2d::TMXObjectGroup *)(proxy ? proxy->ptr : NULL);
@@ -45879,7 +46081,7 @@ bool js_cocos2dx_TMXObjectGroup_getProperty(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXObjectGroup_getPositionOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObjectGroup* cobj = (cocos2d::TMXObjectGroup *)(proxy ? proxy->ptr : NULL);
@@ -45899,7 +46101,7 @@ bool js_cocos2dx_TMXObjectGroup_getPositionOffset(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_TMXObjectGroup_getObject(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObjectGroup* cobj = (cocos2d::TMXObjectGroup *)(proxy ? proxy->ptr : NULL);
@@ -45926,7 +46128,7 @@ bool js_cocos2dx_TMXObjectGroup_getObject(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_TMXObjectGroup_getObjects(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObjectGroup* cobj = (cocos2d::TMXObjectGroup *)(proxy ? proxy->ptr : NULL);
@@ -45946,7 +46148,7 @@ bool js_cocos2dx_TMXObjectGroup_getObjects(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TMXObjectGroup_setGroupName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObjectGroup* cobj = (cocos2d::TMXObjectGroup *)(proxy ? proxy->ptr : NULL);
@@ -45965,6 +46167,7 @@ bool js_cocos2dx_TMXObjectGroup_setGroupName(JSContext *cx, uint32_t argc, JS::V
 }
 bool js_cocos2dx_TMXObjectGroup_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::TMXObjectGroup* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -45974,7 +46177,7 @@ bool js_cocos2dx_TMXObjectGroup_getProperties(JSContext *cx, uint32_t argc, JS::
     cobj = (cocos2d::TMXObjectGroup *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXObjectGroup_getProperties : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             cocos2d::ValueMap& ret = cobj->getProperties();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -45986,7 +46189,7 @@ bool js_cocos2dx_TMXObjectGroup_getProperties(JSContext *cx, uint32_t argc, JS::
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const cocos2d::ValueMap& ret = cobj->getProperties();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -46003,7 +46206,7 @@ bool js_cocos2dx_TMXObjectGroup_getProperties(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_TMXObjectGroup_getGroupName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObjectGroup* cobj = (cocos2d::TMXObjectGroup *)(proxy ? proxy->ptr : NULL);
@@ -46023,7 +46226,7 @@ bool js_cocos2dx_TMXObjectGroup_getGroupName(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TMXObjectGroup_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObjectGroup* cobj = (cocos2d::TMXObjectGroup *)(proxy ? proxy->ptr : NULL);
@@ -46138,7 +46341,7 @@ JSObject *jsb_cocos2d_TMXLayerInfo_prototype;
 bool js_cocos2dx_TMXLayerInfo_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayerInfo* cobj = (cocos2d::TMXLayerInfo *)(proxy ? proxy->ptr : NULL);
@@ -46158,7 +46361,7 @@ bool js_cocos2dx_TMXLayerInfo_setProperties(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXLayerInfo_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayerInfo* cobj = (cocos2d::TMXLayerInfo *)(proxy ? proxy->ptr : NULL);
@@ -46247,7 +46450,7 @@ JSObject *jsb_cocos2d_TMXObjectGroupInfo_prototype;
 bool js_cocos2dx_TMXObjectGroupInfo_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObjectGroupInfo* cobj = (cocos2d::TMXObjectGroupInfo *)(proxy ? proxy->ptr : NULL);
@@ -46267,7 +46470,7 @@ bool js_cocos2dx_TMXObjectGroupInfo_setProperties(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_TMXObjectGroupInfo_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXObjectGroupInfo* cobj = (cocos2d::TMXObjectGroupInfo *)(proxy ? proxy->ptr : NULL);
@@ -46356,7 +46559,7 @@ JSObject *jsb_cocos2d_TMXTilesetInfo_prototype;
 bool js_cocos2dx_TMXTilesetInfo_getRectForGID(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTilesetInfo* cobj = (cocos2d::TMXTilesetInfo *)(proxy ? proxy->ptr : NULL);
@@ -46446,6 +46649,7 @@ JSObject *jsb_cocos2d_TMXMapInfo_prototype;
 
 bool js_cocos2dx_TMXMapInfo_getAllChildren(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::TMXMapInfo* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -46455,7 +46659,7 @@ bool js_cocos2dx_TMXMapInfo_getAllChildren(JSContext *cx, uint32_t argc, JS::Val
     cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXMapInfo_getAllChildren : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             cocos2d::Vector<cocos2d::Ref *>& ret = cobj->getAllChildren();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -46467,7 +46671,7 @@ bool js_cocos2dx_TMXMapInfo_getAllChildren(JSContext *cx, uint32_t argc, JS::Val
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const cocos2d::Vector<cocos2d::Ref *>& ret = cobj->getAllChildren();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -46484,7 +46688,7 @@ bool js_cocos2dx_TMXMapInfo_getAllChildren(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TMXMapInfo_getHexSideLength(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46504,7 +46708,7 @@ bool js_cocos2dx_TMXMapInfo_getHexSideLength(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TMXMapInfo_setTileSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46524,7 +46728,7 @@ bool js_cocos2dx_TMXMapInfo_setTileSize(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_TMXMapInfo_initWithTMXFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46547,7 +46751,7 @@ bool js_cocos2dx_TMXMapInfo_initWithTMXFile(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXMapInfo_getOrientation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46567,7 +46771,7 @@ bool js_cocos2dx_TMXMapInfo_getOrientation(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TMXMapInfo_setObjectGroups(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46587,7 +46791,7 @@ bool js_cocos2dx_TMXMapInfo_setObjectGroups(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXMapInfo_setLayers(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46607,7 +46811,7 @@ bool js_cocos2dx_TMXMapInfo_setLayers(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_TMXMapInfo_parseXMLFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46630,7 +46834,7 @@ bool js_cocos2dx_TMXMapInfo_parseXMLFile(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXMapInfo_getParentElement(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46650,7 +46854,7 @@ bool js_cocos2dx_TMXMapInfo_getParentElement(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TMXMapInfo_setTMXFileName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46670,7 +46874,7 @@ bool js_cocos2dx_TMXMapInfo_setTMXFileName(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TMXMapInfo_parseXMLString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46692,6 +46896,7 @@ bool js_cocos2dx_TMXMapInfo_parseXMLString(JSContext *cx, uint32_t argc, JS::Val
 }
 bool js_cocos2dx_TMXMapInfo_getLayers(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::TMXMapInfo* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -46701,7 +46906,7 @@ bool js_cocos2dx_TMXMapInfo_getLayers(JSContext *cx, uint32_t argc, JS::Value *v
     cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXMapInfo_getLayers : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             cocos2d::Vector<cocos2d::TMXLayerInfo *>& ret = cobj->getLayers();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -46713,7 +46918,7 @@ bool js_cocos2dx_TMXMapInfo_getLayers(JSContext *cx, uint32_t argc, JS::Value *v
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const cocos2d::Vector<cocos2d::TMXLayerInfo *>& ret = cobj->getLayers();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -46730,7 +46935,7 @@ bool js_cocos2dx_TMXMapInfo_getLayers(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_TMXMapInfo_getStaggerAxis(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46750,7 +46955,7 @@ bool js_cocos2dx_TMXMapInfo_getStaggerAxis(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TMXMapInfo_setHexSideLength(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46769,6 +46974,7 @@ bool js_cocos2dx_TMXMapInfo_setHexSideLength(JSContext *cx, uint32_t argc, JS::V
 }
 bool js_cocos2dx_TMXMapInfo_getTilesets(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::TMXMapInfo* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -46778,7 +46984,7 @@ bool js_cocos2dx_TMXMapInfo_getTilesets(JSContext *cx, uint32_t argc, JS::Value 
     cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXMapInfo_getTilesets : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             cocos2d::Vector<cocos2d::TMXTilesetInfo *>& ret = cobj->getTilesets();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -46790,7 +46996,7 @@ bool js_cocos2dx_TMXMapInfo_getTilesets(JSContext *cx, uint32_t argc, JS::Value 
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const cocos2d::Vector<cocos2d::TMXTilesetInfo *>& ret = cobj->getTilesets();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -46807,7 +47013,7 @@ bool js_cocos2dx_TMXMapInfo_getTilesets(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_TMXMapInfo_getParentGID(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46827,7 +47033,7 @@ bool js_cocos2dx_TMXMapInfo_getParentGID(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXMapInfo_setParentElement(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46847,7 +47053,7 @@ bool js_cocos2dx_TMXMapInfo_setParentElement(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TMXMapInfo_initWithXML(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46872,7 +47078,7 @@ bool js_cocos2dx_TMXMapInfo_initWithXML(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_TMXMapInfo_setParentGID(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46892,7 +47098,7 @@ bool js_cocos2dx_TMXMapInfo_setParentGID(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXMapInfo_getLayerAttribs(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46912,7 +47118,7 @@ bool js_cocos2dx_TMXMapInfo_getLayerAttribs(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXMapInfo_getTileSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46932,7 +47138,7 @@ bool js_cocos2dx_TMXMapInfo_getTileSize(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_TMXMapInfo_setAllChildren(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46952,7 +47158,7 @@ bool js_cocos2dx_TMXMapInfo_setAllChildren(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TMXMapInfo_getTileProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46972,7 +47178,7 @@ bool js_cocos2dx_TMXMapInfo_getTileProperties(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_TMXMapInfo_isStoringCharacters(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -46992,7 +47198,7 @@ bool js_cocos2dx_TMXMapInfo_isStoringCharacters(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_TMXMapInfo_getExternalTilesetFileName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47011,6 +47217,7 @@ bool js_cocos2dx_TMXMapInfo_getExternalTilesetFileName(JSContext *cx, uint32_t a
 }
 bool js_cocos2dx_TMXMapInfo_getObjectGroups(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::TMXMapInfo* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -47020,7 +47227,7 @@ bool js_cocos2dx_TMXMapInfo_getObjectGroups(JSContext *cx, uint32_t argc, JS::Va
     cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXMapInfo_getObjectGroups : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             cocos2d::Vector<cocos2d::TMXObjectGroupInfo *>& ret = cobj->getObjectGroups();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -47032,7 +47239,7 @@ bool js_cocos2dx_TMXMapInfo_getObjectGroups(JSContext *cx, uint32_t argc, JS::Va
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const cocos2d::Vector<cocos2d::TMXObjectGroupInfo *>& ret = cobj->getObjectGroups();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -47049,7 +47256,7 @@ bool js_cocos2dx_TMXMapInfo_getObjectGroups(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXMapInfo_getTMXFileName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47069,7 +47276,7 @@ bool js_cocos2dx_TMXMapInfo_getTMXFileName(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TMXMapInfo_setStaggerIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47089,7 +47296,7 @@ bool js_cocos2dx_TMXMapInfo_setStaggerIndex(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXMapInfo_setCurrentString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47109,7 +47316,7 @@ bool js_cocos2dx_TMXMapInfo_setCurrentString(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TMXMapInfo_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47129,7 +47336,7 @@ bool js_cocos2dx_TMXMapInfo_setProperties(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_TMXMapInfo_setOrientation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47149,7 +47356,7 @@ bool js_cocos2dx_TMXMapInfo_setOrientation(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TMXMapInfo_setTileProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47169,7 +47376,7 @@ bool js_cocos2dx_TMXMapInfo_setTileProperties(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_TMXMapInfo_setMapSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47189,7 +47396,7 @@ bool js_cocos2dx_TMXMapInfo_setMapSize(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_TMXMapInfo_getCurrentString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47209,7 +47416,7 @@ bool js_cocos2dx_TMXMapInfo_getCurrentString(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TMXMapInfo_setStoringCharacters(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47229,7 +47436,7 @@ bool js_cocos2dx_TMXMapInfo_setStoringCharacters(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_TMXMapInfo_setStaggerAxis(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47249,7 +47456,7 @@ bool js_cocos2dx_TMXMapInfo_setStaggerAxis(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TMXMapInfo_getMapSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47269,7 +47476,7 @@ bool js_cocos2dx_TMXMapInfo_getMapSize(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_TMXMapInfo_setTilesets(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47288,6 +47495,7 @@ bool js_cocos2dx_TMXMapInfo_setTilesets(JSContext *cx, uint32_t argc, JS::Value 
 }
 bool js_cocos2dx_TMXMapInfo_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::TMXMapInfo* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -47297,7 +47505,7 @@ bool js_cocos2dx_TMXMapInfo_getProperties(JSContext *cx, uint32_t argc, JS::Valu
     cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXMapInfo_getProperties : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             cocos2d::ValueMap& ret = cobj->getProperties();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -47309,7 +47517,7 @@ bool js_cocos2dx_TMXMapInfo_getProperties(JSContext *cx, uint32_t argc, JS::Valu
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const cocos2d::ValueMap& ret = cobj->getProperties();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -47326,7 +47534,7 @@ bool js_cocos2dx_TMXMapInfo_getProperties(JSContext *cx, uint32_t argc, JS::Valu
 bool js_cocos2dx_TMXMapInfo_getStaggerIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47346,7 +47554,7 @@ bool js_cocos2dx_TMXMapInfo_getStaggerIndex(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXMapInfo_setLayerAttribs(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo *)(proxy ? proxy->ptr : NULL);
@@ -47366,7 +47574,7 @@ bool js_cocos2dx_TMXMapInfo_setLayerAttribs(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXMapInfo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         std::string arg0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -47385,7 +47593,7 @@ bool js_cocos2dx_TMXMapInfo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_TMXMapInfo_createWithXML(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         std::string arg0;
         std::string arg1;
@@ -47536,7 +47744,7 @@ JSObject *jsb_cocos2d_TMXLayer_prototype;
 bool js_cocos2dx_TMXLayer_getTileGIDAt(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47572,7 +47780,7 @@ bool js_cocos2dx_TMXLayer_getTileGIDAt(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_TMXLayer_getPositionAt(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47595,7 +47803,7 @@ bool js_cocos2dx_TMXLayer_getPositionAt(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_TMXLayer_setLayerOrientation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47615,7 +47823,7 @@ bool js_cocos2dx_TMXLayer_setLayerOrientation(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_TMXLayer_setTileOpacity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47651,7 +47859,7 @@ bool js_cocos2dx_TMXLayer_releaseMap(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_TMXLayer_getLayerSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47671,7 +47879,7 @@ bool js_cocos2dx_TMXLayer_getLayerSize(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_TMXLayer_setMapTileSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47691,7 +47899,7 @@ bool js_cocos2dx_TMXLayer_setMapTileSize(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXLayer_getLayerOrientation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47711,7 +47919,7 @@ bool js_cocos2dx_TMXLayer_getLayerOrientation(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_TMXLayer_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47731,7 +47939,7 @@ bool js_cocos2dx_TMXLayer_setProperties(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_TMXLayer_setLayerName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47751,7 +47959,7 @@ bool js_cocos2dx_TMXLayer_setLayerName(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_TMXLayer_removeTileAt(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47771,7 +47979,7 @@ bool js_cocos2dx_TMXLayer_removeTileAt(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_TMXLayer_initWithTilesetInfo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47837,6 +48045,7 @@ bool js_cocos2dx_TMXLayer_setupTiles(JSContext *cx, uint32_t argc, JS::Value *vp
 }
 bool js_cocos2dx_TMXLayer_setTileGID(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::TMXLayer* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -47846,7 +48055,7 @@ bool js_cocos2dx_TMXLayer_setTileGID(JSContext *cx, uint32_t argc, JS::Value *vp
     cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXLayer_setTileGID : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 3) {
             unsigned int arg0 = 0;
             arg0 = (uint32_t)(args.get(0).toInt32());
@@ -47864,7 +48073,7 @@ bool js_cocos2dx_TMXLayer_setTileGID(JSContext *cx, uint32_t argc, JS::Value *vp
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             unsigned int arg0 = 0;
             arg0 = (uint32_t)(args.get(0).toInt32());
@@ -47884,7 +48093,7 @@ bool js_cocos2dx_TMXLayer_setTileGID(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_TMXLayer_getMapTileSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47904,7 +48113,7 @@ bool js_cocos2dx_TMXLayer_getMapTileSize(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXLayer_getProperty(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47927,7 +48136,7 @@ bool js_cocos2dx_TMXLayer_getProperty(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_TMXLayer_setLayerSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47947,7 +48156,7 @@ bool js_cocos2dx_TMXLayer_setLayerSize(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_TMXLayer_getLayerName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47967,7 +48176,7 @@ bool js_cocos2dx_TMXLayer_getLayerName(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_TMXLayer_setTileSet(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -47995,7 +48204,7 @@ bool js_cocos2dx_TMXLayer_setTileSet(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_cocos2dx_TMXLayer_getTileSet(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -48018,6 +48227,7 @@ bool js_cocos2dx_TMXLayer_getTileSet(JSContext *cx, uint32_t argc, JS::Value *vp
 }
 bool js_cocos2dx_TMXLayer_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::TMXLayer* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -48027,7 +48237,7 @@ bool js_cocos2dx_TMXLayer_getProperties(JSContext *cx, uint32_t argc, JS::Value 
     cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXLayer_getProperties : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             cocos2d::ValueMap& ret = cobj->getProperties();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -48039,7 +48249,7 @@ bool js_cocos2dx_TMXLayer_getProperties(JSContext *cx, uint32_t argc, JS::Value 
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 0) {
             const cocos2d::ValueMap& ret = cobj->getProperties();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
@@ -48056,7 +48266,7 @@ bool js_cocos2dx_TMXLayer_getProperties(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_TMXLayer_getTileAt(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
@@ -48083,7 +48293,7 @@ bool js_cocos2dx_TMXLayer_getTileAt(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_TMXLayer_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 3) {
         cocos2d::TMXTilesetInfo* arg0 = nullptr;
         cocos2d::TMXLayerInfo* arg1 = nullptr;
@@ -48242,7 +48452,7 @@ JSObject *jsb_cocos2d_TMXTiledMap_prototype;
 bool js_cocos2dx_TMXTiledMap_getProperty(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48265,7 +48475,7 @@ bool js_cocos2dx_TMXTiledMap_getProperty(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXTiledMap_getLayerNum(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48285,7 +48495,7 @@ bool js_cocos2dx_TMXTiledMap_getLayerNum(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXTiledMap_setMapSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48305,7 +48515,7 @@ bool js_cocos2dx_TMXTiledMap_setMapSize(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_TMXTiledMap_getObjectGroup(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48332,7 +48542,7 @@ bool js_cocos2dx_TMXTiledMap_getObjectGroup(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_TMXTiledMap_getObjectGroups(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48352,7 +48562,7 @@ bool js_cocos2dx_TMXTiledMap_getObjectGroups(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TMXTiledMap_getResourceFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48372,7 +48582,7 @@ bool js_cocos2dx_TMXTiledMap_getResourceFile(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TMXTiledMap_initWithTMXFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48395,7 +48605,7 @@ bool js_cocos2dx_TMXTiledMap_initWithTMXFile(JSContext *cx, uint32_t argc, JS::V
 bool js_cocos2dx_TMXTiledMap_getTileSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48415,7 +48625,7 @@ bool js_cocos2dx_TMXTiledMap_getTileSize(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXTiledMap_getMapSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48435,7 +48645,7 @@ bool js_cocos2dx_TMXTiledMap_getMapSize(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_TMXTiledMap_initWithXML(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48460,7 +48670,7 @@ bool js_cocos2dx_TMXTiledMap_initWithXML(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXTiledMap_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48479,6 +48689,7 @@ bool js_cocos2dx_TMXTiledMap_getProperties(JSContext *cx, uint32_t argc, JS::Val
 }
 bool js_cocos2dx_TMXTiledMap_getPropertiesForGID(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     cocos2d::TMXTiledMap* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -48488,7 +48699,7 @@ bool js_cocos2dx_TMXTiledMap_getPropertiesForGID(JSContext *cx, uint32_t argc, J
     cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXTiledMap_getPropertiesForGID : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -48514,7 +48725,7 @@ bool js_cocos2dx_TMXTiledMap_getPropertiesForGID(JSContext *cx, uint32_t argc, J
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
@@ -48534,7 +48745,7 @@ bool js_cocos2dx_TMXTiledMap_getPropertiesForGID(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_TMXTiledMap_setTileSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48554,7 +48765,7 @@ bool js_cocos2dx_TMXTiledMap_setTileSize(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TMXTiledMap_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48574,7 +48785,7 @@ bool js_cocos2dx_TMXTiledMap_setProperties(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_TMXTiledMap_getLayer(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48601,7 +48812,7 @@ bool js_cocos2dx_TMXTiledMap_getLayer(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_TMXTiledMap_getMapOrientation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48621,7 +48832,7 @@ bool js_cocos2dx_TMXTiledMap_getMapOrientation(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_TMXTiledMap_setMapOrientation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap *)(proxy ? proxy->ptr : NULL);
@@ -48641,7 +48852,7 @@ bool js_cocos2dx_TMXTiledMap_setMapOrientation(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_TMXTiledMap_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         std::string arg0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -48660,7 +48871,7 @@ bool js_cocos2dx_TMXTiledMap_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_cocos2dx_TMXTiledMap_createWithXML(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         std::string arg0;
         std::string arg1;
@@ -48789,7 +49000,7 @@ JSObject *jsb_cocos2d_TileMapAtlas_prototype;
 bool js_cocos2dx_TileMapAtlas_initWithTileFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TileMapAtlas* cobj = (cocos2d::TileMapAtlas *)(proxy ? proxy->ptr : NULL);
@@ -48834,7 +49045,7 @@ bool js_cocos2dx_TileMapAtlas_releaseMap(JSContext *cx, uint32_t argc, JS::Value
 bool js_cocos2dx_TileMapAtlas_getTileAt(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TileMapAtlas* cobj = (cocos2d::TileMapAtlas *)(proxy ? proxy->ptr : NULL);
@@ -48857,7 +49068,7 @@ bool js_cocos2dx_TileMapAtlas_getTileAt(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_TileMapAtlas_setTile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::TileMapAtlas* cobj = (cocos2d::TileMapAtlas *)(proxy ? proxy->ptr : NULL);
@@ -48879,7 +49090,7 @@ bool js_cocos2dx_TileMapAtlas_setTile(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_TileMapAtlas_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 4) {
         std::string arg0;
         std::string arg1;
@@ -48998,7 +49209,7 @@ JSObject *jsb_CocosDenshion_SimpleAudioEngine_prototype;
 bool js_cocos2dx_SimpleAudioEngine_preloadBackgroundMusic(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49018,7 +49229,7 @@ bool js_cocos2dx_SimpleAudioEngine_preloadBackgroundMusic(JSContext *cx, uint32_
 bool js_cocos2dx_SimpleAudioEngine_stopBackgroundMusic(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49059,7 +49270,7 @@ bool js_cocos2dx_SimpleAudioEngine_stopAllEffects(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_SimpleAudioEngine_getBackgroundMusicVolume(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49095,7 +49306,7 @@ bool js_cocos2dx_SimpleAudioEngine_resumeBackgroundMusic(JSContext *cx, uint32_t
 bool js_cocos2dx_SimpleAudioEngine_setBackgroundMusicVolume(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49115,7 +49326,7 @@ bool js_cocos2dx_SimpleAudioEngine_setBackgroundMusicVolume(JSContext *cx, uint3
 bool js_cocos2dx_SimpleAudioEngine_preloadEffect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49135,7 +49346,7 @@ bool js_cocos2dx_SimpleAudioEngine_preloadEffect(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_SimpleAudioEngine_isBackgroundMusicPlaying(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49155,7 +49366,7 @@ bool js_cocos2dx_SimpleAudioEngine_isBackgroundMusicPlaying(JSContext *cx, uint3
 bool js_cocos2dx_SimpleAudioEngine_getEffectsVolume(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49175,7 +49386,7 @@ bool js_cocos2dx_SimpleAudioEngine_getEffectsVolume(JSContext *cx, uint32_t argc
 bool js_cocos2dx_SimpleAudioEngine_willPlayBackgroundMusic(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49195,7 +49406,7 @@ bool js_cocos2dx_SimpleAudioEngine_willPlayBackgroundMusic(JSContext *cx, uint32
 bool js_cocos2dx_SimpleAudioEngine_pauseEffect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49215,7 +49426,7 @@ bool js_cocos2dx_SimpleAudioEngine_pauseEffect(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_SimpleAudioEngine_playEffect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49318,7 +49529,7 @@ bool js_cocos2dx_SimpleAudioEngine_rewindBackgroundMusic(JSContext *cx, uint32_t
 bool js_cocos2dx_SimpleAudioEngine_playBackgroundMusic(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49364,7 +49575,7 @@ bool js_cocos2dx_SimpleAudioEngine_resumeAllEffects(JSContext *cx, uint32_t argc
 bool js_cocos2dx_SimpleAudioEngine_setEffectsVolume(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49384,7 +49595,7 @@ bool js_cocos2dx_SimpleAudioEngine_setEffectsVolume(JSContext *cx, uint32_t argc
 bool js_cocos2dx_SimpleAudioEngine_stopEffect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49436,7 +49647,7 @@ bool js_cocos2dx_SimpleAudioEngine_pauseAllEffects(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_SimpleAudioEngine_unloadEffect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49456,7 +49667,7 @@ bool js_cocos2dx_SimpleAudioEngine_unloadEffect(JSContext *cx, uint32_t argc, JS
 bool js_cocos2dx_SimpleAudioEngine_resumeEffect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     CocosDenshion::SimpleAudioEngine* cobj = (CocosDenshion::SimpleAudioEngine *)(proxy ? proxy->ptr : NULL);
@@ -49488,7 +49699,7 @@ bool js_cocos2dx_SimpleAudioEngine_end(JSContext *cx, uint32_t argc, JS::Value *
 bool js_cocos2dx_SimpleAudioEngine_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         CocosDenshion::SimpleAudioEngine* ret = CocosDenshion::SimpleAudioEngine::getInstance();

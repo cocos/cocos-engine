@@ -12,20 +12,12 @@
 #include "editor-support/creator/CCCameraNode.h"
 #include "scripting/js-bindings/manual/box2d/js_bindings_box2d_manual.h"
 
-template<class T>
-static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS_ReportErrorUTF8(cx, "Constructor for the requested class is not available, please refer to the API reference.");
-    return false;
-}
-
-static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
-    return false;
-}JSClass  *jsb_creator_Scale9SpriteV2_class;
+JSClass  *jsb_creator_Scale9SpriteV2_class;
 JSObject *jsb_creator_Scale9SpriteV2_prototype;
 
 bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     creator::Scale9SpriteV2* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -35,7 +27,7 @@ bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, JS::Valu
     cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setTexture : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Texture2D* arg0 = nullptr;
             do {
@@ -58,7 +50,7 @@ bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, JS::Valu
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -78,7 +70,7 @@ bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, JS::Valu
 bool js_creator_Scale9SpriteV2_getFillType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -98,7 +90,7 @@ bool js_creator_Scale9SpriteV2_getFillType(JSContext *cx, uint32_t argc, JS::Val
 bool js_creator_Scale9SpriteV2_isTrimmedContentSizeEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -118,7 +110,7 @@ bool js_creator_Scale9SpriteV2_isTrimmedContentSizeEnabled(JSContext *cx, uint32
 bool js_creator_Scale9SpriteV2_getState(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -138,7 +130,7 @@ bool js_creator_Scale9SpriteV2_getState(JSContext *cx, uint32_t argc, JS::Value 
 bool js_creator_Scale9SpriteV2_setState(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -158,7 +150,7 @@ bool js_creator_Scale9SpriteV2_setState(JSContext *cx, uint32_t argc, JS::Value 
 bool js_creator_Scale9SpriteV2_setInsetBottom(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -178,7 +170,7 @@ bool js_creator_Scale9SpriteV2_setInsetBottom(JSContext *cx, uint32_t argc, JS::
 bool js_creator_Scale9SpriteV2_setFillRange(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -198,7 +190,7 @@ bool js_creator_Scale9SpriteV2_setFillRange(JSContext *cx, uint32_t argc, JS::Va
 bool js_creator_Scale9SpriteV2_getFillStart(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -218,7 +210,7 @@ bool js_creator_Scale9SpriteV2_getFillStart(JSContext *cx, uint32_t argc, JS::Va
 bool js_creator_Scale9SpriteV2_getFillRange(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -238,7 +230,7 @@ bool js_creator_Scale9SpriteV2_getFillRange(JSContext *cx, uint32_t argc, JS::Va
 bool js_creator_Scale9SpriteV2_setInsetTop(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -258,7 +250,7 @@ bool js_creator_Scale9SpriteV2_setInsetTop(JSContext *cx, uint32_t argc, JS::Val
 bool js_creator_Scale9SpriteV2_setRenderingType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -278,7 +270,7 @@ bool js_creator_Scale9SpriteV2_setRenderingType(JSContext *cx, uint32_t argc, JS
 bool js_creator_Scale9SpriteV2_setDistortionOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -297,6 +289,7 @@ bool js_creator_Scale9SpriteV2_setDistortionOffset(JSContext *cx, uint32_t argc,
 }
 bool js_creator_Scale9SpriteV2_setFillCenter(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     creator::Scale9SpriteV2* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -306,7 +299,7 @@ bool js_creator_Scale9SpriteV2_setFillCenter(JSContext *cx, uint32_t argc, JS::V
     cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setFillCenter : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             double arg0 = 0;
             arg0 = (float)(args.get(0).toNumber());
@@ -321,7 +314,7 @@ bool js_creator_Scale9SpriteV2_setFillCenter(JSContext *cx, uint32_t argc, JS::V
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Vec2 arg0;
             ok &= jsval_to_vector2(cx, args.get(0), &arg0);
@@ -337,6 +330,7 @@ bool js_creator_Scale9SpriteV2_setFillCenter(JSContext *cx, uint32_t argc, JS::V
 }
 bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     creator::Scale9SpriteV2* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -346,7 +340,7 @@ bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, JS::
     cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setSpriteFrame : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::SpriteFrame* arg0 = nullptr;
             do {
@@ -369,7 +363,7 @@ bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, JS::
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -389,7 +383,7 @@ bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, JS::
 bool js_creator_Scale9SpriteV2_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -408,6 +402,7 @@ bool js_creator_Scale9SpriteV2_getBlendFunc(JSContext *cx, uint32_t argc, JS::Va
 }
 bool js_creator_Scale9SpriteV2_initWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     creator::Scale9SpriteV2* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -417,7 +412,7 @@ bool js_creator_Scale9SpriteV2_initWithTexture(JSContext *cx, uint32_t argc, JS:
     cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_initWithTexture : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -432,7 +427,7 @@ bool js_creator_Scale9SpriteV2_initWithTexture(JSContext *cx, uint32_t argc, JS:
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::Texture2D* arg0 = nullptr;
             do {
@@ -460,7 +455,7 @@ bool js_creator_Scale9SpriteV2_initWithTexture(JSContext *cx, uint32_t argc, JS:
 bool js_creator_Scale9SpriteV2_getInsetLeft(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -480,7 +475,7 @@ bool js_creator_Scale9SpriteV2_getInsetLeft(JSContext *cx, uint32_t argc, JS::Va
 bool js_creator_Scale9SpriteV2_getInsetBottom(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -500,7 +495,7 @@ bool js_creator_Scale9SpriteV2_getInsetBottom(JSContext *cx, uint32_t argc, JS::
 bool js_creator_Scale9SpriteV2_setDistortionTiling(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -520,7 +515,7 @@ bool js_creator_Scale9SpriteV2_setDistortionTiling(JSContext *cx, uint32_t argc,
 bool js_creator_Scale9SpriteV2_getRenderingType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -540,7 +535,7 @@ bool js_creator_Scale9SpriteV2_getRenderingType(JSContext *cx, uint32_t argc, JS
 bool js_creator_Scale9SpriteV2_setFillStart(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -560,7 +555,7 @@ bool js_creator_Scale9SpriteV2_setFillStart(JSContext *cx, uint32_t argc, JS::Va
 bool js_creator_Scale9SpriteV2_getInsetRight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -579,6 +574,7 @@ bool js_creator_Scale9SpriteV2_getInsetRight(JSContext *cx, uint32_t argc, JS::V
 }
 bool js_creator_Scale9SpriteV2_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     creator::Scale9SpriteV2* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -588,7 +584,7 @@ bool js_creator_Scale9SpriteV2_setBlendFunc(JSContext *cx, uint32_t argc, JS::Va
     cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setBlendFunc : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 2) {
             unsigned int arg0 = 0;
             arg0 = (uint32_t)(args.get(0).toInt32());
@@ -603,7 +599,7 @@ bool js_creator_Scale9SpriteV2_setBlendFunc(JSContext *cx, uint32_t argc, JS::Va
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::BlendFunc arg0;
             ok &= jsval_to_blendfunc(cx, args.get(0), &arg0);
@@ -620,7 +616,7 @@ bool js_creator_Scale9SpriteV2_setBlendFunc(JSContext *cx, uint32_t argc, JS::Va
 bool js_creator_Scale9SpriteV2_getFillCenter(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -640,7 +636,7 @@ bool js_creator_Scale9SpriteV2_getFillCenter(JSContext *cx, uint32_t argc, JS::V
 bool js_creator_Scale9SpriteV2_getInsetTop(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -660,7 +656,7 @@ bool js_creator_Scale9SpriteV2_getInsetTop(JSContext *cx, uint32_t argc, JS::Val
 bool js_creator_Scale9SpriteV2_setInsetLeft(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -679,6 +675,7 @@ bool js_creator_Scale9SpriteV2_setInsetLeft(JSContext *cx, uint32_t argc, JS::Va
 }
 bool js_creator_Scale9SpriteV2_initWithSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     creator::Scale9SpriteV2* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -688,7 +685,7 @@ bool js_creator_Scale9SpriteV2_initWithSpriteFrame(JSContext *cx, uint32_t argc,
     cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_initWithSpriteFrame : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -703,7 +700,7 @@ bool js_creator_Scale9SpriteV2_initWithSpriteFrame(JSContext *cx, uint32_t argc,
     } while(0);
 
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             cocos2d::SpriteFrame* arg0 = nullptr;
             do {
@@ -731,7 +728,7 @@ bool js_creator_Scale9SpriteV2_initWithSpriteFrame(JSContext *cx, uint32_t argc,
 bool js_creator_Scale9SpriteV2_setFillType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -751,7 +748,7 @@ bool js_creator_Scale9SpriteV2_setFillType(JSContext *cx, uint32_t argc, JS::Val
 bool js_creator_Scale9SpriteV2_setInsetRight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -771,7 +768,7 @@ bool js_creator_Scale9SpriteV2_setInsetRight(JSContext *cx, uint32_t argc, JS::V
 bool js_creator_Scale9SpriteV2_enableTrimmedContentSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
@@ -906,7 +903,7 @@ JSObject *jsb_creator_GraphicsNode_prototype;
 bool js_creator_GraphicsNode_quadraticCurveTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -932,7 +929,7 @@ bool js_creator_GraphicsNode_quadraticCurveTo(JSContext *cx, uint32_t argc, JS::
 bool js_creator_GraphicsNode_moveTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -954,7 +951,7 @@ bool js_creator_GraphicsNode_moveTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_creator_GraphicsNode_lineTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -992,7 +989,7 @@ bool js_creator_GraphicsNode_stroke(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_creator_GraphicsNode_arc(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1022,7 +1019,7 @@ bool js_creator_GraphicsNode_arc(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_creator_GraphicsNode_setLineJoin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1058,7 +1055,7 @@ bool js_creator_GraphicsNode_close(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_creator_GraphicsNode_ellipse(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1084,7 +1081,7 @@ bool js_creator_GraphicsNode_ellipse(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_creator_GraphicsNode_setLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1120,7 +1117,7 @@ bool js_creator_GraphicsNode_fill(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_creator_GraphicsNode_getStrokeColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1140,7 +1137,7 @@ bool js_creator_GraphicsNode_getStrokeColor(JSContext *cx, uint32_t argc, JS::Va
 bool js_creator_GraphicsNode_setLineCap(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1160,7 +1157,7 @@ bool js_creator_GraphicsNode_setLineCap(JSContext *cx, uint32_t argc, JS::Value 
 bool js_creator_GraphicsNode_circle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1184,7 +1181,7 @@ bool js_creator_GraphicsNode_circle(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_creator_GraphicsNode_roundRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1212,7 +1209,7 @@ bool js_creator_GraphicsNode_roundRect(JSContext *cx, uint32_t argc, JS::Value *
 bool js_creator_GraphicsNode_draw(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1244,7 +1241,7 @@ bool js_creator_GraphicsNode_draw(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_creator_GraphicsNode_bezierCurveTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1274,7 +1271,7 @@ bool js_creator_GraphicsNode_bezierCurveTo(JSContext *cx, uint32_t argc, JS::Val
 bool js_creator_GraphicsNode_arcTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1302,7 +1299,7 @@ bool js_creator_GraphicsNode_arcTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_creator_GraphicsNode_fillRect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1328,7 +1325,7 @@ bool js_creator_GraphicsNode_fillRect(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_creator_GraphicsNode_onDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1350,7 +1347,7 @@ bool js_creator_GraphicsNode_onDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_creator_GraphicsNode_setFillColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1370,7 +1367,7 @@ bool js_creator_GraphicsNode_setFillColor(JSContext *cx, uint32_t argc, JS::Valu
 bool js_creator_GraphicsNode_getFillColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1406,7 +1403,7 @@ bool js_creator_GraphicsNode_beginPath(JSContext *cx, uint32_t argc, JS::Value *
 bool js_creator_GraphicsNode_setDeviceRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1426,7 +1423,7 @@ bool js_creator_GraphicsNode_setDeviceRatio(JSContext *cx, uint32_t argc, JS::Va
 bool js_creator_GraphicsNode_rect(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1452,7 +1449,7 @@ bool js_creator_GraphicsNode_rect(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_creator_GraphicsNode_getMiterLimit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1472,7 +1469,7 @@ bool js_creator_GraphicsNode_getMiterLimit(JSContext *cx, uint32_t argc, JS::Val
 bool js_creator_GraphicsNode_getLineJoin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1492,7 +1489,7 @@ bool js_creator_GraphicsNode_getLineJoin(JSContext *cx, uint32_t argc, JS::Value
 bool js_creator_GraphicsNode_getLineCap(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1512,7 +1509,7 @@ bool js_creator_GraphicsNode_getLineCap(JSContext *cx, uint32_t argc, JS::Value 
 bool js_creator_GraphicsNode_setMiterLimit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1532,7 +1529,7 @@ bool js_creator_GraphicsNode_setMiterLimit(JSContext *cx, uint32_t argc, JS::Val
 bool js_creator_GraphicsNode_clear(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1557,7 +1554,7 @@ bool js_creator_GraphicsNode_clear(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_creator_GraphicsNode_getDeviceRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1577,7 +1574,7 @@ bool js_creator_GraphicsNode_getDeviceRatio(JSContext *cx, uint32_t argc, JS::Va
 bool js_creator_GraphicsNode_getLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1597,7 +1594,7 @@ bool js_creator_GraphicsNode_getLineWidth(JSContext *cx, uint32_t argc, JS::Valu
 bool js_creator_GraphicsNode_setStrokeColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
@@ -1617,7 +1614,7 @@ bool js_creator_GraphicsNode_setStrokeColor(JSContext *cx, uint32_t argc, JS::Va
 bool js_creator_GraphicsNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 0) {
 
         auto ret = creator::GraphicsNode::create();
@@ -1755,7 +1752,7 @@ JSObject *jsb_creator_PhysicsDebugDraw_prototype;
 bool js_creator_PhysicsDebugDraw_getDrawer(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsDebugDraw* cobj = (creator::PhysicsDebugDraw *)(proxy ? proxy->ptr : NULL);
@@ -1795,7 +1792,7 @@ bool js_creator_PhysicsDebugDraw_ClearDraw(JSContext *cx, uint32_t argc, JS::Val
 bool js_creator_PhysicsDebugDraw_AddDrawerToNode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsDebugDraw* cobj = (creator::PhysicsDebugDraw *)(proxy ? proxy->ptr : NULL);
@@ -1911,7 +1908,7 @@ JSObject *jsb_creator_PhysicsWorldManifoldWrapper_prototype;
 bool js_creator_PhysicsWorldManifoldWrapper_getSeparation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper *)(proxy ? proxy->ptr : NULL);
@@ -1934,7 +1931,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getSeparation(JSContext *cx, uint32_
 bool js_creator_PhysicsWorldManifoldWrapper_getX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper *)(proxy ? proxy->ptr : NULL);
@@ -1957,7 +1954,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getX(JSContext *cx, uint32_t argc, J
 bool js_creator_PhysicsWorldManifoldWrapper_getY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper *)(proxy ? proxy->ptr : NULL);
@@ -1980,7 +1977,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getY(JSContext *cx, uint32_t argc, J
 bool js_creator_PhysicsWorldManifoldWrapper_getCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper *)(proxy ? proxy->ptr : NULL);
@@ -2000,7 +1997,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getCount(JSContext *cx, uint32_t arg
 bool js_creator_PhysicsWorldManifoldWrapper_getNormalY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper *)(proxy ? proxy->ptr : NULL);
@@ -2020,7 +2017,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getNormalY(JSContext *cx, uint32_t a
 bool js_creator_PhysicsWorldManifoldWrapper_getNormalX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper *)(proxy ? proxy->ptr : NULL);
@@ -2109,7 +2106,7 @@ JSObject *jsb_creator_PhysicsUtils_prototype;
 bool js_creator_PhysicsUtils_addB2Body(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsUtils* cobj = (creator::PhysicsUtils *)(proxy ? proxy->ptr : NULL);
@@ -2153,7 +2150,7 @@ bool js_creator_PhysicsUtils_syncNode(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_creator_PhysicsUtils_removeB2Body(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsUtils* cobj = (creator::PhysicsUtils *)(proxy ? proxy->ptr : NULL);
@@ -2181,7 +2178,7 @@ bool js_creator_PhysicsUtils_removeB2Body(JSContext *cx, uint32_t argc, JS::Valu
 bool js_creator_PhysicsUtils_getContactManifoldWrapper(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         b2Contact* arg0 = nullptr;
         do {
@@ -2213,7 +2210,7 @@ bool js_creator_PhysicsUtils_getContactManifoldWrapper(JSContext *cx, uint32_t a
 bool js_creator_PhysicsUtils_getContactWorldManifoldWrapper(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
         b2Contact* arg0 = nullptr;
         do {
@@ -2337,7 +2334,7 @@ JSObject *jsb_creator_PhysicsContactImpulse_prototype;
 bool js_creator_PhysicsContactImpulse_getCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsContactImpulse* cobj = (creator::PhysicsContactImpulse *)(proxy ? proxy->ptr : NULL);
@@ -2357,7 +2354,7 @@ bool js_creator_PhysicsContactImpulse_getCount(JSContext *cx, uint32_t argc, JS:
 bool js_creator_PhysicsContactImpulse_getNormalImpulse(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsContactImpulse* cobj = (creator::PhysicsContactImpulse *)(proxy ? proxy->ptr : NULL);
@@ -2380,7 +2377,7 @@ bool js_creator_PhysicsContactImpulse_getNormalImpulse(JSContext *cx, uint32_t a
 bool js_creator_PhysicsContactImpulse_getTangentImpulse(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsContactImpulse* cobj = (creator::PhysicsContactImpulse *)(proxy ? proxy->ptr : NULL);
@@ -2469,7 +2466,7 @@ JSObject *jsb_creator_PhysicsContactListener_prototype;
 bool js_creator_PhysicsContactListener_unregisterContactFixture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener *)(proxy ? proxy->ptr : NULL);
@@ -2497,7 +2494,7 @@ bool js_creator_PhysicsContactListener_unregisterContactFixture(JSContext *cx, u
 bool js_creator_PhysicsContactListener_registerContactFixture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener *)(proxy ? proxy->ptr : NULL);
@@ -2611,6 +2608,7 @@ JSObject *jsb_creator_PhysicsAABBQueryCallback_prototype;
 
 bool js_creator_PhysicsAABBQueryCallback_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
+    bool ok = true;
     creator::PhysicsAABBQueryCallback* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -2620,7 +2618,7 @@ bool js_creator_PhysicsAABBQueryCallback_init(JSContext *cx, uint32_t argc, JS::
     cobj = (creator::PhysicsAABBQueryCallback *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsAABBQueryCallback_init : Invalid Native Object");
     do {
-        bool ok = true;
+        ok = true;
         if (argc == 1) {
             b2Vec2 arg0;
             ok &= jsval_to_b2Vec2(cx, args.get(0), &arg0);
@@ -2632,6 +2630,7 @@ bool js_creator_PhysicsAABBQueryCallback_init(JSContext *cx, uint32_t argc, JS::
     } while(0);
 
     do {
+        ok = true;
         if (argc == 0) {
             cobj->init();
             args.rval().setUndefined();
@@ -2645,7 +2644,7 @@ bool js_creator_PhysicsAABBQueryCallback_init(JSContext *cx, uint32_t argc, JS::
 bool js_creator_PhysicsAABBQueryCallback_getFixture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsAABBQueryCallback* cobj = (creator::PhysicsAABBQueryCallback *)(proxy ? proxy->ptr : NULL);
@@ -2756,7 +2755,7 @@ JSObject *jsb_creator_PhysicsRayCastCallback_prototype;
 bool js_creator_PhysicsRayCastCallback_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsRayCastCallback* cobj = (creator::PhysicsRayCastCallback *)(proxy ? proxy->ptr : NULL);
@@ -2776,7 +2775,7 @@ bool js_creator_PhysicsRayCastCallback_getType(JSContext *cx, uint32_t argc, JS:
 bool js_creator_PhysicsRayCastCallback_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsRayCastCallback* cobj = (creator::PhysicsRayCastCallback *)(proxy ? proxy->ptr : NULL);
@@ -2796,7 +2795,7 @@ bool js_creator_PhysicsRayCastCallback_init(JSContext *cx, uint32_t argc, JS::Va
 bool js_creator_PhysicsRayCastCallback_getFractions(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsRayCastCallback* cobj = (creator::PhysicsRayCastCallback *)(proxy ? proxy->ptr : NULL);
@@ -2904,7 +2903,7 @@ JSObject *jsb_creator_CameraNode_prototype;
 bool js_creator_CameraNode_removeTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::CameraNode* cobj = (creator::CameraNode *)(proxy ? proxy->ptr : NULL);
@@ -2932,7 +2931,7 @@ bool js_creator_CameraNode_removeTarget(JSContext *cx, uint32_t argc, JS::Value 
 bool js_creator_CameraNode_setTransform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::CameraNode* cobj = (creator::CameraNode *)(proxy ? proxy->ptr : NULL);
@@ -2962,7 +2961,7 @@ bool js_creator_CameraNode_setTransform(JSContext *cx, uint32_t argc, JS::Value 
 bool js_creator_CameraNode_addTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
+    bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::CameraNode* cobj = (creator::CameraNode *)(proxy ? proxy->ptr : NULL);

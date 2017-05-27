@@ -9959,16 +9959,6 @@ getShadowColor : function (
 },
 
 /**
- * @method getTTFConfig
- * @return {cc._ttfConfig}
- */
-getTTFConfig : function (
-)
-{
-    return cc._ttfConfig;
-},
-
-/**
  * @method enableItalics
  */
 enableItalics : function (
@@ -14373,16 +14363,6 @@ int
 },
 
 /**
- * @method getUniformFlags
- * @return {cc.GLProgram::UniformFlags}
- */
-getUniformFlags : function (
-)
-{
-    return cc.GLProgram::UniformFlags;
-},
-
-/**
  * @method getUniformLocationForName
  * @param {char} arg0
  * @return {int}
@@ -14576,18 +14556,6 @@ str
 )
 {
     return 0;
-},
-
-/**
- * @method getVertexAttrib
- * @param {String} arg0
- * @return {cc.VertexAttrib}
- */
-getVertexAttrib : function (
-str 
-)
-{
-    return cc.VertexAttrib;
 },
 
 /**

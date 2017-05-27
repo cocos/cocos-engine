@@ -120,23 +120,6 @@ static Color3B getColorFromJSObject(JSContext *cx, JS::HandleObject colorObject)
     return out;
 }
 
-static Size getSizeFromJSObject(JSContext *cx, JS::HandleObject sizeObject)
-{
-    JS::RootedValue jsv(cx);
-    Size out;
-    JS_GetProperty(cx, sizeObject, "width", &jsv);
-    double width = jsv.toNumber();
-
-    JS_GetProperty(cx, sizeObject, "height", &jsv);
-    double height = jsv.toNumber();
-
-    // the out
-    out.width  = width;
-    out.height = height;
-
-    return out;
-}
-
 bool jsval_to_opaque( JSContext *cx, JS::HandleValue vp, void **r)
 {
 #ifdef __LP64__

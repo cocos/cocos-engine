@@ -40,6 +40,17 @@ extern JSObject *jsb_ObjFinalizeHook_prototype;
 
 class JSScheduleWrapper;
 
+template<class T>
+static bool dummy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS_ReportErrorUTF8(cx, "Constructor for the requested class is not available, please refer to the API reference.");
+    return false;
+}
+
+static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
+    return false;
+}
+
 namespace JSBinding
 {
     typedef cocos2d::Vector<cocos2d::Ref*> Array;

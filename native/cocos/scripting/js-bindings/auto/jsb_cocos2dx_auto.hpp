@@ -1926,7 +1926,6 @@ bool js_cocos2dx_Label_setVerticalAlignment(JSContext *cx, uint32_t argc, JS::Va
 bool js_cocos2dx_Label_setLineSpacing(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_Label_getLineHeight(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_Label_getShadowColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getTTFConfig(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_Label_enableItalics(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_Label_setTextColor(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_Label_getLetter(JSContext *cx, uint32_t argc, JS::Value *vp);
@@ -2589,7 +2588,6 @@ void js_register_cocos2dx_GLProgram(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
 bool js_cocos2dx_GLProgram_getFragmentShaderLog(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_GLProgram_bindAttribLocation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_getUniformFlags(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_GLProgram_getUniformLocationForName(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_GLProgram_use(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_GLProgram_getVertexShaderLog(JSContext *cx, uint32_t argc, JS::Value *vp);
@@ -2606,7 +2604,6 @@ bool js_cocos2dx_GLProgram_getUniformLocation(JSContext *cx, uint32_t argc, JS::
 bool js_cocos2dx_GLProgram_link(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_GLProgram_reset(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_GLProgram_getAttribLocation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_getVertexAttrib(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_GLProgram_setUniformLocationWith2f(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_GLProgram_setUniformLocationWith4i(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_GLProgram_setUniformLocationWith1i(JSContext *cx, uint32_t argc, JS::Value *vp);
