@@ -543,7 +543,7 @@ cc.Scheduler = cc._Class.extend({
         cc.assertID(target, 1502);
 
         var instanceId = getTargetId(target);
-        cc.assertID(target, 1510);
+        cc.assertID(instanceId, 1510);
         var element = this._hashForTimers[instanceId];
         if (!element) {
             // Is this the 1st element ? Then set the pause level to all the callback_fns of this target
@@ -589,7 +589,7 @@ cc.Scheduler = cc._Class.extend({
      */
     scheduleUpdate: function(target, priority, paused, updateFunc) {
         var targetId = getTargetId(target);
-        cc.assertID(target, 1510);
+        cc.assertID(targetId, 1510);
         var hashElement = this._hashForUpdates[targetId];
         if (hashElement && hashElement.entry){
             // check if priority has changed
@@ -646,7 +646,7 @@ cc.Scheduler = cc._Class.extend({
         if (!target || !callback)
             return;
         var targetId = getTargetId(target);
-        cc.assertID(target, 1510);
+        cc.assertID(targetId, 1510);
 
         var self = this, element = self._hashForTimers[targetId];
         if (element) {
@@ -687,7 +687,7 @@ cc.Scheduler = cc._Class.extend({
         if (!target)
             return;
         var targetId = getTargetId(target);
-        cc.assertID(target, 1510);
+        cc.assertID(targetId, 1510);
 
         var element = this._hashForUpdates[targetId];
         if (element) {
@@ -713,7 +713,7 @@ cc.Scheduler = cc._Class.extend({
             return;
         }
         var targetId = getTargetId(target);
-        cc.assertID(target, 1510);
+        cc.assertID(targetId, 1510);
 
         // Custom Selectors
         var element = this._hashForTimers[targetId];
@@ -820,7 +820,7 @@ cc.Scheduler = cc._Class.extend({
         cc.assertID(callback, 1508);
         cc.assertID(target, 1509);
         var targetId = getTargetId(target);
-        cc.assertID(target, 1510);
+        cc.assertID(targetId, 1510);
         
         var element = this._hashForTimers[targetId];
 
@@ -951,7 +951,7 @@ cc.Scheduler = cc._Class.extend({
     pauseTarget: function (target) {
         cc.assertID(target, 1503);
         var targetId = getTargetId(target);
-        cc.assertID(target, 1510);
+        cc.assertID(targetId, 1510);
 
         //customer selectors
         var self = this, 
@@ -982,7 +982,7 @@ cc.Scheduler = cc._Class.extend({
     resumeTarget: function (target) {
         cc.assertID(target, 1504);
         var targetId = getTargetId(target);
-        cc.assertID(target, 1510);
+        cc.assertID(targetId, 1510);
 
         // custom selectors
         var self = this,
@@ -1010,7 +1010,7 @@ cc.Scheduler = cc._Class.extend({
     isTargetPaused: function (target) {
         cc.assertID(target, 1505);
         var targetId = getTargetId(target);
-        cc.assertID(target, 1510);
+        cc.assertID(targetId, 1510);
 
         // Custom selectors
         var element = this._hashForTimers[targetId];
