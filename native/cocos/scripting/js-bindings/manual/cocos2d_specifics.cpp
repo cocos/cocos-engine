@@ -59,6 +59,7 @@ JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS:
     _jsthis = new jsb::Object();
     _func = new jsb::Object();
     _owner = new jsb::Object();
+    _data = new jsb::Object();
     
     _jsthis->setObj(cx, jsthis);
     _func->setObj(cx, func);
@@ -70,6 +71,7 @@ JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS:
     _jsthis = new jsb::Object();
     _func = new jsb::Object();
     _owner = new jsb::Object();
+    _data = new jsb::Object();
     
     _jsthis->setObj(cx, jsthis);
     _func->setObj(cx, func);
@@ -115,6 +117,7 @@ JSFunctionWrapper::~JSFunctionWrapper()
     CC_SAFE_DELETE(_jsthis);
     CC_SAFE_DELETE(_func);
     CC_SAFE_DELETE(_owner);
+    CC_SAFE_DELETE(_data);
 }
 
 void JSFunctionWrapper::setOwner(JSContext* cx, JS::HandleObject owner)
@@ -142,6 +145,28 @@ void JSFunctionWrapper::setOwner(JSContext* cx, JS::HandleObject owner)
             js_add_object_reference(ownerVal, funcVal);
         }
     }
+}
+
+void JSFunctionWrapper::setData(JSContext* cx, JS::HandleObject data)
+{
+    _data->setObj(cx, data);
+    
+    JS::RootedObject owner(cx);
+    _owner->getObj(&owner);
+    JS::RootedValue ownerVal(cx, JS::ObjectOrNullValue(owner));
+    if (!ownerVal.isNullOrUndefined())
+    {
+        JS::RootedValue dataVal(cx, JS::ObjectOrNullValue(data));
+        if (!dataVal.isNullOrUndefined() && data.get() != owner.get())
+        {
+            js_add_object_reference(ownerVal, dataVal);
+        }
+    }
+}
+
+void JSFunctionWrapper::getData(JSContext* cx, JS::MutableHandleObject data)
+{
+    _data->getObj(data);
 }
 
 bool JSFunctionWrapper::invoke(JS::HandleValueArray args, JS::MutableHandleValue rval)
@@ -630,34 +655,26 @@ static bool js_callFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
         // link the native object with the javascript object
         JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, ret, typeClass, "cocos2d::CallFuncN"));
 
-        JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
-        std::shared_ptr<JSCallbackWrapper> tmpCobj(new JSCallbackWrapper(retVal));
-
-        JS::RootedValue callback(cx, args.get(0));
-        tmpCobj->setJSCallbackFunc(callback);
+        JS::RootedObject callback(cx, args.get(0).toObjectOrNull());
+        JS::RootedObject thisObj(cx);
         if (argc >= 2)
         {
-            JS::RootedValue thisObj(cx, args.get(1));
-            tmpCobj->setJSCallbackThis(thisObj);
+            thisObj = args.get(1).toObjectOrNull();
         }
+        std::shared_ptr<JSFunctionWrapper> tmpCobj(new JSFunctionWrapper(cx, thisObj, callback, jsobj));
+        
         if (argc >= 3)
         {
-            JS::RootedValue data(cx, args.get(2));
-            tmpCobj->setJSExtraData(data);
+            JS::RootedObject data(cx, args.get(2).toObjectOrNull());
+            tmpCobj->setData(cx, data);
         }
 
         bool ok = ret->initWithFunction([=](Node* sender){
-            JS::RootedValue jsvalThis(cx, tmpCobj->getJSCallbackThis());
-            JS::RootedObject thisObj(cx, jsvalThis.toObjectOrNull());
-            JS::RootedValue jsvalCallback(cx, tmpCobj->getJSCallbackFunc());
-            JS::RootedValue jsvalExtraData(cx, tmpCobj->getJSExtraData());
-
             JS::RootedValue senderVal(cx);
             if (sender == nullptr)
             {
                 sender = ret->getTarget();
             }
-            
             if(sender)
             {
                 js_type_class_t *nodeClass = js_get_type_from_native<cocos2d::Node>(sender);
@@ -668,19 +685,24 @@ static bool js_callFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
             {
                 senderVal.set(JS::NullValue());
             }
-
-            if (!jsvalCallback.isNullOrUndefined())
+            
+            JS::RootedValue retval(cx);
+            JS::AutoValueVector valArr(cx);
+            valArr.append(senderVal);
+            if (argc >= 3)
             {
-                JS::RootedValue retval(cx);
-                JS::AutoValueVector valArr(cx);
-                valArr.append(senderVal);
-                valArr.append(jsvalExtraData);
-                JS::HandleValueArray callArgs(valArr);
-                JS_CallFunctionValue(cx, thisObj, jsvalCallback, callArgs, &retval);
+                JS::RootedObject data(cx);
+                tmpCobj->getData(cx, &data);
+                JS::RootedValue dataVal(cx, JS::ObjectOrNullValue(data));
+                valArr.append(dataVal);
             }
+            JS::HandleValueArray callArgs(valArr);
+            
+            tmpCobj->invoke(callArgs, &retval);
         });
         if (ok)
         {
+            JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
             args.rval().set(retVal);
             return true;
         }
@@ -701,25 +723,21 @@ bool js_cocos2dx_CallFunc_initWithFunction(JSContext *cx, uint32_t argc, JS::Val
         CallFuncN *action = (cocos2d::CallFuncN *)(proxy ? proxy->ptr : nullptr);
         JSB_PRECONDITION2(action, cx, false, "Invalid Native Object");
 
-        std::shared_ptr<JSCallbackWrapper> tmpCobj(new JSCallbackWrapper(args.thisv()));
-
-        JS::RootedValue callback(cx, args.get(0));
-        tmpCobj->setJSCallbackFunc(callback);
-        if(argc >= 2) {
-            JS::RootedValue thisObj(cx, args.get(1));
-            tmpCobj->setJSCallbackThis(thisObj);
+        JS::RootedObject callback(cx, args.get(0).toObjectOrNull());
+        JS::RootedObject thisObj(cx);
+        if (argc >= 2)
+        {
+            thisObj = args.get(1).toObjectOrNull();
         }
-        if(argc >= 3) {
-            JS::RootedValue data(cx, args.get(2));
-            tmpCobj->setJSExtraData(data);
+        std::shared_ptr<JSFunctionWrapper> tmpCobj(new JSFunctionWrapper(cx, thisObj, callback, obj));
+        
+        if (argc >= 3)
+        {
+            JS::RootedObject data(cx, args.get(2).toObjectOrNull());
+            tmpCobj->setData(cx, data);
         }
 
         action->initWithFunction([=](Node* sender){
-            JS::RootedValue jsvalThis(cx, tmpCobj->getJSCallbackThis());
-            JS::RootedObject thisObj(cx, jsvalThis.toObjectOrNull());
-            JS::RootedValue jsvalCallback(cx, tmpCobj->getJSCallbackFunc());
-            JS::RootedValue jsvalExtraData(cx, tmpCobj->getJSExtraData());
-
             JS::RootedValue senderVal(cx);
             if (sender)
             {
@@ -731,16 +749,20 @@ bool js_cocos2dx_CallFunc_initWithFunction(JSContext *cx, uint32_t argc, JS::Val
             {
                 senderVal.set(JS::NullValue());
             }
-
-            if (!jsvalCallback.isNullOrUndefined())
+            
+            JS::RootedValue retval(cx);
+            JS::AutoValueVector valArr(cx);
+            valArr.append(senderVal);
+            if (argc >= 3)
             {
-                JS::RootedValue retval(cx);
-                JS::AutoValueVector valArr(cx);
-                valArr.append(senderVal);
-                valArr.append(jsvalExtraData);
-                JS::HandleValueArray callArgs(valArr);
-                JS_CallFunctionValue(cx, thisObj, jsvalCallback, callArgs, &retval);
+                JS::RootedObject data(cx);
+                tmpCobj->getData(cx, &data);
+                JS::RootedValue dataVal(cx, JS::ObjectOrNullValue(data));
+                valArr.append(dataVal);
             }
+            JS::HandleValueArray callArgs(valArr);
+            
+            tmpCobj->invoke(callArgs, &retval);
         });
         return true;
     }

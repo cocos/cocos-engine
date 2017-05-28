@@ -108,13 +108,15 @@ public:
     ~JSFunctionWrapper();
     
     void setOwner(JSContext* cx, JS::HandleObject owner);
+    void setData(JSContext* cx, JS::HandleObject data);
+    void getData(JSContext* cx, JS::MutableHandleObject data);
     bool invoke(JS::HandleValueArray args, JS::MutableHandleValue rval);
 private:
     JSContext *_cx;
     jsb::Object *_jsthis;
     jsb::Object *_func;
     jsb::Object *_owner;
-    //    jsb::Object *_data;
+    jsb::Object *_data;
     void* _cppOwner;
     
     CC_DISALLOW_COPY_AND_ASSIGN(JSFunctionWrapper);
@@ -136,16 +138,8 @@ typedef struct jsScheduleTarget_proxy {
     UT_hash_handle hh;
 } schedTarget_proxy_t;
 
-
-typedef struct jsCallFuncTarget_proxy {
-    void * ptr;
-    JSBinding::Array* obj;
-    UT_hash_handle hh;
-} callfuncTarget_proxy_t;
-
 extern schedFunc_proxy_t *_schedFunc_target_ht;
 extern schedTarget_proxy_t *_schedObj_target_ht;
-extern callfuncTarget_proxy_t *_callfuncTarget_native_ht;
 
 /**
  * You don't need to manage the returned pointer. They live for the whole life of
