@@ -51,31 +51,24 @@ static bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return false;
 }
 
-namespace JSBinding
-{
-    typedef cocos2d::Vector<cocos2d::Ref*> Array;
-    typedef cocos2d::Map<std::string, cocos2d::Ref*> Dictionary;
-
-    class DictionaryRef : public cocos2d::Ref
-    {
-    public:
-        Dictionary data;
-    };
-
-    class ArrayRef : public cocos2d::Ref
-    {
-    public:
-        Array data;
-    };
-}
-
 namespace jsb
 {
     class Object
     {
     private:
         js_proxy_t *_proxy;
+        std::string _jsRef;
     public:
+        Object(const std::string &jsRef = "")
+        {
+            _jsRef = jsRef;
+            _proxy = nullptr;
+        }
+        Object(JSContext *cx, JS::HandleObject jsobj, const std::string &jsRef = "")
+        {
+            _jsRef = jsRef;
+            setObj(cx, jsobj);
+        }
         void ～Object()
         {
             if (_proxy)
@@ -87,14 +80,40 @@ namespace jsb
         {
             if (_proxy)
             {
-                jsb_unbind_proxy(_proxy);
+                jsb_remove_proxy(_proxy);
             }
             _proxy = jsb_bind_proxy(cx, this, jsobj);
+            
+            if (_jsRef.size() > 0)
+            {
+                JS::RootedObject proto(cx, jsb_ObjFinalizeHook_prototype);
+                JS::RootedObject hook(cx, JS_NewObjectWithGivenProto(cx, jsb_ObjFinalizeHook_class, proto));
+                JS::RootedValue hookVal(cx, JS::ObjectOrNullValue(hook));
+                JS_SetProperty(cx, jsobj, _jsRef.c_str(), hookVal);
+                JS_SetPrivate(hook, this);
+            }
         }
         bool getObj(JS::MutableHandleObject obj)
         {
             obj.set(_proxy->obj);
             return true;
+        }
+        
+        static Object *getJSBObject(JSContext *cx, JS::HandleObject jsobj, const std::string &jsRefName)
+        {
+            JS::RootedValue obj(cx, JS::ObjectOrNullValue(jsobj));
+            bool found = false;
+            if (obj.isObject() && JS_HasProperty(cx, jsobj, jsRefName.c_str(), &found) && found)
+            {
+                JS::RootedValue ref(cx);
+                JS_GetProperty(cx, jsobj, jsRefName.c_str(), &ref);
+                JS::RootedObject refObj(cx, ref.toObjectOrNull());
+                if (JS_GetClass(refObj) == jsb_ObjFinalizeHook_class)
+                {
+                    return (Object *)JS_GetPrivate(refObj);
+                }
+            }
+            return nullptr;
         }
     };
 }
@@ -110,6 +129,9 @@ public:
     void setOwner(JSContext* cx, JS::HandleObject owner);
     void setData(JSContext* cx, JS::HandleObject data);
     void getData(JSContext* cx, JS::MutableHandleObject data);
+    void getJSCallback(JSContext* cx, JS::MutableHandleObject callback);
+    void getJSTarget(JSContext* cx, JS::MutableHandleObject target);
+    
     bool invoke(JS::HandleValueArray args, JS::MutableHandleValue rval);
 private:
     JSContext *_cx;
@@ -127,19 +149,63 @@ private:
 // To debug this, you could refer to JSScheduleWrapper::dump function.
 // It will prove that i'm right. :)
 typedef struct jsScheduleFunc_proxy {
-    JS::Heap<JSObject*> jsfuncObj;
-    JSBinding::Array* targets;
+    jsb::Object *jsfuncObj;
+    cocos2d::Vector<JSScheduleWrapper*>* targets;
     UT_hash_handle hh;
 } schedFunc_proxy_t;
 
 typedef struct jsScheduleTarget_proxy {
-    JS::Heap<JSObject*> jsTargetObj;
-    JSBinding::Array* targets;
+    jsb::Object *jsTargetObj;
+    cocos2d::Vector<JSScheduleWrapper*>* targets;
     UT_hash_handle hh;
 } schedTarget_proxy_t;
 
 extern schedFunc_proxy_t *_schedFunc_target_ht;
 extern schedTarget_proxy_t *_schedObj_target_ht;
+
+
+class JSScheduleWrapper: public JSFunctionWrapper, public cocos2d::Ref {
+    
+public:
+    JSScheduleWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func);
+    JSScheduleWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner);
+    
+    static void setTargetForSchedule(JSContext* cx, JS::HandleValue sched, JSScheduleWrapper *target);
+    static cocos2d::Vector<JSScheduleWrapper*>* getTargetForSchedule(JSContext *cx, JS::HandleValue sched);
+    static void setTargetForJSObject(JSContext* cx, JS::HandleObject jsTargetObj, JSScheduleWrapper *target);
+    static cocos2d::Vector<JSScheduleWrapper*>* getTargetForJSObject(JSContext *cx, JS::HandleObject jsTargetObj);
+    
+    // Remove all targets.
+    static void removeAllTargets();
+    // Remove all targets for priority.
+    static void removeAllTargetsForMinPriority(int minPriority);
+    // Remove all targets by js object from hash table(_schedFunc_target_ht and _schedObj_target_ht).
+    static void removeAllTargetsForJSObject(JSContext *cx, JS::HandleObject jsTargetObj);
+    // Remove the target by js object and the wrapper for native schedule.
+    static void removeTargetForJSObject(JSContext *cx, JS::HandleObject jsTargetObj, JSScheduleWrapper* target);
+    static void dump();
+    
+    void pause();
+    
+    void scheduleFunc(float dt);
+    void update(float dt);
+    
+    Ref* getTarget();
+    void setTarget(Ref* pTarget);
+    
+    void setPriority(int priority);
+    int  getPriority();
+    
+    void setUpdateSchedule(bool isUpdateSchedule);
+    bool isUpdateSchedule();
+    
+protected:
+    static std::string _jsRefName;
+    
+    Ref* _pTarget;
+    int _priority;
+    bool _isUpdateSchedule;
+};
 
 /**
  * You don't need to manage the returned pointer. They live for the whole life of
@@ -210,115 +276,6 @@ void js_remove_object_root(JS::HandleValue target);
 
 bool anonEvaluate(JSContext *cx, JS::HandleObject thisObj, const char* string, JS::MutableHandleValue out);
 void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject obj);
-
-
-class JSCallbackWrapper: public cocos2d::Ref {
-public:
-    JSCallbackWrapper();
-    JSCallbackWrapper(JS::HandleValue owner);
-    virtual ~JSCallbackWrapper();
-    void setJSCallbackFunc(JS::HandleValue callback);
-    void setJSCallbackThis(JS::HandleValue thisObj);
-    void setJSExtraData(JS::HandleValue data);
-
-    const JS::HandleValue getJSCallbackFunc() const;
-    const JS::HandleValue getJSCallbackThis() const;
-    const JS::HandleValue getJSExtraData() const;
-protected:
-    JS::Heap<JS::Value> _owner;
-    JS::Heap<JS::Value> _jsCallback;
-    JS::Heap<JS::Value> _jsThisObj;
-    JS::Heap<JS::Value> _extraData;
-    void* _cppOwner;
-};
-
-
-class JSScheduleWrapper: public JSCallbackWrapper {
-
-public:
-    JSScheduleWrapper();
-    JSScheduleWrapper(JS::HandleValue owner);
-
-    static void setTargetForSchedule(JSContext* cx, JS::HandleValue sched, JSScheduleWrapper *target);
-    static JSBinding::Array* getTargetForSchedule(JS::HandleValue sched);
-    static void setTargetForJSObject(JSContext* cx, JS::HandleObject jsTargetObj, JSScheduleWrapper *target);
-    static JSBinding::Array* getTargetForJSObject(JS::HandleObject jsTargetObj);
-
-    // Remove all targets.
-    static void removeAllTargets();
-    // Remove all targets for priority.
-    static void removeAllTargetsForMinPriority(int minPriority);
-    // Remove all targets by js object from hash table(_schedFunc_target_ht and _schedObj_target_ht).
-    static void removeAllTargetsForJSObject(JS::HandleObject jsTargetObj);
-    // Remove the target by js object and the wrapper for native schedule.
-    static void removeTargetForJSObject(JS::HandleObject jsTargetObj, JSScheduleWrapper* target);
-    static void dump();
-
-    void pause();
-
-    void scheduleFunc(float dt);
-    void update(float dt);
-
-    Ref* getTarget();
-    void setTarget(Ref* pTarget);
-
-    void setPureJSTarget(JS::HandleObject jstarget);
-    JSObject* getPureJSTarget();
-
-    void setPriority(int priority);
-    int  getPriority();
-
-    void setUpdateSchedule(bool isUpdateSchedule);
-    bool isUpdateSchedule();
-
-protected:
-    Ref* _pTarget;
-    JS::Heap<JSObject*> _pPureJSTarget;
-    int _priority;
-    bool _isUpdateSchedule;
-};
-
-
-class JSTouchDelegate: public cocos2d::Ref
-{
-public:
-    JSTouchDelegate();
-    ~JSTouchDelegate();
-
-    // Set the touch delegate to map by using the key (pJSObj).
-    static void setDelegateForJSObject(JSObject* pJSObj, JSTouchDelegate* pDelegate);
-    // Get the touch delegate by the key (pJSObj).
-    static JSTouchDelegate* getDelegateForJSObject(JSObject* pJSObj);
-    // Remove the delegate by the key (pJSObj).
-    static void removeDelegateForJSObject(JSObject* pJSObj);
-
-    void setJSObject(JS::HandleObject obj);
-    void registerStandardDelegate(int priority);
-    void registerTargetedDelegate(int priority, bool swallowsTouches);
-    // unregister touch delegate.
-    // Normally, developer should invoke cc.unregisterTouchDelegate() in when the scene exits.
-    // So this function need to be binded.
-    void unregisterTouchDelegate();
-
-    bool onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *event);
-    void onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *event);
-    void onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *event);
-    void onTouchCancelled(cocos2d::Touch *touch, cocos2d::Event *event);
-
-    // optional
-    void onTouchesBegan(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event);
-    void onTouchesMoved(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event);
-    void onTouchesEnded(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event);
-    void onTouchesCancelled(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event);
-
-private:
-    JS::Heap<JSObject*> _obj;
-    typedef std::unordered_map<JSObject*, JSTouchDelegate*> TouchDelegateMap;
-    typedef std::pair<JSObject*, JSTouchDelegate*> TouchDelegatePair;
-    static TouchDelegateMap sTouchDelegateMap;
-    cocos2d::EventListenerTouchOneByOne*  _touchListenerOneByOne;
-    cocos2d::EventListenerTouchAllAtOnce* _touchListenerAllAtOnce;
-};
 
 
 class __JSPlistDelegator: public cocos2d::SAXDelegator

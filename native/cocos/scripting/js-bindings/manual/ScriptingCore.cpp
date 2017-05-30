@@ -844,7 +844,7 @@ void ScriptingCore::cleanup()
     for (auto iter = _js_global_type_map.begin(); iter != _js_global_type_map.end(); ++iter)
     {
         CC_SAFE_DELETE(iter->second->proto);
-        free(iter->second->jsclass);
+        CC_SAFE_DELETE(iter->second->jsclass);
         free(iter->second);
     }
     _js_global_type_map.clear();
@@ -1163,7 +1163,7 @@ bool ScriptingCore::dumpRoot(JSContext *cx, uint32_t argc, JS::Value *vp)
 void ScriptingCore::pauseSchedulesAndActions(js_proxy_t* p)
 {
     JS::RootedObject obj(_cx, p->obj.get());
-    auto arr = JSScheduleWrapper::getTargetForJSObject(obj);
+    auto arr = JSScheduleWrapper::getTargetForJSObject(_cx, obj);
     if (! arr) return;
 
     Node* node = (Node*)p->ptr;
@@ -1178,7 +1178,7 @@ void ScriptingCore::pauseSchedulesAndActions(js_proxy_t* p)
 void ScriptingCore::resumeSchedulesAndActions(js_proxy_t* p)
 {
     JS::RootedObject obj(_cx, p->obj.get());
-    auto arr = JSScheduleWrapper::getTargetForJSObject(obj);
+    auto arr = JSScheduleWrapper::getTargetForJSObject(_cx, obj);
     if (!arr) return;
 
     Node* node = (Node*)p->ptr;
@@ -1191,7 +1191,7 @@ void ScriptingCore::resumeSchedulesAndActions(js_proxy_t* p)
 void ScriptingCore::cleanupSchedulesAndActions(js_proxy_t* p)
 {
     JS::RootedObject obj(_cx, p->obj.get());
-    auto targetArray = JSScheduleWrapper::getTargetForJSObject(obj);
+    auto targetArray = JSScheduleWrapper::getTargetForJSObject(_cx, obj);
     if (targetArray)
     {
         Node* node = (Node*)p->ptr;
@@ -1201,7 +1201,7 @@ void ScriptingCore::cleanupSchedulesAndActions(js_proxy_t* p)
             scheduler->unscheduleAllForTarget(target);
         }
 
-        JSScheduleWrapper::removeAllTargetsForJSObject(obj);
+        JSScheduleWrapper::removeAllTargetsForJSObject(_cx, obj);
     }
 }
 
