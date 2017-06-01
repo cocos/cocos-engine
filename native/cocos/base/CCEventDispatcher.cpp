@@ -859,7 +859,33 @@ void EventDispatcher::dispatchCustomEvent(const std::string &eventName, void *op
 
 bool EventDispatcher::hasEventListener(const EventListener::ListenerID& listenerID) const
 {
-    return getListeners(listenerID) != nullptr;
+    auto listeners = getListeners(listenerID);
+    if (listeners == nullptr)
+        return false;
+
+    if (!_toRemovedListeners.empty())
+    {
+        // fix cocos-creator/fireball/issues/5821
+        auto fixedPriorityListeners = listeners->getFixedPriorityListeners();
+        auto sceneGraphPriorityListeners = listeners->getSceneGraphPriorityListeners();
+        for (auto& listener : _toRemovedListeners)
+        {
+            if (fixedPriorityListeners)
+            {
+                auto matchIter = std::find(fixedPriorityListeners->begin(), fixedPriorityListeners->end(), listener);
+                if (matchIter != fixedPriorityListeners->end())
+                    return false;
+            }
+
+            if (sceneGraphPriorityListeners)
+            {
+                auto matchIter = std::find(sceneGraphPriorityListeners->begin(), sceneGraphPriorityListeners->end(), listener);
+                if (matchIter != sceneGraphPriorityListeners->end())
+                    return false;
+            }
+        }
+    }
+    return true;
 }
 
 void EventDispatcher::dispatchTouchEvent(EventTouch* event)
