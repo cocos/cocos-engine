@@ -193,7 +193,7 @@ var Component = cc.Class({
 
         /**
          * !#en indicates whether this component is enabled and its node is also active in the hierarchy.
-         * !#zh 表示该组件是否被启用并且所在的节点也处于激活状态。。
+         * !#zh 表示该组件是否被启用并且所在的节点也处于激活状态。
          * @property enabledInHierarchy
          * @type {Boolean}
          * @readOnly
@@ -214,7 +214,7 @@ var Component = cc.Class({
          * @type {Number}
          * @readOnly
          * @example
-         * cc.log(_isOnLoadCalled > 0);
+         * cc.log(this._isOnLoadCalled > 0);
          */
         _isOnLoadCalled: {
             get () {
