@@ -146,13 +146,17 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
             list.push(this);
     },
 
+    cleanup: function () {
+        this._super();
+        this._renderCmd.removeDom();
+    },
+
     onExit: function () {
         _ccsg.Node.prototype.onExit.call(this);
         var list = _ccsg.VideoPlayer.elements;
         var index = list.indexOf(this);
         if(index !== -1)
             list.splice(index, 1);
-        this._renderCmd.removeDom();
     },
 
     setVisible: function ( visible ) {
