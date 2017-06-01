@@ -1,4 +1,11 @@
-largeModule('Component Scheduler', SetupEngine);
+largeModule('Component Scheduler', {
+    setup: SetupEngine.setup,
+    teardown: function () {
+        cc.director._scene = new cc.Scene();
+        cc.director._runningScene = cc.director._scene._sgNode;
+        SetupEngine.teardown();
+    }
+});
 
 test('life cycle logic for component', function () {
     // my component
@@ -127,7 +134,10 @@ test('disable component during onLoad', function () {
 
     nodes.attachToScene();
 
-    expect(0);
+    // could re-enable
+    parentComp.onEnable.enable();
+    parentComp.enabled = true;
+    parentComp.onEnable.once('could re-enable component');
 });
 
 test('disable component during onEnable', function () {
@@ -137,7 +147,6 @@ test('disable component during onEnable', function () {
             comps: cc.Component,
         },
     });
-    var parent = nodes.root;
     var parentComp = nodes.rootComps[0];
     var child = nodes.child;
     var childComp = nodes.childComps[0];
@@ -150,7 +159,10 @@ test('disable component during onEnable', function () {
 
     nodes.attachToScene();
 
-    expect(0);
+    // could re-enable
+    childComp.onEnable = new Callback().enable();
+    childComp.enabled = true;
+    childComp.onEnable.once('could re-enable component');
 });
 
 (function () {
@@ -236,18 +248,33 @@ test('disable component during onEnable', function () {
         var siblingComp = nodes.siblingComps[0];
         siblingComp.onLoad = new Callback().enable();
 
-        cc.director.getScene().addChild(nodes.root);
+        nodes.attachToScene();
 
         strictEqual(node.active, false, 'node should be deactivated');
         strictEqual(cc.director.getActionManager().isTargetPaused_TEST(node), true, 'action should be paused');
         previousComp.onLoad.once('onLoad of previous component should be called').disable();
-        siblingComp.onLoad.once('onLoad of sibling node should still be called');
+        siblingComp.onLoad.once('onLoad of sibling node should still be called').disable();
 
         if (StillInvokeRestCompsOnSameNode) {
             compShouldBeActivated(restComp, 'rest');
         }
 
         cc.game.step();
+
+        // re-active
+
+        previousComp.onEnable.enable();
+        testComp.onLoad = new Callback().disable('onLoad of testing component has already called');
+        testComp.onEnable.enable();
+        restComp.onLoad.enable();
+        restComp.onEnable.enable();
+
+        node.active = true;
+
+        previousComp.onEnable.once('onEnable of previous component should be called when node re-activated');
+        testComp.onEnable.once('onEnable of testing component should be called when node re-activated');
+        restComp.onLoad.once('onLoad of rest component should be called when node re-activated');
+        restComp.onEnable.once('onEnable of rest component should be called when node re-activated');
     });
 
     test('could activate next sibling node in onLoad', function () {
@@ -259,7 +286,6 @@ test('disable component during onEnable', function () {
                 comps: cc.Component,
             }
         });
-        var parent = nodes.root;
         var testComp = nodes.testComps[0];
         var next = nodes.next;
         var nextComp = nodes.nextComps[0];
@@ -356,7 +382,7 @@ test('disable component during onEnable', function () {
         }
 
         // init child
-        createDisabledComp(child, 'child');
+        var compOfChild = createDisabledComp(child, 'child');
 
         // ACTIVATE
         parentToDeactivate.runAction(cc.delayTime(0));
@@ -379,6 +405,32 @@ test('disable component during onEnable', function () {
         }
 
         cc.game.step();
+
+        // re-active
+        var compOfNextNode = nextNode.getComponent(cc.Component);
+        compOfParent.onEnable.enable();
+        compOfPrevNode.onEnable.enable();
+        previousComp.onEnable.enable();
+        compOfNextNode.onLoad.enable();
+        compOfNextNode.onEnable.enable();
+        testComp.onEnable.enable();
+        restComp.onLoad.enable();
+        restComp.onEnable.enable();
+        compOfChild.onLoad.enable();
+        compOfChild.onEnable.enable();
+
+        parentToDeactivate.active = true;
+
+        compOfParent.onEnable.once('parent component should be re-enabled');
+        compOfPrevNode.onEnable.once('previous node\'s component should be re-enabled');
+        previousComp.onEnable.once('previous component should be re-enabled');
+        compOfNextNode.onLoad.once('next node\'s component should be loaded');
+        compOfNextNode.onEnable.once('next node\'s component should be re-enabled');
+        testComp.onEnable.once('testing component should be re-enabled');
+        restComp.onLoad.once('rest component should be loaded');
+        restComp.onEnable.once('rest component should be re-enabled');
+        compOfChild.onLoad.once('child component should be loaded');
+        compOfChild.onEnable.once('child component should be re-enabled');
     });
 
     // test('could deactivate parent in onLoad', function () {
@@ -464,7 +516,7 @@ test('disable component during onEnable', function () {
     // });
 
     test('could deactivate self node in onEnable', function () {
-        var node = new cc.Node();
+        var node = new cc.Node('P');
 
         var previousComp = createNormalComp(node);
 
@@ -483,8 +535,8 @@ test('disable component during onEnable', function () {
             restComp = createOnlyOnLoadComp(node, 'rest');
         }
 
-        var child = new cc.Node();
-        createOnlyOnLoadComp(child, 'child');
+        var child = new cc.Node('C');
+        var compOfChild = createOnlyOnLoadComp(child, 'child');
         child.parent = node;
 
         cc.director.getScene().addChild(node);
@@ -499,6 +551,17 @@ test('disable component during onEnable', function () {
         }
 
         cc.game.step();
+
+        // re-active
+
+        testComp.onEnable = null;
+        previousComp.onEnable.enable();
+
+        restComp.onEnable.enable();
+        compOfChild.onEnable.enable();
+        node.active = true;
+        restComp.onEnable.once('rest component should be re-enabled');
+        compOfChild.onEnable.once('child component should be re-enabled');
     });
 
     function testActivateChildManually (title, childActivedByDefault) {

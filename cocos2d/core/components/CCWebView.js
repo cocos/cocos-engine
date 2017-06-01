@@ -152,7 +152,6 @@ var WebView = cc.Class({
         cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.ERROR);
         this.node.emit('error', this);
     }
-
 });
 
 cc.WebView = module.exports = WebView;
@@ -184,4 +183,18 @@ cc.WebView = module.exports = WebView;
  * @event error
  * @param {Event.EventCustom} event
  * @param {WebView} event.detail - The WebView component.
+ */
+
+/**
+ * !#en if you don't need the WebView and it isn't in any running Scene, you should
+ * call the destroy method on this component or the associated node explicitly.
+ * Otherwise, the created DOM element won't be removed from web page.
+ * !#zh
+ * 如果你不再使用 WebView，并且组件未添加到场景中，那么你必须手动对组件或所在节点调用 destroy。
+ * 这样才能移除网页上的 DOM 节点，避免 Web 平台内存泄露。
+ * @example
+ * webview.node.parent = null;  // or  webview.node.removeFromParent(false);
+ * // when you don't need webview anymore
+ * webview.node.destroy();
+ * @method destroy
  */

@@ -17,6 +17,7 @@ var Deactivating = 1 << 8;
 
 var IsOnEnableCalled = 1 << 11;
 var IsEditorOnEnableCalled = 1 << 12;
+var IsPreloadStarted = 1 << 13;
 var IsOnLoadCalled = 1 << 14;
 var IsOnLoadStarted = 1 << 15;
 var IsStartCalled = 1 << 16;
@@ -30,7 +31,7 @@ var IsPositionLocked = 1 << 21;
 //var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
 var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactivating |
-                       IsOnLoadStarted | IsOnLoadCalled | IsStartCalled |
+                       IsPreloadStarted | IsOnLoadStarted | IsOnLoadCalled | IsStartCalled |
                        IsOnEnableCalled | IsEditorOnEnableCalled |
                        IsRotationLocked | IsScaleLocked | IsAnchorLocked | IsSizeLocked | IsPositionLocked
                        /*RegisteredInEditor*/);
@@ -67,7 +68,7 @@ CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
  */
 JS.value(CCObject, 'Flags', {
 
-    Destroyed: Destroyed,
+    Destroyed,
     //ToDestroy: ToDestroy,
 
     /**
@@ -75,16 +76,16 @@ JS.value(CCObject, 'Flags', {
      * !#zh 该对象将不会被保存。
      * @property {Number} DontSave
      */
-    DontSave: DontSave,
+    DontSave,
 
     /**
      * !#en The object will not be saved when building a player.
      * !#zh 构建项目时，该对象将不会被保存。
      * @property {Number} EditorOnly
      */
-    EditorOnly: EditorOnly,
+    EditorOnly,
 
-    Dirty: Dirty,
+    Dirty,
 
     /**
      * !#en Dont destroy automatically when loading a new scene.
@@ -92,13 +93,13 @@ JS.value(CCObject, 'Flags', {
      * @property DontDestroy
      * @private
      */
-    DontDestroy: DontDestroy,
+    DontDestroy,
 
-    PersistentMask: PersistentMask,
+    PersistentMask,
 
     // FLAGS FOR ENGINE
 
-    Destroying: Destroying,
+    Destroying,
 
     /**
      * !#en The node is deactivating.
@@ -106,7 +107,7 @@ JS.value(CCObject, 'Flags', {
      * @property Deactivating
      * @private
      */
-    Deactivating: Deactivating,
+    Deactivating,
 
     ///**
     // * !#en
@@ -144,17 +145,18 @@ JS.value(CCObject, 'Flags', {
 
     // FLAGS FOR COMPONENT
 
-    IsOnLoadCalled: IsOnLoadCalled,
-    IsOnLoadStarted: IsOnLoadStarted,
-    IsOnEnableCalled: IsOnEnableCalled,
-    IsStartCalled: IsStartCalled,
-    IsEditorOnEnableCalled: IsEditorOnEnableCalled,
+    IsPreloadStarted,
+    IsOnLoadStarted,
+    IsOnLoadCalled,
+    IsOnEnableCalled,
+    IsStartCalled,
+    IsEditorOnEnableCalled,
 
-    IsPositionLocked: IsPositionLocked,
-    IsRotationLocked: IsRotationLocked,
-    IsScaleLocked: IsScaleLocked,
-    IsAnchorLocked: IsAnchorLocked,
-    IsSizeLocked: IsSizeLocked,
+    IsPositionLocked,
+    IsRotationLocked,
+    IsScaleLocked,
+    IsAnchorLocked,
+    IsSizeLocked,
 });
 
 var objectsToDestroy = [];

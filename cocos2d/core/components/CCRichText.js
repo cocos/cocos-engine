@@ -70,7 +70,9 @@ var RichText = cc.Class({
 
     ctor: function() {
         this._textArray = null;
+        this._labelSegments = [];
         this._labelSegmentsCache = [];
+        this._linesWidth = [];
 
         this._resetState();
 
@@ -329,9 +331,9 @@ var RichText = cc.Class({
             sgNode.removeAllChildren();
         }
 
-        this._labelSegments = [];
-        this._labelSegmentsCache = [];
-        this._linesWidth = [];
+        this._labelSegments.length = 0;
+        this._labelSegmentsCache.length = 0;
+        this._linesWidth.length = 0;
         this._lineOffsetX = 0;
         this._lineCount = 1;
         this._labelWidth = 0;

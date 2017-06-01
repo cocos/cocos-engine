@@ -395,7 +395,7 @@ var EditBox = cc.Class({
         /**
          * !#en The event handler to be called when EditBox began to edit text.
          * !#zh 开始编辑文本输入框触发的事件回调。
-         * @property {Component.EventHandler} editingDidBegin
+         * @property {Component.EventHandler} editingDidBegan
          */
         editingDidBegan: {
             default: [],
@@ -625,4 +625,18 @@ cc.EditBox = module.exports = EditBox;
  * @event editing-return
  * @param {Event.EventCustom} event
  * @param {EditBox} event.detail - The EditBox component.
+ */
+
+/**
+ * !#en if you don't need the EditBox and it isn't in any running Scene, you should
+ * call the destroy method on this component or the associated node explicitly.
+ * Otherwise, the created DOM element won't be removed from web page.
+ * !#zh
+ * 如果你不再使用 EditBox，并且组件未添加到场景中，那么你必须手动对组件或所在节点调用 destroy。
+ * 这样才能移除网页上的 DOM 节点，避免 Web 平台内存泄露。
+ * @example
+ * editbox.node.parent = null;  // or  editbox.node.removeFromParent(false);
+ * // when you don't need editbox anymore
+ * editbox.node.destroy();
+ * @method destroy
  */
