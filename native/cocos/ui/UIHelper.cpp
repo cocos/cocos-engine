@@ -184,7 +184,10 @@ Rect Helper::convertBoundingBoxToScreen(Node* node)
 {
     auto director = Director::getInstance();
     auto glView = director->getOpenGLView();
-    auto frameSize = glView->getFrameSize();
+
+    auto zoomFrameFactor = Director::getInstance()->getOpenGLView()->getFrameZoomFactor();
+
+    auto frameSize = glView->getFrameSize() * zoomFrameFactor;
 
     auto winSize = director->getWinSize();
     auto leftBottom = node->convertToWorldSpace(Point::ZERO);
@@ -192,10 +195,10 @@ Rect Helper::convertBoundingBoxToScreen(Node* node)
     auto contentSize = node->getContentSize();
     auto rightTop = node->convertToWorldSpace(Point(contentSize.width, contentSize.height));
 
-    auto uiLeft = frameSize.width / 2 + (leftBottom.x - winSize.width / 2 ) * glView->getScaleX();
-    auto uiTop = frameSize.height /2 - (rightTop.y - winSize.height / 2) * glView->getScaleY();
-    auto uiWidth = (rightTop.x - leftBottom.x) * glView->getScaleX();
-    auto uiHeight = (rightTop.y - leftBottom.y) * glView->getScaleY();
+    auto uiLeft = frameSize.width / 2 + (leftBottom.x - winSize.width / 2 ) * glView->getScaleX() * zoomFrameFactor;
+    auto uiTop = frameSize.height /2 - (rightTop.y - winSize.height / 2) * glView->getScaleY() * zoomFrameFactor;
+    auto uiWidth = (rightTop.x - leftBottom.x) * glView->getScaleX()  * zoomFrameFactor;
+    auto uiHeight = (rightTop.y - leftBottom.y) * glView->getScaleY()  * zoomFrameFactor;
 
     return Rect(uiLeft, uiTop, uiWidth, uiHeight);
 }

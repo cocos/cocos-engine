@@ -31,6 +31,8 @@
 #include "UIEditBox.h"
 #include "base/ccUTF8.h"
 #include "ui/UIEditBox/Mac/CCUIEditBoxMac.h"
+#include "ui/UIHelper.h"
+
 NS_CC_BEGIN
 
 namespace ui {
@@ -184,15 +186,20 @@ void EditBoxImplMac::setNativePlaceHolder(const char* pText)
 void EditBoxImplMac::setNativeVisible(bool visible)
 {
     [_sysEdit setVisible:visible];
+    if (visible) {
+        auto rect = ui::Helper::convertBoundingBoxToScreen(_editBox);
+        this->updateNativeFrame(rect);
+    }
 }
 
 void EditBoxImplMac::updateNativeFrame(const cocos2d::Rect &rect)
 {
     GLView* eglView = Director::getInstance()->getOpenGLView();
     auto viewPortRect = eglView->getViewPortRect();
+    auto zoomFrameFactor = Director::getInstance()->getOpenGLView()->getFrameZoomFactor();
     // Coordinate System on OSX has its origin at the lower left corner.
 //    https://developer.apple.com/library/ios/documentation/General/Conceptual/Devpedia-CocoaApp/CoordinateSystem.html
-    auto screenPosY = viewPortRect.size.height - rect.origin.y - rect.size.height;
+    auto screenPosY = viewPortRect.size.height * zoomFrameFactor - rect.origin.y - rect.size.height;
     [_sysEdit updateFrame:CGRectMake(rect.origin.x,
                                      screenPosY,
                                      rect.size.width, rect.size.height)];

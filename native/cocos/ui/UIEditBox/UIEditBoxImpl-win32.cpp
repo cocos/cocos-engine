@@ -80,7 +80,7 @@ namespace ui {
         {
             lazyInit();
         }
-        
+
         s_editboxChildID++;
 
     }
@@ -115,17 +115,17 @@ namespace ui {
         if (!hwndEdit)
         {
             hwndEdit = CreateWindowEx(
-                WS_EX_CLIENTEDGE, L"EDIT",   // predefined class 
-                NULL,         // no window title 
+                WS_EX_WINDOWEDGE, L"EDIT",   // predefined class
+                NULL,         // no window title
                 WS_CHILD | ES_LEFT | WS_BORDER | WS_EX_TRANSPARENT | WS_TABSTOP | ES_AUTOHSCROLL,
                 0,
                 0,
                 0,
-                0,   // set size in WM_SIZE message 
-                s_hwndCocos,         // parent window 
-                (HMENU)s_editboxChildID,   // edit control ID 
+                0,   // set size in WM_SIZE message
+                s_hwndCocos,         // parent window
+                (HMENU)s_editboxChildID,   // edit control ID
                 s_hInstance,
-                this);        // pointer not needed 
+                this);        // pointer not needed
 
             SetWindowLongPtr(hwndEdit, GWL_USERDATA, (LONG_PTR)this);
             _prevWndProc = (WNDPROC)SetWindowLongPtr(hwndEdit, GWL_WNDPROC, (LONG_PTR)WindowProc);
@@ -143,17 +143,17 @@ namespace ui {
         if (!hwndEdit)
         {
             hwndEdit = CreateWindowEx(
-                WS_EX_CLIENTEDGE, L"EDIT",   // predefined class 
-                NULL,         // no window title 
+                WS_EX_WINDOWEDGE, L"EDIT",   // predefined class
+                NULL,         // no window title
                 WS_CHILD | ES_LEFT | WS_BORDER | WS_EX_TRANSPARENT | WS_TABSTOP | ES_MULTILINE | ES_AUTOVSCROLL,
                 0,
                 0,
                 0,
-                0,   // set size in WM_SIZE message 
-                s_hwndCocos,         // parent window 
-                (HMENU)s_editboxChildID,   // edit control ID 
+                0,   // set size in WM_SIZE message
+                s_hwndCocos,         // parent window
+                (HMENU)s_editboxChildID,   // edit control ID
                 s_hInstance,
-                this);        // pointer not needed 
+                this);        // pointer not needed
 
                               //register new window proc func
             SetWindowLongPtr(hwndEdit, GWL_USERDATA, (LONG_PTR)this);
@@ -168,7 +168,7 @@ namespace ui {
 
     void EditBoxImplWin::createNativeControl(const Rect & frame)
     {
-        
+
         this->createMultilineEditCtrl();
     }
 
@@ -176,6 +176,7 @@ namespace ui {
     {
         //not implemented yet
         this->_fontSize = fontSize;
+
         HFONT hFont = CreateFontW(fontSize, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
             CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, VARIABLE_PITCH, TEXT("Arial"));
 
@@ -230,7 +231,7 @@ namespace ui {
         {
             this->createSingleLineEditCtrl();
         }
-        
+
         else
         {
             if (_editBoxInputMode != cocos2d::ui::EditBox::InputMode::ANY)
@@ -272,6 +273,8 @@ namespace ui {
     {
         if (visible)
         {
+            auto rect = ui::Helper::convertBoundingBoxToScreen(_editBox);
+            this->updateNativeFrame(rect);
             ::ShowWindow(hwndEdit, SW_SHOW);
         }
         else
@@ -301,10 +304,6 @@ namespace ui {
         ::PostMessage(hwndEdit, WM_SETFOCUS, (WPARAM)s_previousFocusWnd, 0);
 //        s_previousFocusWnd = hwndEdit;
         this->editBoxEditingDidBegin();
-       
-        auto rect = ui::Helper::convertBoundingBoxToScreen(_editBox);
-        this->updateNativeFrame(rect);
-
     }
     void EditBoxImplWin::nativeCloseKeyboard()
     {
@@ -312,7 +311,7 @@ namespace ui {
     }
     void EditBoxImplWin::setNativeMaxLength(int maxLength)
     {
-     
+
         ::SendMessageW(hwndEdit, EM_LIMITTEXT, maxLength, 0);
 
     }
@@ -383,6 +382,16 @@ namespace ui {
     {
         switch (uMsg)
         {
+        case WM_SIZING:
+        {
+            EditBoxImplWin* pThis = (EditBoxImplWin*)GetWindowLongPtr(s_previousFocusWnd, GWLP_USERDATA);
+            if (pThis)
+            {
+                auto rect = ui::Helper::convertBoundingBoxToScreen(pThis->_editBox);
+                pThis->updateNativeFrame(rect);
+            }
+        }
+            break;
         case WM_COMMAND:
             if (HIWORD(wParam) == EN_CHANGE) {
                 EditBoxImplWin* pThis = (EditBoxImplWin*)GetWindowLongPtr((HWND)lParam, GWLP_USERDATA);
@@ -397,7 +406,7 @@ namespace ui {
         case WM_LBUTTONDOWN:
             if (s_previousFocusWnd != s_hwndCocos) {
                 ::ShowWindow(s_previousFocusWnd, SW_HIDE);
-                
+
                 EditBoxImplWin* pThis = (EditBoxImplWin*)GetWindowLongPtr(s_previousFocusWnd, GWLP_USERDATA);
                 if (!pThis->_hasFocus)
                 {
@@ -406,14 +415,14 @@ namespace ui {
                         pThis->editBoxEditingReturn();
                         pThis->editBoxEditingDidEnd(pThis->getText());
                     }
-                } 
+                }
                 else
                 {
                     ::PostMessage(s_hwndCocos, WM_SETFOCUS, (WPARAM)s_previousFocusWnd, 0);
                 }
                 s_previousFocusWnd = s_hwndCocos;
             }
-          
+
             break;
         default:
             break;

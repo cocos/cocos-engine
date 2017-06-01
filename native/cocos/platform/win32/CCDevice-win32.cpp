@@ -226,7 +226,7 @@ public:
             if (nWidthLimit > 0)
             {
                 rc.right = nWidthLimit;
-                dwCalcFmt |= DT_WORDBREAK
+                dwCalcFmt |= DT_WORDBREAK | DT_EDITCONTROL
                     | (dwFmt & DT_CENTER)
                     | (dwFmt & DT_RIGHT);
             }
@@ -302,7 +302,7 @@ public:
         {
             CC_BREAK_IF(! pszText);
 
-            DWORD dwFmt = DT_WORDBREAK;
+            DWORD dwFmt = DT_WORDBREAK | DT_EDITCONTROL;
             if (!enableWrap) {
                 dwFmt |= DT_SINGLELINE;
             }
