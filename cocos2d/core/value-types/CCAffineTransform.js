@@ -98,6 +98,22 @@ cc.pointApplyAffineTransform = function (point, transOrY, t) {
     return {x: t.a * x + t.c * y + t.tx, y: t.b * x + t.d * y + t.ty};
 };
 
+cc._pointApplyAffineTransformIn = function (point, transOrY, transOrOut, out) {
+    var x, y, t;
+    if (out === undefined) {
+        t = transOrY;
+        x = point.x;
+        y = point.y;
+        out = transOrOut;
+    } else {
+        x = point;
+        y = transOrY;
+        t = transOrOut;
+    }
+    out.x = t.a * x + t.c * y + t.tx;
+    out.y = t.b * x + t.d * y + t.ty;
+};
+
 cc._pointApplyAffineTransform = function (x, y, t) {   //it will remove.
     return cc.pointApplyAffineTransform(x, y, t);
 };
