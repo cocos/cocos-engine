@@ -129,13 +129,22 @@
   {
     "name": "EditorBox",
     "entries": [
+      "./cocos2d/core/editbox/CCSGEditBox.js",
       "./cocos2d/core/components/CCEditBox.js"
     ]
   },
   {
     "name": "VideoPlayer",
     "entries": [
+      "./cocos2d/core/videoplayer/CCSGVideoPlayer.js",
       "./cocos2d/core/components/CCVideoPlayer.js"
+    ]
+  },
+  {
+    "name": "WebView",
+    "entries": [
+      "./cocos2d/core/webview/CCSGWebView.js",
+      "./cocos2d/core/components/CCWebView.js"
     ]
   },
   {
