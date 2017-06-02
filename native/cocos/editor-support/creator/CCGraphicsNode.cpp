@@ -81,6 +81,7 @@ GraphicsNode::GraphicsNode()
 , _nIndices(VECTOR_INIT_VERTS_SIZE*3)
 , _nCommands(0)
 , _curPath(nullptr)
+, _insideBounds(true)
 {
     _miterLimit = 10.0f;
     
@@ -1220,9 +1221,16 @@ void GraphicsNode::bevelJoin(VecPoint* p0, VecPoint* p1, float lw, float rw, flo
 
 void GraphicsNode::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
 {
-    _customCommand.init(_globalZOrder);
-    _customCommand.func = CC_CALLBACK_0(GraphicsNode::onDraw, this, transform, flags);
-    renderer->addCommand(&_customCommand);
+#if CC_USE_CULLING
+    // Don't calculate the culling if the transform was not updated
+    _insideBounds = (flags & FLAGS_TRANSFORM_DIRTY) ? renderer->checkVisibility(transform, _contentSize) : _insideBounds;
+    if (_insideBounds)
+#endif
+    {
+        _customCommand.init(_globalZOrder);
+        _customCommand.func = CC_CALLBACK_0(GraphicsNode::onDraw, this, transform, flags);
+        renderer->addCommand(&_customCommand);
+    }
 }
 
 

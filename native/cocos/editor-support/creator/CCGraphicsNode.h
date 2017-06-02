@@ -288,6 +288,7 @@ protected:
     int _nIndices;
     int _indicesOffset;
     GLushort* _indices;
+    bool _insideBounds;
 };
 
 }
