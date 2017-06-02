@@ -168,6 +168,7 @@ private:
     
     cocos2d::Vec2 _distortionOffset;
     cocos2d::Vec2 _distortionTiling;
+    bool _insideBounds;
     
 };
 
