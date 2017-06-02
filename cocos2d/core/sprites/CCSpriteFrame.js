@@ -268,6 +268,10 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._textureLoaded = locLoaded;
             this._texture = texture;
             function textureLoadedCallback () {
+                if (!self._texture) {
+                    // clearTexture called while loading texture...
+                    return;
+                }
                 self._textureLoaded = true;
                 var w = texture.width, h = texture.height;
 
@@ -299,7 +303,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                     self.setOffset(cc.v2(0, 0));
                 }
 
-                //dispatch 'load' event of cc.SpriteFrame
+                // dispatch 'load' event of cc.SpriteFrame
                 self.emit("load");
             }
 
@@ -385,7 +389,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         this._rotated = rotated || false;
 
-        //loading texture
+        // loading texture
         var texture = textureOrTextureFile;
         if (cc.js.isString(texture)) {
             this._textureFilename = texture;
@@ -395,7 +399,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._refreshTexture(texture);
         }
         else {
-            //todo log error
+            // todo log error
         }
 
         return true;
@@ -430,6 +434,24 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         if (!this._texture) {
             this._loadTexture();
         }
+    },
+
+    /**
+     * !#en
+     * If you do not need to use the SpriteFrame temporarily, you can call this method so that its texture could be garbage collected. Then when you need to render the SpriteFrame, you should call `ensureLoadTexture` manually to reload texture.
+     * !#zh
+     * 当你暂时不再使用这个 SpriteFrame 时，可以调用这个方法来保证引用的贴图对象能被 GC。然后当你要渲染 SpriteFrame 时，你需要手动调用 `ensureLoadTexture` 来重新加载贴图。
+     *
+     * @method clearTexture
+     * @example
+     * spriteFrame.clearTexture();
+     * // when you need the SpriteFrame again...
+     * spriteFrame.once('load', onSpriteFrameLoaded);
+     * spriteFrame.ensureLoadTexture();
+     */
+    clearTexture: function () {
+        this._textureLoaded = false;
+        this._texture = null;
     },
 
     _checkRect: function (texture) {

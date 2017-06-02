@@ -114,11 +114,10 @@ cc.Class._fastDefine('cc.SpriteFrame', cc.SpriteFrame, []);
 cc.js.value(cc.SpriteFrame, '$super', cc.Asset);    // not inheritable in JSB and TypeScript
 
 prototype = cc.SpriteFrame.prototype;
+prototype._setTexture = prototype.setTexture;
+prototype._initWithTexture = prototype.initWithTexture;
 
 cc.js.mixin(prototype, cc.EventTarget.prototype);
-prototype.textureLoaded = function () {
-    return this.getTexture() !== null;
-};
 
 prototype._ctor = function (filename, rect, rotated, offset, originalSize) {
     this._name = '';
@@ -131,6 +130,10 @@ prototype._ctor = function (filename, rect, rotated, offset, originalSize) {
     } else {
         //todo log Error
     }
+};
+
+prototype.textureLoaded = function () {
+    return this.getTexture() !== null;
 };
 
 prototype.setTexture = function (textureOrTextureFile, rect, rotated, offset, originalSize) {
@@ -161,6 +164,8 @@ prototype.setTexture = function (textureOrTextureFile, rect, rotated, offset, or
     return true;
 };
 
+prototype.initWithTexture = prototype.setTexture;
+
 prototype._loadTexture = function () {
     if (this._textureFilename) {
         var texture = cc.textureCache.addImage(this._textureFilename);
@@ -174,8 +179,9 @@ prototype.ensureLoadTexture = function () {
     }
 };
 
-prototype._initWithTexture = prototype.initWithTexture;
-prototype.initWithTexture = prototype.setTexture;
+prototype.clearTexture = function () {
+    this._setTexture(null);
+};
 
 prototype._refreshTexture = function (texture) {
 
