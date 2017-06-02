@@ -23,7 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+if (!cc.ClassManager) {
+    require("./_CCClass");
+}
+
 var inputManager = require("./CCInputManager");
+
+inputManager.__instanceId = cc.ClassManager.getNewInstanceId();
 
 /**
  * whether enable accelerometer event
