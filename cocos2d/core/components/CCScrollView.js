@@ -1202,6 +1202,7 @@ var ScrollView = cc.Class({
 
         var contentPos = cc.pSub(newPosition, this.getContentPosition());
         this._moveContent(contentPos, reachedEnd);
+        this._dispatchEvent('scrolling');
     },
 
     _startInertiaScroll: function(touchMoveVelocity) {
