@@ -196,7 +196,6 @@ var Layout = cc.Class({
                 }
                 this._doLayoutDirty();
             },
-            animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.layout.layout_type'
         },
 
@@ -229,7 +228,6 @@ var Layout = cc.Class({
                 }
                 this._doLayoutDirty();
             },
-            animatable: false
         },
 
         /**
@@ -245,7 +243,6 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
-            animatable: false
         },
 
         /**
@@ -268,7 +265,6 @@ var Layout = cc.Class({
                 }
                 this._doLayoutDirty();
             },
-            animatable: false
         },
 
         _N$padding: {
@@ -285,7 +281,6 @@ var Layout = cc.Class({
             notify: function () {
                 this._doLayoutDirty();
             },
-            animatable: false
         },
 
         /**
@@ -299,7 +294,6 @@ var Layout = cc.Class({
             notify: function () {
                 this._doLayoutDirty();
             },
-            animatable: false
         },
 
         /**
@@ -313,7 +307,6 @@ var Layout = cc.Class({
             notify: function () {
                 this._doLayoutDirty();
             },
-            animatable: false
         },
 
         /**
@@ -327,7 +320,6 @@ var Layout = cc.Class({
             notify: function () {
                 this._doLayoutDirty();
             },
-            animatable: false
         },
 
         /**
@@ -340,7 +332,6 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
-            animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.layout.space_x'
         },
 
@@ -354,7 +345,6 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
-            animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.layout.space_y'
         },
 
@@ -371,7 +361,6 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
-            animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.layout.vertical_direction'
         },
 
@@ -388,7 +377,6 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
-            animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.layout.horizontal_direction'
         },
     },
