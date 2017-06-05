@@ -160,11 +160,12 @@
             handle : function (item) {
                 var url = item.uuid;
                 if (url === UUID) {
-                    item.states['Downloader'] = cc.Pipeline.ItemState.COMPLETE;
+                    item.states[cc.Pipeline.AssetLoader.ID] = cc.Pipeline.ItemState.COMPLETE;
+                    item.states[cc.Pipeline.Downloader.ID] = cc.Pipeline.ItemState.COMPLETE;
                     return JSON.stringify(prefabJson);
                 }
                 else {
-                    return;
+                    return null;
                 }
             }
         }, 0);
