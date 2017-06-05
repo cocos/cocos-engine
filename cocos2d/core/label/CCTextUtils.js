@@ -53,7 +53,7 @@ var CustomFontLoader = {
     _canvasContext: null,
     _testString: "BESbswy",
     _allFontsLoaded: false,
-    _timerId: 0,
+    _intervalId: 0,
     loadTTF: function (url, callback) {
         //these platforms support window.FontFace, but it sucks sometimes.
         var useFontFace = (cc.sys.browserType !== cc.sys.BROWSER_TYPE_BAIDU
@@ -66,8 +66,8 @@ var CustomFontLoader = {
             this._loadWithCSS(url, callback);
         }
 
-        if (this._timerId === 0) {
-            this._timerId = setTimeout(this._checkFontLoaded.bind(this), 100);
+        if (this._intervalId === 0) {
+            this._intervalId = setInterval(this._checkFontLoaded.bind(this), 100);
         }
     },
 
@@ -90,8 +90,8 @@ var CustomFontLoader = {
         }
 
         if(this._allFontsLoaded) {
-            clearTimeout(this._timerId);
-            this._timerId = 0;
+            clearInterval(this._intervalId);
+            this._intervalId = 0;
         }
     },
 
