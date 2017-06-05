@@ -317,12 +317,8 @@ Downloader.prototype.handle = function (item, callback) {
         }
     }
     else if (item.ignoreMaxConcurrency) {
-        syncRet = downloadFunc.call(this, item, function (err, result) {
-            self._handleLoadQueue();
-            callback && callback(err, result);
-        });
+        syncRet = downloadFunc.call(this, item, callback);
         if (syncRet !== undefined) {
-            this._handleLoadQueue();
             return syncRet;
         }
     }
