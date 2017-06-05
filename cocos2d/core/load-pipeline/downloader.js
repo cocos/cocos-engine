@@ -289,6 +289,16 @@ Downloader.prototype.addHandlers = function (extMap) {
     JS.mixin(this.extMap, extMap);
 };
 
+Downloader.prototype._handleLoadQueue = function () {
+    while (this._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
+        var nextOne = this._loadQueue.shift();
+        if (!nextOne) {
+            break;
+        }
+        this.handle(nextOne.item, nextOne.callback);
+    }
+};
+
 Downloader.prototype.handle = function (item, callback) {
     var self = this;
     var downloadFunc = this.extMap[item.type] || this.extMap['default'];
@@ -296,47 +306,31 @@ Downloader.prototype.handle = function (item, callback) {
     if (this._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
         this._curConcurrent++;
         syncRet = downloadFunc.call(this, item, function (err, result) {
-            // Inline concurrent logic, avoid function invocation cost
             self._curConcurrent = Math.max(0, self._curConcurrent - 1);
-            while (self._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
-                var nextOne = self._loadQueue.shift();
-                if (!nextOne) {
-                    break;
-                }
-                self.handle(nextOne.item, nextOne.callback);
-            }
+            self._handleLoadQueue();
             callback && callback(err, result);
         });
+        if (syncRet !== undefined) {
+            this._curConcurrent = Math.max(0, this._curConcurrent - 1);
+            this._handleLoadQueue();
+            return syncRet;
+        }
     }
     else if (item.ignoreMaxConcurrency) {
         syncRet = downloadFunc.call(this, item, function (err, result) {
-            // Inline concurrent logic, avoid function invocation cost
-            while (self._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
-                var nextOne = self._loadQueue.shift();
-                if (!nextOne) {
-                    break;
-                }
-                self.handle(nextOne.item, nextOne.callback);
-            }
+            self._handleLoadQueue();
             callback && callback(err, result);
         });
+        if (syncRet !== undefined) {
+            this._handleLoadQueue();
+            return syncRet;
+        }
     }
     else {
         this._loadQueue.push({
             item: item,
             callback: callback
         });
-    }
-    if (syncRet !== undefined) {
-        // Inline concurrent logic, avoid function invocation cost
-        while (self._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
-            var nextOne = self._loadQueue.shift();
-            if (!nextOne) {
-                break;
-            }
-            self.handle(nextOne.item, nextOne.callback);
-        }
-        return syncRet;
     }
 };
 

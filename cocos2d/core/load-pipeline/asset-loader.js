@@ -26,7 +26,6 @@
 var Path = require('../utils/CCPath');
 var Pipeline = require('./pipeline');
 var LoadingItems = require('./loading-items');
-var PackDownloader = require('./pack-downloader');
 
 var ID = 'AssetLoader';
 
