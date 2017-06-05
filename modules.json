@@ -139,9 +139,14 @@
     ]
   },
   {
+    "name": "WebView",
+    "entries": [
+      "./cocos2d/core/components/CCWebView.js"
+    ]
+  },
+  {
     "name": "RichText",
     "entries": [
-      "./cocos2d/core/label/CCHtmlTextParser.js",
       "./cocos2d/core/components/CCRichText.js"
     ]
   },
@@ -204,6 +209,20 @@
     "name": "StudioComponent",
     "entries": [
       "./cocos2d/core/components/CCStudioComponent.js"
+    ]
+  },
+  {
+    "name": "RenderTexture",
+    "entries": [
+      "./cocos2d/render-texture/CCRenderTexture.js",
+      "./cocos2d/render-texture/CCRenderTextureCanvasRenderCmd.js",
+      "./cocos2d/render-texture/CCRenderTextureWebGLRenderCmd.js"
+    ]
+  },
+  {
+    "name": "Chipmunk",
+    "entries": [
+      "./external/chipmunk/chipmunk.js"
     ]
   }
 ]

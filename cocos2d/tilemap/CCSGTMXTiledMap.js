@@ -23,6 +23,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+require('./CCSGTMXObject.js');
+require('./CCTMXXMLParser.js');
 
 /**
  * <p>_ccsg.TMXTiledMap knows how to parse and render a TMX map.</p>

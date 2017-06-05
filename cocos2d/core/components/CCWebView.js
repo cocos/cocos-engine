@@ -20,7 +20,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+require('../webview/CCSGWebView.js');
 /**
  * !#en WebView event type
  * !#zh 网页视图事件类型
