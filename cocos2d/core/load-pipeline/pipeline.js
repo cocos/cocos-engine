@@ -27,30 +27,31 @@ var JS = require('../platform/js');
 var LoadingItems = require('./loading-items');
 var ItemState = LoadingItems.ItemState;
 
-function asyncFlow (item) {
-    var pipeId = this.id;
+function flow (pipe, item) {
+    var pipeId = pipe.id;
     var itemState = item.states[pipeId];
-    var next = this.next;
+    var next = pipe.next;
+    var pipeline = pipe.pipeline;
 
     if (item.error || itemState === ItemState.WORKING || itemState === ItemState.ERROR) {
         return;
     }
     else if (itemState === ItemState.COMPLETE) {
         if (next) {
-            next.flowIn(item);
+            flow(next, item);
         }
         else {
-            this.pipeline.flowOut(item);
+            pipeline.flowOut(item);
         }
     }
     else {
         item.states[pipeId] = ItemState.WORKING;
-        var pipe = this;
-        this.handle(item, function (err, result) {
+        // Pass async callback in case it's a async call
+        var result = pipe.handle(item, function (err, result) {
             if (err) {
                 item.error = err;
                 item.states[pipeId] = ItemState.ERROR;
-                pipe.pipeline.flowOut(item);
+                pipeline.flowOut(item);
             }
             else {
                 // Result can be null, then it means no result for this pipe
@@ -59,50 +60,30 @@ function asyncFlow (item) {
                 }
                 item.states[pipeId] = ItemState.COMPLETE;
                 if (next) {
-                    next.flowIn(item);
+                    flow(next, item);
                 }
                 else {
-                    pipe.pipeline.flowOut(item);
+                    pipeline.flowOut(item);
                 }
             }
         });
-    }
-}
-function syncFlow (item) {
-    var pipeId = this.id;
-    var itemState = item.states[pipeId];
-    var next = this.next;
-
-    if (item.error || itemState === ItemState.WORKING || itemState === ItemState.ERROR) {
-        return;
-    }
-    else if (itemState === ItemState.COMPLETE) {
-        if (next) {
-            next.flowIn(item);
-        }
-        else {
-            this.pipeline.flowOut(item);
-        }
-    }
-    else {
-        item.states[pipeId] = ItemState.WORKING;
-        var result = this.handle(item);
+        // If result exists (not undefined, null is ok), then we go with sync call flow
         if (result instanceof Error) {
             item.error = result;
             item.states[pipeId] = ItemState.ERROR;
-            this.pipeline.flowOut(item);
+            pipeline.flowOut(item);
         }
-        else {
+        else if (result !== undefined) {
             // Result can be null, then it means no result for this pipe
-            if (result) {
+            if (result !== null) {
                 item.content = result;
             }
             item.states[pipeId] = ItemState.COMPLETE;
             if (next) {
-                next.flowIn(item);
+                flow(next, item);
             }
             else {
-                this.pipeline.flowOut(item);
+                pipeline.flowOut(item);
             }
         }
     }
@@ -161,7 +142,6 @@ var Pipeline = function (pipes) {
 
         pipe.pipeline = this;
         pipe.next = i < pipes.length - 1 ? pipes[i+1] : null;
-        pipe.flowIn = pipe.async ? asyncFlow : syncFlow;
     }
 };
 
@@ -187,7 +167,6 @@ proto.insertPipe = function (pipe, index) {
     }
 
     pipe.pipeline = this;
-    pipe.flowIn = pipe.async ? asyncFlow : syncFlow;
     if (index < this._pipes.length) {
         pipe.next = this._pipes[index];
         this._pipes.splice(index, 0, pipe);
@@ -216,7 +195,6 @@ proto.appendPipe = function (pipe) {
 
     pipe.pipeline = this;
     pipe.next = null;
-    pipe.flowIn = pipe.async ? asyncFlow : syncFlow;
     this._pipes.push(pipe);
 };
 
@@ -254,7 +232,7 @@ proto.flowIn = function (items) {
         for (i = 0; i < items.length; i++) {
             item = items[i];
             this._cache[item.id] = item;
-            pipe.flowIn(item);
+            flow(pipe, item);
         }
     }
     else {
@@ -342,8 +320,8 @@ proto.isFlowing = function () {
 };
 
 /**
- * !#en Returns all items in pipeline.
- * !#zh 获取 pipeline 中的所有 items。
+ * !#en Returns all items in pipeline. Returns null, please use API of Loader or LoadingItems.
+ * !#zh 获取 pipeline 中的所有 items。返回 null，请使用 Loader / LoadingItems API。
  * @method getItems
  * @return {LoadingItems}
  * @deprecated since v1.3

@@ -26,7 +26,6 @@ var JS = require('../platform/js');
 var Path = require('../utils/CCPath');
 var misc = require('../utils/misc');
 var Pipeline = require('./pipeline');
-var LoadingItems = require('./loading-items');
 var PackDownloader = require('./pack-downloader');
 // var downloadBinary = require('./binary-downloader');
 var downloadText = require('./text-downloader');
@@ -66,12 +65,9 @@ function downloadScript (item, callback, isAsync) {
 
 function downloadWebp (item, callback, isCrossOrigin, img) {
     if (!cc.sys.capabilities.webp) {
-        setTimeout(function () {
-            callback('Load Webp ( ' + item.url + ' ) failed')
-        }, 0);
-        return;
+        return new Error('Load Webp ( ' + item.url + ' ) failed');
     }
-    downloadImage(item, callback, isCrossOrigin, img);
+    return downloadImage(item, callback, isCrossOrigin, img);
 }
 
 function downloadImage (item, callback, isCrossOrigin, img) {
@@ -89,7 +85,7 @@ function downloadImage (item, callback, isCrossOrigin, img) {
     }
 
     if (img.complete && img.naturalWidth > 0 && img.src === url) {
-        callback(null, img);
+        return img;
     }
     else {
         function loadCallback () {
@@ -108,7 +104,7 @@ function downloadImage (item, callback, isCrossOrigin, img) {
                 downloadImage(item, callback, false, img);
             }
             else {
-                callback('Load image (' + url + ') failed');
+                callback(new Error('Load image (' + url + ') failed'));
             }
         }
 
@@ -127,7 +123,6 @@ var FONT_TYPE = {
 };
 function _loadFont (name, srcs, type){
     var doc = document,
-        path = cc.path,
         fontStyle = document.createElement('style');
     fontStyle.type = 'text/css';
     doc.body.appendChild(fontStyle);
@@ -142,7 +137,7 @@ function _loadFont (name, srcs, type){
     if (srcs instanceof Array) {
         for (var i = 0, li = srcs.length; i < li; i++) {
             var src = srcs[i];
-            type = path.extname(src).toLowerCase();
+            type = Path.extname(src).toLowerCase();
             fontStr += 'url(\'' + srcs[i] + '\') format(\'' + FONT_TYPE[type] + '\')';
             fontStr += (i === li - 1) ? ';' : ',';
         }
@@ -173,8 +168,8 @@ function downloadFont (item, callback) {
         }
         _loadFont(name, srcs);
     } else {
-        type = cc.path.extname(url);
-        name = cc.path.basename(url, type);
+        type = Path.extname(url);
+        name = Path.basename(url, type);
         _loadFont(name, url, type);
     }
     if (document.fonts) {
@@ -184,53 +179,18 @@ function downloadFont (item, callback) {
             callback(err);
         });
     } else {
-        callback(null, null);
+        return null;
     }
 }
 
-var reusedArray = [];
-
 function downloadUuid (item, callback) {
-    var uuid = item.uuid;
-    var self = this;
-    cc.AssetLibrary.queryAssetInfo(uuid, function (error, url, isRawAsset) {
-        if (error) {
-            callback(error);
-        }
-        else {
-            item.url = url;
-            item.isRawAsset = isRawAsset;
-            if (isRawAsset) {
-                var ext = Path.extname(url).toLowerCase();
-                if (!ext) {
-                    callback(new Error('Download Uuid: can not find type of raw asset[' + uuid + ']: ' + url));
-                    return;
-                }
-                ext = ext.substr(1);
-                var queue = LoadingItems.getQueue(item);
-                reusedArray[0] = {
-                    queueId: item.queueId,
-                    id: url,
-                    url: url,
-                    type: ext,
-                    error: null,
-                    alias: item.id,
-                    complete: true
-                };
-                queue.append(reusedArray);
-                // Dispatch to other raw type downloader
-                var downloadFunc = self.extMap[ext] || self.extMap['default'];
-                item.type = ext;
-                downloadFunc(item, callback);
-            }
-            else {
-                var loadByPack = PackDownloader.load(item, callback);
-                if (!loadByPack) {
-                    self.extMap['json'](item, callback);
-                }
-            }
-        }
-    });
+    var result = PackDownloader.load(item, callback);
+    if (result === undefined) {
+        return this.extMap['json'](item, callback);
+    }
+    else if (!!result) {
+        return result;
+    }
 }
 
 
@@ -293,6 +253,7 @@ var ID = 'Downloader';
  * 2. Image
  * 3. Script
  * 4. Audio
+ * 5. Assets
  * All unknown type will be downloaded as plain text.
  * You can pass custom supported types in the constructor.
  * @class Pipeline.Downloader
@@ -331,26 +292,32 @@ Downloader.prototype.addHandlers = function (extMap) {
 Downloader.prototype.handle = function (item, callback) {
     var self = this;
     var downloadFunc = this.extMap[item.type] || this.extMap['default'];
+    var syncRet = undefined;
     if (this._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
         this._curConcurrent++;
-        downloadFunc.call(this, item, function (err, result) {
-            // Concurrent logic
-            setTimeout(function () {
-                self._curConcurrent = Math.max(0, self._curConcurrent - 1);
-                while (self._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
-                    var nextOne = self._loadQueue.shift();
-                    if (!nextOne) {
-                        break;
-                    }
-                    self.handle(nextOne.item, nextOne.callback);
+        syncRet = downloadFunc.call(this, item, function (err, result) {
+            // Inline concurrent logic, avoid function invocation cost
+            self._curConcurrent = Math.max(0, self._curConcurrent - 1);
+            while (self._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
+                var nextOne = self._loadQueue.shift();
+                if (!nextOne) {
+                    break;
                 }
-            }, 0);
-
+                self.handle(nextOne.item, nextOne.callback);
+            }
             callback && callback(err, result);
         });
     }
     else if (item.ignoreMaxConcurrency) {
-        downloadFunc.call(this, item, function (err, result) {
+        syncRet = downloadFunc.call(this, item, function (err, result) {
+            // Inline concurrent logic, avoid function invocation cost
+            while (self._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
+                var nextOne = self._loadQueue.shift();
+                if (!nextOne) {
+                    break;
+                }
+                self.handle(nextOne.item, nextOne.callback);
+            }
             callback && callback(err, result);
         });
     }
@@ -359,6 +326,17 @@ Downloader.prototype.handle = function (item, callback) {
             item: item,
             callback: callback
         });
+    }
+    if (syncRet !== undefined) {
+        // Inline concurrent logic, avoid function invocation cost
+        while (self._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
+            var nextOne = self._loadQueue.shift();
+            if (!nextOne) {
+                break;
+            }
+            self.handle(nextOne.item, nextOne.callback);
+        }
+        return syncRet;
     }
 };
 

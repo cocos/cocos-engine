@@ -26,6 +26,7 @@
 var JS = require('../platform/js');
 var Pipeline = require('./pipeline');
 var LoadingItems = require('./loading-items');
+var AssetLoader = require('./asset-loader');
 var Downloader = require('./downloader');
 var Loader = require('./loader');
 var AssetTable = require('./asset-table');
@@ -82,16 +83,26 @@ var _sharedList = [];
  * @static
  */
 function CCLoader () {
+    var assetLoader = new AssetLoader();
     var downloader = new Downloader();
     var loader = new Loader();
 
     Pipeline.call(this, [
+        assetLoader,
         downloader,
         loader
     ]);
 
     /**
-     * The downloader in cc.loader's pipeline, it's by default the first pipe.
+     * The asset loader in cc.loader's pipeline, it's by default the first pipe.
+     * It's used to identify an asset's type, and determine how to download it.
+     * @property assetLoader
+     * @type {Object}
+     */
+    this.assetLoader = assetLoader;
+
+    /**
+     * The downloader in cc.loader's pipeline, it's by default the second pipe.
      * It's used to download files with several handlers: pure text, image, script, audio, font, uuid.
      * You can add your own download function with addDownloadHandlers
      * @property downloader
@@ -100,7 +111,7 @@ function CCLoader () {
     this.downloader = downloader;
 
     /**
-     * The downloader in cc.loader's pipeline, it's by default the second pipe.
+     * The downloader in cc.loader's pipeline, it's by default the third pipe.
      * It's used to parse downloaded content with several handlers: JSON, image, plist, fnt, uuid.
      * You can add your own download function with addLoadHandlers
      * @property loader

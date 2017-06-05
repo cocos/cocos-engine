@@ -66,7 +66,7 @@ function loadDomAudio (item, callback) {
 }
 
 function loadWebAudio (item, callback) {
-    if (!context) return;
+    if (!context) callback(new Error('Audio Downloader: no web audio context.'));
 
     var request = cc.loader.getXMLHttpRequest();
     request.open("GET", item.url, true);
@@ -93,17 +93,18 @@ function loadWebAudio (item, callback) {
 
 function downloadAudio (item, callback) {
     if (formatSupport.length === 0) {
-        return callback( new Error('Audio Downloader: audio not supported on this browser!') );
+        return new Error('Audio Downloader: audio not supported on this browser!');
     }
 
     item.content = item.url;
 
     // If WebAudio is not supported, load using DOM mode
     if (!__audioSupport.WEB_AUDIO || (item.urlParam && item.urlParam['useDom'])) {
-        return loadDomAudio(item, callback);
+        loadDomAudio(item, callback);
     }
-
-    return loadWebAudio(item, callback);
+    else {
+        loadWebAudio(item, callback);
+    }
 }
 
 module.exports = downloadAudio;
