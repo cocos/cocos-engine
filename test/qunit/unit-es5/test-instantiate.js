@@ -262,6 +262,23 @@ function testInstantiate (module, match, instantiate) {
 
         cc.js.unregisterClass(Script);
     });
+
+    test('will not throw error if type is wrong', function () {
+        var Type = cc.Class({
+            properties: {
+                value: {
+                    default: null
+                }
+            }
+        });
+
+        var obj = new Type();
+        obj.value = cc.Vec2.ONE;
+
+        var cloned = instantiate(obj);
+
+        ok(cloned.value.equals(obj.value), 'same value');
+    });
 }
 testInstantiate('Instantiate',
     function (obj, expect, info) {
