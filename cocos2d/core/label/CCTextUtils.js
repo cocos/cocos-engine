@@ -67,7 +67,7 @@ var CustomFontLoader = {
         }
 
         if (this._timerId === 0) {
-            this._timerId = setTimeout(this._checkFontLoaded.bind(this), 0.1);
+            this._timerId = setTimeout(this._checkFontLoaded.bind(this), 100);
         }
     },
 
