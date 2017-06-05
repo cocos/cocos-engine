@@ -129,28 +129,24 @@
   {
     "name": "EditorBox",
     "entries": [
-      "./cocos2d/core/editbox/CCSGEditBox.js",
       "./cocos2d/core/components/CCEditBox.js"
     ]
   },
   {
     "name": "VideoPlayer",
     "entries": [
-      "./cocos2d/core/videoplayer/CCSGVideoPlayer.js",
       "./cocos2d/core/components/CCVideoPlayer.js"
     ]
   },
   {
     "name": "WebView",
     "entries": [
-      "./cocos2d/core/webview/CCSGWebView.js",
       "./cocos2d/core/components/CCWebView.js"
     ]
   },
   {
     "name": "RichText",
     "entries": [
-      "./cocos2d/core/label/CCHtmlTextParser.js",
       "./cocos2d/core/components/CCRichText.js"
     ]
   },
@@ -213,6 +209,14 @@
     "name": "StudioComponent",
     "entries": [
       "./cocos2d/core/components/CCStudioComponent.js"
+    ]
+  },
+  {
+    "name": "RenderTexture",
+    "entries": [
+      "./cocos2d/render-texture/CCRenderTexture.js",
+      "./cocos2d/render-texture/CCRenderTextureCanvasRenderCmd.js",
+      "./cocos2d/render-texture/CCRenderTextureWebGLRenderCmd.js"
     ]
   }
 ]
