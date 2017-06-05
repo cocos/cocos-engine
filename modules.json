@@ -218,5 +218,11 @@
       "./cocos2d/render-texture/CCRenderTextureCanvasRenderCmd.js",
       "./cocos2d/render-texture/CCRenderTextureWebGLRenderCmd.js"
     ]
+  },
+  {
+    "name": "chipmunk",
+    "entries": [
+      "./external/chipmunk/chipmunk.js"
+    ]
   }
 ]
