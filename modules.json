@@ -220,7 +220,7 @@
     ]
   },
   {
-    "name": "chipmunk",
+    "name": "Chipmunk",
     "entries": [
       "./external/chipmunk/chipmunk.js"
     ]
