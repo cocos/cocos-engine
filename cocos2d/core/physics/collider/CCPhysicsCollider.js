@@ -135,7 +135,7 @@ PhysicsCollider.prototype.__init = function () {
     var categoryBits = 1 << node.groupIndex;
     var maskBits = 0;
     var bits = cc.game.collisionMatrix[node.groupIndex];
-    for (var i = 0; i < bits.length; i++) {
+    for (let i = 0; i < bits.length; i++) {
         if (!bits[i]) continue;
         maskBits |= 1 << i;
     }
@@ -148,7 +148,7 @@ PhysicsCollider.prototype.__init = function () {
 
     var manager = cc.director.getPhysicsManager();
 
-    for (var i = 0; i < shapes.length; i++) {
+    for (let i = 0; i < shapes.length; i++) {
         var shape = shapes[i];
 
         var fixDef = new b2.FixtureDef();

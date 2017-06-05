@@ -182,10 +182,13 @@ proto.addLoadHandlers = function (extMap) {
  * @method load
  * @param {String|String[]|Object} resources - Url list in an array
  * @param {Function} [progressCallback] - Callback invoked when progression change
+ * @param {Number} progressCallback.completedCount - The number of the items that are already completed
+ * @param {Number} progressCallback.totalCount - The total number of the items
+ * @param {Object} progressCallback.item - The latest item which flow out the pipeline
  * @param {Function} [completeCallback] - Callback invoked when all resources loaded
  * @typescript
  * load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, completeCallback?: Function): void
- * load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, progressCallback: Function, completeCallback: Function|null): void
+ * load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: Function|null): void
  */
 proto.load = function(resources, progressCallback, completeCallback) {
     if (completeCallback === undefined) {
@@ -385,6 +388,9 @@ proto._parseLoadResArgs = function (type, onProgress, onComplete) {
  *                       The url is relative to the "resources" folder, extensions must be omitted.
  * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
  * @param {Function} [progressCallback] - Callback invoked when progression change.
+ * @param {Number} progressCallback.completedCount - The number of the items that are already completed.
+ * @param {Number} progressCallback.totalCount - The total number of the items.
+ * @param {Object} progressCallback.item - The latest item which flow out the pipeline.
  * @param {Function} [completeCallback] - Callback invoked when the resource loaded.
  * @param {Error} completeCallback.error - The error info or null if loaded successfully.
  * @param {Object} completeCallback.resource - The loaded resource if it can be found otherwise returns null.
@@ -409,10 +415,10 @@ proto._parseLoadResArgs = function (type, onProgress, onComplete) {
  *     cc.log('Result should be a sprite frame: ' + (spriteFrame instanceof cc.SpriteFrame));
  * });
  * @typescript
- * loadRes(url: string, type: typeof cc.Asset, progressCallback: Function, completeCallback: ((error: Error, resource: any) => void)|null): void
+ * loadRes(url: string, type: typeof cc.Asset, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any) => void)|null): void
  * loadRes(url: string, type: typeof cc.Asset, completeCallback: (error: Error, resource: any) => void): void
  * loadRes(url: string, type: typeof cc.Asset): void
- * loadRes(url: string, progressCallback: Function, completeCallback: ((error: Error, resource: any) => void)|null): void
+ * loadRes(url: string, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any) => void)|null): void
  * loadRes(url: string, completeCallback: (error: Error, resource: any) => void): void
  * loadRes(url: string): void
  */
@@ -503,6 +509,9 @@ proto._loadResUuids = function (uuids, progressCallback, completeCallback, urls)
  *                          The url is relative to the "resources" folder, extensions must be omitted.
  * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
  * @param {Function} [progressCallback] - Callback invoked when progression change.
+ * @param {Number} progressCallback.completedCount - The number of the items that are already completed.
+ * @param {Number} progressCallback.totalCount - The total number of the items.
+ * @param {Object} progressCallback.item - The latest item which flow out the pipeline.
  * @param {Function} [completeCallback] - A callback which is called when all assets have been loaded, or an error occurs.
  * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called
  *                                         with the error. If all assets are loaded successfully, error will be null.
@@ -522,10 +531,10 @@ proto._loadResUuids = function (uuids, progressCallback, completeCallback, urls)
  *     // ...
  * });
  * @typescript
- * loadResArray(url: string[], type: typeof cc.Asset, progressCallback: Function, completeCallback: ((error: Error, resource: any[]) => void)|null): void
+ * loadResArray(url: string[], type: typeof cc.Asset, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[]) => void)|null): void
  * loadResArray(url: string[], type: typeof cc.Asset, completeCallback: (error: Error, resource: any[]) => void): void
  * loadResArray(url: string[], type: typeof cc.Asset): void
- * loadResArray(url: string[], progressCallback: Function, completeCallback: ((error: Error, resource: any[]) => void)|null): void
+ * loadResArray(url: string[], progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[]) => void)|null): void
  * loadResArray(url: string[], completeCallback: (error: Error, resource: any[]) => void): void
  * loadResArray(url: string[]): void
  */
@@ -560,6 +569,9 @@ proto.loadResArray = function (urls, type, progressCallback, completeCallback) {
  *                       The url is relative to the "resources" folder, extensions must be omitted.
  * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
  * @param {Function} [progressCallback] - Callback invoked when progression change.
+ * @param {Number} progressCallback.completedCount - The number of the items that are already completed.
+ * @param {Number} progressCallback.totalCount - The total number of the items.
+ * @param {Object} progressCallback.item - The latest item which flow out the pipeline.
  * @param {Function} [completeCallback] - A callback which is called when all assets have been loaded, or an error occurs.
  * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called
  *                                         with the error. If all assets are loaded successfully, error will be null.
@@ -591,10 +603,10 @@ proto.loadResArray = function (urls, type, progressCallback, completeCallback) {
  *     var url = urls[0];
  * });
  * @typescript
- * loadResDir(url: string, type: typeof cc.Asset, progressCallback: Function, completeCallback: ((error: Error, resource: any[], urls: string[]) => void)|null): void
+ * loadResDir(url: string, type: typeof cc.Asset, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[], urls: string[]) => void)|null): void
  * loadResDir(url: string, type: typeof cc.Asset, completeCallback: (error: Error, resource: any[], urls: string[]) => void): void
  * loadResDir(url: string, type: typeof cc.Asset): void
- * loadResDir(url: string, progressCallback: Function, completeCallback: ((error: Error, resource: any[], urls: string[]) => void)|null): void
+ * loadResDir(url: string, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[], urls: string[]) => void)|null): void
  * loadResDir(url: string, completeCallback: (error: Error, resource: any[], urls: string[]) => void): void
  * loadResDir(url: string): void
  */
