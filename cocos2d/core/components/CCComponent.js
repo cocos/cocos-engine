@@ -333,7 +333,7 @@ var Component = cc.Class({
      * var sprite = node.addComponent(cc.Sprite);
      * var test = node.addComponent("Test");
      * @typescript
-     * addComponent<T extends Component>(type: typeof T): T
+     * addComponent<T extends Component>(type: {new(): T}): T
      * addComponent(className: string): any
      */
     addComponent (typeOrClassName) {
@@ -357,7 +357,7 @@ var Component = cc.Class({
      * // get custom test calss.
      * var test = node.getComponent("Test");
      * @typescript
-     * getComponent<T extends Component>(type: typeof T): T
+     * getComponent<T extends Component>(type: {prototype: T}): T
      * getComponent(className: string): any
      */
     getComponent (typeOrClassName) {
@@ -375,7 +375,7 @@ var Component = cc.Class({
      * var sprites = node.getComponents(cc.Sprite);
      * var tests = node.getComponents("Test");
      * @typescript
-     * getComponents<T extends Component>(type: typeof T): T[]
+     * getComponents<T extends Component>(type: {prototype: T}): T[]
      * getComponents(className: string): any[]
      */
     getComponents (typeOrClassName) {
@@ -393,7 +393,7 @@ var Component = cc.Class({
      * var sprite = node.getComponentInChildren(cc.Sprite);
      * var Test = node.getComponentInChildren("Test");
      * @typescript
-     * getComponentInChildren<T extends Component>(type: typeof T): T
+     * getComponentInChildren<T extends Component>(type: {prototype: T}): T
      * getComponentInChildren(className: string): any
      */
     getComponentInChildren (typeOrClassName) {
@@ -411,7 +411,7 @@ var Component = cc.Class({
      * var sprites = node.getComponentsInChildren(cc.Sprite);
      * var tests = node.getComponentsInChildren("Test");
      * @typescript
-     * getComponentsInChildren<T extends Component>(type: typeof T): T[]
+     * getComponentsInChildren<T extends Component>(type: {prototype: T}): T[]
      * getComponentsInChildren(className: string): any[]
      */
     getComponentsInChildren (typeOrClassName) {
