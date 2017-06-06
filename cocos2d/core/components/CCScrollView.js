@@ -219,7 +219,6 @@ var ScrollView = cc.Class({
          */
         inertia: {
             default: true,
-            animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.scrollview.inertia',
         },
 
@@ -235,7 +234,6 @@ var ScrollView = cc.Class({
             default: 0.5,
             type: 'Float',
             range: [0, 1, 0.1],
-            animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.scrollview.brake',
         },
 
@@ -258,7 +256,6 @@ var ScrollView = cc.Class({
         bounceDuration: {
             default: 1,
             range: [0, 10],
-            animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.scrollview.bounceDuration',
         },
 
