@@ -31,9 +31,8 @@ function empty (item, callback) {
 }
 
 function downloadScript (item, callback) {
-    var url = item.url;
-    require(url);
-    return url;
+    require(item.url);
+    return null;
 }
 
 function downloadAudio (item, callback) {
