@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 var JS = cc.js;
+var isBuiltinClassId = require('../utils/misc').isBuiltinClassId;
 
 /*
  * A temp fallback to contain the original serialized data which can not be loaded.
@@ -109,7 +110,7 @@ var MissingScript = cc.Class({
             return null;
         },
         getMissingWrapper: function (id, data) {
-            if (data.node && /^[0-9a-zA-Z+/]{23}$/.test(id)) {
+            if (data.node && (/^[0-9a-zA-Z+/]{23}$/.test(id) || isBuiltinClassId(id))) {
                 // is component
                 return MissingScript;
             }

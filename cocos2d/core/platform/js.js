@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const tempCIDGenerater = new (require('./id-generater'))('cc.TmpCId.');
+const tempCIDGenerater = new (require('./id-generater'))('TmpCId.');
 
 
 function _getPropertyDescriptor (obj, name) {
