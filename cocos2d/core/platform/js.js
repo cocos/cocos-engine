@@ -391,7 +391,7 @@ function isTempClassId_DEV (id) {
             if (constructor.prototype.hasOwnProperty(key)) {
                 delete table[constructor.prototype[key]];
             }
-            constructor.prototype[key] = id;
+            js.value(constructor.prototype, key, id);
             // register class
             if (id) {
                 var registered = table[id];
