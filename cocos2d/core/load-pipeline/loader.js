@@ -30,26 +30,26 @@ var loadUuid = require('./uuid-loader');
 var misc = require('../utils/misc');
 
 function loadNothing (item, callback) {
-    callback(null, null);
+    return null;
 }
 
 function loadJSON (item, callback) {
     if (typeof item.content !== 'string') {
-        callback( new Error('JSON Loader: Input item doesn\'t contain string content') );
+        return new Error('JSON Loader: Input item doesn\'t contain string content');
     }
 
     try {
         var result = JSON.parse(item.content);
-        callback(null, result);
+        return result;
     }
     catch (e) {
-        callback( new Error('JSON Loader: Parse json [' + item.id + '] failed : ' + e) );
+        return new Error('JSON Loader: Parse json [' + item.id + '] failed : ' + e);
     }
 }
 
 function loadImage (item, callback) {
     if (!(item.content instanceof Image)) {
-        callback( new Error('Image Loader: Input item doesn\'t contain Image content') );
+        return new Error('Image Loader: Input item doesn\'t contain Image content');
     }
     var url = item.url;
     var tex = cc.textureCache.getTextureForKey(url) || new Texture2D();
@@ -61,19 +61,19 @@ function loadImage (item, callback) {
         misc.imagePool.put(item.content);
     }
     cc.textureCache.cacheImage(url, tex);
-    callback(null, tex);
+    return tex;
 }
 
 function loadPlist (item, callback) {
     if (typeof item.content !== 'string') {
-        callback( new Error('Plist Loader: Input item doesn\'t contain string content') );
+        return new Error('Plist Loader: Input item doesn\'t contain string content');
     }
     var result = cc.plistParser.parse(item.content);
     if (result) {
-        callback(null, result);
+        return result;
     }
     else {
-        callback( new Error('Plist Loader: Parse [' + item.id + '] failed') );
+        return new Error('Plist Loader: Parse [' + item.id + '] failed');
     }
 }
 
@@ -151,14 +151,7 @@ Loader.prototype.addHandlers = function (extMap) {
 
 Loader.prototype.handle = function (item, callback) {
     var loadFunc = this.extMap[item.type] || this.extMap['default'];
-    loadFunc.call(this, item, function (err, result) {
-        if (err) {
-            callback && callback(err);
-        }
-        else {
-            callback && callback(null, result);
-        }
-    });
+    return loadFunc.call(this, item, callback);
 };
 
 Pipeline.Loader = module.exports = Loader;
