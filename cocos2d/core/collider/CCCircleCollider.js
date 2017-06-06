@@ -23,20 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * !#en Circle Collider.
- * !#zh 圆形碰撞组件
- * @class CircleCollider
- * @extends Component
- */
-var CircleCollider = cc.Class({
-    name: 'cc.CircleCollider',
-    extends: require('./CCCollider'),
-
-    editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.collider/Circle Collider'
-    },
-
+cc.Collider.Circle = cc.Class({
     properties: {
         _offset: cc.v2(0, 0),
         _radius: 50,
@@ -81,6 +68,22 @@ var CircleCollider = cc.Class({
             this.radius = radius;
         }
     }
+});
+
+/**
+ * !#en Circle Collider.
+ * !#zh 圆形碰撞组件
+ * @class CircleCollider
+ * @extends Component
+ */
+var CircleCollider = cc.Class({
+    name: 'cc.CircleCollider',
+    extends: cc.Collider,
+    mixins: [cc.Collider.Circle],
+
+    editor: CC_EDITOR && {
+        menu: 'i18n:MAIN_MENU.component.collider/Circle Collider'
+    },
 });
 
 cc.CircleCollider = module.exports = CircleCollider;

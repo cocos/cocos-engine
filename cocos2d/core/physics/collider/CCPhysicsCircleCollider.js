@@ -36,15 +36,13 @@ var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
  */
 var PhysicsCircleCollider = cc.Class({
     name: 'cc.PhysicsCircleCollider',
-    extends: cc.CircleCollider,
-    mixins: [cc.PhysicsCollider],
+    extends: cc.PhysicsCollider,
+    mixins: [cc.Collider.Circle],
 
     editor: {
         menu: CC_EDITOR && 'i18n:MAIN_MENU.component.physics/Collider/Circle',
         requireComponent: cc.RigidBody
     },
-
-    properties: cc.PhysicsCollider.properties,
 
     _createShape: function (scale) {
         var scaleX = Math.abs(scale.x);
