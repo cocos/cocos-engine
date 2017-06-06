@@ -144,6 +144,7 @@ cc.Component.EventHandler = cc.Class({
         if (typeof(handler) !== 'function') return;
 
         if (this.customEventData != null && this.customEventData !== '') {
+            params = params.slice();
             params.push(this.customEventData);
         }
 
