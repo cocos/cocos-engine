@@ -17,3 +17,6 @@ require('./core/sprites/CCSpriteBatchNode.js');
 require('./shape-nodes/CCDrawNode.js');
 require('./shape-nodes/CCDrawNodeCanvasRenderCmd.js');
 require('./shape-nodes/CCDrawNodeWebGLRenderCmd.js');
+require('./render-texture/CCRenderTexture.js');
+require('./render-texture/CCRenderTextureCanvasRenderCmd.js');
+require('./render-texture/CCRenderTextureWebGLRenderCmd.js');
