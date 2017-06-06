@@ -1,19 +1,19 @@
 
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- 
+
  ****************************************************************************/
 
 #include "CCGraphicsNode.h"
@@ -83,7 +83,7 @@ GraphicsNode::GraphicsNode()
 , _curPath(nullptr)
 {
     _miterLimit = 10.0f;
-    
+
     setDeviceRatio(1);
 
     _strokeColor = Color4F::BLACK;
@@ -140,7 +140,7 @@ void GraphicsNode::bezierCurveTo(float c1x, float c1y, float c2x, float c2y, flo
     }
 
     tesselateBezier(last->x,last->y, c1x,c1y, c2x,c2y, x,y, 0, PT_CORNER);
-    
+
     _commandx = x;
     _commandy = y;
 }
@@ -267,7 +267,7 @@ void GraphicsNode::rect(float x, float y, float w, float h)
     lineTo(x+w, y+h);
     lineTo(x+w, y);
     close();
-    
+
     _curPath->complex = false;
 }
 
@@ -290,7 +290,7 @@ void GraphicsNode::roundRect(float x, float y, float w, float h, float r)
         lineTo(x+rx, y);
         bezierCurveTo(x+rx*(1-VECTOR_KAPPA90), y, x, y+ry*(1-VECTOR_KAPPA90), x, y+ry);
         close();
-        
+
         _curPath->complex = false;
     }
 }
@@ -304,7 +304,7 @@ void GraphicsNode::ellipse(float cx, float cy, float rx, float ry)
     bezierCurveTo(cx-rx*VECTOR_KAPPA90, cy-ry, cx-rx, cy-ry*VECTOR_KAPPA90, cx-rx, cy);
 
     close();
-    
+
     _curPath->complex = false;
 }
 
@@ -312,17 +312,17 @@ void GraphicsNode::circle(float cx, float cy, float r)
 {
     int divs = curveDivs(r, PI_2, _tessTol);
     float step = PI_2 / divs;
-    
+
     moveTo(cx, cy + r);
-    
+
     for (int i = 1; i < divs; i++) {
         float angle = step * i;
         float x = r * sin(angle);
         float y = r * cos(angle);
-        
+
         lineTo(cx + x, cy + y);
     }
-    
+
     close();
     _curPath->complex = false;
 }
@@ -376,13 +376,13 @@ void GraphicsNode::clear(bool clean)
             _paths.pop_back();
             delete path;
         }
-        
+
         for (int i = (int)_points.size() - 1; i >=0; i--) {
             VecPoint* p = _points[i];
             _points.pop_back();
             delete p;
         }
-        
+
         CC_SAFE_DELETE(_verts);
         CC_SAFE_DELETE(_indices);
 
@@ -391,17 +391,17 @@ void GraphicsNode::clear(bool clean)
         }
         _commands.clear();
     }
-    
+
     _nPoints = 0;
-    
+
     _nPath = 0;
     _pathOffset = 0;
 
     _vertsOffset = 0;
     _indicesOffset = 0;
-    
+
     _curPath = nullptr;
-    
+
     _nCommands = 0;
 }
 
@@ -515,7 +515,7 @@ void GraphicsNode::addPoint(Path* path, float x, float y, int flags)
             return;
         }
     }
-    
+
     _nPoints ++;
     if (_nPoints > _points.size()) {
         pt = new VecPoint(x, y);
@@ -527,7 +527,7 @@ void GraphicsNode::addPoint(Path* path, float x, float y, int flags)
         pt->x = x;
         pt->y = y;
     }
-    
+
     pt->flags = (unsigned char)flags;
     path->points.push_back(pt);
 }
@@ -537,23 +537,23 @@ Path* GraphicsNode::addPath()
     if (!(_curPath && _curPath->points.size() <= 1)) {
         _nPath ++;
     }
-    
+
     Path* path = nullptr;
-    
-    
+
+
     if (_nPath > _paths.size()) {
         path = new Path();
         _paths.push_back(path);
     }
     else {
-        
+
         path = _paths[_nPath - 1];
         path->points.clear();
     }
 
     path->closed = false;
     path->complex = true;
-    
+
     _curPath = path;
 
     return path;
@@ -592,11 +592,11 @@ void GraphicsNode::expandStroke(float w, int lineCap, int lineJoin, float miterL
 
     allocVerts(cverts);
     allocIndices((cverts - 2*(_nPath-_pathOffset)) * 3);
-    
+
     for (i = _pathOffset; i < _nPath; i++) {
         VecVertex* verts = _verts + _vertsOffset;
         int offset = _vertsOffset;
-        
+
         Path* path = _paths[i];
 
         VecPointVector& pts = path->points;
@@ -669,16 +669,16 @@ void GraphicsNode::expandStroke(float w, int lineCap, int lineJoin, float miterL
             else if (lineCap == CAP_ROUND)
                 roundCapEnd(p1, dx, dy, w, ncap, aa);
         }
-        
+
         // stroke indices
         int indicesOffset = _indicesOffset;
-        
+
         for (int start = offset+2, end = _vertsOffset; start < end; start++) {
             _indices[_indicesOffset++] = start - 2;
             _indices[_indicesOffset++] = start - 1;
             _indices[_indicesOffset++] = start;
         }
-        
+
         float strokeMult = (_lineWidth*0.5f + _fringeWidth*0.5f) / _fringeWidth;
         pushCommand(_strokeColor, strokeMult, offset, _vertsOffset - offset, indicesOffset, _indicesOffset - indicesOffset);
     }
@@ -711,10 +711,10 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
 
     for (i = _pathOffset; i < _nPath; i++) {
         Path* path = _paths[i];
-        
+
         VecVertex* verts = _verts + _vertsOffset;
         int offset = _vertsOffset;
-        
+
         VecPointVector& pts = path->points;
         int pathSize = (int)pts.size();
 
@@ -724,7 +724,7 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
 
         // Calculate shape vertices.
         woff = 0.5f*aa;
-        
+
         if (fringe) {
             // Looping
             p0 = pts[pathSize-1];
@@ -750,7 +750,7 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
                 } else {
                     vset(p1->x + (p1->dmx * woff), p1->y + (p1->dmy * woff), 0.5f,1);
                 }
-                
+
                 if (j < (pathSize - 1)) {
                     p0 = p1;
                     p1 = pts[j + 1];
@@ -761,27 +761,27 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
                 vset(pts[j]->x, pts[j]->y, 0.5f,1);
             }
         }
-        
+
         int nVerts = _vertsOffset - offset;
         int indicesOffset = _indicesOffset;
-        
+
         if (path->complex) {
             // indices
             std::vector<int> indices;
             Triangulate::process(verts, 0, _vertsOffset - offset, indices);
             int nIndices = (int)indices.size();
-            
+
             allocIndices(nIndices);
-            
+
             for (j = 0; j < nIndices; j++) {
                 _indices[j + _indicesOffset] = indices[j] + offset;
             }
-            
+
             _indicesOffset += nIndices;
         }
         else {
             allocIndices((nVerts - 2) * 3);
-            
+
             int first = offset;
             for (int start = offset+2, end = _vertsOffset; start < end; start++) {
                 _indices[_indicesOffset++] = first;
@@ -789,30 +789,30 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
                 _indices[_indicesOffset++] = start;
             }
         }
-        
+
         pushCommand(_fillColor, 1, offset, _vertsOffset - offset, indicesOffset, _indicesOffset - indicesOffset);
-        
+
         // Calculate fringe
         if (fringe) {
             verts = _verts + _vertsOffset;
             offset = _vertsOffset;
-            
+
             float lw = w + woff;
             float rw = w - woff;
             float lu = 0;
             float ru = 1;
-            
+
             // Create only half a fringe for convex shapes so that
             // the shape can be rendered without stenciling.
             if (convex) {
                 lw = woff;    // This should generate the same vertex as fill inset above.
                 lu = 0.5f;    // Set outline fade at middle.
             }
-            
+
             // Looping
             p0 = pts[pathSize-1];
             p1 = pts[0];
-            
+
             for (j = 0; j < pathSize; ++j) {
                 if ((p1->flags & (PT_BEVEL | PT_INNERBEVEL)) != 0) {
                     bevelJoin(p0, p1, lw, rw, lu, ru, _fringeWidth);
@@ -826,23 +826,23 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
                     p1 = pts[j + 1];
                 }
             }
-            
+
             // Loop it
             vset(verts[0].x, verts[0].y, lu,1);
             vset(verts[1].x, verts[1].y, ru,1);
-            
+
             // fill stroke indices
             nVerts = _vertsOffset - offset;
             indicesOffset = _indicesOffset;
-            
+
             allocIndices((nVerts - 2) * 3);
-            
+
             for (int start = offset+2, end = _vertsOffset; start < end; start++) {
                 _indices[_indicesOffset++] = start - 2;
                 _indices[_indicesOffset++] = start - 1;
                 _indices[_indicesOffset++] = start;
             }
-            
+
             pushCommand(_fillColor, 1, offset, nVerts, indicesOffset, _indicesOffset - indicesOffset);
         }
     }
@@ -854,7 +854,7 @@ void GraphicsNode::flattenPaths()
         _nPath --;
         _curPath = _nPath > 0 ? _paths[_nPath - 1] : nullptr;
     }
-    
+
     for (int i = _pathOffset; i < _nPath; i++) {
         Path* path = _paths[i];
         VecPointVector& pts = path->points;
@@ -960,7 +960,7 @@ void GraphicsNode::calculateJoins(float w, int lineJoin, float miterLimit)
 void GraphicsNode::allocVerts(int count)
 {
     int nverts = _vertsOffset + count;
-    
+
     if (nverts > _nVerts) {
         while (nverts > _nVerts) {
             _nVerts *= 2;
@@ -972,7 +972,7 @@ void GraphicsNode::allocVerts(int count)
 void GraphicsNode::allocIndices(int count)
 {
     int nIndices = _indicesOffset + count;
-    
+
     if (nIndices > _nIndices) {
         while (nIndices > _nIndices) {
             _nIndices *= 2;
@@ -985,22 +985,22 @@ void GraphicsNode::allocIndices(int count)
 void GraphicsNode::vset(float x, float y, float u, float v)
 {
     VecVertex* vtx = &_verts[_vertsOffset];
-    
+
     vtx->x = x;
     vtx->y = y;
     vtx->u = u;
     vtx->v = v;
-    
+
     _vertsOffset ++;
 }
-    
+
 void GraphicsNode::pushCommand(cocos2d::Color4F& color, float strokeMult, int vertsOffset, int nVerts, int indicesOffset, int nIndices)
 {
     Command* lastCmd = nullptr;
     if (_commands.size() >= _nCommands && _nCommands > 0) {
         lastCmd = _commands[_nCommands - 1];
     }
-    
+
     if (lastCmd &&
         ((lastCmd->vertsOffset + lastCmd->nVerts) == vertsOffset) &&
         ((lastCmd->indicesOffset + lastCmd->nIndices) == indicesOffset) &&
@@ -1011,7 +1011,7 @@ void GraphicsNode::pushCommand(cocos2d::Color4F& color, float strokeMult, int ve
     }
     else {
         Command* cmd;
-            
+
         _nCommands ++;
         if (_nCommands > _commands.size()) {
             cmd = new Command();
@@ -1020,7 +1020,7 @@ void GraphicsNode::pushCommand(cocos2d::Color4F& color, float strokeMult, int ve
         else {
             cmd = _commands[_nCommands - 1];
         }
-        
+
         cmd->color = color;
         cmd->strokeMult = strokeMult;
         cmd->vertsOffset = vertsOffset;
@@ -1061,7 +1061,7 @@ void GraphicsNode::roundCapStart(VecPoint* p, float dx, float dy, float w, int n
     float py = p->y;
     float dlx = dy;
     float dly = -dx;
-    
+
     for (i = 0; i < ncap; i++) {
         float a = i/(float)(ncap-1) * PI;
         float ax = cosf(a) * w, ay = sinf(a) * w;
@@ -1079,7 +1079,7 @@ void GraphicsNode::roundCapEnd(VecPoint* p, float dx, float dy, float w, int nca
     float py = p->y;
     float dlx = dy;
     float dly = -dx;
-    
+
     vset(px + dlx*w, py + dly*w, 0,1);
     vset(px - dlx*w, py - dly*w, 1,1);
     for (i = 0; i < ncap; i++) {
@@ -1097,17 +1097,17 @@ void GraphicsNode::roundJoin(VecPoint* p0, VecPoint* p1, float lw, float rw, flo
     float dly0 = -p0->dx;
     float dlx1 = p1->dy;
     float dly1 = -p1->dx;
-    
+
     if (p1->flags & PT_LEFT) {
         float lx0,ly0,lx1,ly1,a0,a1;
         chooseBevel(p1->flags & PT_INNERBEVEL, p0, p1, lw, &lx0,&ly0, &lx1,&ly1);
         a0 = atan2f(-dly0, -dlx0);
         a1 = atan2f(-dly1, -dlx1);
         if (a1 > a0) a1 -= PI_2;
-        
+
         vset(lx0, ly0, lu,1);
         vset(p1->x - dlx0*rw, p1->y - dly0*rw, ru,1);
-        
+
         n = clampi((int)ceilf(((a0 - a1) / PI) * ncap), 2, ncap);
         for (i = 0; i < n; i++) {
             float u = i/(float)(n-1);
@@ -1117,20 +1117,20 @@ void GraphicsNode::roundJoin(VecPoint* p0, VecPoint* p1, float lw, float rw, flo
             vset(p1->x, p1->y, 0.5f,1);
             vset(rx, ry, ru,1);
         }
-        
+
         vset(lx1, ly1, lu,1);
         vset(p1->x - dlx1*rw, p1->y - dly1*rw, ru,1);
-        
+
     } else {
         float rx0,ry0,rx1,ry1,a0,a1;
         chooseBevel(p1->flags & PT_INNERBEVEL, p0, p1, -rw, &rx0,&ry0, &rx1,&ry1);
         a0 = atan2f(dly0, dlx0);
         a1 = atan2f(dly1, dlx1);
         if (a1 < a0) a1 += PI_2;
-        
+
         vset(p1->x + dlx0*rw, p1->y + dly0*rw, lu,1);
         vset(rx0, ry0, ru,1);
-        
+
         n = clampi((int)ceilf(((a1 - a0) / PI) * ncap), 2, ncap);
         for (i = 0; i < n; i++) {
             float u = i/(float)(n-1);
@@ -1140,10 +1140,10 @@ void GraphicsNode::roundJoin(VecPoint* p0, VecPoint* p1, float lw, float rw, flo
             vset(lx, ly, lu,1);
             vset(p1->x, p1->y, 0.5f,1);
         }
-        
+
         vset(p1->x + dlx1*rw, p1->y + dly1*rw, lu,1);
         vset(rx1, ry1, ru,1);
-        
+
     }
 }
 
@@ -1156,62 +1156,62 @@ void GraphicsNode::bevelJoin(VecPoint* p0, VecPoint* p1, float lw, float rw, flo
     float dly0 = -p0->dx;
     float dlx1 = p1->dy;
     float dly1 = -p1->dx;
-    
+
     if (p1->flags & PT_LEFT) {
         chooseBevel(p1->flags & PT_INNERBEVEL, p0, p1, lw, &lx0,&ly0, &lx1,&ly1);
-        
+
         vset(lx0, ly0, lu,1);
         vset(p1->x - dlx0*rw, p1->y - dly0*rw, ru,1);
-        
+
 //        if (p1->flags & PT_BEVEL) {
 //            vset(lx0, ly0, lu,1);
 //            vset(p1->x - dlx0*rw, p1->y - dly0*rw, ru,1);
-//            
+//
 //            vset(lx1, ly1, lu,1);
 //            vset(p1->x - dlx1*rw, p1->y - dly1*rw, ru,1);
 //        } else {
 //            rx0 = p1->x - p1->dmx * rw;
 //            ry0 = p1->y - p1->dmy * rw;
-//            
+//
 //            vset(p1->x, p1->y, 0.5f,1);
 //            vset(p1->x - dlx0*rw, p1->y - dly0*rw, ru,1);
-//            
+//
 //            vset(rx0, ry0, ru,1);
 //            vset(rx0, ry0, ru,1);
-//            
+//
 //            vset(p1->x, p1->y, 0.5f,1);
 //            vset(p1->x - dlx1*rw, p1->y - dly1*rw, ru,1);
 //        }
-        
+
         vset(lx1, ly1, lu,1);
         vset(p1->x - dlx1*rw, p1->y - dly1*rw, ru,1);
-        
+
     } else {
         chooseBevel(p1->flags & PT_INNERBEVEL, p0, p1, -rw, &rx0,&ry0, &rx1,&ry1);
-        
+
         vset(p1->x + dlx0*lw, p1->y + dly0*lw, lu,1);
         vset(rx0, ry0, ru,1);
-        
+
 //        if (p1->flags & PT_BEVEL) {
 //            vset(p1->x + dlx0*lw, p1->y + dly0*lw, lu,1);
 //            vset(rx0, ry0, ru,1);
-//            
+//
 //            vset(p1->x + dlx1*lw, p1->y + dly1*lw, lu,1);
 //            vset(rx1, ry1, ru,1);
 //        } else {
 //            lx0 = p1->x + p1->dmx * lw;
 //            ly0 = p1->y + p1->dmy * lw;
-//            
+//
 //            vset(p1->x + dlx0*lw, p1->y + dly0*lw, lu,1);
 //            vset(p1->x, p1->y, 0.5f,1);
-//            
+//
 //            vset(lx0, ly0, lu,1);
 //            vset(lx0, ly0, lu,1);
-//            
+//
 //            vset(p1->x + dlx1*lw, p1->y + dly1*lw, lu,1);
 //            vset(p1->x, p1->y, 0.5f,1);
 //        }
-        
+
         vset(p1->x + dlx1*lw, p1->y + dly1*lw, lu,1);
         vset(rx1, ry1, ru,1);
     }
@@ -1229,7 +1229,7 @@ void GraphicsNode::draw(Renderer *renderer, const Mat4 &transform, uint32_t flag
 void GraphicsNode::onDraw(const Mat4 &transform, uint32_t flags)
 {
     if (!_verts || _nCommands <=0) return;
-    
+
     auto program = getGLProgram();
     program->use();
     program->setUniformsForBuiltins(transform);
@@ -1244,10 +1244,10 @@ void GraphicsNode::onDraw(const Mat4 &transform, uint32_t flags)
 
         _vertsDirty = false;
     }
-    
+
     if (_indicesDirty) {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_indices[0]) * _indicesOffset, _indices, GL_STREAM_DRAW);
-        
+
         _indicesDirty = false;
     }
 
@@ -1263,14 +1263,14 @@ void GraphicsNode::onDraw(const Mat4 &transform, uint32_t flags)
     // draw paths
     for (int i = 0; i < _nCommands; i++) {
         Command* cmd = _commands[i];
-        
+
         if (cmd->nIndices) {
             Color4F& color = cmd->color;
             program->setUniformLocationWith4f(colorLocation, color.r, color.g, color.b, color.a);
             program->setUniformLocationWith1f(strokeMultLocation, cmd->strokeMult);
-            
+
             glDrawElements(GL_TRIANGLES, (GLsizei)cmd->nIndices, GL_UNSIGNED_SHORT, (const GLvoid *)((size_t)cmd->indicesOffset*2));
-            
+
             CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1, cmd->nVerts);
         }
     }

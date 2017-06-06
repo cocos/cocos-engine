@@ -115,7 +115,7 @@ namespace ui {
         if (!hwndEdit)
         {
             hwndEdit = CreateWindowEx(
-                WS_EX_CLIENTEDGE, L"EDIT",   // predefined class
+                WS_EX_WINDOWEDGE, L"EDIT",   // predefined class
                 NULL,         // no window title
                 WS_CHILD | ES_LEFT | WS_BORDER | WS_EX_TRANSPARENT | WS_TABSTOP | ES_AUTOHSCROLL,
                 0,
@@ -143,7 +143,7 @@ namespace ui {
         if (!hwndEdit)
         {
             hwndEdit = CreateWindowEx(
-                WS_EX_CLIENTEDGE, L"EDIT",   // predefined class
+                WS_EX_WINDOWEDGE, L"EDIT",   // predefined class
                 NULL,         // no window title
                 WS_CHILD | ES_LEFT | WS_BORDER | WS_EX_TRANSPARENT | WS_TABSTOP | ES_MULTILINE | ES_AUTOVSCROLL,
                 0,
