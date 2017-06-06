@@ -852,7 +852,7 @@ var RigidBody = cc.Class({
 
     _onNodeScaleChanged: function (event) {
         if (this._b2Body) {
-            var colliders = this.getComponents(cc.Collider);
+            var colliders = this.getComponents(cc.PhysicsCollider);
             for (var i = 0; i < colliders.length; i++) {
                 colliders[i].apply();
             }
