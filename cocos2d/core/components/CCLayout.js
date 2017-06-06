@@ -211,6 +211,7 @@ var Layout = cc.Class({
         resizeMode: {
             type: ResizeMode,
             tooltip: CC_DEV && 'i18n:COMPONENT.layout.resize_mode',
+            animatable: false,
             get: function() {
                 return this._resize;
             },
@@ -265,6 +266,7 @@ var Layout = cc.Class({
                 }
                 this._doLayoutDirty();
             },
+            animatable: false
         },
 
         _N$padding: {
@@ -361,7 +363,8 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
-            tooltip: CC_DEV && 'i18n:COMPONENT.layout.vertical_direction'
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.vertical_direction',
+            animatable: false
         },
 
         /**
@@ -377,7 +380,8 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
-            tooltip: CC_DEV && 'i18n:COMPONENT.layout.horizontal_direction'
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.horizontal_direction',
+            animatable: false
         },
     },
 

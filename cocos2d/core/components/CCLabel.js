@@ -299,7 +299,8 @@ var Label = cc.Class({
                 if (this._sgNode) {
                     this._sgNode.setFontFileOrFamily(this.fontFamily);
                 }
-            }
+            },
+            animatable: false
         },
 
         _lineHeight: 40,
