@@ -36,8 +36,7 @@ var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
  */
 var PhysicsChainCollider = cc.Class({
     name: 'cc.PhysicsChainCollider',
-    extends: cc.Collider,
-    mixins: [cc.PhysicsCollider],
+    extends: cc.PhysicsCollider,
 
     editor: {
         menu: CC_EDITOR && 'i18n:MAIN_MENU.component.physics/Collider/Chain',
@@ -45,7 +44,7 @@ var PhysicsChainCollider = cc.Class({
         requireComponent: cc.RigidBody
     },
 
-    properties: cc.js.mixin({
+    properties: {
         loop: false,
         points: {
             default: function () {
@@ -59,7 +58,7 @@ var PhysicsChainCollider = cc.Class({
             serializable: false,
             visible: false
         },
-    }, cc.PhysicsCollider.properties),
+    },
 
     _createShape: function (scale) {
         var shape = new b2.ChainShape();

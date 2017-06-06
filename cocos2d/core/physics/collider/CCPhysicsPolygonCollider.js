@@ -37,16 +37,14 @@ var PolygonSeprator = require('../CCPolygonSeprator');
  */
 var PhysicsPolygonCollider = cc.Class({
     name: 'cc.PhysicsPolygonCollider',
-    extends: cc.PolygonCollider,
-    mixins: [cc.PhysicsCollider],
+    extends: cc.PhysicsCollider,
+    mixins: [cc.Collider.Polygon],
 
     editor: {
         menu: CC_EDITOR && 'i18n:MAIN_MENU.component.physics/Collider/Polygon',
         inspector: CC_EDITOR && 'packages://inspector/inspectors/comps/physics/points-base-collider.js',
         requireComponent: cc.RigidBody
     },
-
-    properties: cc.PhysicsCollider.properties,
 
     _createShape: function (scale) {
         var shapes = [];

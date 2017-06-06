@@ -23,20 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * !#en Box Collider.
- * !#zh 包围盒碰撞组件
- * @class BoxCollider
- * @extends Component
- */
-var BoxCollider = cc.Class({
-    name: 'cc.BoxCollider',
-    extends: cc.Collider,
-
-    editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.collider/Box Collider',
-    },
-
+cc.Collider.Box = cc.Class({
     properties: {
         _offset: cc.v2(0, 0),
         _size: cc.size(100, 100),
@@ -84,6 +71,22 @@ var BoxCollider = cc.Class({
             this.offset.x = (0.5 - this.node.anchorX) * size.width;
             this.offset.y = (0.5 - this.node.anchorY) * size.height;
         }
+    }
+});
+
+/**
+ * !#en Box Collider.
+ * !#zh 包围盒碰撞组件
+ * @class BoxCollider
+ * @extends Component
+ */
+var BoxCollider = cc.Class({
+    name: 'cc.BoxCollider',
+    extends: cc.Collider,
+    mixins: [cc.Collider.Box],
+
+    editor: CC_EDITOR && {
+        menu: 'i18n:MAIN_MENU.component.collider/Box Collider',
     }
 });
 

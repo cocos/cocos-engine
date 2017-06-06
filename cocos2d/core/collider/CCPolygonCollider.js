@@ -23,21 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * !#en Polygon Collider.
- * !#zh 多边形碰撞组件
- * @class PolygonCollider
- * @extends Component
- */
-var PolygonCollider = cc.Class({
-    name: 'cc.PolygonCollider',
-    extends: require('./CCCollider'),
-
-    editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.collider/Polygon Collider',
-        inspector: 'packages://inspector/inspectors/comps/physics/points-base-collider.js',
-    },
-
+cc.Collider.Polygon = cc.Class({
     properties: {
         threshold: {
             default: 1,
@@ -85,6 +71,23 @@ var PolygonCollider = cc.Class({
     resetPointsByContour: CC_EDITOR && function () {
         _Scene.PhysicsUtils.resetPoints(this, {threshold: this.threshold});
     }
+});
+
+/**
+ * !#en Polygon Collider.
+ * !#zh 多边形碰撞组件
+ * @class PolygonCollider
+ * @extends Component
+ */
+var PolygonCollider = cc.Class({
+    name: 'cc.PolygonCollider',
+    extends: cc.Collider,
+    mixins: [cc.Collider.Polygon],
+
+    editor: CC_EDITOR && {
+        menu: 'i18n:MAIN_MENU.component.collider/Polygon Collider',
+        inspector: 'packages://inspector/inspectors/comps/physics/points-base-collider.js',
+    },
 });
 
 cc.PolygonCollider = module.exports = PolygonCollider;
