@@ -212,7 +212,7 @@ var AssetLibrary = {
             uuid: randomUuid,
             type: 'uuid',
             content: json,
-            skips: [ Loader.downloader.id ]
+            skips: [ Loader.assetLoader.id, Loader.downloader.id ]
         };
         Loader.load(item, function (error, asset) {
             if (error) {
