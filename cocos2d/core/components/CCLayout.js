@@ -196,7 +196,8 @@ var Layout = cc.Class({
                 }
                 this._doLayoutDirty();
             },
-            tooltip: CC_DEV && 'i18n:COMPONENT.layout.layout_type'
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.layout_type',
+            animatable: false,
         },
 
 
