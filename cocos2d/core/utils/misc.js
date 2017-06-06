@@ -124,4 +124,8 @@ misc.imagePool.get = function () {
 };
 misc.imagePool._smallImg = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=";
 
+misc.isBuiltinClassId = function (id) {
+    return id.startsWith('cc.') || id.startsWith('dragonBones.') || id.startsWith('sp.') || id.startsWith('ccsg.');
+};
+
 module.exports = misc;
