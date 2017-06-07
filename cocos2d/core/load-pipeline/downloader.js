@@ -295,7 +295,15 @@ Downloader.prototype._handleLoadQueue = function () {
         if (!nextOne) {
             break;
         }
-        this.handle(nextOne.item, nextOne.callback);
+        var syncRet = this.handle(nextOne.item, nextOne.callback);
+        if (syncRet !== undefined) {
+            if (syncRet instanceof Error) {
+                nextOne.callback(syncRet);
+            }
+            else {
+                nextOne.callback(null, syncRet);
+            }
+        }
     }
 };
 
