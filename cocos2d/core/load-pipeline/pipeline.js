@@ -229,9 +229,13 @@ proto.appendPipe = function (pipe) {
 proto.flowIn = function (items) {
     var i, pipe = this._pipes[0], item;
     if (pipe) {
+        // Cache all items first, in case synchronous loading flow same item repeatly
         for (i = 0; i < items.length; i++) {
             item = items[i];
             this._cache[item.id] = item;
+        }
+        for (i = 0; i < items.length; i++) {
+            item = items[i];
             flow(pipe, item);
         }
     }
