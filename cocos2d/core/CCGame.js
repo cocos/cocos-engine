@@ -297,6 +297,7 @@ var game = {
         // Clean up audio
         if (cc.audioEngine) {
             cc.audioEngine.uncacheAll();
+            cc.audioEngine.stopAll();
         }
 
         game.onStart();
