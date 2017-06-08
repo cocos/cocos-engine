@@ -230,7 +230,7 @@ var ProgressBar = cc.Class({
             animatable: false
         },
 
-        _totalLength: 1,
+        _N$totalLength: 1,
         /**
          * !#en The total width or height of the bar sprite.
          * !#zh 进度条实际的总长度
@@ -240,13 +240,13 @@ var ProgressBar = cc.Class({
             range: [0, Number.MAX_VALUE],
             tooltip: CC_DEV && 'i18n:COMPONENT.progress.total_length',
             get: function () {
-                return this._totalLength;
+                return this._N$totalLength;
             },
             set: function(value) {
                 if (this.mode === Mode.FILLED) {
                     value = cc.clamp01(value);
                 }
-                this._totalLength = value;
+                this._N$totalLength = value;
                 this._updateBarStatus();
             }
         },
