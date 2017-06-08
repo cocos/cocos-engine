@@ -324,7 +324,7 @@ proto.enumerateCCClass = function (codeArray, obj, klass) {
             }
             if (typeof val === 'object' && val instanceof cc.ValueType) {
                 var defaultValue = CCClass.getDefault(defaultValue);
-                if (defaultValue.constructor === val.constructor) {
+                if ((defaultValue && defaultValue.constructor) === val.constructor) {
                     // fast case
                     var targetExpression = LOCAL_OBJ + getPropAccessor(key);
                     this.setValueType(codeArray, defaultValue, val, targetExpression);

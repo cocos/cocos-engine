@@ -23,7 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+require('./CCTextUtils.js');
 var EventTarget = require("../event/event-target");
 
 var FntLoader = {

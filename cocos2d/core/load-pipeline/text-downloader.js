@@ -4,10 +4,10 @@ if (CC_JSB) {
 
         var result = jsb.fileUtils.getStringFromFile(url);
         if (typeof result === 'string' && result) {
-            callback(null, result);
+            return result;
         }
         else {
-            callback(new Error('Download text failed: ' + url));
+            return new Error('Download text failed: ' + url);
         }
     };
 }

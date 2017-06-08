@@ -52,7 +52,7 @@ function Callback(callbackFunction_opt) {
         }
         ++wrapper.calledCount;
         if (callbackFunction_) {
-            callbackFunction_.apply(this, arguments);
+            return callbackFunction_.apply(this, arguments);
         }
     };
 

@@ -27,17 +27,16 @@
 require('../cocos2d/core/load-pipeline');
 
 function empty (item, callback) {
-    callback(null, null);
+    return null;
 }
 
 function downloadScript (item, callback) {
-    var url = item.url;
-    require(url);
-    callback(null, url);
+    require(item.url);
+    return null;
 }
 
 function downloadAudio (item, callback) {
-    callback(null, item.url);
+    return item.url;
 }
 
 cc.loader.addDownloadHandlers({
@@ -78,7 +77,7 @@ function loadImage (item, callback) {
 
     var cachedTex = cc.textureCache.getTextureForKey(url);
     if (cachedTex) {
-        callback && callback(null, cachedTex);
+        return cachedTex;
     }
     else if (url.match(jsb.urlRegExp)) {
         jsb.loadRemoteImg(url, function(succeed, tex) {

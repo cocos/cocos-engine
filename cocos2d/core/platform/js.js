@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const tempCIDGenerater = new (require('./id-generater'))('cc.TmpCId.');
+const tempCIDGenerater = new (require('./id-generater'))('TmpCId.');
 
 
 function _getPropertyDescriptor (obj, name) {
@@ -391,7 +391,7 @@ function isTempClassId_DEV (id) {
             if (constructor.prototype.hasOwnProperty(key)) {
                 delete table[constructor.prototype[key]];
             }
-            constructor.prototype[key] = id;
+            js.value(constructor.prototype, key, id);
             // register class
             if (id) {
                 var registered = table[id];

@@ -22,7 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+require('../label/CCSGLabel.js');
+require('../label/CCSGLabelCanvasRenderCmd.js');
+require('../label/CCSGLabelWebGLRenderCmd.js');
 /**
  * !#en Enum for text alignment.
  * !#zh 文本横向对齐类型
@@ -297,7 +299,8 @@ var Label = cc.Class({
                 if (this._sgNode) {
                     this._sgNode.setFontFileOrFamily(this.fontFamily);
                 }
-            }
+            },
+            animatable: false
         },
 
         _lineHeight: 40,

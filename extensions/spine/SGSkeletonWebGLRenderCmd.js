@@ -252,7 +252,7 @@ proto._uploadRegionAttachmentData = function(attachment, slot, premultipliedAlph
     var nodeR = nodeColor.r,
         nodeG = nodeColor.g,
         nodeB = nodeColor.b,
-        nodeA = nodeColor.a;
+        nodeA = this._displayedOpacity;
     var vertices = attachment.updateWorldVertices(slot, premultipliedAlpha);
     var offset = vertexDataOffset;
     // generate 6 vertices data (two triangles) from the quad vertices
@@ -293,7 +293,7 @@ proto._uploadMeshAttachmentData = function(attachment, slot, premultipliedAlpha,
     var nodeR = nodeColor.r,
         nodeG = nodeColor.g,
         nodeB = nodeColor.b,
-        nodeA = nodeColor.a;
+        nodeA = this._displayedOpacity;
     for (var i = 0, n = vertices.length; i < n; i += 8) {
         var r = vertices[i + 2] * nodeR,
             g = vertices[i + 3] * nodeG,

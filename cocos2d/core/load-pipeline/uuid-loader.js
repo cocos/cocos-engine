@@ -209,16 +209,14 @@ function loadUuid (item, callback) {
             json = JSON.parse(item.content);
         }
         catch (e) {
-            callback( new Error('Uuid Loader: Parse asset [' + item.id + '] failed : ' + e.stack) );
-            return;
+            return new Error('Uuid Loader: Parse asset [' + item.id + '] failed : ' + e.stack);
         }
     }
     else if (typeof item.content === 'object') {
         json = item.content;
     }
     else {
-        callback( new Error('JSON Loader: Input item doesn\'t contain string content') );
-        return;
+        return new Error('JSON Loader: Input item doesn\'t contain string content');
     }
 
     var classFinder;
@@ -263,8 +261,7 @@ function loadUuid (item, callback) {
     catch (e) {
         cc.deserialize.Details.pool.put(tdInfo);
         var err = CC_JSB ? (e + '\n' + e.stack) : e.stack;
-        callback( new Error('Uuid Loader: Deserialize asset [' + item.id + '] failed : ' + err) );
-        return;
+        return new Error('Uuid Loader: Deserialize asset [' + item.id + '] failed : ' + err);
     }
 
     asset._uuid = item.uuid;
