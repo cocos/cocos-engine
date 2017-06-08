@@ -88,7 +88,7 @@ private:
     bool _jsInited;
     bool _needCleanup;
     bool _callFromScript;
-    JSObject *_finalizing;
+    bool _finalizing;
     
     ScriptingCore();
 
@@ -515,12 +515,12 @@ public:
     /**
      * Sets the js object that is being finalizing in the script engine, internal use only, please do not call this function
      */
-    void setFinalizing (JSObject *finalizing) {_finalizing = finalizing;};
+    void setFinalizing (bool finalizing) {_finalizing = finalizing;};
 
     /**
      * Gets the js object that is being finalizing in the script engine
      */
-    JSObject *getFinalizing () {return _finalizing;};
+    bool getFinalizing () {return _finalizing;};
 
 private:
     void string_report(JS::HandleValue val);

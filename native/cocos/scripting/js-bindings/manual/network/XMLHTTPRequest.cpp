@@ -414,7 +414,7 @@ JS_BINDED_CONSTRUCTOR_IMPL(MinXmlHttpRequest)
     JS::RootedValue out(cx);
     if (obj)
     {
-        JS_SetPrivate(obj, req);
+        JS_SetPrivate(obj.get(), req);
         out = JS::ObjectOrNullValue(obj);
     }
     else

@@ -191,10 +191,8 @@ void removeJSObject(JSContext* cx, cocos2d::Ref* nativeObj)
 #if ! CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         JS::RemoveObjectRoot(cx, &proxy->obj);
 #endif
-        // remove the proxy here, since this was a "stack" object, not heap
-        // when js_finalize will be called, it will fail, but
-        // the correct solution is to have a new finalize for event
-        jsb_remove_proxy(proxy);
+        // Do not free proxy here otherwise it will crash during GC
+        jsb_unbind_proxy(proxy);
     }
     else CCLOG("removeJSObject: BUG: cannot find native object = %p", nativeObj);
 }
@@ -217,6 +215,9 @@ void ScriptingCore::executeJSFunctionWithThisObj(JS::HandleValue thisObj,
         // So we have to check the availability of 'retVal'.
         JS::RootedObject jsthis(_cx, thisObj.toObjectOrNull());
         JS_CallFunctionValue(_cx, jsthis, callback, vp, retVal);
+        if (JS_IsExceptionPending(_cx)) {
+            handlePendingException(_cx);
+        }
     }
 }
 
@@ -584,22 +585,35 @@ void ScriptingCore::createGlobalContext() {
     JS_SetDefaultLocale(_cx, "UTF-8");
     JS::SetWarningReporter(_cx, ScriptingCore::reportError);
     
-    JS_SetGCCallback(_cx, on_garbage_collect, nullptr);
+//    JS_SetGCCallback(_cx, on_garbage_collect, nullptr);
     
     if (!JS::InitSelfHostedCode(_cx))
     {
         return;
     }
     
-//#if defined(JS_GC_ZEAL) && defined(DEBUG)
-//    JS_SetGCZeal(_cx, 2, JS_DEFAULT_ZEAL_FREQ);
-//#endif
-    
     JS_BeginRequest(_cx);
     
     JS::CompartmentOptions options;
     options.behaviors().setVersion(JSVERSION_LATEST);
     options.creationOptions().setSharedMemoryAndAtomicsEnabled(true);
+    
+#ifdef DEBUG
+#ifdef JS_GC_ZEAL
+//    JS_SetGCZeal(_cx, 2, JS_DEFAULT_ZEAL_FREQ);
+#endif
+    
+    JS::ContextOptionsRef(_cx)
+        .setIon(false)
+        .setBaseline(false)
+        .setAsmJS(false);
+#else
+    JS::ContextOptionsRef(_cx)
+        .setIon(true)
+        .setBaseline(true)
+        .setAsmJS(true);
+#endif
+    
     JS::RootedObject global(_cx, JS_NewGlobalObject(_cx, &global_class, nullptr, JS::DontFireOnNewGlobalHook, options));
     _global = new JS::PersistentRootedObject(_cx, global);
     
@@ -844,7 +858,6 @@ void ScriptingCore::cleanup()
     for (auto iter = _js_global_type_map.begin(); iter != _js_global_type_map.end(); ++iter)
     {
         CC_SAFE_DELETE(iter->second->proto);
-        CC_SAFE_DELETE(iter->second->jsclass);
         free(iter->second);
     }
     _js_global_type_map.clear();
@@ -1402,7 +1415,7 @@ bool ScriptingCore::handleTouchesEvent(void* nativeObj, cocos2d::EventTouch::Eve
         
         ret = executeFunctionWithOwner(objVal, funcName.c_str(), args, jsvalRet);
         // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
-        removeJSObject(_cx, event);
+//        removeJSObject(_cx, event);
     }
 
     return ret;
@@ -1433,7 +1446,7 @@ bool ScriptingCore::handleTouchEvent(void* nativeObj, cocos2d::EventTouch::Event
 
         ret = executeFunctionWithOwner(objVal, funcName.c_str(), args, jsvalRet);
         // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
-        removeJSObject(_cx, event);
+//        removeJSObject(_cx, event);
     }
 
     return ret;
@@ -1459,7 +1472,7 @@ bool ScriptingCore::handleMouseEvent(void* nativeObj, cocos2d::EventMouse::Mouse
         JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
         ret = executeFunctionWithOwner(objVal, funcName.c_str(), args, jsvalRet);
         // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
-        removeJSObject(_cx, event);
+//        removeJSObject(_cx, event);
     }
     else CCLOG("ScriptingCore::handleMouseEvent native proxy NOT found");
 
@@ -1514,6 +1527,9 @@ bool ScriptingCore::executeFunctionWithOwner(JS::HandleValue owner, const char *
             }
 
             bRet = JS_CallFunctionValue(cx, obj, funcVal, args, retVal);
+            if (JS_IsExceptionPending(cx)) {
+                handlePendingException(cx);
+            }
         }
     }while(0);
     return bRet;
@@ -1749,8 +1765,24 @@ void ScriptingCore::removeObjectProxy(Ref* obj)
 #if ! CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         JS::RemoveObjectRoot(_cx, &proxy->obj);
 #endif
+#if COCOS2D_DEBUG > 1
+        CCLOG("------RELEASED------ Cpp: %p - Proxy: %p", obj, proxy);
+#endif // COCOS2D_DEBUG
+        
+        if (!getFinalizing())
+        {
+            JS::RootedObject jsObj(_cx, proxy->obj);
+            JS::RootedValue hook(_cx);
+            JS_GetProperty(_cx, jsObj, "__hook", &hook);
+            
+            if (hook.isObject())
+            {
+                JSObject *hookObj = hook.toObjectOrNull();
+                JS_SetPrivate(hookObj, nullptr);
+            }
+        }
         // remove the proxy here, since this was a "stack" object, not heap
-        // when js_finalize will be called, it will fail, but
+        // when js_finalize is called, it will fail, but
         // the correct solution is to have a new finalize for event
         jsb_remove_proxy(proxy);
     }
@@ -2079,24 +2111,25 @@ js_proxy_t* jsb_new_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsObj
     {
         JS::RootedValue hook(cx);
         bool hasHook = JS_GetProperty(cx, jsObj, "__hook", &hook);
-        
+
         if (!hasHook || !hook.isObject())
         {
             CCLOG("BUG: JS object(%p) doesn't have __hook property, can't set private data.", jsObj.get());
             return nullptr;
         }
+        JS::RootedObject hookObj(cx, hook.toObjectOrNull());
         
         // native to JS index
-        proxy = (js_proxy_t *)malloc(sizeof(js_proxy_t));
+        proxy = new js_proxy_t();
         CC_ASSERT(proxy && "not enough memory");
         CC_ASSERT(_native_js_global_map.find(nativeObj) == _native_js_global_map.end() && "Native Key should not be present");
         
         proxy->ptr = nativeObj;
-        proxy->obj = jsObj;
+        proxy->obj = jsObj.get();
 
         // One Proxy in two entries
         _native_js_global_map[nativeObj] = proxy;
-        JS_SetPrivate(hook.toObjectOrNull(), proxy);
+        JS_SetPrivate(hookObj, proxy);
     }
     else CCLOG("jsb_new_proxy: Invalid keys");
 
@@ -2111,7 +2144,7 @@ js_proxy_t* jsb_bind_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsOb
     if (nativeObj && objVal.isObject())
     {
         // native to JS index
-        proxy = (js_proxy_t *)malloc(sizeof(js_proxy_t));
+        proxy = new js_proxy_t();
         CC_ASSERT(proxy && "not enough memory");
         CC_ASSERT(_native_js_global_map.find(nativeObj) == _native_js_global_map.end() && "Native Key should not be present");
         
@@ -2153,21 +2186,15 @@ js_proxy_t* jsb_get_js_proxy(JSContext *cx, JS::HandleObject jsObj)
 void jsb_remove_proxy(js_proxy_t* proxy)
 {
     jsb_unbind_proxy(proxy);
-    CC_SAFE_FREE(proxy);
+    CC_SAFE_DELETE(proxy);
 }
 
 void jsb_unbind_proxy(js_proxy_t* proxy)
 {
     void* nativeKey = proxy->ptr;
-    JSObject* jsKey = proxy->obj;
     CC_ASSERT(nativeKey && "Invalid nativeKey");
     
-    // delete private data link to the proxy
-    if (jsKey)
-    {
-        JS_SetPrivate(jsKey, nullptr);
-    }
-    // delete proxy and entry in native proxy map
+    // delete entry in native proxy map
     auto it_nat = _native_js_global_map.find(nativeKey);
     if (it_nat != _native_js_global_map.end())
     {

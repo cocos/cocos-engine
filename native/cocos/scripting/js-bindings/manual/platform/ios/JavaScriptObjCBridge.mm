@@ -240,7 +240,7 @@ JS_BINDED_CONSTRUCTOR_IMPL(JavaScriptObjCBridge)
     jsb_new_proxy(cx, jsj, obj);
     
     if (obj) {
-        JS_SetPrivate(obj, jsj);
+        JS_SetPrivate(obj.get(), jsj);
         ret = JS::ObjectOrNullValue(obj);
     }
 

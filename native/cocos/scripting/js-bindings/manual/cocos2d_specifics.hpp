@@ -60,16 +60,17 @@ namespace jsb
         std::string _jsRef;
     public:
         Object(const std::string &jsRef = "")
+        : _jsRef(jsRef)
+        , _proxy(nullptr)
         {
-            _jsRef = jsRef;
-            _proxy = nullptr;
         }
         Object(JSContext *cx, JS::HandleObject jsobj, const std::string &jsRef = "")
+        : _jsRef(jsRef)
+        , _proxy(nullptr)
         {
-            _jsRef = jsRef;
             setObj(cx, jsobj);
         }
-        void ～Object()
+        ~Object()
         {
             if (_proxy)
             {
@@ -90,13 +91,17 @@ namespace jsb
                 JS::RootedObject hook(cx, JS_NewObjectWithGivenProto(cx, jsb_ObjFinalizeHook_class, proto));
                 JS::RootedValue hookVal(cx, JS::ObjectOrNullValue(hook));
                 JS_SetProperty(cx, jsobj, _jsRef.c_str(), hookVal);
-                JS_SetPrivate(hook, this);
+                JS_SetPrivate(hook.get(), this);
             }
         }
         bool getObj(JS::MutableHandleObject obj)
         {
-            obj.set(_proxy->obj);
-            return true;
+            if (_proxy)
+            {
+                obj.set(_proxy->obj);
+                return true;
+            }
+            return false;
         }
         
         static Object *getJSBObject(JSContext *cx, JS::HandleObject jsobj, const std::string &jsRefName)

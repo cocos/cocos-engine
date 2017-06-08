@@ -86,32 +86,36 @@ JSFunctionWrapper::~JSFunctionWrapper()
     _owner->getObj(&ownerObj);
     JS::RootedValue ownerVal(_cx, JS::ObjectOrNullValue(ownerObj));
     
+    bool ok = true;
     if (sc->getFinalizing() || !ownerVal.isObject())
     {
-        return;
+        ok = false;
     }
-    if (_cppOwner != nullptr)
+    else if (_cppOwner != nullptr)
     {
         js_proxy *t = jsb_get_js_proxy(cx, ownerObj);
         // JS object already released, no need to do the following release anymore, gc will take care of everything
         if (t == nullptr || _cppOwner != t->ptr)
         {
-            return;
+            ok = false;
         }
     }
     
-    JS::RootedObject obj(cx);
-    _jsthis->getObj(&obj);
-    JS::RootedValue thisVal(_cx, JS::ObjectOrNullValue(obj));
-    if (!thisVal.isNullOrUndefined())
+    if (ok)
     {
-        js_remove_object_reference(ownerVal, thisVal);
-    }
-    _func->getObj(&obj);
-    JS::RootedValue funcVal(_cx, JS::ObjectOrNullValue(obj));
-    if (!funcVal.isNullOrUndefined())
-    {
-        js_remove_object_reference(ownerVal, funcVal);
+        JS::RootedObject obj(cx);
+        _jsthis->getObj(&obj);
+        JS::RootedValue thisVal(_cx, JS::ObjectOrNullValue(obj));
+        if (!thisVal.isNullOrUndefined())
+        {
+            js_remove_object_reference(ownerVal, thisVal);
+        }
+        _func->getObj(&obj);
+        JS::RootedValue funcVal(_cx, JS::ObjectOrNullValue(obj));
+        if (!funcVal.isNullOrUndefined())
+        {
+            js_remove_object_reference(ownerVal, funcVal);
+        }
     }
     
     CC_SAFE_DELETE(_jsthis);
@@ -362,17 +366,6 @@ bool js_cocos2dx_CCScene_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 
     JS_ReportErrorUTF8(cx, "js_cocos2dx_Scene_init : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
-}
-
-JSObject* getObjectFromNamespace(JSContext* cx, JS::HandleObject ns, const char *name) {
-    JS::RootedValue out(cx);
-    bool ok = true;
-    if (JS_GetProperty(cx, ns, name, &out) == true) {
-        JS::RootedObject obj(cx);
-        ok &= JS_ValueToObject(cx, out, &obj);
-        JSB_PRECONDITION2(ok, cx, nullptr, "Error processing arguments");
-    }
-    return nullptr;
 }
 
 js_type_class_t *js_get_type_from_node(cocos2d::Node* native_obj)
@@ -876,6 +869,8 @@ void JSScheduleWrapper::removeTargetForJSObject(JSContext *cx, JS::HandleObject 
     jsb::Object *jsbObj = jsb::Object::getJSBObject(cx, jsTargetObj, _jsRefName);
     HASH_FIND_PTR(_schedObj_target_ht, &jsbObj, t);
     if (t != nullptr) {
+        target->retain();
+        target->autorelease();
         t->targets->eraseObject(target,true);
         if (t->targets->empty())
         {
@@ -4661,16 +4656,11 @@ static bool jsb_RefFinalizeHook_constructor(JSContext *cx, uint32_t argc, JS::Va
 void jsb_RefFinalizeHook_finalize(JSFreeOp *fop, JSObject *obj)
 {
     ScriptingCore *sc = ScriptingCore::getInstance();
-    JSContext *cx = sc->getGlobalContext();
     
-    js_proxy_t *proxy = (js_proxy_t*)JS_GetPrivate(obj);
+    js_proxy_t *proxy = static_cast<js_proxy_t*>(JS_GetPrivate(obj));
     if (proxy)
     {
-        JS::RootedObject owner(cx, proxy->obj);
-        JSObject *ownerPtr = owner.get();
-        sc->setFinalizing(ownerPtr);
-        
-        CCLOGINFO("jsbindings: finalizing JS object via RefFinalizehook %p", ownerPtr);
+        sc->setFinalizing(true);
         
         cocos2d::Ref *refObj = static_cast<cocos2d::Ref *>(proxy->ptr);
         jsb_remove_proxy(proxy);
@@ -4689,10 +4679,10 @@ void jsb_RefFinalizeHook_finalize(JSFreeOp *fop, JSObject *obj)
                 CC_SAFE_RELEASE(refObj);
             }
 #if COCOS2D_DEBUG > 1
-            CCLOG("------RELEASED------ Cpp: %p - JS: %p", refObj, ownerPtr);
+            CCLOG("------RELEASED------ Cpp: %p - Proxy: %p", refObj, proxy);
 #endif // COCOS2D_DEBUG
         }
-        sc->setFinalizing(nullptr);
+        sc->setFinalizing(false);
     }
 #if COCOS2D_DEBUG > 1
     else {
@@ -4711,23 +4701,13 @@ static bool jsb_ObjFinalizeHook_constructor(JSContext *cx, uint32_t argc, JS::Va
 }
 void jsb_ObjFinalizeHook_finalize(JSFreeOp *fop, JSObject *obj)
 {
-    ScriptingCore *sc = ScriptingCore::getInstance();
-    JSContext *cx = sc->getGlobalContext();
-    
-    js_proxy_t *proxy = (js_proxy_t*)JS_GetPrivate(obj);
+    js_proxy_t *proxy = static_cast<js_proxy_t*>(JS_GetPrivate(obj));
     if (proxy)
     {
-        JS::RootedObject owner(cx, proxy->obj);
-        JSObject *ownerPtr = owner.get();
-        sc->setFinalizing(ownerPtr);
-        
-        CCLOGINFO("jsbindings: finalizing JS object via ObjFinalizehook %p", ownerPtr);
-        
-        jsb_remove_proxy(proxy);
 #if COCOS2D_DEBUG > 1
-        CCLOG("------WEAK_REF------ Cpp: %p - JS: %p", proxy->ptr, ownerPtr);
+        CCLOG("------WEAK_REF------ Cpp: %p - Proxy: %p", proxy->ptr, proxy);
 #endif // COCOS2D_DEBUG
-        sc->setFinalizing(nullptr);
+        jsb_remove_proxy(proxy);
     }
 }
 
