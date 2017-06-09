@@ -223,7 +223,7 @@ var MouseJoint = cc.Class({
         var target = this._pressPoint = event.touch.getLocation();
         
         if (cc.Camera.main) {
-            target = cc.Camera.main.getTouchToWorldPoint(target);
+            target = cc.Camera.main.getCameraToWorldPoint(target);
         }
 
         var collider = manager.testPoint( target );
@@ -260,7 +260,7 @@ var MouseJoint = cc.Class({
 
     update: function () {
         if (cc.Camera.main && this._pressPoint) {
-            this.target = cc.Camera.main.getTouchToWorldPoint(this._pressPoint);
+            this.target = cc.Camera.main.getCameraToWorldPoint(this._pressPoint);
         }
     }
 });

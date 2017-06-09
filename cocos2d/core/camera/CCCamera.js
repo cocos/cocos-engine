@@ -138,7 +138,7 @@ let Camera = cc.Class({
         if (!sgNode) return;
 
         this._sgNode.removeTarget(sgNode);
-        cc.array.remove(this._sgTarges, sgNode);
+        cc.js.array.remove(this._sgTarges, sgNode);
         
         var cmd = sgNode._renderCmd;
         cmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
@@ -218,6 +218,14 @@ let Camera = cc.Class({
         return this._targets;
     },
 
+    /**
+     * !#en
+     * Returns the matrix that transform the node's (local) space coordinates into the camera's space coordinates.
+     * !#zh
+     * 返回一个将节点坐标系转换到摄像机坐标系下的矩阵
+     * @param {Node} node - the node which should transform
+     * @return {AffineTransform}
+     */
     getNodeToCameraTransform (node) {
         var t = node.getNodeToWorldTransform();
         if (this.containsNode(node)) {
@@ -226,13 +234,29 @@ let Camera = cc.Class({
         return t;
     },
 
-    getTouchToWorldPoint (point) {
+    /**
+     * !#en
+     * Conver a camera coordinates point to world coordinates.
+     * !#zh
+     * 讲一个摄像机坐标系下的点转换到世界坐标系下。
+     * @param {Node} point - the point which should transform
+     * @return {Vec2}
+     */
+    getCameraToWorldPoint (point) {
         if (cc.Camera.main) {
             point = cc.pointApplyAffineTransform(point, cc.Camera.main.invertViewMatrix);
         }
         return point;
     },
 
+    /**
+     * !#en
+     * Check whether the node is in the camera.
+     * !#zh
+     * 检测节点是否被此摄像机影响
+     * @param {Node} node - the node which need to check
+     * @return {Boolean}
+     */
     containsNode: function (node) {
         if (node instanceof cc.Node) {
             node = node._sgNode;
