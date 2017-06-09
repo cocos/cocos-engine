@@ -191,7 +191,7 @@ bool JSFunctionWrapper::invoke(JS::HandleValueArray args, JS::MutableHandleValue
     _func->getObj(&funcObj);
     JS::RootedValue fval(_cx, JS::ObjectOrNullValue(funcObj));
     bool ok = JS_CallFunctionValue(_cx, thisObj, fval, args, rval);
-    if (JS_IsExceptionPending(_cx)) {
+    if (!ok && JS_IsExceptionPending(_cx)) {
         handlePendingException(_cx);
     }
     return ok;

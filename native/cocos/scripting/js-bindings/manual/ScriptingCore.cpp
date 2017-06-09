@@ -1418,8 +1418,6 @@ bool ScriptingCore::handleTouchesEvent(void* nativeObj, cocos2d::EventTouch::Eve
         JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
         
         ret = executeFunctionWithOwner(objVal, funcName.c_str(), args, jsvalRet);
-        // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
-//        removeJSObject(_cx, event);
     }
 
     return ret;
@@ -1453,8 +1451,6 @@ bool ScriptingCore::handleTouchEvent(void* nativeObj, cocos2d::EventTouch::Event
         JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
 
         ret = executeFunctionWithOwner(objVal, funcName.c_str(), args, jsvalRet);
-        // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
-//        removeJSObject(_cx, event);
     }
 
     return ret;
@@ -1482,8 +1478,6 @@ bool ScriptingCore::handleMouseEvent(void* nativeObj, cocos2d::EventMouse::Mouse
         JS::HandleValueArray args(dataVal);
         JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
         ret = executeFunctionWithOwner(objVal, funcName.c_str(), args, jsvalRet);
-        // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
-//        removeJSObject(_cx, event);
     }
     else CCLOG("ScriptingCore::handleMouseEvent native proxy NOT found");
 

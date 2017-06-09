@@ -271,16 +271,8 @@ bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, JS::Value *vp)
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc));
                 wrapper = func.get();
                 auto lambda = [=](EventCustom* event) -> void {
-                    JS::RootedValue largv(cx);
-                    if (event) {
-                        js_type_class_t *typeClassEvent = js_get_type_from_native<EventCustom>(event);
-                        JS::RootedObject eventObj(cx);
-                        jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent, &eventObj, "EventCustom");
-                        largv = JS::ObjectOrNullValue(eventObj);
-                    }
                     JS::RootedValue rval(cx);
-                    JS::HandleValueArray largsv(largv);
-                    bool succeed = func->invoke(largsv, &rval);
+                    bool succeed = func->invoke(JS::HandleValueArray::empty(), &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
                         handlePendingException(cx);
                     }
@@ -330,16 +322,8 @@ bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, JS:
                 JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
                 std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
                 auto lambda = [=](cocos2d::EventCustom* event) -> void {
-                    JS::RootedValue largv(cx);
-                    if (event) {
-                        js_type_class_t *typeClassEvent = js_get_type_from_native<EventCustom>(event);
-                        JS::RootedObject eventObj(cx);
-                        jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent, &eventObj, "EventCustom");
-                        largv = JS::ObjectOrNullValue(eventObj);
-                    }
                     JS::RootedValue rval(cx);
-                    JS::HandleValueArray largsv(largv);
-                    bool succeed = func->invoke(largsv, &rval);
+                    bool succeed = func->invoke(JS::HandleValueArray::empty(), &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
                         handlePendingException(cx);
                     }
