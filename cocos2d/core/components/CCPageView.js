@@ -218,14 +218,14 @@ var PageView = cc.Class({
     onEnable: function () {
         this._super();
         if(!CC_EDITOR) {
-            this.node.on('scroll-ended', this._dispatchPageTurningEvent, this);
+            this.node.on('scroll-ended-with-threshold', this._dispatchPageTurningEvent, this);
         }
     },
 
     onDisable: function () {
         this._super();
         if(!CC_EDITOR) {
-            this.node.off('scroll-ended', this._dispatchPageTurningEvent, this);
+            this.node.off('scroll-ended-with-threshold', this._dispatchPageTurningEvent, this);
         }
     },
 
