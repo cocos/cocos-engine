@@ -110,7 +110,13 @@ var EventType = cc.Enum({
      * !#zh 当用户松手的时候会发出一个事件
      * @property {Number} TOUCH_UP
      */
-    TOUCH_UP : 10
+    TOUCH_UP : 10,
+    /**
+     * !#en The event emmitted when ScrollView scroll ended with a threshold
+     * !#zh 滚动视图滚动快要结束的时候发出的事件
+     * @property {Number} AUTOSCROLL_ENDED_WITH_THRESHOLD
+     */
+    AUTOSCROLL_ENDED_WITH_THRESHOLD: 11
 });
 
 var eventMap = {
@@ -124,8 +130,8 @@ var eventMap = {
     'bounce-right' : EventType.BOUNCE_RIGHT,
     'bounce-top' : EventType.BOUNCE_TOP,
     'scroll-ended' : EventType.AUTOSCROLL_ENDED,
-    'touch-up' : EventType.TOUCH_UP
-
+    'touch-up' : EventType.TOUCH_UP,
+    'scroll-ended-with-threshold' : EventType.AUTOSCROLL_ENDED_WITH_THRESHOLD
 };
 
 /**
@@ -1048,7 +1054,11 @@ var ScrollView = cc.Class({
     },
 
     _handlePressLogic: function() {
+        if (this._autoScrolling) {
+            this._dispatchEvent('scroll-ended');
+        }
         this._autoScrolling = false;
+        this._isBouncing = false;
 
         this._touchMovePreviousTimestamp = getTimeInMilliseconds();
         this._touchMoveDisplacements.length = 0;
@@ -1100,10 +1110,13 @@ var ScrollView = cc.Class({
         var bounceBackTime = Math.max(this.bounceDuration, 0);
         this._startAutoScroll(bounceBackAmount, bounceBackTime, true);
 
-        if (bounceBackAmount.y > 0) this._dispatchEvent('bounce-top');
-        if (bounceBackAmount.y < 0) this._dispatchEvent('bounce-bottom');
-        if (bounceBackAmount.x > 0) this._dispatchEvent('bounce-right');
-        if (bounceBackAmount.x < 0) this._dispatchEvent('bounce-left');
+        if (!this._isBouncing) {
+            if (bounceBackAmount.y > 0) this._dispatchEvent('bounce-top');
+            if (bounceBackAmount.y < 0) this._dispatchEvent('bounce-bottom');
+            if (bounceBackAmount.x > 0) this._dispatchEvent('bounce-right');
+            if (bounceBackAmount.x < 0) this._dispatchEvent('bounce-left');
+            this._isBouncing = true;
+        }
 
         return true;
     },
@@ -1167,11 +1180,11 @@ var ScrollView = cc.Class({
         }
 
         var newPosition = cc.pAdd(this._autoScrollStartPosition, cc.pMult(this._autoScrollTargetDelta, percentage));
-        var reachedEnd = (percentage === 1);
+        var reachedEnd = Math.abs(percentage - 1) <= EPSILON;
 
         var fireEvent = Math.abs(percentage - 1) <= this.getScrollEndedEventTiming();
         if(fireEvent && !this._isScrollEndedEventFired) {
-            this._dispatchEvent('scroll-ended');
+            this._dispatchEvent('scroll-ended-with-threshold');
             this._isScrollEndedEventFired = true;
         }
 
@@ -1192,13 +1205,16 @@ var ScrollView = cc.Class({
 
         if (reachedEnd) {
             this._autoScrolling = false;
-            if(!this._isScrollEndedEventFired) {
-                this._dispatchEvent('scroll-ended');
-            }
         }
 
         var contentPos = cc.pSub(newPosition, this.getContentPosition());
         this._moveContent(contentPos, reachedEnd);
+        this._dispatchEvent('scrolling');
+
+        if (!this._autoScrolling) {
+            this._isBouncing = false;
+            this._dispatchEvent('scroll-ended');
+        }
     },
 
     _startInertiaScroll: function(touchMoveVelocity) {
