@@ -268,6 +268,17 @@ prototype.getTexture = function () {
     return tex;
 };
 
+prototype._clone = prototype.clone;
+prototype.clone = function () {
+    var cloned = this._clone();
+    cloned._name = this._name;
+    cloned.insetTop = this.insetTop;
+    cloned.insetBottom = this.insetBottom;
+    cloned.insetLeft = this.insetLeft;
+    cloned.insetRight = this.insetRight;
+    return cloned;
+};
+
 cc.js.set(prototype, '_textureFilenameSetter', function (url) {
     this._textureFilename = url;
     if (url) {
