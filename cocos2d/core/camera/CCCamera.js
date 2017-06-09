@@ -121,9 +121,11 @@ let Camera = cc.Class({
             this._sgTarges.push(sgNode);
         }
 
-        var cmd = sgNode._renderCmd;
-        cmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
-        cmd._cameraFlag = Camera.flags.InCamera;
+        if (!CC_JSB) {
+            var cmd = sgNode._renderCmd;
+            cmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+            cmd._cameraFlag = Camera.flags.InCamera;
+        }
     },
 
     _removeTargetInSg: function (target) {
@@ -140,9 +142,11 @@ let Camera = cc.Class({
         this._sgNode.removeTarget(sgNode);
         cc.js.array.remove(this._sgTarges, sgNode);
         
-        var cmd = sgNode._renderCmd;
-        cmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
-        cmd._cameraFlag = 0;
+        if (!CC_JSB) {
+            var cmd = sgNode._renderCmd;
+            cmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+            cmd._cameraFlag = 0;
+        }
     },
 
     onEnable: function () {
