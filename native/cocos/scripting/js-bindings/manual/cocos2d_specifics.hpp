@@ -248,10 +248,10 @@ CC_JS_DLL js_type_class_t *js_get_type_from_node(cocos2d::Node* native_obj);
  * Otherwise it will Root the newly created JSObject
  */
 template<class T>
-JSObject* js_get_or_create_jsobject(JSContext *cx, typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type *native_obj)
+bool js_get_or_create_jsobject(JSContext *cx, typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type *native_obj, JS::MutableHandleObject ret)
 {
     js_type_class_t* typeClass = js_get_type_from_native<T>(native_obj);
-    return jsb_get_or_create_weak_jsobject(cx, native_obj, typeClass, typeid(*native_obj).name());
+    return jsb_get_or_create_weak_jsobject(cx, native_obj, typeClass, ret, typeid(*native_obj).name());
 }
 
 /**
@@ -260,10 +260,10 @@ JSObject* js_get_or_create_jsobject(JSContext *cx, typename std::enable_if<!std:
  * Otherwise it will Root the newly created JSObject
  */
 template<class T>
-JSObject* js_get_or_create_jsobject(JSContext *cx, typename std::enable_if<std::is_base_of<cocos2d::Ref,T>::value,T>::type *native_obj)
+bool js_get_or_create_jsobject(JSContext *cx, typename std::enable_if<std::is_base_of<cocos2d::Ref,T>::value,T>::type *native_obj, JS::MutableHandleObject ret)
 {
     js_type_class_t* typeClass = js_get_type_from_native<T>(native_obj);
-    return jsb_ref_get_or_create_jsobject(cx, native_obj, typeClass, typeid(*native_obj).name());
+    return jsb_ref_get_or_create_jsobject(cx, native_obj, typeClass, ret, typeid(*native_obj).name());
 }
 
 /**

@@ -348,7 +348,8 @@ bool js_cocos2dx_experimental_webView_WebView_create(JSContext *cx, uint32_t arg
 
         auto ret = cocos2d::experimental::ui::WebView::create();
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::experimental::ui::WebView>(ret);
-        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::experimental::ui::WebView"));
+        JS::RootedObject jsret(cx);
+        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::experimental::ui::WebView");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -364,8 +365,9 @@ bool js_cocos2dx_experimental_webView_WebView_constructor(JSContext *cx, uint32_
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::experimental::ui::WebView>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::experimental::ui::WebView"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::experimental::ui::WebView");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 

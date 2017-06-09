@@ -38,7 +38,8 @@ void GLNode::onDraw(Mat4 &transform, uint32_t flags)
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::GLNode>(this);
-    JS::RootedObject jsObj(cx, jsb_ref_get_or_create_jsobject(cx, this, typeClass, "cocos2d::GLNode"));
+    JS::RootedObject jsObj(cx);
+    jsb_ref_get_or_create_jsobject(cx, this, typeClass, &jsObj, "cocos2d::GLNode");
 
     if (jsObj.get())
     {
@@ -72,7 +73,8 @@ bool js_cocos2dx_GLNode_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
         cocos2d::GLNode* cobj = new (std::nothrow) cocos2d::GLNode;
 
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::GLNode>(cobj);
-        JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::GLNode"));
+        JS::RootedObject jsobj(cx);
+        jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::GLNode");
         
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
         JS::RootedValue objVal(cx, JS::ObjectOrNullValue(jsobj));
@@ -117,7 +119,8 @@ bool js_cocos2dx_GLNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (ret) {
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::GLNode>(ret);
 
-        auto jsobj = jsb_ref_create_jsobject(cx, ret, typeClass, "cocos2d::GLNode");
+        JS::RootedObject jsobj(cx);
+        jsb_ref_create_jsobject(cx, ret, typeClass, &jsobj, "cocos2d::GLNode");
         jsret = JS::ObjectOrNullValue(jsobj);
     }
 

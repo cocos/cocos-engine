@@ -63,7 +63,9 @@ bool js_creator_PhysicsContactListener_setEndContact(JSContext *cx, uint32_t arg
                 auto lambda = [=](b2Contact* larg0) -> void {
                     JS::RootedValue largv(cx);
                     if (larg0) {
-                        largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
+                        JS::RootedObject arg0Obj(cx);
+                        js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0, &arg0Obj);
+                        largv = JS::ObjectOrNullValue(arg0Obj);
                     }
                     JS::RootedValue rval(cx);
                     JS::HandleValueArray largs(largv);
@@ -113,7 +115,9 @@ bool js_creator_PhysicsContactListener_setBeginContact(JSContext *cx, uint32_t a
                         if (larg0Proxy) {
                             jsb_remove_proxy(larg0Proxy);
                         }
-                        largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
+                        JS::RootedObject arg0Obj(cx);
+                        js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0, &arg0Obj);
+                        largv = JS::ObjectOrNullValue(arg0Obj);
                     }
                     JS::RootedValue rval(cx);
                     JS::HandleValueArray largs(largv);
@@ -159,7 +163,9 @@ bool js_creator_PhysicsContactListener_setPreSolve(JSContext *cx, uint32_t argc,
                 auto lambda = [=](b2Contact* larg0) -> void {
                     JS::RootedValue largv(cx);
                     if (larg0) {
-                        largv = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
+                        JS::RootedObject arg0Obj(cx);
+                        js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0, &arg0Obj);
+                        largv = JS::ObjectOrNullValue(arg0Obj);
                     }
                     JS::RootedValue rval(cx);
                     JS::HandleValueArray largs(largv);
@@ -205,12 +211,16 @@ bool js_creator_PhysicsContactListener_setPostSolve(JSContext *cx, uint32_t argc
                 auto lambda = [=](b2Contact* larg0, const creator::PhysicsContactImpulse* larg1) -> void {
                     JS::AutoValueVector largv(cx);
                     if (larg0) {
-                        largv.append(JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0)));
+                        JS::RootedObject arg0Obj(cx);
+                        js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0, &arg0Obj);
+                        largv.append(JS::ObjectOrNullValue(arg0Obj));
                     } else {
-                        largv.append(JS::NullValue());
+                        largv.append(JS::NullHandleValue);
                     }
                     if (larg1) {
-                        largv.append(JS::ObjectOrNullValue(js_get_or_create_jsobject<creator::PhysicsContactImpulse>(cx, (creator::PhysicsContactImpulse*)larg1)));
+                        JS::RootedObject arg1Obj(cx);
+                        js_get_or_create_jsobject<creator::PhysicsContactImpulse>(cx, (creator::PhysicsContactImpulse*)larg1, &arg1Obj);
+                        largv.append(JS::ObjectOrNullValue(arg1Obj));
                     } else {
                         largv.append(JS::NullValue());
                     }

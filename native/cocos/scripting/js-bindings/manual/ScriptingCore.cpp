@@ -1396,7 +1396,9 @@ bool ScriptingCore::handleTouchesEvent(void* nativeObj, cocos2d::EventTouch::Eve
 
     for (const auto& touch : touches)
     {
-        JS::RootedValue jsret(_cx, JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(_cx, touch, typeClassTouch)));
+        JS::RootedObject touchObj(_cx);
+        jsb_get_or_create_weak_jsobject(_cx, touch, typeClassTouch, &touchObj, "Touch");
+        JS::RootedValue jsret(_cx, JS::ObjectOrNullValue(touchObj));
         if (!JS_SetElement(_cx, jsretArr, count, jsret))
         {
             break;
@@ -1409,7 +1411,9 @@ bool ScriptingCore::handleTouchesEvent(void* nativeObj, cocos2d::EventTouch::Eve
     {
         JS::AutoValueVector valArr(_cx);
         valArr.append(JS::ObjectOrNullValue(jsretArr));
-        valArr.append(JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(_cx, event, typeClassEvent)));
+        JS::RootedObject eventObj(_cx);
+        jsb_get_or_create_weak_jsobject(_cx, event, typeClassEvent, &eventObj, "EventTouch");
+        valArr.append(JS::ObjectOrNullValue(eventObj));
         JS::HandleValueArray args(valArr);
         JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
         
@@ -1439,8 +1443,12 @@ bool ScriptingCore::handleTouchEvent(void* nativeObj, cocos2d::EventTouch::Event
         js_type_class_t *typeClassEvent = js_get_type_from_native<cocos2d::EventTouch>((cocos2d::EventTouch*)event);
 
         JS::AutoValueVector valArr(_cx);
-        valArr.append(JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(_cx, touch, typeClassTouch)));
-        valArr.append(JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(_cx, event, typeClassEvent)));
+        JS::RootedObject touchObj(_cx);
+        jsb_get_or_create_weak_jsobject(_cx, touch, typeClassTouch, &touchObj, "Touch");
+        valArr.append(JS::ObjectOrNullValue(touchObj));
+        JS::RootedObject eventObj(_cx);
+        jsb_get_or_create_weak_jsobject(_cx, event, typeClassEvent, &eventObj, "EventTouch");
+        valArr.append(JS::ObjectOrNullValue(eventObj));
         JS::HandleValueArray args(valArr);
         JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
 
@@ -1466,8 +1474,11 @@ bool ScriptingCore::handleMouseEvent(void* nativeObj, cocos2d::EventMouse::Mouse
     js_proxy_t * p = jsb_get_native_proxy(nativeObj);
     if (p)
     {
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventMouse>((cocos2d::EventMouse*)event);
-        JS::RootedValue dataVal(_cx, JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(_cx, event, typeClass)));
+        JS::RootedObject eventObj(_cx);
+        auto typeClass = js_get_type_from_native<cocos2d::EventMouse>((cocos2d::EventMouse*)event);
+        jsb_get_or_create_weak_jsobject(_cx, event, typeClass, &eventObj);
+        
+        JS::RootedValue dataVal(_cx, JS::ObjectOrNullValue(eventObj));
         JS::HandleValueArray args(dataVal);
         JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
         ret = executeFunctionWithOwner(objVal, funcName.c_str(), args, jsvalRet);
@@ -1553,8 +1564,10 @@ bool ScriptingCore::handleKeyboardEvent(void* nativeObj, cocos2d::EventKeyboard:
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventKeyboard>((cocos2d::EventKeyboard*)event);
     JS::AutoValueVector valArr(_cx);
-    valArr.append( JS::Int32Value((int32_t)keyCode) );
-    valArr.append( JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(_cx, event, typeClass)) );
+    valArr.append( JS::Int32Value((int32_t)keyCode));
+    JS::RootedObject eventObj(_cx);
+    jsb_get_or_create_weak_jsobject(_cx, event, typeClass, &eventObj, "EventKeyboard");
+    valArr.append( JS::ObjectOrNullValue(eventObj));
     JS::HandleValueArray args(valArr);
     JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
 
@@ -1581,8 +1594,11 @@ bool ScriptingCore::handleFocusEvent(void* nativeObj, cocos2d::ui::Widget* widge
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::Widget>(widgetLoseFocus);
     
     JS::AutoValueVector valArr(_cx);
-    valArr.append(JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(_cx, widgetLoseFocus, typeClass, "cocos2d::ui::Widget")));
-    valArr.append(JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(_cx, widgetGetFocus, typeClass, "cocos2d::ui::Widget")));
+    JS::RootedObject widgetObj(_cx);
+    jsb_get_or_create_weak_jsobject(_cx, widgetLoseFocus, typeClass, &widgetObj, "cocos2d::ui::Widget");
+    valArr.append(JS::ObjectOrNullValue(widgetObj));
+    jsb_get_or_create_weak_jsobject(_cx, widgetGetFocus, typeClass, &widgetObj, "cocos2d::ui::Widget");
+    valArr.append(JS::ObjectOrNullValue(widgetObj));
     JS::HandleValueArray args(valArr);
     JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
 
@@ -1604,7 +1620,9 @@ int ScriptingCore::executeCustomTouchesEvent(EventTouch::EventCode eventType,
     {
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Touch>(touch);
 
-        jsval = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(_cx, touch, typeClass));
+        JS::RootedObject touchObj(_cx);
+        jsb_get_or_create_weak_jsobject(_cx, touch, typeClass, &touchObj, "Touch");
+        jsval = JS::ObjectOrNullValue(touchObj);
         if (!JS_SetElement(this->_cx, jsretArr, count, jsval)) {
             break;
         }
@@ -1624,7 +1642,9 @@ int ScriptingCore::executeCustomTouchEvent(EventTouch::EventCode eventType, Touc
     JS::RootedValue retval(_cx);
     std::string funcName = getTouchFuncName(eventType);
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Touch>(touch);
-    JS::RootedValue arg(_cx, JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(_cx, touch, typeClass)));
+    JS::RootedObject touchObj(_cx);
+    jsb_get_or_create_weak_jsobject(_cx, touch, typeClass, &touchObj, "Touch");
+    JS::RootedValue arg(_cx, JS::ObjectOrNullValue(touchObj));
     JS::HandleValueArray args(arg);
     JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(obj));
 
@@ -1638,7 +1658,9 @@ int ScriptingCore::executeCustomTouchEvent(EventTouch::EventCode eventType,
 {    
     std::string funcName = getTouchFuncName(eventType);
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Touch>(touch);
-    JS::RootedValue arg(_cx, JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(_cx, touch, typeClass)));
+    JS::RootedObject touchObj(_cx);
+    jsb_get_or_create_weak_jsobject(_cx, touch, typeClass, &touchObj, "Touch");
+    JS::RootedValue arg(_cx, JS::ObjectOrNullValue(touchObj));
     JS::HandleValueArray args(arg);
     JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(obj));
 
@@ -2207,30 +2229,30 @@ void jsb_unbind_proxy(js_proxy_t* proxy)
 //
 
 // ref_create
-JSObject* jsb_ref_create_jsobject(JSContext *cx, cocos2d::Ref *ref, js_type_class_t *typeClass, const char* debug)
+bool jsb_ref_create_jsobject(JSContext *cx, cocos2d::Ref *ref, js_type_class_t *typeClass, JS::MutableHandleObject jsObj, const char* debug)
 {
     JS::RootedObject proto(cx, typeClass->proto->get());
-    JS::RootedObject jsObj(cx, JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
+    jsObj.set(JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
     jsb_ref_init(cx, jsObj, ref, debug);
     jsb_new_proxy(cx, ref, jsObj);
-    return jsObj;
+    return true;
 }
 
-JSObject* jsb_ref_autoreleased_create_jsobject(JSContext *cx, cocos2d::Ref *ref, js_type_class_t *typeClass, const char* debug)
+bool jsb_ref_autoreleased_create_jsobject(JSContext *cx, cocos2d::Ref *ref, js_type_class_t *typeClass, JS::MutableHandleObject jsObj, const char* debug)
 {
     JS::RootedObject proto(cx, typeClass->proto->get());
-    JS::RootedObject jsObj(cx, JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
+    jsObj.set(JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
     jsb_ref_autoreleased_init(cx, jsObj, ref, debug);
     jsb_new_proxy(cx, ref, jsObj);
-    return jsObj;
+    return true;
 }
 
-JSObject* jsb_create_weak_jsobject(JSContext *cx, void *native, js_type_class_t *typeClass, const char* debug)
+bool jsb_create_weak_jsobject(JSContext *cx, void *native, js_type_class_t *typeClass, JS::MutableHandleObject jsObj, const char* debug)
 {
     JS::RootedObject proto(cx, typeClass->proto->get());
-    JS::RootedObject jsObj(cx, JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
+    jsObj.set(JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
     js_add_FinalizeHook(cx, jsObj, false);
-    jsb_new_proxy(cx, native, jsObj);
+    auto proxy = jsb_new_proxy(cx, native, jsObj);
 
 #if ! CC_ENABLE_GC_FOR_NATIVE_OBJECTS
 //    JS::AddNamedObjectRoot(cx, &proxy->obj, debug);
@@ -2238,66 +2260,69 @@ JSObject* jsb_create_weak_jsobject(JSContext *cx, void *native, js_type_class_t 
 #if COCOS2D_DEBUG > 1
     if (debug != nullptr)
     {
-        CCLOG("++++++WEAK_REF++++++ Cpp(%s): %p - JS: %p", debug, native, jsObj.get());
+        CCLOG("++++++WEAK_REF++++++ Cpp(%s): %p - Proxy: %p", debug, native, proxy);
     }
 #endif // COCOS2D_DEBUG
 #endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
-    return jsObj;
+    return true;
 }
 
 // get_or_create
-JSObject* jsb_ref_get_or_create_jsobject(JSContext *cx, cocos2d::Ref *ref, js_type_class_t *typeClass, const char* debug)
+bool jsb_ref_get_or_create_jsobject(JSContext *cx, cocos2d::Ref *ref, js_type_class_t *typeClass, JS::MutableHandleObject jsObj, const char* debug)
 {
     auto proxy = jsb_get_native_proxy(ref);
     if (proxy)
     {
-        JS::RootedObject obj(cx, proxy->obj);
-        return obj;
+        jsObj.set(proxy->obj);
+        return true;
     }
 
     JS::RootedObject proto(cx, typeClass->proto->get());
-    JS::RootedObject jsObj(cx, JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
+    jsObj.set(JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
+    
+    JS::RootedObject obj(cx, jsObj);
 #if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     ref->retain();
     js_add_FinalizeHook(cx, jsObj, true);
+    proxy = jsb_new_proxy(cx, ref, obj);
 #if COCOS2D_DEBUG > 1
-    CCLOG("++++++RETAINED++++++ Cpp(%s): %p - JS: %p", debug, ref, jsObj.get());
+    CCLOG("++++++RETAINED++++++ Cpp(%s): %p - Proxy: %p obj: %p", debug, ref, proxy, jsObj.get());
 #endif // COCOS2D_DEBUG
 #else
     // don't auto-release, don't retain.
     JS::AddNamedObjectRoot(cx, &newproxy->obj, debug);
+    jsb_new_proxy(cx, ref, obj);
 #endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
-    jsb_new_proxy(cx, ref, jsObj);
 
-    return jsObj;
+    return true;
 }
 
 // get_or_create: Ref is already autoreleased (or created)
-JSObject* jsb_ref_autoreleased_get_or_create_jsobject(JSContext *cx, cocos2d::Ref *ref, js_type_class_t *typeClass, const char* debug)
+bool jsb_ref_autoreleased_get_or_create_jsobject(JSContext *cx, cocos2d::Ref *ref, js_type_class_t *typeClass, JS::MutableHandleObject jsObj, const char* debug)
 {
     auto proxy = jsb_get_native_proxy(ref);
     if (proxy)
     {
-        JS::RootedObject obj(cx, proxy->obj);
-        return obj;
+        jsObj.set(proxy->obj);
+        return true;
     }
     // else
-    return jsb_ref_autoreleased_create_jsobject(cx, ref, typeClass, debug);
+    return jsb_ref_autoreleased_create_jsobject(cx, ref, typeClass, jsObj, debug);
 }
 
 // get_or_create: when native object isn't a ref object or when the native object life cycle don't need to be managed by js object
-JSObject* jsb_get_or_create_weak_jsobject(JSContext *cx, void *native, js_type_class_t *typeClass, const char* debug)
+bool jsb_get_or_create_weak_jsobject(JSContext *cx, void *native, js_type_class_t *typeClass, JS::MutableHandleObject jsObj, const char* debug)
 {
     auto proxy = jsb_get_native_proxy(native);
     if (proxy)
     {
-        JS::RootedObject obj(cx, proxy->obj);
-        return obj;
+        jsObj.set(proxy->obj);
+        return true;
     }
 
     // don't auto-release, don't retain.
     JS::RootedObject proto(cx, typeClass->proto->get());
-    JS::RootedObject jsObj(cx, JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
+    jsObj.set(JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
     
     JS::RootedObject flag(cx, JS_NewPlainObject(cx));
     JS::RootedValue flagVal(cx, JS::ObjectOrNullValue(flag));
@@ -2305,17 +2330,18 @@ JSObject* jsb_get_or_create_weak_jsobject(JSContext *cx, void *native, js_type_c
 
 #if ! CC_ENABLE_GC_FOR_NATIVE_OBJECTS
 //    JS::AddNamedObjectRoot(cx, &proxy->obj, debug);
+    jsb_new_proxy(cx, native, jsObj);
 #else
     js_add_FinalizeHook(cx, jsObj, false);
+    proxy = jsb_new_proxy(cx, native, jsObj);
 #if COCOS2D_DEBUG > 1
     if (debug != nullptr)
     {
-        CCLOG("++++++WEAK_REF++++++ Cpp(%s): %p - JS: %p", debug, native, jsObj.get());
+        CCLOG("++++++WEAK_REF++++++ Cpp(%s): %p - Proxy: %p", debug, native, proxy);
     }
 #endif // COCOS2D_DEBUG
 #endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
-    proxy = jsb_new_proxy(cx, native, jsObj);
-    return jsObj;
+    return true;
 }
 
 // ref_init

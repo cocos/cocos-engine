@@ -104,8 +104,9 @@ bool js_cocos2dx_audioengine_AudioProfile_constructor(JSContext *cx, uint32_t ar
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::experimental::AudioProfile>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_create_weak_jsobject(cx, cobj, typeClass, "cocos2d::experimental::AudioProfile"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::experimental::AudioProfile");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -670,7 +671,9 @@ bool js_cocos2dx_audioengine_AudioEngine_getDefaultProfile(JSContext *cx, uint32
         cocos2d::experimental::AudioProfile* ret = cocos2d::experimental::AudioEngine::getDefaultProfile();
         JS::RootedValue jsret(cx, JS::NullHandleValue);
         if (ret) {
-        jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::experimental::AudioProfile>(cx, (cocos2d::experimental::AudioProfile*)ret));
+        JS::RootedObject jsretObj(cx);
+        js_get_or_create_jsobject<cocos2d::experimental::AudioProfile>(cx, (cocos2d::experimental::AudioProfile*)ret, &jsretObj);
+        jsret = JS::ObjectOrNullValue(jsretObj);
     } else {
         jsret = JS::NullHandleValue;
     };
@@ -751,7 +754,9 @@ bool js_cocos2dx_audioengine_AudioEngine_getProfile(JSContext *cx, uint32_t argc
             cocos2d::experimental::AudioProfile* ret = cocos2d::experimental::AudioEngine::getProfile(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::experimental::AudioProfile>(cx, (cocos2d::experimental::AudioProfile*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::experimental::AudioProfile>(cx, (cocos2d::experimental::AudioProfile*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };
@@ -770,7 +775,9 @@ bool js_cocos2dx_audioengine_AudioEngine_getProfile(JSContext *cx, uint32_t argc
             cocos2d::experimental::AudioProfile* ret = cocos2d::experimental::AudioEngine::getProfile(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::experimental::AudioProfile>(cx, (cocos2d::experimental::AudioProfile*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::experimental::AudioProfile>(cx, (cocos2d::experimental::AudioProfile*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };

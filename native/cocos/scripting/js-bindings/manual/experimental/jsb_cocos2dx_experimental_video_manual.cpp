@@ -23,7 +23,8 @@ static bool jsb_cocos2dx_experimental_ui_VideoPlayer_addEventListener(JSContext 
         std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, jsfunc, obj));
         cobj->addEventListener([=](Ref* widget, experimental::ui::VideoPlayer::EventType type)->void{
             JS::AutoValueVector arg(cx);
-            JS::RootedObject jsobj(cx, js_get_or_create_jsobject<Ref>(cx, widget));
+            JS::RootedObject jsobj(cx);
+            js_get_or_create_jsobject<Ref>(cx, widget, &jsobj);
             arg.append(JS::ObjectOrNullValue(jsobj));
             arg.append(JS::Int32Value((int32_t)type));
             JS::HandleValueArray argsv(arg);

@@ -67,7 +67,9 @@ bool js_cocos2dx_extension_EventListenerAssetsManagerEx_init(JSContext *cx, uint
                     do {
                         if (larg0) {
                             js_type_class_t* typeClass = js_get_type_from_native<cocos2d::extension::EventAssetsManagerEx>(larg0);
-                            largv = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, larg0, typeClass, "cocos2d::extension::EventAssetsManagerEx"));
+                            JS::RootedObject arg0Obj(cx);
+                            jsb_get_or_create_weak_jsobject(cx, larg0, typeClass, &arg0Obj, "cocos2d::extension::EventAssetsManagerEx");
+                            largv = JS::ObjectOrNullValue(arg0Obj);
                         }
                     } while (0);
                     JS::HandleValueArray largsv(largv);
@@ -124,7 +126,9 @@ bool js_cocos2dx_extension_EventListenerAssetsManagerEx_create(JSContext *cx, ui
                     do {
                         if (larg0) {
                             js_type_class_t* typeClass = js_get_type_from_native<cocos2d::extension::EventAssetsManagerEx>(larg0);
-                            largv = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, larg0, typeClass, "cocos2d::extension::EventAssetsManagerEx"));
+                            JS::RootedObject arg0Obj(cx);
+                            jsb_get_or_create_weak_jsobject(cx, larg0, typeClass, &arg0Obj, "cocos2d::extension::EventAssetsManagerEx");
+                            largv = JS::ObjectOrNullValue(arg0Obj);
                         }
                     } while (0);
                     JS::HandleValueArray largsv(largv);
@@ -146,7 +150,8 @@ bool js_cocos2dx_extension_EventListenerAssetsManagerEx_create(JSContext *cx, ui
         cocos2d::extension::EventListenerAssetsManagerEx* ret = cocos2d::extension::EventListenerAssetsManagerEx::create(arg0, arg1);
         JS::RootedValue jsret(cx);
         if (ret) {
-            JS::RootedObject jsobj(cx, js_get_or_create_jsobject<cocos2d::extension::EventListenerAssetsManagerEx>(cx, ret));
+            JS::RootedObject jsobj(cx);
+            js_get_or_create_jsobject<cocos2d::extension::EventListenerAssetsManagerEx>(cx, ret, &jsobj);
             jsret = JS::ObjectOrNullValue(jsobj);
             if (wrapper)
             {
@@ -291,7 +296,8 @@ void __JSDownloaderDelegator::onSuccess(Texture2D *tex)
         if (tex)
         {
             valArr.append(JS::BooleanValue(true));
-            JS::RootedObject jsobj(_cx, js_get_or_create_jsobject<Texture2D>(_cx, tex));
+            JS::RootedObject jsobj(_cx);
+            js_get_or_create_jsobject<Texture2D>(_cx, tex, &jsobj);
             valArr.append(JS::ObjectOrNullValue(jsobj));
         }
         else

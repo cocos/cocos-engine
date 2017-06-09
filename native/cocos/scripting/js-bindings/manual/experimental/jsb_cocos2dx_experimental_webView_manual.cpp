@@ -22,7 +22,8 @@ static bool jsb_cocos2dx_experimental_webView_setOnShouldStartLoading(JSContext 
         std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, jsfunc, obj));
         cobj->setOnShouldStartLoading([=](experimental::ui::WebView *sender, const std::string &url)->bool{
             JS::AutoValueVector arg(cx);
-            JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
+            JS::RootedObject jsobj(cx);
+            js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender, &jsobj);
             arg.append(JS::ObjectOrNullValue(jsobj));
             JS::RootedValue larg(cx);
             std_string_to_jsval(cx, url, &larg);
@@ -56,7 +57,8 @@ static bool jsb_cocos2dx_experimental_webView_setOnDidFinishLoading(JSContext *c
         std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, jsfunc, obj));
         cobj->setOnDidFinishLoading([=](experimental::ui::WebView *sender, const std::string &url)->void{
             JS::AutoValueVector arg(cx);
-            JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
+            JS::RootedObject jsobj(cx);
+            js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender, &jsobj);
             arg.append(JS::ObjectOrNullValue(jsobj));
             JS::RootedValue larg(cx);
             std_string_to_jsval(cx, url, &larg);
@@ -89,7 +91,8 @@ static bool jsb_cocos2dx_experimental_webView_setOnDidFailLoading(JSContext *cx,
         std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, jsfunc, obj));
         cobj->setOnDidFailLoading([=](experimental::ui::WebView *sender, const std::string &url)->void{
             JS::AutoValueVector arg(cx);
-            JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
+            JS::RootedObject jsobj(cx);
+            js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender, &jsobj);
             arg.append(JS::ObjectOrNullValue(jsobj));
             JS::RootedValue larg(cx);
             std_string_to_jsval(cx, url, &larg);
@@ -122,7 +125,8 @@ static bool jsb_cocos2dx_experimental_webView_setOnJSCallback(JSContext *cx, uin
         std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, obj, jsfunc, obj));
         cobj->setOnJSCallback([=](experimental::ui::WebView *sender, const std::string &url)->void{
             JS::AutoValueVector arg(cx);
-            JS::RootedObject jsobj(cx, js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender));
+            JS::RootedObject jsobj(cx);
+            js_get_or_create_jsobject<experimental::ui::WebView>(cx, sender, &jsobj);
             arg.append(JS::ObjectOrNullValue(jsobj));
             JS::RootedValue larg(cx);
             std_string_to_jsval(cx, url, &larg);

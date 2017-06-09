@@ -680,7 +680,9 @@ bool array_of_b2Fixture_to_jsval(JSContext* cx, const std::vector<b2Fixture*>& f
         b2Fixture* f = fixtures[i];
         
         JS::RootedValue arrElement(cx);
-        arrElement = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, f));
+        JS::RootedObject arrObj(cx);
+        js_get_or_create_jsobject<b2Fixture>(cx, f, &arrObj);
+        arrElement = JS::ObjectOrNullValue(arrObj);
         
         if (!JS_SetElement(cx, jsret, i, arrElement)) {
             break;
@@ -917,7 +919,9 @@ bool js_box2dclasses_b2World_CreateJoint(JSContext *cx, uint32_t argc, JS::Value
             if (retProxy) {
                 jsb_remove_proxy(retProxy);
             }
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Joint>(cx, (b2Joint*)ret));
+            JS::RootedObject retObj(cx);
+            js_get_or_create_jsobject<b2Joint>(cx, (b2Joint*)ret, &retObj);
+            jsret = JS::ObjectOrNullValue(retObj);
         }
         args.rval().set(jsret);
         return true;
@@ -946,7 +950,9 @@ bool js_box2dclasses_b2World_CreateBody(JSContext *cx, uint32_t argc, JS::Value 
             if (retProxy) {
                 jsb_remove_proxy(retProxy);
             }
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Body>(cx, (b2Body*)ret));
+            JS::RootedObject retObj(cx);
+            js_get_or_create_jsobject<b2Body>(cx, (b2Body*)ret, &retObj);
+            jsret = JS::ObjectOrNullValue(retObj);
         }
         args.rval().set(jsret);
         return true;
@@ -990,7 +996,9 @@ bool js_box2dclasses_b2Body_CreateFixture(JSContext *cx, uint32_t argc, JS::Valu
                 if (retProxy) {
                     jsb_remove_proxy(retProxy);
                 }
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
+                JS::RootedObject retObj(cx);
+                js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret, &retObj);
+                jsret = JS::ObjectOrNullValue(retObj);
             }
             args.rval().set(jsret);
             return true;
@@ -1006,7 +1014,9 @@ bool js_box2dclasses_b2Body_CreateFixture(JSContext *cx, uint32_t argc, JS::Valu
             b2Fixture* ret = cobj->CreateFixture(arg0);
             JS::RootedValue jsret(cx);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret));
+                JS::RootedObject retObj(cx);
+                js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret, &retObj);
+                jsret = JS::ObjectOrNullValue(retObj);
             }
             args.rval().set(jsret);
             return true;
@@ -1125,7 +1135,9 @@ bool js_box2dclasses_b2Body_GetUserData(JSContext *cx, uint32_t argc, JS::Value 
         void* ret = cobj->GetUserData();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
+            JS::RootedObject retObj(cx);
+            js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret, &retObj);
+            jsret = JS::ObjectOrNullValue(retObj);
         }
         args.rval().set(jsret);
         return true;

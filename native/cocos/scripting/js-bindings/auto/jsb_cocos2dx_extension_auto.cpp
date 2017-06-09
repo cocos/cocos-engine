@@ -17,7 +17,9 @@ bool js_cocos2dx_extension_EventAssetsManagerEx_getAssetsManagerEx(JSContext *cx
         cocos2d::extension::AssetsManagerEx* ret = cobj->getAssetsManagerEx();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::AssetsManagerEx>(cx, (cocos2d::extension::AssetsManagerEx*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::extension::AssetsManagerEx>(cx, (cocos2d::extension::AssetsManagerEx*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -192,8 +194,9 @@ bool js_cocos2dx_extension_EventAssetsManagerEx_constructor(JSContext *cx, uint3
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::EventAssetsManagerEx>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::EventAssetsManagerEx"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::EventAssetsManagerEx");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -677,7 +680,9 @@ bool js_cocos2dx_extension_AssetsManagerEx_getLocalManifest(JSContext *cx, uint3
         const cocos2d::extension::Manifest* ret = cobj->getLocalManifest();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::Manifest>(cx, (cocos2d::extension::Manifest*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::extension::Manifest>(cx, (cocos2d::extension::Manifest*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -701,7 +706,9 @@ bool js_cocos2dx_extension_AssetsManagerEx_getRemoteManifest(JSContext *cx, uint
         const cocos2d::extension::Manifest* ret = cobj->getRemoteManifest();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::Manifest>(cx, (cocos2d::extension::Manifest*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::extension::Manifest>(cx, (cocos2d::extension::Manifest*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -742,7 +749,8 @@ bool js_cocos2dx_extension_AssetsManagerEx_create(JSContext *cx, uint32_t argc, 
 
         auto ret = cocos2d::extension::AssetsManagerEx::create(arg0, arg1);
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::AssetsManagerEx>(ret);
-        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::AssetsManagerEx"));
+        JS::RootedObject jsret(cx);
+        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::extension::AssetsManagerEx");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -763,8 +771,9 @@ bool js_cocos2dx_extension_AssetsManagerEx_constructor(JSContext *cx, uint32_t a
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::AssetsManagerEx>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::AssetsManagerEx"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::AssetsManagerEx");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -842,8 +851,9 @@ bool js_cocos2dx_extension_EventListenerAssetsManagerEx_constructor(JSContext *c
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::EventListenerAssetsManagerEx>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::EventListenerAssetsManagerEx"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::EventListenerAssetsManagerEx");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1161,7 +1171,8 @@ bool js_cocos2dx_extension_Control_create(JSContext *cx, uint32_t argc, JS::Valu
 
         auto ret = cocos2d::extension::Control::create();
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::Control>(ret);
-        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::Control"));
+        JS::RootedObject jsret(cx);
+        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::extension::Control");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -1177,8 +1188,9 @@ bool js_cocos2dx_extension_Control_constructor(JSContext *cx, uint32_t argc, JS:
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::Control>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::Control"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::Control");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1612,7 +1624,9 @@ bool js_cocos2dx_extension_ControlButton_getBackgroundSpriteForState(JSContext *
         cocos2d::ui::Scale9Sprite* ret = cobj->getBackgroundSpriteForState(arg0);
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -1748,7 +1762,9 @@ bool js_cocos2dx_extension_ControlButton_getBackgroundSprite(JSContext *cx, uint
         cocos2d::ui::Scale9Sprite* ret = cobj->getBackgroundSprite();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::ui::Scale9Sprite>(cx, (cocos2d::ui::Scale9Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -1940,7 +1956,9 @@ bool js_cocos2dx_extension_ControlButton_getTitleLabel(JSContext *cx, uint32_t a
         cocos2d::Node* ret = cobj->getTitleLabel();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -2007,7 +2025,9 @@ bool js_cocos2dx_extension_ControlButton_getTitleLabelForState(JSContext *cx, ui
         cocos2d::Node* ret = cobj->getTitleLabelForState(arg0);
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -2186,7 +2206,9 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, JS
             cocos2d::extension::ControlButton* ret = cocos2d::extension::ControlButton::create(arg0);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };
@@ -2202,7 +2224,9 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, JS
             cocos2d::extension::ControlButton* ret = cocos2d::extension::ControlButton::create();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };
@@ -2240,7 +2264,9 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, JS
             cocos2d::extension::ControlButton* ret = cocos2d::extension::ControlButton::create(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };
@@ -2265,7 +2291,9 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, JS
             cocos2d::extension::ControlButton* ret = cocos2d::extension::ControlButton::create(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };
@@ -2306,7 +2334,9 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, JS
             cocos2d::extension::ControlButton* ret = cocos2d::extension::ControlButton::create(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::extension::ControlButton>(cx, (cocos2d::extension::ControlButton*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };
@@ -2326,8 +2356,9 @@ bool js_cocos2dx_extension_ControlButton_constructor(JSContext *cx, uint32_t arg
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlButton>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::ControlButton"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::ControlButton");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -2551,7 +2582,9 @@ bool js_cocos2dx_extension_ControlHuePicker_getSlider(JSContext *cx, uint32_t ar
         cocos2d::Sprite* ret = cobj->getSlider();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -2623,7 +2656,9 @@ bool js_cocos2dx_extension_ControlHuePicker_getBackground(JSContext *cx, uint32_
         cocos2d::Sprite* ret = cobj->getBackground();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -2704,7 +2739,8 @@ bool js_cocos2dx_extension_ControlHuePicker_create(JSContext *cx, uint32_t argc,
 
         auto ret = cocos2d::extension::ControlHuePicker::create(arg0, arg1);
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlHuePicker>(ret);
-        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::ControlHuePicker"));
+        JS::RootedObject jsret(cx);
+        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::extension::ControlHuePicker");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -2720,8 +2756,9 @@ bool js_cocos2dx_extension_ControlHuePicker_constructor(JSContext *cx, uint32_t 
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlHuePicker>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::ControlHuePicker"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::ControlHuePicker");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -2804,7 +2841,9 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getShadow(JSContext
         cocos2d::Sprite* ret = cobj->getShadow();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -2881,7 +2920,9 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getOverlay(JSContex
         cocos2d::Sprite* ret = cobj->getOverlay();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -2905,7 +2946,9 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getSlider(JSContext
         cocos2d::Sprite* ret = cobj->getSlider();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -2929,7 +2972,9 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_getBackground(JSCon
         cocos2d::Sprite* ret = cobj->getBackground();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -3002,7 +3047,8 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_create(JSContext *c
 
         auto ret = cocos2d::extension::ControlSaturationBrightnessPicker::create(arg0, arg1);
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlSaturationBrightnessPicker>(ret);
-        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::ControlSaturationBrightnessPicker"));
+        JS::RootedObject jsret(cx);
+        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::extension::ControlSaturationBrightnessPicker");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -3018,8 +3064,9 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_constructor(JSConte
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlSaturationBrightnessPicker>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::ControlSaturationBrightnessPicker"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::ControlSaturationBrightnessPicker");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -3130,7 +3177,9 @@ bool js_cocos2dx_extension_ControlColourPicker_getHuePicker(JSContext *cx, uint3
         cocos2d::extension::ControlHuePicker* ret = cobj->getHuePicker();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlHuePicker>(cx, (cocos2d::extension::ControlHuePicker*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::extension::ControlHuePicker>(cx, (cocos2d::extension::ControlHuePicker*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -3154,7 +3203,9 @@ bool js_cocos2dx_extension_ControlColourPicker_getcolourPicker(JSContext *cx, ui
         cocos2d::extension::ControlSaturationBrightnessPicker* ret = cobj->getcolourPicker();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlSaturationBrightnessPicker>(cx, (cocos2d::extension::ControlSaturationBrightnessPicker*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::extension::ControlSaturationBrightnessPicker>(cx, (cocos2d::extension::ControlSaturationBrightnessPicker*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -3292,7 +3343,9 @@ bool js_cocos2dx_extension_ControlColourPicker_getBackground(JSContext *cx, uint
         cocos2d::Sprite* ret = cobj->getBackground();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -3312,7 +3365,8 @@ bool js_cocos2dx_extension_ControlColourPicker_create(JSContext *cx, uint32_t ar
 
         auto ret = cocos2d::extension::ControlColourPicker::create();
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlColourPicker>(ret);
-        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::ControlColourPicker"));
+        JS::RootedObject jsret(cx);
+        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::extension::ControlColourPicker");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -3328,8 +3382,9 @@ bool js_cocos2dx_extension_ControlColourPicker_constructor(JSContext *cx, uint32
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlColourPicker>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::ControlColourPicker"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::ControlColourPicker");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -3470,7 +3525,9 @@ bool js_cocos2dx_extension_ControlPotentiometer_getProgressTimer(JSContext *cx, 
         cocos2d::ProgressTimer* ret = cobj->getProgressTimer();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::ProgressTimer>(cx, (cocos2d::ProgressTimer*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::ProgressTimer>(cx, (cocos2d::ProgressTimer*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -3764,7 +3821,9 @@ bool js_cocos2dx_extension_ControlPotentiometer_getThumbSprite(JSContext *cx, ui
         cocos2d::Sprite* ret = cobj->getThumbSprite();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -3862,7 +3921,8 @@ bool js_cocos2dx_extension_ControlPotentiometer_create(JSContext *cx, uint32_t a
 
         auto ret = cocos2d::extension::ControlPotentiometer::create(arg0, arg1, arg2);
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlPotentiometer>(ret);
-        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::ControlPotentiometer"));
+        JS::RootedObject jsret(cx);
+        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::extension::ControlPotentiometer");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -3878,8 +3938,9 @@ bool js_cocos2dx_extension_ControlPotentiometer_constructor(JSContext *cx, uint3
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlPotentiometer>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::ControlPotentiometer"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::ControlPotentiometer");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -4193,7 +4254,9 @@ bool js_cocos2dx_extension_ControlSlider_getSelectedThumbSprite(JSContext *cx, u
         cocos2d::Sprite* ret = cobj->getSelectedThumbSprite();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -4333,7 +4396,9 @@ bool js_cocos2dx_extension_ControlSlider_getBackgroundSprite(JSContext *cx, uint
         cocos2d::Sprite* ret = cobj->getBackgroundSprite();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -4357,7 +4422,9 @@ bool js_cocos2dx_extension_ControlSlider_getThumbSprite(JSContext *cx, uint32_t 
         cocos2d::Sprite* ret = cobj->getThumbSprite();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -4472,7 +4539,9 @@ bool js_cocos2dx_extension_ControlSlider_getProgressSprite(JSContext *cx, uint32
         cocos2d::Sprite* ret = cobj->getProgressSprite();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -4575,7 +4644,9 @@ bool js_cocos2dx_extension_ControlSlider_create(JSContext *cx, uint32_t argc, JS
             cocos2d::extension::ControlSlider* ret = cocos2d::extension::ControlSlider::create(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlSlider>(cx, (cocos2d::extension::ControlSlider*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::extension::ControlSlider>(cx, (cocos2d::extension::ControlSlider*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };
@@ -4600,7 +4671,9 @@ bool js_cocos2dx_extension_ControlSlider_create(JSContext *cx, uint32_t argc, JS
             cocos2d::extension::ControlSlider* ret = cocos2d::extension::ControlSlider::create(arg0, arg1, arg2);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlSlider>(cx, (cocos2d::extension::ControlSlider*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::extension::ControlSlider>(cx, (cocos2d::extension::ControlSlider*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };
@@ -4628,7 +4701,9 @@ bool js_cocos2dx_extension_ControlSlider_create(JSContext *cx, uint32_t argc, JS
             cocos2d::extension::ControlSlider* ret = cocos2d::extension::ControlSlider::create(arg0, arg1, arg2, arg3);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlSlider>(cx, (cocos2d::extension::ControlSlider*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::extension::ControlSlider>(cx, (cocos2d::extension::ControlSlider*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };
@@ -4688,7 +4763,9 @@ bool js_cocos2dx_extension_ControlSlider_create(JSContext *cx, uint32_t argc, JS
             cocos2d::extension::ControlSlider* ret = cocos2d::extension::ControlSlider::create(arg0, arg1, arg2, arg3);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlSlider>(cx, (cocos2d::extension::ControlSlider*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::extension::ControlSlider>(cx, (cocos2d::extension::ControlSlider*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };
@@ -4708,8 +4785,9 @@ bool js_cocos2dx_extension_ControlSlider_constructor(JSContext *cx, uint32_t arg
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlSlider>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::ControlSlider"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::ControlSlider");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -4822,7 +4900,9 @@ bool js_cocos2dx_extension_ControlStepper_getMinusSprite(JSContext *cx, uint32_t
         cocos2d::Sprite* ret = cobj->getMinusSprite();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -4969,7 +5049,9 @@ bool js_cocos2dx_extension_ControlStepper_getMinusLabel(JSContext *cx, uint32_t 
         cocos2d::Label* ret = cobj->getMinusLabel();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Label>(cx, (cocos2d::Label*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Label>(cx, (cocos2d::Label*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -4993,7 +5075,9 @@ bool js_cocos2dx_extension_ControlStepper_getPlusLabel(JSContext *cx, uint32_t a
         cocos2d::Label* ret = cobj->getPlusLabel();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Label>(cx, (cocos2d::Label*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Label>(cx, (cocos2d::Label*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -5205,7 +5289,9 @@ bool js_cocos2dx_extension_ControlStepper_getPlusSprite(JSContext *cx, uint32_t 
         cocos2d::Sprite* ret = cobj->getPlusSprite();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Sprite>(cx, (cocos2d::Sprite*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -5302,7 +5388,8 @@ bool js_cocos2dx_extension_ControlStepper_create(JSContext *cx, uint32_t argc, J
 
         auto ret = cocos2d::extension::ControlStepper::create(arg0, arg1);
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlStepper>(ret);
-        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::ControlStepper"));
+        JS::RootedObject jsret(cx);
+        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::extension::ControlStepper");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -5318,8 +5405,9 @@ bool js_cocos2dx_extension_ControlStepper_constructor(JSContext *cx, uint32_t ar
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlStepper>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::ControlStepper"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::ControlStepper");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -5731,7 +5819,9 @@ bool js_cocos2dx_extension_ControlSwitch_create(JSContext *cx, uint32_t argc, JS
             cocos2d::extension::ControlSwitch* ret = cocos2d::extension::ControlSwitch::create(arg0, arg1, arg2, arg3);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlSwitch>(cx, (cocos2d::extension::ControlSwitch*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::extension::ControlSwitch>(cx, (cocos2d::extension::ControlSwitch*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };
@@ -5813,7 +5903,9 @@ bool js_cocos2dx_extension_ControlSwitch_create(JSContext *cx, uint32_t argc, JS
             cocos2d::extension::ControlSwitch* ret = cocos2d::extension::ControlSwitch::create(arg0, arg1, arg2, arg3, arg4, arg5);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ControlSwitch>(cx, (cocos2d::extension::ControlSwitch*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::extension::ControlSwitch>(cx, (cocos2d::extension::ControlSwitch*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };
@@ -5833,8 +5925,9 @@ bool js_cocos2dx_extension_ControlSwitch_constructor(JSContext *cx, uint32_t arg
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ControlSwitch>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::ControlSwitch"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::ControlSwitch");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -6106,7 +6199,9 @@ bool js_cocos2dx_extension_ScrollView_getContainer(JSContext *cx, uint32_t argc,
         cocos2d::Node* ret = cobj->getContainer();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::Node>(cx, (cocos2d::Node*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -6650,7 +6745,9 @@ bool js_cocos2dx_extension_ScrollView_create(JSContext *cx, uint32_t argc, JS::V
             cocos2d::extension::ScrollView* ret = cocos2d::extension::ScrollView::create();
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ScrollView>(cx, (cocos2d::extension::ScrollView*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::extension::ScrollView>(cx, (cocos2d::extension::ScrollView*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };
@@ -6680,7 +6777,9 @@ bool js_cocos2dx_extension_ScrollView_create(JSContext *cx, uint32_t argc, JS::V
             cocos2d::extension::ScrollView* ret = cocos2d::extension::ScrollView::create(arg0, arg1);
             JS::RootedValue jsret(cx, JS::NullHandleValue);
             if (ret) {
-                jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::ScrollView>(cx, (cocos2d::extension::ScrollView*)ret));
+                JS::RootedObject jsretObj(cx);
+                js_get_or_create_jsobject<cocos2d::extension::ScrollView>(cx, (cocos2d::extension::ScrollView*)ret, &jsretObj);
+                jsret = JS::ObjectOrNullValue(jsretObj);
             } else {
                 jsret = JS::NullHandleValue;
             };
@@ -6700,8 +6799,9 @@ bool js_cocos2dx_extension_ScrollView_constructor(JSContext *cx, uint32_t argc, 
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::ScrollView>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::ScrollView"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::ScrollView");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -6878,7 +6978,8 @@ bool js_cocos2dx_extension_TableViewCell_create(JSContext *cx, uint32_t argc, JS
 
         auto ret = cocos2d::extension::TableViewCell::create();
         js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::TableViewCell>(ret);
-        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "cocos2d::extension::TableViewCell"));
+        JS::RootedObject jsret(cx);
+        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::extension::TableViewCell");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -6894,8 +6995,9 @@ bool js_cocos2dx_extension_TableViewCell_constructor(JSContext *cx, uint32_t arg
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::TableViewCell>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::TableViewCell"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::TableViewCell");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -7215,7 +7317,9 @@ bool js_cocos2dx_extension_TableView_cellAtIndex(JSContext *cx, uint32_t argc, J
         cocos2d::extension::TableViewCell* ret = cobj->cellAtIndex(arg0);
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::TableViewCell>(cx, (cocos2d::extension::TableViewCell*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::extension::TableViewCell>(cx, (cocos2d::extension::TableViewCell*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -7239,7 +7343,9 @@ bool js_cocos2dx_extension_TableView_dequeueCell(JSContext *cx, uint32_t argc, J
         cocos2d::extension::TableViewCell* ret = cobj->dequeueCell();
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<cocos2d::extension::TableViewCell>(cx, (cocos2d::extension::TableViewCell*)ret));
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<cocos2d::extension::TableViewCell>(cx, (cocos2d::extension::TableViewCell*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
         } else {
             jsret = JS::NullHandleValue;
         };
@@ -7259,8 +7365,9 @@ bool js_cocos2dx_extension_TableView_constructor(JSContext *cx, uint32_t argc, J
 
     js_type_class_t *typeClass = js_get_type_from_native<cocos2d::extension::TableView>(cobj);
 
-    // link the native object with the javascript object
-    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "cocos2d::extension::TableView"));
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::extension::TableView");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 

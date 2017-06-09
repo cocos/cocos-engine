@@ -287,7 +287,8 @@ bool ccvector_to_jsval(JSContext* cx, const cocos2d::Vector<T>& v, JS::MutableHa
 
         //First, check whether object is associated with js object.
         js_type_class_t *typeClass = js_get_type_from_native(obj);
-        JS::RootedObject jsobject(cx, jsb_ref_get_or_create_jsobject(cx, obj, typeClass, typeid(*obj).name()));
+        JS::RootedObject jsobject(cx);
+        jsb_ref_get_or_create_jsobject(cx, obj, typeClass, &jsobject, typeid(*obj).name());
         if (jsobject.get()) {
             arrElement = JS::ObjectOrNullValue(jsobject.get());
         }
@@ -315,7 +316,8 @@ bool ccmap_string_key_to_jsval(JSContext* cx, const cocos2d::Map<std::string, T>
 
         //First, check whether object is associated with js object.
         js_type_class_t *typeClass = js_get_type_from_native(obj);
-        JS::RootedObject jsobject(cx, jsb_ref_get_or_create_jsobject(cx, obj, typeClass, typeid(*obj).name()));
+        JS::RootedObject jsobject(cx);
+        jsb_ref_get_or_create_jsobject(cx, obj, typeClass, &jsobject, typeid(*obj).name());
 
         if (jsobject.get()) {
             element = JS::ObjectOrNullValue(jsobject);

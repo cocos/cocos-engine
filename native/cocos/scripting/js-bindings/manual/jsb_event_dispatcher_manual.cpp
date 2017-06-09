@@ -72,7 +72,9 @@ bool js_EventListenerTouchOneByOne_create(JSContext *cx, uint32_t argc, JS::Valu
             ScriptingCore::getInstance()->handleTouchEvent(ret, EventTouch::EventCode::CANCELLED, touch, event);
         };
 
-        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerTouchOneByOne>(cx, ret)));
+        JS::RootedObject retObj(cx);
+        js_get_or_create_jsobject<EventListenerTouchOneByOne>(cx, ret, &retObj);
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(retObj));
         args.rval().set(jsret);
         return true;
     }
@@ -103,7 +105,9 @@ bool js_EventListenerTouchAllAtOnce_create(JSContext *cx, uint32_t argc, JS::Val
             ScriptingCore::getInstance()->handleTouchesEvent(ret, EventTouch::EventCode::CANCELLED, touches, event);
         };
 
-        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerTouchAllAtOnce>(cx, ret)));
+        JS::RootedObject retObj(cx);
+        js_get_or_create_jsobject<EventListenerTouchAllAtOnce>(cx, ret, &retObj);
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(retObj));
         args.rval().set(jsret);
         return true;
     }
@@ -134,7 +138,9 @@ bool js_EventListenerMouse_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ScriptingCore::getInstance()->handleMouseEvent(ret, EventMouse::MouseEventType::MOUSE_SCROLL, event);
         };
 
-        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerMouse>(cx, ret)));
+        JS::RootedObject retObj(cx);
+        js_get_or_create_jsobject<EventListenerMouse>(cx, ret, &retObj);
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(retObj));
         args.rval().set(jsret);
         return true;
     }
@@ -157,7 +163,9 @@ bool js_EventListenerKeyboard_create(JSContext *cx, uint32_t argc, JS::Value *vp
             ScriptingCore::getInstance()->handleKeyboardEvent(ret, keyCode, false, event);
         };
 
-        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerKeyboard>(cx, ret)));
+        JS::RootedObject retObj(cx);
+        js_get_or_create_jsobject<EventListenerKeyboard>(cx, ret, &retObj);
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(retObj));
         args.rval().set(jsret);
         return true;
     }
@@ -187,7 +195,9 @@ bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, JS::Value
                     largv.append(larg);
                     if (event) {
                         js_type_class_t *typeClassEvent = js_get_type_from_native<Event>(event);
-                        largv.append(JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent)));
+                        JS::RootedObject eventObj(cx);
+                        jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent, &eventObj, "EventAcceleration");
+                        largv.append(JS::ObjectOrNullValue(eventObj));
                     } else {
                         largv.append(JS::NullValue());
                     };
@@ -208,7 +218,8 @@ bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, JS::Value
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerAcceleration_create : Error processing arguments");
         
         auto ret = EventListenerAcceleration::create(arg0);
-        JS::RootedObject jslistener(cx, js_get_or_create_jsobject<EventListenerAcceleration>(cx, ret));
+        JS::RootedObject jslistener(cx);
+        js_get_or_create_jsobject<EventListenerAcceleration>(cx, ret, &jslistener);
         JS::RootedValue jsret(cx, JS::ObjectOrNullValue(jslistener));
         if (wrapper)
         {
@@ -230,7 +241,9 @@ bool js_EventListenerFocus_create(JSContext *cx, uint32_t argc, JS::Value *vp)
             ScriptingCore::getInstance()->handleFocusEvent(ret, widgetLoseFocus, widgetGetFocus);
         };
         
-        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerFocus>(cx, ret)));
+        JS::RootedObject retObj(cx);
+        js_get_or_create_jsobject<EventListenerFocus>(cx, ret, &retObj);
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(retObj));
 
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
         args.rval().set(jsret);
@@ -261,7 +274,9 @@ bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, JS::Value *vp)
                     JS::RootedValue largv(cx);
                     if (event) {
                         js_type_class_t *typeClassEvent = js_get_type_from_native<EventCustom>(event);
-                        largv = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
+                        JS::RootedObject eventObj(cx);
+                        jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent, &eventObj, "EventCustom");
+                        largv = JS::ObjectOrNullValue(eventObj);
                     }
                     JS::RootedValue rval(cx);
                     JS::HandleValueArray largsv(largv);
@@ -281,7 +296,8 @@ bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerCustom_create : Error processing arguments");
 
         auto ret = EventListenerCustom::create(arg0, arg1);
-        JS::RootedObject jslistener(cx, js_get_or_create_jsobject<EventListenerCustom>(cx, ret));
+        JS::RootedObject jslistener(cx);
+        js_get_or_create_jsobject<EventListenerCustom>(cx, ret, &jslistener);
         JS::RootedValue jsret(cx, JS::ObjectOrNullValue(jslistener));
         if (wrapper)
         {
@@ -317,7 +333,9 @@ bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, JS:
                     JS::RootedValue largv(cx);
                     if (event) {
                         js_type_class_t *typeClassEvent = js_get_type_from_native<EventCustom>(event);
-                        largv = JS::ObjectOrNullValue(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
+                        JS::RootedObject eventObj(cx);
+                        jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent, &eventObj, "EventCustom");
+                        largv = JS::ObjectOrNullValue(eventObj);
                     }
                     JS::RootedValue rval(cx);
                     JS::HandleValueArray largsv(largv);
@@ -337,7 +355,9 @@ bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, JS:
         cocos2d::EventListenerCustom* ret = cobj->addCustomEventListener(arg0, arg1);
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = JS::ObjectOrNullValue(js_get_or_create_jsobject<EventListenerCustom>(cx, ret));
+            JS::RootedObject retObj(cx);
+            js_get_or_create_jsobject<EventListenerCustom>(cx, ret, &retObj);
+            jsret = JS::ObjectOrNullValue(retObj);
         }
         args.rval().set(jsret);
         return true;
