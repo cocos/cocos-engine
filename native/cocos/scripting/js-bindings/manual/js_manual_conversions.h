@@ -27,7 +27,6 @@
 
 #include "jsapi.h"
 #include "jsfriendapi.h"
-#include "scripting/js-bindings/manual/js_bindings_core.h"
 #include "scripting/js-bindings/manual/js_bindings_config.h"
 
 #include "base/CCEventMouse.h"
@@ -74,12 +73,10 @@ private:
 bool jsval_to_opaque( JSContext *cx, JS::HandleValue vp, void **out );
 bool jsval_to_int( JSContext *cx, JS::HandleValue vp, int *out);
 bool jsval_to_uint( JSContext *cx, JS::HandleValue vp, unsigned int *out);
-bool jsval_to_c_class( JSContext *cx, JS::HandleValue vp, void **out_native, js_proxy_t **out_proxy);
 /** converts a js value (JS string) into a char */
 bool jsval_to_charptr( JSContext *cx, JS::HandleValue vp, const char **out);
 
 JS::HandleValue opaque_to_jsval( JSContext *cx, void* opaque);
-JS::HandleValue c_class_to_jsval( JSContext *cx, void* handle, JS::HandleObject object, JSClass *klass, const char* class_name);
 
 bool JSB_jsval_typedarray_to_dataptr( JSContext *cx, JS::HandleValue vp, GLsizei *count, void **data, js::Scalar::Type t);
 bool JSB_get_arraybufferview_dataptr( JSContext *cx, JS::HandleValue vp, GLsizei *count, GLvoid **data );

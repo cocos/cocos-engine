@@ -26,7 +26,6 @@
 
 #include "scripting/js-bindings/manual/jsb_opengl_manual.h"
 #include "scripting/js-bindings/manual/js_manual_conversions.h"
-#include "scripting/js-bindings/manual/js_bindings_core.h"
 #include "scripting/js-bindings/manual/jsb_opengl_functions.h"
 #include "platform/CCGL.h"
 

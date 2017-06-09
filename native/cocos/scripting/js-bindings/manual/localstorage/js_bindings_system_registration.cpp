@@ -22,7 +22,6 @@
  */
 
 #include "scripting/js-bindings/manual/js_bindings_config.h"
-#include "scripting/js-bindings/manual/js_bindings_core.h"
 #include "storage/local-storage/LocalStorage.h"
 #include "platform/CCFileUtils.h"
 

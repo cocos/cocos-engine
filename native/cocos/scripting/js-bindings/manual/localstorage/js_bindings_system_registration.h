@@ -27,5 +27,5 @@
 
 void jsb_register_system( JSContext *globalC, JS::HandleObject globalO);
 
-#endif // __JSB_CHIPMUNK_REGISTRATION
+#endif // __JSB_SYSTEM_REGISTRATION
 

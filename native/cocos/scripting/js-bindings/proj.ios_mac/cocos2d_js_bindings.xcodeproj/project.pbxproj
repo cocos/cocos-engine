@@ -32,10 +32,6 @@
 		1A119ECC18BDF19200352BAA /* jsb_cocos2dx_extension_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A119E5C18BDF19200352BAA /* jsb_cocos2dx_extension_manual.h */; };
 		1A119ED118BDF19200352BAA /* js_bindings_config.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A119E6118BDF19200352BAA /* js_bindings_config.h */; };
 		1A119ED218BDF19200352BAA /* js_bindings_config.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A119E6118BDF19200352BAA /* js_bindings_config.h */; };
-		1A119ED318BDF19200352BAA /* js_bindings_core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A119E6218BDF19200352BAA /* js_bindings_core.cpp */; };
-		1A119ED418BDF19200352BAA /* js_bindings_core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A119E6218BDF19200352BAA /* js_bindings_core.cpp */; };
-		1A119ED518BDF19200352BAA /* js_bindings_core.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A119E6318BDF19200352BAA /* js_bindings_core.h */; };
-		1A119ED618BDF19200352BAA /* js_bindings_core.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A119E6318BDF19200352BAA /* js_bindings_core.h */; };
 		1A119ED718BDF19200352BAA /* js_bindings_opengl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A119E6418BDF19200352BAA /* js_bindings_opengl.cpp */; };
 		1A119ED818BDF19200352BAA /* js_bindings_opengl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A119E6418BDF19200352BAA /* js_bindings_opengl.cpp */; };
 		1A119ED918BDF19200352BAA /* js_bindings_opengl.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A119E6518BDF19200352BAA /* js_bindings_opengl.h */; };
@@ -131,15 +127,10 @@
 		83A5661A18DA878400FC31A0 /* jsb_socketio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 83A5661718DA878400FC31A0 /* jsb_socketio.cpp */; };
 		83A5661B18DA878400FC31A0 /* jsb_socketio.h in Headers */ = {isa = PBXBuildFile; fileRef = 83A5661818DA878400FC31A0 /* jsb_socketio.h */; };
 		83A5661C18DA878400FC31A0 /* jsb_socketio.h in Headers */ = {isa = PBXBuildFile; fileRef = 83A5661818DA878400FC31A0 /* jsb_socketio.h */; };
-		A60A9D561C200D520070800A /* js_bindings_chipmunk_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A60A9D401C2008F60070800A /* js_bindings_chipmunk_manual.cpp */; };
-		A60A9D571C200D550070800A /* js_bindings_chipmunk_registration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A60A9D421C2008F60070800A /* js_bindings_chipmunk_registration.cpp */; };
 		B38AD56A1B1D384A0057DD7F /* jsb_cocos2dx_experimental_video_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B38AD5681B1D384A0057DD7F /* jsb_cocos2dx_experimental_video_manual.cpp */; };
 		B38AD56B1B1D384A0057DD7F /* jsb_cocos2dx_experimental_video_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = B38AD5691B1D384A0057DD7F /* jsb_cocos2dx_experimental_video_manual.h */; };
 		B38AD56E1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B38AD56C1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.cpp */; };
 		B38AD56F1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = B38AD56D1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.hpp */; };
-		BA127E681D791E21002C5B50 /* js_bindings_chipmunk_auto_classes_registration.h in Headers */ = {isa = PBXBuildFile; fileRef = BA127E611D791E21002C5B50 /* js_bindings_chipmunk_auto_classes_registration.h */; };
-		BA127E6E1D791E21002C5B50 /* js_bindings_chipmunk_functions_registration.h in Headers */ = {isa = PBXBuildFile; fileRef = BA127E641D791E21002C5B50 /* js_bindings_chipmunk_functions_registration.h */; };
-		BA127E721D791E21002C5B50 /* js_bindings_chipmunk_functions.h in Headers */ = {isa = PBXBuildFile; fileRef = BA127E661D791E21002C5B50 /* js_bindings_chipmunk_functions.h */; };
 		BA4F59841E28DCD3003F5096 /* jsb_cocos2dx_network_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4F59821E28DCD3003F5096 /* jsb_cocos2dx_network_auto.cpp */; };
 		BA4F59851E28DCD3003F5096 /* jsb_cocos2dx_network_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA4F59821E28DCD3003F5096 /* jsb_cocos2dx_network_auto.cpp */; };
 		BA4F59861E28DCD3003F5096 /* jsb_cocos2dx_network_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = BA4F59831E28DCD3003F5096 /* jsb_cocos2dx_network_auto.hpp */; };
@@ -178,8 +169,6 @@
 		1A119E5B18BDF19200352BAA /* jsb_cocos2dx_extension_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_extension_manual.cpp; sourceTree = "<group>"; };
 		1A119E5C18BDF19200352BAA /* jsb_cocos2dx_extension_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsb_cocos2dx_extension_manual.h; sourceTree = "<group>"; };
 		1A119E6118BDF19200352BAA /* js_bindings_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_bindings_config.h; sourceTree = "<group>"; };
-		1A119E6218BDF19200352BAA /* js_bindings_core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_bindings_core.cpp; sourceTree = "<group>"; };
-		1A119E6318BDF19200352BAA /* js_bindings_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_bindings_core.h; sourceTree = "<group>"; };
 		1A119E6418BDF19200352BAA /* js_bindings_opengl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_bindings_opengl.cpp; sourceTree = "<group>"; };
 		1A119E6518BDF19200352BAA /* js_bindings_opengl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_bindings_opengl.h; sourceTree = "<group>"; };
 		1A119E6618BDF19200352BAA /* js_manual_conversions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_manual_conversions.cpp; sourceTree = "<group>"; };
@@ -232,20 +221,10 @@
 		4DFA4C0F1CBCC49000E3B736 /* jsb_creator_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_creator_auto.hpp; sourceTree = "<group>"; };
 		83A5661718DA878400FC31A0 /* jsb_socketio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_socketio.cpp; sourceTree = "<group>"; };
 		83A5661818DA878400FC31A0 /* jsb_socketio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsb_socketio.h; sourceTree = "<group>"; };
-		A60A9D401C2008F60070800A /* js_bindings_chipmunk_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = js_bindings_chipmunk_manual.cpp; path = chipmunk/js_bindings_chipmunk_manual.cpp; sourceTree = "<group>"; };
-		A60A9D411C2008F60070800A /* js_bindings_chipmunk_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = js_bindings_chipmunk_manual.h; path = chipmunk/js_bindings_chipmunk_manual.h; sourceTree = "<group>"; };
-		A60A9D421C2008F60070800A /* js_bindings_chipmunk_registration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = js_bindings_chipmunk_registration.cpp; path = chipmunk/js_bindings_chipmunk_registration.cpp; sourceTree = "<group>"; };
-		A60A9D431C2008F60070800A /* js_bindings_chipmunk_registration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = js_bindings_chipmunk_registration.h; path = chipmunk/js_bindings_chipmunk_registration.h; sourceTree = "<group>"; };
 		B38AD5681B1D384A0057DD7F /* jsb_cocos2dx_experimental_video_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = jsb_cocos2dx_experimental_video_manual.cpp; path = experimental/jsb_cocos2dx_experimental_video_manual.cpp; sourceTree = "<group>"; };
 		B38AD5691B1D384A0057DD7F /* jsb_cocos2dx_experimental_video_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jsb_cocos2dx_experimental_video_manual.h; path = experimental/jsb_cocos2dx_experimental_video_manual.h; sourceTree = "<group>"; };
 		B38AD56C1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_experimental_video_auto.cpp; sourceTree = "<group>"; };
 		B38AD56D1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_experimental_video_auto.hpp; sourceTree = "<group>"; };
-		BA127E611D791E21002C5B50 /* js_bindings_chipmunk_auto_classes_registration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_bindings_chipmunk_auto_classes_registration.h; sourceTree = "<group>"; };
-		BA127E621D791E21002C5B50 /* js_bindings_chipmunk_auto_classes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_bindings_chipmunk_auto_classes.cpp; sourceTree = "<group>"; };
-		BA127E631D791E21002C5B50 /* js_bindings_chipmunk_auto_classes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_bindings_chipmunk_auto_classes.h; sourceTree = "<group>"; };
-		BA127E641D791E21002C5B50 /* js_bindings_chipmunk_functions_registration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_bindings_chipmunk_functions_registration.h; sourceTree = "<group>"; };
-		BA127E651D791E21002C5B50 /* js_bindings_chipmunk_functions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_bindings_chipmunk_functions.cpp; sourceTree = "<group>"; };
-		BA127E661D791E21002C5B50 /* js_bindings_chipmunk_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_bindings_chipmunk_functions.h; sourceTree = "<group>"; };
 		BA4F59821E28DCD3003F5096 /* jsb_cocos2dx_network_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_network_auto.cpp; sourceTree = "<group>"; };
 		BA4F59831E28DCD3003F5096 /* jsb_cocos2dx_network_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_network_auto.hpp; sourceTree = "<group>"; };
 		BA4F59891E28DE4A003F5096 /* js_network_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_network_manual.cpp; sourceTree = "<group>"; };
@@ -312,12 +291,6 @@
 				4D9BB1F71DFAB8B300B58565 /* jsb_box2d_auto.hpp */,
 				FA6F1BB11D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.cpp */,
 				FA6F1BB21D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.hpp */,
-				BA127E611D791E21002C5B50 /* js_bindings_chipmunk_auto_classes_registration.h */,
-				BA127E621D791E21002C5B50 /* js_bindings_chipmunk_auto_classes.cpp */,
-				BA127E631D791E21002C5B50 /* js_bindings_chipmunk_auto_classes.h */,
-				BA127E641D791E21002C5B50 /* js_bindings_chipmunk_functions_registration.h */,
-				BA127E651D791E21002C5B50 /* js_bindings_chipmunk_functions.cpp */,
-				BA127E661D791E21002C5B50 /* js_bindings_chipmunk_functions.h */,
 				4DFA4C0E1CBCC49000E3B736 /* jsb_creator_auto.cpp */,
 				4DFA4C0F1CBCC49000E3B736 /* jsb_creator_auto.hpp */,
 				BA4F59821E28DCD3003F5096 /* jsb_cocos2dx_network_auto.cpp */,
@@ -350,15 +323,12 @@
 				4DFA4BFE1CBCBC4E00E3B736 /* js_module_register.cpp */,
 				4DFA4BFF1CBCBC4E00E3B736 /* js_module_register.h */,
 				4DFA4C001CBCBC4E00E3B736 /* js-BindingsExport.h */,
-				A60A9D391C2008DE0070800A /* chipmunk */,
 				42AD25701AFF9DFC000176E2 /* experimental */,
 				0541A74C1973876100E45470 /* ios */,
 				1A119E4E18BDF19200352BAA /* cocos2d_specifics.cpp */,
 				1A119E4F18BDF19200352BAA /* cocos2d_specifics.hpp */,
 				1A119E5918BDF19200352BAA /* extension */,
 				1A119E6118BDF19200352BAA /* js_bindings_config.h */,
-				1A119E6218BDF19200352BAA /* js_bindings_core.cpp */,
-				1A119E6318BDF19200352BAA /* js_bindings_core.h */,
 				1A119E6418BDF19200352BAA /* js_bindings_opengl.cpp */,
 				1A119E6518BDF19200352BAA /* js_bindings_opengl.h */,
 				1A119E6618BDF19200352BAA /* js_manual_conversions.cpp */,
@@ -468,17 +438,6 @@
 			path = box2d;
 			sourceTree = "<group>";
 		};
-		A60A9D391C2008DE0070800A /* chipmunk */ = {
-			isa = PBXGroup;
-			children = (
-				A60A9D401C2008F60070800A /* js_bindings_chipmunk_manual.cpp */,
-				A60A9D411C2008F60070800A /* js_bindings_chipmunk_manual.h */,
-				A60A9D421C2008F60070800A /* js_bindings_chipmunk_registration.cpp */,
-				A60A9D431C2008F60070800A /* js_bindings_chipmunk_registration.h */,
-			);
-			name = chipmunk;
-			sourceTree = "<group>";
-		};
 		FA6F1BB71D816265007DD223 /* dragonbones */ = {
 			isa = PBXGroup;
 			children = (
@@ -512,7 +471,6 @@
 				1A119F0318BDF19200352BAA /* spidermonkey_specifics.h in Headers */,
 				1A119EE718BDF19200352BAA /* jsb_opengl_manual.h in Headers */,
 				4D9BB1F91DFAB8B300B58565 /* jsb_box2d_auto.hpp in Headers */,
-				1A119ED518BDF19200352BAA /* js_bindings_core.h in Headers */,
 				1A119EDF18BDF19200352BAA /* jsb_helper.h in Headers */,
 				1A119ECB18BDF19200352BAA /* jsb_cocos2dx_extension_manual.h in Headers */,
 				1A119EEF18BDF19200352BAA /* js_bindings_system_functions.h in Headers */,
@@ -554,9 +512,7 @@
 				4D6E0D5F1E0384CC00DA5DB6 /* jsb_box2d_auto.hpp in Headers */,
 				1A119EFA18BDF19200352BAA /* jsb_websocket.h in Headers */,
 				4D0F1D791E695F8600ADBF80 /* js_bindings_creator_manual.h in Headers */,
-				BA127E6E1D791E21002C5B50 /* js_bindings_chipmunk_functions_registration.h in Headers */,
 				BA4F598E1E28DE4A003F5096 /* js_network_manual.h in Headers */,
-				BA127E681D791E21002C5B50 /* js_bindings_chipmunk_auto_classes_registration.h in Headers */,
 				1A119E9218BDF19200352BAA /* jsb_cocos2dx_extension_auto.hpp in Headers */,
 				4B22F4AC1B159A7A0044C14E /* jsb_cocos2dx_experimental_webView_manual.h in Headers */,
 				4BE089E51ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.hpp in Headers */,
@@ -564,7 +520,6 @@
 				1A119EEC18BDF19200352BAA /* jsb_opengl_registration.h in Headers */,
 				1A119F0418BDF19200352BAA /* spidermonkey_specifics.h in Headers */,
 				1A119EE818BDF19200352BAA /* jsb_opengl_manual.h in Headers */,
-				1A119ED618BDF19200352BAA /* js_bindings_core.h in Headers */,
 				1A119EE018BDF19200352BAA /* jsb_helper.h in Headers */,
 				BA4F59871E28DCD3003F5096 /* jsb_cocos2dx_network_auto.hpp in Headers */,
 				FA6F1BBD1D816265007DD223 /* jsb_cocos2dx_dragonbones_manual.h in Headers */,
@@ -578,7 +533,6 @@
 				BAF638DF1B5F5DC900CDB43A /* jsb_cocos2dx_audioengine_auto.hpp in Headers */,
 				1AB5E62E18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */,
 				1A119EDA18BDF19200352BAA /* js_bindings_opengl.h in Headers */,
-				BA127E721D791E21002C5B50 /* js_bindings_chipmunk_functions.h in Headers */,
 				4BE089EC1ADF967400D65D4B /* jsb_cocos2dx_experimental_webView_manual.h in Headers */,
 				1A119EF218BDF19200352BAA /* js_bindings_system_functions_registration.h in Headers */,
 				1A119E8618BDF19200352BAA /* jsb_cocos2dx_auto.hpp in Headers */,
@@ -661,7 +615,6 @@
 				BA4F598B1E28DE4A003F5096 /* js_network_manual.cpp in Sources */,
 				1A119EE918BDF19200352BAA /* jsb_opengl_registration.cpp in Sources */,
 				1A119EF718BDF19200352BAA /* jsb_websocket.cpp in Sources */,
-				1A119ED318BDF19200352BAA /* js_bindings_core.cpp in Sources */,
 				1A119EFB18BDF19200352BAA /* XMLHTTPRequest.cpp in Sources */,
 				FA6F1BB31D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.cpp in Sources */,
 				1A119E8F18BDF19200352BAA /* jsb_cocos2dx_extension_auto.cpp in Sources */,
@@ -702,8 +655,6 @@
 				1A119EEA18BDF19200352BAA /* jsb_opengl_registration.cpp in Sources */,
 				1A119EF818BDF19200352BAA /* jsb_websocket.cpp in Sources */,
 				FA6F1BB41D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.cpp in Sources */,
-				1A119ED418BDF19200352BAA /* js_bindings_core.cpp in Sources */,
-				A60A9D571C200D550070800A /* js_bindings_chipmunk_registration.cpp in Sources */,
 				1A119EFC18BDF19200352BAA /* XMLHTTPRequest.cpp in Sources */,
 				1A119E9018BDF19200352BAA /* jsb_cocos2dx_extension_auto.cpp in Sources */,
 				4DFA4C111CBCC49000E3B736 /* jsb_creator_auto.cpp in Sources */,
@@ -729,7 +680,6 @@
 				83A5661A18DA878400FC31A0 /* jsb_socketio.cpp in Sources */,
 				1A119EE218BDF19200352BAA /* jsb_opengl_functions.cpp in Sources */,
 				1A119F0018BDF19200352BAA /* ScriptingCore.cpp in Sources */,
-				A60A9D561C200D520070800A /* js_bindings_chipmunk_manual.cpp in Sources */,
 				B38AD56A1B1D384A0057DD7F /* jsb_cocos2dx_experimental_video_manual.cpp in Sources */,
 				1A1D3B7918C44FD000922D3C /* jsb_event_dispatcher_manual.cpp in Sources */,
 				4D0F1D7A1E695F8800ADBF80 /* js_bindings_creator_manual.cpp in Sources */,
@@ -764,7 +714,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"COCOS2D_DEBUG=1",
 					USE_FILE32API,
-					"CC_ENABLE_CHIPMUNK_INTEGRATION=1",
 					DEBUG,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -808,7 +757,6 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"CC_ENABLE_CHIPMUNK_INTEGRATION=1",
 					NDEBUG,
 					USE_FILE32API,
 				);

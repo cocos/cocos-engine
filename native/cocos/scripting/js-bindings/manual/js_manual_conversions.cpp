@@ -181,40 +181,6 @@ JS::HandleValue opaque_to_jsval( JSContext *cx, void *opaque )
     return ret;
 }
 
-JS::HandleValue c_class_to_jsval( JSContext *cx, void* handle, JS::HandleObject object, JSClass *klass, const char* class_name)
-{
-    JS::RootedValue ret(cx);
-    JS::RootedObject jsobj(cx);
-
-    auto proxy = jsb_get_native_proxy(handle);
-    if( !proxy ) {
-        jsobj = JS_NewObjectWithGivenProto(cx, klass, object);
-        CCASSERT(jsobj, "Invalid object");
-        jsb_new_proxy(cx, handle, jsobj);
-        JS_SetPrivate(jsobj, &JSB_C_FLAG_DO_NOT_CALL_FREE);
-    }
-    else
-    {
-        jsobj = proxy->obj;
-    }
-
-    ret = JS::ObjectOrNullValue(jsobj);
-    return ret;
-}
-
-bool jsval_to_c_class( JSContext *cx, JS::HandleValue vp, void **out_native, js_proxy_t **out_proxy)
-{
-    JS::RootedObject jsobj(cx);
-    bool ok = JS_ValueToObject( cx, vp, &jsobj );
-    JSB_PRECONDITION2(ok, cx, false, "Error converting jsval to object");
-
-    auto proxy = jsb_get_js_proxy(cx, jsobj);
-    *out_native = proxy->ptr;
-    if( out_proxy )
-        *out_proxy = proxy;
-    return true;
-}
-
 bool jsval_to_uint( JSContext *cx, JS::HandleValue vp, unsigned int *ret )
 {
     // Since this is called to cast uint64 to uint32,

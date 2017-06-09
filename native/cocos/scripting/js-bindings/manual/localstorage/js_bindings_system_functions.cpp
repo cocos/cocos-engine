@@ -5,7 +5,6 @@
 */
 #include "scripting/js-bindings/manual/localstorage/js_bindings_system_functions.h"
 #include "scripting/js-bindings/manual/js_bindings_config.h"
-#include "scripting/js-bindings/manual/js_bindings_core.h"
 #include "scripting/js-bindings/manual/js_manual_conversions.h"
 #include "scripting/js-bindings/manual/ScriptingCore.h"
 #include "storage/local-storage/LocalStorage.h"

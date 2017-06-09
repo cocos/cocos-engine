@@ -22,7 +22,6 @@
  */
 
 #include "scripting/js-bindings/manual/js_bindings_config.h"
-#include "scripting/js-bindings/manual/js_bindings_core.h"
 #include "jsfriendapi.h"
 #include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 #include "scripting/js-bindings/manual/jsb_opengl_manual.h"
