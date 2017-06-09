@@ -179,9 +179,10 @@ var ScrollView = cc.Class({
         this._outOfBoundaryAmountDirty = true;
         this._stopMouseWheel = false;
         this._mouseWheelEventElapsedTime = 0.0;
-        this._isScrollEndedEventFired = false;
+        this._isScrollEndedWithThresholdEventFired = false;
         //use bit wise operations to indicate the direction
         this._scrollEventEmitMask = 0;
+        this._isBouncing = false;
     },
 
     properties: {
@@ -1183,9 +1184,9 @@ var ScrollView = cc.Class({
         var reachedEnd = Math.abs(percentage - 1) <= EPSILON;
 
         var fireEvent = Math.abs(percentage - 1) <= this.getScrollEndedEventTiming();
-        if(fireEvent && !this._isScrollEndedEventFired) {
+        if(fireEvent && !this._isScrollEndedWithThresholdEventFired) {
             this._dispatchEvent('scroll-ended-with-threshold');
-            this._isScrollEndedEventFired = true;
+            this._isScrollEndedWithThresholdEventFired = true;
         }
 
         if (this.elastic) {
@@ -1284,7 +1285,7 @@ var ScrollView = cc.Class({
         this._autoScrollTotalTime = timeInSecond;
         this._autoScrollAccumulatedTime = 0;
         this._autoScrollBraking = false;
-        this._isScrollEndedEventFired = false;
+        this._isScrollEndedWithThresholdEventFired = false;
         this._autoScrollBrakingStartPosition = cc.p(0, 0);
 
         var currentOutOfBoundary = this._getHowMuchOutOfBoundary();
