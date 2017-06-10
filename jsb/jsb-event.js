@@ -72,6 +72,13 @@ cc.js.mixin(proto, {
         this.type = type;
         this.bubbles = bubbles || false;
     },
+    resetStates: function () {
+        this._target = null;
+        this._currentTarget = null;
+        this.eventPhase = cc.Event.NONE;
+        this._propagationStopped = false;
+        this._propagationImmediateStopped = false;
+    },
     stopPropagationImmediate: function () {
         this._propagationImmediateStopped = true;
     },
