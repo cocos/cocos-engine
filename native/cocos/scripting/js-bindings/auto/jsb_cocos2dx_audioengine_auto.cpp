@@ -61,7 +61,7 @@ bool js_cocos2dx_audioengine_AudioProfile_set_maxInstances(JSContext *cx, uint32
 
     bool ok = true;
     unsigned int arg0 = 0;
-    arg0 = (uint32_t)(args.get(0).toInt32());
+    ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_audioengine_AudioProfile_set_maxInstances : Error processing new value");
     cobj->maxInstances = arg0;
     return true;
@@ -91,7 +91,7 @@ bool js_cocos2dx_audioengine_AudioProfile_set_minDelay(JSContext *cx, uint32_t a
 
     bool ok = true;
     double arg0 = 0;
-    arg0 = args.get(0).toDouble();
+    ok &= jsval_to_double(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_audioengine_AudioProfile_set_minDelay : Error processing new value");
     cobj->minDelay = arg0;
     return true;
@@ -206,9 +206,9 @@ bool js_cocos2dx_audioengine_AudioEngine_setCurrentTime(JSContext *cx, uint32_t 
     bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         int arg0 = 0;
-        double arg1 = 0;
+        float arg1 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_audioengine_AudioEngine_setCurrentTime : Error processing arguments");
 
         bool ret = cocos2d::experimental::AudioEngine::setCurrentTime(arg0, arg1);
@@ -231,7 +231,7 @@ bool js_cocos2dx_audioengine_AudioEngine_getVolume(JSContext *cx, uint32_t argc,
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_audioengine_AudioEngine_getVolume : Error processing arguments");
 
-        double ret = cocos2d::experimental::AudioEngine::getVolume(arg0);
+        float ret = cocos2d::experimental::AudioEngine::getVolume(arg0);
         JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_audioengine_AudioEngine_getVolume : error parsing return value");
@@ -336,7 +336,7 @@ bool js_cocos2dx_audioengine_AudioEngine_getCurrentTime(JSContext *cx, uint32_t 
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_audioengine_AudioEngine_getCurrentTime : Error processing arguments");
 
-        double ret = cocos2d::experimental::AudioEngine::getCurrentTime(arg0);
+        float ret = cocos2d::experimental::AudioEngine::getCurrentTime(arg0);
         JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_audioengine_AudioEngine_getCurrentTime : error parsing return value");
@@ -417,9 +417,9 @@ bool js_cocos2dx_audioengine_AudioEngine_setVolume(JSContext *cx, uint32_t argc,
     bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 2) {
         int arg0 = 0;
-        double arg1 = 0;
+        float arg1 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_audioengine_AudioEngine_setVolume : Error processing arguments");
         cocos2d::experimental::AudioEngine::setVolume(arg0, arg1);
         args.rval().setUndefined();
@@ -516,7 +516,7 @@ bool js_cocos2dx_audioengine_AudioEngine_play2d(JSContext *cx, uint32_t argc, JS
         std::string arg0;
         bool arg1;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = args.get(1).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_audioengine_AudioEngine_play2d : Error processing arguments");
 
         int ret = cocos2d::experimental::AudioEngine::play2d(arg0, arg1);
@@ -529,10 +529,10 @@ bool js_cocos2dx_audioengine_AudioEngine_play2d(JSContext *cx, uint32_t argc, JS
     if (argc == 3) {
         std::string arg0;
         bool arg1;
-        double arg2 = 0;
+        float arg2 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = args.get(1).toBoolean();
-        arg2 = (float)(args.get(2).toNumber());
+        ok &= jsval_to_bool(cx, args.get(1), &arg1);
+        ok &= jsval_to_float(cx, args.get(2), &arg2);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_audioengine_AudioEngine_play2d : Error processing arguments");
 
         int ret = cocos2d::experimental::AudioEngine::play2d(arg0, arg1, arg2);
@@ -545,11 +545,11 @@ bool js_cocos2dx_audioengine_AudioEngine_play2d(JSContext *cx, uint32_t argc, JS
     if (argc == 4) {
         std::string arg0;
         bool arg1;
-        double arg2 = 0;
+        float arg2 = 0;
         const cocos2d::experimental::AudioProfile* arg3 = nullptr;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = args.get(1).toBoolean();
-        arg2 = (float)(args.get(2).toNumber());
+        ok &= jsval_to_bool(cx, args.get(1), &arg1);
+        ok &= jsval_to_float(cx, args.get(2), &arg2);
         do {
             if (args.get(3).isNull()) { arg3 = nullptr; break; }
             if (!args.get(3).isObject()) { ok = false; break; }
@@ -633,7 +633,7 @@ bool js_cocos2dx_audioengine_AudioEngine_getDuration(JSContext *cx, uint32_t arg
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_audioengine_AudioEngine_getDuration : Error processing arguments");
 
-        double ret = cocos2d::experimental::AudioEngine::getDuration(arg0);
+        float ret = cocos2d::experimental::AudioEngine::getDuration(arg0);
         JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_audioengine_AudioEngine_getDuration : error parsing return value");
@@ -652,7 +652,7 @@ bool js_cocos2dx_audioengine_AudioEngine_setLoop(JSContext *cx, uint32_t argc, J
         int arg0 = 0;
         bool arg1;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
-        arg1 = args.get(1).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_audioengine_AudioEngine_setLoop : Error processing arguments");
         cocos2d::experimental::AudioEngine::setLoop(arg0, arg1);
         args.rval().setUndefined();

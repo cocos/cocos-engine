@@ -246,7 +246,7 @@ bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS
         args.rval().set(objVal);
         return true;
     }
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_network_Downloader_constructor : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_network_Downloader_constructor : arguments error");
     return false;
 }
 

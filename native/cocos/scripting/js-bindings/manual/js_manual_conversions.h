@@ -70,14 +70,11 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(JSStringWrapper);
 };
 
-bool jsval_to_opaque( JSContext *cx, JS::HandleValue vp, void **out );
+// Opengl related
 bool jsval_to_int( JSContext *cx, JS::HandleValue vp, int *out);
 bool jsval_to_uint( JSContext *cx, JS::HandleValue vp, unsigned int *out);
 /** converts a js value (JS string) into a char */
 bool jsval_to_charptr( JSContext *cx, JS::HandleValue vp, const char **out);
-
-JS::HandleValue opaque_to_jsval( JSContext *cx, void* opaque);
-
 bool JSB_jsval_typedarray_to_dataptr( JSContext *cx, JS::HandleValue vp, GLsizei *count, void **data, js::Scalar::Type t);
 bool JSB_get_arraybufferview_dataptr( JSContext *cx, JS::HandleValue vp, GLsizei *count, GLvoid **data );
 
@@ -87,6 +84,9 @@ bool jsval_to_ushort( JSContext *cx, JS::HandleValue vp, unsigned short *ret );
 bool jsval_to_int32( JSContext *cx, JS::HandleValue vp, int32_t *ret );
 bool jsval_to_uint32( JSContext *cx, JS::HandleValue vp, uint32_t *ret );
 bool jsval_to_uint16( JSContext *cx, JS::HandleValue vp, uint16_t *ret );
+bool jsval_to_bool( JSContext *cx, JS::HandleValue vp, bool *ret );
+bool jsval_to_float( JSContext *cx, JS::HandleValue vp, float *ret );
+bool jsval_to_double( JSContext *cx, JS::HandleValue vp, double *ret );
 bool jsval_to_long( JSContext *cx, JS::HandleValue vp, long *out);
 bool jsval_to_ulong( JSContext *cx, JS::HandleValue vp, unsigned long *out);
 bool jsval_to_long_long(JSContext *cx, JS::HandleValue v, long long* ret);

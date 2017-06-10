@@ -46,31 +46,35 @@ static bool js_cocos2dx_LayoutParameter_setMargin(JSContext *cx, uint32_t argc, 
             JS_GetProperty(cx, tmp, "left", &jsleft) &&
             JS_GetProperty(cx, tmp, "top", &jstop) &&
             JS_GetProperty(cx, tmp, "right", &jsright) &&
-            JS_GetProperty(cx, tmp, "bottom", &jsbottom);
+            JS_GetProperty(cx, tmp, "bottom", &jsbottom) &&
+            jsleft.isNumber() && jstop.isNumber() && jsright.isNumber() && jsbottom.isNumber();
+        
+        JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
         left = jsleft.toNumber();
         top = jstop.toNumber();
         right = jsright.toNumber();
         bottom = jsbottom.toNumber();
 
-        JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
-
         cobj->setMargin(ui::Margin(left,top,right,bottom));
         return true;
     }
     else if (argc == 4) {
-        bool ok = true;
         double left, top,right,bottom;
-        JS::RootedValue jsv(cx, args[0]);
-        left = jsv.toNumber();
-        jsv.set(args[1]);
-        top = jsv.toNumber();
-        jsv.set(args[2]);
-        right = jsv.toNumber();
-        jsv.set(args[3]);
-        bottom = jsv.toNumber();
-
+        bool ok = args.get(0).isNumber() &&
+                  args.get(1).isNumber() &&
+                  args.get(2).isNumber() &&
+                  args.get(3).isNumber();
         JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
+        
+        JS::RootedValue jsv(cx, args.get(0));
+        left = jsv.toNumber();
+        jsv.set(args.get(1));
+        top = jsv.toNumber();
+        jsv.set(args.get(2));
+        right = jsv.toNumber();
+        jsv.set(args.get(3));
+        bottom = jsv.toNumber();
 
         cobj->setMargin(ui::Margin(left,top,right,bottom));
         return true;

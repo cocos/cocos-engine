@@ -37,12 +37,12 @@ bool jsval_to_DownloaderHints(JSContext *cx, JS::HandleValue v, cocos2d::network
     JS_GetProperty(cx, tmp, "countOfMaxProcessingTasks", &jsCountOfMaxProcessingTasks) &&
     JS_GetProperty(cx, tmp, "timeoutInSeconds", &jsTimeoutInSeconds) &&
     JS_GetProperty(cx, tmp, "tempFileNameSuffix", &jsTempFileNameSuffix) &&
-    jsval_to_std_string(cx, jsTempFileNameSuffix, &tempFileNameSuffix);
+    jsval_to_std_string(cx, jsTempFileNameSuffix, &tempFileNameSuffix) &&
+    jsCountOfMaxProcessingTasks.isNumber() && jsTimeoutInSeconds.isNumber();
+    JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
     
     countOfMaxProcessingTasks = jsCountOfMaxProcessingTasks.toNumber();
     timeoutInSeconds = jsTimeoutInSeconds.toNumber();
-    
-    JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
     
     ret->countOfMaxProcessingTasks = (uint32_t)countOfMaxProcessingTasks;
     ret->timeoutInSeconds = (uint32_t)timeoutInSeconds;

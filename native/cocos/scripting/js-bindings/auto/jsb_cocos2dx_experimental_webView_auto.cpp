@@ -98,7 +98,7 @@ bool js_cocos2dx_experimental_webView_WebView_setScalesPageToFit(JSContext *cx, 
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_setScalesPageToFit : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = args.get(0).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_setScalesPageToFit : Error processing arguments");
         cobj->setScalesPageToFit(arg0);
         args.rval().setUndefined();
@@ -178,7 +178,7 @@ bool js_cocos2dx_experimental_webView_WebView_setBounces(JSContext *cx, uint32_t
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_setBounces : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = args.get(0).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_setBounces : Error processing arguments");
         cobj->setBounces(arg0);
         args.rval().setUndefined();

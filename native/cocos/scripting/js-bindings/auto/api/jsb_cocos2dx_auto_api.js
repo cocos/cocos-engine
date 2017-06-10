@@ -3159,6 +3159,16 @@ getInstance : function (
 cc.Scheduler = {
 
 /**
+ * @method isCurrentTargetSalvaged
+ * @return {bool}
+ */
+isCurrentTargetSalvaged : function (
+)
+{
+    return false;
+},
+
+/**
  * @method setTimeScale
  * @param {float} arg0
  */

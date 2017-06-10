@@ -593,9 +593,11 @@ bool jsb_cocos2dx_spine_setDebugBones(JSContext *cx, uint32_t argc, JS::Value *v
     SkeletonRenderer* cobj = (SkeletonRenderer *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (argc == 1) {
-        bool enable = args.get(0).toBoolean();
+        bool enable;
+        bool ok = jsval_to_bool(cx, args.get(0), &enable);
+        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+        
         cobj->setDebugBonesEnabled(enable);
-
         args.rval().setUndefined();
         return true;
     }
@@ -612,9 +614,11 @@ bool jsb_cocos2dx_spine_setDebugSolots(JSContext *cx, uint32_t argc, JS::Value *
     SkeletonRenderer* cobj = (SkeletonRenderer *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (argc == 1) {
-        bool enable = args.get(0).toBoolean();
+        bool enable;
+        bool ok = jsval_to_bool(cx, args.get(0), &enable);
+        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+        
         cobj->setDebugSlotsEnabled(enable);
-
         args.rval().setUndefined();
         return true;
     }
@@ -720,11 +724,10 @@ bool jsb_cocos2dx_spine_setAnimation(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 3) {
         int arg0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
-
         const char* arg1;
         std::string arg1_tmp; ok &= jsval_to_std_string(cx, args.get(1), &arg1_tmp); arg1 = arg1_tmp.c_str();
-
-        bool arg2 = args.get(2).toBoolean();
+        bool arg2;
+        ok &= jsval_to_bool(cx, args.get(2), &arg2);
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         spTrackEntry* ret = cobj->setAnimation(arg0, arg1, arg2);
@@ -757,11 +760,10 @@ bool jsb_cocos2dx_spine_addAnimation(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 3) {
         int arg0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
-
         const char* arg1;
         std::string arg1_tmp; ok &= jsval_to_std_string(cx, args.get(1), &arg1_tmp); arg1 = arg1_tmp.c_str();
-
-        bool arg2 = args.get(2).toBoolean();
+        bool arg2;
+        ok &= jsval_to_bool(cx, args.get(2), &arg2);
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
 
         spTrackEntry* ret = cobj->addAnimation(arg0, arg1, arg2);
@@ -782,10 +784,11 @@ bool jsb_cocos2dx_spine_addAnimation(JSContext *cx, uint32_t argc, JS::Value *vp
 
         const char* arg1;
         std::string arg1_tmp; ok &= jsval_to_std_string(cx, args.get(1), &arg1_tmp); arg1 = arg1_tmp.c_str();
+        bool arg2;
+        double arg3;
+        ok &= jsval_to_bool(cx, args.get(2), &arg2);
+        ok &= jsval_to_double(cx, args.get(3), &arg3);
         JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-
-        bool arg2 = args.get(2).toBoolean();
-        double arg3 = args.get(3).toNumber();
 
         spTrackEntry* ret = cobj->addAnimation(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);

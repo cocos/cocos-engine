@@ -99,27 +99,6 @@ const char* JSStringWrapper::get()
     return _buffer ? _buffer : "";
 }
 
-static Color3B getColorFromJSObject(JSContext *cx, JS::HandleObject colorObject)
-{
-    JS::RootedValue jsv(cx);
-    Color3B out;
-    JS_GetProperty(cx, colorObject, "r", &jsv);
-    double fontR = jsv.toNumber();
-
-    JS_GetProperty(cx, colorObject, "g", &jsv);
-    double fontG = jsv.toNumber();
-
-    JS_GetProperty(cx, colorObject, "b", &jsv);
-    double fontB = jsv.toNumber();
-
-    // the out
-    out.r = (unsigned char)fontR;
-    out.g = (unsigned char)fontG;
-    out.b = (unsigned char)fontB;
-
-    return out;
-}
-
 bool jsval_to_opaque( JSContext *cx, JS::HandleValue vp, void **r)
 {
 #ifdef __LP64__
@@ -360,20 +339,56 @@ bool JSB_get_arraybufferview_dataptr( JSContext *cx, JS::HandleValue vp, GLsizei
 
 bool jsval_to_int32( JSContext *cx, JS::HandleValue vp, int32_t *outval )
 {
-    *outval = vp.toInt32();
-    return true;
+    bool ok = vp.isNumber();
+    if (ok) {
+        *outval = (int32_t)vp.toNumber();
+    }
+    return ok;
 }
 
 bool jsval_to_uint32( JSContext *cx, JS::HandleValue vp, uint32_t *outval )
 {
-    *outval = (uint32_t)(vp.toInt32());
-    return true;
+    bool ok = vp.isInt32();
+    if (ok) {
+        *outval = (uint32_t)(vp.toInt32());
+    }
+    return ok;
 }
 
 bool jsval_to_uint16( JSContext *cx, JS::HandleValue vp, uint16_t *outval )
 {
-    *outval = (uint16_t)(vp.toInt32());
-    return true;
+    bool ok = vp.isInt32();
+    if (ok) {
+        *outval = (uint16_t)(vp.toInt32());
+    }
+    return ok;
+}
+
+bool jsval_to_bool( JSContext *cx, JS::HandleValue vp, bool *ret )
+{
+    bool ok = vp.isBoolean();
+    if (ok) {
+        *ret = vp.toBoolean();
+    }
+    return ok;
+}
+
+bool jsval_to_float( JSContext *cx, JS::HandleValue vp, float *ret )
+{
+    bool ok = vp.isNumber();
+    if (ok) {
+        *ret = (float)vp.toNumber();
+    }
+    return ok;
+}
+
+bool jsval_to_double( JSContext *cx, JS::HandleValue vp, double *ret )
+{
+    bool ok = vp.isNumber();
+    if (ok) {
+        *ret = vp.toNumber();
+    }
+    return ok;
 }
 
 // XXX: sizeof(long) == 8 in 64 bits on OS X... apparently on Windows it is 32 bits (???)
@@ -460,7 +475,8 @@ bool jsval_to_ccpoint(JSContext *cx, JS::HandleValue v, Point* ret) {
     bool ok = v.isObject() &&
     JS_ValueToObject(cx, v, &tmp) &&
     JS_GetProperty(cx, tmp, "x", &jsx) &&
-    JS_GetProperty(cx, tmp, "y", &jsy);
+    JS_GetProperty(cx, tmp, "y", &jsy) &&
+    jsx.isNumber() && jsy.isNumber();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
     
     double x = jsx.toNumber();
@@ -483,7 +499,8 @@ bool jsval_to_ccacceleration(JSContext* cx, JS::HandleValue v, Acceleration* ret
     JS_GetProperty(cx, tmp, "x", &jsx) &&
     JS_GetProperty(cx, tmp, "y", &jsy) &&
     JS_GetProperty(cx, tmp, "z", &jsz) &&
-    JS_GetProperty(cx, tmp, "timestamp", &jstimestamp);
+    JS_GetProperty(cx, tmp, "timestamp", &jstimestamp) &&
+    jsx.isNumber() && jsy.isNumber() && jsz.isNumber() && jstimestamp.isNumber();
 
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
@@ -507,7 +524,8 @@ bool jsval_to_quaternion( JSContext *cx, JS::HandleValue v, cocos2d::Quaternion*
         JS_GetProperty(cx, tmp, "x", &x) &&
         JS_GetProperty(cx, tmp, "y", &y) &&
         JS_GetProperty(cx, tmp, "z", &z) &&
-        JS_GetProperty(cx, tmp, "w", &w);
+        JS_GetProperty(cx, tmp, "w", &w) &&
+        x.isNumber() && y.isNumber() && z.isNumber() && w.isNumber();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
     
     double xx = x.toNumber();
@@ -534,39 +552,36 @@ bool jsval_to_TTFConfig(JSContext *cx, JS::HandleValue v, cocos2d::TTFConfig* re
     bool ok = jsv.isObject() && JS_ValueToObject(cx, jsv, &tmp);
     if (ok)
     {
-        if (JS_GetProperty(cx, tmp, "fontFilePath", &js_fontFilePath) && !js_fontFilePath.isUndefined())
+        if (JS_GetProperty(cx, tmp, "fontFilePath", &js_fontFilePath) && js_fontFilePath.isString())
         {
-            jsval_to_std_string(cx,js_fontFilePath,&ret->fontFilePath);
+            ok &= jsval_to_std_string(cx,js_fontFilePath,&ret->fontFilePath);
         }
         
-        if (JS_GetProperty(cx, tmp, "fontSize", &js_fontSize) && !js_fontSize.isUndefined())
+        if (JS_GetProperty(cx, tmp, "fontSize", &js_fontSize) && js_fontSize.isInt32())
         {
-            if (js_fontSize.isInt32())
-                ret->fontSize = js_fontSize.toInt32();
+            ret->fontSize = js_fontSize.toInt32();
         }
         
-        if (JS_GetProperty(cx, tmp, "outlineSize", &js_outlineSize) && !js_outlineSize.isUndefined())
+        if (JS_GetProperty(cx, tmp, "outlineSize", &js_outlineSize) && js_outlineSize.isInt32())
         {
-            if (js_outlineSize.isInt32())
-                ret->outlineSize = js_outlineSize.toInt32();
+            ret->outlineSize = js_outlineSize.toInt32();
         }
         
-        if (JS_GetProperty(cx, tmp, "glyphs", &js_glyphs) && !js_glyphs.isUndefined())
+        if (JS_GetProperty(cx, tmp, "glyphs", &js_glyphs) && js_glyphs.isInt32())
         {
-            if (js_glyphs.isInt32())
-                ret->glyphs = (GlyphCollection)(js_glyphs.toInt32());
+            ret->glyphs = (GlyphCollection)(js_glyphs.toInt32());
         }
         
-        if (JS_GetProperty(cx, tmp, "customGlyphs", &js_customGlyphs) && !js_customGlyphs.isUndefined())
+        if (JS_GetProperty(cx, tmp, "customGlyphs", &js_customGlyphs) && js_customGlyphs.isString())
         {
-            jsval_to_std_string(cx,js_customGlyphs,&customGlyphs);
+            ok &= jsval_to_std_string(cx,js_customGlyphs,&customGlyphs);
         }
         if(ret->glyphs == GlyphCollection::CUSTOM && !customGlyphs.empty())
             ret->customGlyphs = customGlyphs.c_str();
         else
             ret->customGlyphs = "";
         
-        if (JS_GetProperty(cx, tmp, "distanceFieldEnable", &js_distanceFieldEnable) && !js_distanceFieldEnable.isUndefined())
+        if (JS_GetProperty(cx, tmp, "distanceFieldEnable", &js_distanceFieldEnable) && js_distanceFieldEnable.isBoolean())
         {
             ret->distanceFieldEnabled = js_distanceFieldEnable.toBoolean();
         }
@@ -647,7 +662,8 @@ bool jsval_to_ccrect(JSContext *cx, JS::HandleValue v, Rect* ret) {
     JS_GetProperty(cx, tmp, "x", &jsx) &&
     JS_GetProperty(cx, tmp, "y", &jsy) &&
     JS_GetProperty(cx, tmp, "width", &jswidth) &&
-    JS_GetProperty(cx, tmp, "height", &jsheight);
+    JS_GetProperty(cx, tmp, "height", &jsheight) &&
+    jsx.isNumber() && jsy.isNumber() && jswidth.isNumber() && jsheight.isNumber();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
     ret->origin.x = jsx.toNumber();
@@ -664,9 +680,10 @@ bool jsval_to_ccsize(JSContext *cx, JS::HandleValue v, Size* ret) {
     bool ok = v.isObject() &&
     JS_ValueToObject(cx, v, &tmp) &&
     JS_GetProperty(cx, tmp, "width", &jsw) &&
-    JS_GetProperty(cx, tmp, "height", &jsh);
-
+    JS_GetProperty(cx, tmp, "height", &jsh) &&
+    jsw.isNumber() && jsh.isNumber();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
+    
     ret->width = jsw.toNumber();
     ret->height = jsh.toNumber();
     return true;
@@ -684,7 +701,8 @@ bool jsval_to_cccolor4b(JSContext *cx, JS::HandleValue v, Color4B* ret) {
     JS_GetProperty(cx, tmp, "r", &jsr) &&
     JS_GetProperty(cx, tmp, "g", &jsg) &&
     JS_GetProperty(cx, tmp, "b", &jsb) &&
-    JS_GetProperty(cx, tmp, "a", &jsa);
+    JS_GetProperty(cx, tmp, "a", &jsa) &&
+    jsr.isInt32() && jsg.isInt32() && jsb.isInt32() && jsa.isInt32();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
     ret->r = (GLubyte)(jsr.toInt32());
@@ -706,7 +724,8 @@ bool jsval_to_cccolor4f(JSContext *cx, JS::HandleValue v, Color4F* ret) {
     JS_GetProperty(cx, tmp, "r", &jsr) &&
     JS_GetProperty(cx, tmp, "g", &jsg) &&
     JS_GetProperty(cx, tmp, "b", &jsb) &&
-    JS_GetProperty(cx, tmp, "a", &jsa);
+    JS_GetProperty(cx, tmp, "a", &jsa) &&
+    jsr.isNumber() && jsg.isNumber() && jsb.isNumber() && jsa.isNumber();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
     
     ret->r = (float)(jsr.toNumber()) / 255;
@@ -725,7 +744,8 @@ bool jsval_to_cccolor3b(JSContext *cx, JS::HandleValue v, Color3B* ret) {
     JS_ValueToObject(cx, v, &tmp) &&
     JS_GetProperty(cx, tmp, "r", &jsr) &&
     JS_GetProperty(cx, tmp, "g", &jsg) &&
-    JS_GetProperty(cx, tmp, "b", &jsb);
+    JS_GetProperty(cx, tmp, "b", &jsb) &&
+    jsr.isInt32() && jsg.isInt32() && jsb.isInt32();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
     ret->r = (GLubyte)(jsr.toInt32());
@@ -1152,7 +1172,7 @@ bool jsval_to_std_vector_int( JSContext *cx, JS::HandleValue vp, std::vector<int
         JS::RootedValue value(cx);
         if (JS_GetElement(cx, jsobj, i, &value))
         {
-            if (value.isNumber())
+            if (value.isInt32())
             {
                 ret->push_back(value.toInt32());
             }
@@ -1254,7 +1274,8 @@ bool jsval_to_vector2(JSContext *cx, JS::HandleValue vp, cocos2d::Vec2* ret)
     bool ok = vp.isObject() &&
     JS_ValueToObject(cx, vp, &tmp) &&
     JS_GetProperty(cx, tmp, "x", &jsx) &&
-    JS_GetProperty(cx, tmp, "y", &jsy);
+    JS_GetProperty(cx, tmp, "y", &jsy) &&
+    jsx.isNumber() && jsy.isNumber();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
     ret->x = (float)(jsx.toNumber());
@@ -1272,7 +1293,8 @@ bool jsval_to_vector3(JSContext *cx, JS::HandleValue vp, cocos2d::Vec3* ret)
     JS_ValueToObject(cx, vp, &tmp) &&
     JS_GetProperty(cx, tmp, "x", &jsx) &&
     JS_GetProperty(cx, tmp, "y", &jsy) &&
-    JS_GetProperty(cx, tmp, "z", &jsz);
+    JS_GetProperty(cx, tmp, "z", &jsz) &&
+    jsx.isNumber() && jsy.isNumber() && jsz.isNumber();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
     ret->x = (float)(jsx.toNumber());
@@ -1293,7 +1315,8 @@ bool jsval_to_vector4(JSContext *cx, JS::HandleValue vp, cocos2d::Vec4* ret)
     JS_GetProperty(cx, tmp, "x", &jsx) &&
     JS_GetProperty(cx, tmp, "y", &jsy) &&
     JS_GetProperty(cx, tmp, "z", &jsz) &&
-    JS_GetProperty(cx, tmp, "w", &jsw);
+    JS_GetProperty(cx, tmp, "w", &jsw) &&
+    jsx.isNumber() && jsy.isNumber() && jsz.isNumber() && jsw.isNumber();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
     
     ret->x = (float)(jsx.toNumber());
@@ -1311,7 +1334,8 @@ bool jsval_to_blendfunc(JSContext *cx, JS::HandleValue vp, cocos2d::BlendFunc* r
     bool ok = vp.isObject() &&
     JS_ValueToObject(cx, vp, &tmp) &&
     JS_GetProperty(cx, tmp, "src", &jssrc) &&
-    JS_GetProperty(cx, tmp, "dst", &jsdst);
+    JS_GetProperty(cx, tmp, "dst", &jsdst) &&
+    jssrc.isInt32() && jsdst.isInt32();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
     ret->src = (unsigned int)(jssrc.toInt32());
@@ -1358,7 +1382,8 @@ bool jsval_to_cctex2f(JSContext* cx, JS::HandleValue vp, cocos2d::Tex2F* ret)
     bool ok = vp.isObject() &&
     JS_ValueToObject(cx, vp, &tmp) &&
     JS_GetProperty(cx, tmp, "u", &jsu) &&
-    JS_GetProperty(cx, tmp, "v", &jsv);
+    JS_GetProperty(cx, tmp, "v", &jsv) &&
+    jsu.isNumber() && jsv.isNumber();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
     
     ret->u = (GLfloat)(jsu.toNumber());
@@ -1531,7 +1556,8 @@ bool jsval_to_ccaffinetransform(JSContext* cx, JS::HandleValue v, AffineTransfor
     JS_GetProperty(cx, tmp, "c", &jsc) &&
     JS_GetProperty(cx, tmp, "d", &jsd) &&
     JS_GetProperty(cx, tmp, "tx", &jstx) &&
-    JS_GetProperty(cx, tmp, "ty", &jsty);
+    JS_GetProperty(cx, tmp, "ty", &jsty) &&
+    jstx.isNumber() && jsty.isNumber() && jsa.isNumber() && jsb.isNumber() && jsc.isNumber() && jsd.isNumber();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
     
     double a = jsa.toNumber();
@@ -1810,7 +1836,7 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
     if ( hasProperty )
     {
         JS_GetProperty(cx, jsobj, "fontSize", &jsr);
-        out->_fontSize  = jsr.toNumber();
+        out->_fontSize  = jsr.isNumber() ? jsr.toNumber() : defaultFontSize;
     }
     else
     {
@@ -1822,7 +1848,7 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
     if ( hasProperty )
     {
         JS_GetProperty(cx, jsobj, "textAlign", &jsr);
-        out->_alignment = (TextHAlignment)(jsr.toInt32());
+        out->_alignment = jsr.isInt32() ? (TextHAlignment)(jsr.toInt32()) : defaultTextAlignment;
     }
     else
     {
@@ -1834,7 +1860,7 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
     if ( hasProperty )
     {
         JS_GetProperty(cx, jsobj, "verticalAlign", &jsr);
-        out->_vertAlignment = (TextVAlignment)(jsr.toInt32());
+        out->_vertAlignment = jsr.isInt32() ? (TextVAlignment)(jsr.toInt32()) : defaultTextVAlignment;
     }
     else
     {
@@ -1846,13 +1872,7 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
     if ( hasProperty )
     {
         JS_GetProperty(cx, jsobj, "fillStyle", &jsr);
-
-        JS::RootedObject jsobjColor(cx);
-        JS::RootedValue jsvalColor(cx, jsr);
-        if (!JS_ValueToObject( cx, jsvalColor, &jsobjColor ) )
-            return false;
-
-        out->_fontFillColor = getColorFromJSObject(cx, jsobjColor);
+        jsval_to_cccolor3b(cx, jsr, &out->_fontFillColor);
     }
 
     // font rendering box dimensions
@@ -1861,10 +1881,10 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
     if ( hasProperty && hasSecondProp )
     {
         JS_GetProperty(cx, jsobj, "boundingWidth", &jsr);
-        double boundingW = jsr.toNumber();
+        double boundingW = jsr.isNumber() ? jsr.toNumber() : 0;
 
         JS_GetProperty(cx, jsobj, "boundingHeight", &jsr);
-        double boundingH = jsr.toNumber();
+        double boundingH = jsr.isNumber() ? jsr.toNumber() : 0;
 
         Size dimension;
         dimension.width = boundingW;
@@ -1877,7 +1897,7 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
     if ( hasProperty )
     {
         JS_GetProperty(cx, jsobj, "shadowEnabled", &jsr);
-        out->_shadow._shadowEnabled  = jsr.toBoolean();
+        out->_shadow._shadowEnabled = jsr.isBoolean() ? jsr.toBoolean() : false;
 
         if ( out->_shadow._shadowEnabled )
         {
@@ -1892,10 +1912,10 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
             if ( hasProperty && hasSecondProp )
             {
                 JS_GetProperty(cx, jsobj, "shadowOffsetX", &jsr);
-                double offx = jsr.toNumber();
+                double offx = jsr.isNumber() ? jsr.toNumber() : 0;
                 
                 JS_GetProperty(cx, jsobj, "shadowOffsetY", &jsr);
-                double offy = jsr.toNumber();
+                double offy = jsr.isNumber() ? jsr.toNumber() : 0;
 
                 Size offset;
                 offset.width = offx;
@@ -1908,7 +1928,7 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
             if ( hasProperty )
             {
                 JS_GetProperty(cx, jsobj, "shadowBlur", &jsr);
-                double shadowBlur = jsr.toNumber();
+                double shadowBlur = jsr.isNumber() ? jsr.toNumber() : 0;
                 out->_shadow._shadowBlur = shadowBlur;
             }
 
@@ -1917,7 +1937,7 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
             if ( hasProperty )
             {
                 JS_GetProperty(cx, jsobj, "shadowOpacity", &jsr);
-                double shadowOpacity = jsr.toNumber();
+                double shadowOpacity = jsr.isNumber() ? jsr.toNumber() : 0;
                 out->_shadow._shadowOpacity = shadowOpacity;
             }
         }
@@ -1928,7 +1948,7 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
     if ( hasProperty )
     {
         JS_GetProperty(cx, jsobj, "strokeEnabled", &jsr);
-        out->_stroke._strokeEnabled  = jsr.toBoolean();
+        out->_stroke._strokeEnabled = jsr.isBoolean() ? jsr.toBoolean() : false;
 
         if ( out->_stroke._strokeEnabled )
         {
@@ -1941,11 +1961,7 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
             if ( hasProperty )
             {
                 JS_GetProperty(cx, jsobj, "strokeStyle", &jsr);
-
-                JS::RootedObject jsobjStrokeColor(cx);
-                if (!JS_ValueToObject( cx, jsr, &jsobjStrokeColor ) )
-                    return false;
-                out->_stroke._strokeColor = getColorFromJSObject(cx, jsobjStrokeColor);
+                jsval_to_cccolor3b(cx, jsr, &out->_stroke._strokeColor);
             }
 
             // stroke size
@@ -1953,7 +1969,7 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
             if ( hasProperty )
             {
                 JS_GetProperty(cx, jsobj, "lineWidth", &jsr);
-                double strokeSize = jsr.toNumber();
+                double strokeSize = jsr.isNumber() ? jsr.toNumber() : 0;
                 out->_stroke._strokeSize = strokeSize;
             }
         }
@@ -1976,8 +1992,8 @@ bool jsval_to_CCPoint( JSContext *cx, JS::HandleValue vp, Point *ret )
     JS::RootedValue valx(cx);
     JS::RootedValue valy(cx);
     bool ok = true;
-    ok &= JS_GetProperty(cx, jsobj, "x", &valx);
-    ok &= JS_GetProperty(cx, jsobj, "y", &valy);
+    ok &= JS_GetProperty(cx, jsobj, "x", &valx) && valx.isNumber();
+    ok &= JS_GetProperty(cx, jsobj, "y", &valy) && valy.isNumber();
 
     if( ! ok )
         return false;
@@ -2366,7 +2382,8 @@ bool jsval_to_resourcedata(JSContext *cx, JS::HandleValue v, ResourceData* ret) 
         JS_GetProperty(cx, tmp, "name", &jsfile) &&
         JS_GetProperty(cx, tmp, "plist", &jsplist) &&
         jsval_to_std_string(cx, jsfile, &file) &&
-        jsval_to_std_string(cx, jsplist, &plist);
+        jsval_to_std_string(cx, jsplist, &plist) &&
+        jstype.isInt32();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
     ret->type = jstype.toInt32();

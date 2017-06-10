@@ -655,7 +655,7 @@ JS_BINDED_PROP_GET_IMPL(MinXmlHttpRequest, withCredentials)
 JS_BINDED_PROP_SET_IMPL(MinXmlHttpRequest, withCredentials)
 {
     JS::RootedValue credential(cx, args.get(0));
-    if (!credential.isNullOrUndefined())
+    if (credential.isBoolean())
     {
         _withCredentialsValue = credential.toBoolean();
     }
@@ -756,7 +756,7 @@ JS_BINDED_FUNC_IMPL(MinXmlHttpRequest, open)
         JSString* jsMethod = args.get(0).toString();
         JSString* jsURL = args.get(1).toString();
 
-        if (argc > 2) {
+        if (argc > 2 && args.get(2).isBoolean()) {
             async = args.get(2).toBoolean();
         }
 

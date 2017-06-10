@@ -64,7 +64,7 @@ bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, JS::Valu
         }
     } while(0);
 
-    JS_ReportErrorUTF8(cx, "js_creator_Scale9SpriteV2_setTexture : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_creator_Scale9SpriteV2_setTexture : arguments error");
     return false;
 }
 bool js_creator_Scale9SpriteV2_getFillType(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -156,8 +156,8 @@ bool js_creator_Scale9SpriteV2_setInsetBottom(JSContext *cx, uint32_t argc, JS::
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setInsetBottom : Invalid Native Object");
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_setInsetBottom : Error processing arguments");
         cobj->setInsetBottom(arg0);
         args.rval().setUndefined();
@@ -176,8 +176,8 @@ bool js_creator_Scale9SpriteV2_setFillRange(JSContext *cx, uint32_t argc, JS::Va
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setFillRange : Invalid Native Object");
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_setFillRange : Error processing arguments");
         cobj->setFillRange(arg0);
         args.rval().setUndefined();
@@ -196,7 +196,7 @@ bool js_creator_Scale9SpriteV2_getFillStart(JSContext *cx, uint32_t argc, JS::Va
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_getFillStart : Invalid Native Object");
     if (argc == 0) {
-        double ret = cobj->getFillStart();
+        float ret = cobj->getFillStart();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_getFillStart : error parsing return value");
@@ -216,7 +216,7 @@ bool js_creator_Scale9SpriteV2_getFillRange(JSContext *cx, uint32_t argc, JS::Va
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_getFillRange : Invalid Native Object");
     if (argc == 0) {
-        double ret = cobj->getFillRange();
+        float ret = cobj->getFillRange();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_getFillRange : error parsing return value");
@@ -236,8 +236,8 @@ bool js_creator_Scale9SpriteV2_setInsetTop(JSContext *cx, uint32_t argc, JS::Val
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setInsetTop : Invalid Native Object");
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_setInsetTop : Error processing arguments");
         cobj->setInsetTop(arg0);
         args.rval().setUndefined();
@@ -301,11 +301,11 @@ bool js_creator_Scale9SpriteV2_setFillCenter(JSContext *cx, uint32_t argc, JS::V
     do {
         ok = true;
         if (argc == 2) {
-            double arg0 = 0;
-            arg0 = (float)(args.get(0).toNumber());
+            float arg0 = 0;
+            ok &= jsval_to_float(cx, args.get(0), &arg0);
             if (!ok) { ok = true; break; }
-            double arg1 = 0;
-            arg1 = (float)(args.get(1).toNumber());
+            float arg1 = 0;
+            ok &= jsval_to_float(cx, args.get(1), &arg1);
             if (!ok) { ok = true; break; }
             cobj->setFillCenter(arg0, arg1);
             args.rval().setUndefined();
@@ -325,7 +325,7 @@ bool js_creator_Scale9SpriteV2_setFillCenter(JSContext *cx, uint32_t argc, JS::V
         }
     } while(0);
 
-    JS_ReportErrorUTF8(cx, "js_creator_Scale9SpriteV2_setFillCenter : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_creator_Scale9SpriteV2_setFillCenter : arguments error");
     return false;
 }
 bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -377,7 +377,7 @@ bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, JS::
         }
     } while(0);
 
-    JS_ReportErrorUTF8(cx, "js_creator_Scale9SpriteV2_setSpriteFrame : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_creator_Scale9SpriteV2_setSpriteFrame : arguments error");
     return false;
 }
 bool js_creator_Scale9SpriteV2_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -449,7 +449,7 @@ bool js_creator_Scale9SpriteV2_initWithTexture(JSContext *cx, uint32_t argc, JS:
         }
     } while(0);
 
-    JS_ReportErrorUTF8(cx, "js_creator_Scale9SpriteV2_initWithTexture : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_creator_Scale9SpriteV2_initWithTexture : arguments error");
     return false;
 }
 bool js_creator_Scale9SpriteV2_getInsetLeft(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -461,7 +461,7 @@ bool js_creator_Scale9SpriteV2_getInsetLeft(JSContext *cx, uint32_t argc, JS::Va
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_getInsetLeft : Invalid Native Object");
     if (argc == 0) {
-        double ret = cobj->getInsetLeft();
+        float ret = cobj->getInsetLeft();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_getInsetLeft : error parsing return value");
@@ -481,7 +481,7 @@ bool js_creator_Scale9SpriteV2_getInsetBottom(JSContext *cx, uint32_t argc, JS::
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_getInsetBottom : Invalid Native Object");
     if (argc == 0) {
-        double ret = cobj->getInsetBottom();
+        float ret = cobj->getInsetBottom();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_getInsetBottom : error parsing return value");
@@ -541,8 +541,8 @@ bool js_creator_Scale9SpriteV2_setFillStart(JSContext *cx, uint32_t argc, JS::Va
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setFillStart : Invalid Native Object");
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_setFillStart : Error processing arguments");
         cobj->setFillStart(arg0);
         args.rval().setUndefined();
@@ -561,7 +561,7 @@ bool js_creator_Scale9SpriteV2_getInsetRight(JSContext *cx, uint32_t argc, JS::V
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_getInsetRight : Invalid Native Object");
     if (argc == 0) {
-        double ret = cobj->getInsetRight();
+        float ret = cobj->getInsetRight();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_getInsetRight : error parsing return value");
@@ -587,10 +587,10 @@ bool js_creator_Scale9SpriteV2_setBlendFunc(JSContext *cx, uint32_t argc, JS::Va
         ok = true;
         if (argc == 2) {
             unsigned int arg0 = 0;
-            arg0 = (uint32_t)(args.get(0).toInt32());
+            ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
             if (!ok) { ok = true; break; }
             unsigned int arg1 = 0;
-            arg1 = (uint32_t)(args.get(1).toInt32());
+            ok &= jsval_to_int32(cx, args.get(1), (int32_t *)&arg1);
             if (!ok) { ok = true; break; }
             cobj->setBlendFunc(arg0, arg1);
             args.rval().setUndefined();
@@ -610,7 +610,7 @@ bool js_creator_Scale9SpriteV2_setBlendFunc(JSContext *cx, uint32_t argc, JS::Va
         }
     } while(0);
 
-    JS_ReportErrorUTF8(cx, "js_creator_Scale9SpriteV2_setBlendFunc : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_creator_Scale9SpriteV2_setBlendFunc : arguments error");
     return false;
 }
 bool js_creator_Scale9SpriteV2_getFillCenter(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -642,7 +642,7 @@ bool js_creator_Scale9SpriteV2_getInsetTop(JSContext *cx, uint32_t argc, JS::Val
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_getInsetTop : Invalid Native Object");
     if (argc == 0) {
-        double ret = cobj->getInsetTop();
+        float ret = cobj->getInsetTop();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_getInsetTop : error parsing return value");
@@ -662,8 +662,8 @@ bool js_creator_Scale9SpriteV2_setInsetLeft(JSContext *cx, uint32_t argc, JS::Va
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setInsetLeft : Invalid Native Object");
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_setInsetLeft : Error processing arguments");
         cobj->setInsetLeft(arg0);
         args.rval().setUndefined();
@@ -722,7 +722,7 @@ bool js_creator_Scale9SpriteV2_initWithSpriteFrame(JSContext *cx, uint32_t argc,
         }
     } while(0);
 
-    JS_ReportErrorUTF8(cx, "js_creator_Scale9SpriteV2_initWithSpriteFrame : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_creator_Scale9SpriteV2_initWithSpriteFrame : arguments error");
     return false;
 }
 bool js_creator_Scale9SpriteV2_setFillType(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -754,8 +754,8 @@ bool js_creator_Scale9SpriteV2_setInsetRight(JSContext *cx, uint32_t argc, JS::V
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2 *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setInsetRight : Invalid Native Object");
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_setInsetRight : Error processing arguments");
         cobj->setInsetRight(arg0);
         args.rval().setUndefined();
@@ -775,7 +775,7 @@ bool js_creator_Scale9SpriteV2_enableTrimmedContentSize(JSContext *cx, uint32_t 
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_enableTrimmedContentSize : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = args.get(0).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_enableTrimmedContentSize : Error processing arguments");
         cobj->enableTrimmedContentSize(arg0);
         args.rval().setUndefined();
@@ -910,14 +910,14 @@ bool js_creator_GraphicsNode_quadraticCurveTo(JSContext *cx, uint32_t argc, JS::
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_quadraticCurveTo : Invalid Native Object");
     if (argc == 4) {
-        double arg0 = 0;
-        double arg1 = 0;
-        double arg2 = 0;
-        double arg3 = 0;
-        arg0 = (float)(args.get(0).toNumber());
-        arg1 = (float)(args.get(1).toNumber());
-        arg2 = (float)(args.get(2).toNumber());
-        arg3 = (float)(args.get(3).toNumber());
+        float arg0 = 0;
+        float arg1 = 0;
+        float arg2 = 0;
+        float arg3 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
+        ok &= jsval_to_float(cx, args.get(2), &arg2);
+        ok &= jsval_to_float(cx, args.get(3), &arg3);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_quadraticCurveTo : Error processing arguments");
         cobj->quadraticCurveTo(arg0, arg1, arg2, arg3);
         args.rval().setUndefined();
@@ -936,10 +936,10 @@ bool js_creator_GraphicsNode_moveTo(JSContext *cx, uint32_t argc, JS::Value *vp)
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_moveTo : Invalid Native Object");
     if (argc == 2) {
-        double arg0 = 0;
-        double arg1 = 0;
-        arg0 = (float)(args.get(0).toNumber());
-        arg1 = (float)(args.get(1).toNumber());
+        float arg0 = 0;
+        float arg1 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_moveTo : Error processing arguments");
         cobj->moveTo(arg0, arg1);
         args.rval().setUndefined();
@@ -958,10 +958,10 @@ bool js_creator_GraphicsNode_lineTo(JSContext *cx, uint32_t argc, JS::Value *vp)
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_lineTo : Invalid Native Object");
     if (argc == 2) {
-        double arg0 = 0;
-        double arg1 = 0;
-        arg0 = (float)(args.get(0).toNumber());
-        arg1 = (float)(args.get(1).toNumber());
+        float arg0 = 0;
+        float arg1 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_lineTo : Error processing arguments");
         cobj->lineTo(arg0, arg1);
         args.rval().setUndefined();
@@ -996,18 +996,18 @@ bool js_creator_GraphicsNode_arc(JSContext *cx, uint32_t argc, JS::Value *vp)
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_arc : Invalid Native Object");
     if (argc == 6) {
-        double arg0 = 0;
-        double arg1 = 0;
-        double arg2 = 0;
-        double arg3 = 0;
-        double arg4 = 0;
+        float arg0 = 0;
+        float arg1 = 0;
+        float arg2 = 0;
+        float arg3 = 0;
+        float arg4 = 0;
         bool arg5;
-        arg0 = (float)(args.get(0).toNumber());
-        arg1 = (float)(args.get(1).toNumber());
-        arg2 = (float)(args.get(2).toNumber());
-        arg3 = (float)(args.get(3).toNumber());
-        arg4 = (float)(args.get(4).toNumber());
-        arg5 = args.get(5).toBoolean();
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
+        ok &= jsval_to_float(cx, args.get(2), &arg2);
+        ok &= jsval_to_float(cx, args.get(3), &arg3);
+        ok &= jsval_to_float(cx, args.get(4), &arg4);
+        ok &= jsval_to_bool(cx, args.get(5), &arg5);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_arc : Error processing arguments");
         cobj->arc(arg0, arg1, arg2, arg3, arg4, arg5);
         args.rval().setUndefined();
@@ -1062,14 +1062,14 @@ bool js_creator_GraphicsNode_ellipse(JSContext *cx, uint32_t argc, JS::Value *vp
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_ellipse : Invalid Native Object");
     if (argc == 4) {
-        double arg0 = 0;
-        double arg1 = 0;
-        double arg2 = 0;
-        double arg3 = 0;
-        arg0 = (float)(args.get(0).toNumber());
-        arg1 = (float)(args.get(1).toNumber());
-        arg2 = (float)(args.get(2).toNumber());
-        arg3 = (float)(args.get(3).toNumber());
+        float arg0 = 0;
+        float arg1 = 0;
+        float arg2 = 0;
+        float arg3 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
+        ok &= jsval_to_float(cx, args.get(2), &arg2);
+        ok &= jsval_to_float(cx, args.get(3), &arg3);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_ellipse : Error processing arguments");
         cobj->ellipse(arg0, arg1, arg2, arg3);
         args.rval().setUndefined();
@@ -1088,8 +1088,8 @@ bool js_creator_GraphicsNode_setLineWidth(JSContext *cx, uint32_t argc, JS::Valu
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_setLineWidth : Invalid Native Object");
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_setLineWidth : Error processing arguments");
         cobj->setLineWidth(arg0);
         args.rval().setUndefined();
@@ -1164,12 +1164,12 @@ bool js_creator_GraphicsNode_circle(JSContext *cx, uint32_t argc, JS::Value *vp)
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_circle : Invalid Native Object");
     if (argc == 3) {
-        double arg0 = 0;
-        double arg1 = 0;
-        double arg2 = 0;
-        arg0 = (float)(args.get(0).toNumber());
-        arg1 = (float)(args.get(1).toNumber());
-        arg2 = (float)(args.get(2).toNumber());
+        float arg0 = 0;
+        float arg1 = 0;
+        float arg2 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
+        ok &= jsval_to_float(cx, args.get(2), &arg2);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_circle : Error processing arguments");
         cobj->circle(arg0, arg1, arg2);
         args.rval().setUndefined();
@@ -1188,16 +1188,16 @@ bool js_creator_GraphicsNode_roundRect(JSContext *cx, uint32_t argc, JS::Value *
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_roundRect : Invalid Native Object");
     if (argc == 5) {
-        double arg0 = 0;
-        double arg1 = 0;
-        double arg2 = 0;
-        double arg3 = 0;
-        double arg4 = 0;
-        arg0 = (float)(args.get(0).toNumber());
-        arg1 = (float)(args.get(1).toNumber());
-        arg2 = (float)(args.get(2).toNumber());
-        arg3 = (float)(args.get(3).toNumber());
-        arg4 = (float)(args.get(4).toNumber());
+        float arg0 = 0;
+        float arg1 = 0;
+        float arg2 = 0;
+        float arg3 = 0;
+        float arg4 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
+        ok &= jsval_to_float(cx, args.get(2), &arg2);
+        ok &= jsval_to_float(cx, args.get(3), &arg3);
+        ok &= jsval_to_float(cx, args.get(4), &arg4);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_roundRect : Error processing arguments");
         cobj->roundRect(arg0, arg1, arg2, arg3, arg4);
         args.rval().setUndefined();
@@ -1229,7 +1229,7 @@ bool js_creator_GraphicsNode_draw(JSContext *cx, uint32_t argc, JS::Value *vp)
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
         ok &= jsval_to_matrix(cx, args.get(1), &arg1);
-        arg2 = (uint32_t)(args.get(2).toInt32());
+        ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_draw : Error processing arguments");
         cobj->draw(arg0, arg1, arg2);
         args.rval().setUndefined();
@@ -1248,18 +1248,18 @@ bool js_creator_GraphicsNode_bezierCurveTo(JSContext *cx, uint32_t argc, JS::Val
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_bezierCurveTo : Invalid Native Object");
     if (argc == 6) {
-        double arg0 = 0;
-        double arg1 = 0;
-        double arg2 = 0;
-        double arg3 = 0;
-        double arg4 = 0;
-        double arg5 = 0;
-        arg0 = (float)(args.get(0).toNumber());
-        arg1 = (float)(args.get(1).toNumber());
-        arg2 = (float)(args.get(2).toNumber());
-        arg3 = (float)(args.get(3).toNumber());
-        arg4 = (float)(args.get(4).toNumber());
-        arg5 = (float)(args.get(5).toNumber());
+        float arg0 = 0;
+        float arg1 = 0;
+        float arg2 = 0;
+        float arg3 = 0;
+        float arg4 = 0;
+        float arg5 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
+        ok &= jsval_to_float(cx, args.get(2), &arg2);
+        ok &= jsval_to_float(cx, args.get(3), &arg3);
+        ok &= jsval_to_float(cx, args.get(4), &arg4);
+        ok &= jsval_to_float(cx, args.get(5), &arg5);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_bezierCurveTo : Error processing arguments");
         cobj->bezierCurveTo(arg0, arg1, arg2, arg3, arg4, arg5);
         args.rval().setUndefined();
@@ -1278,16 +1278,16 @@ bool js_creator_GraphicsNode_arcTo(JSContext *cx, uint32_t argc, JS::Value *vp)
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_arcTo : Invalid Native Object");
     if (argc == 5) {
-        double arg0 = 0;
-        double arg1 = 0;
-        double arg2 = 0;
-        double arg3 = 0;
-        double arg4 = 0;
-        arg0 = (float)(args.get(0).toNumber());
-        arg1 = (float)(args.get(1).toNumber());
-        arg2 = (float)(args.get(2).toNumber());
-        arg3 = (float)(args.get(3).toNumber());
-        arg4 = (float)(args.get(4).toNumber());
+        float arg0 = 0;
+        float arg1 = 0;
+        float arg2 = 0;
+        float arg3 = 0;
+        float arg4 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
+        ok &= jsval_to_float(cx, args.get(2), &arg2);
+        ok &= jsval_to_float(cx, args.get(3), &arg3);
+        ok &= jsval_to_float(cx, args.get(4), &arg4);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_arcTo : Error processing arguments");
         cobj->arcTo(arg0, arg1, arg2, arg3, arg4);
         args.rval().setUndefined();
@@ -1306,14 +1306,14 @@ bool js_creator_GraphicsNode_fillRect(JSContext *cx, uint32_t argc, JS::Value *v
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_fillRect : Invalid Native Object");
     if (argc == 4) {
-        double arg0 = 0;
-        double arg1 = 0;
-        double arg2 = 0;
-        double arg3 = 0;
-        arg0 = (float)(args.get(0).toNumber());
-        arg1 = (float)(args.get(1).toNumber());
-        arg2 = (float)(args.get(2).toNumber());
-        arg3 = (float)(args.get(3).toNumber());
+        float arg0 = 0;
+        float arg1 = 0;
+        float arg2 = 0;
+        float arg3 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
+        ok &= jsval_to_float(cx, args.get(2), &arg2);
+        ok &= jsval_to_float(cx, args.get(3), &arg3);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_fillRect : Error processing arguments");
         cobj->fillRect(arg0, arg1, arg2, arg3);
         args.rval().setUndefined();
@@ -1335,7 +1335,7 @@ bool js_creator_GraphicsNode_onDraw(JSContext *cx, uint32_t argc, JS::Value *vp)
         cocos2d::Mat4 arg0;
         unsigned int arg1 = 0;
         ok &= jsval_to_matrix(cx, args.get(0), &arg0);
-        arg1 = (uint32_t)(args.get(1).toInt32());
+        ok &= jsval_to_int32(cx, args.get(1), (int32_t *)&arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_onDraw : Error processing arguments");
         cobj->onDraw(arg0, arg1);
         args.rval().setUndefined();
@@ -1410,8 +1410,8 @@ bool js_creator_GraphicsNode_setDeviceRatio(JSContext *cx, uint32_t argc, JS::Va
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_setDeviceRatio : Invalid Native Object");
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_setDeviceRatio : Error processing arguments");
         cobj->setDeviceRatio(arg0);
         args.rval().setUndefined();
@@ -1430,14 +1430,14 @@ bool js_creator_GraphicsNode_rect(JSContext *cx, uint32_t argc, JS::Value *vp)
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_rect : Invalid Native Object");
     if (argc == 4) {
-        double arg0 = 0;
-        double arg1 = 0;
-        double arg2 = 0;
-        double arg3 = 0;
-        arg0 = (float)(args.get(0).toNumber());
-        arg1 = (float)(args.get(1).toNumber());
-        arg2 = (float)(args.get(2).toNumber());
-        arg3 = (float)(args.get(3).toNumber());
+        float arg0 = 0;
+        float arg1 = 0;
+        float arg2 = 0;
+        float arg3 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
+        ok &= jsval_to_float(cx, args.get(2), &arg2);
+        ok &= jsval_to_float(cx, args.get(3), &arg3);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_rect : Error processing arguments");
         cobj->rect(arg0, arg1, arg2, arg3);
         args.rval().setUndefined();
@@ -1456,7 +1456,7 @@ bool js_creator_GraphicsNode_getMiterLimit(JSContext *cx, uint32_t argc, JS::Val
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_getMiterLimit : Invalid Native Object");
     if (argc == 0) {
-        double ret = cobj->getMiterLimit();
+        float ret = cobj->getMiterLimit();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_getMiterLimit : error parsing return value");
@@ -1516,8 +1516,8 @@ bool js_creator_GraphicsNode_setMiterLimit(JSContext *cx, uint32_t argc, JS::Val
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_setMiterLimit : Invalid Native Object");
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_setMiterLimit : Error processing arguments");
         cobj->setMiterLimit(arg0);
         args.rval().setUndefined();
@@ -1542,7 +1542,7 @@ bool js_creator_GraphicsNode_clear(JSContext *cx, uint32_t argc, JS::Value *vp)
     }
     if (argc == 1) {
         bool arg0;
-        arg0 = args.get(0).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_clear : Error processing arguments");
         cobj->clear(arg0);
         args.rval().setUndefined();
@@ -1561,7 +1561,7 @@ bool js_creator_GraphicsNode_getDeviceRatio(JSContext *cx, uint32_t argc, JS::Va
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_getDeviceRatio : Invalid Native Object");
     if (argc == 0) {
-        double ret = cobj->getDeviceRatio();
+        float ret = cobj->getDeviceRatio();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_getDeviceRatio : error parsing return value");
@@ -1581,7 +1581,7 @@ bool js_creator_GraphicsNode_getLineWidth(JSContext *cx, uint32_t argc, JS::Valu
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_getLineWidth : Invalid Native Object");
     if (argc == 0) {
-        double ret = cobj->getLineWidth();
+        float ret = cobj->getLineWidth();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_getLineWidth : error parsing return value");
@@ -1923,7 +1923,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getSeparation(JSContext *cx, uint32_
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getSeparation : Error processing arguments");
-        double ret = cobj->getSeparation(arg0);
+        float ret = cobj->getSeparation(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getSeparation : error parsing return value");
@@ -1946,7 +1946,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getX(JSContext *cx, uint32_t argc, J
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getX : Error processing arguments");
-        double ret = cobj->getX(arg0);
+        float ret = cobj->getX(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getX : error parsing return value");
@@ -1969,7 +1969,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getY(JSContext *cx, uint32_t argc, J
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getY : Error processing arguments");
-        double ret = cobj->getY(arg0);
+        float ret = cobj->getY(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getY : error parsing return value");
@@ -2009,7 +2009,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getNormalY(JSContext *cx, uint32_t a
     creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getNormalY : Invalid Native Object");
     if (argc == 0) {
-        double ret = cobj->getNormalY();
+        float ret = cobj->getNormalY();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getNormalY : error parsing return value");
@@ -2029,7 +2029,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getNormalX(JSContext *cx, uint32_t a
     creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getNormalX : Invalid Native Object");
     if (argc == 0) {
-        double ret = cobj->getNormalX();
+        float ret = cobj->getNormalX();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsWorldManifoldWrapper_getNormalX : error parsing return value");
@@ -2375,7 +2375,7 @@ bool js_creator_PhysicsContactImpulse_getNormalImpulse(JSContext *cx, uint32_t a
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsContactImpulse_getNormalImpulse : Error processing arguments");
-        double ret = cobj->getNormalImpulse(arg0);
+        float ret = cobj->getNormalImpulse(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsContactImpulse_getNormalImpulse : error parsing return value");
@@ -2398,7 +2398,7 @@ bool js_creator_PhysicsContactImpulse_getTangentImpulse(JSContext *cx, uint32_t 
         int arg0 = 0;
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsContactImpulse_getTangentImpulse : Error processing arguments");
-        double ret = cobj->getTangentImpulse(arg0);
+        float ret = cobj->getTangentImpulse(arg0);
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_PhysicsContactImpulse_getTangentImpulse : error parsing return value");
@@ -2652,7 +2652,7 @@ bool js_creator_PhysicsAABBQueryCallback_init(JSContext *cx, uint32_t argc, JS::
         }
     } while(0);
 
-    JS_ReportErrorUTF8(cx, "js_creator_PhysicsAABBQueryCallback_init : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsAABBQueryCallback_init : arguments error");
     return false;
 }
 bool js_creator_PhysicsAABBQueryCallback_getFixture(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -2955,18 +2955,18 @@ bool js_creator_CameraNode_setTransform(JSContext *cx, uint32_t argc, JS::Value 
     creator::CameraNode* cobj = (creator::CameraNode *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_CameraNode_setTransform : Invalid Native Object");
     if (argc == 6) {
-        double arg0 = 0;
-        double arg1 = 0;
-        double arg2 = 0;
-        double arg3 = 0;
-        double arg4 = 0;
-        double arg5 = 0;
-        arg0 = (float)(args.get(0).toNumber());
-        arg1 = (float)(args.get(1).toNumber());
-        arg2 = (float)(args.get(2).toNumber());
-        arg3 = (float)(args.get(3).toNumber());
-        arg4 = (float)(args.get(4).toNumber());
-        arg5 = (float)(args.get(5).toNumber());
+        float arg0 = 0;
+        float arg1 = 0;
+        float arg2 = 0;
+        float arg3 = 0;
+        float arg4 = 0;
+        float arg5 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
+        ok &= jsval_to_float(cx, args.get(2), &arg2);
+        ok &= jsval_to_float(cx, args.get(3), &arg3);
+        ok &= jsval_to_float(cx, args.get(4), &arg4);
+        ok &= jsval_to_float(cx, args.get(5), &arg5);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_CameraNode_setTransform : Error processing arguments");
         cobj->setTransform(arg0, arg1, arg2, arg3, arg4, arg5);
         args.rval().setUndefined();

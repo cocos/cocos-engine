@@ -150,8 +150,8 @@ bool js_cocos2dx_dragonbones_Matrix_set_a(JSContext *cx, uint32_t argc, JS::Valu
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Matrix_set_a : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Matrix_set_a : Error processing new value");
     cobj->a = arg0;
     return true;
@@ -180,8 +180,8 @@ bool js_cocos2dx_dragonbones_Matrix_set_b(JSContext *cx, uint32_t argc, JS::Valu
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Matrix_set_b : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Matrix_set_b : Error processing new value");
     cobj->b = arg0;
     return true;
@@ -210,8 +210,8 @@ bool js_cocos2dx_dragonbones_Matrix_set_c(JSContext *cx, uint32_t argc, JS::Valu
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Matrix_set_c : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Matrix_set_c : Error processing new value");
     cobj->c = arg0;
     return true;
@@ -240,8 +240,8 @@ bool js_cocos2dx_dragonbones_Matrix_set_d(JSContext *cx, uint32_t argc, JS::Valu
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Matrix_set_d : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Matrix_set_d : Error processing new value");
     cobj->d = arg0;
     return true;
@@ -270,8 +270,8 @@ bool js_cocos2dx_dragonbones_Matrix_set_tx(JSContext *cx, uint32_t argc, JS::Val
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Matrix_set_tx : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Matrix_set_tx : Error processing new value");
     cobj->tx = arg0;
     return true;
@@ -300,8 +300,8 @@ bool js_cocos2dx_dragonbones_Matrix_set_ty(JSContext *cx, uint32_t argc, JS::Val
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Matrix_set_ty : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Matrix_set_ty : Error processing new value");
     cobj->ty = arg0;
     return true;
@@ -405,7 +405,7 @@ bool js_cocos2dx_dragonbones_Transform_getRotation(JSContext *cx, uint32_t argc,
     dragonBones::Transform* cobj = (dragonBones::Transform *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Transform_getRotation : Invalid Native Object");
     if (argc == 0) {
-        double ret = cobj->getRotation();
+        float ret = cobj->getRotation();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Transform_getRotation : error parsing return value");
@@ -425,8 +425,8 @@ bool js_cocos2dx_dragonbones_Transform_setRotation(JSContext *cx, uint32_t argc,
     dragonBones::Transform* cobj = (dragonBones::Transform *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Transform_setRotation : Invalid Native Object");
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Transform_setRotation : Error processing arguments");
         cobj->setRotation(arg0);
         args.rval().setUndefined();
@@ -441,11 +441,11 @@ bool js_cocos2dx_dragonbones_Transform_normalizeRadian(JSContext *cx, uint32_t a
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true; CC_UNUSED_PARAM(ok);
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Transform_normalizeRadian : Error processing arguments");
 
-        double ret = dragonBones::Transform::normalizeRadian(arg0);
+        float ret = dragonBones::Transform::normalizeRadian(arg0);
         JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Transform_normalizeRadian : error parsing return value");
@@ -480,8 +480,8 @@ bool js_cocos2dx_dragonbones_Transform_set_x(JSContext *cx, uint32_t argc, JS::V
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Transform_set_x : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Transform_set_x : Error processing new value");
     cobj->x = arg0;
     return true;
@@ -510,8 +510,8 @@ bool js_cocos2dx_dragonbones_Transform_set_y(JSContext *cx, uint32_t argc, JS::V
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Transform_set_y : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Transform_set_y : Error processing new value");
     cobj->y = arg0;
     return true;
@@ -540,8 +540,8 @@ bool js_cocos2dx_dragonbones_Transform_set_skewX(JSContext *cx, uint32_t argc, J
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Transform_set_skewX : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Transform_set_skewX : Error processing new value");
     cobj->skewX = arg0;
     return true;
@@ -570,8 +570,8 @@ bool js_cocos2dx_dragonbones_Transform_set_skewY(JSContext *cx, uint32_t argc, J
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Transform_set_skewY : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Transform_set_skewY : Error processing new value");
     cobj->skewY = arg0;
     return true;
@@ -600,8 +600,8 @@ bool js_cocos2dx_dragonbones_Transform_set_scaleX(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Transform_set_scaleX : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Transform_set_scaleX : Error processing new value");
     cobj->scaleX = arg0;
     return true;
@@ -630,8 +630,8 @@ bool js_cocos2dx_dragonbones_Transform_set_scaleY(JSContext *cx, uint32_t argc, 
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Transform_set_scaleY : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Transform_set_scaleY : Error processing new value");
     cobj->scaleY = arg0;
     return true;
@@ -1036,7 +1036,7 @@ bool js_cocos2dx_dragonbones_AnimationData_set_frameCount(JSContext *cx, uint32_
 
     bool ok = true;
     unsigned int arg0 = 0;
-    arg0 = (uint32_t)(args.get(0).toInt32());
+    ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_frameCount : Error processing new value");
     cobj->frameCount = arg0;
     return true;
@@ -1066,7 +1066,7 @@ bool js_cocos2dx_dragonbones_AnimationData_set_playTimes(JSContext *cx, uint32_t
 
     bool ok = true;
     unsigned int arg0 = 0;
-    arg0 = (uint32_t)(args.get(0).toInt32());
+    ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_playTimes : Error processing new value");
     cobj->playTimes = arg0;
     return true;
@@ -1095,8 +1095,8 @@ bool js_cocos2dx_dragonbones_AnimationData_set_position(JSContext *cx, uint32_t 
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_position : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_position : Error processing new value");
     cobj->position = arg0;
     return true;
@@ -1125,8 +1125,8 @@ bool js_cocos2dx_dragonbones_AnimationData_set_duration(JSContext *cx, uint32_t 
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_duration : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_duration : Error processing new value");
     cobj->duration = arg0;
     return true;
@@ -1155,8 +1155,8 @@ bool js_cocos2dx_dragonbones_AnimationData_set_fadeInTime(JSContext *cx, uint32_
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_fadeInTime : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationData_set_fadeInTime : Error processing new value");
     cobj->fadeInTime = arg0;
     return true;
@@ -2033,7 +2033,7 @@ bool js_cocos2dx_dragonbones_ArmatureData_set_frameRate(JSContext *cx, uint32_t 
 
     bool ok = true;
     unsigned int arg0 = 0;
-    arg0 = (uint32_t)(args.get(0).toInt32());
+    ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_ArmatureData_set_frameRate : Error processing new value");
     cobj->frameRate = arg0;
     return true;
@@ -2912,7 +2912,7 @@ bool js_cocos2dx_dragonbones_Armature_invalidUpdate(JSContext *cx, uint32_t argc
         std::string arg0;
         bool arg1;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = args.get(1).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Armature_invalidUpdate : Error processing arguments");
         cobj->invalidUpdate(arg0, arg1);
         args.rval().setUndefined();
@@ -2962,7 +2962,7 @@ bool js_cocos2dx_dragonbones_Armature_setCacheFrameRate(JSContext *cx, uint32_t 
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Armature_setCacheFrameRate : Invalid Native Object");
     if (argc == 1) {
         unsigned int arg0 = 0;
-        arg0 = (uint32_t)(args.get(0).toInt32());
+        ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Armature_setCacheFrameRate : Error processing arguments");
         cobj->setCacheFrameRate(arg0);
         args.rval().setUndefined();
@@ -3055,8 +3055,8 @@ bool js_cocos2dx_dragonbones_Armature_advanceTime(JSContext *cx, uint32_t argc, 
     dragonBones::Armature* cobj = (dragonBones::Armature *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Armature_advanceTime : Invalid Native Object");
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Armature_advanceTime : Error processing arguments");
         cobj->advanceTime(arg0);
         args.rval().setUndefined();
@@ -3396,9 +3396,9 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
     }
     if (argc == 2) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_fadeIn : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->fadeIn(arg0, arg1);
         JS::RootedValue jsret(cx);
@@ -3415,10 +3415,10 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
     }
     if (argc == 3) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         int arg2 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_fadeIn : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->fadeIn(arg0, arg1, arg2);
@@ -3436,11 +3436,11 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
     }
     if (argc == 4) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         int arg2 = 0;
         int arg3 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         ok &= jsval_to_int32(cx, args.get(3), (int32_t *)&arg3);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_fadeIn : Error processing arguments");
@@ -3459,12 +3459,12 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
     }
     if (argc == 5) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         int arg2 = 0;
         int arg3 = 0;
         std::string arg4;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         ok &= jsval_to_int32(cx, args.get(3), (int32_t *)&arg3);
         ok &= jsval_to_std_string(cx, args.get(4), &arg4);
@@ -3484,13 +3484,13 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
     }
     if (argc == 6) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         int arg2 = 0;
         int arg3 = 0;
         std::string arg4;
         dragonBones::AnimationFadeOutMode arg5;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         ok &= jsval_to_int32(cx, args.get(3), (int32_t *)&arg3);
         ok &= jsval_to_std_string(cx, args.get(4), &arg4);
@@ -3511,19 +3511,19 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
     }
     if (argc == 7) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         int arg2 = 0;
         int arg3 = 0;
         std::string arg4;
         dragonBones::AnimationFadeOutMode arg5;
         bool arg6;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         ok &= jsval_to_int32(cx, args.get(3), (int32_t *)&arg3);
         ok &= jsval_to_std_string(cx, args.get(4), &arg4);
         ok &= jsval_to_int32(cx, args.get(5), (int32_t *)&arg5);
-        arg6 = args.get(6).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(6), &arg6);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_fadeIn : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->fadeIn(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
         JS::RootedValue jsret(cx);
@@ -3540,7 +3540,7 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
     }
     if (argc == 8) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         int arg2 = 0;
         int arg3 = 0;
         std::string arg4;
@@ -3548,13 +3548,13 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
         bool arg6;
         bool arg7;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         ok &= jsval_to_int32(cx, args.get(3), (int32_t *)&arg3);
         ok &= jsval_to_std_string(cx, args.get(4), &arg4);
         ok &= jsval_to_int32(cx, args.get(5), (int32_t *)&arg5);
-        arg6 = args.get(6).toBoolean();
-        arg7 = args.get(7).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(6), &arg6);
+        ok &= jsval_to_bool(cx, args.get(7), &arg7);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_fadeIn : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->fadeIn(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
         JS::RootedValue jsret(cx);
@@ -3571,7 +3571,7 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
     }
     if (argc == 9) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         int arg2 = 0;
         int arg3 = 0;
         std::string arg4;
@@ -3580,14 +3580,14 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
         bool arg7;
         bool arg8;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         ok &= jsval_to_int32(cx, args.get(3), (int32_t *)&arg3);
         ok &= jsval_to_std_string(cx, args.get(4), &arg4);
         ok &= jsval_to_int32(cx, args.get(5), (int32_t *)&arg5);
-        arg6 = args.get(6).toBoolean();
-        arg7 = args.get(7).toBoolean();
-        arg8 = args.get(8).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(6), &arg6);
+        ok &= jsval_to_bool(cx, args.get(7), &arg7);
+        ok &= jsval_to_bool(cx, args.get(8), &arg8);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_fadeIn : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->fadeIn(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
         JS::RootedValue jsret(cx);
@@ -3604,7 +3604,7 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
     }
     if (argc == 10) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         int arg2 = 0;
         int arg3 = 0;
         std::string arg4;
@@ -3614,15 +3614,15 @@ bool js_cocos2dx_dragonbones_Animation_fadeIn(JSContext *cx, uint32_t argc, JS::
         bool arg8;
         bool arg9;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         ok &= jsval_to_int32(cx, args.get(3), (int32_t *)&arg3);
         ok &= jsval_to_std_string(cx, args.get(4), &arg4);
         ok &= jsval_to_int32(cx, args.get(5), (int32_t *)&arg5);
-        arg6 = args.get(6).toBoolean();
-        arg7 = args.get(7).toBoolean();
-        arg8 = args.get(8).toBoolean();
-        arg9 = args.get(9).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(6), &arg6);
+        ok &= jsval_to_bool(cx, args.get(7), &arg7);
+        ok &= jsval_to_bool(cx, args.get(8), &arg8);
+        ok &= jsval_to_bool(cx, args.get(9), &arg9);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_fadeIn : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->fadeIn(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
         JS::RootedValue jsret(cx);
@@ -3861,9 +3861,9 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByTime(JSContext *cx, uint32_t
     }
     if (argc == 2) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_gotoAndPlayByTime : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->gotoAndPlayByTime(arg0, arg1);
         JS::RootedValue jsret(cx);
@@ -3880,10 +3880,10 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByTime(JSContext *cx, uint32_t
     }
     if (argc == 3) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         int arg2 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_gotoAndPlayByTime : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->gotoAndPlayByTime(arg0, arg1, arg2);
@@ -3930,9 +3930,9 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByProgress(JSContext *cx, uint
     }
     if (argc == 2) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_gotoAndPlayByProgress : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->gotoAndPlayByProgress(arg0, arg1);
         JS::RootedValue jsret(cx);
@@ -3949,10 +3949,10 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByProgress(JSContext *cx, uint
     }
     if (argc == 3) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         int arg2 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_gotoAndPlayByProgress : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->gotoAndPlayByProgress(arg0, arg1, arg2);
@@ -4022,9 +4022,9 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndStopByTime(JSContext *cx, uint32_t
     }
     if (argc == 2) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_gotoAndStopByTime : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->gotoAndStopByTime(arg0, arg1);
         JS::RootedValue jsret(cx);
@@ -4070,9 +4070,9 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndStopByProgress(JSContext *cx, uint
     }
     if (argc == 2) {
         std::string arg0;
-        double arg1 = 0;
+        float arg1 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (float)(args.get(1).toNumber());
+        ok &= jsval_to_float(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_gotoAndStopByProgress : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->gotoAndStopByProgress(arg0, arg1);
         JS::RootedValue jsret(cx);
@@ -4120,7 +4120,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByFrame(JSContext *cx, uint32_
         std::string arg0;
         unsigned int arg1 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (uint32_t)(args.get(1).toInt32());
+        ok &= jsval_to_int32(cx, args.get(1), (int32_t *)&arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_gotoAndPlayByFrame : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->gotoAndPlayByFrame(arg0, arg1);
         JS::RootedValue jsret(cx);
@@ -4140,7 +4140,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndPlayByFrame(JSContext *cx, uint32_
         unsigned int arg1 = 0;
         int arg2 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (uint32_t)(args.get(1).toInt32());
+        ok &= jsval_to_int32(cx, args.get(1), (int32_t *)&arg1);
         ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_gotoAndPlayByFrame : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->gotoAndPlayByFrame(arg0, arg1, arg2);
@@ -4189,7 +4189,7 @@ bool js_cocos2dx_dragonbones_Animation_gotoAndStopByFrame(JSContext *cx, uint32_
         std::string arg0;
         unsigned int arg1 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = (uint32_t)(args.get(1).toInt32());
+        ok &= jsval_to_int32(cx, args.get(1), (int32_t *)&arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_gotoAndStopByFrame : Error processing arguments");
         dragonBones::AnimationState* ret = cobj->gotoAndStopByFrame(arg0, arg1);
         JS::RootedValue jsret(cx);
@@ -4249,8 +4249,8 @@ bool js_cocos2dx_dragonbones_Animation_set_timeScale(JSContext *cx, uint32_t arg
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Animation_set_timeScale : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Animation_set_timeScale : Error processing new value");
     cobj->timeScale = arg0;
     return true;
@@ -4732,7 +4732,7 @@ bool js_cocos2dx_dragonbones_Bone_setVisible(JSContext *cx, uint32_t argc, JS::V
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Bone_setVisible : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = args.get(0).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Bone_setVisible : Error processing arguments");
         cobj->setVisible(arg0);
         args.rval().setUndefined();
@@ -5012,7 +5012,7 @@ bool js_cocos2dx_dragonbones_Slot_set_inheritAnimation(JSContext *cx, uint32_t a
 
     bool ok = true;
     bool arg0;
-    arg0 = args.get(0).toBoolean();
+    ok &= jsval_to_bool(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_Slot_set_inheritAnimation : Error processing new value");
     cobj->inheritAnimation = arg0;
     return true;
@@ -5121,7 +5121,7 @@ bool js_cocos2dx_dragonbones_BaseFactory_removeDragonBonesData(JSContext *cx, ui
         std::string arg0;
         bool arg1;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = args.get(1).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_BaseFactory_removeDragonBonesData : Error processing arguments");
         cobj->removeDragonBonesData(arg0, arg1);
         args.rval().setUndefined();
@@ -5151,7 +5151,7 @@ bool js_cocos2dx_dragonbones_BaseFactory_removeTextureAtlasData(JSContext *cx, u
         std::string arg0;
         bool arg1;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = args.get(1).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_BaseFactory_removeTextureAtlasData : Error processing arguments");
         cobj->removeTextureAtlasData(arg0, arg1);
         args.rval().setUndefined();
@@ -5208,10 +5208,10 @@ bool js_cocos2dx_dragonbones_BaseFactory_parseDragonBonesData(JSContext *cx, uin
     if (argc == 3) {
         const char* arg0 = nullptr;
         std::string arg1;
-        double arg2 = 0;
+        float arg2 = 0;
         std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
         ok &= jsval_to_std_string(cx, args.get(1), &arg1);
-        arg2 = (float)(args.get(2).toNumber());
+        ok &= jsval_to_float(cx, args.get(2), &arg2);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_BaseFactory_parseDragonBonesData : Error processing arguments");
         dragonBones::DragonBonesData* ret = cobj->parseDragonBonesData(arg0, arg1, arg2);
         JS::RootedValue jsret(cx);
@@ -5245,7 +5245,7 @@ bool js_cocos2dx_dragonbones_BaseFactory_clear(JSContext *cx, uint32_t argc, JS:
     }
     if (argc == 1) {
         bool arg0;
-        arg0 = args.get(0).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_BaseFactory_clear : Error processing arguments");
         cobj->clear(arg0);
         args.rval().setUndefined();
@@ -5556,8 +5556,8 @@ bool js_cocos2dx_dragonbones_WorldClock_advanceTime(JSContext *cx, uint32_t argc
     dragonBones::WorldClock* cobj = (dragonBones::WorldClock *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_WorldClock_advanceTime : Invalid Native Object");
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_WorldClock_advanceTime : Error processing arguments");
         cobj->advanceTime(arg0);
         args.rval().setUndefined();
@@ -5667,8 +5667,8 @@ bool js_cocos2dx_dragonbones_AnimationState_setCurrentTime(JSContext *cx, uint32
     dragonBones::AnimationState* cobj = (dragonBones::AnimationState *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationState_setCurrentTime : Invalid Native Object");
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_setCurrentTime : Error processing arguments");
         cobj->setCurrentTime(arg0);
         args.rval().setUndefined();
@@ -5698,7 +5698,7 @@ bool js_cocos2dx_dragonbones_AnimationState_removeBoneMask(JSContext *cx, uint32
         std::string arg0;
         bool arg1;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = args.get(1).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_removeBoneMask : Error processing arguments");
         cobj->removeBoneMask(arg0, arg1);
         args.rval().setUndefined();
@@ -5777,7 +5777,7 @@ bool js_cocos2dx_dragonbones_AnimationState_getCurrentTime(JSContext *cx, uint32
     dragonBones::AnimationState* cobj = (dragonBones::AnimationState *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationState_getCurrentTime : Invalid Native Object");
     if (argc == 0) {
-        double ret = cobj->getCurrentTime();
+        float ret = cobj->getCurrentTime();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_getCurrentTime : error parsing return value");
@@ -5797,7 +5797,7 @@ bool js_cocos2dx_dragonbones_AnimationState_getTotalTime(JSContext *cx, uint32_t
     dragonBones::AnimationState* cobj = (dragonBones::AnimationState *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationState_getTotalTime : Invalid Native Object");
     if (argc == 0) {
-        double ret = cobj->getTotalTime();
+        float ret = cobj->getTotalTime();
         JS::RootedValue jsret(cx);
         jsret = JS::NumberValue(ret);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_getTotalTime : error parsing return value");
@@ -5889,18 +5889,18 @@ bool js_cocos2dx_dragonbones_AnimationState_fadeOut(JSContext *cx, uint32_t argc
     dragonBones::AnimationState* cobj = (dragonBones::AnimationState *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationState_fadeOut : Invalid Native Object");
     if (argc == 1) {
-        double arg0 = 0;
-        arg0 = (float)(args.get(0).toNumber());
+        float arg0 = 0;
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_fadeOut : Error processing arguments");
         cobj->fadeOut(arg0);
         args.rval().setUndefined();
         return true;
     }
     if (argc == 2) {
-        double arg0 = 0;
+        float arg0 = 0;
         bool arg1;
-        arg0 = (float)(args.get(0).toNumber());
-        arg1 = args.get(1).toBoolean();
+        ok &= jsval_to_float(cx, args.get(0), &arg0);
+        ok &= jsval_to_bool(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_fadeOut : Error processing arguments");
         cobj->fadeOut(arg0, arg1);
         args.rval().setUndefined();
@@ -5966,7 +5966,7 @@ bool js_cocos2dx_dragonbones_AnimationState_addBoneMask(JSContext *cx, uint32_t 
         std::string arg0;
         bool arg1;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        arg1 = args.get(1).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_addBoneMask : Error processing arguments");
         cobj->addBoneMask(arg0, arg1);
         args.rval().setUndefined();
@@ -6041,7 +6041,7 @@ bool js_cocos2dx_dragonbones_AnimationState_set_displayControl(JSContext *cx, ui
 
     bool ok = true;
     bool arg0;
-    arg0 = args.get(0).toBoolean();
+    ok &= jsval_to_bool(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_set_displayControl : Error processing new value");
     cobj->displayControl = arg0;
     return true;
@@ -6071,7 +6071,7 @@ bool js_cocos2dx_dragonbones_AnimationState_set_additiveBlending(JSContext *cx, 
 
     bool ok = true;
     bool arg0;
-    arg0 = args.get(0).toBoolean();
+    ok &= jsval_to_bool(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_set_additiveBlending : Error processing new value");
     cobj->additiveBlending = arg0;
     return true;
@@ -6101,7 +6101,7 @@ bool js_cocos2dx_dragonbones_AnimationState_set_playTimes(JSContext *cx, uint32_
 
     bool ok = true;
     unsigned int arg0 = 0;
-    arg0 = (uint32_t)(args.get(0).toInt32());
+    ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_set_playTimes : Error processing new value");
     cobj->playTimes = arg0;
     return true;
@@ -6130,8 +6130,8 @@ bool js_cocos2dx_dragonbones_AnimationState_set_timeScale(JSContext *cx, uint32_
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationState_set_timeScale : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_set_timeScale : Error processing new value");
     cobj->timeScale = arg0;
     return true;
@@ -6160,8 +6160,8 @@ bool js_cocos2dx_dragonbones_AnimationState_set_weight(JSContext *cx, uint32_t a
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationState_set_weight : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_set_weight : Error processing new value");
     cobj->weight = arg0;
     return true;
@@ -6190,8 +6190,8 @@ bool js_cocos2dx_dragonbones_AnimationState_set_autoFadeOutTime(JSContext *cx, u
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationState_set_autoFadeOutTime : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_set_autoFadeOutTime : Error processing new value");
     cobj->autoFadeOutTime = arg0;
     return true;
@@ -6220,8 +6220,8 @@ bool js_cocos2dx_dragonbones_AnimationState_set_fadeTotalTime(JSContext *cx, uin
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationState_set_fadeTotalTime : Invalid Native Object");
 
     bool ok = true;
-    double arg0 = 0;
-    arg0 = (float)(args.get(0).toNumber());
+    float arg0 = 0;
+    ok &= jsval_to_float(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_set_fadeTotalTime : Error processing new value");
     cobj->fadeTotalTime = arg0;
     return true;
@@ -6570,7 +6570,7 @@ bool js_cocos2dx_dragonbones_CCArmatureDisplay_advanceTimeBySelf(JSContext *cx, 
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_advanceTimeBySelf : Invalid Native Object");
     if (argc == 1) {
         bool arg0;
-        arg0 = args.get(0).toBoolean();
+        ok &= jsval_to_bool(cx, args.get(0), &arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_advanceTimeBySelf : Error processing arguments");
         cobj->advanceTimeBySelf(arg0);
         args.rval().setUndefined();
@@ -7276,11 +7276,11 @@ bool js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData(JSContext *cx, uint
         std::string arg0;
         std::string arg1;
         std::string arg2;
-        double arg3 = 0;
+        float arg3 = 0;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
         ok &= jsval_to_std_string(cx, args.get(1), &arg1);
         ok &= jsval_to_std_string(cx, args.get(2), &arg2);
-        arg3 = (float)(args.get(3).toNumber());
+        ok &= jsval_to_float(cx, args.get(3), &arg3);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData : Error processing arguments");
         dragonBones::TextureAtlasData* ret = cobj->parseTextureAtlasData(arg0, arg1, arg2, arg3);
         JS::RootedValue jsret(cx);
