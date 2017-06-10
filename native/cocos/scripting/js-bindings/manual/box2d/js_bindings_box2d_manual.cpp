@@ -1029,19 +1029,19 @@ bool js_box2dclasses_b2Body_CreateFixture(JSContext *cx, uint32_t argc, JS::Valu
     return false;
 }
 
-bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     b2Body* cobj = nullptr;
     
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     obj.set(args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cobj = (b2Body *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_box2dclasses_b2Body_GetJointList : Invalid Native Object");
     do {
         if (argc == 0) {
-            jsval jsret = JSVAL_NULL;
+            JS::RootedValue jsret(cx);
             
             b2JointEdge* list = cobj->GetJointList();
             do
@@ -1052,16 +1052,19 @@ bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, jsval *vp
                 
                 JS::RootedObject array(cx, JS_NewArrayObject(cx, 0));
                 int i = 0;
+                JS::RootedObject itemObj(cx);
                 JS::RootedValue item(cx);
                 
-                item = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Joint>(cx, list->joint));
+                js_get_or_create_jsobject<b2Joint>(cx, list->joint, &itemObj);
+                item = JS::ObjectOrNullValue(itemObj);
                 if (!JS_SetElement(cx, array, i++, item)) {
                     break;
                 }
                 
                 b2JointEdge* prev = list->prev;
                 while (prev) {
-                    item = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Joint>(cx, prev->joint));
+                    js_get_or_create_jsobject<b2Joint>(cx, prev->joint, &itemObj);
+                    item = JS::ObjectOrNullValue(itemObj);
                     if (!JS_SetElement(cx, array, i++, item)) {
                         break;
                     }
@@ -1071,7 +1074,8 @@ bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, jsval *vp
                 
                 b2JointEdge* next = list->next;
                 while (next) {
-                    item = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Joint>(cx, next->joint));
+                    js_get_or_create_jsobject<b2Joint>(cx, next->joint, &itemObj);
+                    item = JS::ObjectOrNullValue(itemObj);
                     if (!JS_SetElement(cx, array, i++, item)) {
                         break;
                     }
@@ -1079,7 +1083,7 @@ bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, jsval *vp
                     next = next->next;
                 }
                 
-                jsret = OBJECT_TO_JSVAL(array);
+                jsret = JS::ObjectOrNullValue(array);
             }
             while(0);
             
@@ -1088,7 +1092,7 @@ bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, jsval *vp
         }
     } while(0);
     
-    JS_ReportError(cx, "js_box2dclasses_b2Body_GetJointList : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_box2dclasses_b2Body_GetJointList : wrong number of arguments");
     return false;
 }
 

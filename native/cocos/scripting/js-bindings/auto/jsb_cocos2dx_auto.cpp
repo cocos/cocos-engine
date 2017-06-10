@@ -5,6 +5,194 @@
 #include "2d/CCProtectedNode.h"
 #include "base/CCAsyncTaskPool.h"
 
+JSClass  *jsb_cocos2d_Acceleration_class;
+JSObject *jsb_cocos2d_Acceleration_prototype;
+
+bool js_cocos2dx_Acceleration_get_x(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_get_x : Invalid Native Object");
+
+    bool ok = true;
+    JS::RootedValue jsret(cx);
+    jsret = JS::DoubleValue(cobj->x);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_get_x : error parsing return value");
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_Acceleration_set_x(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_set_x : Invalid Native Object");
+
+    bool ok = true;
+    double arg0 = 0;
+    ok &= jsval_to_double(cx, args.get(0), &arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_set_x : Error processing new value");
+    cobj->x = arg0;
+    return true;
+}
+bool js_cocos2dx_Acceleration_get_y(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_get_y : Invalid Native Object");
+
+    bool ok = true;
+    JS::RootedValue jsret(cx);
+    jsret = JS::DoubleValue(cobj->y);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_get_y : error parsing return value");
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_Acceleration_set_y(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_set_y : Invalid Native Object");
+
+    bool ok = true;
+    double arg0 = 0;
+    ok &= jsval_to_double(cx, args.get(0), &arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_set_y : Error processing new value");
+    cobj->y = arg0;
+    return true;
+}
+bool js_cocos2dx_Acceleration_get_z(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_get_z : Invalid Native Object");
+
+    bool ok = true;
+    JS::RootedValue jsret(cx);
+    jsret = JS::DoubleValue(cobj->z);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_get_z : error parsing return value");
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_Acceleration_set_z(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_set_z : Invalid Native Object");
+
+    bool ok = true;
+    double arg0 = 0;
+    ok &= jsval_to_double(cx, args.get(0), &arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_set_z : Error processing new value");
+    cobj->z = arg0;
+    return true;
+}
+bool js_cocos2dx_Acceleration_get_timestamp(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_get_timestamp : Invalid Native Object");
+
+    bool ok = true;
+    JS::RootedValue jsret(cx);
+    jsret = JS::DoubleValue(cobj->timestamp);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_get_timestamp : error parsing return value");
+    args.rval().set(jsret);
+    return true;
+}
+bool js_cocos2dx_Acceleration_set_timestamp(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject jsthis(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, jsthis);
+    cocos2d::Acceleration* cobj = (cocos2d::Acceleration *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Acceleration_set_timestamp : Invalid Native Object");
+
+    bool ok = true;
+    double arg0 = 0;
+    ok &= jsval_to_double(cx, args.get(0), &arg0);
+    JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Acceleration_set_timestamp : Error processing new value");
+    cobj->timestamp = arg0;
+    return true;
+}
+bool js_cocos2dx_Acceleration_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::Acceleration* cobj = new (std::nothrow) cocos2d::Acceleration();
+
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Acceleration>(cobj);
+
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Acceleration");
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
+    }
+    return true;
+}
+
+
+void js_register_cocos2dx_Acceleration(JSContext *cx, JS::HandleObject global) {
+    static const JSClassOps cocos2d_Acceleration_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    static JSClass cocos2d_Acceleration_class = {
+        "Acceleration",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_Acceleration_classOps
+    };
+    jsb_cocos2d_Acceleration_class = &cocos2d_Acceleration_class;
+
+    static JSPropertySpec properties[] = {
+        JS_PSGS("x", js_cocos2dx_Acceleration_get_x, js_cocos2dx_Acceleration_set_x, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PSGS("y", js_cocos2dx_Acceleration_get_y, js_cocos2dx_Acceleration_set_y, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PSGS("z", js_cocos2dx_Acceleration_get_z, js_cocos2dx_Acceleration_set_z, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PSGS("timestamp", js_cocos2dx_Acceleration_get_timestamp, js_cocos2dx_Acceleration_set_timestamp, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_PS_END
+    };
+
+    JS::RootedObject parent_proto(cx, nullptr);
+    jsb_cocos2d_Acceleration_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_Acceleration_class,
+        js_cocos2dx_Acceleration_constructor, 0,
+        properties,
+        nullptr,
+        nullptr,
+        nullptr);
+
+    JS::RootedObject proto(cx, jsb_cocos2d_Acceleration_prototype);
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "Acceleration", &className);
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<cocos2d::Acceleration>(cx, jsb_cocos2d_Acceleration_class, proto);
+}
+
 JSClass  *jsb_cocos2d_Texture2D_class;
 JSObject *jsb_cocos2d_Texture2D_prototype;
 
@@ -2344,7 +2532,11 @@ bool js_cocos2dx_Node_setOnExitCallback(JSContext *cx, uint32_t argc, JS::Value 
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=]() -> void {
@@ -2595,7 +2787,11 @@ bool js_cocos2dx_Node_setonEnterTransitionDidFinishCallback(JSContext *cx, uint3
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=]() -> void {
@@ -2723,7 +2919,11 @@ bool js_cocos2dx_Node_setAfterVisitCallback(JSContext *cx, uint32_t argc, JS::Va
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Renderer* larg0) -> void {
@@ -2942,7 +3142,11 @@ bool js_cocos2dx_Node_setOnEnterCallback(JSContext *cx, uint32_t argc, JS::Value
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=]() -> void {
@@ -3024,7 +3228,11 @@ bool js_cocos2dx_Node_setonExitTransitionDidStartCallback(JSContext *cx, uint32_
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=]() -> void {
@@ -4193,7 +4401,11 @@ bool js_cocos2dx_Node_setBeforeVisitCallback(JSContext *cx, uint32_t argc, JS::V
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Renderer* larg0) -> void {
@@ -5041,7 +5253,11 @@ bool js_cocos2dx_Node_enumerateChildren(JSContext *cx, uint32_t argc, JS::Value 
         do {
 		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Node* larg0) -> bool {
@@ -8242,7 +8458,11 @@ bool js_cocos2dx_Scheduler_performFunctionInCocosThread(JSContext *cx, uint32_t 
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=]() -> void {
@@ -11822,7 +12042,11 @@ bool js_cocos2dx_EventListenerAcceleration_init(JSContext *cx, uint32_t argc, JS
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Acceleration* larg0, cocos2d::Event* larg1) -> void {
@@ -14213,7 +14437,11 @@ bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc,
             do {
 			    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 			    {
-			        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+			        JS::RootedObject jstarget(cx);
+			        if (args.thisv().isObject())
+			        {
+			            jstarget = args.thisv().toObjectOrNull();
+			        }
 			        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
 			        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 			        auto lambda = [=](cocos2d::GLProgram* larg0, cocos2d::Uniform* larg1) -> void {
@@ -14263,7 +14491,11 @@ bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc,
             do {
 			    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 			    {
-			        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+			        JS::RootedObject jstarget(cx);
+			        if (args.thisv().isObject())
+			        {
+			            jstarget = args.thisv().toObjectOrNull();
+			        }
 			        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
 			        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 			        auto lambda = [=](cocos2d::GLProgram* larg0, cocos2d::Uniform* larg1) -> void {
@@ -14451,7 +14683,11 @@ bool js_cocos2dx_GLProgramState_setVertexAttribCallback(JSContext *cx, uint32_t 
         do {
 		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::VertexAttrib* larg0) -> void {
@@ -31505,7 +31741,11 @@ bool js_cocos2dx_MenuItem_initWithCallback(JSContext *cx, uint32_t argc, JS::Val
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
@@ -31617,7 +31857,11 @@ bool js_cocos2dx_MenuItem_setCallback(JSContext *cx, uint32_t argc, JS::Value *v
         do {
 		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
@@ -31899,7 +32143,11 @@ bool js_cocos2dx_MenuItemLabel_initWithLabel(JSContext *cx, uint32_t argc, JS::V
         do {
 		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
@@ -32104,7 +32352,11 @@ bool js_cocos2dx_MenuItemAtlasFont_initWithString(JSContext *cx, uint32_t argc, 
         do {
 		    if(JS_TypeOfValue(cx, args.get(5)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(5).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
@@ -32309,7 +32561,11 @@ bool js_cocos2dx_MenuItemFont_initWithString(JSContext *cx, uint32_t argc, JS::V
         do {
 		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
@@ -32672,7 +32928,11 @@ bool js_cocos2dx_MenuItemSprite_initWithNormalSprite(JSContext *cx, uint32_t arg
         do {
 		    if(JS_TypeOfValue(cx, args.get(3)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(3).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
@@ -33056,7 +33316,11 @@ bool js_cocos2dx_MenuItemImage_initWithNormalImage(JSContext *cx, uint32_t argc,
         do {
 		    if(JS_TypeOfValue(cx, args.get(3)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(3).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Ref* larg0) -> void {
@@ -43410,7 +43674,11 @@ bool js_cocos2dx_TextureCache_addImageAsync(JSContext *cx, uint32_t argc, JS::Va
         do {
 		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 		    {
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
 		        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
 		        auto lambda = [=](cocos2d::Texture2D* larg0) -> void {
@@ -50409,6 +50677,7 @@ void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj) {
     JS::RootedObject ns(cx);
     get_or_create_js_obj(cx, obj, "cc", &ns);
 
+    js_register_cocos2dx_Acceleration(cx, ns);
     js_register_cocos2dx_RenderState(cx, ns);
     js_register_cocos2dx_Material(cx, ns);
     js_register_cocos2dx_Action(cx, ns);

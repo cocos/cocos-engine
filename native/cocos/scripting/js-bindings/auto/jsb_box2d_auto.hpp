@@ -118,58 +118,6 @@ bool js_box2dclasses_b2Body_constructor(JSContext *cx, uint32_t argc, JS::Value 
 void js_box2dclasses_b2Body_finalize(JSContext *cx, JSObject *obj);
 void js_register_box2dclasses_b2Body(JSContext *cx, JS::HandleObject global);
 void register_all_box2dclasses(JSContext* cx, JS::HandleObject obj);
-<<<<<<< 00c032eda994e61e43c9c6f34cc830f8e2f40a48
-bool js_box2dclasses_b2Body_GetAngle(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_IsSleepingAllowed(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_SetAngularDamping(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_SetActive(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_SetGravityScale(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetAngularVelocity(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetFixtureList(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_ApplyForce(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetLocalPoint(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_SetLinearVelocity(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetLinearVelocity(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetNext(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_SetSleepingAllowed(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_SetTransform(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetMass(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_SetAngularVelocity(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetMassData(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetLinearVelocityFromWorldPoint(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_ResetMassData(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_ApplyForceToCenter(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_ApplyTorque(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_IsAwake(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_SetType(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_SetMassData(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetTransform(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetWorldCenter(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetAngularDamping(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_ApplyLinearImpulse(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_IsFixedRotation(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetLocalCenter(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetWorldVector(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetLinearVelocityFromLocalPoint(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetContactList(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetWorldPoint(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_SetAwake(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetLinearDamping(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_IsBullet(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetWorld(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetLocalVector(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_SetLinearDamping(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_Dump(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_SetBullet(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetType(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetGravityScale(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_DestroyFixture(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetInertia(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_IsActive(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_SetFixedRotation(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_ApplyAngularImpulse(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_box2dclasses_b2Body_GetPosition(JSContext *cx, uint32_t argc, jsval *vp);
-=======
 bool js_box2dclasses_b2Body_GetAngle(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_box2dclasses_b2Body_IsSleepingAllowed(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_box2dclasses_b2Body_SetAngularDamping(JSContext *cx, uint32_t argc, JS::Value *vp);
@@ -180,7 +128,6 @@ bool js_box2dclasses_b2Body_GetFixtureList(JSContext *cx, uint32_t argc, JS::Val
 bool js_box2dclasses_b2Body_ApplyForce(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_box2dclasses_b2Body_GetLocalPoint(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_box2dclasses_b2Body_SetLinearVelocity(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_box2dclasses_b2Body_GetJointList(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_box2dclasses_b2Body_GetLinearVelocity(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_box2dclasses_b2Body_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_box2dclasses_b2Body_SetSleepingAllowed(JSContext *cx, uint32_t argc, JS::Value *vp);
@@ -221,7 +168,6 @@ bool js_box2dclasses_b2Body_IsActive(JSContext *cx, uint32_t argc, JS::Value *vp
 bool js_box2dclasses_b2Body_SetFixedRotation(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_box2dclasses_b2Body_ApplyAngularImpulse(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_box2dclasses_b2Body_GetPosition(JSContext *cx, uint32_t argc, JS::Value *vp);
->>>>>>> Upgrade to spider monkey 52, pass 1
 
 extern JSClass  *jsb_b2Fixture_class;
 extern JSObject *jsb_b2Fixture_prototype;

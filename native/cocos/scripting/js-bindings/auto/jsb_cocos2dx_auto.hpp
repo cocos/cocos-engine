@@ -8,11 +8,11 @@
 extern JSClass  *jsb_cocos2d_Acceleration_class;
 extern JSObject *jsb_cocos2d_Acceleration_prototype;
 
-bool js_cocos2dx_Acceleration_constructor(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_Acceleration_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_Acceleration_finalize(JSContext *cx, JSObject *obj);
 void js_register_cocos2dx_Acceleration(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Acceleration_Acceleration(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_Acceleration_Acceleration(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_cocos2d_Texture2D_class;
 extern JSObject *jsb_cocos2d_Texture2D_prototype;

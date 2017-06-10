@@ -443,18 +443,13 @@ bool js_cocos2dx_audioengine_AudioEngine_preload(JSContext *cx, uint32_t argc, J
             do {
 			    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 			    {
-<<<<<<< fc975c440ceb770a85a4240c9c21ff6cceea9503
 			        JS::RootedObject jstarget(cx);
 			        if (args.thisv().isObject())
 			        {
 			            jstarget = args.thisv().toObjectOrNull();
 			        }
-			        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
-=======
-			        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
 			        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
 			        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
->>>>>>> Refactor JSFunctionWrapper & Use MutableHandleValue for conversion’s return value
 			        auto lambda = [=](bool larg0) -> void {
 			            bool ok = true;
 			            JS::AutoValueVector valArr(cx);
@@ -696,18 +691,13 @@ bool js_cocos2dx_audioengine_AudioEngine_setFinishCallback(JSContext *cx, uint32
         do {
 		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 		    {
-<<<<<<< fc975c440ceb770a85a4240c9c21ff6cceea9503
 		        JS::RootedObject jstarget(cx);
 		        if (args.thisv().isObject())
 		        {
 		            jstarget = args.thisv().toObjectOrNull();
 		        }
-		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
-=======
-		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
 		        JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
 		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
->>>>>>> Refactor JSFunctionWrapper & Use MutableHandleValue for conversion’s return value
 		        auto lambda = [=](int larg0, const std::basic_string<char> & larg1) -> void {
 		            bool ok = true;
 		            JS::AutoValueVector valArr(cx);
