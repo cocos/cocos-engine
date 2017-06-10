@@ -1409,11 +1409,14 @@ bool ScriptingCore::handleTouchesEvent(void* nativeObj, cocos2d::EventTouch::Eve
     js_proxy_t* p = jsb_get_native_proxy(nativeObj);
     if (p)
     {
-        JS::AutoValueVector valArr(_cx);
-        valArr.append(JS::ObjectOrNullValue(jsretArr));
         JS::RootedObject eventObj(_cx);
         jsb_get_or_create_weak_jsobject(_cx, event, typeClassEvent, &eventObj, "EventTouch");
-        valArr.append(JS::ObjectOrNullValue(eventObj));
+        JS::RootedValue eventVal(_cx, JS::ObjectOrNullValue(eventObj));
+        executeFunctionWithOwner(eventVal, "resetStates", JS::HandleValueArray::empty());
+        
+        JS::AutoValueVector valArr(_cx);
+        valArr.append(JS::ObjectOrNullValue(jsretArr));
+        valArr.append(eventVal);
         JS::HandleValueArray args(valArr);
         JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
         
@@ -1440,13 +1443,17 @@ bool ScriptingCore::handleTouchEvent(void* nativeObj, cocos2d::EventTouch::Event
         js_type_class_t *typeClassTouch = js_get_type_from_native<cocos2d::Touch>(touch);
         js_type_class_t *typeClassEvent = js_get_type_from_native<cocos2d::EventTouch>((cocos2d::EventTouch*)event);
 
-        JS::AutoValueVector valArr(_cx);
         JS::RootedObject touchObj(_cx);
         jsb_get_or_create_weak_jsobject(_cx, touch, typeClassTouch, &touchObj, "Touch");
-        valArr.append(JS::ObjectOrNullValue(touchObj));
+        
         JS::RootedObject eventObj(_cx);
         jsb_get_or_create_weak_jsobject(_cx, event, typeClassEvent, &eventObj, "EventTouch");
-        valArr.append(JS::ObjectOrNullValue(eventObj));
+        JS::RootedValue eventVal(_cx, JS::ObjectOrNullValue(eventObj));
+        executeFunctionWithOwner(eventVal, "resetStates", JS::HandleValueArray::empty());
+        
+        JS::AutoValueVector valArr(_cx);
+        valArr.append(JS::ObjectOrNullValue(touchObj));
+        valArr.append(eventVal);
         JS::HandleValueArray args(valArr);
         JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
 
@@ -1473,9 +1480,10 @@ bool ScriptingCore::handleMouseEvent(void* nativeObj, cocos2d::EventMouse::Mouse
         JS::RootedObject eventObj(_cx);
         auto typeClass = js_get_type_from_native<cocos2d::EventMouse>((cocos2d::EventMouse*)event);
         jsb_get_or_create_weak_jsobject(_cx, event, typeClass, &eventObj);
+        JS::RootedValue eventVal(_cx, JS::ObjectOrNullValue(eventObj));
+        executeFunctionWithOwner(eventVal, "resetStates", JS::HandleValueArray::empty());
         
-        JS::RootedValue dataVal(_cx, JS::ObjectOrNullValue(eventObj));
-        JS::HandleValueArray args(dataVal);
+        JS::HandleValueArray args(eventVal);
         JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
         ret = executeFunctionWithOwner(objVal, funcName.c_str(), args, jsvalRet);
     }

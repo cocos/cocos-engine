@@ -477,7 +477,7 @@ void EventDispatcher::forceAddEventListener(EventListener* listener)
 
         associateNodeAndEventListener(node, listener);
 
-        if (!node->isRunning())
+        if (!node->isRunning() && listener->isPaused())
         {
             listener->setPaused(true);
         }
@@ -793,6 +793,25 @@ void EventDispatcher::dispatchEventToListeners(EventListenerVector* listeners, c
             }
         }
     }
+
+    if (fixedPriorityListeners)
+    {
+        if (!shouldStopPropagation)
+        {
+            // priority > 0
+            ssize_t size = fixedPriorityListeners->size();
+            for (; i < size; ++i)
+            {
+                auto l = fixedPriorityListeners->at(i);
+
+                if (l->isEnabled() && !l->isPaused() && l->isRegistered() && onEvent(l))
+                {
+                    shouldStopPropagation = true;
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void EventDispatcher::dispatchEvent(Event* event)
@@ -840,33 +859,7 @@ void EventDispatcher::dispatchCustomEvent(const std::string &eventName, void *op
 
 bool EventDispatcher::hasEventListener(const EventListener::ListenerID& listenerID) const
 {
-    auto listeners = getListeners(listenerID);
-    if (listeners == nullptr)
-        return false;
-
-    if (!_toRemovedListeners.empty())
-    {
-        // fix cocos-creator/fireball/issues/5821
-        auto fixedPriorityListeners = listeners->getFixedPriorityListeners();
-        auto sceneGraphPriorityListeners = listeners->getSceneGraphPriorityListeners();
-        for (auto& listener : _toRemovedListeners)
-        {
-            if (fixedPriorityListeners)
-            {
-                auto matchIter = std::find(fixedPriorityListeners->begin(), fixedPriorityListeners->end(), listener);
-                if (matchIter != fixedPriorityListeners->end())
-                    return false;
-            }
-
-            if (sceneGraphPriorityListeners)
-            {
-                auto matchIter = std::find(sceneGraphPriorityListeners->begin(), sceneGraphPriorityListeners->end(), listener);
-                if (matchIter != sceneGraphPriorityListeners->end())
-                    return false;
-            }
-        }
-    }
-    return true;
+    return getListeners(listenerID) != nullptr;
 }
 
 void EventDispatcher::dispatchTouchEvent(EventTouch* event)
