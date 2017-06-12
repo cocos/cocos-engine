@@ -1170,7 +1170,9 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
             if (range.length >= 2) {
                 (attrsProto || getAttrsProto())[attrsProtoKey + 'min'] = range[0];
                 attrsProto[attrsProtoKey + 'max'] = range[1];
-                attrsProto[attrsProtoKey + 'step'] = range[2];
+                if (range.length > 2) {
+                    attrsProto[attrsProtoKey + 'step'] = range[2];
+                }
             }
             else if (CC_DEV) {
                 cc.errorID(3647);
