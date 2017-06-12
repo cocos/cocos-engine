@@ -3053,35 +3053,4 @@ bool js_cocos2dx_TileMapAtlas_setTile(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_TileMapAtlas_create(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_TileMapAtlas_TileMapAtlas(JSContext *cx, uint32_t argc, JS::Value *vp);
 
-extern JSClass  *jsb_CocosDenshion_SimpleAudioEngine_class;
-extern JSObject *jsb_CocosDenshion_SimpleAudioEngine_prototype;
-
-bool js_cocos2dx_SimpleAudioEngine_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_SimpleAudioEngine_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_SimpleAudioEngine(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_SimpleAudioEngine_preloadBackgroundMusic(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_stopBackgroundMusic(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_stopAllEffects(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_getBackgroundMusicVolume(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_resumeBackgroundMusic(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_setBackgroundMusicVolume(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_preloadEffect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_isBackgroundMusicPlaying(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_getEffectsVolume(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_willPlayBackgroundMusic(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_pauseEffect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_playEffect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_rewindBackgroundMusic(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_playBackgroundMusic(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_resumeAllEffects(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_setEffectsVolume(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_stopEffect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_pauseBackgroundMusic(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_pauseAllEffects(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_unloadEffect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_resumeEffect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_end(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SimpleAudioEngine_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp);
-
 #endif // __cocos2dx_h__

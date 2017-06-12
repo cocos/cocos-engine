@@ -79,18 +79,6 @@ cc.eventManager._resizeListener = cc.eventManager.addCustomListener('window-resi
     cc.visibleRect.init();
 });
 
-cc.defineGetterSetter(cc, 'audioEngine', function () {
-    return cc.AudioEngine.getInstance();
-});
-cc.AudioEngine.prototype.end = function(){
-    this.stopMusic();
-    this.stopAllEffects();
-};
-cc.AudioEngine.prototype.features = {
-    MULTI_CHANNEL: true, 
-    AUTOPLAY: true
-};
-
 cc.configuration = cc.Configuration.getInstance();
 cc.textureCache = cc.director.getTextureCache();
 cc.shaderCache = cc.ShaderCache.getInstance();

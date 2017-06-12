@@ -451,21 +451,40 @@ bool jsval_to_long_long(JSContext *cx, JS::HandleValue vp, long long* r)
 }
 
 bool jsval_to_std_string(JSContext *cx, JS::HandleValue v, std::string* ret) {
-    if (v.isString() || v.isBoolean() || v.isNumber())
+    if (v.isString())
     {
         JSString *tmp = v.toString();
         JSB_PRECONDITION3(tmp, cx, false, "Error processing arguments");
 
         JSStringWrapper str(tmp);
         *ret = str.get();
-        return true;
     }
-    if (v.isNullOrUndefined()) {
+    else if (v.isBoolean())
+    {
+        *ret = v.toBoolean() ? "true" : "false";
+    }
+    else if (v.isInt32())
+    {
+        char buff[20];
+        snprintf(buff, sizeof(buff), "%d", v.toInt32());
+        *ret = buff;
+    }
+    else if (v.isNumber())
+    {
+        char buff[20];
+        snprintf(buff, sizeof(buff), "%.2f", v.toNumber());
+        *ret = buff;
+    }
+    else if (v.isNullOrUndefined())
+    {
         *ret = "";
-        return true;
+    }
+    else
+    {
+        return false;
     }
 
-    return false;
+    return true;
 }
 
 bool jsval_to_ccpoint(JSContext *cx, JS::HandleValue v, Point* ret) {
