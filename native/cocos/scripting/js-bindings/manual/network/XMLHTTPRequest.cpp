@@ -397,6 +397,7 @@ JS_BINDED_CONSTRUCTOR_IMPL(MinXmlHttpRequest)
 
     JS::RootedObject proto(cx, MinXmlHttpRequest::js_proto);
     JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, MinXmlHttpRequest::js_class, proto));
+    js_add_FinalizeHook(cx, obj, false);
     jsb_new_proxy(cx, req, obj);
 
 #if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
@@ -511,7 +512,7 @@ JS_BINDED_PROP_GET_IMPL(MinXmlHttpRequest, timeout)
 JS_BINDED_PROP_SET_IMPL(MinXmlHttpRequest, timeout)
 {
     long long tmp;
-    jsval_to_long_long(cx, args.get(0), &tmp);
+    jsval_to_double(cx, args.get(0), (double*)&tmp);
     _timeout = (unsigned long long)tmp;
     return true;
 

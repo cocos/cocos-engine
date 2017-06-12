@@ -321,7 +321,7 @@ bool js_cocos2dx_extension_WebSocket_constructor(JSContext *cx, uint32_t argc, J
 
         JS::RootedObject proto(cx, js_cocos2dx_websocket_prototype);
         JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, js_cocos2dx_websocket_class, proto));
-        //JS::RootedObject obj(cx, JS_NewObjectForConstructor(cx, js_cocos2dx_websocket_class, args));
+        js_add_FinalizeHook(cx, obj, false);
 
         WebSocket* cobj = nullptr;
         if (argc >= 2)
