@@ -264,9 +264,18 @@ var MotionStreak = cc.Class({
             sgNode.addChild(this._root, -10);
         }
         this._motionStreak = motionStreak;
+
     },
 
-    lateUpdate: function (delta) {
+    onEnable: function () {
+        this.node.on('position-changed', this._onNodePositionChanged, this);
+    },
+
+    onDisable: function () {
+        this.node.off('position-changed', this._onNodePositionChanged, this);
+    },
+
+    _onNodePositionChanged: function () {
         if (CC_EDITOR && !this.preview) {
             return;
         }
@@ -279,7 +288,6 @@ var MotionStreak = cc.Class({
             var ty = worldMt.ty - (node.height / 2 + node.anchorY * node.height);
             this._root.setPosition(-tx, -ty);
             this._motionStreak.setPosition(tx, ty);
-            this._motionStreak.update(delta);
         }
     }
 });
