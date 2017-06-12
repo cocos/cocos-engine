@@ -1,4 +1,6 @@
-#include "scripting/js-bindings/auto/jsb_anysdk_protocols_auto.hpp"
+#include "jsb_anysdk_protocols_auto.hpp"
+#include "jsb_anysdk_basic_conversions.h"
+using namespace anysdk;
 #include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 #include "PluginManager.h"
 #include "ProtocolAnalytics.h"
