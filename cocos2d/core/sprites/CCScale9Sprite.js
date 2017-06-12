@@ -1403,18 +1403,18 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             return;
         }
 
+        var rect = cc.visibleRect;
+        if (webgl && this._renderCmd._cameraFlag > 0) {
+            rect = cc.Camera.main.visibleRect;
+        }
+
+        vl = rect.left.x;
+        vr = rect.right.x;
+        vt = rect.top.y;
+        vb = rect.bottom.y;
+
         // Culling
         if (webgl) {
-            var rect = cc.visibleRect;
-            if (this._renderCmd._cameraFlag > 0) {
-                rect = cc.Camera.main.visibleRect;
-            }
-
-            vl = rect.left.x;
-            vr = rect.right.x;
-            vt = rect.top.y;
-            vb = rect.bottom.y;
-
             // x1, y1  leftBottom
             // x2, y2  rightBottom
             // x3, y3  leftTop
@@ -1436,7 +1436,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         else {
             var bb = this._renderCmd._currentRegion,
                 l = bb._minX, r = bb._maxX, b = bb._minY, t = bb._maxY;
-            if (r < vl.x || l > vr.x || t < vb.y || b > vt.y) {
+            if (r < vl || l > vr || t < vb || b > vt) {
                 this._renderCmd._needDraw = false;
             }
             else {
