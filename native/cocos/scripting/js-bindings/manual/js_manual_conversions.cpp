@@ -250,7 +250,7 @@ bool JSB_jsval_typedarray_to_dataptr( JSContext *cx, JS::HandleValue vp, GLsizei
     // WebGL supports TypedArray and sequences for some of its APIs. So when converting a TypedArray, we should
     // also check for a possible non-Typed Array JS object, like a JS Array.
 
-    bool isArray;
+    bool isArray = false;
     if( JS_IsTypedArrayObject( jsobj ) ) {
 
         *count = JS_GetTypedArrayLength(jsobj);
@@ -622,7 +622,7 @@ bool jsvals_variadic_to_ccvaluevector( JSContext *cx, JS::Value *vp, int argc, c
             JS::RootedObject jsobj(cx, value.toObjectOrNull());
             CCASSERT(jsb_get_js_proxy(cx, jsobj) == nullptr, "Native object should be added!");
 
-            bool isArray;
+            bool isArray = false;
             if (!JS_IsArrayObject(cx, jsobj, &isArray) || !isArray)
             {
                 // It's a normal js object.
@@ -806,7 +806,7 @@ bool jsval_to_ccarray_of_CCPoint(JSContext* cx, JS::HandleValue v, Point **point
     {
         return false;
     }
-    bool isArray;
+    bool isArray = false;
     JSB_PRECONDITION3(JS_IsArrayObject( cx, jsobj, &isArray) && isArray, cx, false, "Object must be an array");
 
     uint32_t len;
@@ -837,7 +837,7 @@ bool jsval_to_ccvalue(JSContext* cx, JS::HandleValue v, cocos2d::Value* ret)
     {
         JS::RootedObject jsobj(cx, v.toObjectOrNull());
         CCASSERT(jsb_get_js_proxy(cx, jsobj) == nullptr, "Native object should be added!");
-        bool isArray;
+        bool isArray = false;
         if (!JS_IsArrayObject(cx, jsobj, &isArray) || !isArray)
         {
             // It's a normal js object.
@@ -885,12 +885,12 @@ bool jsval_to_ccvaluemap(JSContext* cx, JS::HandleValue v, cocos2d::ValueMap* re
         return true;
     }
 
-    JS::RootedObject tmp(cx, v.toObjectOrNull());
-    if (!tmp) {
+    if (!v.isObject()) {
         CCLOG("%s", "jsval_to_ccvaluemap: the jsval is not an object.");
         return false;
     }
     
+    JS::RootedObject tmp(cx, v.toObjectOrNull());
     JS::Rooted<JS::IdVector> ids(cx, cx);
     if (!JS_Enumerate(cx, tmp, &ids))
     {
@@ -923,7 +923,7 @@ bool jsval_to_ccvaluemap(JSContext* cx, JS::HandleValue v, cocos2d::ValueMap* re
         {
             jsobj = value.toObjectOrNull();
             CCASSERT(jsb_get_js_proxy(cx, jsobj) == nullptr, "Native object should be added!");
-            bool isArray;
+            bool isArray = false;
             if (!JS_IsArrayObject(cx, jsobj, &isArray) || !isArray)
             {
                 // It's a normal js object.
@@ -972,12 +972,12 @@ bool jsval_to_ccvaluemapintkey(JSContext* cx, JS::HandleValue v, cocos2d::ValueM
         return true;
     }
 
-    JS::RootedObject tmp(cx, v.toObjectOrNull());
-    if (!tmp) {
+    if (!v.isObject()) {
         CCLOG("%s", "jsval_to_ccvaluemapintkey: the jsval is not an object.");
         return false;
     }
     
+    JS::RootedObject tmp(cx, v.toObjectOrNull());
     JS::Rooted<JS::IdVector> ids(cx, cx);
     if (!JS_Enumerate(cx, tmp, &ids))
     {
@@ -1010,7 +1010,7 @@ bool jsval_to_ccvaluemapintkey(JSContext* cx, JS::HandleValue v, cocos2d::ValueM
         {
             jsobj = value.toObjectOrNull();
             CCASSERT(jsb_get_js_proxy(cx, jsobj) == nullptr, "Native object should be added!");
-            bool isArray;
+            bool isArray = false;
             if (!JS_IsArrayObject(cx, jsobj, &isArray) || !isArray)
             {
                 // It's a normal js object.
@@ -1063,7 +1063,7 @@ bool jsval_to_ccvaluevector(JSContext* cx, JS::HandleValue v, cocos2d::ValueVect
     {
         return false;
     }
-    bool isArray;
+    bool isArray = false;
     JSB_PRECONDITION3(JS_IsArrayObject(cx, jsArr, &isArray) && isArray, cx, false, "Object must be an array");
 
     uint32_t len = 0;
@@ -1142,7 +1142,7 @@ bool jsval_to_std_vector_string( JSContext *cx, JS::HandleValue vp, std::vector<
     {
         return false;
     }
-    bool isArray;
+    bool isArray = false;
     JSB_PRECONDITION3(JS_IsArrayObject(cx, jsobj, &isArray) && isArray, cx, false, "Object must be an array");
 
     uint32_t len = 0;
@@ -1180,7 +1180,7 @@ bool jsval_to_std_vector_int( JSContext *cx, JS::HandleValue vp, std::vector<int
     {
         return false;
     }
-    bool isArray;
+    bool isArray = false;
     JSB_PRECONDITION3(JS_IsArrayObject(cx, jsobj, &isArray) && isArray, cx, false, "Object must be an array");
 
     uint32_t len = 0;
@@ -1217,7 +1217,7 @@ bool jsval_to_std_vector_float( JSContext *cx, JS::HandleValue vp, std::vector<f
     {
         return false;
     }
-    bool isArray;
+    bool isArray = false;
     JSB_PRECONDITION3(JS_IsArrayObject(cx, jsobj, &isArray) && isArray, cx, false, "Object must be an array");
 
     uint32_t len = 0;
@@ -1254,7 +1254,7 @@ bool jsval_to_matrix(JSContext *cx, JS::HandleValue vp, cocos2d::Mat4* ret)
     {
         return false;
     }
-    bool isArray;
+    bool isArray = false;
     JSB_PRECONDITION3(JS_IsArrayObject(cx, jsobj, &isArray) && isArray, cx, false, "Object must be an array");
 
     uint32_t len = 0;
@@ -1373,7 +1373,7 @@ bool jsval_to_vector_vec2(JSContext* cx, JS::HandleValue v, std::vector<cocos2d:
     {
         return false;
     }
-    bool isArray;
+    bool isArray = false;
     JSB_PRECONDITION3(JS_IsArrayObject(cx, jsArr, &isArray) && isArray, cx, false, "Object must be an array");
 
     uint32_t len = 0;
@@ -1480,7 +1480,7 @@ bool jsval_to_vector_v3fc4bt2f(JSContext* cx, JS::HandleValue v, std::vector<coc
     {
         return false;
     }
-    bool isArray;
+    bool isArray = false;
     JSB_PRECONDITION3(JS_IsArrayObject(cx, jsArr, &isArray) && isArray, cx, false, "Object must be an array");
 
     uint32_t len = 0;
@@ -1507,13 +1507,13 @@ bool jsval_to_std_map_string_string(JSContext* cx, JS::HandleValue v, std::map<s
         return true;
     }
 
-    JS::RootedObject tmp(cx, v.toObjectOrNull());
-    if (!tmp)
+    if (!v.isObject())
     {
         CCLOG("%s", "jsval_to_std_map_string_string: the jsval is not an object.");
         return false;
     }
     
+    JS::RootedObject tmp(cx, v.toObjectOrNull());
     JS::Rooted<JS::IdVector> ids(cx, cx);
     if (!JS_Enumerate(cx, tmp, &ids))
     {

@@ -200,13 +200,13 @@ bool jsval_to_ccmap_string_key(JSContext *cx, JS::HandleValue v, cocos2d::Map<st
         return true;
     }
     
-    JS::RootedObject tmp(cx, v.toObjectOrNull());
-    if (!tmp)
+    if (!v.isObject())
     {
         CCLOG("%s", "jsval_to_ccmap_string_key: the js value is not an object.");
         return false;
     }
     
+    JS::RootedObject tmp(cx, v.toObjectOrNull());
     JS::Rooted<JS::IdVector> ids(cx, cx);
     if (!JS_Enumerate(cx, tmp, &ids))
     {

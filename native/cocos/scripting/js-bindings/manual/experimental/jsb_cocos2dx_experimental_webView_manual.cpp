@@ -13,7 +13,7 @@ static bool jsb_cocos2dx_experimental_webView_setOnShouldStartLoading(JSContext 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     experimental::ui::WebView* cobj = (experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 
