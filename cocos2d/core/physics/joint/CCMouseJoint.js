@@ -220,7 +220,12 @@ var MouseJoint = cc.Class({
 
     onTouchBegan: function (event) {
         var manager = cc.director.getPhysicsManager();
-        var target = event.touch.getLocation();
+        var target = this._pressPoint = event.touch.getLocation();
+        
+        if (cc.Camera.main) {
+            target = cc.Camera.main.getCameraToWorldPoint(target);
+        }
+
         var collider = manager.testPoint( target );
         if (!collider) return;
 
@@ -234,11 +239,12 @@ var MouseJoint = cc.Class({
     },
 
     onTouchMove: function (event) {
-        this.target = event.touch.getLocation();
+        this._pressPoint = event.touch.getLocation();
     },
 
     onTouchEnd: function (event) {
         this._destroy();
+        this._pressPoint = null;
     },
 
     _createJointDef: function () {
@@ -250,6 +256,12 @@ var MouseJoint = cc.Class({
         def.dampingRatio = this.dampingRatio;
         def.frequencyHz = this.frequency;
         return def;
+    },
+
+    update: function () {
+        if (cc.Camera.main && this._pressPoint) {
+            this.target = cc.Camera.main.getCameraToWorldPoint(this._pressPoint);
+        }
     }
 });
 
