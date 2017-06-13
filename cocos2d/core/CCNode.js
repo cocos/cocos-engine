@@ -31,11 +31,13 @@ var Flags = cc.Object.Flags;
 var Destroying = Flags.Destroying;
 
 var POSITION_CHANGED = 'position-changed';
+var WORLD_POSITION_CHANGED = 'world-position-changed';
 var SIZE_CHANGED = 'size-changed';
 var ANCHOR_CHANGED = 'anchor-changed';
 var ROTATION_CHANGED = 'rotation-changed';
 var SCALE_CHANGED = 'scale-changed';
 
+var PARENT_CHANGED = 'parent-changed';
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
 var CHILD_REORDER = 'child-reorder';
@@ -1091,6 +1093,42 @@ var Node = cc.Class({
         }
     },
 
+    _registerWPosChangedToNewParent (event) {
+        // remove oldParent event
+        if (event.detail) {
+            this._doRegisterWPosChangedTo(event.detail, false);
+        }
+        // add newParent event
+        if (this._parent) {
+            this._doRegisterWPosChangedTo(this._parent, true);
+        }
+        // emit world position changed
+        this._onWPosChanged();
+    },
+
+    _onWPosChanged () {
+        this.emit(WORLD_POSITION_CHANGED);
+    },
+
+    _registerWPosChanged (register) {
+        if (this.hasEventListener(WORLD_POSITION_CHANGED)) {
+            return;
+        }
+        //
+        this.onoff(register, POSITION_CHANGED, this._onWPosChanged, this);
+        this.onoff(register, PARENT_CHANGED, this._registerWPosChangedToNewParent, this);
+        //
+        if (this._parent) {
+            this._doRegisterWPosChangedTo(this._parent, register);
+        }
+    },
+
+    _doRegisterWPosChangedTo (target, register) {
+        target.onoff(register, WORLD_POSITION_CHANGED, this._onWPosChanged, this);
+        target.onoff(register, ROTATION_CHANGED, this._onWPosChanged, this);
+        target.onoff(register, SCALE_CHANGED, this._onWPosChanged, this);
+    },
+
     // EVENTS
 
     /**
@@ -1174,6 +1212,10 @@ var Node = cc.Class({
             }, this, 0, 0, 0, false);
         }
 
+        if (type === WORLD_POSITION_CHANGED) {
+            this._registerWPosChanged(true);
+        }
+
         return this._EventTargetOn(type, callback, target, useCapture);
     },
 
@@ -1203,6 +1245,10 @@ var Node = cc.Class({
         }
         else if (_mouseEvents.indexOf(type) !== -1) {
             this._checkMouseListeners();
+        }
+
+        if (type === WORLD_POSITION_CHANGED) {
+            this._registerWPosChanged(false);
         }
     },
 
@@ -2510,6 +2556,9 @@ if (CC_JSB) {
  * @param {Vec2} event.detail - The old position, but this parameter is only available in editor!
  */
 /**
+ * @event world-position-changed
+ */
+/**
  * @event size-changed
  * @param {Event.EventCustom} event
  * @param {Size} event.detail - The old size, but this parameter is only available in editor!
@@ -2517,6 +2566,11 @@ if (CC_JSB) {
 /**
  * @event anchor-changed
  * @param {Event.EventCustom} event
+ */
+/**
+ * @event parent-changed
+ * @param {Event.EventCustom} event
+ * @param {Node} event.detail - oldParent
  */
 /**
  * @event child-added

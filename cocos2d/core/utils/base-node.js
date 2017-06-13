@@ -31,9 +31,9 @@ var JS = cc.js;
 var Destroying = Flags.Destroying;
 var DontDestroy = Flags.DontDestroy;
 
+var PARENT_CHANGED = 'parent-changed';
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
-
 
 var idGenerater = new IdGenerater('Node');
 
@@ -384,6 +384,8 @@ var BaseNode = cc.Class({
         else if (value) {
             this._onHierarchyChanged(null);
         }
+
+        this.emit(PARENT_CHANGED, oldParent);
     },
 
 

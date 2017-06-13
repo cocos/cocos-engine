@@ -152,6 +152,30 @@ proto.hasEventListener = function (type, checkCapture) {
 };
 
 /**
+ * !#en Register or remove a specific event type callback for the event object
+ * !#zh 注册或者删除事件目标的特定事件类型回调
+ *
+ * @method onoff
+ * @param {Boolean} isOn - Represents a ‘on’ event or ‘off’ event
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {Object} [target] - The target to invoke the callback, can be null
+ * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
+ *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
+ *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
+ *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
+ */
+proto.onoff = function (isOn, type, callback, target, useCapture) {
+    if (isOn) {
+        this.on(type, callback, target, useCapture);
+    }
+    else {
+        this.off(type, callback, target, useCapture);
+    }
+};
+
+/**
  * !#en
  * Register an callback of a specific event type on the EventTarget.
  * !#zh
