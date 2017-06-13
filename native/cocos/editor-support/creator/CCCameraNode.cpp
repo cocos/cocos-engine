@@ -25,6 +25,7 @@ namespace creator {
     
     CameraNode::~CameraNode()
     {
+        _cameraInstance = nullptr;
     }
     
     CameraNode* CameraNode::getInstance() {
