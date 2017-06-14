@@ -82,8 +82,7 @@ test('persist node should replace existing node in scene', function () {
     newScene.addChild(new cc.Node());
     var newNode = new cc.Node();
     newNode._id = oldNode.uuid;
-    newNode.parent = newScene;
-    newNode.setSiblingIndex(1);
+    newScene.insertChild(newNode, 1);
 
     cc.director.runSceneImmediate(newScene);
 

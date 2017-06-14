@@ -218,8 +218,7 @@ cc.js.mixin(cc.director, {
                     // scene also contains the persist node, select the old one
                     var index = existNode.getSiblingIndex();
                     existNode._destroyImmediate();
-                    node.parent = scene;
-                    node.setSiblingIndex(index);
+                    scene.insertChild(node, index);
                 }
                 else {
                     node.parent = scene;

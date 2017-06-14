@@ -414,9 +414,7 @@ var BaseNode = cc.Class({
      * node.attr(attrs);
      */
     attr (attrs) {
-        for (var key in attrs) {
-            this[key] = attrs[key];
-        }
+        Js.mixin(this, attrs);
     },
 
     // composition: GET
@@ -489,6 +487,7 @@ var BaseNode = cc.Class({
     },
 
     // composition: ADD
+
     addChild (child) {
 
         if (CC_DEV && !(child instanceof cc._BaseNode)) {
@@ -500,6 +499,22 @@ var BaseNode = cc.Class({
         // invokes the parent setter
         child.setParent(this);
 
+    },
+
+    /**
+     * !#en
+     * Inserts a child to the node at a specified index.
+     * !#zh
+     * 插入子节点到指定位置
+     * @method insertChild
+     * @param {Node} child - the child node to be inserted
+     * @param {Number} siblingIndex - the sibling index to place the child in
+     * @example
+     * node.insertChild(child, 2);
+     */
+    insertChild (child, siblingIndex) {
+        child.parent = this;
+        child.setSiblingIndex(siblingIndex);
     },
 
     // HIERARCHY METHODS
