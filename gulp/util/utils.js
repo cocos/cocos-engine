@@ -2,7 +2,6 @@
 
 const Path = require('path');
 allowReturnOutsideFunctionInBrowserifyTransform();
-const Browserify = require('browserify');
 const Fs = require('fs');
 const Macro = require('./macro');
 
@@ -103,10 +102,15 @@ function allowReturnOutsideFunctionInBrowserifyTransform () {
     }
 }
 
-exports.createBundler = function createBundler(entryFiles, babelifyOpt) {
+/*
+ * @param [options.sourcemaps = true]
+ * @param [options.babelifyOpt]
+ */
+exports.createBundler = function createBundler(entryFiles, options) {
     // https://github.com/substack/node-browserify#methods
-    var options = {
-        debug: true,
+    var browserifyOpt = {
+        entries: [].concat(entryFiles),
+        debug: (options && 'sourcemaps' in options) ? options.sourcemaps : true,
         detectGlobals: false,    // dont insert `process`, `global`, `__filename`, and `__dirname`
         bundleExternal: false,   // dont bundle external modules
         //standalone: 'engine-framework',
@@ -140,9 +144,25 @@ exports.createBundler = function createBundler(entryFiles, babelifyOpt) {
         console.error('Please run "npm install babelify".');
         throw e;
     }
-    return new Browserify(entryFiles, options)
+
+    var b;
+    if (options && options.cacheDir) {
+        // https://github.com/royriojas/persistify
+        const Persistify = require('persistify');
+        b = Persistify(browserifyOpt, {
+            recreate: false,
+            cacheId: require('../../package.json').version + entryFiles,
+            cacheDir: options.cacheDir
+        });
+    }
+    else {
+        const Browserify = require('browserify');
+        b = new Browserify(browserifyOpt);
+    }
+
+    return b
         .exclude(Path.join(__dirname, '../../package.json'))
-        .transform(Babelify, babelifyOpt || {
+        .transform(Babelify, (options && options.babelifyOpt) || {
             // presets: presets,
             plugins: plugins,
 
