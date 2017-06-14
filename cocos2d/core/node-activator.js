@@ -170,7 +170,7 @@ var NodeActivator = cc.Class({
     },
 
     _deactivateNodeRecursively (node) {
-        if (CC_TEST || CC_DEV) {
+        if (CC_DEV) {
             cc.assert(!(node._objFlags & Deactivating), 'node should not deactivating');
             // ensures _activeInHierarchy is always changing when Deactivating flagged
             cc.assert(node._activeInHierarchy, 'node should not deactivated');
