@@ -561,6 +561,9 @@ js_type_class_t *jsb_register_class(JSContext *cx, JSClass *jsClass, JS::HandleO
     return p;
 }
 
+
+void handlePendingException(JSContext *cx);
+
 void make_class_extend(JSContext *cx, JS::HandleObject proto);
 
 /** creates proxy that associated the nativeObj with the JsObj, add it to the global map and set the proxy to the hook's private slot*/

@@ -606,12 +606,14 @@ void ScriptingCore::createGlobalContext() {
     JS::ContextOptionsRef(_cx)
         .setIon(false)
         .setBaseline(false)
-        .setAsmJS(false);
+        .setAsmJS(false)
+        .setNativeRegExp(true);
 #else
     JS::ContextOptionsRef(_cx)
         .setIon(true)
         .setBaseline(true)
-        .setAsmJS(true);
+        .setAsmJS(true)
+        .setNativeRegExp(true);
 #endif
     
     JS::RootedObject global(_cx, JS_NewGlobalObject(_cx, &global_class, nullptr, JS::DontFireOnNewGlobalHook, options));
@@ -2109,6 +2111,27 @@ void ScriptingCore::enableDebugger(unsigned int port)
 //        Scheduler* scheduler = Director::getInstance()->getScheduler();
 //        scheduler->scheduleUpdate(this->_runLoop, 0, false);
 //    }
+}
+
+void handlePendingException(JSContext *cx)
+{
+    JS::RootedValue err(cx);
+    if (JS_GetPendingException(cx, &err) && err.isObject())
+    {
+        JS_ClearPendingException(cx);
+        
+        JS::RootedObject errObj(cx, err.toObjectOrNull());
+        JSErrorReport *report = JS_ErrorFromException(cx, errObj);
+        CCLOGERROR("JS Exception: %s, file: %s, lineno: %u\n", report->message().c_str(), report->filename, report->lineno);
+        
+        JS::RootedValue stack(cx);
+        if (JS_GetProperty(cx, errObj, "stack", &stack) && stack.isString())
+        {
+            JS::RootedString jsstackStr(cx, stack.toString());
+            char *stackStr = JS_EncodeStringToUTF8(cx, jsstackStr);
+            CCLOGERROR("Stack: %s\n", stackStr);
+        }
+    }
 }
 
 void make_class_extend(JSContext *cx, JS::HandleObject proto)
