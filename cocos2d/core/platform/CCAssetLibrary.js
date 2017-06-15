@@ -46,6 +46,13 @@ function isScene (asset) {
     return asset && (asset.constructor === cc.SceneAsset || asset instanceof cc.Scene);
 }
 
+// types
+
+function RawAssetEntry (url, type) {
+    this.url = url;
+    this.type = type;
+}
+
 // publics
 
 var AssetLibrary = {
@@ -290,10 +297,7 @@ var AssetLibrary = {
                         cc.error('Cannot get', typeId);
                         continue;
                     }
-                    _uuidToRawAsset[uuid] = {
-                        url: mountPoint + '/' + url,
-                        type: type,
-                    };
+                    _uuidToRawAsset[uuid] = new RawAssetEntry(mountPoint + '/' + url, type);
                     // init resources
                     if (mountPoint === 'assets' && url.startsWith(RES_DIR)) {
                         if (cc.isChildClassOf(type, Asset)) {
