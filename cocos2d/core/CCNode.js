@@ -155,6 +155,10 @@ var _mouseEvents = [
 var _currentHovered = null;
 
 var _touchStartHandler = function (touch, event) {
+    if (CC_JSB)
+    {
+        event.resetStates();
+    }
     var pos = touch.getLocation();
     var node = this.owner;
 
@@ -168,6 +172,10 @@ var _touchStartHandler = function (touch, event) {
     return false;
 };
 var _touchMoveHandler = function (touch, event) {
+    if (CC_JSB)
+    {
+        event.resetStates();
+    }
     var node = this.owner;
     event.type = EventType.TOUCH_MOVE;
     event.touch = touch;
@@ -175,6 +183,10 @@ var _touchMoveHandler = function (touch, event) {
     node.dispatchEvent(event);
 };
 var _touchEndHandler = function (touch, event) {
+    if (CC_JSB)
+    {
+        event.resetStates();
+    }
     var pos = touch.getLocation();
     var node = this.owner;
 
@@ -190,6 +202,10 @@ var _touchEndHandler = function (touch, event) {
 };
 
 var _mouseDownHandler = function (event) {
+    if (CC_JSB)
+    {
+        event.resetStates();
+    }
     var pos = event.getLocation();
     var node = this.owner;
 
@@ -200,6 +216,10 @@ var _mouseDownHandler = function (event) {
     }
 };
 var _mouseMoveHandler = function (event) {
+    if (CC_JSB)
+    {
+        event.resetStates();
+    }
     var pos = event.getLocation();
     var node = this.owner;
     if (node._hitTest(pos, this)) {
@@ -227,6 +247,10 @@ var _mouseMoveHandler = function (event) {
     }
 };
 var _mouseUpHandler = function (event) {
+    if (CC_JSB)
+    {
+        event.resetStates();
+    }
     var pos = event.getLocation();
     var node = this.owner;
 
@@ -237,6 +261,10 @@ var _mouseUpHandler = function (event) {
     }
 };
 var _mouseWheelHandler = function (event) {
+    if (CC_JSB)
+    {
+        event.resetStates();
+    }
     var pos = event.getLocation();
     var node = this.owner;
 
