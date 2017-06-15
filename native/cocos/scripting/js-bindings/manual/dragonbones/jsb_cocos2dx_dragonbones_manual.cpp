@@ -22,7 +22,6 @@
 
 #include "scripting/js-bindings/manual/dragonbones/jsb_cocos2dx_dragonbones_manual.h"
 #include "scripting/js-bindings/manual/ScriptingCore.h"
-#include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 #include "editor-support/dragonbones/cocos2dx/CCDragonBonesHeaders.h"
 
 using namespace dragonBones;

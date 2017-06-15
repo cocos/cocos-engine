@@ -74,7 +74,7 @@ cc.view.getTargetDensityDPI = function() {return cc.macro.DENSITYDPI_DEVICE;};
 
 cc.eventManager = cc.director.getEventDispatcher();
 
-cc.eventManager.addCustomListener('window-resize', function () {
+window._windowResizeListener = cc.eventManager.addCustomListener('window-resize', function () {
     cc.winSize = cc.director.getWinSize();
     cc.visibleRect.init();
 });
@@ -753,6 +753,9 @@ Function.prototype.bind = function (oThis, ...aArgs) {
 jsb.urlRegExp = new RegExp("^(?:https?|ftp)://\\S*$", "i");
 
 cc._engineLoaded = false;
+
+var console = console || {}
+console.log = log;
 
 (function (config) {
     require("script/jsb.js");

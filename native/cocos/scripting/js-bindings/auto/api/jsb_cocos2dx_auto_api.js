@@ -526,17 +526,6 @@ stopPropagation : function (
 {
 },
 
-/**
- * @method Event
- * @constructor
- * @param {cc.Event::Type} arg0
- */
-Event : function (
-type 
-)
-{
-},
-
 };
 
 /**
@@ -545,13 +534,13 @@ type
 cc.EventTouch = {
 
 /**
- * @method getEventCode
- * @return {cc.EventTouch::EventCode}
+ * @method getTouches
+ * @return {Array}
  */
-getEventCode : function (
+getTouches : function (
 )
 {
-    return 0;
+    return new Array();
 },
 
 /**
@@ -565,12 +554,13 @@ eventcode
 },
 
 /**
- * @method EventTouch
- * @constructor
+ * @method getEventCode
+ * @return {cc.EventTouch::EventCode}
  */
-EventTouch : function (
+getEventCode : function (
 )
 {
+    return 0;
 },
 
 };
@@ -824,13 +814,23 @@ getChildren : function(
 },
 
 /**
- * @method setOnExitCallback
- * @param {function} arg0
+ * @method pause
  */
-setOnExitCallback : function (
-func 
+pause : function (
 )
 {
+},
+
+/**
+ * @method convertToWorldSpaceAR
+ * @param {vec2_object} arg0
+ * @return {vec2_object}
+ */
+convertToWorldSpaceAR : function (
+vec2 
+)
+{
+    return cc.Vec2;
 },
 
 /**
@@ -873,6 +873,16 @@ init : function (
 )
 {
     return false;
+},
+
+/**
+ * @method getBeforeVisitCallback
+ * @return {function}
+ */
+getBeforeVisitCallback : function (
+)
+{
+    return std::function<void (cocos2d::Renderer )>;
 },
 
 /**
@@ -933,16 +943,6 @@ getColor : function (
 )
 {
     return cc.Color3B;
-},
-
-/**
- * @method setonEnterTransitionDidFinishCallback
- * @param {function} arg0
- */
-setonEnterTransitionDidFinishCallback : function (
-func 
-)
-{
 },
 
 /**
@@ -1018,6 +1018,18 @@ bool
 },
 
 /**
+ * @method convertToWorldSpace
+ * @param {vec2_object} arg0
+ * @return {vec2_object}
+ */
+convertToWorldSpace : function (
+vec2 
+)
+{
+    return cc.Vec2;
+},
+
+/**
  * @method getScene
  * @return {cc.Scene}
  */
@@ -1058,16 +1070,6 @@ glprogramstate
 },
 
 /**
- * @method setOnEnterCallback
- * @param {function} arg0
- */
-setOnEnterCallback : function (
-func 
-)
-{
-},
-
-/**
  * @method stopActionsByFlags
  * @param {unsigned int} arg0
  */
@@ -1083,16 +1085,6 @@ int
  */
 setNormalizedPosition : function (
 vec2 
-)
-{
-},
-
-/**
- * @method setonExitTransitionDidStartCallback
- * @param {function} arg0
- */
-setonExitTransitionDidStartCallback : function (
-func 
 )
 {
 },
@@ -1180,6 +1172,14 @@ getName : function (
 },
 
 /**
+ * @method resume
+ */
+resume : function (
+)
+{
+},
+
+/**
  * @method getNodeToParentAffineTransform
 * @param {cc.Node} node
 * @return {cc.AffineTransform|cc.AffineTransform}
@@ -1189,6 +1189,16 @@ node
 )
 {
     return cc.AffineTransform;
+},
+
+/**
+ * @method getAfterVisitCallback
+ * @return {function}
+ */
+getAfterVisitCallback : function (
+)
+{
+    return std::function<void (cocos2d::Renderer )>;
 },
 
 /**
@@ -1229,6 +1239,16 @@ int
  */
 setSkewY : function (
 float 
+)
+{
+},
+
+/**
+ * @method setColor
+ * @param {color3b_object} arg0
+ */
+setColor : function (
+color3b 
 )
 {
 },
@@ -1471,18 +1491,6 @@ getSkewY : function (
 )
 {
     return 0;
-},
-
-/**
- * @method isScheduled
- * @param {String} arg0
- * @return {bool}
- */
-isScheduled : function (
-str 
-)
-{
-    return false;
 },
 
 /**
@@ -2486,16 +2494,6 @@ pollEvents : function (
 {
 },
 
-/**
- * @method setGLContextAttrs
- * @param {GLContextAttrs} arg0
- */
-setGLContextAttrs : function (
-glcontextattrs 
-)
-{
-},
-
 };
 
 /**
@@ -3191,16 +3189,6 @@ int
 },
 
 /**
- * @method performFunctionInCocosThread
- * @param {function} arg0
- */
-performFunctionInCocosThread : function (
-func 
-)
-{
-},
-
-/**
  * @method unscheduleAll
  */
 unscheduleAll : function (
@@ -3890,6 +3878,20 @@ vec4
 cc.FileUtils = {
 
 /**
+ * @method writeDataToFile
+ * @param {cc.Data} arg0
+ * @param {String} arg1
+ * @return {bool}
+ */
+writeDataToFile : function (
+data, 
+str 
+)
+{
+    return false;
+},
+
+/**
  * @method fullPathForFilename
  * @param {String} arg0
  * @return {String}
@@ -3923,6 +3925,18 @@ str
 )
 {
     return false;
+},
+
+/**
+ * @method getDataFromFile
+ * @param {String} arg0
+ * @return {cc.Data}
+ */
+getDataFromFile : function (
+str 
+)
+{
+    return cc.Data;
 },
 
 /**
@@ -4328,17 +4342,6 @@ getInstance : function (
  */
 cc.EventAcceleration = {
 
-/**
- * @method EventAcceleration
- * @constructor
- * @param {cc.Acceleration} arg0
- */
-EventAcceleration : function (
-acceleration 
-)
-{
-},
-
 };
 
 /**
@@ -4449,6 +4452,20 @@ eventlistener,
 node 
 )
 {
+},
+
+/**
+ * @method addCustomEventListener
+ * @param {String} arg0
+ * @param {function} arg1
+ * @return {cc.EventListenerCustom}
+ */
+addCustomEventListener : function (
+str, 
+func 
+)
+{
+    return cc.EventListenerCustom;
 },
 
 /**
@@ -4578,19 +4595,6 @@ EventDispatcher : function (
  * @class EventFocus
  */
 cc.EventFocus = {
-
-/**
- * @method EventFocus
- * @constructor
- * @param {ccui.Widget} arg0
- * @param {ccui.Widget} arg1
- */
-EventFocus : function (
-widget, 
-widget 
-)
-{
-},
 
 };
 
@@ -4847,17 +4851,6 @@ getStartLocationInView : function (
 )
 {
     return cc.Vec2;
-},
-
-/**
- * @method EventMouse
- * @constructor
- * @param {cc.EventMouse::MouseEventType} arg0
- */
-EventMouse : function (
-mouseeventtype 
-)
-{
 },
 
 };
@@ -7210,16 +7203,6 @@ TargetedAction : function (
 cc.CardinalSplineTo = {
 
 /**
- * @method getPoints
- * @return {point_object}
- */
-getPoints : function (
-)
-{
-    return cc.PointArray;
-},
-
-/**
  * @method updatePosition
  * @param {vec2_object} arg0
  */
@@ -8894,16 +8877,6 @@ setBlendFunc : function (
 blendfunc 
 )
 {
-},
-
-/**
- * @method getTextureAtlas
- * @return {cc.TextureAtlas}
- */
-getTextureAtlas : function (
-)
-{
-    return cc.TextureAtlas;
 },
 
 /**
@@ -11189,6 +11162,16 @@ menuitem
 },
 
 /**
+ * @method getSubItems
+* @return {Array|Array}
+*/
+getSubItems : function(
+)
+{
+    return new Array();
+},
+
+/**
  * @method getSelectedIndex
  * @return {unsigned int}
  */
@@ -11285,6 +11268,14 @@ isEnabled : function (
 },
 
 /**
+ * @method alignItemsHorizontally
+ */
+alignItemsHorizontally : function (
+)
+{
+},
+
+/**
  * @method alignItemsHorizontallyWithPadding
  * @param {float} arg0
  */
@@ -11305,9 +11296,21 @@ float
 },
 
 /**
- * @method alignItemsHorizontally
+ * @method alignItemsInRowsWithArray
+ * @param {Array} arg0
  */
-alignItemsHorizontally : function (
+alignItemsInRowsWithArray : function (
+array 
+)
+{
+},
+
+/**
+ * @method alignItemsInColumnsWithArray
+ * @param {Array} arg0
+ */
+alignItemsInColumnsWithArray : function (
+array 
 )
 {
 },
@@ -11631,16 +11634,6 @@ bool
 },
 
 /**
- * @method getTextureAtlas
- * @return {cc.TextureAtlas}
- */
-getTextureAtlas : function (
-)
-{
-    return cc.TextureAtlas;
-},
-
-/**
  * @method getBlendFunc
  * @return {cc.BlendFunc}
  */
@@ -11714,67 +11707,9 @@ ParticleBatchNode : function (
 };
 
 /**
- * @class ParticleData
- */
-cc.ParticleData = {
-
-/**
- * @method release
- */
-release : function (
-)
-{
-},
-
-/**
- * @method getMaxCount
- * @return {unsigned int}
- */
-getMaxCount : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method init
- * @param {int} arg0
- * @return {bool}
- */
-init : function (
-int 
-)
-{
-    return false;
-},
-
-/**
- * @method copyParticle
- * @param {int} arg0
- * @param {int} arg1
- */
-copyParticle : function (
-int, 
-int 
-)
-{
-},
-
-/**
- * @method ParticleData
- * @constructor
- */
-ParticleData : function (
-)
-{
-},
-
-};
-
-/**
  * @class ParticleSystem
  */
-cc.ParticleSystem = {
+cc._ParticleSystem = {
 
 /**
  * @method getStartSizeVar
@@ -14365,16 +14300,6 @@ int
 },
 
 /**
- * @method getUniformFlags
- * @return {cc.GLProgram::UniformFlags}
- */
-getUniformFlags : function (
-)
-{
-    return cc.GLProgram::UniformFlags;
-},
-
-/**
  * @method getUniformLocationForName
  * @param {char} arg0
  * @return {int}
@@ -14568,18 +14493,6 @@ str
 )
 {
     return 0;
-},
-
-/**
- * @method getVertexAttrib
- * @param {String} arg0
- * @return {cc.VertexAttrib}
- */
-getVertexAttrib : function (
-str 
-)
-{
-    return cc.VertexAttrib;
 },
 
 /**
@@ -14820,16 +14733,6 @@ getName : function (
 )
 {
     return ;
-},
-
-/**
- * @method getStateBlock
- * @return {cc.RenderState::StateBlock}
- */
-getStateBlock : function (
-)
-{
-    return cc.RenderState::StateBlock;
 },
 
 /**
@@ -15566,16 +15469,6 @@ getTexture : function (
 increaseAtlasCapacity : function (
 )
 {
-},
-
-/**
- * @method getTextureAtlas
- * @return {cc.TextureAtlas}
- */
-getTextureAtlas : function (
-)
-{
-    return cc.TextureAtlas;
 },
 
 /**

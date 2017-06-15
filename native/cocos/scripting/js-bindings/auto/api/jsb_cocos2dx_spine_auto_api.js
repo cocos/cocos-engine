@@ -123,6 +123,20 @@ updateWorldTransform : function (
 },
 
 /**
+ * @method getAttachment
+ * @param {String} arg0
+ * @param {String} arg1
+ * @return {spAttachment}
+ */
+getAttachment : function (
+str, 
+str 
+)
+{
+    return spAttachment;
+},
+
+/**
  * @method initialize
  */
 initialize : function (
@@ -183,6 +197,18 @@ str
 },
 
 /**
+ * @method findSlot
+ * @param {String} arg0
+ * @return {spSlot}
+ */
+findSlot : function (
+str 
+)
+{
+    return spSlot;
+},
+
+/**
  * @method getSkeleton
  * @return {spSkeleton}
  */
@@ -190,6 +216,18 @@ getSkeleton : function (
 )
 {
     return spSkeleton;
+},
+
+/**
+ * @method findBone
+ * @param {String} arg0
+ * @return {spBone}
+ */
+findBone : function (
+str 
+)
+{
+    return spBone;
 },
 
 /**
@@ -245,6 +283,22 @@ float
 sp.SkeletonAnimation = {
 
 /**
+ * @method setAnimation
+ * @param {int} arg0
+ * @param {String} arg1
+ * @param {bool} arg2
+ * @return {spTrackEntry}
+ */
+setAnimation : function (
+int, 
+str, 
+bool 
+)
+{
+    return spTrackEntry;
+},
+
+/**
  * @method findAnimation
  * @param {String} arg0
  * @return {spAnimation}
@@ -281,6 +335,16 @@ func
 },
 
 /**
+ * @method setAnimationStateData
+ * @param {spAnimationStateData} arg0
+ */
+setAnimationStateData : function (
+spanimationstatedata 
+)
+{
+},
+
+/**
  * @method setEndListener
  * @param {function} arg0
  */
@@ -311,6 +375,16 @@ func
 },
 
 /**
+ * @method getCurrent
+ * @return {spTrackEntry}
+ */
+getCurrent : function (
+)
+{
+    return spTrackEntry;
+},
+
+/**
  * @method setEventListener
  * @param {function} arg0
  */
@@ -336,6 +410,24 @@ setInterruptListener : function (
 func 
 )
 {
+},
+
+/**
+ * @method addAnimation
+ * @param {int} arg0
+ * @param {String} arg1
+ * @param {bool} arg2
+ * @param {float} arg3
+ * @return {spTrackEntry}
+ */
+addAnimation : function (
+int, 
+str, 
+bool, 
+float 
+)
+{
+    return spTrackEntry;
 },
 
 /**
