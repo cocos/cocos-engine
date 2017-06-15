@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const GEN_SOURCE_MAPS = false;
+
 'use strict';
 
 const Path = require('path');
@@ -43,31 +45,47 @@ const UglifyHarmony = require('uglify-js-harmony');
 const Utils = require('../util/utils');
 
 exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFileForExtends, callback) {
-    var engine = Utils.createBundler(sourceFile)
+    var cacheDir = Path.resolve(Path.dirname(outputFile), '.cache/test-compile-cache');
+    var engine = Utils.createBundler(sourceFile, {
+        sourcemaps: GEN_SOURCE_MAPS,
+        cacheDir: cacheDir
+    })
         .bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
         .pipe(Source(Path.basename(outputFile)))
-        .pipe(Buffer())
-        // remove `..args` used in CC_JSB
-        .pipe(Sourcemaps.init({loadMaps: true}))
-        .pipe(Minifier(Utils.uglifyOptions('test', false, false), UglifyHarmony))
-        .pipe(Sourcemaps.write('./', {
+        .pipe(Buffer());
+
+    if (GEN_SOURCE_MAPS) {
+        engine = engine.pipe(Sourcemaps.init({loadMaps: true}));
+    }
+
+    // remove `..args` used in CC_JSB
+    engine = engine.pipe(Minifier(Utils.uglifyOptions('test', false, false), UglifyHarmony));
+
+    if (GEN_SOURCE_MAPS) {
+        engine = engine.pipe(Sourcemaps.write('./', {
             sourceRoot: '../',
             includeContent: false,
             addComment: true
-        }))
-        //
-        .pipe(Gulp.dest(Path.dirname(outputFile)));
+        }));
+    }
+
+    engine = engine.pipe(Gulp.dest(Path.dirname(outputFile)));
 
     if (Fs.existsSync(sourceFileForExtends)) {
-        var engineExtends = Utils.createBundler(sourceFileForExtends, {
-                presets: ['env'],
-                ast: false,
-                babelrc: false,
-                highlightCode: false,
-                sourceMaps: true,
-                compact: false
+        var engineExtends = Utils.createBundler(sourceFileForExtends,
+            {
+                sourcemaps: GEN_SOURCE_MAPS,
+                babelifyOpt: {
+                    presets: ['env'],
+                    ast: false,
+                    babelrc: false,
+                    highlightCode: false,
+                    sourceMaps: true,
+                    compact: false
+                },
+                cacheDir: cacheDir
             })
             .bundle()
             .on('error', HandleErrors.handler)
