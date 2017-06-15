@@ -190,8 +190,7 @@
         newNode.parent = testChild;
 
         var newNode2 = new cc.Node();
-        newNode2.parent = testNode;
-        newNode2.setSiblingIndex(0);
+        testNode.insertChild(newNode2, 0);
 
         _Scene.PrefabUtils.revertPrefab(testNode, function () {
             ok(testNode.x != prefab.data.x, 'Should not revert root position');

@@ -2275,7 +2275,7 @@ var Node = cc.Class({
 
     /**
      * !#en
-     * "add" logic MUST only be in this method <br/>
+     * Adds a child to the node with z order and tag.
      * !#zh
      * 添加子节点，并且可以修改该节点的 局部 Z 顺序和标签。
      * @method addChild
