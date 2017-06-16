@@ -1049,9 +1049,7 @@ _p.schedule = function (callback, target, interval, repeat, delay, paused, key) 
             delay = 0;
         }
     }
-    if (key === undefined) {
-        key = target.__instanceId + "";
-    }
+
     this._schedule(callback, target, interval, repeat, delay, paused, key);
 };
 

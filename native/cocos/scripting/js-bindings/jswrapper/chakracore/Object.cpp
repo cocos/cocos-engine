@@ -428,6 +428,7 @@ namespace se {
         {
             return true;
         }
+
         return false;
     }
 
@@ -573,7 +574,8 @@ namespace se {
     void Object::switchToRooted()
     {
         debug("switch to rooted");
-        assert(!_isRooted);
+        if (_isRooted)
+            return;
 
         unsigned int count = 0;
         _CHECK(JsAddRef(_obj, &count));
@@ -582,7 +584,8 @@ namespace se {
 
     void Object::switchToUnrooted()
     {
-        assert(_isRooted);
+        if (!_isRooted)
+            return;
 
         if (_isKeepRootedUntilDie)
             return;

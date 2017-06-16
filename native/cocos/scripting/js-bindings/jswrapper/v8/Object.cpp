@@ -370,6 +370,7 @@ namespace se {
         }
         else
         {
+            SE_REPORT_ERROR("Invoking function (%p) failed!", this);
             se::ScriptEngine::getInstance()->clearException();
         }
 
@@ -571,14 +572,17 @@ namespace se {
 
     void Object::switchToRooted()
     {
-        assert(!_isRooted);
+        if (_isRooted)
+            return;
+
         _obj.ref();
         _isRooted = true;
     }
 
     void Object::switchToUnrooted()
     {
-        assert(_isRooted);
+        if (!_isRooted)
+            return;
 
         if (_isKeepRootedUntilDie)
             return;

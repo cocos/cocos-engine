@@ -174,13 +174,8 @@ bool seval_to_ssize(const se::Value& v, ssize_t* ret)
 bool seval_to_std_string(const se::Value& v, std::string* ret)
 {
     assert(ret != nullptr);
-    if (v.isString())
-    {
-        *ret = v.toString();
-        return true;
-    }
-    ret->clear();
-    return false;
+    *ret = v.toStringForce();
+    return true;
 }
 
 bool seval_to_Vec2(const se::Value& v, cocos2d::Vec2* pt)
@@ -666,6 +661,31 @@ bool seval_to_std_vector_Vec2(const se::Value& v, std::vector<cocos2d::Vec2>* re
         {
             JSB_PRECONDITION3(obj->getArrayElement(i, &value) && seval_to_Vec2(value, &pt), false, ret->clear());
             ret->push_back(pt);
+        }
+        return true;
+    }
+
+    ret->clear();
+    return false;
+}
+
+bool seval_to_std_vector_Touch(const se::Value& v, std::vector<cocos2d::Touch*>* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
+    se::Object* obj = v.toObject();
+    assert(obj->isArray());
+    uint32_t len = 0;
+    if (obj->getArrayLength(&len))
+    {
+        se::Value value;
+        cocos2d::Touch* touch = nullptr;
+        for (uint32_t i = 0; i < len; ++i)
+        {
+            JSB_PRECONDITION3(obj->getArrayElement(i, &value), false, ret->clear());
+            assert(value.isObject());
+            touch = (cocos2d::Touch*)value.toObject()->getPrivateData();
+            ret->push_back(touch);
         }
         return true;
     }

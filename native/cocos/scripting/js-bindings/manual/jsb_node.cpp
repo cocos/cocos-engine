@@ -408,8 +408,11 @@ private:
 
 static uint32_t __idx = 0;
 
-static bool Scheduler_scheduleCommon(Scheduler* scheduler, const se::Value& jsThis, const se::Value& jsFunc, float interval, unsigned int repeat, float delay, bool isPaused, const std::string& aKey)
+static bool Scheduler_scheduleCommon(Scheduler* scheduler, const se::Value& jsThis, const se::Value& jsFunc, float interval, unsigned int repeat, float delay, bool isPaused, const std::string& aKey, bool toRootTarget, const std::string& callFromDebug)
 {
+    assert(jsThis.isObject());
+    assert(jsFunc.isObject());
+    assert(jsFunc.toObject()->isFunction());
     jsThis.toObject()->attachChild(jsFunc.toObject());
 
     se::Object* foundThisObj = nullptr;
@@ -442,7 +445,11 @@ static bool Scheduler_scheduleCommon(Scheduler* scheduler, const se::Value& jsTh
     insertSchedule(jsFunc.toObject(), target, key);
     std::shared_ptr<UnscheduleNotifier> unscheduleNotifier = std::make_shared<UnscheduleNotifier>(target, key);
 
-    scheduler->schedule([jsThis, jsFunc, unscheduleNotifier](float dt){
+    if (toRootTarget)
+    {
+        target->setKeepRootedUntilDie(true);
+    }
+    scheduler->schedule([jsThis, jsFunc, unscheduleNotifier, callFromDebug](float dt){
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
 
@@ -451,7 +458,11 @@ static bool Scheduler_scheduleCommon(Scheduler* scheduler, const se::Value& jsTh
 
         se::ValueArray args;
         args.push_back(se::Value((double)dt));
-        funcObj->call(args, thisObj);
+        bool ok = funcObj->call(args, thisObj);
+        if (!ok)
+        {
+            CCLOGERROR("Invoking schedule callback failed, where: %s", callFromDebug.c_str());
+        }
         
     }, target, interval, repeat, delay, isPaused, key);
 
@@ -518,7 +529,7 @@ static bool Node_schedule(se::State& s)
             JSB_PRECONDITION2(ok, false, "Converting 'key' argument failed");
         }
 
-        return Scheduler_scheduleCommon(thiz->getScheduler(), jsThis, jsFunc, interval, repeat, delay, !thiz->isRunning(), key);
+        return Scheduler_scheduleCommon(thiz->getScheduler(), jsThis, jsFunc, interval, repeat, delay, !thiz->isRunning(), key, false, "cc.Node.schedule");
     }
 
     SE_REPORT_ERROR("wrong number of arguments: %d, expected: %s", argc, ">=1");
@@ -567,7 +578,7 @@ static bool Node_scheduleOnce(se::State& s)
         JSB_PRECONDITION2(ok, false, "Converting 'key' argument failed");
     }
 
-    return Scheduler_scheduleCommon(thiz->getScheduler(), jsThis, jsFunc, 0.0f, 0, delay, !thiz->isRunning(), key);
+    return Scheduler_scheduleCommon(thiz->getScheduler(), jsThis, jsFunc, 0.0f, 0, delay, !thiz->isRunning(), key, false, "cc.Node.scheduleOnce");
 }
 SE_BIND_FUNC(Node_scheduleOnce)
 
@@ -1031,6 +1042,12 @@ static bool js_cocos2dx_Scheduler_schedule(se::State& s)
         se::Value jsFunc(args[0]);
         se::Value jsThis(args[1]);
 
+        bool isBindedObject = jsThis.toObject()->getPrivateData() != nullptr;
+//        printf("%s, is binded object: %s\n", __FUNCTION__, isBindedObject ? "true" : "false");
+
+        assert(jsThis.isObject());
+        assert(!jsThis.toObject()->isFunction());
+
         bool ok = false;
         float interval = 0.0f;
         unsigned int repeat = CC_REPEAT_FOREVER;
@@ -1076,7 +1093,7 @@ static bool js_cocos2dx_Scheduler_schedule(se::State& s)
             JSB_PRECONDITION2(ok, false, "Converting 'key' argument failed");
         }
 
-        return Scheduler_scheduleCommon(cobj, jsThis, jsFunc, interval, repeat, delay, isPaused, key);
+        return Scheduler_scheduleCommon(cobj, jsThis, jsFunc, interval, repeat, delay, isPaused, key, !isBindedObject, "cc.Scheduler.schedule");
     }
 
     SE_REPORT_ERROR("wrong number of arguments: %d, expected: %s", argc, ">=2");
@@ -1094,6 +1111,7 @@ static bool js_cocos2dx_Scheduler_unschedule(se::State& s)
     {
         se::Value jsFuncOrKey = args[0];
         se::Value jsTarget = args[1];
+//        s.thisObject()->detachChild(jsTarget.toObject());
         Scheduler* cobj = (Scheduler*)s.nativeThisObject();
         return Scheduler_unscheduleCommon(cobj, jsTarget, jsFuncOrKey);
     }
@@ -1111,6 +1129,7 @@ static bool js_cocos2dx_Scheduler_unscheduleAllForTarget(se::State& s)
     if (argc == 1)
     {
         se::Value target = args[0];
+//        s.thisObject()->detachChild(target.toObject());
         return Scheduler_unscheduleAllCallbacksCommon(cobj, target.toObject(), true);
     }
 
@@ -1127,7 +1146,7 @@ static bool js_cocos2dx_Scheduler_unscheduleAllCallbacks(se::State& s)
     if (argc == 0)
     {
         removeAllScheduleAndUpdate(true);
-
+//        s.thisObject()->detachAllChildren();
         Scheduler* cobj = (Scheduler*)s.nativeThisObject();
         cobj->unscheduleAll();
         CCLOG("After unschedule all callbacks");
@@ -1358,6 +1377,7 @@ bool jsb_register_Node_manual()
 
     auto schedulerProto = __jsb_cocos2d_Scheduler_proto;
     schedulerProto->defineFunction("scheduleUpdateForTarget", _SE(js_cocos2dx_Scheduler_scheduleUpdateForTarget));
+    schedulerProto->defineFunction("scheduleUpdate", _SE(js_cocos2dx_Scheduler_scheduleUpdateForTarget));
     schedulerProto->defineFunction("unscheduleUpdate", _SE(js_cocos2dx_Scheduler_unscheduleUpdate));
     schedulerProto->defineFunction("schedule", _SE(js_cocos2dx_Scheduler_schedule));
     schedulerProto->defineFunction("scheduleCallbackForTarget", _SE(js_cocos2dx_Scheduler_schedule));

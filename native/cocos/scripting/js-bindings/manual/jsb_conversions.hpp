@@ -73,6 +73,7 @@ bool seval_to_std_vector_string(const se::Value& v, std::vector<std::string>* re
 bool seval_to_std_vector_int(const se::Value& v, std::vector<int>* ret);
 bool seval_to_std_vector_float(const se::Value& v, std::vector<float>* ret);
 bool seval_to_std_vector_Vec2(const se::Value& v, std::vector<cocos2d::Vec2>* ret);
+bool seval_to_std_vector_Touch(const se::Value& v, std::vector<cocos2d::Touch*>* ret);
 bool seval_to_std_map_string_string(const se::Value& v, std::map<std::string, std::string>* ret);
 bool seval_to_FontDefinition(const se::Value& v, cocos2d::FontDefinition* ret);
 bool seval_to_Acceleration(const se::Value& v, cocos2d::Acceleration* ret);
@@ -261,7 +262,7 @@ bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>
     auto iter = se::__nativePtrToObjectMap.find(v);
     if (iter == se::__nativePtrToObjectMap.end())
     { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
-        CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
+//        CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
         se::Class* cls = JSBClassType::findClass<T>(v);
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls, false);

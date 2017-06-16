@@ -698,14 +698,22 @@ static bool js_EventListenerCustom_create(se::State& s)
             se::AutoHandleScope hs;
 
             assert(funcVal.isObject() && funcVal.toObject()->isFunction());
+
             se::ValueArray argArr;
             argArr.reserve(1);
 
-            se::Value arg1Val;
-            ok = native_ptr_to_seval<EventCustom>(event, &arg1Val);
-            JSB_PRECONDITION2_VOID(ok, "EventListenerCustom::create callback: convert arg1 failed!");
-
-            argArr.push_back(std::move(arg1Val));
+            const std::string& eventName = event->getEventName();
+            if (eventName != Director::EVENT_AFTER_DRAW
+                && eventName != Director::EVENT_AFTER_VISIT
+                && eventName != Director::EVENT_AFTER_DRAW
+                && eventName != Director::EVENT_AFTER_UPDATE
+                && eventName != Director::EVENT_BEFORE_UPDATE)
+            {
+                se::Value arg1Val;
+                ok = native_ptr_to_seval<EventCustom>(event, &arg1Val);
+                JSB_PRECONDITION2_VOID(ok, "EventListenerCustom::create callback: convert arg1 failed!");
+                argArr.push_back(std::move(arg1Val));
+            }
             funcVal.toObject()->call(argArr, nullptr);
 
         });

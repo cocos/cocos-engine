@@ -12,8 +12,9 @@ namespace se {
 //        std::unordered_map<std::string, Class *> __clsMap;
         JSContext* __cx = nullptr;
 
-        bool empty_contructor(JSContext* cx, uint32_t argc, JS::Value* vp)
+        bool empty_constructor(JSContext* cx, uint32_t argc, JS::Value* vp)
         {
+            assert(false);
             return true;
         }
     }
@@ -61,7 +62,8 @@ namespace se {
         _ctor = ctor;
         if (_ctor == nullptr)
         {
-            _ctor = empty_contructor;
+            _ctor = empty_constructor;
+            printf("( %s ) has empty constructor!\n", clsName);
         }
 
         return true;

@@ -526,6 +526,17 @@ stopPropagation : function (
 {
 },
 
+/**
+ * @method Event
+ * @constructor
+ * @param {cc.Event::Type} arg0
+ */
+Event : function (
+type 
+)
+{
+},
+
 };
 
 /**
@@ -534,13 +545,23 @@ stopPropagation : function (
 cc.EventTouch = {
 
 /**
- * @method getTouches
- * @return {Array}
+ * @method getEventCode
+ * @return {cc.EventTouch::EventCode}
  */
-getTouches : function (
+getEventCode : function (
 )
 {
-    return new Array();
+    return 0;
+},
+
+/**
+ * @method setTouches
+ * @param {Array} arg0
+ */
+setTouches : function (
+array 
+)
+{
 },
 
 /**
@@ -554,13 +575,22 @@ eventcode
 },
 
 /**
- * @method getEventCode
- * @return {cc.EventTouch::EventCode}
+ * @method getTouches
+ * @return {Array}
  */
-getEventCode : function (
+getTouches : function (
 )
 {
-    return 0;
+    return new Array();
+},
+
+/**
+ * @method EventTouch
+ * @constructor
+ */
+EventTouch : function (
+)
+{
 },
 
 };
@@ -4342,6 +4372,17 @@ getInstance : function (
  */
 cc.EventAcceleration = {
 
+/**
+ * @method EventAcceleration
+ * @constructor
+ * @param {cc.Acceleration} arg0
+ */
+EventAcceleration : function (
+acceleration 
+)
+{
+},
+
 };
 
 /**
@@ -4595,6 +4636,19 @@ EventDispatcher : function (
  * @class EventFocus
  */
 cc.EventFocus = {
+
+/**
+ * @method EventFocus
+ * @constructor
+ * @param {ccui.Widget} arg0
+ * @param {ccui.Widget} arg1
+ */
+EventFocus : function (
+widget, 
+widget 
+)
+{
+},
 
 };
 
@@ -4851,6 +4905,17 @@ getStartLocationInView : function (
 )
 {
     return cc.Vec2;
+},
+
+/**
+ * @method EventMouse
+ * @constructor
+ * @param {cc.EventMouse::MouseEventType} arg0
+ */
+EventMouse : function (
+mouseeventtype 
+)
+{
 },
 
 };

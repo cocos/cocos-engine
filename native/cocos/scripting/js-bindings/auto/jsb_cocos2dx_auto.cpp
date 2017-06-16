@@ -1332,17 +1332,49 @@ static bool js_cocos2dx_Event_stopPropagation(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Event_stopPropagation)
 
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_Event_finalize)
+
+static bool js_cocos2dx_Event_constructor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cocos2d::Event::Type arg0;
+    ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+    JSB_PRECONDITION2(ok, false, "js_cocos2dx_Event_constructor : Error processing arguments");
+    cocos2d::Event* cobj = new (std::nothrow) cocos2d::Event(arg0);
+    s.thisObject()->setPrivateData(cobj);
+    s.thisObject()->addRef();
+    return true;
+}
+SE_BIND_CTOR(js_cocos2dx_Event_constructor, __jsb_cocos2d_Event_class, js_cocos2d_Event_finalize)
 
 
+
+
+bool js_cocos2d_Event_finalize(se::State& s)
+{
+    if (s.nativeThisObject() != nullptr)
+    {
+        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Event)", s.nativeThisObject());
+        cocos2d::Event* cobj = (cocos2d::Event*)s.nativeThisObject();
+        if (cobj->getReferenceCount() == 1)
+            cobj->autorelease();
+        else
+            cobj->release();
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_Event_finalize)
 
 bool js_register_cocos2dx_Event(se::Object* obj)
 {
-    auto cls = se::Class::create("Event", obj, nullptr, nullptr);
+    auto cls = se::Class::create("Event", obj, nullptr, _SE(js_cocos2dx_Event_constructor));
 
     cls->defineFunction("isStopped", _SE(js_cocos2dx_Event_isStopped));
     cls->defineFunction("getType", _SE(js_cocos2dx_Event_getType));
     cls->defineFunction("getCurrentTarget", _SE(js_cocos2dx_Event_getCurrentTarget));
     cls->defineFunction("stopPropagation", _SE(js_cocos2dx_Event_stopPropagation));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_Event_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::Event>(cls);
 
@@ -1356,23 +1388,42 @@ bool js_register_cocos2dx_Event(se::Object* obj)
 se::Object* __jsb_cocos2d_EventTouch_proto = nullptr;
 se::Class* __jsb_cocos2d_EventTouch_class = nullptr;
 
-static bool js_cocos2dx_EventTouch_getTouches(se::State& s)
+static bool js_cocos2dx_EventTouch_getEventCode(se::State& s)
 {
     cocos2d::EventTouch* cobj = (cocos2d::EventTouch*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_EventTouch_getTouches : Invalid Native Object");
+    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_EventTouch_getEventCode : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::Touch *, std::allocator<cocos2d::Touch *> >& result = cobj->getTouches();
-        ok &= std_vector_Touch_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_EventTouch_getTouches : Error processing arguments");
+        int result = (int)cobj->getEventCode();
+        ok &= int32_to_seval(result, &s.rval());
+        JSB_PRECONDITION2(ok, false, "js_cocos2dx_EventTouch_getEventCode : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_EventTouch_getTouches)
+SE_BIND_FUNC(js_cocos2dx_EventTouch_getEventCode)
+
+static bool js_cocos2dx_EventTouch_setTouches(se::State& s)
+{
+    cocos2d::EventTouch* cobj = (cocos2d::EventTouch*)s.nativeThisObject();
+    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_EventTouch_setTouches : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::vector<cocos2d::Touch *, std::allocator<cocos2d::Touch *> > arg0;
+        ok &= seval_to_std_vector_Touch(args[0], &arg0);
+        JSB_PRECONDITION2(ok, false, "js_cocos2dx_EventTouch_setTouches : Error processing arguments");
+        cobj->setTouches(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_EventTouch_setTouches)
 
 static bool js_cocos2dx_EventTouch_setEventCode(se::State& s)
 {
@@ -1393,35 +1444,63 @@ static bool js_cocos2dx_EventTouch_setEventCode(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_EventTouch_setEventCode)
 
-static bool js_cocos2dx_EventTouch_getEventCode(se::State& s)
+static bool js_cocos2dx_EventTouch_getTouches(se::State& s)
 {
     cocos2d::EventTouch* cobj = (cocos2d::EventTouch*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_EventTouch_getEventCode : Invalid Native Object");
+    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_EventTouch_getTouches : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->getEventCode();
-        ok &= int32_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_EventTouch_getEventCode : Error processing arguments");
+        const std::vector<cocos2d::Touch *, std::allocator<cocos2d::Touch *> >& result = cobj->getTouches();
+        ok &= std_vector_Touch_to_seval(result, &s.rval());
+        JSB_PRECONDITION2(ok, false, "js_cocos2dx_EventTouch_getTouches : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_EventTouch_getEventCode)
+SE_BIND_FUNC(js_cocos2dx_EventTouch_getTouches)
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_EventTouch_finalize)
+
+static bool js_cocos2dx_EventTouch_constructor(se::State& s)
+{
+    cocos2d::EventTouch* cobj = new (std::nothrow) cocos2d::EventTouch();
+    s.thisObject()->setPrivateData(cobj);
+    s.thisObject()->addRef();
+    return true;
+}
+SE_BIND_CTOR(js_cocos2dx_EventTouch_constructor, __jsb_cocos2d_EventTouch_class, js_cocos2d_EventTouch_finalize)
+
 
 
 extern se::Object* __jsb_cocos2d_Event_proto;
 
+bool js_cocos2d_EventTouch_finalize(se::State& s)
+{
+    if (s.nativeThisObject() != nullptr)
+    {
+//        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventTouch)", s.nativeThisObject());
+        cocos2d::EventTouch* cobj = (cocos2d::EventTouch*)s.nativeThisObject();
+        if (cobj->getReferenceCount() == 1)
+            cobj->autorelease();
+        else
+            cobj->release();
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_EventTouch_finalize)
 
 bool js_register_cocos2dx_EventTouch(se::Object* obj)
 {
-    auto cls = se::Class::create("EventTouch", obj, __jsb_cocos2d_Event_proto, nullptr);
+    auto cls = se::Class::create("EventTouch", obj, __jsb_cocos2d_Event_proto, _SE(js_cocos2dx_EventTouch_constructor));
 
-    cls->defineFunction("getTouches", _SE(js_cocos2dx_EventTouch_getTouches));
-    cls->defineFunction("setEventCode", _SE(js_cocos2dx_EventTouch_setEventCode));
     cls->defineFunction("getEventCode", _SE(js_cocos2dx_EventTouch_getEventCode));
+    cls->defineFunction("setTouches", _SE(js_cocos2dx_EventTouch_setTouches));
+    cls->defineFunction("setEventCode", _SE(js_cocos2dx_EventTouch_setEventCode));
+    cls->defineFunction("getTouches", _SE(js_cocos2dx_EventTouch_getTouches));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_EventTouch_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::EventTouch>(cls);
 
@@ -9165,14 +9244,46 @@ bool js_register_cocos2dx_FileUtils(se::Object* obj)
 se::Object* __jsb_cocos2d_EventAcceleration_proto = nullptr;
 se::Class* __jsb_cocos2d_EventAcceleration_class = nullptr;
 
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_EventAcceleration_finalize)
+
+static bool js_cocos2dx_EventAcceleration_constructor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cocos2d::Acceleration arg0;
+    ok &= seval_to_Acceleration(args[0], &arg0);
+    JSB_PRECONDITION2(ok, false, "js_cocos2dx_EventAcceleration_constructor : Error processing arguments");
+    cocos2d::EventAcceleration* cobj = new (std::nothrow) cocos2d::EventAcceleration(arg0);
+    s.thisObject()->setPrivateData(cobj);
+    s.thisObject()->addRef();
+    return true;
+}
+SE_BIND_CTOR(js_cocos2dx_EventAcceleration_constructor, __jsb_cocos2d_EventAcceleration_class, js_cocos2d_EventAcceleration_finalize)
+
+
 
 extern se::Object* __jsb_cocos2d_Event_proto;
 
+bool js_cocos2d_EventAcceleration_finalize(se::State& s)
+{
+    if (s.nativeThisObject() != nullptr)
+    {
+        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventAcceleration)", s.nativeThisObject());
+        cocos2d::EventAcceleration* cobj = (cocos2d::EventAcceleration*)s.nativeThisObject();
+        if (cobj->getReferenceCount() == 1)
+            cobj->autorelease();
+        else
+            cobj->release();
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_EventAcceleration_finalize)
 
 bool js_register_cocos2dx_EventAcceleration(se::Object* obj)
 {
-    auto cls = se::Class::create("EventAcceleration", obj, __jsb_cocos2d_Event_proto, nullptr);
+    auto cls = se::Class::create("EventAcceleration", obj, __jsb_cocos2d_Event_proto, _SE(js_cocos2dx_EventAcceleration_constructor));
 
+    cls->defineFinalizedFunction(_SE(js_cocos2d_EventAcceleration_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::EventAcceleration>(cls);
 
@@ -9761,14 +9872,48 @@ bool js_register_cocos2dx_EventDispatcher(se::Object* obj)
 se::Object* __jsb_cocos2d_EventFocus_proto = nullptr;
 se::Class* __jsb_cocos2d_EventFocus_class = nullptr;
 
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_EventFocus_finalize)
+
+static bool js_cocos2dx_EventFocus_constructor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cocos2d::ui::Widget* arg0 = nullptr;
+    cocos2d::ui::Widget* arg1 = nullptr;
+    ok &= seval_to_native_ptr(args[0], &arg0);
+    ok &= seval_to_native_ptr(args[1], &arg1);
+    JSB_PRECONDITION2(ok, false, "js_cocos2dx_EventFocus_constructor : Error processing arguments");
+    cocos2d::EventFocus* cobj = new (std::nothrow) cocos2d::EventFocus(arg0, arg1);
+    s.thisObject()->setPrivateData(cobj);
+    s.thisObject()->addRef();
+    return true;
+}
+SE_BIND_CTOR(js_cocos2dx_EventFocus_constructor, __jsb_cocos2d_EventFocus_class, js_cocos2d_EventFocus_finalize)
+
+
 
 extern se::Object* __jsb_cocos2d_Event_proto;
 
+bool js_cocos2d_EventFocus_finalize(se::State& s)
+{
+    if (s.nativeThisObject() != nullptr)
+    {
+        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventFocus)", s.nativeThisObject());
+        cocos2d::EventFocus* cobj = (cocos2d::EventFocus*)s.nativeThisObject();
+        if (cobj->getReferenceCount() == 1)
+            cobj->autorelease();
+        else
+            cobj->release();
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_EventFocus_finalize)
 
 bool js_register_cocos2dx_EventFocus(se::Object* obj)
 {
-    auto cls = se::Class::create("EventFocus", obj, __jsb_cocos2d_Event_proto, nullptr);
+    auto cls = se::Class::create("EventFocus", obj, __jsb_cocos2d_Event_proto, _SE(js_cocos2dx_EventFocus_constructor));
 
+    cls->defineFinalizedFunction(_SE(js_cocos2d_EventFocus_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::EventFocus>(cls);
 
@@ -10341,13 +10486,44 @@ static bool js_cocos2dx_EventMouse_getStartLocationInView(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_EventMouse_getStartLocationInView)
 
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_EventMouse_finalize)
+
+static bool js_cocos2dx_EventMouse_constructor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cocos2d::EventMouse::MouseEventType arg0;
+    ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+    JSB_PRECONDITION2(ok, false, "js_cocos2dx_EventMouse_constructor : Error processing arguments");
+    cocos2d::EventMouse* cobj = new (std::nothrow) cocos2d::EventMouse(arg0);
+    s.thisObject()->setPrivateData(cobj);
+    s.thisObject()->addRef();
+    return true;
+}
+SE_BIND_CTOR(js_cocos2dx_EventMouse_constructor, __jsb_cocos2d_EventMouse_class, js_cocos2d_EventMouse_finalize)
+
+
 
 extern se::Object* __jsb_cocos2d_Event_proto;
 
+bool js_cocos2d_EventMouse_finalize(se::State& s)
+{
+    if (s.nativeThisObject() != nullptr)
+    {
+//        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventMouse)", s.nativeThisObject());
+        cocos2d::EventMouse* cobj = (cocos2d::EventMouse*)s.nativeThisObject();
+        if (cobj->getReferenceCount() == 1)
+            cobj->autorelease();
+        else
+            cobj->release();
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_EventMouse_finalize)
 
 bool js_register_cocos2dx_EventMouse(se::Object* obj)
 {
-    auto cls = se::Class::create("EventMouse", obj, __jsb_cocos2d_Event_proto, nullptr);
+    auto cls = se::Class::create("EventMouse", obj, __jsb_cocos2d_Event_proto, _SE(js_cocos2dx_EventMouse_constructor));
 
     cls->defineFunction("getButton", _SE(js_cocos2dx_EventMouse_getMouseButton));
     cls->defineFunction("getLocation", _SE(js_cocos2dx_EventMouse_getLocation));
@@ -10364,6 +10540,7 @@ bool js_register_cocos2dx_EventMouse(se::Object* obj)
     cls->defineFunction("getScrollX", _SE(js_cocos2dx_EventMouse_getScrollX));
     cls->defineFunction("getPreviousLocation", _SE(js_cocos2dx_EventMouse_getPreviousLocation));
     cls->defineFunction("getStartLocationInView", _SE(js_cocos2dx_EventMouse_getStartLocationInView));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_EventMouse_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::EventMouse>(cls);
 
@@ -23400,9 +23577,11 @@ static bool js_cocos2dx_Label_createWithBMFont(se::State& s)
         std::string arg1;
         cocos2d::SpriteFrame* arg2 = nullptr;
         ok &= seval_to_std_string(args[0], &arg0);
+        JSB_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithBMFont1 : Error processing arguments");
         ok &= seval_to_std_string(args[1], &arg1);
+        JSB_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithBMFont2 : Error processing arguments");
         ok &= seval_to_native_ptr(args[2], &arg2);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithBMFont : Error processing arguments");
+        JSB_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithBMFont3 : Error processing arguments");
         auto result = cocos2d::Label::createWithBMFont(arg0, arg1, arg2);
         result->retain();
         auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_Label_class, false);

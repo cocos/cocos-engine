@@ -297,7 +297,13 @@ namespace se {
         JS::CompartmentOptions options;
         SetStandardCompartmentOptions(options);
 
-#ifndef DEBUG
+#ifdef DEBUG
+        JS::ContextOptionsRef(_cx)
+                    .setExtraWarnings(true)
+                    .setIon(false)
+                    .setBaseline(false)
+                    .setAsmJS(false);
+#else
         JS::ContextOptionsRef(_cx)
                     .setExtraWarnings(true)
                     .setIon(true)

@@ -471,7 +471,8 @@ namespace se {
     void Object::switchToRooted()
     {
         debug("switch to rooted");
-        assert(!_isRooted);
+        if (_isRooted)
+            return;
 
         JSValueProtect(__cx, _obj);
         _isRooted = true;
@@ -479,7 +480,8 @@ namespace se {
 
     void Object::switchToUnrooted()
     {
-        assert(_isRooted);
+        if (!_isRooted)
+            return;
 
         if (_isKeepRootedUntilDie)
             return;
