@@ -27,8 +27,6 @@ if (!CC_JSB) {
     require('./CCSGCameraNode');
 }
 
-let tempTransform = cc.affineTransformMake();
-
 /**
  * !#en
  * Camera is usefull when making reel game or other games which need scroll screen.
@@ -43,6 +41,21 @@ let Camera = cc.Class({
     name: 'cc.Camera',
     extends: cc._RendererUnderSG,
     
+    ctor: function () {
+        this.viewMatrix = cc.affineTransformMake();
+        this.invertViewMatrix = cc.affineTransformMake();
+
+        this._sgTarges = [];
+
+        this.visibleRect = {
+            left: cc.v2(),
+            right: cc.v2(),
+            top: cc.v2(),
+            bottom: cc.v2()
+        };
+        this.viewPort = cc.rect();
+    },
+
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/Camera',
         executeInEditMode: false
@@ -92,20 +105,47 @@ let Camera = cc.Class({
     _initSgNode: function () {},
 
     _addSgTargetInSg: function (target) {
+        var sgNode;
         if (target instanceof cc.Node) {
-            this._sgNode.addTarget(target._sgNode);
+            sgNode = target._sgNode;
         }
         else if (target instanceof _ccsg.Node) {
-            this._sgNode.addTarget(target);
+            sgNode = target;
+        }
+
+        if (!sgNode) return;
+
+        this._sgNode.addTarget(sgNode);
+
+        if (this._sgTarges.indexOf(sgNode) === -1) {
+            this._sgTarges.push(sgNode);
+        }
+
+        if (!CC_JSB) {
+            var cmd = sgNode._renderCmd;
+            cmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+            cmd._cameraFlag = Camera.flags.InCamera;
         }
     },
 
     _removeTargetInSg: function (target) {
+        var sgNode;
         if (target instanceof cc.Node) {
-            this._sgNode.removeTarget(target._sgNode);
+            sgNode = target._sgNode;
         }
         else if (target instanceof _ccsg.Node) {
-            this._sgNode.removeTarget(target);
+            sgNode = target;
+        }
+
+        if (!sgNode) return;
+
+        this._sgNode.removeTarget(sgNode);
+        cc.js.array.remove(this._sgTarges, sgNode);
+        
+        if (!CC_JSB) {
+            var cmd = sgNode._renderCmd;
+            cmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+            cmd._cameraFlag = 0;
         }
     },
 
@@ -182,13 +222,73 @@ let Camera = cc.Class({
         return this._targets;
     },
 
-    calculateCameraTransformIn: function (transform) {
+    /**
+     * !#en
+     * Returns the matrix that transform the node's (local) space coordinates into the camera's space coordinates.
+     * !#zh
+     * 返回一个将节点坐标系转换到摄像机坐标系下的矩阵
+     * @param {Node} node - the node which should transform
+     * @return {AffineTransform}
+     */
+    getNodeToCameraTransform (node) {
+        var t = node.getNodeToWorldTransform();
+        if (this.containsNode(node)) {
+            t = cc.affineTransformConcatIn(t, cc.Camera.main.viewMatrix);
+        }
+        return t;
+    },
+
+    /**
+     * !#en
+     * Conver a camera coordinates point to world coordinates.
+     * !#zh
+     * 讲一个摄像机坐标系下的点转换到世界坐标系下。
+     * @param {Node} point - the point which should transform
+     * @return {Vec2}
+     */
+    getCameraToWorldPoint (point) {
+        if (cc.Camera.main) {
+            point = cc.pointApplyAffineTransform(point, cc.Camera.main.invertViewMatrix);
+        }
+        return point;
+    },
+
+    /**
+     * !#en
+     * Check whether the node is in the camera.
+     * !#zh
+     * 检测节点是否被此摄像机影响
+     * @param {Node} node - the node which need to check
+     * @return {Boolean}
+     */
+    containsNode: function (node) {
+        if (node instanceof cc.Node) {
+            node = node._sgNode;
+        }
+        
+        let targets = this._sgTarges;
+        while (node) {
+            if (targets.indexOf(node) !== -1) {
+                return true;
+            }
+            node = node.parent;
+        }
+
+        return false;
+    },
+
+    lateUpdate: !CC_EDITOR && function () {
+        let m = this.viewMatrix;
+        let im = this.invertViewMatrix;
+        let viewPort = this.viewPort;
+        let visibleRect = cc.visibleRect;
+        let selfVisibleRect = this.visibleRect;
         let node = this.node;
         
-        let wt = node.getNodeToWorldTransform();
-        let rotation = -(Math.atan2(wt.b, wt.a) + Math.atan2(-wt.c, wt.d)) * 0.5;
+        let wt = node.getNodeToWorldTransformAR();
 
-        let a = 1, b = 0, c = 0, d = 1;
+        let rotation = -(Math.atan2(wt.b, wt.a) + Math.atan2(-wt.c, wt.d)) * 0.5;
+        let a = 1, b = 0, c = 0, d = 1, tx = 0, ty = 0;
 
         // rotation
         if (rotation) {
@@ -205,22 +305,38 @@ let Camera = cc.Class({
         c *= zoomRatio;
         d *= zoomRatio;
 
+        m.a = a;
+        m.b = b;
+        m.c = c;
+        m.d = d;
+
         // move camera to center
-        let center = cc.visibleRect.center;
-        transform.tx = center.x - (a * wt.tx + c * wt.ty);
-        transform.ty = center.y - (b * wt.tx + d * wt.ty);
+        let center = visibleRect.center;
+        m.tx = center.x - (a * wt.tx + c * wt.ty);
+        m.ty = center.y - (b * wt.tx + d * wt.ty);
 
-        transform.a = a;
-        transform.b = b;
-        transform.c = c;
-        transform.d = d;
-    },
+        // calculate ivert view matrix
+        cc.affineTransformInvertOut(m, im);
 
-    lateUpdate: !CC_EDITOR && function () {
-        let t = tempTransform;
-        this.calculateCameraTransformIn(t);
-        this._sgNode.setTransform(t.a, t.b, t.c, t.d, t.tx, t.ty);
+        // calculate view port
+        viewPort.x = visibleRect.bottomLeft.x;
+        viewPort.y = visibleRect.bottomLeft.y;
+        viewPort.width = visibleRect.width;
+        viewPort.height = visibleRect.height;
+        cc._rectApplyAffineTransformIn(viewPort, im);
+
+        selfVisibleRect.left.x = viewPort.xMin;
+        selfVisibleRect.right.x = viewPort.xMax;
+        selfVisibleRect.bottom.y = viewPort.yMin;
+        selfVisibleRect.top.y = viewPort.yMax;
+
+        this._sgNode.setTransform(a, b, c, d, m.tx, m.ty);
     }
+});
+
+Camera.flags = cc.Enum({
+    InCamera: 1,
+    ParentInCamera: 2
 });
 
 module.exports = cc.Camera = Camera;
