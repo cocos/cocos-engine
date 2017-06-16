@@ -183,20 +183,6 @@ static std::string getMouseFuncName(EventMouse::MouseEventType eventType)
     return funcName;
 }
 
-void removeJSObject(JSContext* cx, cocos2d::Ref* nativeObj)
-{
-    auto proxy = jsb_get_native_proxy(nativeObj);
-    if (proxy)
-    {
-#if ! CC_ENABLE_GC_FOR_NATIVE_OBJECTS
-        JS::RemoveObjectRoot(cx, &proxy->obj);
-#endif
-        // Do not free proxy here otherwise it will crash during GC
-        jsb_unbind_proxy(proxy);
-    }
-    else CCLOG("removeJSObject: BUG: cannot find native object = %p", nativeObj);
-}
-
 void ScriptingCore::executeJSFunctionWithThisObj(JS::HandleValue thisObj, JS::HandleValue callback)
 {
     JS::RootedValue retVal(_cx);
@@ -1583,9 +1569,6 @@ bool ScriptingCore::handleKeyboardEvent(void* nativeObj, cocos2d::EventKeyboard:
     {
         ret = executeFunctionWithOwner(objVal, "_onKeyReleased", args);
     }
-    
-    // event is created on the heap and its destructor won't be invoked, so we need to remove JS object manually
-    removeJSObject(_cx, event);
     return ret;
 }
 
@@ -2232,11 +2215,14 @@ js_proxy_t* jsb_get_js_proxy(JSContext *cx, JS::HandleObject jsObj)
 
 void jsb_remove_proxy(js_proxy_t* proxy)
 {
-    jsb_unbind_proxy(proxy);
-    CC_SAFE_DELETE(proxy);
+    bool ok = jsb_unbind_proxy(proxy);
+    if (ok)
+    {
+        CC_SAFE_DELETE(proxy);
+    }
 }
 
-void jsb_unbind_proxy(js_proxy_t* proxy)
+bool jsb_unbind_proxy(js_proxy_t* proxy)
 {
     void* nativeKey = proxy->ptr;
     CC_ASSERT(nativeKey && "Invalid nativeKey");
@@ -2246,6 +2232,14 @@ void jsb_unbind_proxy(js_proxy_t* proxy)
     if (it_nat != _native_js_global_map.end())
     {
         _native_js_global_map.erase(it_nat);
+        return true;
+    }
+    else
+    {
+#if COCOS2D_DEBUG > 1
+        CCLOG("------UNBINDING------ failed, requested proxy is not present, Cpp: %p - Proxy: %p", nativeKey, proxy);
+#endif // COCOS2D_DEBUG
+        return false;
     }
 }
 

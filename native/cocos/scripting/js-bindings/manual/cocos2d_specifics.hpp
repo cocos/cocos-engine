@@ -37,6 +37,8 @@ extern JSClass  *jsb_RefFinalizeHook_class;
 extern JSObject *jsb_RefFinalizeHook_prototype;
 extern JSClass  *jsb_ObjFinalizeHook_class;
 extern JSObject *jsb_ObjFinalizeHook_prototype;
+extern JSClass  *jsb_PrivateHook_class;
+extern JSObject *jsb_PrivateHook_prototype;
 
 class JSScheduleWrapper;
 
@@ -72,6 +74,7 @@ namespace jsb
         }
         ~Object()
         {
+            CCLOG("Release JSBObject %p, with proxy: %p", this, _proxy);
             if (_proxy)
             {
                 jsb_remove_proxy(_proxy);
@@ -87,8 +90,8 @@ namespace jsb
             
             if (_jsRef.size() > 0)
             {
-                JS::RootedObject proto(cx, jsb_ObjFinalizeHook_prototype);
-                JS::RootedObject hook(cx, JS_NewObjectWithGivenProto(cx, jsb_ObjFinalizeHook_class, proto));
+                JS::RootedObject proto(cx, jsb_PrivateHook_prototype);
+                JS::RootedObject hook(cx, JS_NewObjectWithGivenProto(cx, jsb_PrivateHook_class, proto));
                 JS::RootedValue hookVal(cx, JS::ObjectOrNullValue(hook));
                 JS_SetProperty(cx, jsobj, _jsRef.c_str(), hookVal);
                 JS_SetPrivate(hook.get(), this);
@@ -113,7 +116,7 @@ namespace jsb
                 JS::RootedValue ref(cx);
                 JS_GetProperty(cx, jsobj, jsRefName.c_str(), &ref);
                 JS::RootedObject refObj(cx, ref.toObjectOrNull());
-                if (JS_GetClass(refObj) == jsb_ObjFinalizeHook_class)
+                if (JS_GetClass(refObj) == jsb_PrivateHook_class)
                 {
                     return (Object *)JS_GetPrivate(refObj);
                 }

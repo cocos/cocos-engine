@@ -575,12 +575,9 @@ js_proxy_t* jsb_get_native_proxy(void* nativeObj);
 /** returns the proxy associated with the JSObject* */
 js_proxy_t* jsb_get_js_proxy(JSContext *cx, JS::HandleObject jsObj);
 /** removes the native proxy from the global map */
-void jsb_unbind_proxy(js_proxy_t* proxy);
+bool jsb_unbind_proxy(js_proxy_t* proxy);
 /** removes the proxy */
 void jsb_remove_proxy(js_proxy_t* proxy);
-/** removes the native js object proxy and unroot the js object (if necessary), 
- it's often used when JS object is created by native object */
-void removeJSObject(JSContext* cx, cocos2d::Ref* nativeObj);
 
 /**
  * Generic initialization function for subclasses of Ref

@@ -4699,6 +4699,8 @@ JSClass  *jsb_RefFinalizeHook_class;
 JSObject *jsb_RefFinalizeHook_prototype;
 JSClass  *jsb_ObjFinalizeHook_class;
 JSObject *jsb_ObjFinalizeHook_prototype;
+JSClass  *jsb_PrivateHook_class;
+JSObject *jsb_PrivateHook_prototype;
 
 static bool jsb_RefFinalizeHook_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -4782,9 +4784,8 @@ void jsb_register_RefFinalizeHook(JSContext *cx, JS::HandleObject global)
     };
     jsb_RefFinalizeHook_class = &RefFinalizeHook_class;
     
-    JS::RootedObject parent_proto(cx, nullptr);
     jsb_RefFinalizeHook_prototype = JS_InitClass(cx, global,
-                                              parent_proto,
+                                              nullptr,
                                               jsb_RefFinalizeHook_class,
                                               jsb_RefFinalizeHook_constructor, 0, // constructor
                                               nullptr, nullptr, nullptr, nullptr);
@@ -4804,12 +4805,32 @@ void jsb_register_ObjFinalizeHook(JSContext *cx, JS::HandleObject global)
     };
     jsb_ObjFinalizeHook_class = &ObjFinalizeHook_class;
     
-    JS::RootedObject parent_proto(cx, nullptr);
     jsb_ObjFinalizeHook_prototype = JS_InitClass(cx, global,
-                                              parent_proto,
+                                              nullptr,
                                               jsb_ObjFinalizeHook_class,
                                               jsb_ObjFinalizeHook_constructor, 0, // constructor
                                               nullptr, nullptr, nullptr, nullptr);
+}
+void jsb_register_PrivateHook(JSContext *cx, JS::HandleObject global)
+{
+    static const JSClassOps PrivateHook_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    static JSClass PrivateHook_class = {
+        "PrivateHook",
+        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+        &PrivateHook_classOps
+    };
+    jsb_PrivateHook_class = &PrivateHook_class;
+    
+    jsb_PrivateHook_prototype = JS_InitClass(cx, global,
+                                                 nullptr,
+                                                 jsb_PrivateHook_class,
+                                                 nullptr, 0, // constructor
+                                                 nullptr, nullptr, nullptr, nullptr);
 }
 
 void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
@@ -4824,6 +4845,7 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     // Memory management related
     jsb_register_RefFinalizeHook(cx, jsbObj);
     jsb_register_ObjFinalizeHook(cx, jsbObj);
+    jsb_register_PrivateHook(cx, jsbObj);
 
     js_register_cocos2dx_PolygonInfo(cx, jsbObj);
     js_register_cocos2dx_AutoPolygon(cx, jsbObj);
