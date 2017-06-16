@@ -45,19 +45,29 @@ namespace creator {
         CameraNode();
         ~CameraNode();
         
+        static CameraNode* getInstance();
+        
         void setTransform(float a, float b, float c, float d, float tx, float ty);
+        
+        bool containsNode(cocos2d::Node* node);
         
         void addTarget(cocos2d::Node* target);
         void removeTarget(cocos2d::Node* target);
         
+        const cocos2d::Rect& getVisibleRect();
+        
+        int visitingIndex;
     public:
         void beforeVisit();
         void afterVisit();
         
     protected:
         cocos2d::Mat4 _mat;
-        static cocos2d::Mat4 _tempMat;
+        cocos2d::Mat4 _inverseMat;
+        cocos2d::Rect _visibleRect;
+        
         std::vector<CameraCommand> _commands;
+        std::vector<cocos2d::Node*> _nodes;
     };
     
 }
