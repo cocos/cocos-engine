@@ -893,7 +893,8 @@ _distortionOffset(cocos2d::Vec2::ZERO),
 _distortionTiling(cocos2d::Vec2::ONE),
 _fillStart(0),
 _fillRange(0),
-_needRebuildRenderCommand(true)
+_needRebuildRenderCommand(true),
+_insideBounds(true)
 {
     this->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
     this->setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP));
@@ -1101,54 +1102,62 @@ void Scale9SpriteV2::draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &tran
     if (!this->_spriteFrame || !this->_spriteFrame->getTexture()) {
         return;
     }
-    
-    if(this->_quadsDirty) {
-        //rebuild quads
-        this->_rebuildQuads();
-        this->_needRebuildRenderCommand = true;
-    }
-    if(this->_needRebuildRenderCommand) {
-        //fill triangles
-        int vertsStep = this->_isTriangle ? 3 : 4;
-        int indicesStep = this->_isTriangle ? 3 : 6;
-        this->_verts.resize(_quads.size() * vertsStep);
-        this->_indices.resize(_quads.size() * indicesStep);
-        unsigned short indices[6];
-        for(int index = 0; index < _quads.size(); ++index) {
-            memcpy(&this->_verts[vertsStep * index], &this->_quads[index], sizeof(cocos2d::V3F_C4B_T2F) * vertsStep);
-            if(this->_isTriangle) {
-                indices[0] = indicesStep * index;
-                indices[1] = indicesStep * index + 1;
-                indices[2] = indicesStep * index + 2;
-                
-            } else {
-                indices[0] = vertsStep * index;
-                indices[1] = vertsStep * index + 1;
-                indices[2] = vertsStep * index + 2;
-                indices[3] = vertsStep * index + 3;
-                indices[4] = vertsStep * index + 2;
-                indices[5] = vertsStep * index + 1;
-                
-            }
-            
-            memcpy(&this->_indices[indicesStep * index], indices, sizeof(unsigned short) * indicesStep);
-            
+#if CC_USE_CULLING
+    // Don't calculate the culling if the transform was not updated
+    _insideBounds = (flags & FLAGS_TRANSFORM_DIRTY) ? renderer->checkVisibility(transform, _contentSize) : _insideBounds;
+    if (_insideBounds)
+#endif
+    {
+        if (this->_quadsDirty) {
+            //rebuild quads
+            this->_rebuildQuads();
+            this->_needRebuildRenderCommand = true;
         }
-        
-        this->_needRebuildRenderCommand = false;
-        
-    }
+        if (this->_needRebuildRenderCommand) {
+            //fill triangles
+            int vertsStep = this->_isTriangle ? 3 : 4;
+            int indicesStep = this->_isTriangle ? 3 : 6;
+            this->_verts.resize(_quads.size() * vertsStep);
+            this->_indices.resize(_quads.size() * indicesStep);
+            unsigned short indices[6];
+            for (int index = 0; index < _quads.size(); ++index) {
+                memcpy(&this->_verts[vertsStep * index], &this->_quads[index], sizeof(cocos2d::V3F_C4B_T2F) * vertsStep);
+                if (this->_isTriangle) {
+                    indices[0] = indicesStep * index;
+                    indices[1] = indicesStep * index + 1;
+                    indices[2] = indicesStep * index + 2;
 
-    if (!_indices.empty() && !_verts.empty()) {
-        cocos2d::TrianglesCommand::Triangles triangles;
-        triangles.indices = &this->_indices[0];
-        triangles.verts = &this->_verts[0];
-        triangles.vertCount = (int)this->_verts.size();
-        triangles.indexCount = (int)this->_indices.size();
-        auto texture = this->_spriteFrame->getTexture();
-        this->_renderCommand.init(_globalZOrder, texture->getName(), _glProgramState, _blendFunc, triangles, transform, 0);
-        renderer->addCommand(&this->_renderCommand);
+                }
+                else {
+                    indices[0] = vertsStep * index;
+                    indices[1] = vertsStep * index + 1;
+                    indices[2] = vertsStep * index + 2;
+                    indices[3] = vertsStep * index + 3;
+                    indices[4] = vertsStep * index + 2;
+                    indices[5] = vertsStep * index + 1;
+
+                }
+
+                memcpy(&this->_indices[indicesStep * index], indices, sizeof(unsigned short) * indicesStep);
+
+            }
+
+            this->_needRebuildRenderCommand = false;
+
+        }
+
+        if (!_indices.empty() && !_verts.empty()) {
+            cocos2d::TrianglesCommand::Triangles triangles;
+            triangles.indices = &this->_indices[0];
+            triangles.verts = &this->_verts[0];
+            triangles.vertCount = (int)this->_verts.size();
+            triangles.indexCount = (int)this->_indices.size();
+            auto texture = this->_spriteFrame->getTexture();
+            this->_renderCommand.init(_globalZOrder, texture->getName(), _glProgramState, _blendFunc, triangles, transform, 0);
+            renderer->addCommand(&this->_renderCommand);
+        }
     }
+   
 
 }
     

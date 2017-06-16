@@ -46,6 +46,8 @@
 #include "base/CCEventType.h"
 #include "2d/CCScene.h"
 
+#include "editor-support/creator/CCCameraNode.h"
+
 NS_CC_BEGIN
 
 // helper
@@ -878,38 +880,23 @@ void Renderer::flushTriangles()
 }
 
 // helpers
-bool Renderer::checkVisibility(const Mat4 &transform, const Size &size)
+bool Renderer::checkVisibility(const Mat4& transform, const Size& size)
 {
-    auto scene = Director::getInstance()->getRunningScene();
+    creator::CameraNode* camera = creator::CameraNode::getInstance();
     
-    //If draw to Rendertexture, return true directly.
-    // only cull the default camera. The culling algorithm is valid for default camera.
-    if (!scene)
-        return true;
-
-    auto director = Director::getInstance();
-    Rect visiableRect(director->getVisibleOrigin(), director->getVisibleSize());
+    Rect visibleRect;
+    if (!camera || camera->visitingIndex <= 0) {
+        visibleRect.origin = Director::getInstance()->getVisibleOrigin();
+        visibleRect.size = Director::getInstance()->getVisibleSize();
+    }
+    else {
+        visibleRect = camera->getVisibleRect();
+    }
     
-    // transform center point to screen space
-    float hSizeX = size.width/2;
-    float hSizeY = size.height/2;
-    Vec3 v3p(hSizeX, hSizeY, 0);
-    transform.transformPoint(&v3p);
-//    Vec2 v2p = Camera::getVisitingCamera()->projectGL(v3p);
-
-    // convert content size to world coordinates
-    float wshw = std::max(fabsf(hSizeX * transform.m[0] + hSizeY * transform.m[4]), fabsf(hSizeX * transform.m[0] - hSizeY * transform.m[4]));
-    float wshh = std::max(fabsf(hSizeX * transform.m[1] + hSizeY * transform.m[5]), fabsf(hSizeX * transform.m[1] - hSizeY * transform.m[5]));
-    
-    // enlarge visible rect half size in screen coord
-    visiableRect.origin.x -= wshw;
-    visiableRect.origin.y -= wshh;
-    visiableRect.size.width += wshw * 2;
-    visiableRect.size.height += wshh * 2;
-//    bool ret = visiableRect.containsPoint(v2p);
-    return true;
+    Rect rect(0,0, size.width, size.height);
+    rect = RectApplyTransform(rect, transform);
+    return rect.intersectsRect(visibleRect);
 }
-
 
 void Renderer::setClearColor(const Color4F &clearColor)
 {
