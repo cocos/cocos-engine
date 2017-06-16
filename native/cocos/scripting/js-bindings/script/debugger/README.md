@@ -24,9 +24,7 @@ bool AppDelegate::applicationDidFinishLaunching()
     sc->addRegisterCallback(register_all_cocos2dx);
     sc->addRegisterCallback(register_all_cocos2dx_extension);
     sc->addRegisterCallback(register_cocos2dx_js_extensions);
-    sc->addRegisterCallback(jsb_register_chipmunk);
     sc->addRegisterCallback(register_all_cocos2dx_extension_manual);
-    sc->addRegisterCallback(register_CCBuilderReader);
     sc->addRegisterCallback(jsb_register_system);
     sc->addRegisterCallback(JSB_register_opengl);
     

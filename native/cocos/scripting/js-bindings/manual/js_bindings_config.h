@@ -91,7 +91,7 @@
  Whether or not it should include JS bindings for CocosBuilder Reader
  */
 #ifndef JSB_INCLUDE_COCOSBUILDERREADER
-#define JSB_INCLUDE_COCOSBUILDERREADER 1
+#define JSB_INCLUDE_COCOSBUILDERREADER 0
 #endif // JSB_INCLUDE_COCOSBUILDERREADER
 
 /** @def JSB_INCLUDE_COCOSDENSHION

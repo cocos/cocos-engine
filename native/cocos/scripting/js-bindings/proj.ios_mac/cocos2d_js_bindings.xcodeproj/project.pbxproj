@@ -737,7 +737,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../.. $(SRCROOT)/../../../../cocos $(SRCROOT)/../../../../cocos/base $(SRCROOT)/../../../../cocos/2d $(SRCROOT)/../../../../cocos/platform $(SRCROOT)/../../../../cocos/audio/include $(SRCROOT)/../../../../cocos/editor-support $(SRCROOT)/../../../../cocos/editor-support/spine $(SRCROOT)/../../../../cocos/editor-support/creator $(SRCROOT)/../../../../cocos/ui $(SRCROOT)/../../../../cocos/storage $(SRCROOT)/../../../../extensions $(SRCROOT)/../../../../external/chipmunk/include/chipmunk $(SRCROOT)/../../../../external $(SRCROOT)/../auto $(SRCROOT)/../manual";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../.. $(SRCROOT)/../../../../cocos $(SRCROOT)/../../../../cocos/base $(SRCROOT)/../../../../cocos/2d $(SRCROOT)/../../../../cocos/platform $(SRCROOT)/../../../../cocos/audio/include $(SRCROOT)/../../../../cocos/editor-support $(SRCROOT)/../../../../cocos/editor-support/spine $(SRCROOT)/../../../../cocos/editor-support/creator $(SRCROOT)/../../../../cocos/ui $(SRCROOT)/../../../../cocos/storage $(SRCROOT)/../../../../extensions $(SRCROOT)/../../../../external $(SRCROOT)/../auto $(SRCROOT)/../manual";
 			};
 			name = Debug;
 		};
@@ -779,7 +779,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../.. $(SRCROOT)/../../../../cocos $(SRCROOT)/../../../../cocos/base $(SRCROOT)/../../../../cocos/2d $(SRCROOT)/../../../../cocos/platform $(SRCROOT)/../../../../cocos/audio/include $(SRCROOT)/../../../../cocos/editor-support $(SRCROOT)/../../../../cocos/editor-support/spine $(SRCROOT)/../../../../cocos/editor-support/creator $(SRCROOT)/../../../../cocos/ui $(SRCROOT)/../../../../cocos/storage $(SRCROOT)/../../../../extensions $(SRCROOT)/../../../../external/chipmunk/include/chipmunk $(SRCROOT)/../../../../external $(SRCROOT)/../auto $(SRCROOT)/../manual";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../.. $(SRCROOT)/../../../../cocos $(SRCROOT)/../../../../cocos/base $(SRCROOT)/../../../../cocos/2d $(SRCROOT)/../../../../cocos/platform $(SRCROOT)/../../../../cocos/audio/include $(SRCROOT)/../../../../cocos/editor-support $(SRCROOT)/../../../../cocos/editor-support/spine $(SRCROOT)/../../../../cocos/editor-support/creator $(SRCROOT)/../../../../cocos/ui $(SRCROOT)/../../../../cocos/storage $(SRCROOT)/../../../../extensions $(SRCROOT)/../../../../external $(SRCROOT)/../auto $(SRCROOT)/../manual";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

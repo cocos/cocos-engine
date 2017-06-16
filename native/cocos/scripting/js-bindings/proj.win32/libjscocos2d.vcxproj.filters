@@ -9,12 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="manual\cocosbuilder">
-      <UniqueIdentifier>{1a494d10-c2d0-498c-8b80-2f45fee36640}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="manual\cocostudio">
-      <UniqueIdentifier>{af265b68-4f27-4561-b7ab-299f21212e08}</UniqueIdentifier>
-    </Filter>
     <Filter Include="manual\extension">
       <UniqueIdentifier>{f4329991-ce95-4f10-9442-92d63bd6aea1}</UniqueIdentifier>
     </Filter>
@@ -29,9 +23,6 @@
     </Filter>
     <Filter Include="manual\ui">
       <UniqueIdentifier>{db4d6533-8c6a-4a18-bdd6-c9b98b897458}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="manual\chipmunk">
-      <UniqueIdentifier>{5fc8adbd-1cb4-4aed-8dbd-bbcc6d1681ab}</UniqueIdentifier>
     </Filter>
     <Filter Include="manual\dragonbones">
       <UniqueIdentifier>{36372247-74fd-4169-8120-06c8c0596530}</UniqueIdentifier>
@@ -62,17 +53,11 @@
     <ClCompile Include="..\manual\cocos2d_specifics.cpp">
       <Filter>manual</Filter>
     </ClCompile>
-    <ClCompile Include="..\manual\js_bindings_core.cpp">
-      <Filter>manual</Filter>
-    </ClCompile>
     <ClCompile Include="..\manual\js_bindings_opengl.cpp">
       <Filter>manual</Filter>
     </ClCompile>
     <ClCompile Include="..\manual\jsb_event_dispatcher_manual.cpp">
       <Filter>manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\auto\jsb_cocos2dx_builder_auto.cpp">
-      <Filter>auto</Filter>
     </ClCompile>
     <ClCompile Include="..\auto\jsb_cocos2dx_extension_auto.cpp">
       <Filter>auto</Filter>
@@ -80,17 +65,8 @@
     <ClCompile Include="..\auto\jsb_cocos2dx_spine_auto.cpp">
       <Filter>auto</Filter>
     </ClCompile>
-    <ClCompile Include="..\auto\jsb_cocos2dx_studio_auto.cpp">
-      <Filter>auto</Filter>
-    </ClCompile>
     <ClCompile Include="..\auto\jsb_cocos2dx_ui_auto.cpp">
       <Filter>auto</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\cocosbuilder\js_bindings_ccbreader.cpp">
-      <Filter>manual\cocosbuilder</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\cocostudio\jsb_cocos2dx_studio_manual.cpp">
-      <Filter>manual\cocostudio</Filter>
     </ClCompile>
     <ClCompile Include="..\manual\extension\jsb_cocos2dx_extension_manual.cpp">
       <Filter>manual\extension</Filter>
@@ -116,28 +92,10 @@
     <ClCompile Include="..\manual\ui\jsb_cocos2dx_ui_manual.cpp">
       <Filter>manual\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\manual\cocostudio\jsb_cocos2dx_studio_conversions.cpp">
-      <Filter>manual\cocostudio</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\component\CCComponentJS.cpp">
-      <Filter>manual</Filter>
-    </ClCompile>
     <ClCompile Include="..\auto\jsb_creator_auto.cpp">
       <Filter>auto</Filter>
     </ClCompile>
     <ClCompile Include="..\manual\js_module_register.cpp">
-      <Filter>manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_manual.cpp">
-      <Filter>manual\chipmunk</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_registration.cpp">
-      <Filter>manual\chipmunk</Filter>
-    </ClCompile>
-    <ClCompile Include="..\auto\js_bindings_chipmunk_auto_classes.cpp">
-      <Filter>manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\auto\js_bindings_chipmunk_functions.cpp">
       <Filter>manual</Filter>
     </ClCompile>
     <ClCompile Include="..\auto\jsb_cocos2dx_dragonbones_auto.cpp">
@@ -199,14 +157,8 @@
     <ClInclude Include="..\manual\js_bindings_config.h">
       <Filter>manual</Filter>
     </ClInclude>
-    <ClInclude Include="..\manual\js_bindings_core.h">
-      <Filter>manual</Filter>
-    </ClInclude>
     <ClInclude Include="..\manual\jsb_event_dispatcher_manual.h">
       <Filter>manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\auto\jsb_cocos2dx_builder_auto.hpp">
-      <Filter>auto</Filter>
     </ClInclude>
     <ClInclude Include="..\auto\jsb_cocos2dx_extension_auto.hpp">
       <Filter>auto</Filter>
@@ -214,20 +166,8 @@
     <ClInclude Include="..\auto\jsb_cocos2dx_spine_auto.hpp">
       <Filter>auto</Filter>
     </ClInclude>
-    <ClInclude Include="..\auto\jsb_cocos2dx_studio_auto.hpp">
-      <Filter>auto</Filter>
-    </ClInclude>
     <ClInclude Include="..\auto\jsb_cocos2dx_ui_auto.hpp">
       <Filter>auto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\cocosbuilder\cocosbuilder_specifics.hpp">
-      <Filter>manual\cocosbuilder</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\cocosbuilder\js_bindings_ccbreader.h">
-      <Filter>manual\cocosbuilder</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\cocostudio\jsb_cocos2dx_studio_manual.h">
-      <Filter>manual\cocostudio</Filter>
     </ClInclude>
     <ClInclude Include="..\manual\extension\jsb_cocos2dx_extension_manual.h">
       <Filter>manual\extension</Filter>
@@ -256,35 +196,11 @@
     <ClInclude Include="..\manual\ui\jsb_cocos2dx_ui_manual.h">
       <Filter>manual\ui</Filter>
     </ClInclude>
-    <ClInclude Include="..\manual\cocostudio\jsb_cocos2dx_studio_conversions.h">
-      <Filter>manual\cocostudio</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\component\CCComponentJS.h">
-      <Filter>auto</Filter>
-    </ClInclude>
     <ClInclude Include="..\auto\jsb_creator_auto.hpp">
       <Filter>auto</Filter>
     </ClInclude>
     <ClInclude Include="..\manual\js_module_register.h">
       <Filter>manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\auto\js_bindings_chipmunk_auto_classes.h">
-      <Filter>auto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\auto\js_bindings_chipmunk_auto_classes_registration.h">
-      <Filter>auto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\auto\js_bindings_chipmunk_functions.h">
-      <Filter>auto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\auto\js_bindings_chipmunk_functions_registration.h">
-      <Filter>auto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_manual.h">
-      <Filter>manual\chipmunk</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_registration.h">
-      <Filter>manual\chipmunk</Filter>
     </ClInclude>
     <ClInclude Include="..\auto\jsb_cocos2dx_dragonbones_auto.hpp">
       <Filter>auto</Filter>
