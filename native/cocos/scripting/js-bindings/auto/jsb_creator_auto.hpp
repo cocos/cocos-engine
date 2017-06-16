@@ -182,7 +182,10 @@ void js_register_creator_CameraNode(JSContext *cx, JS::HandleObject global);
 void register_all_creator(JSContext* cx, JS::HandleObject obj);
 bool js_creator_CameraNode_removeTarget(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_CameraNode_setTransform(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_CameraNode_getVisibleRect(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_CameraNode_containsNode(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_CameraNode_addTarget(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_CameraNode_getInstance(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_CameraNode_CameraNode(JSContext *cx, uint32_t argc, jsval *vp);
 
 #endif // __creator_h__
