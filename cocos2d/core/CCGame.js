@@ -89,7 +89,7 @@ var game = {
     CONFIG_KEY: {
         width: "width",
         height: "height",
-        engineDir: "engineDir",
+        // engineDir: "engineDir",
         debugMode: "debugMode",
         exposeClassName: "exposeClassName",
         showFPS: "showFPS",
@@ -611,7 +611,7 @@ var game = {
             config[CONFIG_KEY.registerSystemEvent] = true;
         }
         config[CONFIG_KEY.showFPS] = (CONFIG_KEY.showFPS in config) ? (!!config[CONFIG_KEY.showFPS]) : true;
-        config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
+        // config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
 
         // Scene parser
         this._sceneInfos = config[CONFIG_KEY.scenes] || [];

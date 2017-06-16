@@ -43,6 +43,7 @@
     "gulp-util": "3.0.6",
     "jshint-stylish": "2.1.0",
     "multipipe": "0.3.0",
+    "persistify": "^1.1.1",
     "require-dir": "0.3.0",
     "uglify-js-harmony": "2.7.7",
     "vinyl": "1.1.0",
