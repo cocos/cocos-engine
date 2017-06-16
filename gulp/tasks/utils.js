@@ -101,10 +101,10 @@ function allowReturnOutsideFunctionInBrowserifyTransform () {
     }
 }
 
-exports.createBundler = function createBundler(entryFiles, babelifyOpt) {
+exports.createBundler = function createBundler(entryFiles, babelifyOpt, sourcemaps) {
     // https://github.com/substack/node-browserify#methods
     var options = {
-        debug: true,
+        debug: sourcemaps !== false,
         detectGlobals: false,    // dont insert `process`, `global`, `__filename`, and `__dirname`
         bundleExternal: false,   // dont bundle external modules
         //standalone: 'engine-framework',

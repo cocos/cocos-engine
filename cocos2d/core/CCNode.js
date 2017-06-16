@@ -36,8 +36,6 @@ var ANCHOR_CHANGED = 'anchor-changed';
 var ROTATION_CHANGED = 'rotation-changed';
 var SCALE_CHANGED = 'scale-changed';
 
-var CHILD_ADDED = 'child-added';
-var CHILD_REMOVED = 'child-removed';
 var CHILD_REORDER = 'child-reorder';
 
 var ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';

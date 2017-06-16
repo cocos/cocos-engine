@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const GEN_SOURCE_MAPS = false;
+
 'use strict';
 
 const Path = require('path');
@@ -43,27 +45,34 @@ const UglifyHarmony = require('uglify-js-harmony');
 const Utils = require('./utils');
 
 exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFileForExtends, callback) {
-    var engine = Utils.createBundler(sourceFile)
+    var engine = Utils.createBundler(sourceFile, null, GEN_SOURCE_MAPS)
         .bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
         .pipe(Source(Path.basename(outputFile)))
-        .pipe(Buffer())
-        // remove `..args` used in CC_JSB
-        .pipe(Sourcemaps.init({loadMaps: true}))
-        .pipe(Minifier(Utils.uglifyOptions(false, {
+        .pipe(Buffer());
+
+    if (GEN_SOURCE_MAPS) {
+        engine = engine.pipe(Sourcemaps.init({loadMaps: true}));
+    }
+
+    // remove `..args` used in CC_JSB
+    engine = engine.pipe(Minifier(Utils.uglifyOptions(false, {
             CC_EDITOR: false,
             CC_DEV: true,
             CC_TEST: true,
             CC_JSB: false
-        }), UglifyHarmony))
-        .pipe(Sourcemaps.write('./', {
+        }), UglifyHarmony));
+
+    if (GEN_SOURCE_MAPS) {
+        engine = engine.pipe(Sourcemaps.write('./', {
             sourceRoot: '../',
             includeContent: false,
             addComment: true
-        }))
-        //
-        .pipe(Gulp.dest(Path.dirname(outputFile)));
+        }));
+    }
+
+    engine = engine.pipe(Gulp.dest(Path.dirname(outputFile)));
 
     if (Fs.existsSync(sourceFileForExtends)) {
         var engineExtends = Utils.createBundler(sourceFileForExtends, {
@@ -73,7 +82,7 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
                 highlightCode: false,
                 sourceMaps: true,
                 compact: false
-            })
+            }, GEN_SOURCE_MAPS)
             .bundle()
             .on('error', HandleErrors.handler)
             .pipe(HandleErrors())
