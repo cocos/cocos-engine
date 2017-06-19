@@ -969,7 +969,13 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         if (!this._editBox._alwaysOnTop) {
             if (this._edTxt.style.display === 'none') {
                 this._edTxt.style.display = '';
-                this._edTxt.focus();
+                if (cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
+                    setTimeout(function () {
+                        this._edTxt.focus();
+                    }.bind(this), TIMER_NAME);
+                } else {
+                    this._edTxt.focus();
+                }
             }
         }
 
