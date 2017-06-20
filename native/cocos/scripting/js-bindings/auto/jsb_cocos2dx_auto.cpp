@@ -1217,12 +1217,16 @@ static bool js_cocos2dx_Touch_constructor(se::State& s)
 SE_BIND_CTOR(js_cocos2dx_Touch_constructor, __jsb_cocos2d_Touch_class, js_cocos2d_Touch_finalize)
 
 
-
+bool __isTouchDebug = false;
 
 bool js_cocos2d_Touch_finalize(se::State& s)
 {
     if (s.nativeThisObject() != nullptr)
     {
+        if (__isTouchDebug)
+        {
+            printf("xxx\n");
+        }
         cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Touch)", s.nativeThisObject());
         cocos2d::Touch* cobj = (cocos2d::Touch*)s.nativeThisObject();
         if (cobj->getReferenceCount() == 1)

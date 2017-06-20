@@ -186,7 +186,7 @@ namespace se {
         free(buf);
     }
 
-    const char* KEY_PRIVATE_DATE = "__cc_private_data";
+    const char* KEY_PRIVATE_DATA = "__cc_private_data";
 
     bool hasPrivate(JSObjectRef obj)
     {
@@ -194,7 +194,7 @@ namespace se {
         if (data != nullptr)
             return true;
 
-        JSStringRef key = JSStringCreateWithUTF8CString(KEY_PRIVATE_DATE);
+        JSStringRef key = JSStringCreateWithUTF8CString(KEY_PRIVATE_DATA);
         bool found = JSObjectHasProperty(__cx, obj, key);
         JSStringRelease(key);
 
@@ -216,7 +216,7 @@ namespace se {
         privateData->finalizeCb = finalizeCb;
         assert(JSObjectSetPrivate(privateObj->_getJSObject(), privateData));
 
-        JSStringRef key = JSStringCreateWithUTF8CString(KEY_PRIVATE_DATE);
+        JSStringRef key = JSStringCreateWithUTF8CString(KEY_PRIVATE_DATA);
         JSObjectSetProperty(__cx, obj, key, privateObj->_getJSObject(), kJSPropertyAttributeDontEnum, nullptr);
         JSStringRelease(key);
         privateObj->release();
@@ -228,16 +228,15 @@ namespace se {
         if (data != nullptr)
             return data;
 
-        JSStringRef key = JSStringCreateWithUTF8CString(KEY_PRIVATE_DATE);
+        JSStringRef key = JSStringCreateWithUTF8CString(KEY_PRIVATE_DATA);
         bool found = JSObjectHasProperty(__cx, obj, key);
         if (found)
         {
             JSValueRef privateDataVal = JSObjectGetProperty(__cx, obj, key, nullptr);
             internal::PrivateData* privateData = (internal::PrivateData*)JSObjectGetPrivate(JSValueToObject(__cx, privateDataVal, nullptr));
-            assert(privateData);
+            assert(privateData != nullptr);
             data = privateData->data;
         }
-
         JSStringRelease(key);
         return data;
     }
@@ -251,7 +250,7 @@ namespace se {
         }
         else
         {
-            JSStringRef key = JSStringCreateWithUTF8CString(KEY_PRIVATE_DATE);
+            JSStringRef key = JSStringCreateWithUTF8CString(KEY_PRIVATE_DATA);
             if (JSObjectHasProperty(__cx, obj, key))
             {
                 JSValueRef value = JSObjectGetProperty(__cx, obj, key, nullptr);

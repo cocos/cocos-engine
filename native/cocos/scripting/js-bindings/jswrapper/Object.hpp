@@ -18,3 +18,45 @@
 #include "chakracore/Object.hpp"
 #endif
 
+namespace se {
+
+    class StackRootedObject
+    {
+    public:
+        StackRootedObject(Object* obj)
+        {
+            assert(obj != nullptr);
+            if (!obj->isRooted())
+            {
+                _obj = obj;
+                _obj->addRef();
+                printf("%s, switchToRooted!", __FUNCTION__);
+                _obj->switchToRooted();
+            }
+            else
+            {
+                _obj = nullptr;
+            }
+        }
+
+        ~StackRootedObject()
+        {
+            if (_obj != nullptr)
+            {
+                _obj->switchToUnrooted();
+                _obj->release();
+            }
+        }
+
+    private:
+        StackRootedObject(const StackRootedObject&) = delete;
+        StackRootedObject(StackRootedObject&&) = delete;
+        StackRootedObject& operator=(const StackRootedObject&) = delete;
+        StackRootedObject& operator=(StackRootedObject&&) = delete;
+        void* operator new(size_t size) = delete;
+
+        Object* _obj;
+    };
+
+
+} // namespace se {

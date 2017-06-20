@@ -164,7 +164,7 @@ namespace se {
         argv.rval().set(rval);
     }
 
-    const char* KEY_PRIVATE_DATE = "__cc_private_data";
+    const char* KEY_PRIVATE_DATA = "__cc_private_data";
 
     bool hasPrivate(JSContext* cx, JS::HandleObject obj)
     {
@@ -175,7 +175,7 @@ namespace se {
         if (!found)
         {
             JS::RootedObject jsobj(cx, obj);
-            if (JS_HasProperty(cx, jsobj, KEY_PRIVATE_DATE, &found) && found)
+            if (JS_HasProperty(cx, jsobj, KEY_PRIVATE_DATA, &found) && found)
             {
                 return true;
             }
@@ -193,10 +193,10 @@ namespace se {
         if (found)
             return JS_GetPrivate(obj);
 
-        if (JS_HasProperty(cx, obj, KEY_PRIVATE_DATE, &found) && found)
+        if (JS_HasProperty(cx, obj, KEY_PRIVATE_DATA, &found) && found)
         {
             JS::RootedValue jsData(cx);
-            if (JS_GetProperty(cx, obj, KEY_PRIVATE_DATE, &jsData))
+            if (JS_GetProperty(cx, obj, KEY_PRIVATE_DATA, &jsData))
             {
                 internal::PrivateData* privateData = (internal::PrivateData*)JS_GetPrivate(jsData.toObjectOrNull());
                 return privateData->data;
@@ -226,7 +226,7 @@ namespace se {
             JS_SetPrivate(privateObj->_getJSObject(), privateData);
 
             JS::RootedValue privateVal(cx, JS::ObjectValue(*privateObj->_getJSObject()));
-            JS_SetProperty(cx, obj, KEY_PRIVATE_DATE, privateVal);
+            JS_SetProperty(cx, obj, KEY_PRIVATE_DATA, privateVal);
             privateObj->release();
         }
     }
@@ -241,15 +241,15 @@ namespace se {
         {
             JS_SetPrivate(obj, nullptr);
         }
-        else if (JS_HasProperty(cx, obj, KEY_PRIVATE_DATE, &found) && found)
+        else if (JS_HasProperty(cx, obj, KEY_PRIVATE_DATA, &found) && found)
         {
             JS::RootedValue jsData(cx);
-            assert(JS_GetProperty(cx, obj, KEY_PRIVATE_DATE, &jsData));
+            assert(JS_GetProperty(cx, obj, KEY_PRIVATE_DATA, &jsData));
 
             internal::PrivateData* privateData = (internal::PrivateData*)JS_GetPrivate(jsData.toObjectOrNull());
             free(privateData);
             JS_SetPrivate(jsData.toObjectOrNull(), nullptr);
-            bool ok = JS_DeleteProperty(cx, obj, KEY_PRIVATE_DATE);
+            bool ok = JS_DeleteProperty(cx, obj, KEY_PRIVATE_DATA);
             assert(ok);
         }
     }

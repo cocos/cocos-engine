@@ -238,7 +238,6 @@ namespace se {
     }
 
     // --- call
-
     bool Object::call(const ValueArray& args, Object* thisObject, Value* rval/* = nullptr*/)
     {
         assert(isFunction());
@@ -256,15 +255,35 @@ namespace se {
 
         JsValueRef* jsArgs = (JsValueRef*)malloc(sizeof(JsValueRef) * (args.size() + 1)); // Requires thisArg as first argument of arguments.
 
+        std::vector<Object*> toUnrootedObjects;
+
+        for (auto& arg : args)
+        {
+            if (arg.isObject())
+            {
+                if (!arg.toObject()->isRooted())
+                {
+                    arg.toObject()->switchToRooted();
+                    toUnrootedObjects.push_back(arg.toObject());
+                }
+            }
+        }
+
         if (!args.empty())
         {
             internal::seToJsArgs(args, jsArgs + 1);
         }
 
         jsArgs[0] = contextObject;
+
         JsValueRef rcValue = JS_INVALID_REFERENCE;
         JsErrorCode errCode = JsCallFunction(_obj, jsArgs, args.size() + 1, &rcValue);
         free(jsArgs);
+
+        for (auto& obj: toUnrootedObjects)
+        {
+            obj->switchToUnrooted();
+        }
 
         if (errCode == JsNoError)
         {

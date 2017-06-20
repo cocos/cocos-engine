@@ -297,7 +297,7 @@ namespace se {
         JS::CompartmentOptions options;
         SetStandardCompartmentOptions(options);
 
-#ifdef DEBUG
+#if 1//def DEBUG
         JS::ContextOptionsRef(_cx)
                     .setExtraWarnings(true)
                     .setIon(false)

@@ -323,7 +323,10 @@ static bool invokeJSCallbackWithOneArg(T* listener, const char* funcName, ARG1* 
     se::Value funcVal;
     ok = listenerObj->getProperty(funcName, &funcVal);
     if (!ok)
+    {
+        CCLOGERROR("Can't find property: %s", funcName);
         return false;
+    }
 
     assert(funcVal.isObject() && funcVal.toObject()->isFunction());
     se::ValueArray argArr;
@@ -333,12 +336,14 @@ static bool invokeJSCallbackWithOneArg(T* listener, const char* funcName, ARG1* 
     JSB_PRECONDITION2(ok, false, "invokeJSCallbackWithOneArg convert arg1 failed!");
     argArr.push_back(std::move(arg1Val));
 
+    assert(se::__nativePtrToObjectMap.find(arg1) != se::__nativePtrToObjectMap.end());
+
     ok = funcVal.toObject()->call(argArr, listenerObj, retVal);
     JSB_PRECONDITION2(ok, false, "invokeJSCallbackWithOneArg call function failed!");
 
     return true;
 }
-
+extern bool __isTouchDebug;
 template<typename T, typename ARG1, typename ARG2>
 static bool invokeJSCallbackWithTwoArgs(T* listener, const char* funcName, ARG1* arg1, ARG2* arg2, se::Value* retVal)
 {
@@ -353,20 +358,32 @@ static bool invokeJSCallbackWithTwoArgs(T* listener, const char* funcName, ARG1*
     se::Value funcVal;
     ok = listenerObj->getProperty(funcName, &funcVal);
     if (!ok)
+    {
+        CCLOGERROR("Can't find property: %s", funcName);
         return false;
+    }
 
     assert(funcVal.isObject() && funcVal.toObject()->isFunction());
     se::ValueArray argArr;
     argArr.reserve(2);
     se::Value arg1Val;
+    log("aaa");
     ok = native_ptr_to_seval<ARG1>(arg1, &arg1Val);
     JSB_PRECONDITION2(ok, false, "invokeJSCallbackWithTwoArgs convert arg1 failed!");
+log("bbb");
+    se::StackRootedObject rootedArg1(arg1Val.toObject());
     argArr.push_back(std::move(arg1Val));
 
     se::Value arg2Val;
+    log("22222");
+    __isTouchDebug = true;
     ok = native_ptr_to_seval<ARG2>(arg2, &arg2Val);
+    __isTouchDebug = false;
     JSB_PRECONDITION2(ok, false, "invokeJSCallbackWithTwoArgs convert arg2 failed!");
     argArr.push_back(std::move(arg2Val));
+log("ccc");
+    assert(se::__nativePtrToObjectMap.find(arg1) != se::__nativePtrToObjectMap.end());
+    assert(se::__nativePtrToObjectMap.find(arg2) != se::__nativePtrToObjectMap.end());
 
     ok = funcVal.toObject()->call(argArr, listenerObj, retVal);
     JSB_PRECONDITION2(ok, false, "invokeJSCallbackWithTwoArgs call function failed!");
@@ -467,7 +484,10 @@ static bool invokeJSTouchAllAtOnceCallback(EventListenerTouchAllAtOnce* listener
     se::Value funcVal;
     ok = listenerObj->getProperty(funcName, &funcVal);
     if (!ok)
+    {
+        CCLOGERROR("Can't find property: %s", funcName);
         return false;
+    }
 
     assert(funcVal.isObject() && funcVal.toObject()->isFunction());
     se::ValueArray argArr;
@@ -494,7 +514,8 @@ static bool js_EventListenerTouchAllAtOnce_create(se::State& s)
     const auto& args = s.args();
     int argc = (int)args.size();
 
-    if (argc == 0) {
+    if (argc == 0)
+    {
         auto ret = EventListenerTouchAllAtOnce::create();
         ret->retain();
 
@@ -538,7 +559,10 @@ static bool invokeJSKeyboardCallback(EventListenerKeyboard* listener, const char
     se::Value funcVal;
     ok = listenerObj->getProperty(funcName, &funcVal);
     if (!ok)
+    {
+        CCLOGERROR("Can't find property: %s", funcName);
         return false;
+    }
 
     assert(funcVal.isObject() && funcVal.toObject()->isFunction());
     se::ValueArray argArr;
@@ -566,7 +590,8 @@ static bool js_EventListenerKeyboard_create(se::State& s)
     const auto& args = s.args();
     int argc = (int)args.size();
 
-    if (argc == 0) {
+    if (argc == 0)
+    {
         auto ret = EventListenerKeyboard::create();
         ret->retain();
 
@@ -595,8 +620,8 @@ static bool js_EventListenerAcceleration_create(se::State& s)
     const auto& args = s.args();
     int argc = (int)args.size();
 
-    if (argc == 1) {
-
+    if (argc == 1)
+    {
         se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerAcceleration_class, false);
         s.rval().setObject(obj);
 
@@ -650,7 +675,8 @@ static bool js_EventListenerFocus_create(se::State& s)
     const auto& args = s.args();
     int argc = (int)args.size();
 
-    if (argc == 0) {
+    if (argc == 0)
+    {
         auto ret = EventListenerFocus::create();
         ret->retain();
 
@@ -673,8 +699,8 @@ static bool js_EventListenerCustom_create(se::State& s)
     const auto& args = s.args();
     int argc = (int)args.size();
 
-    if (argc == 2) {
-
+    if (argc == 2)
+    {
         bool ok = false;
         std::string eventName;
         ok = seval_to_std_string(args[0], &eventName);

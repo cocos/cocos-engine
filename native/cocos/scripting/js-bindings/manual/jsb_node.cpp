@@ -393,7 +393,7 @@ public:
     }
     ~UnscheduleNotifier()
     {
-        printf("~UnscheduleNotifier, node: %p, key: %s\n", _target, _key.c_str());
+        printf("~UnscheduleNotifier, target: %p, key: %s\n", _target, _key.c_str());
 
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
@@ -733,7 +733,7 @@ static bool Scheduler_unscheduleCommon(Scheduler* scheduler, const se::Value& js
     }
     else
     {
-        printf("WARNING: Node_unschedule not found\n");
+        printf("WARNING: %s not found\n", __FUNCTION__);
     }
     return true;
 }

@@ -141,7 +141,7 @@ namespace se {
             _setReturnValue(data, argv);
         }
 
-        const char* KEY_PRIVATE_DATE = "__cc_private_data";
+        const char* KEY_PRIVATE_DATA = "__cc_private_data";
 
         bool hasPrivate(v8::Isolate* isolate, v8::Local<v8::Value> value)
         {
@@ -151,7 +151,7 @@ namespace se {
                 return true;
 
             // Pure JS subclass object doesn't have a internal field
-            v8::MaybeLocal<v8::String> key = v8::String::NewFromUtf8(isolate, KEY_PRIVATE_DATE, v8::NewStringType::kNormal);
+            v8::MaybeLocal<v8::String> key = v8::String::NewFromUtf8(isolate, KEY_PRIVATE_DATA, v8::NewStringType::kNormal);
             if (key.IsEmpty())
                 return false;
 
@@ -178,7 +178,7 @@ namespace se {
                 privateObj->_getWrap().setFinalizeCallback(privateObj->_getClass()->_getFinalizeFunction());
                 privateObj->_getWrap().wrap(privateData);
 
-                v8::MaybeLocal<v8::String> key = v8::String::NewFromUtf8(isolate, KEY_PRIVATE_DATE, v8::NewStringType::kNormal);
+                v8::MaybeLocal<v8::String> key = v8::String::NewFromUtf8(isolate, KEY_PRIVATE_DATA, v8::NewStringType::kNormal);
                 assert(!key.IsEmpty());
                 v8::Maybe<bool> ret = obj->Set(isolate->GetCurrentContext(), key.ToLocalChecked(), privateObj->_getJSObject());
                 assert(!ret.IsNothing());
@@ -204,7 +204,7 @@ namespace se {
             }
 
             // Pure JS subclass object doesn't have a internal field
-            v8::MaybeLocal<v8::String> key = v8::String::NewFromUtf8(isolate, KEY_PRIVATE_DATE, v8::NewStringType::kNormal);
+            v8::MaybeLocal<v8::String> key = v8::String::NewFromUtf8(isolate, KEY_PRIVATE_DATA, v8::NewStringType::kNormal);
             if (key.IsEmpty())
                 return nullptr;
 
@@ -237,7 +237,7 @@ namespace se {
             {
                 v8::Local<v8::Context> context = isolate->GetCurrentContext();
                 // Pure JS subclass object doesn't have a internal field
-                v8::MaybeLocal<v8::String> key = v8::String::NewFromUtf8(isolate, KEY_PRIVATE_DATE, v8::NewStringType::kNormal);
+                v8::MaybeLocal<v8::String> key = v8::String::NewFromUtf8(isolate, KEY_PRIVATE_DATA, v8::NewStringType::kNormal);
                 if (key.IsEmpty())
                     return;
 

@@ -179,7 +179,7 @@ namespace se {
         free(buf);
     }
 
-    const char* KEY_PRIVATE_DATE = "__cc_private_data";
+    const char* KEY_PRIVATE_DATA = "__cc_private_data";
 
     bool hasPrivate(JsValueRef obj)
     {
@@ -200,7 +200,7 @@ namespace se {
             return true;
 
         JsPropertyIdRef propertyId = JS_INVALID_REFERENCE;
-        _CHECK(JsCreatePropertyId(KEY_PRIVATE_DATE, strlen(KEY_PRIVATE_DATE), &propertyId));
+        _CHECK(JsCreatePropertyId(KEY_PRIVATE_DATA, strlen(KEY_PRIVATE_DATA), &propertyId));
         _CHECK(JsHasProperty(obj, propertyId, &isExist));
         return isExist;
     }
@@ -224,7 +224,7 @@ namespace se {
 //        printf("setPrivate: %p\n", data);
 
         JsPropertyIdRef propertyId = JS_INVALID_REFERENCE;
-        JsCreatePropertyId(KEY_PRIVATE_DATE, strlen(KEY_PRIVATE_DATE), &propertyId);
+        JsCreatePropertyId(KEY_PRIVATE_DATA, strlen(KEY_PRIVATE_DATA), &propertyId);
         _CHECK(JsSetProperty(obj, propertyId, privateObj->_getJSObject(), true));
         privateObj->release();
     }
@@ -251,7 +251,7 @@ namespace se {
         }
 
         JsPropertyIdRef propertyId = JS_INVALID_REFERENCE;
-        _CHECK(JsCreatePropertyId(KEY_PRIVATE_DATE, strlen(KEY_PRIVATE_DATE), &propertyId));
+        _CHECK(JsCreatePropertyId(KEY_PRIVATE_DATA, strlen(KEY_PRIVATE_DATA), &propertyId));
         _CHECK(JsHasProperty(obj, propertyId, &isExist));
         if (isExist)
         {
@@ -289,7 +289,7 @@ namespace se {
         else
         {
             JsPropertyIdRef propertyId = JS_INVALID_REFERENCE;
-            _CHECK(JsCreatePropertyId(KEY_PRIVATE_DATE, strlen(KEY_PRIVATE_DATE), &propertyId));
+            _CHECK(JsCreatePropertyId(KEY_PRIVATE_DATA, strlen(KEY_PRIVATE_DATA), &propertyId));
             _CHECK(JsHasProperty(obj, propertyId, &isExist));
             if (isExist)
             {

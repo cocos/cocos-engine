@@ -17,3 +17,7 @@
 #ifdef SCRIPT_ENGINE_CHAKRACORE
 #include "chakracore/SeApi.h"
 #endif
+
+#include "Value.hpp"
+#include "Object.hpp"
+#include "State.hpp"
