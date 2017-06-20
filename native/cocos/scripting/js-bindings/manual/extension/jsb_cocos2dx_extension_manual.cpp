@@ -949,7 +949,7 @@ void __JSDownloaderDelegator::onError()
 void __JSDownloaderDelegator::onSuccess(Texture2D *tex)
 {
     CCASSERT(tex, "__JSDownloaderDelegator::onSuccess must make sure tex not null!");
-    //Director::getInstance()->getScheduler()->performFunctionInCocosThread([this, tex]
+    Director::getInstance()->getScheduler()->performFunctionInCocosThread([this, tex]
     {
         JS::RootedObject global(_cx, ScriptingCore::getInstance()->getGlobalObject());
         JSAutoCompartment ac(_cx, global);
