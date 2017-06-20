@@ -56,7 +56,7 @@
  * !#zh
  * 使用构造函数来创建一个节点专用的对象池，您可以传递一个组件类型或名称，用于处理节点回收和复用时的事件逻辑。
  * @method constructor
- * @param {[Function|String]} poolHandlerComp !#en The constructor or the class name of the component to control the unuse/reuse logic. !#zh 处理节点回收和复用事件逻辑的组件类型或名称。
+ * @param {Function|String} [poolHandlerComp] !#en The constructor or the class name of the component to control the unuse/reuse logic. !#zh 处理节点回收和复用事件逻辑的组件类型或名称。
  * @example
  *  properties: {
  *    template: cc.Prefab

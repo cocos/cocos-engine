@@ -752,7 +752,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         layer.offset = cc.p(parseFloat(selLayer.getAttribute('x')) || 0, parseFloat(selLayer.getAttribute('y')) || 0);
 
         var nodeValue = '';
-        for (j = 0; j < data.childNodes.length; j++) {
+        for (let j = 0; j < data.childNodes.length; j++) {
             nodeValue += data.childNodes[j].nodeValue
         }
         nodeValue = nodeValue.trim();
@@ -804,7 +804,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         var layerProps = selLayer.querySelectorAll("properties > property");
         if (layerProps) {
             var layerProp = {};
-            for (var j = 0; j < layerProps.length; j++) {
+            for (let j = 0; j < layerProps.length; j++) {
                 layerProp[layerProps[j].getAttribute('name')] = layerProps[j].getAttribute('value');
             }
             layer.properties = layerProp;
@@ -838,7 +838,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         var groupProps = selGroup.querySelectorAll("objectgroup > properties > property");
         if (groupProps) {
             var parsedProps = {};
-            for (j = 0; j < groupProps.length; j++) {
+            for (let j = 0; j < groupProps.length; j++) {
                 parsedProps[groupProps[j].getAttribute('name')] = groupProps[j].getAttribute('value');
             }
             // set the properties to the group
@@ -848,7 +848,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         var objects = selGroup.querySelectorAll('object');
         var getContentScaleFactor = cc.director.getContentScaleFactor();
         if (objects) {
-            for (var j = 0; j < objects.length; j++) {
+            for (let j = 0; j < objects.length; j++) {
                 var selObj = objects[j];
                 // The value for "type" was blank or not a valid class name
                 // Create an instance of TMXObjectInfo to store the object and its properties

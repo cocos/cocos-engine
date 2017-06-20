@@ -1068,6 +1068,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     setDisplayStats: function (displayStats) {
         if (cc.profiler) {
             displayStats ? cc.profiler.showStats() : cc.profiler.hideStats();
+            cc.game.config[cc.game.CONFIG_KEY.showFPS] = !!displayStats;
         }
     },
 

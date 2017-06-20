@@ -671,16 +671,14 @@ proto.getResCount = function () {
 
 /**
  * !#en Get all resource dependencies of the requested asset in an array, including itself.
- * The owner parameter accept the following types: 1. The asset itself; 2. The resource url; 3. The asset's uuid.
+ * The owner parameter accept the following types: 1. The asset itself; 2. The resource url; 3. The asset's uuid.<br>
  * The returned array stores the dependencies with their uuids, after retrieve dependencies,
- * you can release them, access dependent assets by passing the uuid to {{#crossLink "loader/getRes:method"}}{{/crossLink}}, or other stuffs you want.
+ * you can release them, access dependent assets by passing the uuid to {{#crossLink "loader/getRes:method"}}{{/crossLink}}, or other stuffs you want.<br>
  * For release all dependencies of an asset, please refer to {{#crossLink "loader/release:method"}}{{/crossLink}}
  * Here is some examples:
- * !#zh 获取一个指定资源的所有依赖资源，包含它自身，并保存在数组中返回。owner 参数接收以下几种类型：
- * 1. 资源 asset 对象；2. 资源目录下的 url；3. 资源的 uuid
- * 返回的数组将仅保存依赖资源的 uuid，获取这些 uuid 后，你可以从 loader 释放这些资源；通过 {{#crossLink "loader/getRes:method"}}{{/crossLink}} 获取某个资源或者其他你需要的处理。
- * 想要释放一个资源及其依赖资源，可以参考 {{#crossLink "loader/release:method"}}{{/crossLink}}。
- * 下面是一些示例代码：
+ * !#zh 获取一个指定资源的所有依赖资源，包含它自身，并保存在数组中返回。owner 参数接收以下几种类型：1. 资源 asset 对象；2. 资源目录下的 url；3. 资源的 uuid。<br>
+ * 返回的数组将仅保存依赖资源的 uuid，获取这些 uuid 后，你可以从 loader 释放这些资源；通过 {{#crossLink "loader/getRes:method"}}{{/crossLink}} 获取某个资源或者进行其他你需要的操作。<br>
+ * 想要释放一个资源及其依赖资源，可以参考 {{#crossLink "loader/release:method"}}{{/crossLink}}。下面是一些示例代码：
  *
  * @example
  * // Release all dependencies of a loaded prefab
@@ -696,7 +694,8 @@ proto.getResCount = function () {
  *     }
  * }
  *
- * @param {Asset|RawAsset|String} owner The owner asset or the resource url or the asset's uuid
+ * @method getDependsRecursively
+ * @param {Asset|RawAsset|String} owner - The owner asset or the resource url or the asset's uuid
  * @returns {Array}
  */
 proto.getDependsRecursively = function (owner) {

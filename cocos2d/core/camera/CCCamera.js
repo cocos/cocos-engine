@@ -125,6 +125,8 @@ let Camera = cc.Class({
             var cmd = sgNode._renderCmd;
             cmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
             cmd._cameraFlag = Camera.flags.InCamera;
+
+            cc.renderer.childrenOrderDirty = true;
         }
     },
 
@@ -146,6 +148,8 @@ let Camera = cc.Class({
             var cmd = sgNode._renderCmd;
             cmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
             cmd._cameraFlag = 0;
+
+            cc.renderer.childrenOrderDirty = true;
         }
     },
 
