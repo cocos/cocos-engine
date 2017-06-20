@@ -47,6 +47,11 @@ proto._updateDisplayColor = function(parentColor){
     this._originalTexture = this._textureToRender = null;
 };
 
+proto._syncDisplayColor = function(parentColor){
+    _ccsg.Node.WebGLRenderCmd.prototype._syncDisplayColor.call(this, parentColor);
+    this._originalTexture = this._textureToRender = null;
+};
+
 proto.setState = function(state){
     if(this._state === state) return;
 
