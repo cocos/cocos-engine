@@ -38,6 +38,13 @@
         } \
     } while(0)
 
+#define SE_PRECONDITION_ERROR_BREAK(condition, ...) \
+    if ( ! (condition) ) { \
+        cocos2d::log("jsb: ERROR: File %s: Line: %d, Function: %s", __FILE__, __LINE__, __FUNCTION__ ); \
+        cocos2d::log(__VA_ARGS__); \
+        break; \
+    }
+
 
 // se value -> native value
 bool seval_to_int32(const se::Value& v, int32_t* ret);
@@ -262,7 +269,7 @@ bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>
     auto iter = se::__nativePtrToObjectMap.find(v);
     if (iter == se::__nativePtrToObjectMap.end())
     { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
-        CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
+//        CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
         se::Class* cls = JSBClassType::findClass<T>(v);
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls, false);
@@ -272,7 +279,7 @@ bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>
     else
     {
         obj = iter->second;
-        CCLOG("INFO: Found Ref type: (%s, native: %p, se: %p) from cache!", typeid(*v).name(), v, obj);
+//        CCLOG("INFO: Found Ref type: (%s, native: %p, se: %p) from cache!", typeid(*v).name(), v, obj);
     }
 
     ret->setObject(obj);

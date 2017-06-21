@@ -19,6 +19,8 @@
 		1A119E9C18BDF19200352BAA /* jsb_cocos2dx_spine_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A119E3B18BDF19200352BAA /* jsb_cocos2dx_spine_auto.cpp */; };
 		1A119E9D18BDF19200352BAA /* jsb_cocos2dx_spine_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A119E3C18BDF19200352BAA /* jsb_cocos2dx_spine_auto.hpp */; };
 		1A119E9E18BDF19200352BAA /* jsb_cocos2dx_spine_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A119E3C18BDF19200352BAA /* jsb_cocos2dx_spine_auto.hpp */; };
+		1AB0647A1EF9647F0061E1AF /* libbmalloc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB064771EF9647F0061E1AF /* libbmalloc.a */; };
+		1AB0647C1EF9647F0061E1AF /* libWTF.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB064791EF9647F0061E1AF /* libWTF.a */; };
 		1AB5E62B18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */; };
 		1AB5E62C18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */; };
 		1AB5E62D18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AB5E62A18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp */; };
@@ -208,6 +210,9 @@
 		1A119E3C18BDF19200352BAA /* jsb_cocos2dx_spine_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_spine_auto.hpp; sourceTree = "<group>"; };
 		1A5410A418B785A10016A3AF /* libjscocos2d Mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libjscocos2d Mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A5410A518B785A10016A3AF /* libjscocos2d iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libjscocos2d iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AB064771EF9647F0061E1AF /* libbmalloc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbmalloc.a; path = ../../../../../JavaScriptCore/build/lib/libbmalloc.a; sourceTree = "<group>"; };
+		1AB064781EF9647F0061E1AF /* libJavaScriptCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJavaScriptCore.a; path = ../../../../../JavaScriptCore/build/lib/libJavaScriptCore.a; sourceTree = "<group>"; };
+		1AB064791EF9647F0061E1AF /* libWTF.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWTF.a; path = ../../../../../JavaScriptCore/build/lib/libWTF.a; sourceTree = "<group>"; };
 		1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_ui_auto.cpp; sourceTree = "<group>"; };
 		1AB5E62A18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_ui_auto.hpp; sourceTree = "<group>"; };
 		1AFD35FA1EF115100097DBB1 /* Base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base.h; sourceTree = "<group>"; };
@@ -310,6 +315,8 @@
 			files = (
 				ED3057C71BEC7C8C0083C3ED /* libjs_static.a in Frameworks */,
 				1AFD37041EF116CB0097DBB1 /* libmozglue.a in Frameworks */,
+				1AB0647A1EF9647F0061E1AF /* libbmalloc.a in Frameworks */,
+				1AB0647C1EF9647F0061E1AF /* libWTF.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -492,6 +499,9 @@
 		1AFD37021EF116CA0097DBB1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1AB064771EF9647F0061E1AF /* libbmalloc.a */,
+				1AB064781EF9647F0061E1AF /* libJavaScriptCore.a */,
+				1AB064791EF9647F0061E1AF /* libWTF.a */,
 				1AFD37031EF116CB0097DBB1 /* libmozglue.a */,
 			);
 			name = Frameworks;
@@ -890,7 +900,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../../../../external/mac/libs",
+					"\"$(SRCROOT)/../../../../../JavaScriptCore/build/lib\"",
 				);
+				SYSTEM_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../../external/mac/include/JavaScriptCore";
 				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/mac/include $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../cocos/platform/mac $(SRCROOT)/../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../external/mac/include/v8 $(SRCROOT)/../../../../external/mac/include/chakracore";
 			};
 			name = Debug;
@@ -910,7 +922,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../../../../external/mac/libs",
+					"\"$(SRCROOT)/../../../../../JavaScriptCore/build/lib\"",
 				);
+				SYSTEM_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../../external/mac/include/JavaScriptCore";
 				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/mac/include $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../cocos/platform/mac $(SRCROOT)/../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../external/mac/include/v8 $(SRCROOT)/../../../../external/mac/include/chakracore";
 			};
 			name = Release;

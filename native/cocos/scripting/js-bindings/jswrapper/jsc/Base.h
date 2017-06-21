@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <JavaScriptCore/JavaScriptCore.h>
+#include <JavaScriptCore/JavaScript.h>
 
 #include <string>
 #include <vector>

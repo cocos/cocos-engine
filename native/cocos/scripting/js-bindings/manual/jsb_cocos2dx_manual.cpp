@@ -310,14 +310,13 @@ static bool register_sys_localStorage(se::Object* obj)
 }
 
 //
-template<typename T, typename ARG1>
-static bool invokeJSCallbackWithOneArg(T* listener, const char* funcName, ARG1* arg1, se::Value* retVal)
+static bool invokeJSMouseCallback(EventListenerMouse* listener, const char* funcName, EventMouse* arg1, se::Value* retVal)
 {
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
     bool ok = true;
     se::Value listenerVal;
-    native_ptr_to_seval<T>(listener, &listenerVal);
+    native_ptr_to_seval<EventListenerMouse>(listener, &listenerVal);
     assert(listenerVal.isObject());
     se::Object* listenerObj = listenerVal.toObject();
     se::Value funcVal;
@@ -332,61 +331,14 @@ static bool invokeJSCallbackWithOneArg(T* listener, const char* funcName, ARG1* 
     se::ValueArray argArr;
     argArr.reserve(1);
     se::Value arg1Val;
-    ok = native_ptr_to_seval<ARG1>(arg1, &arg1Val);
-    JSB_PRECONDITION2(ok, false, "invokeJSCallbackWithOneArg convert arg1 failed!");
+    ok = native_ptr_to_seval<EventMouse>(arg1, &arg1Val);
+    JSB_PRECONDITION2(ok, false, "invokeJSMouseCallback convert arg1 failed!");
     argArr.push_back(std::move(arg1Val));
 
     assert(se::__nativePtrToObjectMap.find(arg1) != se::__nativePtrToObjectMap.end());
 
     ok = funcVal.toObject()->call(argArr, listenerObj, retVal);
-    JSB_PRECONDITION2(ok, false, "invokeJSCallbackWithOneArg call function failed!");
-
-    return true;
-}
-extern bool __isTouchDebug;
-template<typename T, typename ARG1, typename ARG2>
-static bool invokeJSCallbackWithTwoArgs(T* listener, const char* funcName, ARG1* arg1, ARG2* arg2, se::Value* retVal)
-{
-    se::ScriptEngine::getInstance()->clearException();
-    se::AutoHandleScope hs;
-
-    bool ok = true;
-    se::Value listenerVal;
-    native_ptr_to_seval<T>(listener, &listenerVal);
-    assert(listenerVal.isObject());
-    se::Object* listenerObj = listenerVal.toObject();
-    se::Value funcVal;
-    ok = listenerObj->getProperty(funcName, &funcVal);
-    if (!ok)
-    {
-        CCLOGERROR("Can't find property: %s", funcName);
-        return false;
-    }
-
-    assert(funcVal.isObject() && funcVal.toObject()->isFunction());
-    se::ValueArray argArr;
-    argArr.reserve(2);
-    se::Value arg1Val;
-    log("aaa");
-    ok = native_ptr_to_seval<ARG1>(arg1, &arg1Val);
-    JSB_PRECONDITION2(ok, false, "invokeJSCallbackWithTwoArgs convert arg1 failed!");
-log("bbb");
-    se::StackRootedObject rootedArg1(arg1Val.toObject());
-    argArr.push_back(std::move(arg1Val));
-
-    se::Value arg2Val;
-    log("22222");
-    __isTouchDebug = true;
-    ok = native_ptr_to_seval<ARG2>(arg2, &arg2Val);
-    __isTouchDebug = false;
-    JSB_PRECONDITION2(ok, false, "invokeJSCallbackWithTwoArgs convert arg2 failed!");
-    argArr.push_back(std::move(arg2Val));
-log("ccc");
-    assert(se::__nativePtrToObjectMap.find(arg1) != se::__nativePtrToObjectMap.end());
-    assert(se::__nativePtrToObjectMap.find(arg2) != se::__nativePtrToObjectMap.end());
-
-    ok = funcVal.toObject()->call(argArr, listenerObj, retVal);
-    JSB_PRECONDITION2(ok, false, "invokeJSCallbackWithTwoArgs call function failed!");
+    JSB_PRECONDITION2(ok, false, "invokeJSMouseCallback call function failed!");
 
     return true;
 }
@@ -401,19 +353,19 @@ static bool js_EventListenerMouse_create(se::State& s)
         ret->retain();
 
         ret->onMouseDown = [ret](EventMouse* event) {
-            invokeJSCallbackWithOneArg(ret, "onMouseDown", event, nullptr);
+            invokeJSMouseCallback(ret, "onMouseDown", event, nullptr);
         };
 
         ret->onMouseUp = [ret](EventMouse* event) {
-            invokeJSCallbackWithOneArg(ret, "onMouseUp", event, nullptr);
+            invokeJSMouseCallback(ret, "onMouseUp", event, nullptr);
         };
 
         ret->onMouseMove = [ret](EventMouse* event) {
-            invokeJSCallbackWithOneArg(ret, "onMouseMove", event, nullptr);
+            invokeJSMouseCallback(ret, "onMouseMove", event, nullptr);
         };
 
         ret->onMouseScroll = [ret](EventMouse* event) {
-            invokeJSCallbackWithOneArg(ret, "onMouseScroll", event, nullptr);
+            invokeJSMouseCallback(ret, "onMouseScroll", event, nullptr);
         };
 
         se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerMouse_class, false);
@@ -428,6 +380,102 @@ static bool js_EventListenerMouse_create(se::State& s)
 }
 SE_BIND_FUNC(js_EventListenerMouse_create)
 
+//
+enum TouchOneByOneType
+{
+    TOUCH_ONE_BY_ONE_ON_TOUCH_BEGAN = 0,
+    TOUCH_ONE_BY_ONE_ON_TOUCH_MOVED,
+    TOUCH_ONE_BY_ONE_ON_TOUCH_ENDED,
+    TOUCH_ONE_BY_ONE_ON_TOUCH_CANCELLED
+};
+
+static const char* __touchOneByOneTypeName[] = {
+    "onTouchBegan",
+    "onTouchMoved",
+    "onTouchEnded",
+    "onTouchCancelled"
+};
+
+static bool invokeJSTouchOneByOneCallback(EventListenerTouchOneByOne* listener, TouchOneByOneType type, Touch* touch, Event* event, se::Value* retVal)
+{
+    se::ScriptEngine::getInstance()->clearException();
+    se::AutoHandleScope hs;
+
+    assert(type >= TOUCH_ONE_BY_ONE_ON_TOUCH_BEGAN && type <= TOUCH_ONE_BY_ONE_ON_TOUCH_CANCELLED);
+    bool ok = true;
+    se::Value listenerVal;
+    native_ptr_to_seval<EventListenerTouchOneByOne>(listener, &listenerVal);
+    assert(listenerVal.isObject());
+
+    const char* funcName = __touchOneByOneTypeName[type];
+    se::Object* listenerObj = listenerVal.toObject();
+    se::Value funcVal;
+    ok = listenerObj->getProperty(funcName, &funcVal);
+    if (!ok)
+    {
+        CCLOGERROR("Can't find property: %s", funcName);
+        return false;
+    }
+
+    assert(funcVal.isObject() && funcVal.toObject()->isFunction());
+
+    se::ValueArray argArr;
+    argArr.reserve(2);
+    se::Value arg1Val;
+    se::Object* arg1Obj = nullptr;
+
+    do
+    {
+        ok = native_ptr_to_seval<Touch>(touch, &arg1Val);
+        SE_PRECONDITION_ERROR_BREAK(ok, "invokeJSTouchOneByOneCallback convert arg1 failed!");
+
+        arg1Obj = arg1Val.toObject();
+
+        if (type == TOUCH_ONE_BY_ONE_ON_TOUCH_BEGAN && !arg1Obj->isRooted())
+        {
+            log("switch to rooted: %p", touch);
+            arg1Obj->switchToRooted();
+        }
+
+        argArr.push_back(std::move(arg1Val));
+
+        se::Value arg2Val;
+        ok = native_ptr_to_seval<Event>(event, &arg2Val);
+
+        SE_PRECONDITION_ERROR_BREAK(ok, "invokeJSTouchOneByOneCallback convert arg2 failed!");
+        argArr.push_back(std::move(arg2Val));
+
+        assert(se::__nativePtrToObjectMap.find(touch) != se::__nativePtrToObjectMap.end());
+        assert(se::__nativePtrToObjectMap.find(event) != se::__nativePtrToObjectMap.end());
+
+        ok = funcVal.toObject()->call(argArr, listenerObj, retVal);
+        SE_PRECONDITION_ERROR_BREAK(ok, "invokeJSTouchOneByOneCallback call function failed!");
+
+    } while(false);
+
+    if (type == TOUCH_ONE_BY_ONE_ON_TOUCH_BEGAN)
+    {
+        if (!(retVal->isBoolean() && retVal->toBoolean()))
+        {
+            if (arg1Obj->isRooted())
+            {
+                log("switch to unrooted 1: %p", touch);
+                arg1Obj->switchToUnrooted();
+            }
+        }
+    }
+    else if (type == TOUCH_ONE_BY_ONE_ON_TOUCH_ENDED || type == TOUCH_ONE_BY_ONE_ON_TOUCH_CANCELLED)
+    {
+        if (arg1Obj->isRooted())
+        {
+            log("switch to unrooted 2: %p", touch);
+            arg1Obj->switchToUnrooted();
+        }
+    }
+
+    return ok;
+}
+
 static bool js_EventListenerTouchOneByOne_create(se::State& s)
 {
     const auto& args = s.args();
@@ -440,7 +488,7 @@ static bool js_EventListenerTouchOneByOne_create(se::State& s)
         ret->onTouchBegan = [ret](Touch* touch, Event* event) -> bool {
 
             se::Value retVal;
-            invokeJSCallbackWithTwoArgs(ret, "onTouchBegan", touch, event, &retVal);
+            invokeJSTouchOneByOneCallback(ret, TOUCH_ONE_BY_ONE_ON_TOUCH_BEGAN, touch, event, &retVal);
             if (retVal.isBoolean())
                 return retVal.toBoolean();
 
@@ -448,15 +496,15 @@ static bool js_EventListenerTouchOneByOne_create(se::State& s)
         };
 
         ret->onTouchMoved = [ret](Touch* touch, Event* event) {
-            invokeJSCallbackWithTwoArgs(ret, "onTouchMoved", touch, event, nullptr);
+            invokeJSTouchOneByOneCallback(ret, TOUCH_ONE_BY_ONE_ON_TOUCH_MOVED, touch, event, nullptr);
         };
 
         ret->onTouchEnded = [ret](Touch* touch, Event* event) {
-            invokeJSCallbackWithTwoArgs(ret, "onTouchEnded", touch, event, nullptr);
+            invokeJSTouchOneByOneCallback(ret, TOUCH_ONE_BY_ONE_ON_TOUCH_ENDED, touch, event, nullptr);
         };
 
         ret->onTouchCancelled = [ret](Touch* touch, Event* event) {
-            invokeJSCallbackWithTwoArgs(ret, "onTouchCancelled", touch, event, nullptr);
+            invokeJSTouchOneByOneCallback(ret, TOUCH_ONE_BY_ONE_ON_TOUCH_CANCELLED, touch, event, nullptr);
         };
 
         se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerTouchOneByOne_class, false);
