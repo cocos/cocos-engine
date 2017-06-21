@@ -107,30 +107,71 @@
  * @property {Boolean} CC_TEST - Running in the engine's unit test.
  */
 function defineMacro (name, defaultValue) {
-    Function(
-        // if "global_defs" not preprocessed by uglify, just declare them globally,
-        // this may happened in release version's preview page.
-        // (use evaled code to prevent mangle by uglify)
-        'if(typeof ' + name +  '=="undefined")' +
-            name + '=' + defaultValue
-    )();
+    // if "global_defs" not preprocessed by uglify, just declare them globally,
+    // this may happened in release version's preview page.
+    // (use evaled code to prevent mangle by uglify)
+    return 'if(typeof ' + name +  '=="undefined")' +
+            name + '=' + defaultValue + ';';
 }
 function defined (name) {
     return 'typeof ' + name + '=="object"';
 }
-defineMacro('CC_TEST', defined('tap') + '||' + defined('QUnit'));
-defineMacro('CC_EDITOR', defined('Editor') + '&&' + defined('process') + '&&"electron" in process.versions');
-defineMacro('CC_PREVIEW', '!CC_EDITOR');
-defineMacro('CC_DEV', true);    // CC_EDITOR || CC_PREVIEW || CC_TEST
-defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
-defineMacro('CC_JSB', defined('jsb'));
-defineMacro('CC_BUILD', false);
+Function(
+    defineMacro('CC_TEST', defined('tap') + '||' + defined('QUnit')) +
+    defineMacro('CC_EDITOR', defined('Editor') + '&&' + defined('process') + '&&"electron" in process.versions') +
+    defineMacro('CC_PREVIEW', '!CC_EDITOR') +
+    defineMacro('CC_DEV', true) +    // CC_EDITOR || CC_PREVIEW || CC_TEST
+    defineMacro('CC_DEBUG', true) +  // CC_DEV || Debug Build
+    defineMacro('CC_JSB', defined('jsb')) +
+    defineMacro('CC_BUILD', false)
+)();
 
 // PREDEFINE
 
+/**
+ * !#en
+ * The main namespace of Cocos2d-JS, all engine core classes, functions, properties and constants are defined in this namespace.
+ * !#zh
+ * Cocos 引擎的主要命名空间，引擎代码中所有的类，函数，属性和常量都在这个命名空间中定义。
+ * @module cc
+ * @main cc
+ */
+cc = {};
+
+// The namespace for original nodes rendering in scene graph.
+_ccsg = {};
+
+if (CC_DEV) {
+    /**
+     * contains internal apis for unit tests
+     * @expose
+     */
+    cc._Test = {};
+}
+
+// output all info before initialized
+require('./CCDebugger');
+cc._initDebugSetting(cc.DebugMode.INFO);
+if (CC_DEBUG) {
+    require('./DebugInfos');
+}
+
+// polyfills
+/* require('./polyfill/bind'); */
+require('./polyfill/string');
+require('./polyfill/misc');
+require('./polyfill/array');
+if (!(CC_EDITOR && Editor.isMainProcess)) {
+    require('./polyfill/typescript');
+}
+
 require('./predefine');
 
-// load Cocos2d engine code
+ccui = {};
+ccs = {};
+cp = {};
+
+// LOAD COCOS2D ENGINE CODE
 
 if (CC_EDITOR && Editor.isMainProcess) {
     cc._initDebugSetting(1);    // DEBUG_MODE_INFO
