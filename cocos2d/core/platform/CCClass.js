@@ -169,6 +169,7 @@ function defineGetSet (cls, name, propName, val, es6) {
     var setter = val.set;
     var proto = cls.prototype;
     var d = Object.getOwnPropertyDescriptor(proto, propName);
+    var setterUndefined = !d;
 
     if (getter) {
         if (CC_DEV && !es6 && d && d.get) {
@@ -192,32 +193,23 @@ function defineGetSet (cls, name, propName, val, es6) {
         }
 
         if (!es6) {
-            var setterUndefined = !d;
             JS.get(proto, propName, getter, setterUndefined, setterUndefined);
         }
 
-        if (CC_DEV) {
+        if (CC_EDITOR || CC_DEV) {
             Attr.setClassAttr(cls, propName, 'hasGetter', true); // 方便 editor 做判断
         }
     }
 
     if (setter) {
-        if (CC_DEV) {
-            if (!es6) {
-                if (d && d.set) {
-                    return cc.errorID(3640, name, propName);
-                }
-                JS.set(proto, propName, setter, true, true);
+        if (!es6) {
+            if (CC_DEV && d && d.set) {
+                return cc.errorID(3640, name, propName);
             }
-            Attr.setClassAttr(cls, propName, 'hasSetter', true); // 方便 editor 做判断
+            JS.set(proto, propName, setter, setterUndefined, setterUndefined);
         }
-        else if (!es6) {
-            if (d) {
-                JS.set(proto, propName, setter);
-            }
-            else {
-                JS.set(proto, propName, setter, true, true);
-            }
+        if (CC_EDITOR || CC_DEV) {
+            Attr.setClassAttr(cls, propName, 'hasSetter', true); // 方便 editor 做判断
         }
     }
 }

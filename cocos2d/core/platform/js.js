@@ -376,7 +376,7 @@ js.getClassName = function (objOrCtor) {
     return '';
 };
 
-function isTempClassId_DEV (id) {
+function isTempClassId (id) {
     return typeof id !== 'string' || id.startsWith(tempCIDGenerater.prefix);
 }
 
@@ -512,7 +512,7 @@ cc.js.unregisterClass to remove the id of unused class';
         var res;
         if (typeof obj === 'function' && obj.prototype.hasOwnProperty('__cid__')) {
             res = obj.prototype.__cid__;
-            if (!allowTempId && CC_DEV && isTempClassId_DEV(res)) {
+            if (!allowTempId && (CC_DEV || CC_EDITOR) && isTempClassId(res)) {
                 return '';
             }
             return res;
@@ -521,7 +521,7 @@ cc.js.unregisterClass to remove the id of unused class';
             var prototype = obj.constructor.prototype;
             if (prototype && prototype.hasOwnProperty('__cid__')) {
                 res = obj.__cid__;
-                if (!allowTempId && CC_DEV && isTempClassId_DEV(res)) {
+                if (!allowTempId && (CC_DEV || CC_EDITOR) && isTempClassId(res)) {
                     return '';
                 }
                 return res;
