@@ -165,7 +165,8 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./polyfill/typescript');
 }
 
-require('./predefine');
+require('./cocos2d/kazmath');
+require('./cocos2d/core/predefine');
 
 ccui = {};
 ccs = {};
@@ -177,7 +178,10 @@ if (CC_EDITOR && Editor.isMainProcess) {
     cc._initDebugSetting(1);    // DEBUG_MODE_INFO
 }
 else {
-    require('./cocos2d/index.js');
+    require('./cocos2d/shaders');
+    require('./cocos2d/compression');
+    require('./CCBoot');
+    require('./cocos2d');
 }
 
 // LOAD EXTENDS FOR CREATOR

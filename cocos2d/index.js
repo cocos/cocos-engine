@@ -1,3 +1,8 @@
+require('./core/CCGame');
+
+// ensure modular-cocos2d can determine whether action module is included
+require('./actions');
+
 require('./core/base-nodes/BaseNodesPropertyDefine.js');
 require('./core/base-nodes/CCSGNode.js');
 require('./core/base-nodes/CCSGNodeCanvasRenderCmd.js');
