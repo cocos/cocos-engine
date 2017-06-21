@@ -1477,16 +1477,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         this._renderCmd._initWithTotalParticles(numberOfParticles);
         return true;
     },
-
-    /**
-     * Unschedules the "update" method.
-     * @function
-     * @see scheduleUpdate();
-     */
-    destroyParticleSystem:function () {
-        this.unscheduleUpdate();
-    },
-
+    
     /**
      * Add a particle to the emitter
      * @return {Boolean}
