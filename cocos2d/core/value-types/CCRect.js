@@ -333,10 +333,10 @@ proto.intersects = function (rect) {
  * a.contains(b);// true
  */
 proto.contains = function (point) {
-    return (this.x < point.x &&
-            this.x + this.width > point.x &&
-            this.y < point.y &&
-            this.y + this.height > point.y);
+    return (this.x <= point.x &&
+            this.x + this.width >= point.x &&
+            this.y <= point.y &&
+            this.y + this.height >= point.y);
 };
 
 /**
@@ -351,10 +351,10 @@ proto.contains = function (point) {
  * a.containsRect(b);// true
  */
 proto.containsRect = function (rect) {
-    return (this.x < rect.x &&
-            this.x + this.width > rect.x + rect.width &&
-            this.y < rect.y &&
-            this.y + this.height > rect.y + rect.height);
+    return (this.x <= rect.x &&
+            this.x + this.width >= rect.x + rect.width &&
+            this.y <= rect.y &&
+            this.y + this.height >= rect.y + rect.height);
 };
 
 cc.Rect = Rect;
