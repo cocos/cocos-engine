@@ -23,49 +23,26 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-if (!cc.ClassManager) {
-    cc.ClassManager = window.ClassManager || {
-        id : (0|(Math.random()*998)),
-        instanceId : (0|(Math.random()*998)),
-        getNewID : function(){
-            return this.id++;
-        },
-        getNewInstanceId : function(){
-            return this.instanceId++;
-        }
-    };
-}
-
-if (CC_DEV) {
-    /**
-     * contains internal apis for unit tests
-     * @expose
-     */
-    cc._Test = {};
-}
-
-// polyfills
-if (!(CC_EDITOR && Editor.isMainProcess)) {
-    require('../polyfill/typescript');
-}
-
 // predefine some modules for cocos
-require('../cocos2d/core/platform/js');
-require('../cocos2d/core/value-types');
-require('../cocos2d/core/utils/find');
-require('../cocos2d/core/utils/mutable-forward-iterator');
-require('../cocos2d/core/event');
-require('../cocos2d/core/event-manager/CCSystemEvent');
-require('../CCDebugger');
+require('./platform/js');
+require('./value-types');
+require('./utils');
+require('./platform/CCInputManager');
+require('./platform/CCInputExtension');
+require('./event');
+require('./platform/CCSys');
+require('./platform/CCMacro');
+require('./load-pipeline');
+require('./textures');
+require('./CCDirector');
+require('./CCDirectorWebGL');
+require('./CCDirectorCanvas');
 
-if (CC_DEV) {
-    //Debug Info ID map
-    require('../DebugInfos');
-}
-
-// Mark memory model
-var macro = require('../cocos2d/core/platform/CCMacro');
-
-if (window.__ENABLE_GC_FOR_NATIVE_OBJECTS__ !== undefined) {
-    macro.ENABLE_GC_FOR_NATIVE_OBJECTS = window.__ENABLE_GC_FOR_NATIVE_OBJECTS__;
+if (!(CC_EDITOR && Editor.isMainProcess)) {
+    require('./platform/CCSAXParser');
+    require('./platform/CCView');
+    require('./platform/CCScreen');
+    require('./CCScheduler');
+    require('./event-manager');
+    require('./renderer');
 }
