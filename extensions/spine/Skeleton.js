@@ -390,12 +390,12 @@ sp.Skeleton = cc.Class({
     // IMPLEMENT
 
     __preload: function () {
-        // sgNode 的尺寸不是很可靠 同时 Node 的框框也没办法和渲染匹配 只好强制尺寸为零
-        if (CC_DEV) {
+        if (CC_EDITOR || CC_DEV) {
             var Flags = cc.Object.Flags;
             this._objFlags &= Flags.PersistentMask; // for v1.0 project
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
         }
+        // sgNode 的尺寸不是很可靠 同时 Node 的框框也没办法和渲染匹配 只好强制尺寸为零
         this.node.setContentSize(0, 0);
         //
         this._refresh();
