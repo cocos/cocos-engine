@@ -974,7 +974,7 @@ void __JSDownloaderDelegator::onSuccess(Texture2D *tex)
             JS_CallFunctionValue(_cx, global, callback, JS::HandleValueArray::fromMarkedLocation(2, valArr), &retval);
         }
         release();
-    }
+    });
 }
 
 // jsb.loadRemoteImg(url, function(succeed, result) {})
