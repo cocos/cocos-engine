@@ -456,6 +456,8 @@ _p.clear = function (clean) {
         for(var i = 0; i < buffers.length; i++) {
             buffers[i].clear();
         }
+
+        this._buffer = buffers[0];
     }
 };
 
@@ -545,6 +547,14 @@ _p._flattenPaths = function () {
 };
 
 _p._allocBuffer = function () {
+    if (this._buffer) {
+        var index = this._buffers.indexOf(this._buffer);
+        if (index < (this._buffers.length - 1)) {
+            this._buffer = this._buffers[index + 1];
+            return;
+        }
+    }
+
     var buffer = new GraphicsBuffer();
     this._buffers.push(buffer);
     this._buffer = buffer;
