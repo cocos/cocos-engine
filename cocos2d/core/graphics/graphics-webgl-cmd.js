@@ -561,6 +561,10 @@ _p._allocBuffer = function () {
 };
 
 _p._allocVerts = function (cverts) {
+    if (!this._buffer) {
+        this._allocBuffer();
+    }
+    
     var nIndices = (cverts - 2*(this._pathLength-this._pathOffset)) * 3;
     if (!this._buffer.alloc(cverts, nIndices)) {
         this._allocBuffer();
