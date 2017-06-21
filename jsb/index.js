@@ -51,36 +51,27 @@ catch (e) {
 }
 
 function defineMacro (name, defaultValue) {
-    Function(
-        // if "global_defs" not preprocessed by uglify, just declare them globally,
-        // this may happened in release version's preview page.
-        // (use evaled code to prevent mangle by uglify)
-        'if(typeof ' + name +  '=="undefined")' +
-            name + '=' + defaultValue
-    )();
+    // if "global_defs" not preprocessed by uglify, just declare them globally,
+    // this may happened in release version's preview page.
+    // (use evaled code to prevent mangle by uglify)
+    return 'if(typeof ' + name +  '=="undefined")' +
+           name + '=' + defaultValue + ';';
 }
 function defined (name) {
     return 'typeof ' + name + '=="object"';
 }
-defineMacro('CC_TEST', defined('tap') + '||' + defined('QUnit'));
-defineMacro('CC_EDITOR', defined('Editor') + '&&' + defined('process') + '&&"electron" in process.versions');
-defineMacro('CC_PREVIEW', '!CC_EDITOR');
-defineMacro('CC_DEV', true);    // CC_EDITOR || CC_PREVIEW || CC_TEST
-defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
-defineMacro('CC_JSB', defined('jsb'));
-defineMacro('CC_BUILD', false);
+Function(
+    defineMacro('CC_TEST', defined('tap') + '||' + defined('QUnit')) +
+    defineMacro('CC_EDITOR', defined('Editor') + '&&' + defined('process') + '&&"electron" in process.versions') +
+    defineMacro('CC_PREVIEW', '!CC_EDITOR') +
+    defineMacro('CC_DEV', true) +    // CC_EDITOR || CC_PREVIEW || CC_TEST
+    defineMacro('CC_DEBUG', true) +  // CC_DEV || Debug Build
+    defineMacro('CC_JSB', defined('jsb')) +
+    defineMacro('CC_BUILD', false)
+)();
 
 if (!cc.ClassManager) {
-    cc.ClassManager = window.ClassManager || {
-            id : (0|(Math.random()*998)),
-            instanceId : (0|(Math.random()*998)),
-            getNewID : function(){
-                return this.id++;
-            },
-            getNewInstanceId : function(){
-                return this.instanceId++;
-            }
-        };
+    cc.ClassManager = window.ClassManager;
 }
 
 if (CC_DEV) {
