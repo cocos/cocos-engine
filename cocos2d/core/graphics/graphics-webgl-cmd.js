@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
  
-var Shader      = require('./shader');
-
 var LineCap     = require('./types').LineCap;
 var LineJoin    = require('./types').LineJoin;
 
@@ -38,8 +36,8 @@ var Js    = cc.js;
 // Math
 var INIT_VERTS_SIZE = 32;
 
-var VERTS_FLOAT_LENGTH = 2;
-var VERTS_BYTE_LENGTH  = 8;
+var VERTS_FLOAT_LENGTH = 3;
+var VERTS_BYTE_LENGTH  = 12;
 
 var MAX_BUFFER_SIZE = 65535;
 
@@ -109,6 +107,7 @@ function GraphicsBuffer () {
     this.vertsOffset = 0;
     this.vertsVBO = gl.createBuffer();
     this.vertsBuffer = null;
+    this.uint32VertsBuffer = null;
     this.vertsDirty = false;
 
     this.indicesOffset = 0;
@@ -149,6 +148,7 @@ GraphicsBuffer.prototype.alloc = function (cverts, cindices) {
         }
 
         this.vertsBuffer = newBuffer;
+        this.uint32VertsBuffer = new Uint32Array(this.vertsBuffer.buffer);
     }
 
     var indices = this.indicesBuffer;
@@ -194,17 +194,20 @@ function WebGLRenderCmd (renderable) {
     this._paths = [];
     this._points = [];
 
-    this._cmds = [];
+    this._curColorValue = 0;
 
     this._blendFunc = new cc.BlendFunc(cc.macro.BLEND_SRC, cc.macro.BLEND_DST);
 
     // init shader
-    this._shader = new cc.GLProgram();
-    this._shader.initWithVertexShaderByteArray(Shader.vert, Shader.frag);
-    this._shader.retain();
-    this._shader.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
-    this._shader.link();
-    this._shader.updateUniforms();
+    var shader = new cc.GLProgram();
+    shader.initWithVertexShaderByteArray(cc.PresetShaders.POSITION_COLOR_VERT, cc.PresetShaders.POSITION_COLOR_FRAG);
+    shader.retain();
+    shader.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
+    shader.addAttribute(cc.macro.ATTRIBUTE_NAME_COLOR, cc.macro.VERTEX_ATTRIB_COLOR);
+    shader.link();
+    shader.updateUniforms();
+
+    this._shaderProgram = shader;
 
     this._allocVerts(INIT_VERTS_SIZE);
 }
@@ -313,6 +316,9 @@ _p.close = function () {
 _p.stroke = function () {
     this._flattenPaths();
 
+    var color = this._strokeColor;
+    this._curColorValue = ((color.a<<24) >>> 0) + (color.b<<16) + (color.g<<8) + color.r;
+
     this._expandStroke();
 
     this._updatePathOffset = true;
@@ -320,6 +326,9 @@ _p.stroke = function () {
 
 _p.fill = function () {
     // this._flattenPaths();
+
+    var color = this._fillColor;
+    this._curColorValue = ((color.a<<24) >>> 0) + (color.b<<16) + (color.g<<8) + color.r;
 
     this._expandFill();
 
@@ -370,47 +379,36 @@ Js.getset(_p, 'strokeColor', _p.getStrokeColor, _p.setStrokeColor);
 Js.getset(_p, 'fillColor', _p.getFillColor, _p.setFillColor);
 
 _p._render = function () {
-    if (this._cmds.length === 0) return;
+    let buffers = this._buffers;
+    if (buffers.length === 0) return;
 
-    var gl = cc._renderContext;
-
-    var shader = this._shader;
-    var colorLocation = shader.getUniformLocationForName('color');
+    let gl = cc._renderContext;
 
     // draw paths
-    var cmds = this._cmds;
-    var lastBuffer = null;
-    for (var i = 0, l = cmds.length; i < l; i++) {
-        var cmd = cmds[i];
+    for (let i = 0, l = buffers.length; i < l; i++) {
+        let buffer = buffers[i];
         
-        var buffer = cmd.buffer;
-        if (buffer !== lastBuffer) {
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffer.vertsVBO);
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer.indicesVBO);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer.vertsVBO);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer.indicesVBO);
 
-            if (buffer.vertsDirty) {
-                gl.bufferData(gl.ARRAY_BUFFER, buffer.vertsBuffer, gl.STREAM_DRAW);
-                buffer.vertsDirty = false;
-            }
-
-            if (buffer.indicesDirty && buffer.indicesBuffer) {
-                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, buffer.indicesBuffer, gl.STREAM_DRAW);
-                buffer.indicesDirty = false;
-            }
-
-            gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
-            gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, VERTS_BYTE_LENGTH, 0);
-
-            lastBuffer = buffer;
+        if (buffer.vertsDirty) {
+            gl.bufferData(gl.ARRAY_BUFFER, buffer.vertsBuffer, gl.STREAM_DRAW);
+            buffer.vertsDirty = false;
         }
 
-        if (cmd.nIndices) {
-            var color = cmd.color;
-            gl.uniform4f(colorLocation, color.r / 255, color.g / 255, color.b / 255, color.a / 255);
-            gl.drawElements(gl.TRIANGLES, cmd.nIndices, gl.UNSIGNED_SHORT, cmd.indicesOffset * 2);
-
-            cc.g_NumberOfDraws++;
+        if (buffer.indicesDirty && buffer.indicesBuffer) {
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, buffer.indicesBuffer, gl.STREAM_DRAW);
+            buffer.indicesDirty = false;
         }
+
+        gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
+        gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, VERTS_BYTE_LENGTH, 0);
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, VERTS_BYTE_LENGTH, 8);
+
+        gl.drawElements(gl.TRIANGLES, buffer.indicesOffset, gl.UNSIGNED_SHORT, 0);
+
+        cc.g_NumberOfDraws++;
     }
 
     cc.checkGLErrorDebug();
@@ -419,7 +417,7 @@ _p._render = function () {
 _p.rendering = function () {
     cc.gl.blendFunc(this._blendFunc.src, this._blendFunc.dst);
 
-    var wt = this._worldTransform, mat = this._matrix.mat;
+    let wt = this._worldTransform, mat = this._matrix.mat;
     mat[0] = wt.a;
     mat[4] = wt.c;
     mat[12] = wt.tx;
@@ -427,7 +425,7 @@ _p.rendering = function () {
     mat[5] = wt.d;
     mat[13] = wt.ty;
 
-    var shader = this._shader;
+    let shader = this._shaderProgram;
     shader.use();
     shader._setUniformForMVPMatrixWithMat4(this._matrix);
 
@@ -441,8 +439,6 @@ _p.clear = function (clean) {
     this._pointsOffset = 0;
 
     this._curPath = null;
-
-    this._cmds.length = 0;
 
     if (clean) {
         this._paths.length = 0;
@@ -564,38 +560,13 @@ _p._allocVerts = function (cverts) {
     if (!this._buffer) {
         this._allocBuffer();
     }
-    
+
     var nIndices = (cverts - 2*(this._pathLength-this._pathOffset)) * 3;
     if (!this._buffer.alloc(cverts, nIndices)) {
         this._allocBuffer();
         this._buffer.alloc(cverts, nIndices);
     }
     this._buffer.vertsDirty = true;
-};
-
-_p._pushCmd = function (cmd) {
-    var cmds = this._cmds;
-    var lastCmd = cmds[cmds.length - 1];
-
-    if (lastCmd) {
-        var lastColor = lastCmd.color;
-        var color = cmd.color;
-
-        if (lastColor.r === color.r &&
-            lastColor.g === color.g &&
-            lastColor.b === color.b &&
-            lastColor.a === color.a &&
-            (lastCmd.indicesOffset + lastCmd.nIndices === cmd.indicesOffset)) {
-            lastCmd.nIndices += cmd.nIndices;
-            lastCmd.nverts += cmd.nverts;
-        }
-        else {
-            cmds.push(cmd);
-        }
-    }
-    else {
-        cmds.push(cmd);
-    }
 };
 
 _p._expandStroke = function () {
@@ -689,11 +660,11 @@ _p._expandStroke = function () {
         }
 
         if (loop) {
-            var v0 = this._vget(offset);
-            var v1 = this._vget(offset + 1);
+            let vertsBuffer = buffer.vertsBuffer;
+
             // Loop it
-            this._vset(v0.x, v0.y);
-            this._vset(v1.x, v1.y);
+            this._vset(vertsBuffer[offset*VERTS_FLOAT_LENGTH], vertsBuffer[offset*VERTS_FLOAT_LENGTH+1]);
+            this._vset(vertsBuffer[(offset+1)*VERTS_FLOAT_LENGTH], vertsBuffer[(offset+1)*VERTS_FLOAT_LENGTH+1]);
         } else {
             // Add cap
             var dPos = p1.sub(p0);
@@ -719,15 +690,6 @@ _p._expandStroke = function () {
             indicesBuffer[indicesOffset++] = start - 1;
             indicesBuffer[indicesOffset++] = start;
         }
-
-        this._pushCmd({
-            color: this._strokeColor,
-            indicesOffset: buffer.indicesOffset,
-            nIndices: indicesOffset - buffer.indicesOffset,
-            vertsOffset: offset,
-            nverts: buffer.vertsOffset - offset,
-            buffer: buffer
-        });
 
         buffer.indicesOffset = indicesOffset;
         buffer.indicesDirty = true;
@@ -772,7 +734,13 @@ _p._expandFill = function () {
         var nIndices = 0;
 
         if (path.complex) {
-            var data = new Float32Array(buffer.vertsBuffer.buffer, offset * 8, (buffer.vertsOffset - offset) * 2);
+            var data = [];
+            var start = offset*VERTS_FLOAT_LENGTH, end = buffer.vertsOffset*VERTS_FLOAT_LENGTH; 
+            for (var i = start; i < end; i+=VERTS_FLOAT_LENGTH) {
+                data.push(buffer.vertsBuffer[i]);
+                data.push(buffer.vertsBuffer[i+1]);
+            }
+
             var newIndices = Earcut(data, null, 2);
 
             if (!newIndices || newIndices.length === 0) {
@@ -795,15 +763,6 @@ _p._expandFill = function () {
 
             nIndices = indicesOffset - buffer.indicesOffset;
         }
-
-        this._pushCmd({
-            color: this._fillColor,
-            indicesOffset: buffer.indicesOffset,
-            nIndices: nIndices,
-            vertsOffset: offset,
-            nverts: buffer.vertsOffset - offset,
-            buffer: buffer
-        });
 
         buffer.indicesOffset += nIndices;
         buffer.indicesDirty = true;
@@ -889,23 +848,17 @@ _p._calculateJoins = function (w, lineJoin, miterLimit) {
 };
 
 _p._vset = function (x, y) {
-    var offset = this._buffer.vertsOffset * VERTS_FLOAT_LENGTH;
-    var vertsBuffer = this._buffer.vertsBuffer;
+    let buffer = this._buffer;
+    let offset = buffer.vertsOffset * VERTS_FLOAT_LENGTH;
+    let vertsBuffer = buffer.vertsBuffer;
 
     vertsBuffer[offset] = x;
     vertsBuffer[offset + 1] = y;
 
-    this._buffer.vertsOffset++;
-};
+    buffer.uint32VertsBuffer[offset + 2] = this._curColorValue;
 
-_p._vget = function (index) {
-    var vertsBuffer = this._buffer.vertsBuffer;
-    var offset = index * VERTS_FLOAT_LENGTH;
-    return {
-        x: vertsBuffer[offset],
-        y: vertsBuffer[offset + 1]
-    };
- };
+    buffer.vertsOffset++;
+};
 
 //
 _p._chooseBevel = function (bevel, p0, p1, w) {
