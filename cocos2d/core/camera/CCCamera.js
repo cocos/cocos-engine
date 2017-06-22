@@ -23,7 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var transformDirtyFlag;
+
 if (!CC_JSB) {
+    transformDirtyFlag = _ccsg.Node._dirtyFlags.transformDirty;
     require('./CCSGCameraNode');
 }
 
@@ -44,6 +47,8 @@ let Camera = cc.Class({
     ctor: function () {
         this.viewMatrix = cc.affineTransformMake();
         this.invertViewMatrix = cc.affineTransformMake();
+
+        this._lastViewMatrix = cc.affineTransformMake();
 
         this._sgTarges = [];
 
@@ -123,7 +128,7 @@ let Camera = cc.Class({
 
         if (!CC_JSB) {
             var cmd = sgNode._renderCmd;
-            cmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+            cmd.setDirtyFlag(transformDirtyFlag);
             cmd._cameraFlag = Camera.flags.InCamera;
 
             cc.renderer.childrenOrderDirty = true;
@@ -146,7 +151,7 @@ let Camera = cc.Class({
         
         if (!CC_JSB) {
             var cmd = sgNode._renderCmd;
-            cmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+            cmd.setDirtyFlag(transformDirtyFlag);
             cmd._cameraFlag = 0;
 
             cc.renderer.childrenOrderDirty = true;
@@ -281,6 +286,13 @@ let Camera = cc.Class({
         return false;
     },
 
+    _setSgNodesTransformDirty: !CC_JSB && function () {
+        let sgTarges = this._sgTarges;
+        for (let i = 0; i < sgTarges.length; i++) {
+            sgTarges[i]._renderCmd.setDirtyFlag(transformDirtyFlag);
+        }
+    },
+
     lateUpdate: !CC_EDITOR && function () {
         let m = this.viewMatrix;
         let im = this.invertViewMatrix;
@@ -335,6 +347,27 @@ let Camera = cc.Class({
         selfVisibleRect.top.y = viewPort.yMax;
 
         this._sgNode.setTransform(a, b, c, d, m.tx, m.ty);
+
+        // if view transform changed, then need recalculate whether targets need culling
+        if (!CC_JSB) {
+            var lvm = this._lastViewMatrix;
+            if (lvm.a !== m.a ||
+                lvm.b !== m.b ||
+                lvm.c !== m.c ||
+                lvm.d !== m.d ||
+                lvm.tx !== m.tx ||
+                lvm.ty !== m.ty
+                ) {
+                this._setSgNodesTransformDirty();
+                
+                lvm.a = m.a;
+                lvm.b = m.b;
+                lvm.c = m.c;
+                lvm.d = m.d;
+                lvm.tx = m.tx;
+                lvm.ty = m.ty;
+            }
+        }
     }
 });
 
