@@ -79,6 +79,12 @@ var actionArr = [
     'TintBy',
 ];
 
+cc.Action.prototype._getSgTarget = cc.Action.prototype.getTarget;
+cc.Action.prototype.getTarget = function () {
+    var sgNode = this._getSgTarget();
+    return sgNode._owner || sgNode;
+};
+
 function setCtorReplacer (proto) {
     var ctor = proto._ctor;
     proto._ctor = function (...args) {
@@ -126,7 +132,7 @@ cc.follow = function (followedNode, rect) {
 };
 
 cc.Follow.prototype.update = function(dt) {
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.setPosition(target.getPosition());
     }
@@ -147,7 +153,7 @@ cc.FlipX = _FlipX.extend({
     },
 
     update:function (dt) {
-        var target = this.getTarget();
+        var target = this._getSgTarget();
         target.scaleX = Math.abs(target.scaleX) * (this._flippedX ? -1 : 1);
     },
 
@@ -179,7 +185,7 @@ cc.FlipY = _FlipY.extend({
     },
 
     update:function (dt) {
-        var target = this.getTarget();
+        var target = this._getSgTarget();
         target.scaleY = Math.abs(target.scaleY) * (this._flippedY ? -1 : 1);
     },
 
@@ -206,15 +212,15 @@ function setRendererVisibility (sgNode, toggleVisible, visible) {
 }
 
 cc.Show.prototype.update = function (dt) {
-    setRendererVisibility(this.getTarget(), false, true);
+    setRendererVisibility(this._getSgTarget(), false, true);
 };
 
 cc.Hide.prototype.update = function (dt) {
-    setRendererVisibility(this.getTarget(), false, false);
+    setRendererVisibility(this._getSgTarget(), false, false);
 };
 
 cc.ToggleVisibility.prototype.update = function (dt) {
-    setRendererVisibility(this.getTarget(), true);
+    setRendererVisibility(this._getSgTarget(), true);
 };
 
 // Special call func
@@ -359,7 +365,7 @@ cc.ActionManager.prototype.pauseTargets = function (targetsToPause) {
 
 function syncPositionUpdate (dt) {
     this._jsbUpdate(dt);
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.x = target.getPositionX();
         target._owner.y = target.getPositionY();
@@ -368,7 +374,7 @@ function syncPositionUpdate (dt) {
 
 function syncRotationUpdate (dt) {
     this._jsbUpdate(dt);
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.rotationX = target.getRotationX();
         target._owner.rotationY = target.getRotationY();
@@ -377,7 +383,7 @@ function syncRotationUpdate (dt) {
 
 function syncScaleUpdate (dt) {
     this._jsbUpdate(dt);
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.scaleX = target.getScaleX();
         target._owner.scaleY = target.getScaleY();
@@ -386,7 +392,7 @@ function syncScaleUpdate (dt) {
 
 function syncRemoveSelfUpdate (dt) {
     this._jsbUpdate(dt);
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.removeFromParent();
     }
@@ -394,7 +400,7 @@ function syncRemoveSelfUpdate (dt) {
 
 function syncSkewUpdate (dt) {
     this._jsbUpdate(dt);
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.skewX = target.getSkewX();
         target._owner.skewY = target.getSkewY();
@@ -403,7 +409,7 @@ function syncSkewUpdate (dt) {
 
 function syncOpacityUpdate (dt) {
     this._jsbUpdate(dt);
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.opacity = target.getOpacity();
     }
@@ -411,7 +417,7 @@ function syncOpacityUpdate (dt) {
 
 function syncColorUpdate (dt) {
     this._jsbUpdate(dt);
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.color = target.getColor();
     }
