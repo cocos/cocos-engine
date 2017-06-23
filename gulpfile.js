@@ -108,21 +108,18 @@ var jsbSkipModules = [
 gulp.task('build-jsb-dev', function (done) {
     Engine.buildJsb([
         './jsb/index.js',
-        './extends.js'
     ], './bin/jsb_polyfill.dev.js', jsbSkipModules, done);
 });
 
 gulp.task('build-jsb-min', function (done) {
     Engine.buildJsbMin([
         './jsb/index.js',
-        './extends.js'
     ], './bin/jsb_polyfill.js', jsbSkipModules, done);
 });
 
 gulp.task('build-jsb-preview',  function (done) {
     Engine.buildJsbPreview([
         './jsb/index.js',
-        './extends.js'
     ], './bin/jsb_polyfill-for-preview.js', jsbSkipModules, done);
 });
 
@@ -204,7 +201,6 @@ gulp.task('watch-preview', function () {
 gulp.task('watch-jsb-polyfill', function () {
     Watch.jsbPolyfill([
         './jsb/index.js',
-        './extends.js'
     ], './bin/jsb_polyfill.dev.js', jsbSkipModules);
 });
 

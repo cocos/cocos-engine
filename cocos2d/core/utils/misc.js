@@ -25,7 +25,7 @@
 
 var JS = require('../platform/js');
 
-var misc = {};
+var misc = exports;
 
 misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
     function define (np, propName, getter, setter) {
@@ -128,4 +128,3 @@ misc.isBuiltinClassId = function (id) {
     return id.startsWith('cc.') || id.startsWith('dragonBones.') || id.startsWith('sp.') || id.startsWith('ccsg.');
 };
 
-module.exports = misc;

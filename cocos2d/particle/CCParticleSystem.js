@@ -22,12 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+require('./CCParticleAsset');
 require('./CCSGParticleSystem.js');
 require('./CCSGParticleSystemCanvasRenderCmd.js');
 require('./CCSGParticleSystemWebGLRenderCmd.js');
 require('./CCParticleBatchNode.js');
 require('./CCParticleBatchNodeCanvasRenderCmd.js');
 require('./CCParticleBatchNodeWebGLRenderCmd.js');
+
 var BlendFactor = cc.BlendFunc.BlendFactor;
 /**
  * !#en Enum for emitter modes

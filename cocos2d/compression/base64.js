@@ -7,9 +7,9 @@
 /**
  * mixin cc.Codec.Base64
  */
-cc.Codec.Base64 = {name:'Jacob__Codec__Base64'};
+var Base64 = {name:'Jacob__Codec__Base64'};
 
-cc.Codec.Base64._keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+Base64._keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
 /**
  * <p>
@@ -22,7 +22,7 @@ cc.Codec.Base64._keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0
  * //decode string
  * cc.Codec.Base64.decode("U29tZSBTdHJpbmc="); // => "Some String"
  */
-cc.Codec.Base64.decode = function Jacob__Codec__Base64__decode(input) {
+Base64.decode = function Jacob__Codec__Base64__decode(input) {
     var output = [],
         chr1, chr2, chr3,
         enc1, enc2, enc3, enc4,
@@ -68,7 +68,7 @@ cc.Codec.Base64.decode = function Jacob__Codec__Base64__decode(input) {
  * //decode string to array
  * var decodeArr = cc.Codec.Base64.decodeAsArray("U29tZSBTdHJpbmc=");
  */
-cc.Codec.Base64.decodeAsArray = function Jacob__Codec__Base64___decodeAsArray(input, bytes) {
+Base64.decodeAsArray = function Jacob__Codec__Base64___decodeAsArray(input, bytes) {
     var dec = this.decode(input),
         ar = [], i, j, len;
     for (i = 0, len = dec.length / bytes; i < len; i++) {
@@ -80,3 +80,5 @@ cc.Codec.Base64.decodeAsArray = function Jacob__Codec__Base64___decodeAsArray(in
 
     return ar;
 };
+
+module.exports = Base64;

@@ -26,6 +26,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var Zlib = require('../compression/zlib.min');
+
 /**
  * A png file reader
  * @name PNGReader
