@@ -405,6 +405,14 @@ static const JSClass global_class = {
     &global_classOps
 };
 
+static bool
+GetBuildId(JS::BuildIdCharVector* buildId)
+{
+    const char buildid[] = "cocos_xdr";
+    bool ok = buildId->append(buildid, strlen(buildid));
+    return ok;
+}
+
 ScriptingCore* ScriptingCore::getInstance()
 {
     static ScriptingCore* instance = nullptr;
@@ -613,6 +621,7 @@ void ScriptingCore::createGlobalContext() {
     
     JS_AddWeakPointerCompartmentCallback(_cx, &jsbWeakPointerCompartmentCallback, nullptr);
     JS_FireOnNewGlobalObject(_cx, global);
+    JS::SetBuildIdOp(_cx, GetBuildId);
 
     runScript("script/jsb_prepare.js");
 
@@ -686,10 +695,9 @@ bool ScriptingCore::compileScript(const std::string& path, JS::HandleObject glob
         if (!data.isNull())
         {
             JS::TranscodeBuffer buffer;
-            buffer.replaceRawBuffer(data.getBytes(), data.getSize());
-//            buffer.append();
+            bool appended = buffer.append((uint8_t*)data.getBytes(), data.getSize());
             JS::TranscodeResult result = JS::DecodeScript(_cx, buffer, script);
-            if (result == JS::TranscodeResult::TranscodeResult_Ok)
+            if (appended && result == JS::TranscodeResult::TranscodeResult_Ok)
             {
                 compileSucceed = true;
                 filename_script[byteCodePath] = script.get();
@@ -709,19 +717,23 @@ bool ScriptingCore::compileScript(const std::string& path, JS::HandleObject glob
         op.setFileAndLine(fullPath.c_str(), 1);
 
         ok = false;
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
         std::string jsFileContent = futil->getStringFromFile(fullPath);
         if (!jsFileContent.empty())
         {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
             ok = JS::Compile(_cx, op, jsFileContent.c_str(), jsFileContent.size(), script);
-        }
 #else
-        ok = JS::Compile(_cx, op, fullPath.c_str(), script);
+            ok = JS::Compile(_cx, op, fullPath.c_str(), script);
 #endif
+        }
         if (ok) {
             compileSucceed = true;
             filename_script[fullPath] = script.get();
         }
+    }
+    
+    if (JS_IsExceptionPending(_cx)) {
+        handlePendingException(_cx);
     }
     
     if (compileSucceed) {

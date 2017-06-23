@@ -4821,7 +4821,7 @@ void jsb_register_PrivateHook(JSContext *cx, JS::HandleObject global)
     };
     static JSClass PrivateHook_class = {
         "PrivateHook",
-        JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+        JSCLASS_HAS_PRIVATE,
         &PrivateHook_classOps
     };
     jsb_PrivateHook_class = &PrivateHook_class;
