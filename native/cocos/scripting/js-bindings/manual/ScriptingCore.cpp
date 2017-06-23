@@ -1412,7 +1412,6 @@ bool ScriptingCore::handleTouchesEvent(void* nativeObj, cocos2d::EventTouch::Eve
         JS::RootedObject eventObj(_cx);
         jsb_get_or_create_weak_jsobject(_cx, event, typeClassEvent, &eventObj, "EventTouch");
         JS::RootedValue eventVal(_cx, JS::ObjectOrNullValue(eventObj));
-        executeFunctionWithOwner(eventVal, "resetStates", JS::HandleValueArray::empty());
         
         JS::AutoValueVector valArr(_cx);
         valArr.append(JS::ObjectOrNullValue(jsretArr));
@@ -1449,7 +1448,6 @@ bool ScriptingCore::handleTouchEvent(void* nativeObj, cocos2d::EventTouch::Event
         JS::RootedObject eventObj(_cx);
         jsb_get_or_create_weak_jsobject(_cx, event, typeClassEvent, &eventObj, "EventTouch");
         JS::RootedValue eventVal(_cx, JS::ObjectOrNullValue(eventObj));
-        executeFunctionWithOwner(eventVal, "resetStates", JS::HandleValueArray::empty());
         
         JS::AutoValueVector valArr(_cx);
         valArr.append(JS::ObjectOrNullValue(touchObj));
@@ -1481,7 +1479,6 @@ bool ScriptingCore::handleMouseEvent(void* nativeObj, cocos2d::EventMouse::Mouse
         auto typeClass = js_get_type_from_native<cocos2d::EventMouse>((cocos2d::EventMouse*)event);
         jsb_get_or_create_weak_jsobject(_cx, event, typeClass, &eventObj);
         JS::RootedValue eventVal(_cx, JS::ObjectOrNullValue(eventObj));
-        executeFunctionWithOwner(eventVal, "resetStates", JS::HandleValueArray::empty());
         
         JS::HandleValueArray args(eventVal);
         JS::RootedValue objVal(_cx, JS::ObjectOrNullValue(p->obj));
