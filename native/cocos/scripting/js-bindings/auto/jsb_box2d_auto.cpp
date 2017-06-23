@@ -808,6 +808,7 @@ bool js_box2dclasses_b2CircleShape_constructor(JSContext *cx, uint32_t argc, JS:
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "b2CircleShape");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -823,22 +824,9 @@ extern JSObject *jsb_b2Shape_prototype;
 
 void js_b2CircleShape_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (b2CircleShape)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        b2CircleShape *nobj = static_cast<b2CircleShape *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    b2CircleShape *nobj = static_cast<b2CircleShape *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_box2dclasses_b2CircleShape(JSContext *cx, JS::HandleObject global) {
@@ -1094,6 +1082,7 @@ bool js_box2dclasses_b2EdgeShape_constructor(JSContext *cx, uint32_t argc, JS::V
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "b2EdgeShape");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1109,22 +1098,9 @@ extern JSObject *jsb_b2Shape_prototype;
 
 void js_b2EdgeShape_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (b2EdgeShape)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        b2EdgeShape *nobj = static_cast<b2EdgeShape *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    b2EdgeShape *nobj = static_cast<b2EdgeShape *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_box2dclasses_b2EdgeShape(JSContext *cx, JS::HandleObject global) {
@@ -1441,6 +1417,7 @@ bool js_box2dclasses_b2ChainShape_constructor(JSContext *cx, uint32_t argc, JS::
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "b2ChainShape");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1456,22 +1433,9 @@ extern JSObject *jsb_b2Shape_prototype;
 
 void js_b2ChainShape_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (b2ChainShape)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        b2ChainShape *nobj = static_cast<b2ChainShape *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    b2ChainShape *nobj = static_cast<b2ChainShape *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_box2dclasses_b2ChainShape(JSContext *cx, JS::HandleObject global) {
@@ -1768,6 +1732,7 @@ bool js_box2dclasses_b2PolygonShape_constructor(JSContext *cx, uint32_t argc, JS
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "b2PolygonShape");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1783,22 +1748,9 @@ extern JSObject *jsb_b2Shape_prototype;
 
 void js_b2PolygonShape_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (b2PolygonShape)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        b2PolygonShape *nobj = static_cast<b2PolygonShape *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    b2PolygonShape *nobj = static_cast<b2PolygonShape *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_box2dclasses_b2PolygonShape(JSContext *cx, JS::HandleObject global) {
@@ -4886,6 +4838,7 @@ bool js_box2dclasses_b2World_constructor(JSContext *cx, uint32_t argc, JS::Value
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "b2World");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -4899,22 +4852,9 @@ bool js_box2dclasses_b2World_constructor(JSContext *cx, uint32_t argc, JS::Value
 
 void js_b2World_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (b2World)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        b2World *nobj = static_cast<b2World *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    b2World *nobj = static_cast<b2World *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_box2dclasses_b2World(JSContext *cx, JS::HandleObject global) {

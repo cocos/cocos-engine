@@ -4454,38 +4454,25 @@ bool js_cocos2dx_PolygonInfo_constructor(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     cocos2d::PolygonInfo* cobj = new (std::nothrow) cocos2d::PolygonInfo();
-    TypeTest<cocos2d::PolygonInfo> t;
-    js_type_class_t *typeClass = nullptr;
-    std::string typeName = t.s_name();
-    auto typeMapIter = _js_global_type_map.find(typeName);
-    CCASSERT(typeMapIter != _js_global_type_map.end(), "Can't find the class type!");
-    typeClass = typeMapIter->second;
-    CCASSERT(typeClass, "The value is null.");
-    JS::RootedObject proto(cx, typeClass->proto->get());
-    JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
-    JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
-    args.rval().set(objVal);
-    // link the native object with the javascript object
-    jsb_new_proxy(cx, cobj, obj);
-    if (JS_HasProperty(cx, obj, "_ctor", &ok) && ok)
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::PolygonInfo>(cobj);
+    JS::RootedObject jsobj(cx);
+    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::PolygonInfo");
+    JS_SetPrivate(jsobj.get(), cobj);
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
     {
         JS::HandleValueArray argsv(args);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(objVal, "_ctor", argsv);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
     }
     return true;
 }
 
 void js_cocos2d_PolygonInfo_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PolygonInfo)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(cx, jsobj);
-    if (proxy)
-    {
-        cocos2d::PolygonInfo *nobj = static_cast<cocos2d::PolygonInfo *>(proxy->ptr);
-        if (nobj)
-            delete nobj;
-        jsb_remove_proxy(proxy);
+    cocos2d::PolygonInfo *nobj = static_cast<cocos2d::PolygonInfo *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 
@@ -4626,37 +4613,25 @@ bool js_cocos2dx_AutoPolygon_constructor(JSContext *cx, uint32_t argc, JS::Value
     ok &= jsval_to_std_string(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_AutoPolygon_constructor : Error processing arguments");
     cocos2d::AutoPolygon* cobj = new (std::nothrow) cocos2d::AutoPolygon(arg0);
-    TypeTest<cocos2d::AutoPolygon> t;
-    js_type_class_t *typeClass = nullptr;
-    std::string typeName = t.s_name();
-    auto typeMapIter = _js_global_type_map.find(typeName);
-    CCASSERT(typeMapIter != _js_global_type_map.end(), "Can't find the class type!");
-    typeClass = typeMapIter->second;
-    CCASSERT(typeClass, "The value is null.");
-    JS::RootedObject proto(cx, typeClass->proto->get());
-    JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
-    JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
-    args.rval().set(objVal);
-    // link the native object with the javascript object
-    jsb_new_proxy(cx, cobj, obj);
-    if (JS_HasProperty(cx, obj, "_ctor", &ok) && ok)
+    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::AutoPolygon>(cobj);
+    JS::RootedObject jsobj(cx);
+    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::AutoPolygon");
+    JS_SetPrivate(jsobj.get(), cobj);
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
     {
         JS::HandleValueArray argsv(args);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(objVal, "_ctor", argsv);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
     }
     return true;
 }
 
 void js_cocos2d_AutoPolygon_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (AutoPolygon)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(cx, jsobj);
-    if (proxy) {
-        cocos2d::AutoPolygon *nobj = static_cast<cocos2d::AutoPolygon *>(proxy->ptr);
-        if (nobj)
-            delete nobj;
-        jsb_remove_proxy(proxy);
+    cocos2d::AutoPolygon *nobj = static_cast<cocos2d::AutoPolygon *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 
@@ -4721,9 +4696,9 @@ void jsb_RefFinalizeHook_finalize(JSFreeOp *fop, JSObject *obj)
         sc->setFinalizing(true);
         
         cocos2d::Ref *refObj = static_cast<cocos2d::Ref *>(proxy->ptr);
-        jsb_remove_proxy(proxy);
+        bool ok = jsb_remove_proxy(proxy);
         
-        if (refObj)
+        if (ok && refObj)
         {
             int count = refObj->getReferenceCount();
             if (count == 1)

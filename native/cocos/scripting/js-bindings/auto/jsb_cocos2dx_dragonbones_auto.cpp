@@ -317,6 +317,7 @@ bool js_cocos2dx_dragonbones_Matrix_constructor(JSContext *cx, uint32_t argc, JS
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::Matrix");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -330,22 +331,9 @@ bool js_cocos2dx_dragonbones_Matrix_constructor(JSContext *cx, uint32_t argc, JS
 
 void js_dragonBones_Matrix_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Matrix)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::Matrix *nobj = static_cast<dragonBones::Matrix *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::Matrix *nobj = static_cast<dragonBones::Matrix *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_Matrix(JSContext *cx, JS::HandleObject global) {
@@ -647,6 +635,7 @@ bool js_cocos2dx_dragonbones_Transform_constructor(JSContext *cx, uint32_t argc,
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::Transform");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -660,22 +649,9 @@ bool js_cocos2dx_dragonbones_Transform_constructor(JSContext *cx, uint32_t argc,
 
 void js_dragonBones_Transform_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Transform)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::Transform *nobj = static_cast<dragonBones::Transform *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::Transform *nobj = static_cast<dragonBones::Transform *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_Transform(JSContext *cx, JS::HandleObject global) {
@@ -1202,6 +1178,7 @@ bool js_cocos2dx_dragonbones_AnimationData_constructor(JSContext *cx, uint32_t a
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::AnimationData");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1215,22 +1192,9 @@ bool js_cocos2dx_dragonbones_AnimationData_constructor(JSContext *cx, uint32_t a
 
 void js_dragonBones_AnimationData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (AnimationData)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::AnimationData *nobj = static_cast<dragonBones::AnimationData *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::AnimationData *nobj = static_cast<dragonBones::AnimationData *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_AnimationData(JSContext *cx, JS::HandleObject global) {
@@ -1394,6 +1358,7 @@ bool js_cocos2dx_dragonbones_BoneData_constructor(JSContext *cx, uint32_t argc, 
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::BoneData");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1409,22 +1374,9 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_BoneData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (BoneData)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::BoneData *nobj = static_cast<dragonBones::BoneData *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::BoneData *nobj = static_cast<dragonBones::BoneData *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_BoneData(JSContext *cx, JS::HandleObject global) {
@@ -1601,6 +1553,7 @@ bool js_cocos2dx_dragonbones_SlotData_constructor(JSContext *cx, uint32_t argc, 
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::SlotData");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1616,22 +1569,9 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_SlotData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (SlotData)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::SlotData *nobj = static_cast<dragonBones::SlotData *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::SlotData *nobj = static_cast<dragonBones::SlotData *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_SlotData(JSContext *cx, JS::HandleObject global) {
@@ -1742,6 +1682,7 @@ bool js_cocos2dx_dragonbones_SkinData_constructor(JSContext *cx, uint32_t argc, 
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::SkinData");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1757,22 +1698,9 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_SkinData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (SkinData)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::SkinData *nobj = static_cast<dragonBones::SkinData *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::SkinData *nobj = static_cast<dragonBones::SkinData *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_SkinData(JSContext *cx, JS::HandleObject global) {
@@ -2079,6 +2007,7 @@ bool js_cocos2dx_dragonbones_ArmatureData_constructor(JSContext *cx, uint32_t ar
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::ArmatureData");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -2094,22 +2023,9 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_ArmatureData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ArmatureData)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::ArmatureData *nobj = static_cast<dragonBones::ArmatureData *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::ArmatureData *nobj = static_cast<dragonBones::ArmatureData *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_ArmatureData(JSContext *cx, JS::HandleObject global) {
@@ -2306,6 +2222,7 @@ bool js_cocos2dx_dragonbones_DragonBonesData_constructor(JSContext *cx, uint32_t
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::DragonBonesData");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -2321,22 +2238,9 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_DragonBonesData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (DragonBonesData)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::DragonBonesData *nobj = static_cast<dragonBones::DragonBonesData *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::DragonBonesData *nobj = static_cast<dragonBones::DragonBonesData *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_DragonBonesData(JSContext *cx, JS::HandleObject global) {
@@ -2658,6 +2562,7 @@ bool js_cocos2dx_dragonbones_EventObject_constructor(JSContext *cx, uint32_t arg
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::EventObject");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -2673,22 +2578,9 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_EventObject_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EventObject)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::EventObject *nobj = static_cast<dragonBones::EventObject *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::EventObject *nobj = static_cast<dragonBones::EventObject *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_EventObject(JSContext *cx, JS::HandleObject global) {
@@ -3228,6 +3120,7 @@ bool js_cocos2dx_dragonbones_Armature_constructor(JSContext *cx, uint32_t argc, 
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::Armature");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -3243,22 +3136,9 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_Armature_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Armature)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::Armature *nobj = static_cast<dragonBones::Armature *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::Armature *nobj = static_cast<dragonBones::Armature *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_Armature(JSContext *cx, JS::HandleObject global) {
@@ -4266,6 +4146,7 @@ bool js_cocos2dx_dragonbones_Animation_constructor(JSContext *cx, uint32_t argc,
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::Animation");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -4281,22 +4162,9 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_Animation_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Animation)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::Animation *nobj = static_cast<dragonBones::Animation *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::Animation *nobj = static_cast<dragonBones::Animation *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_Animation(JSContext *cx, JS::HandleObject global) {
@@ -4786,6 +4654,7 @@ bool js_cocos2dx_dragonbones_Bone_constructor(JSContext *cx, uint32_t argc, JS::
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::Bone");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -4801,22 +4670,9 @@ extern JSObject *jsb_dragonBones_TransformObject_prototype;
 
 void js_dragonBones_Bone_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Bone)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::Bone *nobj = static_cast<dragonBones::Bone *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::Bone *nobj = static_cast<dragonBones::Bone *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_Bone(JSContext *cx, JS::HandleObject global) {
@@ -5578,6 +5434,7 @@ bool js_cocos2dx_dragonbones_WorldClock_constructor(JSContext *cx, uint32_t argc
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::WorldClock");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -5591,22 +5448,9 @@ bool js_cocos2dx_dragonbones_WorldClock_constructor(JSContext *cx, uint32_t argc
 
 void js_dragonBones_WorldClock_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (WorldClock)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::WorldClock *nobj = static_cast<dragonBones::WorldClock *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::WorldClock *nobj = static_cast<dragonBones::WorldClock *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_WorldClock(JSContext *cx, JS::HandleObject global) {
@@ -6237,6 +6081,7 @@ bool js_cocos2dx_dragonbones_AnimationState_constructor(JSContext *cx, uint32_t 
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::AnimationState");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -6252,22 +6097,9 @@ extern JSObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_AnimationState_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (AnimationState)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::AnimationState *nobj = static_cast<dragonBones::AnimationState *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::AnimationState *nobj = static_cast<dragonBones::AnimationState *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_AnimationState(JSContext *cx, JS::HandleObject global) {
@@ -6372,6 +6204,7 @@ bool js_cocos2dx_dragonbones_CCTextureData_constructor(JSContext *cx, uint32_t a
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::CCTextureData");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -6387,22 +6220,9 @@ extern JSObject *jsb_dragonBones_TextureData_prototype;
 
 void js_dragonBones_CCTextureData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CCTextureData)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::CCTextureData *nobj = static_cast<dragonBones::CCTextureData *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::CCTextureData *nobj = static_cast<dragonBones::CCTextureData *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_CCTextureData(JSContext *cx, JS::HandleObject global) {
@@ -6480,6 +6300,7 @@ bool js_cocos2dx_dragonbones_CCTextureAtlasData_constructor(JSContext *cx, uint3
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::CCTextureAtlasData");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -6495,22 +6316,9 @@ extern JSObject *jsb_dragonBones_TextureAtlasData_prototype;
 
 void js_dragonBones_CCTextureAtlasData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CCTextureAtlasData)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::CCTextureAtlasData *nobj = static_cast<dragonBones::CCTextureAtlasData *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::CCTextureAtlasData *nobj = static_cast<dragonBones::CCTextureAtlasData *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_CCTextureAtlasData(JSContext *cx, JS::HandleObject global) {
@@ -7008,6 +6816,7 @@ bool js_cocos2dx_dragonbones_CCSlot_constructor(JSContext *cx, uint32_t argc, JS
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::CCSlot");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -7023,22 +6832,9 @@ extern JSObject *jsb_dragonBones_Slot_prototype;
 
 void js_dragonBones_CCSlot_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CCSlot)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::CCSlot *nobj = static_cast<dragonBones::CCSlot *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::CCSlot *nobj = static_cast<dragonBones::CCSlot *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_CCSlot(JSContext *cx, JS::HandleObject global) {
@@ -7318,6 +7114,7 @@ bool js_cocos2dx_dragonbones_CCFactory_constructor(JSContext *cx, uint32_t argc,
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::CCFactory");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -7333,22 +7130,9 @@ extern JSObject *jsb_dragonBones_BaseFactory_prototype;
 
 void js_dragonBones_CCFactory_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CCFactory)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        dragonBones::CCFactory *nobj = static_cast<dragonBones::CCFactory *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    dragonBones::CCFactory *nobj = static_cast<dragonBones::CCFactory *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_dragonbones_CCFactory(JSContext *cx, JS::HandleObject global) {

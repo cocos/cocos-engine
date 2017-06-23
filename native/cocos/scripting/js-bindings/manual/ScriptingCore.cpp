@@ -509,14 +509,12 @@ void ScriptingCore::addRegisterCallback(sc_register_sth callback) {
     registrationList.push_back(callback);
 }
 
-void ScriptingCore::removeAllRoots(JSContext *cx)
+void ScriptingCore::removeAllProxys(JSContext *cx)
 {
-    // Native -> JS: free "second" and "unroot" it.
     auto it_js = _native_js_global_map.begin();
     while (it_js != _native_js_global_map.end())
     {
-//        JS::RemoveObjectRoot(cx, &it_js->second->obj);
-        free(it_js->second);
+        CC_SAFE_DELETE(it_js->second);
         it_js = _native_js_global_map.erase(it_js);
     }
     _native_js_global_map.clear();
@@ -554,7 +552,7 @@ on_garbage_collect(JSContext* cx, JSGCStatus status, void* data)
 
 void ScriptingCore::createGlobalContext() {
     if (_cx) {
-        ScriptingCore::removeAllRoots(_cx);
+        ScriptingCore::removeAllProxys(_cx);
         JS_DestroyContext(_cx);
         _cx = NULL;
     }
@@ -841,7 +839,6 @@ void ScriptingCore::restartVM()
 ScriptingCore::~ScriptingCore()
 {
     cleanup();
-    JS_ShutDown();
 }
 
 void ScriptingCore::cleanup()
@@ -850,10 +847,7 @@ void ScriptingCore::cleanup()
         return;
     }
     
-    JS_RemoveWeakPointerCompartmentCallback(_cx, jsbWeakPointerCompartmentCallback);
-    
     localStorageFree();
-    removeAllRoots(_cx);
     
     for (auto iter = _js_global_type_map.begin(); iter != _js_global_type_map.end(); ++iter)
     {
@@ -869,6 +863,9 @@ void ScriptingCore::cleanup()
     JS_GC(_cx);
     
     PoolManager::getInstance()->getCurrentPool()->clear();
+    
+    JS_RemoveWeakPointerCompartmentCallback(_cx, jsbWeakPointerCompartmentCallback);
+    removeAllProxys(_cx);
 
     if (_js_log_buf) {
         free(_js_log_buf);
@@ -2222,13 +2219,14 @@ js_proxy_t* jsb_get_js_proxy(JSContext *cx, JS::HandleObject jsObj)
     return nullptr;
 }
 
-void jsb_remove_proxy(js_proxy_t* proxy)
+bool jsb_remove_proxy(js_proxy_t* proxy)
 {
     bool ok = jsb_unbind_proxy(proxy);
     if (ok)
     {
         CC_SAFE_DELETE(proxy);
     }
+    return ok;
 }
 
 bool jsb_unbind_proxy(js_proxy_t* proxy)
@@ -2351,10 +2349,6 @@ bool jsb_get_or_create_weak_jsobject(JSContext *cx, void *native, js_type_class_
     // don't auto-release, don't retain.
     JS::RootedObject proto(cx, typeClass->proto->get());
     jsObj.set(JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
-    
-    JS::RootedObject flag(cx, JS_NewPlainObject(cx));
-    JS::RootedValue flagVal(cx, JS::ObjectOrNullValue(flag));
-    JS_SetProperty(cx, jsObj, "__cppCreated", flagVal);
 
 #if ! CC_ENABLE_GC_FOR_NATIVE_OBJECTS
 //    JS::AddNamedObjectRoot(cx, &proxy->obj, debug);

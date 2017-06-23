@@ -214,14 +214,8 @@ JSObject *js_cocos2dx_websocket_prototype;
 
 void js_cocos2dx_WebSocket_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOG("jsbindings: finalizing JS object %p (WebSocket)", obj);
-    
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    js_proxy_t *p = jsb_get_js_proxy(cx, jsobj);
-    if (p)
-    {
-        WebSocket *ws = (WebSocket *)(p->ptr);
-        jsb_remove_proxy(p);
+    WebSocket *ws = static_cast<WebSocket *>(JS_GetPrivate(obj));
+    if (ws) {
         // Manually close if web socket is not closed
         if (ws->getReadyState() != WebSocket::State::CLOSED)
         {
@@ -395,6 +389,7 @@ bool js_cocos2dx_extension_WebSocket_constructor(JSContext *cx, uint32_t argc, J
 
         // link the native object with the javascript object
         jsb_new_proxy(cx, cobj, obj);
+        JS_SetPrivate(obj.get(), cobj);
 #if not CC_ENABLE_GC_FOR_NATIVE_OBJECTS
 //        JS::AddNamedObjectRoot(cx, &p->obj, "WebSocket");
 #endif

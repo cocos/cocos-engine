@@ -368,7 +368,7 @@ public:
      * Removes all rooted object in the given js context, rooted object won't be garbage collected.
      * @param cx @~english The js context
      */
-    static void removeAllRoots(JSContext *cx);
+    static void removeAllProxys(JSContext *cx);
 
     /**@~english
      * Simulate a touch event and dispatch it to a js object.
@@ -577,7 +577,7 @@ js_proxy_t* jsb_get_js_proxy(JSContext *cx, JS::HandleObject jsObj);
 /** removes the native proxy from the global map */
 bool jsb_unbind_proxy(js_proxy_t* proxy);
 /** removes the proxy */
-void jsb_remove_proxy(js_proxy_t* proxy);
+bool jsb_remove_proxy(js_proxy_t* proxy);
 
 /**
  * Generic initialization function for subclasses of Ref

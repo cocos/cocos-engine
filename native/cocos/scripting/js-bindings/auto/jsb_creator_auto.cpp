@@ -1833,6 +1833,7 @@ bool js_creator_PhysicsDebugDraw_constructor(JSContext *cx, uint32_t argc, JS::V
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "creator::PhysicsDebugDraw");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1848,22 +1849,9 @@ extern JSObject *jsb_b2Draw_prototype;
 
 void js_creator_PhysicsDebugDraw_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PhysicsDebugDraw)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        creator::PhysicsDebugDraw *nobj = static_cast<creator::PhysicsDebugDraw *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    creator::PhysicsDebugDraw *nobj = static_cast<creator::PhysicsDebugDraw *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_creator_PhysicsDebugDraw(JSContext *cx, JS::HandleObject global) {
@@ -2261,6 +2249,7 @@ bool js_creator_PhysicsUtils_constructor(JSContext *cx, uint32_t argc, JS::Value
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "creator::PhysicsUtils");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -2274,22 +2263,9 @@ bool js_creator_PhysicsUtils_constructor(JSContext *cx, uint32_t argc, JS::Value
 
 void js_creator_PhysicsUtils_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PhysicsUtils)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        creator::PhysicsUtils *nobj = static_cast<creator::PhysicsUtils *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    creator::PhysicsUtils *nobj = static_cast<creator::PhysicsUtils *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_creator_PhysicsUtils(JSContext *cx, JS::HandleObject global) {
@@ -2543,6 +2519,7 @@ bool js_creator_PhysicsContactListener_constructor(JSContext *cx, uint32_t argc,
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "creator::PhysicsContactListener");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -2558,22 +2535,9 @@ extern JSObject *jsb_b2ContactListener_prototype;
 
 void js_creator_PhysicsContactListener_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PhysicsContactListener)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        creator::PhysicsContactListener *nobj = static_cast<creator::PhysicsContactListener *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    creator::PhysicsContactListener *nobj = static_cast<creator::PhysicsContactListener *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_creator_PhysicsContactListener(JSContext *cx, JS::HandleObject global) {
@@ -2692,6 +2656,7 @@ bool js_creator_PhysicsAABBQueryCallback_constructor(JSContext *cx, uint32_t arg
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "creator::PhysicsAABBQueryCallback");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -2707,22 +2672,9 @@ extern JSObject *jsb_b2QueryCallback_prototype;
 
 void js_creator_PhysicsAABBQueryCallback_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PhysicsAABBQueryCallback)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        creator::PhysicsAABBQueryCallback *nobj = static_cast<creator::PhysicsAABBQueryCallback *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    creator::PhysicsAABBQueryCallback *nobj = static_cast<creator::PhysicsAABBQueryCallback *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_creator_PhysicsAABBQueryCallback(JSContext *cx, JS::HandleObject global) {
@@ -2840,6 +2792,7 @@ bool js_creator_PhysicsRayCastCallback_constructor(JSContext *cx, uint32_t argc,
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
     jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "creator::PhysicsRayCastCallback");
+    JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -2855,22 +2808,9 @@ extern JSObject *jsb_b2RayCastCallback_prototype;
 
 void js_creator_PhysicsRayCastCallback_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PhysicsRayCastCallback)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        creator::PhysicsRayCastCallback *nobj = static_cast<creator::PhysicsRayCastCallback *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    creator::PhysicsRayCastCallback *nobj = static_cast<creator::PhysicsRayCastCallback *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_creator_PhysicsRayCastCallback(JSContext *cx, JS::HandleObject global) {

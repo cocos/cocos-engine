@@ -253,16 +253,12 @@ JS_BINDED_CONSTRUCTOR_IMPL(JavaScriptObjCBridge)
  *  @brief destructor for Javascript
  *
  */
-static void basic_object_finalize(JSFreeOp *freeOp, JSObject *obj)
+static void JavaScriptObjCBridge_finalize(JSFreeOp *freeOp, JSObject *obj)
 {
-    CCLOG("basic_object_finalize %p ...", obj);
-    
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        jsb_remove_proxy(jsproxy);
+    CCLOG("JavaScriptObjCBridge_finalize %p ...", obj);
+    JavaScriptObjCBridge *nobj = static_cast<JavaScriptObjCBridge *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 
@@ -292,7 +288,7 @@ void JavaScriptObjCBridge::_js_register(JSContext *cx, JS::HandleObject global)
     static const JSClassOps jsclassOps = {
         nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr,
-        basic_object_finalize,
+        JavaScriptObjCBridge_finalize,
         nullptr, nullptr, nullptr, nullptr
     };
     static JSClass ObjCBridge_Class = {

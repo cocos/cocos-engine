@@ -230,6 +230,7 @@ bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS
             JS::RootedObject proto(cx, typeClass->proto->get());
             obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
             jsb_non_ref_init(cx, obj, cobj, "cocos2d::network::Downloader");
+            JS_SetPrivate(obj.get(), cobj);
             jsb_new_proxy(cx, cobj, obj);
         }
     } while(0);
@@ -243,6 +244,7 @@ bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS
             JS::RootedObject proto(cx, typeClass->proto->get());
             obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
             jsb_non_ref_init(cx, obj, cobj, "cocos2d::network::Downloader");
+            JS_SetPrivate(obj.get(), cobj);
             jsb_new_proxy(cx, cobj, obj);
         }
     } while(0);
@@ -265,22 +267,9 @@ bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS
 
 void js_cocos2d_network_Downloader_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Downloader)", obj);
-    js_proxy_t* jsproxy;
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(cx, jsobj);
-    if (jsproxy) {
-        cocos2d::network::Downloader *nobj = static_cast<cocos2d::network::Downloader *>(jsproxy->ptr);
-        if (nobj) {
-            jsb_remove_proxy(jsproxy);
-            JS::RootedValue flagValue(cx);
-            JS_GetProperty(cx, jsobj, "__cppCreated", &flagValue);
-            if (flagValue.isNullOrUndefined()){
-                delete nobj;
-            }
-        }
-        else
-            jsb_remove_proxy(jsproxy);
+    cocos2d::network::Downloader *nobj = static_cast<cocos2d::network::Downloader *>(JS_GetPrivate(obj));
+    if (nobj) {
+        CC_SAFE_DELETE(nobj);
     }
 }
 void js_register_cocos2dx_network_Downloader(JSContext *cx, JS::HandleObject global) {
