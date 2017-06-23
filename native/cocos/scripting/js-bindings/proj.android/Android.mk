@@ -66,7 +66,7 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../manual \
 LOCAL_EXPORT_LDLIBS := -lz
 
 LOCAL_STATIC_LIBRARIES := cocos2dx_static
-LOCAL_STATIC_LIBRARIES += spidermonkey_static
+LOCAL_STATIC_LIBRARIES += spidermonkey_glue_static spidermonkey_static
 LOCAL_STATIC_LIBRARIES += v8_libplatform_static v8_base_static v8_libbase_static v8_libsampler_static v8_nosnapshot_static
 
 include $(BUILD_STATIC_LIBRARY)
