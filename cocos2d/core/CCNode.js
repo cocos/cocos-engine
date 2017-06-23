@@ -41,6 +41,7 @@ var CHILD_REORDER = 'child-reorder';
 var ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 
 var Misc = require('./utils/misc');
+var Event = require('./event/event');
 //var RegisteredInEditor = Flags.RegisteredInEditor;
 
 var ActionManagerExist = !!cc.ActionManager;
@@ -157,7 +158,7 @@ var _currentHovered = null;
 var _touchStartHandler = function (touch, event) {
     if (CC_JSB)
     {
-        event.resetStates();
+        event = Event.EventTouch.pool.get(event);
     }
     var pos = touch.getLocation();
     var node = this.owner;
@@ -174,7 +175,7 @@ var _touchStartHandler = function (touch, event) {
 var _touchMoveHandler = function (touch, event) {
     if (CC_JSB)
     {
-        event.resetStates();
+        event = Event.EventTouch.pool.get(event);
     }
     var node = this.owner;
     event.type = EventType.TOUCH_MOVE;
@@ -185,7 +186,7 @@ var _touchMoveHandler = function (touch, event) {
 var _touchEndHandler = function (touch, event) {
     if (CC_JSB)
     {
-        event.resetStates();
+        event = Event.EventTouch.pool.get(event);
     }
     var pos = touch.getLocation();
     var node = this.owner;
@@ -204,7 +205,7 @@ var _touchEndHandler = function (touch, event) {
 var _mouseDownHandler = function (event) {
     if (CC_JSB)
     {
-        event.resetStates();
+        event = Event.EventMouse.pool.get(event);
     }
     var pos = event.getLocation();
     var node = this.owner;
@@ -218,7 +219,7 @@ var _mouseDownHandler = function (event) {
 var _mouseMoveHandler = function (event) {
     if (CC_JSB)
     {
-        event.resetStates();
+        event = Event.EventMouse.pool.get(event);
     }
     var pos = event.getLocation();
     var node = this.owner;
@@ -249,7 +250,7 @@ var _mouseMoveHandler = function (event) {
 var _mouseUpHandler = function (event) {
     if (CC_JSB)
     {
-        event.resetStates();
+        event = Event.EventMouse.pool.get(event);
     }
     var pos = event.getLocation();
     var node = this.owner;
@@ -263,7 +264,7 @@ var _mouseUpHandler = function (event) {
 var _mouseWheelHandler = function (event) {
     if (CC_JSB)
     {
-        event.resetStates();
+        event = Event.EventMouse.pool.get(event);
     }
     var pos = event.getLocation();
     var node = this.owner;
