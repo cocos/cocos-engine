@@ -26,15 +26,14 @@
 
 var PrefabHelper = require('./utils/prefab-helper');
 var SgHelper = require('./utils/scene-graph-helper');
+var CallbacksInvoker = require('./platform/callbacks-invoker');
 
 var Flags = cc.Object.Flags;
 var Destroying = Flags.Destroying;
 
-var POSITION_CHANGED = 'position-changed';
+var TRANSFORM_CHANGED = 'transform-changed';
 var SIZE_CHANGED = 'size-changed';
 var ANCHOR_CHANGED = 'anchor-changed';
-var ROTATION_CHANGED = 'rotation-changed';
-var SCALE_CHANGED = 'scale-changed';
 
 var CHILD_REORDER = 'child-reorder';
 
@@ -135,6 +134,15 @@ var EventType = cc.Enum({
      * @static
      */
     MOUSE_WHEEL: 'mousewheel',
+    /**
+     * !#en The event type for transform changed event, you can use its value directly: 'transform-changed',
+     * you should never modify the matrix din the event callback, because they are raw data object
+     * !#zh 当节点 transfrom 改变时，请不要修改回调函数中的矩阵对象，它们是直接传出的原始数据
+     * @property TRANSFORM_CHANGED
+     * @type {String}
+     * @static
+     */
+    TRANSFORM_CHANGED: TRANSFORM_CHANGED,
 });
 
 var _touchEvents = [
@@ -379,21 +387,6 @@ var Node = cc.Class({
 
                         localPosition.x = value;
                         this._sgNode.setPositionX(value);
-
-                        // fast check event
-                        var capListeners = this._capturingListeners &&
-                            this._capturingListeners._callbackTable[POSITION_CHANGED];
-                        var bubListeners = this._bubblingListeners &&
-                            this._bubblingListeners._callbackTable[POSITION_CHANGED];
-                        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
-                            // send event
-                            if (CC_EDITOR) {
-                                this.emit(POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
-                            }
-                            else {
-                                this.emit(POSITION_CHANGED);
-                            }
-                        }
                     }
                     else {
                         cc.error(ERR_INVALID_NUMBER, 'new x');
@@ -425,21 +418,6 @@ var Node = cc.Class({
 
                         localPosition.y = value;
                         this._sgNode.setPositionY(value);
-
-                        // fast check event
-                        var capListeners = this._capturingListeners &&
-                            this._capturingListeners._callbackTable[POSITION_CHANGED];
-                        var bubListeners = this._bubblingListeners &&
-                            this._bubblingListeners._callbackTable[POSITION_CHANGED];
-                        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
-                            // send event
-                            if (CC_EDITOR) {
-                                this.emit(POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
-                            }
-                            else {
-                                this.emit(POSITION_CHANGED);
-                            }
-                        }
                     }
                     else {
                         cc.error(ERR_INVALID_NUMBER, 'new y');
@@ -467,8 +445,6 @@ var Node = cc.Class({
                 if (this._rotationX !== value || this._rotationY !== value) {
                     this._rotationX = this._rotationY = value;
                     this._sgNode.rotation = value;
-
-                    this.emit(ROTATION_CHANGED);
                 }
             }
         },
@@ -490,8 +466,6 @@ var Node = cc.Class({
                 if (this._rotationX !== value) {
                     this._rotationX = value;
                     this._sgNode.rotationX = value;
-
-                    this.emit(ROTATION_CHANGED);
                 }
             },
         },
@@ -513,8 +487,6 @@ var Node = cc.Class({
                 if (this._rotationY !== value) {
                     this._rotationY = value;
                     this._sgNode.rotationY = value;
-
-                    this.emit(ROTATION_CHANGED);
                 }
             },
         },
@@ -536,8 +508,6 @@ var Node = cc.Class({
                 if (this._scaleX !== value) {
                     this._scaleX = value;
                     this._sgNode.scaleX = value;
-
-                    this.emit(SCALE_CHANGED);
                 }
             },
         },
@@ -559,8 +529,6 @@ var Node = cc.Class({
                 if (this._scaleY !== value) {
                     this._scaleY = value;
                     this._sgNode.scaleY = value;
-
-                    this.emit(SCALE_CHANGED);
                 }
             },
         },
@@ -889,6 +857,9 @@ var Node = cc.Class({
             sgNode.cascadeOpacity = true;
         }
 
+        this._fastEventInvoker = new CallbacksInvoker();
+        sgNode.setOnTransformChanged(this._onTransformChanged, this);
+
         /**
          * Current active size provider for this node.
          * Size provider can equals to this._sgNode.
@@ -1089,6 +1060,13 @@ var Node = cc.Class({
         }
     },
 
+    /*
+     * The callback to notify transform change to components
+     */
+    _onTransformChanged (matrix, worldMatrix) {
+        this._fastEventInvoker.invoke(TRANSFORM_CHANGED, matrix, worldMatrix);
+    },
+
     // EVENTS
 
     /**
@@ -1126,6 +1104,11 @@ var Node = cc.Class({
      * node.on("anchor-changed", callback, this);
      */
     on (type, callback, target, useCapture) {
+        if (type === TRANSFORM_CHANGED) {
+            this._fastEventInvoker.add(TRANSFORM_CHANGED, callback, target);
+            return callback;
+        }
+
         var newAdded = false;
         if (_touchEvents.indexOf(type) !== -1) {
             if (!this._touchListener) {
@@ -1194,6 +1177,11 @@ var Node = cc.Class({
      * node.off("anchor-changed", callback, this);
      */
     off (type, callback, target, useCapture) {
+        if (type === TRANSFORM_CHANGED) {
+            this._fastEventInvoker.remove(TRANSFORM_CHANGED, callback, target);
+            return;
+        }
+
         this._EventTargetOff(type, callback, target, useCapture);
 
         if (_touchEvents.indexOf(type) !== -1) {
@@ -1594,21 +1582,6 @@ var Node = cc.Class({
         }
 
         this._sgNode.setPosition(x, y);
-
-        // fast check event
-        var capListeners = this._capturingListeners &&
-            this._capturingListeners._callbackTable[POSITION_CHANGED];
-        var bubListeners = this._bubblingListeners &&
-            this._bubblingListeners._callbackTable[POSITION_CHANGED];
-        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
-            // send event
-            if (CC_EDITOR) {
-                this.emit(POSITION_CHANGED, oldPosition);
-            }
-            else {
-                this.emit(POSITION_CHANGED);
-            }
-        }
     },
 
     /**
@@ -1649,8 +1622,6 @@ var Node = cc.Class({
             this._scaleX = scaleX;
             this._scaleY = scaleY;
             this._sgNode.setScale(scaleX, scaleY);
-
-            this.emit(SCALE_CHANGED);
         }
     },
 
@@ -2425,6 +2396,8 @@ var Node = cc.Class({
             actionManager && actionManager.pauseTarget(this);
             cc.eventManager.pauseTarget(this);
         }
+        // Re-register the transform changing
+        sgNode.setOnTransformChanged(this._onTransformChanged, this);
     },
 
     _removeSgNode: SgHelper.removeSgNode,

@@ -146,6 +146,8 @@ _ccsg.Node = cc.Class({
         _anchorPoint: cc.p(0, 0),
         _contentSize: cc.size(0, 0),
         _parent: null,
+        _onTransformChanged: null,
+        _onTransformChangedTarget: null,
 
         // "whole screen" objects. like Scenes and Layers, should set _ignoreAnchorPointForPosition to true
         _ignoreAnchorPointForPosition: false,
@@ -1897,6 +1899,21 @@ _ccsg.Node = cc.Class({
      */
     transform: function(parentCmd, recursive){
         this._renderCmd.transform(parentCmd, recursive);
+    },
+
+    /**
+     * Define onTransformChanged function to get notified when sg node's transform updated, 
+     * for performance concern, it can only be registered by one target, pass null to reset.
+     * Important to note that you should never change values in the matrix, because it's the raw data.\
+     * @function
+     * @param {Function} callback The callback to get notified
+     * @param {AffineMatrix} callback.localTransform The new local transform
+     * @param {AffineMatrix} callback.worldTransform The new world trasnform
+     * @param {Object} [target] The target to invoke the callback
+     */
+    setOnTransformChanged: function (callback, target) {
+        this._onTransformChanged = callback;
+        this._onTransformChangedTarget = target;
     },
 
     /**

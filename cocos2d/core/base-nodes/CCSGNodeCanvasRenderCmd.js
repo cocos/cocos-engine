@@ -112,7 +112,7 @@ _ccsg.Node.RenderCmd = function (renderable) {
 
     this._transform = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
     this._worldTransform = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
-    this._inverse = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
+    this._inverse = null;
     this._transformUpdated = false;
     
     cc.renderer.pushDirtyNode(this);
@@ -147,6 +147,9 @@ _ccsg.Node.RenderCmd.prototype = {
     },
 
     getParentToNodeTransform: function(){
+        if (!this._inverse) {
+            this._inverse = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
+        }
         if (this._dirtyFlag & dirtyFlags.transformDirty) {
             cc.affineTransformInvertOut(this.getNodeToParentTransform(), this._inverse);
         }
@@ -285,6 +288,10 @@ _ccsg.Node.RenderCmd.prototype = {
             if (parentCmd && this._cameraFlag != cc.Camera.flags.InCamera) {
                 this._cameraFlag = parentCmd._cameraFlag > 0 ? cc.Camera.flags.ParentInCamera : 0;
             }
+        }
+
+        if (node._onTransformChanged) {
+            node._onTransformChanged.call(node._onTransformChangedTarget, t, wt);
         }
 
         if (recursive) {
