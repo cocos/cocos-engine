@@ -1751,6 +1751,11 @@ public:
      * @param applyChildren A boolean value to determine whether the mask bit should apply to its children or not.
      */
     virtual void setCameraMask(unsigned short mask, bool applyChildren = true);
+    
+    /**
+     * Mark transformUpdated as true, this will make flags contains FLAGS_TRANSFORM_DIRTY flag.
+     */
+    void markTransformUpdated();
 
 CC_CONSTRUCTOR_ACCESS:
     // Nodes should be created using create();
