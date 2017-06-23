@@ -49,12 +49,6 @@ typedef void (*sc_register_sth)(JSContext* cx, JS::HandleObject global);
 void registerDefaultClasses(JSContext* cx, JS::HandleObject global);
 
 
-class SimpleRunLoop : public cocos2d::Ref
-{
-public:
-    void update(float d);
-};
-
 /**
  * @addtogroup jsb
  * @{
@@ -83,7 +77,6 @@ private:
     JS::PersistentRootedObject *_global;
     JS::PersistentRootedObject _debugGlobal;
     JSCompartment *_oldCompartment;
-    SimpleRunLoop* _runLoop;
     bool _jsInited;
     bool _needCleanup;
     bool _callFromScript;
@@ -463,11 +456,6 @@ public:
      * @param str @~english The message to log
      */
     void debugProcessInput(const std::string& str);
-    /**@~english
-     * Enable the debug environment, mozilla Firefox's remote debugger or Code IDE can connect to it.
-     * @param port @~english The port to connect with the debug environment, default value is 5086
-     */
-    void enableDebugger(unsigned int port = 5086);
     /**@~english
      * Gets the debug environment's global object
      * @return @~english The debug environment's global object
