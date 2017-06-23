@@ -18,10 +18,10 @@ namespace se {
         JSValueRef __forceGC(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                              size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception)
         {
-            printf("GC begin ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+            LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
 //            JSGarbageCollect(ctx);
             JSSynchronousGarbageCollectForDebugging(ctx);
-            printf("GC end ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+            LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
             return JSValueMakeUndefined(ctx);
         }
 
@@ -32,7 +32,7 @@ namespace se {
             {
                 std::string ret;
                 internal::forceConvertJsValueToStdString(ctx, arguments[0], &ret);
-                printf("%s\n", ret.c_str());
+                LOGD("%s\n", ret.c_str());
             }
             return JSValueMakeUndefined(ctx);
         }
@@ -82,7 +82,7 @@ namespace se {
 
     bool ScriptEngine::init()
     {
-        printf("Initializing JavaScriptCore \n");
+        LOGD("Initializing JavaScriptCore \n");
 
         _cx = JSGlobalContextCreate(nullptr);
 
@@ -177,10 +177,10 @@ namespace se {
 
     void ScriptEngine::gc()
     {
-        printf("GC begin ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+        LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
         // JSGarbageCollect(_cx);
         JSSynchronousGarbageCollectForDebugging(_cx);
-        printf("GC end ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+        LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
     }
 
     bool ScriptEngine::executeScriptBuffer(const char *string, Value *data, const char *fileName)
@@ -219,7 +219,7 @@ namespace se {
             }
             else
             {
-                printf("Unknown syntax error parsing file %s\n", fileName);
+                LOGD("Unknown syntax error parsing file %s\n", fileName);
             }
         }
 
@@ -233,7 +233,7 @@ namespace se {
         }
         else if (!exceptionStr.empty())
         {
-            printf("%s\n", exceptionStr.c_str());
+            LOGD("%s\n", exceptionStr.c_str());
         }
 
         return ok;

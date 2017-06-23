@@ -63,7 +63,7 @@ namespace se {
         if (_ctor == nullptr)
         {
             _ctor = empty_constructor;
-            printf("( %s ) has empty constructor!\n", clsName);
+            LOGD("( %s ) has empty constructor!\n", clsName);
         }
 
         return true;

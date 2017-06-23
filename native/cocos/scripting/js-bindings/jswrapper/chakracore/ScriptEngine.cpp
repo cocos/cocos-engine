@@ -25,14 +25,14 @@ namespace se {
             {
                 std::string str;
                 internal::forceConvertJsValueToStdString(arguments[1], &str);
-                printf("JS: %s\n", str.c_str());
+                LOGD("JS: %s\n", str.c_str());
             }
             return JS_INVALID_REFERENCE;
         }
 
         void myJsBeforeCollectCallback(void *callbackState)
         {
-            printf("GC start ...\n");
+            LOGD("GC start ...\n");
         }
 
         JsValueRef privateDataContructor(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
@@ -81,7 +81,7 @@ namespace se {
 
     bool ScriptEngine::init()
     {
-        printf("Initializing ChakraCore ... \n");
+        LOGD("Initializing ChakraCore ... \n");
 
         _CHECK(JsCreateRuntime(JsRuntimeAttributeNone, nullptr, &_rt));
         _CHECK(JsCreateContext(_rt, &_cx));
@@ -168,7 +168,7 @@ namespace se {
 
                 internal::forceConvertJsValueToStdString(jsValue, &ret);
 
-//                printf("[%s]=%s\n", keyStr.c_str(), tmp.c_str());
+//                LOGD("[%s]=%s\n", keyStr.c_str(), tmp.c_str());
 
                 break;
             }
@@ -184,9 +184,9 @@ namespace se {
 
     void ScriptEngine::gc()
     {
-        printf("GC begin ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+        LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
         _CHECK(JsCollectGarbage(_rt));
-        printf("GC end ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+        LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
     }
 
     void ScriptEngine::clearException()
@@ -200,7 +200,7 @@ namespace se {
             _CHECK(JsGetAndClearException(&exception));
 
             std::string exceptionMsg = formatException(exception);
-            printf("%s\n", exceptionMsg.c_str());
+            LOGD("%s\n", exceptionMsg.c_str());
 
         }
     }

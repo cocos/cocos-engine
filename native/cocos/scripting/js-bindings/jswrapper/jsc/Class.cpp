@@ -24,7 +24,7 @@ namespace se {
         {
             std::string name;
             internal::jsStringToStdString(context, propertyName, &name);
-            printf("propertyName: %s\n", name.c_str());
+            LOGD("propertyName: %s\n", name.c_str());
             return JSValueMakeUndefined(__cx);
         }
 
@@ -32,7 +32,7 @@ namespace se {
         {
             std::string name;
             internal::jsStringToStdString(context, propertyName, &name);
-            printf("propertyName: %s\n", name.c_str());
+            LOGD("propertyName: %s\n", name.c_str());
             assert(false);
             return false;
         }
@@ -41,7 +41,7 @@ namespace se {
         {
             std::string name;
             internal::jsStringToStdString(context, propertyName, &name);
-            printf("propertyName: %s\n", name.c_str());
+            LOGD("propertyName: %s\n", name.c_str());
 //            assert(false);
             return true;
         }

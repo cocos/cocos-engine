@@ -16,11 +16,16 @@ namespace {
 
     static bool require(se::State& s)
     {
-        assert(s.args().size() >= 1);
-        assert(s.args()[0].isString());
-        std::string fullPath = FileUtils::getInstance()->fullPathForFilename(s.args()[0].toString());
-        se::ScriptEngine::getInstance()->executeScriptFile(fullPath, &s.rval());
-        return true;
+        const auto& args = s.args();
+        int argc = (int)args.size();
+        assert(argc >= 1);
+        assert(args[0].isString());
+
+        Data data = FileUtils::getInstance()->getDataFromFile(args[0].toString());
+        if (data.isNull())
+            return false;
+
+        return se::ScriptEngine::getInstance()->executeScriptBuffer((const char*)data.getBytes(), (size_t)data.getSize(), &s.rval(), args[0].toString().c_str());
     }
     SE_BIND_FUNC(require)
 

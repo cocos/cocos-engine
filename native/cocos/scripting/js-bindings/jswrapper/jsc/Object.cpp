@@ -279,7 +279,7 @@ namespace se {
             std::string exceptionStr = se::ScriptEngine::getInstance()->_formatException(exception);
             if (!exceptionStr.empty())
             {
-                printf("%s\n", exceptionStr.c_str());
+                LOGD("%s\n", exceptionStr.c_str());
             }
             se::ScriptEngine::getInstance()->clearException();
         }
@@ -454,7 +454,7 @@ namespace se {
 
     void Object::debug(const char *what)
     {
-//        printf("Object %p %s\n", this,
+//        LOGD("Object %p %s\n", this,
 //               what);
     }
 

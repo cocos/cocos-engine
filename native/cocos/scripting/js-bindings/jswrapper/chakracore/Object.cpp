@@ -576,7 +576,7 @@ namespace se {
 
     void Object::debug(const char *what)
     {
-//        printf("Object %p %s\n", this,
+//        LOGD("Object %p %s\n", this,
 //               what);
     }
 

@@ -220,7 +220,7 @@ namespace se {
         v8::Maybe<bool> ret = _obj.handle(__isolate)->Set(__isolate->GetCurrentContext(), nameValue.ToLocalChecked(), value);
         if (ret.IsNothing())
         {
-            printf("ERROR: %s, Set return nothing ...\n", __FUNCTION__);
+            LOGD("ERROR: %s, Set return nothing ...\n", __FUNCTION__);
         }
     }
 
@@ -329,7 +329,7 @@ namespace se {
     {
         if (_obj.persistent().IsEmpty())
         {
-            printf("Function object is released!\n");
+            LOGD("Function object is released!\n");
             return false;
         }
         size_t argc = 0;
@@ -342,7 +342,7 @@ namespace se {
         {
             if (thisObject->_obj.persistent().IsEmpty())
             {
-                printf("This object is released!\n");
+                LOGD("This object is released!\n");
                 return false;
             }
             thiz = thisObject->_obj.handle(__isolate);
@@ -352,7 +352,7 @@ namespace se {
         {
             if (argv[i].IsEmpty())
             {
-                printf("%s argv[%d] is released!\n", __FUNCTION__, (int)i);
+                LOGD("%s argv[%d] is released!\n", __FUNCTION__, (int)i);
                 return false;
             }
         }

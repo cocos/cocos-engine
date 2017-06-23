@@ -459,7 +459,6 @@ static bool invokeJSTouchOneByOneCallback(EventListenerTouchOneByOne* listener, 
         {
             if (arg1Obj->isRooted())
             {
-                log("switch to unrooted 1: %p", touch);
                 arg1Obj->switchToUnrooted();
             }
         }
@@ -468,7 +467,6 @@ static bool invokeJSTouchOneByOneCallback(EventListenerTouchOneByOne* listener, 
     {
         if (arg1Obj->isRooted())
         {
-            log("switch to unrooted 2: %p", touch);
             arg1Obj->switchToUnrooted();
         }
     }

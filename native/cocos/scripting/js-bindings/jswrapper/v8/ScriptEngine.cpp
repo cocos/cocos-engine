@@ -21,7 +21,7 @@ namespace se {
             if (info[0]->IsString())
             {
                 v8::String::Utf8Value utf8(info[0]);
-                printf("JS: %s\n", *utf8);
+                LOGD("JS: %s\n", *utf8);
             }
         }
 
@@ -36,21 +36,21 @@ namespace se {
 
         void myFatalErrorCallback(const char* location, const char* message)
         {
-            printf("[FATAL ERROR] location: %s, message: %s\n", location, message);
+            LOGD("[FATAL ERROR] location: %s, message: %s\n", location, message);
         }
 
         void myOOMErrorCallback(const char* location, bool is_heap_oom)
         {
-            printf("[OOM ERROR] location: %s, is_heap_oom: %d", location, is_heap_oom);
+            LOGD("[OOM ERROR] location: %s, is_heap_oom: %d", location, is_heap_oom);
         }
 
         void printStackTrace(v8::Local<v8::StackTrace> stack) {
-            printf("Stack Trace (length %d):\n", stack->GetFrameCount());
+            LOGD("Stack Trace (length %d):\n", stack->GetFrameCount());
             for (int i = 0, e = stack->GetFrameCount(); i != e; ++i) {
                 v8::Local<v8::StackFrame> frame = stack->GetFrame(i);
                 v8::Local<v8::String> script = frame->GetScriptName();
                 v8::Local<v8::String> func = frame->GetFunctionName();
-                printf("[%d] (%s) %s:%d:%d\n", i,
+                LOGD("[%d] (%s) %s:%d:%d\n", i,
                        script.IsEmpty() ? "<null>" : *v8::String::Utf8Value(script),
                        func.IsEmpty() ? "<null>" : *v8::String::Utf8Value(func),
                        frame->GetLineNumber(), frame->GetColumn());
@@ -63,7 +63,7 @@ namespace se {
             se::Value msgVal;
             internal::jsToSeValue(v8::Isolate::GetCurrent(), msg, &msgVal);
             assert(msgVal.isString());
-            printf("ERROR: %s\n", msgVal.toString().c_str());
+            LOGD("ERROR: %s\n", msgVal.toString().c_str());
             printStackTrace(message->GetStackTrace());
         }
     }
@@ -119,7 +119,7 @@ namespace se {
 
     bool ScriptEngine::init()
     {
-        printf("Initializing V8\n");
+        LOGD("Initializing V8\n");
 
 //        RETRUN_VAL_IF_FAIL(v8::V8::InitializeICUDefaultLocation(nullptr, "/Users/james/Project/v8/out.gn/x64.debug/icudtl.dat"), false);
 //        v8::V8::InitializeExternalStartupData("/Users/james/Project/v8/out.gn/x64.debug/natives_blob.bin", "/Users/james/Project/v8/out.gn/x64.debug/snapshot_blob.bin"); //TODO
@@ -182,7 +182,7 @@ namespace se {
 
     void ScriptEngine::gc()
     {
-        printf("GC begin ..., (js->native map) size: %d\n", (int)__nativePtrToObjectMap.size());
+        LOGD("GC begin ..., (js->native map) size: %d\n", (int)__nativePtrToObjectMap.size());
         const double kLongIdlePauseInSeconds = 1.0;
         _isolate->ContextDisposedNotification();
         _isolate->IdleNotificationDeadline(_platform->MonotonicallyIncreasingTime() + kLongIdlePauseInSeconds);
@@ -190,7 +190,7 @@ namespace se {
         // garbage and will therefore also invoke all weak callbacks of actually
         // unreachable persistent handles.
         _isolate->LowMemoryNotification();
-        printf("GC end ..., (js->native map) size: %d\n", (int)__nativePtrToObjectMap.size());
+        LOGD("GC end ..., (js->native map) size: %d\n", (int)__nativePtrToObjectMap.size());
     }
 
     bool ScriptEngine::isValid() const

@@ -121,7 +121,7 @@
 #define SE_QUOTEME(x) SE_QUOTEME_(x)
 
 //FIXME: implement this macro
-#define SE_REPORT_ERROR(fmt, ...) printf("ERROR (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__)
+#define SE_REPORT_ERROR(fmt, ...) LOGD("ERROR (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__)
 
 #if COCOS2D_DEBUG > 0
 
@@ -130,7 +130,7 @@
     { \
         if (!(cond)) \
         { \
-            printf("ASSERT (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__); \
+            LOGD("ASSERT (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__); \
             assert(false); \
         } \
     } while(false)

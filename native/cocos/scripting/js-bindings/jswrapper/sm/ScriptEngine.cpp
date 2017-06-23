@@ -33,7 +33,7 @@ namespace se {
             MOZ_RELEASE_ASSERT(report);
             MOZ_RELEASE_ASSERT(JSREPORT_IS_WARNING(report->flags));
 
-            fprintf(stderr, "%s:%u:%s\n",
+            fLOGD(stderr, "%s:%u:%s\n",
                     report->filename ? report->filename : "<no filename>",
                     (unsigned int) report->lineno,
                     report->message().c_str());
@@ -62,7 +62,7 @@ namespace se {
                     JS::RootedString jsstr(cx, string);
                     char* buffer = JS_EncodeStringToUTF8(cx, jsstr);
 
-                    printf("JS: %s\n", buffer);
+                    LOGD("JS: %s\n", buffer);
 
                     JS_free(cx, (void*)buffer);
                 }
@@ -96,11 +96,11 @@ namespace se {
              * garbage collected. */
             if (status == JSGC_BEGIN)
             {
-                printf("on_garbage_collect: begin, Native -> JS map count: %d\n", (int)__nativePtrToObjectMap.size());
+                LOGD("on_garbage_collect: begin, Native -> JS map count: %d\n", (int)__nativePtrToObjectMap.size());
             }
             else if (status == JSGC_END)
             {
-                printf("on_garbage_collect: end, Native -> JS map count: %d\n", (int)__nativePtrToObjectMap.size());
+                LOGD("on_garbage_collect: end, Native -> JS map count: %d\n", (int)__nativePtrToObjectMap.size());
             }
         }
 
@@ -143,7 +143,7 @@ namespace se {
 //            if (!stack)
 //                return false;
 //
-//            printf("Stack:\n%s\n", stack.get());
+//            LOGD("Stack:\n%s\n", stack.get());
 //
 //            return true;
 //        }
@@ -162,7 +162,7 @@ namespace se {
 //            ShellContext* sc = GetShellContext(cx);
 //            js::ErrorReport report(cx);
 //            if (!report.init(cx, exn, js::ErrorReport::WithSideEffects)) {
-//                fprintf(stderr, "out of memory initializing ErrorReport\n");
+//                fLOGD(stderr, "out of memory initializing ErrorReport\n");
 //                fflush(stderr);
 //                JS_ClearPendingException(cx);
 //                return;
@@ -258,7 +258,7 @@ namespace se {
 
     bool ScriptEngine::init()
     {
-        printf("Initializing SpiderMonkey \n");
+        LOGD("Initializing SpiderMonkey \n");
 
         if (!JS_Init())
             return false;
@@ -476,7 +476,7 @@ namespace se {
             JS::RootedObject exceptionObj(_cx, exceptionValue.toObjectOrNull());
             JSErrorReport* report = JS_ErrorFromException(_cx, exceptionObj);
             const char* fileName = report->filename != nullptr ? report->filename : "(no filename)";
-            printf("ERROR: %s, file: %s, lineno: %u\n", report->message().c_str(), fileName, report->lineno);
+            LOGD("ERROR: %s, file: %s, lineno: %u\n", report->message().c_str(), fileName, report->lineno);
 
             JS_ClearPendingException(_cx);
         }

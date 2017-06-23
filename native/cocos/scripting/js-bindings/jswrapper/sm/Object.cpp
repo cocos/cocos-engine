@@ -508,7 +508,7 @@ namespace se {
 
     void Object::debug(const char *what)
     {
-//        printf("Object %p %s\n", this,
+//        LOGD("Object %p %s\n", this,
 //               what);
     }
 
@@ -730,7 +730,7 @@ namespace se {
         JSObject* targetObj = child->_getJSObject();
         if (ownerObj == nullptr || targetObj == nullptr)
         {
-            printf("%s: try to detach on invalid object, owner: %p, target: %p\n", __FUNCTION__, ownerObj, targetObj);
+            LOGD("%s: try to detach on invalid object, owner: %p, target: %p\n", __FUNCTION__, ownerObj, targetObj);
             return false;
         }
 
@@ -756,7 +756,7 @@ namespace se {
         JSObject* ownerObj = _getJSObject();
         if (ownerObj == nullptr)
         {
-            printf("%s: try to detach on invalid object, owner: %p\n", __FUNCTION__, ownerObj);
+            LOGD("%s: try to detach on invalid object, owner: %p\n", __FUNCTION__, ownerObj);
             return false;
         }
 

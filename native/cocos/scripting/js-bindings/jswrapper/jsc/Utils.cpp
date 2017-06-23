@@ -37,7 +37,7 @@ namespace se {
         ok = globalObject->getProperty("__defineProperty", &v);
         if (!ok)
         {
-            printf("ERROR: couldn't find __defineProperty\n");
+            LOGD("ERROR: couldn't find __defineProperty\n");
             return false;
         }
 

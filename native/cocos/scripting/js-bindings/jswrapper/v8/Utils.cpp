@@ -166,7 +166,7 @@ namespace se {
             if (c > 0)
             {
                 wrap.wrap(data);
-//                printf("setPrivate1: %p\n", data);
+//                LOGD("setPrivate1: %p\n", data);
             }
             else
             {
@@ -182,7 +182,7 @@ namespace se {
                 assert(!key.IsEmpty());
                 v8::Maybe<bool> ret = obj->Set(isolate->GetCurrentContext(), key.ToLocalChecked(), privateObj->_getJSObject());
                 assert(!ret.IsNothing());
-//                printf("setPrivate: native data: %p\n", privateData);
+//                LOGD("setPrivate: native data: %p\n", privateData);
 //                privateObj->release();
             }
         }
@@ -199,7 +199,7 @@ namespace se {
             if (c > 0)
             {
                 void* nativeObj = ObjectWrap::unwrap(objChecked);
-//                printf("getPrivate1: %p\n", nativeObj);
+//                LOGD("getPrivate1: %p\n", nativeObj);
                 return nativeObj;
             }
 
@@ -221,7 +221,7 @@ namespace se {
             if (privateObj.IsEmpty())
                 return nullptr;
             internal::PrivateData* privateData =  (internal::PrivateData*)ObjectWrap::unwrap(privateObj.ToLocalChecked());
-//                printf("getPrivate: native data: %p\n", privateData);
+//                LOGD("getPrivate: native data: %p\n", privateData);
             return privateData->data;
         }
 

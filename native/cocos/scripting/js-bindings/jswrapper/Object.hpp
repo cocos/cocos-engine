@@ -30,7 +30,7 @@ namespace se {
             {
                 _obj = obj;
                 _obj->addRef();
-                printf("%s, switchToRooted!", __FUNCTION__);
+                LOGD("%s, switchToRooted!", __FUNCTION__);
                 _obj->switchToRooted();
             }
             else
