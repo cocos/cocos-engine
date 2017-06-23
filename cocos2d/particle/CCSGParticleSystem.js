@@ -26,6 +26,7 @@
 
 var PNGReader = require('./CCPNGReader');
 var tiffReader = require('./CCTIFFReader');
+require('../compression/ZipUtils');
 
 // ideas taken from:
 //   . The ocean spray in your face [Jeff Lander]

@@ -179,7 +179,6 @@ if (CC_EDITOR && Editor.isMainProcess) {
 }
 else {
     require('./cocos2d/shaders');
-    require('./cocos2d/compression');
     require('./CCBoot');
     require('./cocos2d');
 }

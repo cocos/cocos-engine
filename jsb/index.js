@@ -131,3 +131,5 @@ require('./jsb-dragonbones');
 if (cc.runtime) {
     require('./versions/jsb-polyfill-runtime');
 }
+
+require('../extends');

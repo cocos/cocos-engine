@@ -45,13 +45,15 @@
   {
     "name": "ParticleSystem",
     "entries": [
-      "./cocos2d/particle/CCParticleSystem.js"
+      "./cocos2d/particle/CCParticleSystem.js",
+      "./cocos2d/particle/CCParticleAsset.js"
     ]
   },
   {
     "name": "TiledMap",
     "entries": [
-      "./cocos2d/tilemap/CCTiledMap.js"
+      "./cocos2d/tilemap/CCTiledMap.js",
+      "./cocos2d/tilemap/CCTiledMapAsset.js"
     ]
   },
   {

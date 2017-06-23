@@ -9,6 +9,9 @@
  */
 cc.Codec = {name:'Jacob__Codec'};
 
+cc.Codec.Base64 = require('./base64');
+cc.Codec.GZip = require('./gzip');
+
 /**
  * Unpack a gzipped byte array
  * @param {Array} input Byte array
