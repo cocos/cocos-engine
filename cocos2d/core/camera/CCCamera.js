@@ -286,10 +286,15 @@ let Camera = cc.Class({
         return false;
     },
 
-    _setSgNodesTransformDirty: !CC_JSB && function () {
+    _setSgNodesTransformDirty: function () {
         let sgTarges = this._sgTarges;
         for (let i = 0; i < sgTarges.length; i++) {
-            sgTarges[i]._renderCmd.setDirtyFlag(transformDirtyFlag);
+            if (CC_JSB) {
+                sgTarges[i].markTransformUpdated();    
+            }
+            else {
+                sgTarges[i]._renderCmd.setDirtyFlag(transformDirtyFlag);
+            }
         }
     },
 
@@ -349,24 +354,22 @@ let Camera = cc.Class({
         this._sgNode.setTransform(a, b, c, d, m.tx, m.ty);
 
         // if view transform changed, then need recalculate whether targets need culling
-        if (!CC_JSB) {
-            var lvm = this._lastViewMatrix;
-            if (lvm.a !== m.a ||
-                lvm.b !== m.b ||
-                lvm.c !== m.c ||
-                lvm.d !== m.d ||
-                lvm.tx !== m.tx ||
-                lvm.ty !== m.ty
-                ) {
-                this._setSgNodesTransformDirty();
-                
-                lvm.a = m.a;
-                lvm.b = m.b;
-                lvm.c = m.c;
-                lvm.d = m.d;
-                lvm.tx = m.tx;
-                lvm.ty = m.ty;
-            }
+        var lvm = this._lastViewMatrix;
+        if (lvm.a !== m.a ||
+            lvm.b !== m.b ||
+            lvm.c !== m.c ||
+            lvm.d !== m.d ||
+            lvm.tx !== m.tx ||
+            lvm.ty !== m.ty
+            ) {
+            this._setSgNodesTransformDirty();
+            
+            lvm.a = m.a;
+            lvm.b = m.b;
+            lvm.c = m.c;
+            lvm.d = m.d;
+            lvm.tx = m.tx;
+            lvm.ty = m.ty;
         }
     }
 });
