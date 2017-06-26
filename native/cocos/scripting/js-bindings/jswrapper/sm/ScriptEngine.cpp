@@ -33,7 +33,7 @@ namespace se {
             MOZ_RELEASE_ASSERT(report);
             MOZ_RELEASE_ASSERT(JSREPORT_IS_WARNING(report->flags));
 
-            fLOGD(stderr, "%s:%u:%s\n",
+            LOGE("%s:%u:%s\n",
                     report->filename ? report->filename : "<no filename>",
                     (unsigned int) report->lineno,
                     report->message().c_str());
@@ -162,7 +162,7 @@ namespace se {
 //            ShellContext* sc = GetShellContext(cx);
 //            js::ErrorReport report(cx);
 //            if (!report.init(cx, exn, js::ErrorReport::WithSideEffects)) {
-//                fLOGD(stderr, "out of memory initializing ErrorReport\n");
+//                LOGE("out of memory initializing ErrorReport\n");
 //                fflush(stderr);
 //                JS_ClearPendingException(cx);
 //                return;

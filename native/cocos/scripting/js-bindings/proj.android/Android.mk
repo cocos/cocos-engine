@@ -11,6 +11,10 @@ LOCAL_SRC_FILES := \
 					../jswrapper/Ref.cpp \
 					../jswrapper/State.cpp \
 					../jswrapper/Value.cpp \
+					../jswrapper/sm/Class.cpp \
+					../jswrapper/sm/ScriptEngine.cpp \
+					../jswrapper/sm/Object.cpp \
+					../jswrapper/sm/Utils.cpp \
 					../jswrapper/v8/Class.cpp \
 					../jswrapper/v8/Object.cpp \
 					../jswrapper/v8/ObjectWrap.cpp \
@@ -52,6 +56,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/../manual \
                     $(LOCAL_PATH)/../../../audio/include \
                     $(LOCAL_PATH)/../../../storage \
                     $(LOCAL_PATH)/../../../../extensions \
+                    $(LOCAL_PATH)/../../../../external/android/armeabi/include/spidermonkey \
                     $(LOCAL_PATH)/../../../editor-support/spine \
                     $(LOCAL_PATH)/../../../editor-support/cocosbuilder \
                     $(LOCAL_PATH)/../../../editor-support/cocostudio \
@@ -66,7 +71,7 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../manual \
 LOCAL_EXPORT_LDLIBS := -lz
 
 LOCAL_STATIC_LIBRARIES := cocos2dx_static
-LOCAL_STATIC_LIBRARIES += spidermonkey_glue_static spidermonkey_static
+LOCAL_STATIC_LIBRARIES += spidermonkey_static spidermonkey_glue_static
 LOCAL_STATIC_LIBRARIES += v8_libplatform_static v8_base_static v8_libbase_static v8_libsampler_static v8_nosnapshot_static
 
 include $(BUILD_STATIC_LIBRARY)
