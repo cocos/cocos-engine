@@ -433,7 +433,6 @@ static bool invokeJSTouchOneByOneCallback(EventListenerTouchOneByOne* listener, 
 
         if (type == TOUCH_ONE_BY_ONE_ON_TOUCH_BEGAN && !arg1Obj->isRooted())
         {
-            log("switch to rooted: %p", touch);
             arg1Obj->switchToRooted();
         }
 

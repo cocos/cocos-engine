@@ -25,6 +25,8 @@
 		1AB5E62C18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */; };
 		1AB5E62D18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AB5E62A18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp */; };
 		1AB5E62E18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AB5E62A18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp */; };
+		1AC0650A1F00A62A009EC214 /* libmozglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AC065091F00A62A009EC214 /* libmozglue.a */; };
+		1AC0650C1F00A926009EC214 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AC0650B1F00A926009EC214 /* JavaScriptCore.framework */; };
 		1AFD36341EF115100097DBB1 /* Base.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD35FA1EF115100097DBB1 /* Base.h */; };
 		1AFD36351EF115100097DBB1 /* Base.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD35FA1EF115100097DBB1 /* Base.h */; };
 		1AFD36361EF115100097DBB1 /* Class.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AFD35FB1EF115100097DBB1 /* Class.cpp */; };
@@ -215,6 +217,8 @@
 		1AB064791EF9647F0061E1AF /* libWTF.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWTF.a; path = ../../../../../JavaScriptCore/build/lib/libWTF.a; sourceTree = "<group>"; };
 		1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_ui_auto.cpp; sourceTree = "<group>"; };
 		1AB5E62A18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_ui_auto.hpp; sourceTree = "<group>"; };
+		1AC065091F00A62A009EC214 /* libmozglue.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmozglue.a; path = ../../../../external/ios/libs/libmozglue.a; sourceTree = "<group>"; };
+		1AC0650B1F00A926009EC214 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
 		1AFD35FA1EF115100097DBB1 /* Base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base.h; sourceTree = "<group>"; };
 		1AFD35FB1EF115100097DBB1 /* Class.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Class.cpp; sourceTree = "<group>"; };
 		1AFD35FC1EF115100097DBB1 /* Class.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Class.hpp; sourceTree = "<group>"; };
@@ -324,7 +328,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AC0650C1F00A926009EC214 /* JavaScriptCore.framework in Frameworks */,
 				4D697C001CBDF37500A5AF29 /* libjs_static.a in Frameworks */,
+				1AC0650A1F00A62A009EC214 /* libmozglue.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -499,6 +505,8 @@
 		1AFD37021EF116CA0097DBB1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1AC0650B1F00A926009EC214 /* JavaScriptCore.framework */,
+				1AC065091F00A62A009EC214 /* libmozglue.a */,
 				1AB064771EF9647F0061E1AF /* libbmalloc.a */,
 				1AB064781EF9647F0061E1AF /* libJavaScriptCore.a */,
 				1AB064791EF9647F0061E1AF /* libWTF.a */,

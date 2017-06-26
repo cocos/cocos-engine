@@ -727,29 +727,6 @@ _initSys();
 
 //+++++++++++++++++++++++++something about CCGame end+++++++++++++++++++++++++++++
 
-// Original bind in Spidermonkey v33 will trigger object life cycle track issue in our memory model and cause crash
-Function.prototype.bind = function (oThis, ...aArgs) {
-    if (typeof this !== 'function') {
-        // closest thing possible to the ECMAScript 5
-        // internal IsCallable function
-        throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
-    }
-
-    var fToBind = this,
-        fNOP = function () {},
-        fBound = function (...args) {
-            return fToBind.apply(this instanceof fNOP && oThis
-                ? this
-                : oThis,
-                aArgs.concat(args));
-        };
-
-    fNOP.prototype = this.prototype;
-    fBound.prototype = new fNOP();
-
-    return fBound;
-};
-
 jsb.urlRegExp = new RegExp("^(?:https?|ftp)://\\S*$", "i");
 
 cc._engineLoaded = false;
