@@ -5,6 +5,7 @@
     var grossini_uuid = '748321';
     var grossiniSprite_uuid = '1232218';
     var selfReferenced_uuid = '123200';
+    var circleReferenced_uuid = '65535';
 
     largeModule('AssetLibrary', {
         setup: function () {
@@ -74,6 +75,23 @@
         }, {
             readMainCache: false,
             writeMainCache: false,
+        });
+        var timerId = setTimeout(function () {
+            ok(false, 'time out!');
+            start();
+        }, 200);
+    });
+
+    asyncTest('load asset with circle referenced dependencies', function () {
+        AssetLibrary.loadAsset(circleReferenced_uuid, function (err, asset) {
+            if (err) {
+                ok(false, err.errorMessage);
+                return start();
+            }
+            clearTimeout(timerId);
+            ok(asset.dependency, 'can load circle referenced asset');
+            strictEqual(asset.dependency.dependency, asset, 'circle referenced asset should have dependency which equal to self');
+            start();
         });
         var timerId = setTimeout(function () {
             ok(false, 'time out!');
