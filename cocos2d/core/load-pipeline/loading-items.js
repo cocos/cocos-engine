@@ -413,7 +413,7 @@ LoadingItems.initQueueDeps = function (queue) {
     }
 };
 
-LoadingItems.registerDep = function (owner, depId) {
+LoadingItems.registerQueueDep = function (owner, depId) {
     var queueId = owner.queueId || owner;
     if (!queueId) {
         return false;
@@ -463,6 +463,9 @@ proto.append = function (urlList, owner) {
     if (!this.active) {
         return [];
     }
+    if (owner && !owner.deps) {
+        owner.deps = [];
+    }
 
     this._appending = true;
     var accepted = [], i, url, item;
@@ -472,6 +475,8 @@ proto.append = function (urlList, owner) {
         // Already queued in another items queue, url is actually the item
         if (url.queueId && !this.map[url.id]) {
             this.map[url.id] = url;
+            // Register item deps for circle reference check
+            owner && owner.deps.push(url);
             // Queued and completed or Owner circle referenced by dependency
             if (url.complete || checkCircleReference(owner, url)) {
                 this.totalCount++;
@@ -485,7 +490,7 @@ proto.append = function (urlList, owner) {
                 var queue = _queues[url.queueId];
                 if (queue) {
                     this.totalCount++;
-                    LoadingItems.registerDep(owner || this._id, url.id);
+                    LoadingItems.registerQueueDep(owner || this._id, url.id);
                     // console.log('+++++ Waited ' + url.id);
                     queue.addListener(url.id, function (item) {
                         // console.log('----- Completed by waiting ' + item.id + ', rest: ' + (self.totalCount - self.completedCount-1));
@@ -503,7 +508,9 @@ proto.append = function (urlList, owner) {
             if (!this.map[key]) {
                 this.map[key] = item;
                 this.totalCount++;
-                LoadingItems.registerDep(owner || this._id, key);
+                // Register item deps for circle reference check
+                owner && owner.deps.push(item);
+                LoadingItems.registerQueueDep(owner || this._id, key);
                 accepted.push(item);
                 // console.log('+++++ Appended ' + item.id);
             }
