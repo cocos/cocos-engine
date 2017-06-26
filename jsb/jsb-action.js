@@ -53,8 +53,6 @@ var actionArr = [
     'Place',
     'CallFunc',
     'DelayTime',
-    'Sequence',
-    'Spawn',
     'Speed',
     'Repeat',
     'RepeatForever',
@@ -115,6 +113,54 @@ if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
             setAliasReplacer(name, type);
         }
     }
+}
+
+cc.Sequence.prototype._ctor = function (...args) {
+    var paramArray = (args[0] instanceof Array) ? args[0] : args;
+    if (paramArray.length === 1) {
+        cc.errorID(1019);
+        return;
+    }
+    var last = paramArray.length - 1;
+    if ((last >= 0) && (paramArray[last] == null))
+        cc.logID(1015);
+
+    if (last >= 0) {
+        this.init(paramArray);
+    }
+
+    if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
+        this.retain();
+        this._retained = true;
+    }
+};
+
+cc.sequence = function (...args) {
+    var paramArray = (args[0] instanceof Array) ? args[0] : args;
+    return new cc.Sequence(paramArray);
+}
+
+cc.Spawn.prototype._ctor = function (...args) {
+    var paramArray = (args[0] instanceof Array) ? args[0] : args;
+    if (paramArray.length === 1)
+        cc.errorID(1020);
+    var last = paramArray.length - 1;
+    if ((last >= 0) && (paramArray[last] == null))
+        cc.logID(1015);
+
+    if (last >= 0) {
+        this.init(paramArray);
+    }
+
+    if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
+        this.retain();
+        this._retained = true;
+    }
+};
+
+cc.spawn = function (...args) {
+    var paramArray = (args[0] instanceof Array) ? args[0] : args;
+    return new cc.Spawn(paramArray);
 }
 
 cc.targetedAction = function (target, action) {
