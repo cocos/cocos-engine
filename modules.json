@@ -230,5 +230,11 @@
     "entries": [
       "./cocos2d/core/camera/CCCamera.js"
     ]
+  },
+  {
+    "name": "Intersection",
+    "entries": [
+      "./cocos2d/core/collider/CCIntersection.js"
+    ]
   }
 ]
