@@ -26,7 +26,7 @@
 
 // CCConfig.js
 //
-cc.ENGINE_VERSION = "Cocos2d-JS v3.14";
+cc.ENGINE_VERSION = "Cocos2d-x-lite v1.5.2";
 
 // Resolution policies
 
