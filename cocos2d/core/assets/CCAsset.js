@@ -60,7 +60,7 @@ cc.Asset = cc.Class({
             get: function () {
                 if (this._rawFiles) {
                     if (cc.AssetLibrary) {
-                        return cc.AssetLibrary.getImportedDir(this._uuid) + '/' + this._uuid + '/' + this._rawFiles[0];
+                        return cc.AssetLibrary.getImportedDir(this._uuid) + '/' + this._rawFiles[0];
                     }
                     else {
                         cc.errorID(6400);
@@ -84,7 +84,7 @@ cc.Asset = cc.Class({
             get: function () {
                 if (this._rawFiles) {
                     if (cc.AssetLibrary) {
-                        var dir = cc.AssetLibrary.getImportedDir(this._uuid) + '/' + this._uuid + '/';
+                        var dir = cc.AssetLibrary.getImportedDir(this._uuid) + '/';
                         return this._rawFiles.map(function (filename) {
                             return dir + filename;
                         });
