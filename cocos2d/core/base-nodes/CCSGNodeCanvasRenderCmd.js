@@ -279,11 +279,12 @@ _ccsg.Node.RenderCmd.prototype = {
             this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble);
         }
 
-        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+        var Camera = cc.Camera;
+        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL && Camera) {
             // check if node is in camera
-            var camera = cc.Camera.main;
-            if (parentCmd && this._cameraFlag != cc.Camera.flags.InCamera) {
-                this._cameraFlag = parentCmd._cameraFlag > 0 ? cc.Camera.flags.ParentInCamera : 0;
+            var camera = Camera.main;
+            if (parentCmd && this._cameraFlag != Camera.flags.InCamera) {
+                this._cameraFlag = parentCmd._cameraFlag > 0 ? Camera.flags.ParentInCamera : 0;
             }
         }
 
