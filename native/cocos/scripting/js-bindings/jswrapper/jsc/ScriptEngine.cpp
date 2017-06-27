@@ -229,7 +229,7 @@ namespace se {
         if (ok)
         {
             if (data != nullptr)
-                internal::jsToSeValue(_cx, result, data);
+                internal::jsToSeValue(_cx, result, data); //FIXME: result is rooted, when to unrooted, it probably cause memory leak
         }
         else if (!exceptionStr.empty())
         {
