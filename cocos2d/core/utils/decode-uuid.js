@@ -33,6 +33,9 @@ var Indices = UuidTemplate.map(function (x, i) { return x === '-' ? NaN : i; }).
 
 // fcmR3XADNLgJ1ByKhqcC5Z -> fc991dd7-0033-4b80-9d41-c8a86a702e59
 module.exports = function (base64) {
+    if (base64.length !== 22) {
+        return base64;
+    }
     UuidTemplate[0] = base64[0];
     UuidTemplate[1] = base64[1];
     for (var i = 2, j = 2; i < 22; i += 2) {

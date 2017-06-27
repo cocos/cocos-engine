@@ -28,6 +28,7 @@ var callInNextTick = require('./utils').callInNextTick;
 var Loader = require('../load-pipeline/CCLoader');
 var PackDownloader = require('../load-pipeline/pack-downloader');
 var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
+var decodeUuid = require('../utils/decode-uuid');
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -111,6 +112,9 @@ var AssetLibrary = {
     },
 
     getImportedDir: function (uuid) {
+        if (CC_BUILD) {
+            uuid = decodeUuid(uuid);
+        }
         return _libraryBase + uuid.slice(0, 2) + '/' + uuid;
     },
 
