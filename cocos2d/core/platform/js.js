@@ -996,6 +996,9 @@ Pool.prototype.put = function (obj) {
 Pool.prototype.resize = function (length) {
     if (length >= 0) {
         this._pool.length = length;
+        if (this.count > length) {
+            this.count = length;
+        }
     }
 };
 
