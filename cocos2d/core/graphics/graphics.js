@@ -317,9 +317,10 @@ var Graphics = cc.Class({
      * !#en Erasing any previously drawn content.
      * !#zh 擦除之前绘制的所有内容的方法。
      * @method clear
+     * @param {Boolean} [clean] Whether to clean the graphics inner cache.
      */
-    clear: function () {
-        this._sgNode.clear();
+    clear: function (clean) {
+        this._sgNode.clear(clean);
     },
 
     /**

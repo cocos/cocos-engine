@@ -1306,7 +1306,7 @@ var Node = cc.Class({
         var rect = cc.rect(0, 0, w, h);
         
         var trans;
-        if (cc.Camera.main) {
+        if (cc.Camera && cc.Camera.main) {
             trans = cc.Camera.main.getNodeToCameraTransform(this);
         }
         else {

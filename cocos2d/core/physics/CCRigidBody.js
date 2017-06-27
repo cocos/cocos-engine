@@ -137,7 +137,7 @@ var RigidBody = cc.Class({
          * 碰撞回调。
          * 如果你的脚本中实现了这个函数，那么它将会在接触更新完后被调用。
          * 你可以在这个回调中从接触信息中获取到冲量信息。
-         * @method onEndSolve
+         * @method onPostSolve
          * @param {PhysicsContact} contact - contact information
          * @param {PhysicsCollider} selfCollider - the collider belong to this rigidbody
          * @param {PhysicsCollider} otherCollider - the collider belong to another rigidbody
