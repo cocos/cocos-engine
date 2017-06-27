@@ -136,6 +136,10 @@ namespace se {
         JSObjectRef jsCtor = JSObjectMakeConstructor(__cx, _jsCls, _ctor);
         Object* ctorObj = Object::_createJSObject(this, jsCtor, false);
 
+        Value functionCtor;
+        ScriptEngine::getInstance()->getGlobalObject()->getProperty("Function", &functionCtor);
+        ctorObj->setProperty("constructor", functionCtor);
+
         for (const auto& staticfunc : _staticFuncs)
         {
             JSStringRef name = JSStringCreateWithUTF8CString(staticfunc.name);
