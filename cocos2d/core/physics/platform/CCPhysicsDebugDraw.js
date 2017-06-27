@@ -46,6 +46,7 @@ var PhysicsDebugDraw = cc.Class({
         this._applyFillColor(color);
         this._DrawPolygon(vertices, vertexCount);
         this._drawer.fill();
+        this._drawer.stroke();
     },
 
     _DrawCircle: function (center, radius) {
