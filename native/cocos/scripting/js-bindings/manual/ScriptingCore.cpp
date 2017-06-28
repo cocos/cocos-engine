@@ -837,13 +837,11 @@ void ScriptingCore::cleanup()
     }
     _js_global_type_map.clear();
     
-    CC_SAFE_DELETE(_global);
-    
     // force gc
     JS_GC(_cx);
-    JS_GC(_cx);
-    
     PoolManager::getInstance()->getCurrentPool()->clear();
+    CC_SAFE_DELETE(_global);
+    JS_GC(_cx);
     
     JS_RemoveWeakPointerCompartmentCallback(_cx, jsbWeakPointerCompartmentCallback);
     removeAllProxys(_cx);
