@@ -156,8 +156,7 @@ var _mouseEvents = [
 var _currentHovered = null;
 
 var _touchStartHandler = function (touch, event) {
-    if (CC_JSB)
-    {
+    if (CC_JSB) {
         event = Event.EventTouch.pool.get(event);
     }
     var pos = touch.getLocation();
@@ -173,8 +172,7 @@ var _touchStartHandler = function (touch, event) {
     return false;
 };
 var _touchMoveHandler = function (touch, event) {
-    if (CC_JSB)
-    {
+    if (CC_JSB) {
         event = Event.EventTouch.pool.get(event);
     }
     var node = this.owner;
@@ -184,8 +182,7 @@ var _touchMoveHandler = function (touch, event) {
     node.dispatchEvent(event);
 };
 var _touchEndHandler = function (touch, event) {
-    if (CC_JSB)
-    {
+    if (CC_JSB) {
         event = Event.EventTouch.pool.get(event);
     }
     var pos = touch.getLocation();
@@ -203,28 +200,26 @@ var _touchEndHandler = function (touch, event) {
 };
 
 var _mouseDownHandler = function (event) {
-    if (CC_JSB)
-    {
-        event = Event.EventMouse.pool.get(event);
-    }
     var pos = event.getLocation();
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
+        event.stopPropagation();
+        if (CC_JSB) {
+            event = Event.EventMouse.pool.get(event);
+        }
         event.type = EventType.MOUSE_DOWN;
         node.dispatchEvent(event);
-        event.stopPropagation();
     }
 };
 var _mouseMoveHandler = function (event) {
-    if (CC_JSB)
-    {
-        event = Event.EventMouse.pool.get(event);
-    }
     var pos = event.getLocation();
     var node = this.owner;
     if (node._hitTest(pos, this)) {
         event.stopPropagation();
+        if (CC_JSB) {
+            event = Event.EventMouse.pool.get(event);
+        }
         if (!this._previousIn) {
             // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
             if (_currentHovered) {
@@ -241,6 +236,9 @@ var _mouseMoveHandler = function (event) {
         node.dispatchEvent(event);
     }
     else if (this._previousIn) {
+        if (CC_JSB) {
+            event = Event.EventMouse.pool.get(event);
+        }
         event.type = EventType.MOUSE_LEAVE;
         node.dispatchEvent(event);
         this._previousIn = false;
@@ -248,32 +246,30 @@ var _mouseMoveHandler = function (event) {
     }
 };
 var _mouseUpHandler = function (event) {
-    if (CC_JSB)
-    {
-        event = Event.EventMouse.pool.get(event);
-    }
     var pos = event.getLocation();
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
+        event.stopPropagation();
+        if (CC_JSB) {
+            event = Event.EventMouse.pool.get(event);
+        }
         event.type = EventType.MOUSE_UP;
         node.dispatchEvent(event);
-        event.stopPropagation();
     }
 };
 var _mouseWheelHandler = function (event) {
-    if (CC_JSB)
-    {
-        event = Event.EventMouse.pool.get(event);
-    }
     var pos = event.getLocation();
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
-        event.type = EventType.MOUSE_WHEEL;
-        node.dispatchEvent(event);
         //FIXME: separate wheel event and other mouse event.
         // event.stopPropagation();
+        if (CC_JSB) {
+            event = Event.EventMouse.pool.get(event);
+        }
+        event.type = EventType.MOUSE_WHEEL;
+        node.dispatchEvent(event);
     }
 };
 
